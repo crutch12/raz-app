@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><script src="./support.js"></script></head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-welcome.css" /></helmet>
+      <div class="raznos-onboarding">
+        <div class="raznos-onboarding-top"><span class="raznos-onboarding-brand"><img src="./app-icon.svg" alt="" />Разнос</span><dc-import name="RaznosLanguagePicker" value="{{ language }}" onChange="{{ onLanguageChange }}" compact="{{ true }}"></dc-import><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ onStart }}">Пропустить</button></div>
+        <sc-if value="{{ income }}" hint-placeholder-val="{{ true }}">
+          <div class="raznos-onboarding-art raznos-onboarding-art-income">
+            <span class="raznos-onboarding-total">4 200 <small>₽</small></span>
+            <span class="raznos-onboarding-caption">Начислено в двух сервисах</span>
+            <div class="raznos-onboarding-income-strip">
+              <span class="raznos-onboarding-income-seg raznos-onboarding-income-seg-a"></span>
+              <span class="raznos-onboarding-income-seg raznos-onboarding-income-seg-b"></span>
+            </div>
+            <div class="raznos-onboarding-income-rows">
+              <div class="raznos-onboarding-income-row"><dc-import name="RaznosIcon" svc="vkusvill" size="sm"></dc-import><span class="raznos-onboarding-income-row-name">ВкусВилл</span><span class="raznos-onboarding-income-row-sum">2 350 ₽</span></div>
+              <div class="raznos-onboarding-income-row"><dc-import name="RaznosIcon" svc="samokat" size="sm"></dc-import><span class="raznos-onboarding-income-row-name">Самокат</span><span class="raznos-onboarding-income-row-sum">1 850 ₽</span></div>
+            </div>
+            <div class="raznos-onboarding-summary"><span>17 заказов</span><span>700 ₽ / час до расходов</span></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ places }}">
+          <div class="raznos-onboarding-art raznos-onboarding-art-map">
+            <svg class="raznos-onboarding-map" viewBox="0 0 320 240" aria-hidden="true"><path d="M-20 55L330 185M20 250L240 -20M-10 160L330 40" stroke="white" stroke-width="24" fill="none"/><path d="M-20 55L330 185M20 250L240 -20M-10 160L330 40" stroke="#a8bfb0" stroke-width="1" fill="none"/><circle cx="233" cy="75" r="49" fill="#b0d7aa"/><path d="M72 181L124 149L173 170L228 80" stroke="var(--raznos-brand)" stroke-width="4" stroke-dasharray="7 6" fill="none"/><circle cx="72" cy="181" r="9" fill="var(--raznos-dark)" stroke="white" stroke-width="4"/><g transform="translate(228 80)"><circle r="13" fill="var(--raznos-brand)" stroke="white" stroke-width="3"/><rect x="-5" y="-7" width="3" height="14" rx="1" fill="white"/><path d="M-2 -7A7 7 0 0 1 -2 2H-5V-7Z" fill="white"/></g></svg>
+            <div class="raznos-onboarding-zone"><span>Белорусская</span><b>650–800 ₽/ч</b><small>До расходов · переезд 8 мин</small><small>Больше заказов · меньше ждать</small></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ work }}">
+          <div class="raznos-onboarding-art raznos-onboarding-art-work">
+            <div class="raznos-onboarding-offer-stack">
+              <div class="raznos-onboarding-offer-back raznos-onboarding-offer-back-1"><dc-import name="RaznosIcon" svc="x5" size="sm"></dc-import><span>210 ₽</span></div>
+              <div class="raznos-onboarding-offer-back raznos-onboarding-offer-back-2"><dc-import name="RaznosIcon" svc="samokat" size="sm"></dc-import><span>265 ₽</span></div>
+              <div class="raznos-onboarding-offer"><div class="raznos-fx raznos-ac raznos-gap8"><dc-import name="RaznosIcon" svc="vkusvill" size="sm"></dc-import><span>Новое предложение</span></div><strong>320 <small>₽</small></strong><span class="raznos-onboarding-offer-meta">18 минут · 1,1 км · 4,2 кг</span><div class="raznos-onboarding-accept"><dc-import name="RaznosIcon" svc="raznos" size="sm"></dc-import><span class="raznos-onboarding-accept-label">Принять</span><span>00:25</span></div></div>
+            </div>
+          </div>
+        </sc-if>
+        <div class="raznos-onboarding-copy"><h1>{{ title }}</h1><p>{{ description }}</p></div>
+        <div class="raznos-onboarding-bottom"><div class="raznos-onboarding-dots" aria-label="{{ stepLabel }}"><span class="{{ dot1 }}"></span><span class="{{ dot2 }}"></span><span class="{{ dot3 }}"></span></div><div class="raznos-onboarding-controls"><sc-if value="{{ canBack }}"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ back }}">Назад</button></sc-if><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ next }}">{{ nextLabel }}</button></div><span class="raznos-onboarding-demo">Примеры данных, не обещание заработка</span></div>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"onStart":{"editor":null},"language":{"editor":"text","default":"ru"},"onLanguageChange":{"editor":null},"$preview":{"width":390,"height":740}}'>
+      class Component extends DCLogic {
+        renderVals() {
+          const step = (this.state || {}).step || 0;
+          const onStart = this.props.onStart || (() => {});
+          const titles = ['Весь заработок перед глазами', 'Знай, куда ехать за заказами', 'Выбирай заказ в одном месте'];
+          const descriptions = ['Собери доставки в Разносе и смотри доход, выплаты и чаевые вместе', 'Сравни доход и ожидание по районам, посмотри прогноз на ближайшие часы', 'Получай предложения из подключённых сервисов и решай, какой принять'];
+          return {
+            language: this.props.language || 'ru', onLanguageChange: this.props.onLanguageChange || (() => {}),
+            income: step === 0, places: step === 1, work: step === 2,
+            title: titles[step], description: descriptions[step], stepLabel: (step + 1) + ' / 3',
+            canBack: step > 0, back: () => this.setState({ step: Math.max(0, step - 1) }),
+            next: () => step === 2 ? onStart() : this.setState({ step: step + 1 }),
+            nextLabel: step === 2 ? 'Начать' : 'Дальше', onStart,
+            dot1: step === 0 ? 'raznos-onboarding-dot-active' : '',
+            dot2: step === 1 ? 'raznos-onboarding-dot-active' : '',
+            dot3: step === 2 ? 'raznos-onboarding-dot-active' : ''
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

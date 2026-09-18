@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-live.css" /></helmet>
+      <div class="raznos-live-today">
+        <div class="raznos-live-today-head">
+          <span class="raznos-text-h3">Что происходит</span>
+          <span class="raznos-text-tiny">{{ scopeLabel }}</span>
+        </div>
+        <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Сейчас сообщений по вашим сервисам и городу нет</p></sc-if>
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
+          <button type="button" class="raznos-live-today-row" onClick="{{ r.onOpen }}">
+            <span class="raznos-live-today-meta">
+              <span class="raznos-live-svc" role="group" aria-label="{{ r.svcsLabel }}"><sc-for list="{{ r.svcs }}" as="s" hint-placeholder-count="2"><dc-import name="RaznosIcon" svc="{{ s.key }}" alt="{{ s.title }}" size="sm"></dc-import></sc-for></span>
+              <span>{{ r.cityLabel }} · {{ r.timeLabel }}</span>
+            </span>
+            <span class="raznos-live-today-text">{{ r.text }}</span>
+            <span class="raznos-live-today-meta"><svg class="raznos-reaction-glyph" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 18.2H3.7a1.7 1.7 0 0 1-1.7-1.7v-6.3c0-.9.8-1.7 1.7-1.7H6v9.7Z" /><path d="M7.4 8.2 11.1 2.2a1.35 1.35 0 0 1 2.5.8l-.7 4.2h3.5c1.2 0 2.1 1.1 1.85 2.25l-1.1 5.4a2.25 2.25 0 0 1-2.2 1.8H7.4V8.2Z" /></svg> {{ r.likes }} · <svg class="raznos-reaction-glyph" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 1.8H3.7A1.7 1.7 0 0 0 2 3.5v6.3c0 .9.8 1.7 1.7 1.7H6V1.8Z" /><path d="M7.4 11.8 11.1 17.8a1.35 1.35 0 0 0 2.5-.8l-.7-4.2h3.5c1.2 0 2.1-1.1 1.85-2.25l-1.1-5.4A2.25 2.25 0 0 0 14.85 1.35H7.4v10.45Z" /></svg> {{ r.dislikes }} · {{ r.repliesLabel }}</span>
+          </button>
+        </sc-for>
+        <div class="raznos-btn-row">
+          <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ onAll }}">Все сообщения</button>
+          <button type="button" class="raznos-btn raznos-btn-primary raznos-btn-small" onClick="{{ onWrite }}">Написать</button>
+        </div>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "items": { "editor": null },
+      "cityTitle": { "editor": "text", "default": "Москва" },
+      "onAll": { "editor": null },
+      "onWrite": { "editor": null },
+      "$preview": { "width": 360, "height": 360 }
+    }'>
+      function plural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
+      const noop = () => {};
+      // пункты уже отфильтрованы и отсортированы в RaznosApp так же, как основная лента
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const items = (Array.isArray(p.items) ? p.items : []).slice(0, 3);
+          return {
+            scopeLabel: 'Мои сервисы · ' + (p.cityTitle || ''),
+            isEmpty: items.length === 0,
+            rows: items.map((m) => ({
+              multi: !!m.multi, single: !m.multi, svcKey: m.svcKey || 'vkusvill', svcTitle: m.svcTitle || '',
+              svcs: Array.isArray(m.svcs) && m.svcs.length ? m.svcs : [{ key: m.svcKey || 'vkusvill', title: m.svcTitle || '' }],
+              svcsLabel: (Array.isArray(m.svcs) && m.svcs.length ? m.svcs : [{ title: m.svcTitle || '' }]).map((s) => s.title).join(', '),
+              cityLabel: m.cityLabel || '', timeLabel: m.timeLabel || '', text: m.text || '',
+              likes: m.likes || 0, dislikes: m.dislikes || 0,
+              repliesLabel: m.repliesCount ? m.repliesCount + ' ' + plural(m.repliesCount, 'ответ', 'ответа', 'ответов') : 'без ответов',
+              onOpen: m.onOpen || noop
+            })),
+            onAll: p.onAll || noop,
+            onWrite: p.onWrite || noop
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

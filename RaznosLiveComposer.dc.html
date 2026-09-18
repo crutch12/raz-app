@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-live.css" /></helmet>
+      <div class="raznos-fx raznos-col raznos-gap12">
+        <div class="raznos-live-quota">
+          <span class="raznos-live-quota-dots"><sc-for list="{{ dots }}" as="d" hint-placeholder-count="5"><span class="{{ d.cls }}"></span></sc-for></span>
+          <span>{{ quotaLabel }}</span>
+        </div>
+        <sc-if value="{{ limitReached }}" hint-placeholder-val="{{ false }}">
+          <div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Лимит на сегодня: 5 сообщений</span><span class="raznos-text-small">{{ nextLabel }}. Читать ленту и отвечать в обсуждениях можно и сейчас, удаление сообщения лимит не возвращает</span></div>
+        </sc-if>
+        <sc-if value="{{ canWrite }}" hint-placeholder-val="{{ true }}">
+          <span class="raznos-text-h3">Сервис</span>
+          <div class="raznos-fx raznos-col raznos-gap8">
+            <sc-for list="{{ svcOptions }}" as="o" hint-placeholder-count="2">
+              <button type="button" class="{{ o.cls }}" onClick="{{ o.tap }}"><dc-import name="RaznosIcon" svc="{{ o.key }}" alt="{{ o.title }}" size="sm"></dc-import><span class="raznos-list-main"><span class="raznos-list-title">{{ o.title }}</span><span class="raznos-text-small">Город интеграции: {{ o.city }}</span></span></button>
+            </sc-for>
+            <button type="button" class="{{ multiCls }}" onClick="{{ onMulti }}"><span class="raznos-live-option-multi-mark">+</span><span class="raznos-list-main"><span class="raznos-list-title">Для всех моих сервисов</span><span class="raznos-text-small">Подходит курьерам разных сервисов</span></span></button>
+          </div>
+          <span class="raznos-text-h3">Где видно</span>
+          <div class="raznos-segmented">
+            <button type="button" class="{{ scopeCityCls }}" onClick="{{ onScopeCity }}">{{ scopeCityLabel }}</button>
+            <button type="button" class="{{ scopeAllCls }}" onClick="{{ onScopeAll }}">Все города</button>
+          </div>
+          <p class="raznos-text-tiny">{{ scopeNote }}</p>
+          <label class="raznos-field"><span class="raznos-field-label">Что происходит</span><textarea class="raznos-textarea" placeholder="Например: очередь на выдаче, сбой приложения, перекрыта улица" value="{{ text }}" onChange="{{ onText }}"></textarea></label>
+          <div class="raznos-btn-row">
+            <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ onAddPhoto }}">{{ photoBtnLabel }}</button>
+            <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ onPickPlace }}">{{ placeBtnLabel }}</button>
+          </div>
+          <sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ false }}">
+            <div class="raznos-live-preview"><img src="{{ photoSrc }}" alt="Выбранное фото" /><span class="raznos-list-main"><span class="raznos-list-title">Фото</span><span class="raznos-text-small">Метаданные и координаты удалим перед публикацией</span></span><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ onRemovePhoto }}">Убрать</button></div>
+          </sc-if>
+          <sc-if value="{{ hasPlace }}" hint-placeholder-val="{{ false }}">
+            <div class="raznos-live-preview"><span class="raznos-live-pin-glyph"></span><span class="raznos-list-main"><span class="raznos-list-title">{{ placeLabel }}</span><span class="raznos-text-small">Точка события, не ваше местоположение</span></span><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ onRemovePlace }}">Убрать</button></div>
+          </sc-if>
+          <p class="raznos-text-tiny">Фото и место необязательны. Имя, фото профиля и заказы к сообщению не прикрепляются, автор виден обезличенно</p>
+          <button type="button" class="{{ publishCls }}" disabled="{{ publishDisabled }}" onClick="{{ onPublish }}">Опубликовать</button>
+        </sc-if>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "services": { "editor": null },
+      "svc": { "editor": "text", "default": "vkusvill" },
+      "scope": { "editor": "enum", "default": "city", "options": ["city", "all"] },
+      "text": { "editor": "text", "default": "" },
+      "photoSrc": { "editor": "text", "default": "" },
+      "placeLabel": { "editor": "text", "default": "" },
+      "usedToday": { "editor": "int", "default": 3 },
+      "nextLabel": { "editor": "text", "default": "Следующее сообщение можно написать завтра с 00:00 по времени Москвы" },
+      "onSvc": { "editor": null },
+      "onScope": { "editor": null },
+      "onText": { "editor": null },
+      "onAddPhoto": { "editor": null },
+      "onRemovePhoto": { "editor": null },
+      "onPickPlace": { "editor": null },
+      "onRemovePlace": { "editor": null },
+      "onPublish": { "editor": null },
+      "$preview": { "width": 360, "height": 720 }
+    }'>
+      const LIMIT = 5;
+      function plural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
+      const noop = () => {};
+      const DEMO_SERVICES = [{ key: 'vkusvill', title: 'ВкусВилл', city: 'Москва' }, { key: 'samokat', title: 'Самокат', city: 'Москва' }];
+      // форма только показывает выбор, лимит и публикацию проверяет RaznosApp
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const services = Array.isArray(p.services) ? p.services : DEMO_SERVICES;
+          const used = Math.min(LIMIT, Number(p.usedToday) || 0);
+          const left = LIMIT - used;
+          const multi = p.svc === 'multi';
+          const chosen = services.find((s) => s.key === p.svc) || services[0] || { city: '' };
+          const cities = services.map((s) => s.city).filter((c, i, a) => a.indexOf(c) === i);
+          const text = p.text || '';
+          const scope = p.scope === 'all' ? 'all' : 'city';
+          const active = 'raznos-segment raznos-is-active';
+          let scopeNote = scope === 'all' ? 'Сообщение увидят курьеры выбранных сервисов во всех городах' : 'Сообщение увидят курьеры выбранных сервисов в городе интеграции';
+          if (multi && scope === 'city' && cities.length > 1) scopeNote = 'У ваших сервисов разные города: ' + services.map((s) => s.title + ', ' + s.city).join('; ') + '. Сообщение увидят в каждом из них';
+          if (multi) scopeNote += '. Одна публикация, ответы общие, остальные ваши сервисы читателям не раскрываются';
+          return {
+            dots: Array.from({ length: LIMIT }, (_, i) => ({ cls: 'raznos-live-quota-dot' + (i < used ? ' raznos-is-used' : '') })),
+            quotaLabel: left > 0 ? 'Можно написать ещё ' + left + ' ' + plural(left, 'сообщение', 'сообщения', 'сообщений') + ' сегодня' : 'Новых сообщений сегодня больше нельзя',
+            limitReached: left <= 0, canWrite: left > 0,
+            nextLabel: p.nextLabel || 'Следующее сообщение можно написать завтра с 00:00 по времени города профиля',
+            svcOptions: services.map((s) => ({ key: s.key, title: s.title, city: s.city, cls: 'raznos-live-option' + (!multi && s.key === chosen.key ? ' raznos-is-active' : ''), tap: () => (p.onSvc || noop)(s.key) })),
+            multiCls: 'raznos-live-option' + (multi ? ' raznos-is-active' : ''),
+            onMulti: () => (p.onSvc || noop)('multi'),
+            scopeCityCls: scope === 'city' ? active : 'raznos-segment', scopeAllCls: scope === 'all' ? active : 'raznos-segment',
+            scopeCityLabel: multi ? (cities.length === 1 ? cities[0] : 'Города интеграций') : chosen.city,
+            onScopeCity: () => (p.onScope || noop)('city'), onScopeAll: () => (p.onScope || noop)('all'),
+            scopeNote,
+            text, onText: p.onText || noop,
+            hasPhoto: !!p.photoSrc, photoSrc: p.photoSrc || '', photoBtnLabel: p.photoSrc ? 'Заменить фото' : 'Добавить фото',
+            hasPlace: !!p.placeLabel, placeLabel: p.placeLabel || '', placeBtnLabel: p.placeLabel ? 'Изменить место' : 'Указать место',
+            onAddPhoto: p.onAddPhoto || noop, onRemovePhoto: p.onRemovePhoto || noop,
+            onPickPlace: p.onPickPlace || noop, onRemovePlace: p.onRemovePlace || noop,
+            publishCls: text.trim() ? 'raznos-btn raznos-btn-primary' : 'raznos-btn-disabled',
+            publishDisabled: !text.trim(),
+            onPublish: p.onPublish || noop
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

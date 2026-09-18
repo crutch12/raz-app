@@ -1,0 +1,52 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+<div class="raznos-card raznos-card-pad raznos-block-state">
+  <span class="raznos-text-h3">{{ blockTitle }}</span>
+  <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+    <div class="raznos-block-progress" role="status" aria-label="Загружаем"><span class="raznos-block-progress-bar" style="{{ progressStyle }}"></span></div>
+    <span class="raznos-text-small">{{ text }}</span>
+  </sc-if>
+  <sc-if value="{{ isNotLoading }}" hint-placeholder-val="{{ true }}">
+    <span class="{{ pillClass }}">{{ pillLabel }}</span>
+    <span class="raznos-text-small">{{ text }}</span>
+    <sc-if value="{{ hasHint }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ hint }}</span></sc-if>
+    <sc-if value="{{ hasAction }}" hint-placeholder-val="{{ true }}">
+      <button type="button" class="{{ actionClass }}" onClick="{{ onAction }}">{{ actionLabel }}</button>
+    </sc-if>
+  </sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "kind": { "editor": "enum", "default": "error", "options": ["loading", "error", "locked", "empty"] },
+  "blockTitle": { "editor": "text", "default": "Доход за смену" },
+  "text": { "editor": "text", "default": "Сервис не ответил, остальной экран работает" },
+  "hint": { "editor": "text", "default": "" },
+  "actionLabel": { "editor": "text", "default": "Повторить" },
+  "progress": { "editor": "int", "default": 40 },
+  "onAction": { "editor": null },
+  "$preview": { "width": 350, "height": 180 }
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const kind = p.kind || 'error';
+    const pill = {
+      error: ['Не загрузилось', 'raznos-status-pill raznos-pill-error'],
+      locked: ['Нужна подписка', 'raznos-status-pill raznos-pill-warn'],
+      empty: ['Пусто', 'raznos-status-pill raznos-pill-muted']
+    };
+    const chosen = pill[kind] || pill.error;
+    return {
+      blockTitle: p.blockTitle || '',
+      isLoading: kind === 'loading', isNotLoading: kind !== 'loading',
+      progressStyle: 'width:' + Math.max(0, Math.min(100, p.progress != null ? p.progress : 40)) + '%',
+      pillLabel: chosen[0], pillClass: chosen[1],
+      text: p.text || '',
+      hasHint: !!p.hint, hint: p.hint || '',
+      hasAction: !!p.actionLabel,
+      actionClass: kind === 'locked' ? 'raznos-btn raznos-btn-primary raznos-btn-small raznos-block-action' : 'raznos-btn raznos-btn-secondary raznos-btn-small raznos-block-action',
+      actionLabel: p.actionLabel || '',
+      onAction: p.onAction || (() => {})
+    };
+  }
+}
+</script></body></html>

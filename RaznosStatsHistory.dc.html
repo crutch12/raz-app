@@ -1,0 +1,140 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-work.css" /><link rel="stylesheet" href="./raznos-final.css" /></helmet>
+<div class="raznos-fx raznos-col raznos-gap16">
+  <sc-if value="{{ is_custom }}" hint-placeholder-val="{{ false }}">
+    <div class="raznos-fx raznos-ac raznos-gap8">
+      <label class="raznos-field"><span class="raznos-field-label">С месяца</span><input class="raznos-input" type="month" min="{{ min_month }}" max="{{ max_month }}" value="{{ from_month }}" onChange="{{ from_change }}" /></label>
+      <label class="raznos-field"><span class="raznos-field-label">По месяц</span><input class="raznos-input" type="month" min="{{ min_month }}" max="{{ max_month }}" value="{{ to_month }}" onChange="{{ to_change }}" /></label>
+    </div>
+  </sc-if>
+  <div class="raznos-hero-dark">
+    <span class="raznos-hero-label">{{ range_label }} · начислено</span>
+    <div class="raznos-fx raznos-ac raznos-gap8"><span class="raznos-hero-value">{{ gross }}</span><span class="raznos-hero-unit">₽</span></div>
+    <span class="raznos-hero-formula">{{ hero_note }}</span>
+  </div>
+  <sc-if value="{{ has_gaps }}" hint-placeholder-val="{{ true }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Неполные данные</span><span class="raznos-text-small">{{ gaps_note }}</span></div></sc-if>
+  <div class="raznos-metric-grid">
+    <div class="raznos-metric-card"><span class="raznos-text-small">Часов на линии</span><span class="raznos-metric-value">{{ hours }} ч</span></div>
+    <div class="raznos-metric-card"><span class="raznos-text-small">Заказов</span><span class="raznos-metric-value">{{ orders }}</span></div>
+    <div class="raznos-metric-card"><span class="raznos-text-small">В час до расходов</span><span class="raznos-metric-value">{{ per_hour }}</span></div>
+    <button type="button" class="raznos-metric-card" onClick="{{ onOpenExpenses }}"><span class="raznos-text-small">После расходов</span><span class="raznos-metric-value">{{ net }}</span></button>
+  </div>
+  <p class="raznos-text-tiny">{{ net_note }}</p>
+
+  <div class="raznos-card raznos-card-pad">
+    <div class="raznos-head-row"><span class="raznos-text-h3 raznos-head-title">Начислено, тыс ₽</span></div>
+    <div class="raznos-chip-row">
+      <sc-for list="{{ groups }}" as="g" hint-placeholder-count="4"><button type="button" class="{{ g.cls }}" onClick="{{ g.tap }}" disabled="{{ g.disabled }}" title="{{ g.hint }}">{{ g.label }}</button></sc-for>
+    </div>
+    <div class="raznos-bar-chart raznos-bar-chart-dense">
+      <sc-for list="{{ bars }}" as="b" hint-placeholder-count="12">
+        <div class="raznos-bar-col"><span class="raznos-bar-value">{{ b.val }}</span><div class="raznos-bar-track"><span class="{{ b.cls }}" style="{{ b.style }}"></span></div><span class="raznos-bar-label">{{ b.label }}</span></div>
+      </sc-for>
+    </div>
+    <div class="raznos-stats-legend raznos-text-tiny"><span><span class="raznos-stats-legend-mark"></span>данные есть</span><span><span class="raznos-stats-legend-mark raznos-is-missing"></span>нет данных, это не ноль</span></div>
+    <p class="raznos-text-tiny">{{ group_hint }}</p>
+  </div>
+
+  <div class="raznos-card">
+    <sc-for list="{{ periods }}" as="r" hint-placeholder-count="4">
+      <div class="raznos-list-row"><div class="raznos-list-main"><span class="raznos-list-title">{{ r.label }}</span><span class="raznos-text-small">{{ r.note }}</span></div><div class="raznos-list-end"><span class="raznos-num">{{ r.gross }}</span><span class="raznos-text-tiny">{{ r.per_hour }}</span></div></div>
+    </sc-for>
+  </div>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"period":{"editor":"enum","default":"year","options":["year","12m","custom"]},"svc":{"editor":"text","default":"all"},"months":{"editor":null},"from":{"editor":"text","default":"2026-06"},"to":{"editor":"text","default":"2026-09"},"onRangeChange":{"editor":null},"onOpenExpenses":{"editor":null},"$preview":{"width":360,"height":900}}'>
+const SH_MIN = '2025-10';
+const SH_MAX = '2026-09';
+// месяцы приходят из RaznosApp вместе с текущим сентябрём, чтобы итоги совпадали со сравнением
+const shFmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
+const shK = (n) => { const v = Math.round(n / 100) / 10; return String(v >= 100 ? Math.round(v) : v).replace('.', ','); };
+function shPick(m, svc) {
+  if (!m.vv) return null;
+  if (svc === 'vkusvill') return m.vv;
+  if (svc === 'samokat') return m.sk;
+  return [m.vv[0] + m.sk[0], m.vv[1] + m.sk[1], m.vv[2] + m.sk[2]];
+}
+function shSum(months, svc) {
+  let gross = 0, hours = 0, orders = 0, withData = 0, missing = [], earning = 0, expKnown = 0, expTotal = 0;
+  months.forEach((m) => {
+    const v = shPick(m, svc);
+    if (!v) { missing.push(m); return; }
+    withData++; gross += v[0]; hours += v[1]; orders += v[2];
+    if (v[0] > 0) { earning++; if (m.expenses != null) { expKnown++; expTotal += m.expenses; } }
+  });
+  return { gross, hours, orders, withData, missing, earning, expKnown, expTotal, netKnown: svc === 'all' && earning > 0 && expKnown === earning };
+}
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const period = p.period || 'year';
+    const svc = p.svc || 'all';
+    const all = p.months || [];
+    const from = p.from || '2026-06';
+    const to = p.to || SH_MAX;
+    const onRange = p.onRangeChange || (() => {});
+    const lo = from <= to ? from : to, hi = from <= to ? to : from;
+    const months = period === '12m' ? all : (period === 'year' ? all.filter((m) => m.key >= '2026-01') : all.filter((m) => m.key >= lo && m.key <= hi));
+    const group = st.group === 'quarter' ? 'quarter' : 'month';
+    const t = shSum(months, svc);
+    const bucketsOf = () => {
+      if (group === 'month') return months.map((m) => ({ label: m.short, items: [m], title: m.title }));
+      const out = [];
+      months.forEach((m) => {
+        const y = m.key.slice(0, 4), q = Math.floor((Number(m.key.slice(5)) - 1) / 3) + 1;
+        const id = y + '-Q' + q;
+        let b = out.find((x) => x.id === id);
+        if (!b) { b = { id, label: q + 'кв', title: q + ' квартал ' + y, items: [] }; out.push(b); }
+        b.items.push(m);
+      });
+      return out;
+    };
+    const buckets = bucketsOf().map((b) => {
+      const s = shSum(b.items, svc);
+      return Object.assign(b, { s, empty: s.withData === 0 });
+    });
+    const maxGross = Math.max.apply(null, buckets.map((b) => b.s.gross).concat([1]));
+    const bars = buckets.map((b) => ({
+      label: b.label,
+      val: b.empty ? '—' : shK(b.s.gross),
+      cls: 'raznos-bar-fill' + (b.empty ? ' raznos-is-missing' : (b.s.gross === 0 ? ' raznos-is-zero' : '')) + (svc === 'samokat' ? ' raznos-is-alt' : ''),
+      style: b.empty || b.s.gross === 0 ? '' : 'height:' + Math.max(6, Math.round((b.s.gross / maxGross) * 100)) + '%'
+    }));
+    const rangeLabel = months.length ? (months.length === 1 ? months[0].title : months[0].title.replace(/^1–15 /, '') + ' – ' + (months[months.length - 1].key === '2026-09' ? '15 сентября 2026' : months[months.length - 1].title)) : '';
+    const perHour = t.hours > 0 ? shFmt(t.gross / t.hours) + ' ₽/ч' : '—';
+    const svcTitle = svc === 'vkusvill' ? 'ВкусВилл' : (svc === 'samokat' ? 'Самокат' : '');
+    const periodTitle = period === 'year' ? 'Этот год' : (period === '12m' ? 'Последние 12 месяцев' : 'Свой период');
+    return {
+      is_custom: period === 'custom',
+      min_month: SH_MIN, max_month: SH_MAX, from_month: from, to_month: to,
+      from_change: (e) => onRange(e && e.target && e.target.value ? e.target.value : from, to),
+      to_change: (e) => onRange(from, e && e.target && e.target.value ? e.target.value : to),
+      range_label: periodTitle + (svcTitle ? ' · ' + svcTitle : ''),
+      gross: shFmt(t.gross),
+      hero_note: rangeLabel + (t.hours > 0 ? ' · ' + perHour + ' до расходов' : ''),
+      has_gaps: t.missing.length > 0,
+      gaps_note: t.missing.map((m) => m.title + ': ' + (m.note || 'нет данных')).join(', ') + '. Эти месяцы не считаются нулевыми, итог только за месяцы с данными',
+      hours: shFmt(t.hours), orders: shFmt(t.orders), per_hour: perHour,
+      net: t.netKnown ? shFmt(t.gross - t.expTotal) + ' ₽' : '—',
+      net_note: svc !== 'all'
+        ? 'Расходы не делятся по сервисам, поэтому доход после расходов считаем только для всех сервисов вместе'
+        : (t.netKnown ? 'Расходы внесены за все месяцы с заработком: ' + shFmt(t.expTotal) + ' ₽' : 'Расходы внесены за ' + t.expKnown + ' из ' + t.earning + ' месяцев с заработком, поэтому доход после расходов не считаем'),
+      onOpenExpenses: p.onOpenExpenses || (() => {}),
+      groups: [
+        { key: 'day', label: 'Дни', disabled: true, hint: 'Для периода длиннее 92 дней' },
+        { key: 'week', label: 'Недели', disabled: true, hint: 'Для периода длиннее 92 дней' },
+        { key: 'month', label: 'Месяцы', disabled: false },
+        { key: 'quarter', label: 'Кварталы', disabled: false }
+      ].map((g) => ({ label: g.label, disabled: g.disabled, hint: g.hint || '', cls: 'raznos-chip' + (group === g.key ? ' raznos-is-active' : ''), tap: g.disabled ? (() => {}) : (() => this.setState({ group: g.key })) })),
+      group_hint: 'Дни и недели доступны за период до 92 дней' + (months.some((m) => m.key === '2026-01') ? '. Январь без заказов показан нулём' : '') + (t.missing.length ? ', месяцы без данных заштрихованы' : ''),
+      bars,
+      periods: buckets.slice().reverse().map((b) => ({
+        label: b.title,
+        note: b.empty ? 'Нет данных' : (b.s.missing.length ? 'Частично: ' + b.s.missing.map((m) => m.short).join(', ') + ' без данных' : (b.items.map((m) => m.note).filter(Boolean).join(', ') || (b.s.orders + ' заказов · ' + b.s.hours + ' ч'))),
+        gross: b.empty ? '—' : shFmt(b.s.gross) + ' ₽',
+        per_hour: b.empty || !b.s.hours ? '—' : shFmt(b.s.gross / b.s.hours) + ' ₽/ч'
+      }))
+    };
+  }
+}
+</script></body></html>

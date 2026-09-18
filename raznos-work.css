@@ -1,0 +1,71 @@
+/* Визуальные переключатели звука/вибрации */
+.raznos-switch { width: 44px; height: 26px; min-width: 44px; border-radius: 999px; background: var(--raznos-surface-2); border: 1px solid var(--raznos-line-strong); position: relative; box-sizing: border-box; padding: 2px; }
+.raznos-switch.raznos-is-on { background: var(--raznos-green); border-color: var(--raznos-green); }
+.raznos-switch-knob { display: block; width: 20px; height: 20px; border-radius: 50%; background: var(--raznos-surface); transition: transform 0.15s ease; }
+.raznos-switch.raznos-is-on .raznos-switch-knob { transform: translateX(18px); background: var(--raznos-on-dark); }
+
+/* Ожидание: подключённые сервисы, кнопка Пауза */
+.raznos-work-svc-chip { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
+.raznos-btn-pause { background: var(--raznos-amber-tint); color: var(--raznos-amber); border-color: var(--raznos-amber); }
+.raznos-offer-row { border-left: 3px solid var(--raznos-amber); }
+
+/* Общий статус-бар режима Работа */
+.raznos-work-bar { flex: none; width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: center; padding: 8px 20px; background: var(--raznos-surface-2); border-bottom: 1px solid var(--raznos-line); border-top: 0; border-left: 0; border-right: 0; cursor: pointer; box-sizing: border-box; }
+.raznos-work-bar-label { font: 600 14px var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.raznos-work-bar-searching .raznos-work-bar-label { color: var(--raznos-ink-2); }
+.raznos-work-bar-active { background: var(--raznos-green-tint); }
+.raznos-work-bar-active .raznos-work-bar-label { color: var(--raznos-green-deep); }
+.raznos-work-bar-paused { background: var(--raznos-amber-tint); }
+.raznos-work-bar-paused .raznos-work-bar-label { color: var(--raznos-amber); }
+
+/* Входящее предложение */
+.raznos-incoming { display: flex; flex-direction: column; gap: 10px; }
+.raznos-incoming-banner { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: var(--raznos-amber-tint); color: var(--raznos-amber); width: fit-content; }
+.raznos-incoming-banner-text { font: 700 14px var(--raznos-font); }
+.raznos-incoming-sum { font: 700 36px/1 var(--raznos-mono); color: var(--raznos-ink); letter-spacing: -0.01em; }
+.raznos-incoming-sum-unit { font: 600 18px var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-incoming-estimate { font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); margin-left: 4px; }
+.raznos-progress-track.raznos-is-warn .raznos-progress-fill { background: var(--raznos-amber); }
+.raznos-btn-accept { min-height: 56px; font-size: 17px; background: var(--raznos-green); color: var(--raznos-on-dark); }
+.raznos-offer-footer { flex: none; padding: 12px 20px; border-top: 1px solid var(--raznos-line); background: var(--raznos-surface); }
+
+/* Простая схема маршрута А → Б */
+.raznos-route-row { display: flex; align-items: flex-start; gap: 12px; }
+.raznos-route-dot { width: 28px; height: 28px; min-width: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: 700 13px var(--raznos-mono); }
+.raznos-route-dot-a { background: var(--raznos-green-tint); color: var(--raznos-green-deep); }
+.raznos-route-dot-b { background: var(--raznos-dark); color: var(--raznos-on-dark); }
+.raznos-route-line { width: 2px; height: 18px; background: var(--raznos-line-strong); margin-left: 13px; }
+
+/* Стопка тостов новых предложений: оверлей без сдвига контента */
+.raznos-toast-layer { position: relative; height: 0; overflow: visible; z-index: 30; }
+.raznos-toast-stack { position: absolute; top: 0; left: 0; right: 0; display: flex; flex-direction: column; gap: 8px; padding: 8px 12px; max-height: 260px; overflow-y: auto; pointer-events: none; }
+.raznos-toast-stack > * { pointer-events: auto; }
+.raznos-toast-layer-reserved { height: auto; flex-shrink: 0; }
+.raznos-toast-layer-reserved .raznos-toast-stack { position: relative; max-height: 200px; }
+.raznos-offer-toast { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; color: var(--raznos-on-dark); box-shadow: 0 8px 20px rgba(20, 25, 40, 0.22); touch-action: pan-y; box-sizing: border-box; }
+.raznos-offer-toast-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.raznos-offer-toast-title { font: 700 14px var(--raznos-font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.raznos-offer-toast-route { font: 500 12px var(--raznos-font); opacity: 0.92; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.raznos-offer-toast-timer { flex: none; font: 700 13px var(--raznos-mono); }
+.raznos-offer-toast-timer.raznos-is-warn { background: rgba(0, 0, 0, 0.35); color: #ffe08a; border-radius: 6px; padding: 1px 5px; }
+.raznos-offer-toast-close { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, 0.22); color: var(--raznos-on-dark); font: 700 13px/24px var(--raznos-font); text-align: center; padding: 0; cursor: pointer; }
+
+/* Следующий заказ на экране активного заказа */
+.raznos-next-offer-card { border-left: 3px solid var(--raznos-amber); }
+
+/* Статистика: сравнение периодов, дни, сервисы, тепловая сетка */
+.raznos-delta { font: 600 13px var(--raznos-mono); padding: 2px 8px; border-radius: 999px; }
+.raznos-delta-up { background: var(--raznos-green-tint); color: var(--raznos-green-deep); }
+.raznos-delta-down { background: var(--raznos-red-tint); color: var(--raznos-red); }
+.raznos-bar-chart-wide { gap: 4px; height: 120px; }
+.raznos-bar-chart-wide .raznos-bar-fill { max-width: 28px; }
+.raznos-heatmap-daynames { display: grid; grid-template-columns: 44px repeat(7, 1fr); gap: 4px; margin-bottom: 2px; }
+.raznos-heatmap-daylabel { font: 600 12px var(--raznos-mono); color: var(--raznos-ink-3); text-align: center; }
+.raznos-heatmap-row { display: grid; grid-template-columns: 44px 1fr; align-items: center; gap: 4px; }
+.raznos-heatmap-rowlabel { font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-heatmap-cells { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.raznos-heat-cell { aspect-ratio: 1; border-radius: 6px; }
+.raznos-heat-0 { background: var(--raznos-surface-2); border: 1px solid var(--raznos-line); }
+.raznos-heat-1 { background: var(--raznos-green-tint); }
+.raznos-heat-2 { background: var(--raznos-green); }
+.raznos-heat-3 { background: var(--raznos-green-deep); }

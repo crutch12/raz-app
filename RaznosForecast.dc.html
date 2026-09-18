@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics>
+        <link rel="stylesheet" href="./raznos-v3.css" />
+        <link rel="stylesheet" href="./raznos-forecast.css" /><link rel="stylesheet" href="./raznos-opportunities.css" />
+      </helmet>
+      <div class="raznos-forecast-root">
+        <div class="raznos-forecast-head">
+          <h1 class="raznos-text-h1">Где работать</h1>
+          <span class="raznos-text-small">{{ city_title }} · {{ transport_title }}</span>
+        </div>
+
+        <div class="raznos-forecast-toolbar">
+          <div class="raznos-chip-row">
+            <button type="button" class="{{ transport_bike_class }}" onClick="{{ set_transport_bike }}">Велосипед</button>
+            <button type="button" class="{{ transport_foot_class }}" onClick="{{ set_transport_foot }}">Пешком</button>
+            <button type="button" class="{{ transport_car_class }}" onClick="{{ set_transport_car }}">Авто</button>
+            <button type="button" class="{{ transport_electric_class }}" onClick="{{ set_transport_electric }}">Электро</button>
+            <button type="button" class="{{ transport_public_class }}" onClick="{{ set_transport_public }}">Общественный</button>
+          </div>
+        </div>
+
+        <sc-if value="{{ no_data }}">
+          <div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">{{ city_title }}</span><span class="raznos-text-small">{{ no_data_text }}</span></div>
+        </sc-if>
+
+        <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}">
+        <div class="raznos-segmented">
+          <button type="button" class="{{ tab_now_class }}" onClick="{{ set_tab_now }}">Сейчас</button>
+          <button type="button" class="{{ tab_usual_class }}" onClick="{{ set_tab_usual }}">Обычно</button>
+          <button type="button" class="{{ tab_forecast_class }}" onClick="{{ set_tab_forecast }}">Прогноз</button>
+        </div>
+
+        <sc-if value="{{ is_tab_now }}" hint-placeholder-val="{{ true }}">
+          <div class="raznos-fx raznos-col raznos-gap12">
+            <span class="raznos-text-tiny">Сейчас, 15 сентября · открыто в {{ now_clock }}</span>
+            <dc-import name="RaznosAreaMap" title="Районы сейчас" rows="{{ area_map_rows }}" source="Демонстрация текущих предложений, свежесть и источники указаны в карточках ниже"></dc-import>
+
+            <sc-for list="{{ now_cards }}" as="rec" hint-placeholder-count="4">
+              <div class="{{ rec.cardClass }}">
+                <div class="raznos-forecast-rec-top">
+                  <dc-import name="RaznosIcon" svc="{{ rec.svc }}" alt="{{ rec.svcTitle }}" size="md"></dc-import>
+                  <div class="raznos-forecast-rec-title">
+                    <span class="raznos-list-title">{{ rec.district }}</span>
+                    <span class="raznos-text-small">{{ rec.svcTitle }}</span>
+                  </div>
+                  <span class="{{ rec.demandPillClass }}">{{ rec.demandLabel }}</span>
+                </div>
+                <sc-if value="{{ rec.hasData }}" hint-placeholder-val="{{ true }}">
+                  <sc-if value="{{ rec.isBest }}"><span class="raznos-forecast-best-tag">Выгоднее в первый час</span></sc-if>
+                  <div class="raznos-forecast-rec-metrics">
+                    <div class="raznos-forecast-metric"><span class="raznos-forecast-metric-label">Доход до расходов</span><span class="raznos-forecast-metric-value">{{ rec.rangeText }}</span></div>
+                    <div class="raznos-forecast-metric"><span class="raznos-forecast-metric-label">Заказ</span><span class="raznos-forecast-metric-value">{{ rec.durationText }}</span></div>
+                    <div class="raznos-forecast-metric"><span class="raznos-forecast-metric-label">Ждать заказ</span><span class="raznos-forecast-metric-value">{{ rec.nextWaitText }}</span></div>
+                    <div class="raznos-forecast-metric"><span class="raznos-forecast-metric-label">Переезд</span><span class="raznos-forecast-metric-value">{{ rec.travelText }}</span></div>
+                  </div>
+                  <p class="raznos-forecast-why">{{ rec.whyText }}</p>
+                  <span class="raznos-forecast-fresh">{{ rec.freshText }}</span>
+                </sc-if>
+                <sc-if value="{{ rec.noData }}">
+                  <p class="raznos-forecast-why">Переезд {{ rec.travelText }}, доход не показываем, пока нет свежих предложений, в сравнение с другими районами не включаем</p>
+                  <span class="raznos-forecast-fresh raznos-forecast-is-stale">{{ rec.freshText }}</span>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ is_tab_usual }}">
+          <div class="raznos-fx raznos-col raznos-gap12">
+            <span class="raznos-text-tiny">{{ usual_period_text }}</span>
+            <div class="raznos-card">
+              <sc-for list="{{ usual_rows }}" as="u" hint-placeholder-count="4">
+                <div class="raznos-list-row">
+                  <dc-import name="RaznosIcon" svc="{{ u.svc }}" alt="{{ u.svcTitle }}" size="sm"></dc-import>
+                  <div class="raznos-list-main">
+                    <span class="raznos-list-title">{{ u.district }} · {{ u.svcTitle }}</span>
+                    <span class="raznos-text-small">{{ u.sampleText }}</span>
+                  </div>
+                  <div class="raznos-list-end"><span class="raznos-num">{{ u.rangeText }}</span><span class="raznos-text-tiny">₽/ч</span></div>
+                </div>
+              </sc-for>
+            </div>
+            <span class="raznos-forecast-sample-note">Доход указан до ваших расходов, это медиана и диапазон по истории, не текущий спрос</span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ is_tab_forecast }}">
+          <div class="raznos-fx raznos-col raznos-gap12">
+            <div class="raznos-forecast-district-picker">
+              <sc-for list="{{ forecast_district_options }}" as="d" hint-placeholder-count="4">
+                <button type="button" class="{{ d.chipClass }}" onClick="{{ d.onTap }}">{{ d.label }}</button>
+              </sc-for>
+            </div>
+            <sc-if value="{{ forecast_has_data }}" hint-placeholder-val="{{ true }}">
+              <span class="raznos-text-tiny">Прогноз на 15 сентября</span>
+              <div class="raznos-forecast-rec-top">
+                <dc-import name="RaznosIcon" svc="{{ forecast_selected_svc }}" alt="{{ forecast_selected_svc_title }}" size="md"></dc-import>
+                <div class="raznos-forecast-rec-title">
+                  <span class="raznos-list-title">{{ forecast_selected_district }}</span>
+                  <span class="raznos-text-small">{{ forecast_selected_svc_title }}</span>
+                </div>
+              </div>
+              <span class="raznos-text-tiny">Диапазон дохода до ваших расходов, ₽ в час</span>
+              <div class="raznos-bar-chart raznos-forecast-chart-wrap">
+                <sc-for list="{{ forecast_intervals }}" as="iv" hint-placeholder-count="3">
+                  <div class="raznos-bar-col">
+                    <span class="raznos-bar-value">{{ iv.rangeText }}</span>
+                    <div class="raznos-forecast-bar-track"><span class="raznos-bar-fill" style="{{ iv.barStyle }}"></span></div>
+                    <span class="raznos-bar-label">{{ iv.label }}</span>
+                    <span class="{{ iv.confidencePillClass }}">{{ iv.confidenceLabel }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <span class="raznos-forecast-sample-note">Прогноз по истории заказов, это оценка, не гарантия дохода</span>
+            </sc-if>
+            <sc-if value="{{ forecast_insufficient }}">
+              <div class="raznos-forecast-interval-row raznos-forecast-interval-empty">
+                <span class="raznos-text-small">Недостаточно истории для района {{ forecast_selected_district }}, прогноз пока не считаем</span>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+        </sc-if>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "city": { "editor": "text", "default": "moscow" },
+      "transport": { "editor": "enum", "default": "bike", "options": ["bike", "foot", "car", "electric", "public"] }
+    }'>
+      const CITY_TITLES = { moscow: 'Москва', spb: 'Санкт-Петербург' };
+      const COUR_CITIES = [
+        { key: 'moscow', title: 'Москва' }, { key: 'spb', title: 'Санкт-Петербург' },
+        { key: 'vv-376065', title: 'Архангельск' }, { key: 'vv-5745853', title: 'Астрахань' },
+        { key: 'vv-9389', title: 'Белгород' }, { key: 'vv-3874', title: 'Брянск' },
+        { key: 'vv-199848', title: 'Великий Новгород' }, { key: 'vv-1895387', title: 'Владикавказ' },
+        { key: 'vv-3875', title: 'Владимир' }, { key: 'vv-15407', title: 'Волгоград' },
+        { key: 'vv-14186', title: 'Вологда' }, { key: 'vv-3876', title: 'Воронеж' },
+        { key: 'vv-400647', title: 'Екатеринбург' }, { key: 'vv-7614', title: 'Иваново' },
+        { key: 'vv-645876', title: 'Ижевск' }, { key: 'vv-1464452', title: 'Йошкар-Ола' },
+        { key: 'vv-8258', title: 'Казань' }, { key: 'vv-3877', title: 'Калуга' },
+        { key: 'vv-14778', title: 'Кострома' }, { key: 'vv-127342', title: 'Краснодар' },
+        { key: 'vv-9387', title: 'Курск' }, { key: 'vv-5294', title: 'Липецк' },
+        { key: 'vv-593405', title: 'Мурманск' }, { key: 'vv-2071156', title: 'Нальчик' },
+        { key: 'vv-3878', title: 'Нижний Новгород' }, { key: 'vv-17344', title: 'Орёл' },
+        { key: 'vv-264295', title: 'Оренбург' }, { key: 'vv-18093', title: 'Пенза' },
+        { key: 'vv-200413', title: 'Пермь' }, { key: 'vv-54950', title: 'Петрозаводск' },
+        { key: 'vv-35419', title: 'Псков' }, { key: 'vv-1115830', title: 'Пятигорск' },
+        { key: 'vv-15220', title: 'Ростов-на-Дону' }, { key: 'vv-3879', title: 'Рязань' },
+        { key: 'vv-42850', title: 'Самара' }, { key: 'vv-41180', title: 'Саранск' },
+        { key: 'vv-22006', title: 'Саратов' }, { key: 'vv-5278', title: 'Смоленск' },
+        { key: 'vv-641184', title: 'Сочи' }, { key: 'vv-242297', title: 'Ставрополь' },
+        { key: 'vv-8494', title: 'Тамбов' }, { key: 'vv-3880', title: 'Тверь' },
+        { key: 'vv-3881', title: 'Тула' }, { key: 'vv-12455', title: 'Ульяновск' },
+        { key: 'vv-243863', title: 'Уфа' }, { key: 'vv-14776', title: 'Чебоксары' },
+        { key: 'vv-606287', title: 'Челябинск' }, { key: 'vv-3882', title: 'Ярославль' }
+      ];
+      function cityTitleOf(key) { const found = COUR_CITIES.find((c) => c.key === key); return found ? found.title : key; }
+      const TRANSPORT_TITLES = { bike: 'велосипед', foot: 'пешком', car: 'авто', electric: 'электро', public: 'общественный транспорт' };
+      const TRANSPORT_FACTORS = {
+        bike: { earn: 1, travel: 1 },
+        car: { earn: 1.06, travel: 0.6 },
+        foot: { earn: 0.94, travel: 1.4 }
+      };
+      const SERVICE_TITLES = { vkusvill: 'ВкусВилл', samokat: 'Самокат', x5: 'X5 Доставка' };
+      const DEMAND_LABELS = {
+        high: 'Высокий спрос',
+        medium: 'Средний спрос',
+        low: 'Низкий спрос',
+        unknown: 'Нет данных о спросе'
+      };
+      const DEMAND_PILL_CLASS = {
+        high: 'raznos-status-pill raznos-pill-ok',
+        medium: 'raznos-status-pill raznos-pill-warn',
+        low: 'raznos-status-pill raznos-pill-muted',
+        unknown: 'raznos-status-pill raznos-pill-concept'
+      };
+      const CONFIDENCE_LABELS = { high: 'Высокая уверенность', medium: 'Средняя уверенность', low: 'Низкая уверенность' };
+      const CONFIDENCE_PILL_CLASS = {
+        high: 'raznos-status-pill raznos-pill-ok',
+        medium: 'raznos-status-pill raznos-pill-warn',
+        low: 'raznos-status-pill raznos-pill-muted'
+      };
+      const NOW_DATA = {
+        moscow: [
+          { id: 'ham', district: 'Хамовники', svc: 'vkusvill', rateMin: 650, rateMax: 850, demand: 'high', duration: 14, nextWait: 6, travelBase: 12, updatedAt: '15:22', source: 'демо предложений сервиса', hasData: true },
+          { id: 'presnya', district: 'Пресня', svc: 'samokat', rateMin: 600, rateMax: 720, demand: 'medium', duration: 13, nextWait: 8, travelBase: 9, updatedAt: '15:22', source: 'демо предложений сервиса', hasData: true },
+          { id: 'arbat', district: 'Арбат', svc: 'x5', rateMin: 700, rateMax: 900, demand: 'high', duration: 16, nextWait: 5, travelBase: 18, updatedAt: '15:22', source: 'демо предложений сервиса', hasData: true },
+          { id: 'patr', district: 'Патриаршие пруды', svc: 'vkusvill', demand: 'unknown', duration: null, nextWait: null, travelBase: 14, updatedAt: '14:55', source: 'демо предложений сервиса', hasData: false }
+        ],
+        spb: [
+          { id: 'petro', district: 'Петроградская', svc: 'vkusvill', rateMin: 600, rateMax: 780, demand: 'high', duration: 15, nextWait: 6, travelBase: 10, updatedAt: '15:22', source: 'демо предложений сервиса', hasData: true },
+          { id: 'centr', district: 'Центральный', svc: 'samokat', rateMin: 540, rateMax: 650, demand: 'medium', duration: 14, nextWait: 7, travelBase: 8, updatedAt: '15:22', source: 'демо предложений сервиса', hasData: true },
+          { id: 'vasil', district: 'Васильевский', svc: 'x5', rateMin: 620, rateMax: 800, demand: 'high', duration: 17, nextWait: 5, travelBase: 16, updatedAt: '15:22', source: 'демо предложений сервиса', hasData: true },
+          { id: 'kolomna', district: 'Коломна', svc: 'samokat', demand: 'unknown', duration: null, nextWait: null, travelBase: 13, updatedAt: '14:55', source: 'демо предложений сервиса', hasData: false }
+        ]
+      };
+      function fcPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
+      const USUAL_DATA = {
+        moscow: [
+          { id: 'ham', district: 'Хамовники', svc: 'vkusvill', rateMin: 580, rateMax: 680, sampleShifts: 22 },
+          { id: 'presnya', district: 'Пресня', svc: 'samokat', rateMin: 540, rateMax: 630, sampleShifts: 18 },
+          { id: 'arbat', district: 'Арбат', svc: 'x5', rateMin: 610, rateMax: 740, sampleShifts: 20 },
+          { id: 'patr', district: 'Патриаршие пруды', svc: 'vkusvill', rateMin: 520, rateMax: 600, sampleShifts: 9 }
+        ],
+        spb: [
+          { id: 'petro', district: 'Петроградская', svc: 'vkusvill', rateMin: 560, rateMax: 700, sampleShifts: 21 },
+          { id: 'centr', district: 'Центральный', svc: 'samokat', rateMin: 500, rateMax: 600, sampleShifts: 17 },
+          { id: 'vasil', district: 'Васильевский', svc: 'x5', rateMin: 560, rateMax: 720, sampleShifts: 19 },
+          { id: 'kolomna', district: 'Коломна', svc: 'samokat', rateMin: 480, rateMax: 560, sampleShifts: 8 }
+        ]
+      };
+      const FORECAST_DATA = {
+        moscow: {
+          ham: { district: 'Хамовники', svc: 'vkusvill', intervals: [
+            { label: '18:00–19:00', rateMin: 700, rateMax: 820, confidence: 'high' },
+            { label: '19:00–20:00', rateMin: 730, rateMax: 860, confidence: 'high' },
+            { label: '20:00–21:00', rateMin: 680, rateMax: 780, confidence: 'medium' }
+          ] },
+          presnya: { district: 'Пресня', svc: 'samokat', intervals: [
+            { label: '18:00–19:00', rateMin: 620, rateMax: 700, confidence: 'medium' },
+            { label: '19:00–20:00', rateMin: 640, rateMax: 730, confidence: 'medium' },
+            { label: '20:00–21:00', rateMin: 580, rateMax: 670, confidence: 'low' }
+          ] },
+          arbat: { district: 'Арбат', svc: 'x5', intervals: [
+            { label: '18:00–19:00', rateMin: 720, rateMax: 880, confidence: 'high' },
+            { label: '19:00–20:00', rateMin: 700, rateMax: 850, confidence: 'medium' },
+            { label: '20:00–21:00', rateMin: 650, rateMax: 780, confidence: 'medium' }
+          ] },
+          patr: { district: 'Патриаршие пруды', svc: 'vkusvill', intervals: [] }
+        },
+        spb: {
+          petro: { district: 'Петроградская', svc: 'vkusvill', intervals: [
+            { label: '18:00–19:00', rateMin: 640, rateMax: 760, confidence: 'high' },
+            { label: '19:00–20:00', rateMin: 660, rateMax: 790, confidence: 'high' },
+            { label: '20:00–21:00', rateMin: 610, rateMax: 720, confidence: 'medium' }
+          ] },
+          centr: { district: 'Центральный', svc: 'samokat', intervals: [
+            { label: '18:00–19:00', rateMin: 560, rateMax: 650, confidence: 'medium' },
+            { label: '19:00–20:00', rateMin: 580, rateMax: 670, confidence: 'medium' },
+            { label: '20:00–21:00', rateMin: 520, rateMax: 610, confidence: 'low' }
+          ] },
+          vasil: { district: 'Васильевский', svc: 'x5', intervals: [
+            { label: '18:00–19:00', rateMin: 640, rateMax: 800, confidence: 'high' },
+            { label: '19:00–20:00', rateMin: 620, rateMax: 780, confidence: 'medium' },
+            { label: '20:00–21:00', rateMin: 580, rateMax: 720, confidence: 'medium' }
+          ] },
+          kolomna: { district: 'Коломна', svc: 'samokat', intervals: [] }
+        }
+      };
+      function normCity(v) { return v || 'moscow'; }
+      function normTransport(v) { return v === 'foot' || v === 'car' || v === 'electric' || v === 'public' ? v : 'bike'; }
+      function defaultForecastDistrict(city) { return city === 'spb' ? 'petro' : (city === 'moscow' ? 'ham' : null); }
+
+      class Component extends DCLogic {
+        constructor(props) {
+          super(props);
+          this.state = this.buildInitialState(this.props);
+        }
+        buildInitialState(props) {
+          const city = normCity(props && props.city);
+          return { city, transport: normTransport(props && props.transport), tab: 'now', forecastDistrictId: defaultForecastDistrict(city) };
+        }
+        componentDidUpdate(prevProps) {
+          const prevCity = normCity(prevProps && prevProps.city);
+          const prevTransport = normTransport(prevProps && prevProps.transport);
+          const nextCity = normCity(this.props && this.props.city);
+          const nextTransport = normTransport(this.props && this.props.transport);
+          if (prevCity !== nextCity || prevTransport !== nextTransport) {
+            this.setState({ city: nextCity, transport: nextTransport, forecastDistrictId: defaultForecastDistrict(nextCity) });
+          }
+        }
+        renderVals() {
+          const st = this.state;
+          const city = st.city;
+          const transport = st.transport;
+          const factor = TRANSPORT_FACTORS[transport];
+          const set = (patch) => this.setState(patch);
+          const hasCityData = !!NOW_DATA[city];
+          const hasData = hasCityData && !!factor;
+
+          if (!hasData) {
+            return {
+              city, city_title: cityTitleOf(city),
+              transport_title: TRANSPORT_TITLES[transport],
+              has_data: false, no_data: true,
+              no_data_text: !hasCityData ? 'Пока нет данных по этому городу' : 'Пока нет данных для этого транспорта',
+              transport_bike_class: transport === 'bike' ? 'raznos-chip raznos-is-active' : 'raznos-chip',
+              transport_foot_class: transport === 'foot' ? 'raznos-chip raznos-is-active' : 'raznos-chip',
+              transport_car_class: transport === 'car' ? 'raznos-chip raznos-is-active' : 'raznos-chip',
+              transport_electric_class: transport === 'electric' ? 'raznos-chip raznos-is-active' : 'raznos-chip',
+              transport_public_class: transport === 'public' ? 'raznos-chip raznos-is-active' : 'raznos-chip',
+              set_transport_bike: () => set({ transport: 'bike' }),
+              set_transport_foot: () => set({ transport: 'foot' }),
+              set_transport_car: () => set({ transport: 'car' }),
+              set_transport_electric: () => set({ transport: 'electric' }),
+              set_transport_public: () => set({ transport: 'public' }),
+              is_tab_now: false, is_tab_usual: false, is_tab_forecast: false,
+              now_cards: [], usual_rows: [], area_map_rows: [],
+              forecast_district_options: [], forecast_has_data: false, forecast_insufficient: false,
+              forecast_selected_district: '', forecast_selected_svc: '', forecast_selected_svc_title: '', forecast_intervals: []
+            };
+          }
+
+          const nowRaw = NOW_DATA[city];
+          const withData = [];
+          const noData = [];
+          nowRaw.forEach((item) => {
+            const travelMin = Math.max(1, Math.round(item.travelBase * factor.travel));
+            if (!item.hasData) {
+              noData.push({ item, travelMin });
+              return;
+            }
+            const rateMin = Math.round(item.rateMin * factor.earn);
+            const rateMax = Math.round(item.rateMax * factor.earn);
+            const rateMid = (rateMin + rateMax) / 2;
+            const firstHour = Math.round(rateMid * Math.max(0, 60 - travelMin) / 60);
+            withData.push({ item, travelMin, rateMin, rateMax, firstHour });
+          });
+          withData.sort((a, b) => b.firstHour - a.firstHour);
+
+          const now_cards = withData.map((row, idx) => {
+            const item = row.item;
+            return {
+              svc: item.svc,
+              svcTitle: SERVICE_TITLES[item.svc] || item.svc,
+              district: item.district,
+              demandLabel: DEMAND_LABELS[item.demand] || DEMAND_LABELS.unknown,
+              demandPillClass: DEMAND_PILL_CLASS[item.demand] || DEMAND_PILL_CLASS.unknown,
+              hasData: true,
+              noData: false,
+              isBest: idx === 0,
+              cardClass: idx === 0 ? 'raznos-forecast-rec-card raznos-forecast-is-best' : 'raznos-forecast-rec-card',
+              rangeText: row.rateMin + '–' + row.rateMax + ' ₽/ч',
+              durationText: item.duration + ' мин',
+              nextWaitText: item.nextWait + ' мин',
+              travelText: row.travelMin + ' мин',
+              whyText: 'С учётом дороги за первый час примерно ' + row.firstHour + ' ₽, это оценка, не гарантия',
+              freshText: 'Обновлено в ' + item.updatedAt + ' · ' + item.source
+            };
+          }).concat(noData.map((row) => {
+            const item = row.item;
+            return {
+              svc: item.svc,
+              svcTitle: SERVICE_TITLES[item.svc] || item.svc,
+              district: item.district,
+              demandLabel: DEMAND_LABELS.unknown,
+              demandPillClass: DEMAND_PILL_CLASS.unknown,
+              hasData: false,
+              noData: true,
+              isBest: false,
+              cardClass: 'raznos-forecast-rec-card raznos-forecast-is-empty',
+              travelText: row.travelMin + ' мин',
+              freshText: 'Обновлено в ' + item.updatedAt + ' · устарело, не считаем живыми данными'
+            };
+          }));
+
+          const usualRaw = USUAL_DATA[city];
+          const usual_rows = usualRaw.map((item) => ({
+            svc: item.svc,
+            district: item.district,
+            svcTitle: SERVICE_TITLES[item.svc] || item.svc,
+            rangeText: Math.round(item.rateMin * factor.earn) + '–' + Math.round(item.rateMax * factor.earn),
+            sampleText: '28 дней · 18 августа – 14 сентября · ' + item.sampleShifts + ' ' + fcPlural(item.sampleShifts, 'смена', 'смены', 'смен')
+          }));
+
+          const forecastCity = FORECAST_DATA[city];
+          const forecastIds = Object.keys(forecastCity);
+          const selectedId = forecastIds.indexOf(st.forecastDistrictId) !== -1 ? st.forecastDistrictId : defaultForecastDistrict(city);
+          const forecast_district_options = forecastIds.map((id) => ({
+            id,
+            label: forecastCity[id].district,
+            chipClass: id === selectedId ? 'raznos-chip raznos-is-active' : 'raznos-chip',
+            onTap: () => set({ forecastDistrictId: id })
+          }));
+          const selectedForecast = forecastCity[selectedId] || { district: '', svc: '', intervals: [] };
+          const forecast_has_data = selectedForecast.intervals.length > 0;
+          const forecast_insufficient = !forecast_has_data;
+          const forecast_selected_district = selectedForecast.district;
+          const forecast_selected_svc = selectedForecast.svc;
+          const forecast_selected_svc_title = SERVICE_TITLES[selectedForecast.svc] || selectedForecast.svc;
+          const BAR_TRACK_PX = 64;
+          const maxMid = forecast_has_data ? Math.max.apply(null, selectedForecast.intervals.map((iv) => (iv.rateMin + iv.rateMax) / 2 * factor.earn)) : 1;
+          const forecast_intervals = selectedForecast.intervals.map((iv) => {
+            const rateMin = Math.round(iv.rateMin * factor.earn);
+            const rateMax = Math.round(iv.rateMax * factor.earn);
+            const mid = (rateMin + rateMax) / 2;
+            const pct = maxMid > 0 ? Math.max(10, Math.round((mid / maxMid) * 100)) : 10;
+            const barPx = Math.max(6, Math.round((pct / 100) * BAR_TRACK_PX));
+            return {
+              label: iv.label,
+              rangeText: rateMin + '–' + rateMax,
+              barStyle: 'height:' + barPx + 'px;background:var(--raznos-svc-' + forecast_selected_svc + ')',
+              confidenceLabel: CONFIDENCE_LABELS[iv.confidence] || CONFIDENCE_LABELS.medium,
+              confidencePillClass: (CONFIDENCE_PILL_CLASS[iv.confidence] || CONFIDENCE_PILL_CLASS.medium) + ' raznos-forecast-confidence-pill'
+            };
+          });
+
+          return {
+            city, city_title: cityTitleOf(city),
+            transport_title: TRANSPORT_TITLES[transport],
+            has_data: true, no_data: false,
+            transport_bike_class: transport === 'bike' ? 'raznos-chip raznos-is-active' : 'raznos-chip',
+            transport_foot_class: transport === 'foot' ? 'raznos-chip raznos-is-active' : 'raznos-chip',
+            transport_car_class: transport === 'car' ? 'raznos-chip raznos-is-active' : 'raznos-chip',
+            transport_electric_class: transport === 'electric' ? 'raznos-chip raznos-is-active' : 'raznos-chip',
+            transport_public_class: transport === 'public' ? 'raznos-chip raznos-is-active' : 'raznos-chip',
+            set_transport_bike: () => set({ transport: 'bike' }),
+            set_transport_foot: () => set({ transport: 'foot' }),
+            set_transport_car: () => set({ transport: 'car' }),
+            set_transport_electric: () => set({ transport: 'electric' }),
+            set_transport_public: () => set({ transport: 'public' }),
+            tab_now_class: st.tab === 'now' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
+            tab_usual_class: st.tab === 'usual' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
+            tab_forecast_class: st.tab === 'forecast' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
+            set_tab_now: () => set({ tab: 'now' }),
+            set_tab_usual: () => set({ tab: 'usual' }),
+            set_tab_forecast: () => set({ tab: 'forecast' }),
+            is_tab_now: st.tab === 'now',
+            is_tab_usual: st.tab === 'usual',
+            is_tab_forecast: st.tab === 'forecast',
+            now_clock: '15:40',
+            area_map_rows: now_cards.filter(r => r.hasData).slice(0, 3).map(r => ({ district: r.district, income: r.rangeText, incomeNote: 'До расходов', activity: r.demandLabel, activityNote: r.svcTitle })),
+            now_cards,
+            usual_period_text: '28 дней, 18 августа – 14 сентября',
+            usual_rows,
+            forecast_district_options,
+            forecast_has_data,
+            forecast_insufficient,
+            forecast_selected_district,
+            forecast_selected_svc,
+            forecast_selected_svc_title,
+            forecast_intervals
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

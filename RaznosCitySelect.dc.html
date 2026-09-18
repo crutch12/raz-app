@@ -1,0 +1,63 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc><helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet><label class="raznos-field"><span class="raznos-field-label">{{ label }}</span><select aria-label="{{ label }}" class="raznos-input" value="{{ value }}" onChange="{{ change }}"><sc-for list="{{ options }}" as="opt" hint-placeholder-count="4"><option value="{{ opt.key }}" selected="{{ opt.key === value }}">{{ opt.title }}</option></sc-for></select></label></x-dc><script type="text/x-dc" data-dc-script data-props='{"value":{"editor":"text","default":"moscow"},"onChange":{"editor":null},"label":{"editor":"text","default":"Город"}}'>const COUR_CITIES = [
+  { key: "moscow", title: "Москва" },
+  { key: "spb", title: "Санкт-Петербург" },
+  { key: "vv-376065", title: "Архангельск" },
+  { key: "vv-5745853", title: "Астрахань" },
+  { key: "vv-9389", title: "Белгород" },
+  { key: "vv-3874", title: "Брянск" },
+  { key: "vv-199848", title: "Великий Новгород" },
+  { key: "vv-1895387", title: "Владикавказ" },
+  { key: "vv-3875", title: "Владимир" },
+  { key: "vv-15407", title: "Волгоград" },
+  { key: "vv-14186", title: "Вологда" },
+  { key: "vv-3876", title: "Воронеж" },
+  { key: "vv-400647", title: "Екатеринбург" },
+  { key: "vv-7614", title: "Иваново" },
+  { key: "vv-645876", title: "Ижевск" },
+  { key: "vv-1464452", title: "Йошкар-Ола" },
+  { key: "vv-8258", title: "Казань" },
+  { key: "vv-3877", title: "Калуга" },
+  { key: "vv-14778", title: "Кострома" },
+  { key: "vv-127342", title: "Краснодар" },
+  { key: "vv-9387", title: "Курск" },
+  { key: "vv-5294", title: "Липецк" },
+  { key: "vv-593405", title: "Мурманск" },
+  { key: "vv-2071156", title: "Нальчик" },
+  { key: "vv-3878", title: "Нижний Новгород" },
+  { key: "vv-17344", title: "Орёл" },
+  { key: "vv-264295", title: "Оренбург" },
+  { key: "vv-18093", title: "Пенза" },
+  { key: "vv-200413", title: "Пермь" },
+  { key: "vv-54950", title: "Петрозаводск" },
+  { key: "vv-35419", title: "Псков" },
+  { key: "vv-1115830", title: "Пятигорск" },
+  { key: "vv-15220", title: "Ростов-на-Дону" },
+  { key: "vv-3879", title: "Рязань" },
+  { key: "vv-42850", title: "Самара" },
+  { key: "vv-41180", title: "Саранск" },
+  { key: "vv-22006", title: "Саратов" },
+  { key: "vv-5278", title: "Смоленск" },
+  { key: "vv-641184", title: "Сочи" },
+  { key: "vv-242297", title: "Ставрополь" },
+  { key: "vv-8494", title: "Тамбов" },
+  { key: "vv-3880", title: "Тверь" },
+  { key: "vv-3881", title: "Тула" },
+  { key: "vv-12455", title: "Ульяновск" },
+  { key: "vv-243863", title: "Уфа" },
+  { key: "vv-14776", title: "Чебоксары" },
+  { key: "vv-606287", title: "Челябинск" },
+  { key: "vv-3882", title: "Ярославль" }
+];
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const value = p.value || 'moscow';
+    return {
+      label: p.label || 'Город',
+      options: COUR_CITIES,
+      value,
+      change: (e) => { if (p.onChange) p.onChange(e.target.value); }
+    };
+  }
+}
+</script></body></html>

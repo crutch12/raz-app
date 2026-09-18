@@ -1,0 +1,42 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-final.css" /></helmet>
+<div class="raznos-fx raznos-col raznos-gap16">
+  <span class="raznos-text-small">Город из профиля: {{ city_title }}</span>
+  <div class="raznos-segmented">
+    <sc-for list="{{ transports }}" as="t" hint-placeholder-count="5"><button type="button" class="{{ t.cls }}" onClick="{{ t.tap }}">{{ t.label }}</button></sc-for>
+  </div>
+  <sc-if value="{{ no_city_data }}" hint-placeholder-val="{{ false }}">
+    <div class="raznos-empty-state">
+      <span class="raznos-empty-glyph">?</span>
+      <span class="raznos-text-h3">По этому городу статистики пока нет</span>
+      <p class="raznos-text-small">Покажем медианы, когда наберётся хотя бы 30 курьеров Разноса на сервис</p>
+    </div>
+  </sc-if>
+  <sc-if value="{{ has_city_data }}" hint-placeholder-val="{{ true }}">
+    <dc-import name="RaznosCohortCompare" city="{{ city }}" mineCity="{{ mineCity }}" transport="{{ transport }}" period="{{ period }}" svc="all" mine="{{ mine }}" title="{{ compare_title }}"></dc-import>
+    <p class="raznos-text-tiny">Статистика участников Разноса, а не всех курьеров города. Только агрегаты с задержкой в сутки, редкие сочетания скрыты</p>
+  </sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"profileCity":{"editor":"text","default":"moscow"},"cityTitle":{"editor":"text","default":"Москва"},"mineCity":{"editor":"text","default":"moscow"},"transport":{"editor":"enum","default":"bike","options":["bike","foot","car","electric","public"]},"period":{"editor":"text","default":"month"},"mine":{"editor":null},"$preview":{"width":360,"height":640}}'>
+const CS_WITH_DATA = ['moscow', 'spb'];
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const profileCity = p.profileCity || 'moscow';
+    const city = profileCity;
+    const transport = st.transport || p.transport || 'bike';
+    const hasData = CS_WITH_DATA.indexOf(city) !== -1;
+    const mineCity = p.mineCity || 'moscow';
+    const sameBasis = city === mineCity && transport === (p.transport || 'bike');
+    return {
+      city, transport, period: p.period || 'month', mineCity,
+      mine: transport === (p.transport || 'bike') ? (p.mine || null) : null,
+      city_title: p.cityTitle || city,
+      transports: [['bike', 'Велосипед'], ['foot', 'Пешком'], ['car', 'Авто'], ['electric', 'Электро'], ['public', 'Общественный']].map((t) => ({ label: t[1], cls: 'raznos-segment' + (transport === t[0] ? ' raznos-is-active' : ''), tap: () => this.setState({ transport: t[0] }) })),
+      no_city_data: !hasData, has_city_data: hasData,
+      compare_title: city === mineCity ? (sameBasis ? 'Медианы и ваши показатели' : 'Медианы курьеров, другой транспорт') : 'Медианы курьеров города'
+    };
+  }
+}
+</script></body></html>

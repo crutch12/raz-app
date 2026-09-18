@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-live.css" /></helmet>
+      <div class="raznos-fx raznos-col raznos-gap8">
+        <div class="raznos-live-map">
+          <svg viewBox="0 0 320 220" role="img" aria-label="Условная схема района, не настоящая карта">
+            <rect x="0" y="0" width="320" height="220" class="raznos-live-map-bg" />
+            <path d="M-10 190 C 60 160, 120 205, 190 170 S 290 150, 330 175" class="raznos-live-map-river" />
+            <rect x="14" y="14" width="80" height="54" rx="6" class="raznos-live-map-block" />
+            <rect x="118" y="14" width="86" height="54" rx="6" class="raznos-live-map-block" />
+            <rect x="228" y="14" width="78" height="54" rx="6" class="raznos-live-map-block" />
+            <rect x="14" y="92" width="80" height="50" rx="6" class="raznos-live-map-block" />
+            <rect x="118" y="92" width="86" height="50" rx="6" class="raznos-live-map-block" />
+            <rect x="228" y="92" width="78" height="50" rx="6" class="raznos-live-map-block" />
+            <line x1="0" y1="80" x2="320" y2="80" class="raznos-live-map-street" />
+            <line x1="106" y1="0" x2="106" y2="160" class="raznos-live-map-street" />
+            <line x1="216" y1="0" x2="216" y2="160" class="raznos-live-map-street" />
+            <line x1="0" y1="152" x2="320" y2="152" class="raznos-live-map-street" />
+          </svg>
+          <sc-for list="{{ spots }}" as="sp" hint-placeholder-count="1">
+            <button type="button" class="{{ sp.cls }}" style="{{ sp.style }}" onClick="{{ sp.tap }}" aria-label="{{ sp.label }}"><span class="raznos-live-map-spot-label">{{ sp.label }}</span><span class="raznos-live-map-spot-pin"></span></button>
+          </sc-for>
+        </div>
+        <p class="raznos-text-tiny">{{ note }}</p>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "mode": { "editor": "enum", "default": "view", "options": ["view", "pick"] },
+      "spots": { "editor": null },
+      "selectedId": { "editor": "text", "default": "begovaya" },
+      "onPick": { "editor": null },
+      "$preview": { "width": 360, "height": 300 }
+    }'>
+      // точки демо-района для галереи, в приложении список передаёт RaznosApp. Точка обозначает событие, а не место автора
+      const DEFAULT_SPOTS = [
+        { id: 'begovaya', label: 'Беговая ул., 7', x: 30, y: 36 },
+        { id: 'presnya', label: 'Мантулинская ул., 2', x: 50, y: 62 },
+        { id: 'tverskaya', label: 'Тверская ул.', x: 68, y: 30 },
+        { id: 'sokol', label: 'Склад на Соколе', x: 84, y: 60 }
+      ];
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const pick = p.mode === 'pick';
+          const all = Array.isArray(p.spots) ? p.spots : DEFAULT_SPOTS;
+          const list = pick ? all : all.filter((s) => s.id === p.selectedId);
+          return {
+            spots: list.map((s) => ({
+              label: s.label,
+              cls: 'raznos-live-map-spot' + (s.id === p.selectedId ? ' raznos-is-active' : ''),
+              style: 'left:' + s.x + '%;top:' + s.y + '%',
+              tap: () => { if (pick && p.onPick) p.onPick(s.id); }
+            })),
+            note: pick ? 'Нажмите на точку события. Своё местоположение само не публикуется' : 'Точка события, которую выбрал автор. Условная схема, не маршрут и не место автора'
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

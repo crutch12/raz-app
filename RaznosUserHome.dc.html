@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-user-home.css" /></helmet>
+      <div class="raznos-phone-body" data-screen-label="17 User home">
+        <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Работа курьером</h1></div>
+        <p class="raznos-text-small">Сравните доход и отзывы в своём городе</p>
+        <span class="raznos-text-small">{{ city_title }} · город задаётся в профиле</span>
+
+        <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}">
+        <div class="user-home-service-list">
+          <sc-for list="{{ services }}" as="svc" hint-placeholder-count="4">
+            <button type="button" class="{{ svc.cardClass }}" style="{{ svc.tintStyle }}" onClick="{{ svc.onTap }}">
+              <dc-import name="RaznosIcon" svc="{{ svc.key }}" alt="{{ svc.title }}" size="md"></dc-import>
+              <div class="user-home-service-main"><span class="raznos-text-h3">{{ svc.title }}</span><span class="raznos-text-small">{{ svc.note }}</span></div>
+              <span class="raznos-row-chevron">›</span>
+            </button>
+          </sc-for>
+        </div>
+        <p class="raznos-text-tiny">Медиана за вчера, велосипед, участники Разноса. Транспорт и период можно посмотреть в Рынке</p>
+        <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ go_compare }}">Сравнить все сервисы</button>
+        </sc-if>
+        <sc-if value="{{ no_data }}">
+          <div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">{{ city_title }}</span><span class="raznos-text-small">Пока нет данных по этому городу</span></div>
+        </sc-if>
+
+        <span class="raznos-text-h3">Если вы только начинаете</span>
+        <div class="raznos-card">
+          <button type="button" class="raznos-list-row" onClick="{{ go_guide_newbies }}"><div class="raznos-list-main"><span class="raznos-list-title">Как проходят первые недели</span><span class="raznos-text-small">Доход и ожидание новичков отдельно от опытных</span></div><span class="raznos-row-chevron">›</span></button>
+          <button type="button" class="raznos-list-row" onClick="{{ go_guide_start }}"><div class="raznos-list-main"><span class="raznos-list-title">Сколько нужно на старт</span><span class="raznos-text-small">Траты и залог до первой выплаты</span></div><span class="raznos-row-chevron">›</span></button>
+          <button type="button" class="raznos-list-row" onClick="{{ go_guide_schedule }}"><div class="raznos-list-main"><span class="raznos-list-title">Подобрать под свой график</span><span class="raznos-text-small">Дни и часы, когда вам удобно</span></div><span class="raznos-row-chevron">›</span></button>
+          <button type="button" class="raznos-list-row" onClick="{{ go_guide_terms }}" style="border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">Условия простыми словами</span><span class="raznos-text-small">Выплаты, удержания, бонусы и гарантии</span></div><span class="raznos-row-chevron">›</span></button>
+        </div>
+
+        <div class="raznos-card">
+          <button type="button" class="raznos-list-row" onClick="{{ go_couriers }}"><div class="raznos-list-main"><span class="raznos-list-title">Найти курьера</span><span class="raznos-text-small">Публичный профиль и чаевые</span></div><span class="raznos-row-chevron">›</span></button>
+          <button type="button" class="raznos-list-row" onClick="{{ go_favorites }}" style="border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">Избранное</span><span class="raznos-text-small">Сервисы, которые вы отмечали</span></div><span class="raznos-row-chevron">›</span></button>
+        </div>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "city": { "editor": "text", "default": "moscow" },
+      "cityTitle": { "editor": "text", "default": "Москва" },
+      "rates": { "editor": null },
+      "onCityChange": { "editor": null },
+      "onNavigate": { "editor": null },
+      "$preview": { "width": 390, "height": 760 }
+    }'>
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const city = p.city || 'moscow';
+          const hasData = city === 'moscow' || city === 'spb';
+          const onNavigate = p.onNavigate || (() => {});
+          const svcTitles = { vkusvill: 'ВкусВилл', samokat: 'Самокат', x5: 'X5 Доставка', 'yandex-eda': 'Яндекс Еда' };
+          const rates = p.rates || [];
+          const services = !hasData ? [] : rates.map((r) => ({
+            key: r.key,
+            title: svcTitles[r.key],
+            note: r.sufficient ? `Медиана курьеров: ${r.hourly} ₽/ч` : 'Недостаточно данных',
+            cardClass: 'user-home-service-card raznos-svc-border-' + r.key,
+            tintStyle: 'background:var(--raznos-svc-' + r.key + '-tint)',
+            onTap: () => onNavigate('compare', r.key)
+          }));
+          return {
+            city,
+            city_title: p.cityTitle || city,
+            has_data: hasData,
+            no_data: !hasData,
+            services,
+            go_compare: () => onNavigate('compare'),
+            go_guide_newbies: () => onNavigate('guide', 'newbies'),
+            go_guide_start: () => onNavigate('guide', 'start'),
+            go_guide_schedule: () => onNavigate('guide', 'schedule'),
+            go_guide_terms: () => onNavigate('guide', 'terms'),
+            go_couriers: () => onNavigate('couriers'),
+            go_favorites: () => onNavigate('favorites')
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

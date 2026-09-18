@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+      <div class="raznos-card raznos-card-pad">
+        <div class="raznos-head-row">
+          <sc-if value="{{ authorClickable }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-link-btn raznos-text-h3 raznos-head-title" onClick="{{ onAuthorTap }}">{{ authorLabel }}</button></sc-if>
+          <sc-if value="{{ authorStatic }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-h3 raznos-head-title">{{ authorLabel }}</span></sc-if>
+          <span class="raznos-text-tiny raznos-head-side">{{ date }}</span>
+        </div>
+        <div class="raznos-fx raznos-ac raznos-gap8 raznos-wrap">
+          <span class="raznos-text-small">{{ authorCity }}</span>
+          <sc-if value="{{ confirmed }}" hint-placeholder-val="{{ true }}"><span class="raznos-status-pill raznos-pill-ok">Работа подтверждена</span></sc-if>
+          <sc-if value="{{ mine }}" hint-placeholder-val="{{ false }}"><span class="raznos-status-pill raznos-pill-concept">Ваш отзыв</span></sc-if>
+        </div>
+        <sc-if value="{{ unconfirmedNote }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">Оценка не влияет на общий балл: город автора не подтверждён</span></sc-if>
+        <div class="raznos-stars" aria-label="{{ ratingLabel }}">
+          <svg class="{{ s1 }}" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg>
+          <svg class="{{ s2 }}" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg>
+          <svg class="{{ s3 }}" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg>
+          <svg class="{{ s4 }}" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg>
+          <svg class="{{ s5 }}" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg>
+        </div>
+        <p class="raznos-text-body">{{ text }}</p>
+        <sc-if value="{{ ordersLabel }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ ordersLabel }}</span></sc-if>
+        <sc-if value="{{ ownNote }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ ownNote }}</span></sc-if>
+        <dc-import name="RaznosReactionRows" courierLikes="{{ courierLikes }}" courierDislikes="{{ courierDislikes }}" userLikes="{{ userLikes }}" userDislikes="{{ userDislikes }}" myCategory="{{ myCategory }}" myVote="{{ myVote }}" canVote="{{ canVote }}" onLike="{{ onLike }}" onDislike="{{ onDislike }}"></dc-import>
+        <sc-if value="{{ showComplain }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" style="align-self:flex-end" onClick="{{ onComplain }}">Пожаловаться</button></sc-if>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "authorName": { "editor": "text", "default": "Ночной_велосипед" },
+      "authorCity": { "editor": "text", "default": "Москва" },
+      "category": { "editor": "text", "default": "courier" },
+      "rating": { "editor": "int", "default": 4, "min": 1, "max": 5 },
+      "confirmed": { "editor": "boolean", "default": true },
+      "text": { "editor": "text", "default": "" },
+      "date": { "editor": "text", "default": "" },
+      "ordersLabel": { "editor": "text", "default": "" },
+      "onAuthorTap": { "editor": null },
+      "courierLikes": { "editor": "int", "default": 0 },
+      "courierDislikes": { "editor": "int", "default": 0 },
+      "userLikes": { "editor": "int", "default": 0 },
+      "userDislikes": { "editor": "int", "default": 0 },
+      "myCategory": { "editor": "text", "default": "" },
+      "myVote": { "editor": "text", "default": "" },
+      "canVote": { "editor": "boolean", "default": true },
+      "onLike": { "editor": null },
+      "onDislike": { "editor": null },
+      "mine": { "editor": "boolean", "default": false },
+      "ownNote": { "editor": "text", "default": "" },
+      "showComplain": { "editor": "boolean", "default": false },
+      "onComplain": { "editor": null },
+      "$preview": { "width": 360, "height": 260 }
+    }'>
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const rating = p.rating || 0;
+          const starClass = (i) => 'raznos-star' + (i <= rating ? ' raznos-is-on' : '');
+          const category = p.category || '';
+          const authorLabel = category === 'courier' ? 'Курьер сервиса' : (category === 'user' ? 'Пользователь Разноса' : (p.authorName || ''));
+          return {
+            authorLabel,
+            authorClickable: category === 'courier' && !!p.onAuthorTap,
+            authorStatic: !(category === 'courier' && !!p.onAuthorTap),
+            onAuthorTap: p.onAuthorTap || (() => {}),
+            authorCity: p.authorCity || '',
+            confirmed: !!p.confirmed,
+            unconfirmedNote: category === 'courier' && !p.confirmed,
+            date: p.date || '',
+            text: p.text || '',
+            ordersLabel: p.ordersLabel || '',
+            mine: !!p.mine, ownNote: p.mine ? (p.ownNote || '') : '',
+            ratingLabel: 'Оценка ' + rating + ' из 5',
+            s1: starClass(1), s2: starClass(2), s3: starClass(3), s4: starClass(4), s5: starClass(5),
+            courierLikes: p.courierLikes || 0, courierDislikes: p.courierDislikes || 0,
+            userLikes: p.userLikes || 0, userDislikes: p.userDislikes || 0,
+            myCategory: p.myCategory || '', myVote: p.myVote || '', canVote: p.canVote !== false,
+            onLike: p.onLike || (() => {}), onDislike: p.onDislike || (() => {}),
+            showComplain: !!p.showComplain,
+            onComplain: p.onComplain || (() => {})
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

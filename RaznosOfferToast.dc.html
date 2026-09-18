@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-work.css" /></helmet>
+      <div class="raznos-offer-toast" style="{{ toast_style }}" role="status" aria-label="{{ toast_label }}" onPointerDown="{{ on_pointer_down }}" onPointerUp="{{ on_pointer_up }}" onPointerCancel="{{ on_pointer_cancel }}">
+        <button type="button" onClick="{{ on_open }}" style="all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer">
+          <dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ svc_title }}" size="sm"></dc-import>
+          <span class="raznos-offer-toast-main">
+            <span class="raznos-offer-toast-title">{{ svc_title }} · {{ pay }} ₽</span>
+            <span class="raznos-offer-toast-route">{{ route }}</span>
+          </span>
+        </button>
+        <span class="{{ timer_class }}">{{ timer_label }}</span>
+        <button type="button" class="raznos-offer-toast-close" aria-label="Скрыть уведомление" title="Скрыть уведомление" onClick="{{ on_dismiss }}">×</button>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "svc": { "editor": "text", "default": "vkusvill" },
+      "svcTitle": { "editor": "text", "default": "" },
+      "pay": { "editor": "text", "default": "0" },
+      "route": { "editor": "text", "default": "" },
+      "timerLabel": { "editor": "text", "default": "00:30" },
+      "warn": { "editor": "boolean", "default": false },
+      "onOpen": { "editor": null },
+      "onDismiss": { "editor": null },
+      "$preview": { "width": 340, "height": 64 }
+    }'>
+      class Component extends DCLogic {
+        constructor(props) {
+          super(props);
+          this._startX = null;
+          this._startY = null;
+          this._swiped = false;
+        }
+        renderVals() {
+          const p = this.props || {};
+          const svc = p.svc || 'vkusvill';
+          const onOpenRaw = p.onOpen || (() => {});
+          const onOpen = () => { if (this._swiped) { this._swiped = false; return; } onOpenRaw(); };
+          const onDismiss = p.onDismiss || (() => {});
+          const pointX = (e) => e.clientX != null ? e.clientX : ((e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || {}).clientX;
+          const pointY = (e) => e.clientY != null ? e.clientY : ((e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || {}).clientY;
+          return {
+            toast_style: 'background:color-mix(in oklch, var(--raznos-svc-' + svc + ') 82%, black)',
+            svc, svc_title: p.svcTitle || '',
+            pay: p.pay != null ? p.pay : 0,
+            route: p.route || '',
+            timer_label: p.timerLabel || '',
+            timer_class: 'raznos-offer-toast-timer' + (p.warn ? ' raznos-is-warn' : ''),
+            toast_label: (p.svcTitle || '') + ', ' + (p.pay != null ? p.pay + ' ₽' : '') + (p.timerLabel ? ', осталось ' + p.timerLabel : ''),
+            on_open: onOpen,
+            on_dismiss: onDismiss,
+            // смахивание только по горизонтали закрывает тост, само нажатие открывает подробности
+            on_pointer_down: (e) => { this._startX = pointX(e); this._startY = pointY(e); },
+            on_pointer_up: (e) => {
+              if (this._startX == null) return;
+              const dx = pointX(e) - this._startX;
+              const dy = Math.abs(pointY(e) - (this._startY != null ? this._startY : pointY(e)));
+              this._startX = null; this._startY = null;
+              if (Math.abs(dx) > 60 && dy < 40) { this._swiped = true; onDismiss(); }
+            },
+            on_pointer_cancel: () => { this._startX = null; this._startY = null; }
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

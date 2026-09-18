@@ -1,0 +1,51 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+<div class="raznos-app-settings">
+  <span class="raznos-text-h3">Приложение</span>
+  <div class="raznos-field">
+    <span class="raznos-field-label">Тема</span>
+    <div class="raznos-segmented" role="group" aria-label="Тема оформления">
+      <button type="button" class="{{ lightClass }}" onClick="{{ setLight }}" aria-pressed="{{ isLight }}">Светлая</button>
+      <button type="button" class="{{ darkClass }}" onClick="{{ setDark }}" aria-pressed="{{ isDark }}">Тёмная</button>
+      <button type="button" class="{{ systemClass }}" onClick="{{ setSystem }}" aria-pressed="{{ isSystem }}">Системная</button>
+    </div>
+    <span class="raznos-text-tiny">{{ themeNote }}</span>
+  </div>
+  <div class="raznos-card">
+    <button type="button" class="raznos-list-row" onClick="{{ onNotifications }}"><div class="raznos-list-main"><span class="raznos-list-title">Уведомления</span><span class="raznos-text-small">{{ notificationsSummary }}</span></div><span class="raznos-row-chevron">›</span></button>
+    <button type="button" class="raznos-list-row" onClick="{{ onSupport }}"><div class="raznos-list-main"><span class="raznos-list-title">Поддержка в Telegram</span><span class="raznos-text-small">{{ supportSummary }}</span></div><span class="raznos-row-chevron">›</span></button>
+  </div>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "theme": { "editor": "enum", "default": "system", "options": ["light", "dark", "system"] },
+  "systemIsDark": { "editor": "boolean", "default": true },
+  "notificationsSummary": { "editor": "text", "default": "Включено 3 из 5 категорий" },
+  "supportSummary": { "editor": "text", "default": "Временно недоступна" },
+  "onTheme": { "editor": null },
+  "onNotifications": { "editor": null },
+  "onSupport": { "editor": null },
+  "$preview": { "width": 350, "height": 260 }
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const theme = p.theme || 'system';
+    const onTheme = p.onTheme || (() => {});
+    const cls = (v) => 'raznos-segment' + (theme === v ? ' raznos-is-active' : '');
+    const systemLabel = p.systemIsDark ? 'тёмная' : 'светлая';
+    const note = theme === 'system'
+      ? ('Следуем настройке телефона, сейчас там ' + systemLabel + ' тема')
+      : ('Всегда ' + (theme === 'dark' ? 'тёмная' : 'светлая') + ' тема, настройка телефона не учитывается');
+    return {
+      lightClass: cls('light'), darkClass: cls('dark'), systemClass: cls('system'),
+      isLight: theme === 'light', isDark: theme === 'dark', isSystem: theme === 'system',
+      setLight: () => onTheme('light'), setDark: () => onTheme('dark'), setSystem: () => onTheme('system'),
+      themeNote: note,
+      notificationsSummary: p.notificationsSummary || '',
+      supportSummary: p.supportSummary || '',
+      onNotifications: p.onNotifications || (() => {}),
+      onSupport: p.onSupport || (() => {})
+    };
+  }
+}
+</script></body></html>

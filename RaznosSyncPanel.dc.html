@@ -1,0 +1,34 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-final.css" /></helmet>
+<div class="raznos-card raznos-card-pad">
+  <div class="raznos-head-row"><span class="raznos-text-h3 raznos-head-title">Данные сервисов</span><span class="raznos-text-tiny raznos-head-side">{{ schedule_label }}</span></div>
+  <sc-if value="{{ is_running }}" hint-placeholder-val="{{ false }}">
+    <div class="raznos-sync-progress"><span class="raznos-sync-progress-fill" style="{{ progress_style }}"></span></div>
+    <span class="raznos-text-small">{{ progress_label }}</span>
+  </sc-if>
+  <sc-if value="{{ has_summary }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-small">{{ summary }}, подробности у каждого сервиса ниже</span></sc-if>
+  <sc-if value="{{ has_joined }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">Обновление уже идёт, повторный запрос присоединён к нему</p></sc-if>
+  <button type="button" class="{{ button_class }}" onClick="{{ onRequest }}">{{ button_label }}</button>
+  <p class="raznos-text-tiny">Ключи входа хранятся на телефоне и передаются серверу только для выполнения запроса, сервер их не сохраняет. Лимиты сервисов соблюдаются, поэтому свежесть не мгновенная. Заказы не принимаются и режим Работа не включается</p>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"summary":{"editor":"text","default":""},"running":{"editor":"boolean","default":false},"done":{"editor":"int","default":0},"total":{"editor":"int","default":0},"joined":{"editor":"boolean","default":false},"onRequest":{"editor":null},"$preview":{"width":360,"height":360}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const running = !!p.running;
+    const total = p.total || 0;
+    const done = Math.min(p.done || 0, total);
+    return {
+      schedule_label: 'по расписанию каждые 30 мин',
+      is_running: running,
+      progress_style: 'width:' + (total ? Math.round((done / total) * 100) : 0) + '%',
+      progress_label: 'Ответили ' + done + ' из ' + total + ', сервисы опрашиваются по очереди',
+      has_summary: !running && !!p.summary, summary: p.summary || '',
+      has_joined: running && !!p.joined,
+      button_class: running ? 'raznos-btn raznos-btn-secondary' : 'raznos-btn raznos-btn-primary',
+      button_label: running ? 'Обновляем…' : 'Запросить данные',
+      onRequest: p.onRequest || (() => {})
+    };
+  }
+}
+</script></body></html>

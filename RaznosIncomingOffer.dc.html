@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-work.css" /></helmet>
+      <div class="raznos-incoming">
+        <div class="raznos-incoming-banner"><dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ title }}" size="sm"></dc-import><span class="raznos-incoming-banner-text">Новое предложение · {{ title }}</span></div>
+        <div class="raznos-fx raznos-ac raznos-gap8"><span class="raznos-incoming-sum">{{ pay }}</span><span class="raznos-incoming-sum-unit">₽</span><sc-if value="{{ hasEstimate }}"><span class="raznos-incoming-estimate">≈ {{ estHourly }} ₽/ч · {{ estNet }} ₽ после расходов</span></sc-if></div>
+        <dc-import name="RaznosRouteMap" pickupAddr="{{ pickupAddr }}" dropAddr="{{ dropAddr }}" pickupLabel="{{ pickupLabelWithEta }}" dropLabel="{{ dropLabelWithEta }}" distance="{{ distance }}"></dc-import>
+        <div class="raznos-metric-grid">
+          <div class="raznos-metric-card"><span class="raznos-text-small">Расстояние</span><span class="raznos-metric-value">{{ distance }}</span></div>
+          <div class="raznos-metric-card"><span class="raznos-text-small">Вес</span><span class="raznos-metric-value">{{ weight }}</span></div>
+          <div class="raznos-metric-card"><span class="raznos-text-small">Пакетов</span><span class="raznos-metric-value">{{ packages }}</span></div>
+          <div class="raznos-metric-card"><span class="raznos-text-small">Весь заказ</span><span class="raznos-metric-value">{{ etaTotal }}</span></div>
+        </div>
+        <sc-if value="{{ showActions }}" hint-placeholder-val="{{ true }}">
+          <dc-import name="RaznosOfferActions" timerLabel="{{ timerLabel }}" timerFillStyle="{{ timerFillStyle }}" timerWarn="{{ timerWarn }}"
+            isIdle="{{ isIdle }}" isProcessing="{{ isProcessing }}" acceptBlocked="{{ acceptBlocked }}" canDecline="{{ canDecline }}"
+            onAccept="{{ onAccept }}" onDecline="{{ onDecline }}" onHide="{{ onHide }}" onCheckStatus="{{ onCheckStatus }}"></dc-import>
+        </sc-if>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "svc": { "editor": "text", "default": "vkusvill" },
+      "title": { "editor": "text", "default": "" },
+      "pay": { "editor": "text", "default": "" },
+      "pickupAddr": { "editor": "text", "default": "" },
+      "dropAddr": { "editor": "text", "default": "" },
+      "etaPoint": { "editor": "text", "default": "" },
+      "etaTotal": { "editor": "text", "default": "" },
+      "distance": { "editor": "text", "default": "" },
+      "weight": { "editor": "text", "default": "" },
+      "packages": { "editor": "text", "default": "" },
+      "timerLabel": { "editor": "text", "default": "00:25" },
+      "timerFillStyle": { "editor": "text", "default": "width:100%" },
+      "estimate": { "editor": null },
+      "timerWarn": { "editor": "boolean", "default": false },
+      "isIdle": { "editor": "boolean", "default": true },
+      "isProcessing": { "editor": "boolean", "default": false },
+      "acceptBlocked": { "editor": "boolean", "default": false },
+      "canDecline": { "editor": "boolean", "default": true },
+      "onAccept": { "editor": null },
+      "onDecline": { "editor": null },
+      "onHide": { "editor": null },
+      "onCheckStatus": { "editor": null },
+      "showActions": { "editor": "boolean", "default": true }
+    }'>
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const estimate = p.estimate || null;
+          return {
+            svc: p.svc || 'vkusvill',
+            title: p.title || '',
+            pay: p.pay || '',
+            hasEstimate: !!estimate,
+            estHourly: estimate ? estimate.hourly : '',
+            estNet: estimate ? estimate.net : '',
+            pickupAddr: p.pickupAddr || '',
+            dropAddr: p.dropAddr || '',
+            pickupLabelWithEta: 'Забрать · ' + (p.etaPoint || ''),
+            dropLabelWithEta: 'Доставить · ' + (p.etaTotal || ''),
+            etaPoint: p.etaPoint || '',
+            etaTotal: p.etaTotal || '',
+            distance: p.distance || '',
+            weight: p.weight || '',
+            packages: p.packages || '',
+            timerLabel: p.timerLabel || '00:25',
+            timerFillStyle: p.timerFillStyle || 'width:100%',
+            timerWarn: !!p.timerWarn,
+            isIdle: !!p.isIdle,
+            isProcessing: !!p.isProcessing,
+            acceptBlocked: !!p.acceptBlocked,
+            canDecline: !!p.canDecline,
+            showActions: p.showActions !== false,
+            onAccept: p.onAccept || (() => {}),
+            onDecline: p.onDecline || (() => {}),
+            onHide: p.onHide || (() => {}),
+            onCheckStatus: p.onCheckStatus || (() => {})
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

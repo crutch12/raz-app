@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-work.css" /><link rel="stylesheet" href="./raznos-links.css" /></helmet>
+      <div class="raznos-card raznos-card-pad raznos-offer-voice">
+        <button type="button" class="raznos-offer-voice-toggle" onClick="{{ toggle }}" disabled="{{ unavailable }}">
+          <div class="raznos-list-main"><span class="raznos-list-title">Озвучивать новые предложения</span><span class="raznos-text-small">Сервис, оплата, примерное время и главное ограничение</span></div>
+          <span class="{{ switchClass }}"><span class="raznos-switch-knob"></span></span>
+        </button>
+        <sc-if value="{{ unavailable }}" hint-placeholder-val="{{ false }}">
+          <div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Нет голоса для языка {{ langTitle }}</span><span class="raznos-text-small">На этом телефоне не нашли голос, поэтому озвучивание выключено. Русский вместо него без спроса не включаем</span></div>
+        </sc-if>
+        <sc-if value="{{ available }}" hint-placeholder-val="{{ true }}">
+          <span class="raznos-text-tiny">Язык озвучивания: {{ langTitle }}</span>
+          <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" style="align-self:flex-start" onClick="{{ test }}">Проверить голос</button>
+          <sc-if value="{{ tested }}" hint-placeholder-val="{{ false }}">
+            <p class="raznos-offer-voice-sample">{{ sample }}</p>
+            <span class="raznos-text-tiny">Демо: звук в макете не воспроизводится, фраза собрана из вымышленного предложения</span>
+          </sc-if>
+        </sc-if>
+        <span class="raznos-text-tiny">Голос не принимает и не отклоняет заказ, не называет покупателя, адрес и телефон, одно предложение звучит один раз</span>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "language": { "editor": "text", "default": "ru" },
+      "on": { "editor": "boolean", "default": false },
+      "onToggle": { "editor": null },
+      "resetKey": { "editor": "int", "default": 0 },
+      "$preview": { "width": 360, "height": 260 }
+    }'>
+      // голоса есть не для всех языков приложения, недоступный язык показываем честно
+      const VOICES = {
+        ru: { title: 'Русский', sample: 'ВкусВилл, 320 рублей, около 23 минут, подходит вам' },
+        en: { title: 'English', sample: 'VkusVill, 320 roubles, about 23 minutes, fits your goals' },
+        uz: { title: 'O‘zbekcha' },
+        tg: { title: 'Тоҷикӣ' },
+        ky: { title: 'Кыргызча' }
+      };
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const st = this.state || {};
+          const voice = VOICES[p.language] || VOICES.ru;
+          const available = !!voice.sample;
+          const on = available && !!p.on;
+          return {
+            available,
+            unavailable: !available,
+            langTitle: voice.title,
+            switchClass: on ? 'raznos-switch raznos-is-on' : 'raznos-switch',
+            tested: available && st.tested === (p.resetKey || 0) + 1,
+            sample: voice.sample || '',
+            toggle: () => { if (available && p.onToggle) p.onToggle(!on); },
+            test: () => this.setState({ tested: (p.resetKey || 0) + 1 })
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

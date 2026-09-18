@@ -1,0 +1,124 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-final.css" /></helmet>
+<div class="raznos-phone-body" data-screen-label="Slots">
+  <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><span class="raznos-text-small">Режим Работа</span></div>
+  <h1 class="raznos-text-h1">Расписание</h1>
+  <p class="raznos-text-small">Слоты на завтра, 16 сентября, так как их прислали сервисы. Только просмотр</p>
+  <div class="raznos-card raznos-card-pad raznos-slot-day">
+    <div class="raznos-slot-scale"><span></span><div class="raznos-slot-scale-marks"><span>10</span><span>13</span><span>16</span><span>19</span><span>22</span></div></div>
+    <sc-for list="{{ lanes }}" as="lane" hint-placeholder-count="2">
+      <div class="raznos-slot-lane">
+        <dc-import name="RaznosIcon" svc="{{ lane.svc }}" alt="{{ lane.title }}" size="sm"></dc-import>
+        <div class="raznos-slot-track">
+          <sc-for list="{{ lane.travel }}" as="tr"><span class="raznos-slot-block raznos-is-travel" style="{{ tr.style }}"></span></sc-for>
+          <sc-for list="{{ lane.slots }}" as="sl" hint-placeholder-count="2"><span class="{{ sl.cls }}" style="{{ sl.style }}" role="img" aria-label="{{ sl.aria }}"></span></sc-for>
+        </div>
+      </div>
+    </sc-for>
+    <div class="raznos-stats-legend raznos-text-tiny"><span>Тёмный: подтверждён</span><span>Светлый: предварительный</span><span>Красный: пересечение</span><span>Штрих: дорога между сервисами</span></div>
+  </div>
+
+  <sc-if value="{{ has_clashes }}" hint-placeholder-val="{{ true }}">
+    <div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Слоты пересекаются</span><sc-for list="{{ clashes }}" as="c"><span class="raznos-text-small">{{ c }}</span></sc-for><span class="raznos-text-tiny">Разнос только показывает пересечение, снять или перенести слот можно в приложении сервиса</span></div>
+  </sc-if>
+
+  <span class="raznos-text-h3">Что прислали сервисы</span>
+  <sc-for list="{{ sources }}" as="src" hint-placeholder-count="2">
+    <div class="raznos-card raznos-card-pad raznos-slot-source">
+      <div class="raznos-slot-source-head">
+        <dc-import name="RaznosIcon" svc="{{ src.svc }}" alt="{{ src.title }}" size="sm"></dc-import>
+        <span class="raznos-list-title">{{ src.title }}</span>
+        <span class="{{ src.freshClass }}">{{ src.freshLabel }}</span>
+      </div>
+      <span class="raznos-text-tiny">{{ src.updatedLabel }}</span>
+      <sc-if value="{{ src.isEmpty }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">{{ src.emptyNote }}</p></sc-if>
+      <sc-for list="{{ src.rows }}" as="row" hint-placeholder-count="2">
+        <div class="raznos-slot-row">
+          <span class="raznos-slot-row-time">{{ row.time }}</span>
+          <span class="raznos-slot-row-main">
+            <span class="{{ row.statusClass }}">{{ row.statusLabel }}</span>
+            <span class="raznos-text-tiny">Условия сервиса: {{ row.guarantee }}</span>
+            <span class="raznos-text-tiny">Прогноз Разноса: {{ row.forecast }}</span>
+            <sc-if value="{{ row.hasClash }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny raznos-slot-row-clash">{{ row.clashNote }}</span></sc-if>
+          </span>
+        </div>
+      </sc-for>
+    </div>
+  </sc-for>
+  <p class="raznos-text-tiny">Условия берём из ответа сервиса, прогноз это наша оценка по истории и дохода не обещает. Предварительный слот сервис может изменить до начала. Бронировать и отменять слоты из Разноса нельзя</p>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"$preview":{"width":390,"height":760}}'>
+const SLOT_DAY_START = 10 * 60, SLOT_DAY_LEN = 12 * 60;
+const SLOT_TRAVEL_MIN = 20;
+// расписание приходит из интеграций, в макете это зафиксированный ответ сервисов
+const SLOT_SOURCES = [
+  { svc: 'vkusvill', title: 'ВкусВилл', updated: '15 сентября, 14:40', fresh: 'ok', slots: [
+    { id: 'vv2', from: 840, to: 1080, status: 'confirmed', guarantee: 'от 400 ₽/ч при 1,5 заказа в час', forecast: '560–650 ₽/ч' },
+    { id: 'vv3', from: 1230, to: 1320, status: 'provisional', guarantee: 'гарантии нет', forecast: '590–680 ₽/ч' }
+  ] },
+  { svc: 'samokat', title: 'Самокат', updated: '15 сентября, 13:05', fresh: 'stale', slots: [
+    { id: 'sk2', from: 630, to: 810, status: 'confirmed', guarantee: 'от 350 ₽/ч за время в слоте', forecast: '500–580 ₽/ч' },
+    { id: 'sk3', from: 1090, to: 1200, status: 'provisional', guarantee: 'от 370 ₽/ч за время в слоте', forecast: '580–660 ₽/ч' }
+  ] },
+  { svc: 'x5', title: 'X5 Доставка', updated: null, fresh: 'none', slots: [],
+    emptyNote: 'Сервис не прислал слоты на этот день. Есть ли они на самом деле, из Разноса не видно' }
+];
+const SLOT_STATUS = {
+  confirmed: ['Подтверждён сервисом', 'raznos-status-pill raznos-pill-ok'],
+  provisional: ['Предварительный', 'raznos-status-pill raznos-pill-warn']
+};
+const slotTime = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+const slotPos = (from, to) => 'left:' + ((from - SLOT_DAY_START) / SLOT_DAY_LEN * 100).toFixed(2) + '%;width:' + ((to - from) / SLOT_DAY_LEN * 100).toFixed(2) + '%';
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const all = [];
+    SLOT_SOURCES.forEach((l) => l.slots.forEach((s) => all.push(Object.assign({ svc: l.svc, title: l.title }, s))));
+    const ordered = all.slice().sort((a, b) => a.from - b.from);
+    // пересечение считаем с учётом дороги между точками разных сервисов
+    const conflicts = (a, b) => { const gap = a.svc === b.svc ? 0 : SLOT_TRAVEL_MIN; return a.from < b.to + gap && b.from < a.to + gap; };
+    const clashIds = {};
+    const clashNote = {};
+    const clashes = [];
+    ordered.forEach((a, i) => ordered.slice(i + 1).forEach((b) => {
+      if (!conflicts(a, b)) return;
+      clashIds[a.id] = true; clashIds[b.id] = true;
+      const overlap = a.to > b.from;
+      const text = b.title + ' ' + slotTime(b.from) + '–' + slotTime(b.to) + (overlap ? ' пересекается с ' : ' начинается раньше, чем вы доедете после ') + a.title + ' ' + slotTime(a.from) + '–' + slotTime(a.to) + (a.svc !== b.svc ? ', на дорогу нужно ' + SLOT_TRAVEL_MIN + ' мин' : '');
+      clashes.push(text);
+      clashNote[a.id] = text; clashNote[b.id] = text;
+    }));
+    const lanes = SLOT_SOURCES.filter((l) => l.slots.length).map((l) => ({
+      svc: l.svc, title: l.title,
+      slots: l.slots.map((s) => ({
+        cls: 'raznos-slot-block' + (clashIds[s.id] ? ' raznos-is-clash' : (s.status === 'confirmed' ? ' raznos-is-picked' : '')),
+        style: slotPos(s.from, s.to) + (s.status === 'confirmed' ? ';z-index:2' : ''),
+        aria: l.title + ' ' + slotTime(s.from) + '–' + slotTime(s.to) + ', ' + SLOT_STATUS[s.status][0].toLowerCase() + (clashIds[s.id] ? ', пересекается с другим слотом' : '')
+      })),
+      travel: l.slots.map((s) => {
+        const prev = ordered.filter((x) => x.svc !== l.svc && x.to <= s.from).sort((a, b) => b.to - a.to)[0];
+        if (!prev) return null;
+        return { style: slotPos(prev.to, Math.min(prev.to + SLOT_TRAVEL_MIN, SLOT_DAY_START + SLOT_DAY_LEN)) };
+      }).filter(Boolean)
+    }));
+    const freshPill = { ok: ['Свежие данные', 'raznos-status-pill raznos-pill-ok'], stale: ['Давно не обновлялось', 'raznos-status-pill raznos-pill-warn'], none: ['Нет ответа', 'raznos-status-pill raznos-pill-muted'] };
+    return {
+      onBack: p.onBack || (() => {}),
+      lanes,
+      has_clashes: clashes.length > 0, clashes,
+      sources: SLOT_SOURCES.map((l) => ({
+        svc: l.svc, title: l.title,
+        freshLabel: freshPill[l.fresh][0], freshClass: freshPill[l.fresh][1],
+        updatedLabel: l.updated ? ('Получено из сервиса ' + l.updated) : 'Ответа со слотами не было',
+        isEmpty: !l.slots.length, emptyNote: l.emptyNote || '',
+        rows: l.slots.map((s) => ({
+          time: slotTime(s.from) + '–' + slotTime(s.to),
+          statusLabel: SLOT_STATUS[s.status][0], statusClass: SLOT_STATUS[s.status][1],
+          guarantee: s.guarantee, forecast: s.forecast,
+          hasClash: !!clashIds[s.id], clashNote: clashNote[s.id] || ''
+        }))
+      }))
+    };
+  }
+}
+</script></body></html>

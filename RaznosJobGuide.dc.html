@@ -1,0 +1,163 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-final.css" /></helmet>
+<div class="raznos-phone-body" data-screen-label="Job guide">
+  <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><span class="raznos-text-small">{{ city_title }}</span></div>
+  <h1 class="raznos-text-h1">Подобрать работу</h1>
+  <div class="raznos-segmented">
+    <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4"><button type="button" class="{{ t.cls }}" onClick="{{ t.tap }}">{{ t.label }}</button></sc-for>
+  </div>
+
+  <sc-if value="{{ no_data }}" hint-placeholder-val="{{ false }}">
+    <div class="raznos-empty-state"><span class="raznos-empty-glyph">?</span><span class="raznos-text-h3">По этому городу данных пока нет</span><p class="raznos-text-small">Город меняется в профиле. Покажем цифры, когда в городе наберётся хотя бы 30 курьеров Разноса на сервис</p></div>
+  </sc-if>
+
+  <sc-if value="{{ is_newbies }}" hint-placeholder-val="{{ true }}">
+    <p class="raznos-text-small">Первые 4 недели работы отдельно от опытных курьеров, велосипед, медиана за июль и август</p>
+    <sc-for list="{{ newbies }}" as="n" hint-placeholder-count="3">
+      <div class="{{ n.cls }}">
+        <div class="raznos-head-row"><div class="raznos-fx raznos-ac raznos-gap8 raznos-head-title"><dc-import name="RaznosIcon" svc="{{ n.key }}" alt="{{ n.title }}" size="sm"></dc-import><span class="raznos-text-h3">{{ n.title }}</span></div><span class="raznos-text-tiny raznos-head-side">{{ n.sample }}</span></div>
+        <sc-if value="{{ n.enough }}" hint-placeholder-val="{{ true }}">
+          <div class="raznos-cohort-grid">
+            <span class="raznos-cohort-grid-head"></span><span class="raznos-cohort-grid-head">Новички</span><span class="raznos-cohort-grid-head">Опытные</span>
+            <span class="raznos-text-small">Доход в час</span><span class="raznos-cohort-cell">{{ n.newH }}</span><span class="raznos-cohort-cell raznos-cohort-cell-muted">{{ n.oldH }}</span>
+            <span class="raznos-text-small">Ожидание заказа</span><span class="raznos-cohort-cell">{{ n.newWait }}</span><span class="raznos-cohort-cell raznos-cohort-cell-muted">{{ n.oldWait }}</span>
+            <span class="raznos-text-small">Остались через месяц</span><span class="raznos-cohort-cell">{{ n.stayed }}</span><span class="raznos-cohort-cell raznos-cohort-cell-muted">—</span>
+          </div>
+          <span class="raznos-text-small">Чаще всего сложно: {{ n.hard }}</span>
+        </sc-if>
+        <sc-if value="{{ n.not_enough }}"><p class="raznos-text-small">Недостаточно данных: меньше 30 новичков, цифры не показываем</p></sc-if>
+      </div>
+    </sc-for>
+  </sc-if>
+
+  <sc-if value="{{ is_start }}">
+    <div class="raznos-chip-row"><sc-for list="{{ svc_chips }}" as="c"><button type="button" class="{{ c.cls }}" onClick="{{ c.tap }}">{{ c.label }}</button></sc-for></div>
+    <div class="raznos-hero-dark">
+      <span class="raznos-hero-label">До первой выплаты · {{ start.title }}</span>
+      <div class="raznos-fx raznos-ac raznos-gap8"><span class="raznos-hero-value">{{ start.total }}</span><span class="raznos-hero-unit">₽</span></div>
+      <span class="raznos-hero-formula">{{ start.formula }}</span>
+    </div>
+    <div class="raznos-card raznos-card-pad">
+      <sc-for list="{{ start.rows }}" as="r" hint-placeholder-count="4"><div class="raznos-guide-cost-row"><div class="raznos-list-main"><span class="raznos-text-body">{{ r.label }}</span><span class="raznos-text-tiny">{{ r.note }}</span></div><span class="raznos-num">{{ r.sum }}</span></div></sc-for>
+    </div>
+    <div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">{{ start.deposit_title }}</span><span class="raznos-text-small">{{ start.deposit }}</span></div>
+    <p class="raznos-text-tiny">{{ start.source }}</p>
+  </sc-if>
+
+  <sc-if value="{{ is_schedule }}">
+    <span class="raznos-text-h3">Когда готовы работать</span>
+    <div class="raznos-guide-days"><sc-for list="{{ days }}" as="d" hint-placeholder-count="7"><button type="button" class="{{ d.cls }}" onClick="{{ d.tap }}">{{ d.label }}</button></sc-for></div>
+    <div class="raznos-chip-row"><sc-for list="{{ windows }}" as="w" hint-placeholder-count="3"><button type="button" class="{{ w.cls }}" onClick="{{ w.tap }}">{{ w.label }}</button></sc-for></div>
+    <p class="raznos-text-small">{{ schedule_summary }}</p>
+    <sc-for list="{{ fits }}" as="f" hint-placeholder-count="3">
+      <div class="{{ f.cls }}">
+        <div class="raznos-head-row"><div class="raznos-fx raznos-ac raznos-gap8 raznos-head-title"><dc-import name="RaznosIcon" svc="{{ f.key }}" alt="{{ f.title }}" size="sm"></dc-import><span class="raznos-text-h3">{{ f.title }}</span></div><span class="{{ f.pill_class }}">{{ f.pill }}</span></div>
+        <span class="raznos-text-small">{{ f.note }}</span>
+        <sc-if value="{{ f.has_range }}" hint-placeholder-val="{{ true }}"><div class="raznos-breakdown-row"><span class="raznos-text-small">В выбранные часы обычно</span><span class="raznos-num">{{ f.range }}</span></div></sc-if>
+      </div>
+    </sc-for>
+    <p class="raznos-text-tiny">Диапазон между четвертью и тремя четвертями курьеров Разноса на велосипеде за август, это не обещание дохода</p>
+  </sc-if>
+
+  <sc-if value="{{ is_terms }}">
+    <div class="raznos-chip-row"><sc-for list="{{ svc_chips }}" as="c"><button type="button" class="{{ c.cls }}" onClick="{{ c.tap }}">{{ c.label }}</button></sc-for></div>
+    <div class="raznos-card raznos-card-pad">
+      <sc-for list="{{ terms.rows }}" as="r" hint-placeholder-count="5"><div class="raznos-guide-cost-row"><div class="raznos-list-main"><span class="raznos-list-title">{{ r.label }}</span><span class="raznos-text-small">{{ r.text }}</span></div></div></sc-for>
+    </div>
+    <p class="raznos-text-tiny">{{ terms.source }}</p>
+    <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ open_service }}">Отзывы и вопросы о {{ terms.title_prep }}</button>
+  </sc-if>
+  <p class="raznos-text-tiny">Демо-данные. Статистика участников Разноса, а не всех курьеров сервиса</p>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"city":{"editor":"text","default":"moscow"},"section":{"editor":"enum","default":"newbies","options":["newbies","start","schedule","terms"]},"onBack":{"editor":null},"onOpenService":{"editor":null},"$preview":{"width":390,"height":900}}'>
+const JG_CITIES = { moscow: 'Москва', spb: 'Санкт-Петербург' };
+function jgPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
+const JG_SVC = ['vkusvill', 'samokat', 'x5', 'yandex-eda'];
+const JG_TITLE = { vkusvill: 'ВкусВилл', samokat: 'Самокат', x5: 'X5 Доставка', 'yandex-eda': 'Яндекс Еда' };
+const JG_PREP = { vkusvill: 'ВкусВилле', samokat: 'Самокате', x5: 'X5 Доставке', 'yandex-eda': 'Яндекс Еде' };
+const rub = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
+// [доход новичка, доход опытного, ожидание новичка, опытного, осталось через месяц, выборка новичков, сложности]
+const JG_NEWBIES = {
+  moscow: { vkusvill: [480, 590, 11, 6, '64%', 41, 'длинное ожидание на кассе и тяжёлые заказы'], samokat: [470, 560, 9, 8, '58%', 37, 'поиск подъездов и штрафы за опоздание к слоту'], x5: [450, 540, 12, 9, '', 12, ''], 'yandex-eda': [520, 610, 10, 7, '61%', 52, 'далёкие заказы вечером и ожидание в ресторанах'] },
+  spb: { vkusvill: [460, 560, 12, 7, '60%', 31, 'ожидание на кассе и мало заказов днём'], samokat: [450, 540, 10, 8, '', 9, ''], x5: [430, 520, 13, 9, '', 6, ''], 'yandex-eda': [490, 580, 11, 8, '57%', 33, 'далёкие заказы и дождь'] }
+};
+// разовые траты, возвратный залог, дни до первой выплаты
+const JG_START = {
+  vkusvill: { rows: [['Термосумка', 'выдают под залог, он ниже', 0], ['Форма', 'выдают бесплатно', 0], ['Медицинская книжка', 'нужна для продуктов', 1500], ['Связь и мобильный интернет', 'на 2 недели', 350], ['Аренда велосипеда', 'если нет своего, 2 недели', 3800]], deposit: 2000, depositNote: 'за термосумку, возвращают при сдаче в течение 14 дней', payDays: '7–10 дней', payNote: 'выплата раз в неделю, первая после проверки документов' },
+  samokat: { rows: [['Термокороб', 'выдают бесплатно', 0], ['Форма', 'выдают бесплатно', 0], ['Медицинская книжка', 'можно оформить позже, в течение месяца', 0], ['Связь и мобильный интернет', 'на неделю', 200], ['Аренда электровелосипеда', 'через партнёра сервиса, неделя', 2900]], deposit: 0, depositNote: 'залога нет', payDays: '3–5 дней', payNote: 'выплата дважды в неделю' },
+  x5: { rows: [['Термосумка', 'покупка', 1900], ['Медицинская книжка', 'нужна до первой смены', 1500], ['Связь и мобильный интернет', 'на 2 недели', 350], ['Аренда велосипеда', 'если нет своего, 2 недели', 3800]], deposit: 0, depositNote: 'залога нет', payDays: '10–14 дней', payNote: 'выплата раз в две недели' },
+  'yandex-eda': { rows: [['Термокороб', 'залог вместо покупки', 0], ['Форма', 'по желанию, покупка', 1200], ['Медицинская книжка', 'не требуется для большинства ресторанов', 0], ['Связь и мобильный интернет', 'на неделю', 200], ['Аренда велосипеда', 'если нет своего, неделя', 1900]], deposit: 1500, depositNote: 'за термокороб, возвращают при сдаче', payDays: '1–7 дней', payNote: 'ежедневный вывод за комиссию или бесплатно раз в неделю' }
+};
+// минимум дней в неделю, доступные окна, диапазон в час
+const JG_SCHEDULE = {
+  vkusvill: { minDays: 2, windows: ['morning', 'day', 'evening'], range: [520, 660] },
+  samokat: { minDays: 3, windows: ['day', 'evening'], range: [500, 640] },
+  x5: { minDays: 4, windows: ['morning', 'day'], range: [480, 610] },
+  'yandex-eda': { minDays: 1, windows: ['day', 'evening'], range: [540, 700] }
+};
+const JG_TERMS = {
+  vkusvill: [['Как платят', 'За каждый заказ, доплата за вес больше 10 кг и дальние адреса'], ['Когда выплата', 'Раз в неделю на карту, первая через 7–10 дней'], ['Удержания', 'За потерю термосумки и за отказ от заказа после принятия'], ['Бонусы', 'За 11 заказов в день 500 ₽, отменённые не считаются'], ['Гарантия дохода', 'От 400 ₽ в час в забронированном слоте, если выполнено от 1,5 заказа в час']],
+  samokat: [['Как платят', 'За час в слоте и за каждый заказ отдельно'], ['Когда выплата', 'Дважды в неделю, первая через 3–5 дней'], ['Удержания', 'За опоздание к слоту больше 15 минут и за неявку'], ['Бонусы', 'За смены в выходные и в дождь'], ['Гарантия дохода', 'От 350 ₽ в час за время в слоте, без условия по заказам']],
+  x5: [['Как платят', 'За заказ с доплатой за этаж без лифта'], ['Когда выплата', 'Раз в две недели'], ['Удержания', 'За порчу товара по акту'], ['Бонусы', 'Нет постоянных'], ['Гарантия дохода', 'Нет']],
+  'yandex-eda': [['Как платят', 'За заказ, сумма зависит от расстояния и спроса'], ['Когда выплата', 'Можно выводить каждый день за комиссию'], ['Удержания', 'Комиссия за ежедневный вывод, аренда термокороба сверх залога'], ['Бонусы', 'За серию заказов в часы пик'], ['Гарантия дохода', 'В отдельных акциях, условия меняются каждую неделю']]
+};
+const JG_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+const JG_WINDOWS = [['morning', 'Утро 8–12'], ['day', 'День 12–17'], ['evening', 'Вечер 17–22']];
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const city = p.city || 'moscow';
+    const hasData = !!JG_CITIES[city];
+    const tab = st.tab || p.section || 'newbies';
+    const svc = st.svc || 'vkusvill';
+    const days = st.days || [5, 6];
+    const wins = st.wins || ['day', 'evening'];
+    const toggle = (list, v) => (list.indexOf(v) !== -1 ? list.filter((x) => x !== v) : list.concat([v]));
+    const start = JG_START[svc];
+    const spend = start.rows.reduce((a, r) => a + r[2], 0);
+    const winLabels = JG_WINDOWS.filter((w) => wins.indexOf(w[0]) !== -1).map((w) => w[1].split(' ')[0].toLowerCase());
+    return {
+      onBack: p.onBack || (() => {}),
+      city_title: JG_CITIES[city] || 'Город без данных',
+      no_data: !hasData,
+      tabs: [['newbies', 'Новичкам'], ['start', 'Старт'], ['schedule', 'График'], ['terms', 'Условия']].map((t) => ({ label: t[1], cls: 'raznos-segment' + (tab === t[0] ? ' raznos-is-active' : ''), tap: () => this.setState({ tab: t[0] }) })),
+      is_newbies: hasData && tab === 'newbies', is_start: hasData && tab === 'start', is_schedule: hasData && tab === 'schedule', is_terms: hasData && tab === 'terms',
+      svc_chips: JG_SVC.map((k) => ({ label: JG_TITLE[k], cls: 'raznos-chip' + (svc === k ? ' raznos-is-active' : ''), tap: () => this.setState({ svc: k }) })),
+      newbies: !hasData ? [] : JG_SVC.map((k) => {
+        const r = JG_NEWBIES[city][k];
+        const enough = r[5] >= 30;
+        return { key: k, title: JG_TITLE[k], cls: 'raznos-card raznos-card-pad raznos-svc-border-' + k, sample: r[5] + ' ' + jgPlural(r[5], 'новичок', 'новичка', 'новичков'), enough, not_enough: !enough, newH: r[0] + ' ₽', oldH: r[1] + ' ₽', newWait: r[2] + ' мин', oldWait: r[3] + ' мин', stayed: r[4] || '—', hard: r[6] };
+      }),
+      start: {
+        title: JG_TITLE[svc],
+        deposit_title: start.deposit ? 'Залог вернут' : 'Без залога',
+        total: rub(spend + start.deposit),
+        formula: start.deposit ? rub(spend) + ' ₽ расходов + ' + rub(start.deposit) + ' ₽ залога · первая выплата через ' + start.payDays : 'расходы без залога · первая выплата через ' + start.payDays,
+        rows: start.rows.map((r) => ({ label: r[0], note: r[1], sum: r[2] ? rub(r[2]) + ' ₽' : '0 ₽' })),
+        deposit: start.deposit ? rub(start.deposit) + ' ₽ ' + start.depositNote + '. Залог не входит в расходы, но деньги на него нужны до первой выплаты' : 'Залога нет, ' + start.payNote,
+        source: 'Демо: условия и суммы придуманы для макета, это не проверенные предложения сервиса. Настоящие условия смотрите в приложении сервиса при оформлении'
+      },
+      days: JG_DAYS.map((d, i) => ({ label: d, cls: 'raznos-chip' + (days.indexOf(i) !== -1 ? ' raznos-is-active' : ''), tap: () => this.setState({ days: toggle(days, i) }) })),
+      windows: JG_WINDOWS.map((w) => ({ label: w[1], cls: 'raznos-chip' + (wins.indexOf(w[0]) !== -1 ? ' raznos-is-active' : ''), tap: () => this.setState({ wins: toggle(wins, w[0]) }) })),
+      schedule_summary: days.length && wins.length ? 'Выбрано ' + days.length + ' дн. в неделю: ' + winLabels.join(', ') : 'Отметьте дни и время, чтобы подобрать сервисы',
+      fits: !hasData || !days.length || !wins.length ? [] : JG_SVC.map((k) => {
+        const sc = JG_SCHEDULE[k];
+        const covered = wins.filter((w) => sc.windows.indexOf(w) !== -1);
+        const missing = JG_WINDOWS.filter((w) => wins.indexOf(w[0]) !== -1 && sc.windows.indexOf(w[0]) === -1).map((w) => w[1].split(' ')[0].toLowerCase());
+        const tooFew = days.length < sc.minDays;
+        const kind = tooFew || !covered.length ? 'no' : (missing.length ? 'part' : 'ok');
+        return {
+          key: k, title: JG_TITLE[k], cls: 'raznos-card raznos-card-pad raznos-svc-border-' + k, order: kind === 'ok' ? 0 : (kind === 'part' ? 1 : 2),
+          pill: kind === 'ok' ? 'Подходит' : (kind === 'part' ? 'Частично' : 'Не подходит'),
+          pill_class: 'raznos-status-pill ' + (kind === 'ok' ? 'raznos-pill-ok' : (kind === 'part' ? 'raznos-pill-warn' : 'raznos-pill-muted')),
+          note: tooFew ? 'Нужно работать от ' + sc.minDays + ' дн. в неделю' : (!covered.length ? 'В выбранное время заказов у сервиса нет' : (missing.length ? 'Нет смен: ' + missing.join(', ') + ', остальное время подходит' : 'Смены есть во всё выбранное время')),
+          has_range: kind !== 'no', range: sc.range[0] + '–' + sc.range[1] + ' ₽/ч'
+        };
+      }).sort((a, b) => a.order - b.order),
+      terms: { rows: JG_TERMS[svc].map((r) => ({ label: r[0], text: r[1] })), source: 'Демо-пересказ для макета, условия сервиса ' + JG_TITLE[svc] + ' здесь вымышлены и не сверялись с офертой. Окончательные условия в приложении сервиса', title_prep: JG_PREP[svc] },
+      open_service: () => (p.onOpenService || (() => {}))(svc)
+    };
+  }
+}
+</script></body></html>

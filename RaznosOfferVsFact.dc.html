@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-final.css" /></helmet>
+<div class="raznos-card raznos-card-pad">
+  <div class="raznos-head-row"><span class="raznos-text-h3 raznos-head-title">Предложение и факт</span><span class="{{ pill_class }}">{{ pill }}</span></div>
+  <sc-if value="{{ has_snapshot }}" hint-placeholder-val="{{ true }}">
+    <div class="raznos-cohort-grid">
+      <span class="raznos-cohort-grid-head"></span><span class="raznos-cohort-grid-head">Обещано</span><span class="raznos-cohort-grid-head">Факт</span>
+      <span class="raznos-text-small">Оплата</span><span class="raznos-cohort-cell raznos-cohort-cell-muted">{{ promised_pay }}</span><span class="raznos-cohort-cell">{{ fact_pay }}</span>
+      <span class="raznos-text-small">Время с ожиданием</span><span class="raznos-cohort-cell raznos-cohort-cell-muted">{{ promised_min }}</span><span class="raznos-cohort-cell">{{ fact_min }}</span>
+    </div>
+    <sc-for list="{{ reasons }}" as="r" hint-placeholder-count="2"><span class="raznos-text-small">{{ r }}</span></sc-for>
+    <p class="raznos-text-tiny">Условия сохранены в момент принятия, разницу объясняем только данными сервиса</p>
+  </sc-if>
+  <sc-if value="{{ no_snapshot }}"><p class="raznos-text-small">Заказ принят не через Разнос, условий на момент принятия нет, сравнить не с чем</p></sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"snapshot":{"editor":null},"factPay":{"editor":"int","default":300},"factMin":{"editor":"int","default":15},"$preview":{"width":360,"height":240}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const snap = p.snapshot || null;
+    const factPay = p.factPay, factMin = p.factMin;
+    const same = !!snap && !snap.partial && snap.pay === factPay && snap.min === factMin;
+    return {
+      has_snapshot: !!snap, no_snapshot: !snap,
+      pill: !snap ? 'Нет данных' : (snap.partial ? 'Неполные данные' : (same ? 'Совпало' : 'Есть разница')),
+      pill_class: 'raznos-status-pill ' + (!snap ? 'raznos-pill-muted' : (snap.partial ? 'raznos-pill-warn' : (same ? 'raznos-pill-ok' : 'raznos-pill-warn'))),
+      promised_pay: snap ? snap.pay + ' ₽' : '', promised_min: snap ? snap.min + ' мин' : '',
+      fact_pay: snap && snap.partial ? 'ждём' : factPay + ' ₽', fact_min: factMin + ' мин',
+      reasons: snap ? (snap.reasons || []) : []
+    };
+  }
+}
+</script></body></html>

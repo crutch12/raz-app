@@ -1,0 +1,18 @@
+@import url("./raznos-logo-explorations.css");
+
+.rzpt-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-self: flex-start;
+  padding: 20px 24px;
+  border-radius: 20px;
+  background: var(--rzlogo-surface);
+}
+
+.rzpt-strip-row { display: flex; flex-wrap: wrap; gap: 14px 18px; }
+.rzpt-strip-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.rzpt-strip-item img { display: block; border-radius: 8px; }
+.rzpt-strip-num { font: 600 10px "JetBrains Mono", ui-monospace, Menlo, monospace; color: var(--rzlogo-muted); }
+
+.rzlogo-mono-mark.rzpt-mono-small { width: 16px; height: 16px; }

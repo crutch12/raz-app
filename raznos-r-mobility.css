@@ -1,0 +1,56 @@
+@import url("./raznos-logo-explorations.css");
+
+.rzmob-refs {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  align-self: flex-start;
+  padding: 20px 28px;
+  border-radius: 20px;
+  background: var(--rzlogo-surface);
+}
+
+.rzmob-ref { display: flex; align-items: center; gap: 14px; }
+.rzmob-ref-hero { width: 72px; height: 72px; border-radius: 17px; display: block; }
+.rzmob-ref-small { width: 32px; height: 32px; border-radius: 8px; display: block; }
+.rzmob-ref-text { display: flex; flex-direction: column; gap: 2px; }
+.rzmob-refs-note { margin: 0; max-width: 360px; font-size: 13px; line-height: 1.45; color: var(--rzlogo-muted); }
+
+.rzmob-compare {
+  display: flex;
+  align-items: flex-end;
+  gap: 32px;
+  align-self: flex-start;
+  padding: 18px 24px;
+  border-radius: 16px;
+  background: var(--rzlogo-surface);
+}
+.rzmob-compare-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.rzmob-compare-item img { width: 32px; height: 32px; border-radius: 8px; display: block; }
+.rzmob-compare-code { font: 600 10px "JetBrains Mono", ui-monospace, Menlo, monospace; color: var(--rzlogo-muted); }
+
+.rzmob-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+.rzmob-card { flex-direction: row; gap: 22px; padding: 22px; }
+.rzmob-card .rzlogo-hero { flex: none; }
+.rzmob-card-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.rzmob-changed { margin: 0; font-size: 12px; line-height: 1.4; color: var(--rzlogo-muted); }
+
+.rzlogo-mono-mark.rzmob-mono-small { width: 16px; height: 16px; }
+
+.rzmob-short { gap: 24px; }
+.rzmob-short-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+.rzmob-short-card { display: flex; flex-direction: column; gap: 10px; }
+
+.rzmob-tones { display: flex; gap: 6px; }
+.rzmob-tone { width: 48px; height: 48px; border-radius: 11px; display: flex; align-items: center; justify-content: center; }
+.rzmob-tone .rzlogo-mono-mark { width: 34px; height: 34px; }
+.rzmob-tone-cream { background: #f6f1e3; }
+.rzmob-tone-cream .rzlogo-mono-mark { background-color: #2447d6; }
+.rzmob-tone-lime { background: #c9f03d; }
+.rzmob-tone-lime .rzlogo-mono-mark { background-color: #16171b; }
+.rzmob-tone-orange { background: #ff6a13; }
+.rzmob-tone-orange .rzlogo-mono-mark { background-color: #16171b; }
+.rzmob-tone-ink { background: #16171b; }
+.rzmob-tone-ink .rzlogo-mono-mark { background-color: #c9f03d; }
+.rzmob-tones-caption { font-size: 11px; color: var(--rzlogo-muted); }

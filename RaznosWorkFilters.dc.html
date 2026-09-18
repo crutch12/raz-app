@@ -1,0 +1,59 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-opportunities.css" /></helmet>
+<div class="raznos-phone-body" data-screen-label="Work filters">
+<div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><span class="raznos-text-small">Выбор заказов</span></div>
+<h1 class="raznos-text-h1">Мои фильтры</h1><p class="raznos-text-small">У каждого сервиса свои настройки, заказ всегда принимаете вы</p>
+<div class="raznos-fx raznos-col raznos-gap8"><sc-for list="{{ services }}" as="svc"><button type="button" class="{{ svc.cls }}" onClick="{{ svc.tap }}"><dc-import name="RaznosIcon" svc="{{ svc.key }}" size="md"></dc-import><span class="raznos-list-main"><span class="raznos-list-title">{{ svc.title }}</span></span><span class="{{ svc.checkCls }}">{{ svc.checkMark }}</span></button></sc-for></div>
+<div class="raznos-card raznos-card-pad"><div class="raznos-head-row"><span class="raznos-text-h3 raznos-head-title">Как работают фильтры</span><span class="raznos-text-tiny raznos-head-side">{{ eff_title }}</span></div>
+<div class="raznos-chip-row"><sc-for list="{{ eff_periods }}" as="ep"><button type="button" class="{{ ep.cls }}" onClick="{{ ep.tap }}">{{ ep.label }}</button></sc-for></div>
+<sc-if value="{{ eff_has_data }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-body">{{ eff_summary }}</span><div class="raznos-progress-track"><span class="raznos-progress-fill" style="{{ eff_bar_style }}"></span></div>
+<sc-for list="{{ eff_reasons }}" as="er"><div class="raznos-breakdown-row"><span class="raznos-text-small">{{ er.label }}</span><span class="raznos-num">{{ er.count }}</span></div></sc-for>
+<sc-if value="{{ eff_has_tip }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">{{ eff_tip_title }}</span><span class="raznos-text-small">{{ eff_tip_note }}</span>
+<sc-if value="{{ eff_can_ask }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" style="align-self:flex-start" onClick="{{ eff_ask }}">{{ eff_tip_button }}</button></sc-if>
+<sc-if value="{{ eff_confirming }}"><span class="raznos-text-small">Изменить фильтр {{ serviceTitle }}? Настройка поменяется только после Сохранить</span><div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-primary raznos-btn-small" onClick="{{ eff_apply }}">Изменить</button><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ eff_cancel }}">Оставить как есть</button></div></sc-if>
+<sc-if value="{{ eff_applied }}"><span class="raznos-text-small">Значение подставлено ниже, нажмите Сохранить</span></sc-if></div></sc-if>
+<sc-if value="{{ eff_no_tip }}"><p class="raznos-text-small">Фильтры не выглядят слишком строгими, менять ничего не предлагаем</p></sc-if>
+<p class="raznos-text-tiny">Считаем полученные предложения, а не упущенный заработок, непринятые заказы могли занять другие курьеры</p>
+<p class="raznos-text-tiny">Отдельная статистика по фильтрам, не совпадает со счётчиком в Истории предложений</p></sc-if>
+<sc-if value="{{ eff_no_data }}"><p class="raznos-text-small">За этот период предложений от сервиса не было, оценить фильтры не по чему</p></sc-if></div>
+<span class="raznos-text-h3">Готовые наборы</span><div class="raznos-fx raznos-col raznos-gap8"><sc-for list="{{ presets }}" as="p"><button type="button" class="{{ p.cls }}" onClick="{{ p.tap }}"><span class="raznos-list-main"><span class="raznos-list-title">{{ p.title }}</span><span class="raznos-text-small">{{ p.note }}</span></span></button></sc-for></div>
+<p class="raznos-text-tiny">{{ savedLabel }}</p><div class="raznos-opportunity-fields"><label class="raznos-field"><span class="raznos-field-label">Оплата от, ₽</span><input class="raznos-input" type="number" min="0" step="1" value="{{ minPay }}" onChange="{{ change_minPay }}" /></label>
+<label class="raznos-field"><span class="raznos-field-label">После расходов от, ₽/ч</span><input class="raznos-input" type="number" min="0" step="1" value="{{ minHourly }}" onChange="{{ change_minHourly }}" /></label>
+<label class="raznos-field"><span class="raznos-field-label">Маршрут с переездом до, км</span><input class="raznos-input" type="number" min="0" step="0.1" value="{{ maxDistance }}" onChange="{{ change_maxDistance }}" /></label>
+<label class="raznos-field"><span class="raznos-field-label">Вес до, кг</span><input class="raznos-input" type="number" min="0" step="0.1" value="{{ maxWeight }}" onChange="{{ change_maxWeight }}" /></label>
+<label class="raznos-field"><span class="raznos-field-label">Пакетов до</span><input class="raznos-input" type="number" min="0" step="1" value="{{ maxPackages }}" onChange="{{ change_maxPackages }}" /></label>
+<label class="raznos-field"><span class="raznos-field-label">Вместе с переездом до, мин</span><input class="raznos-input" type="number" min="0" step="1" value="{{ maxMinutes }}" onChange="{{ change_maxMinutes }}" /></label>
+<label class="raznos-field"><span class="raznos-field-label">Мои расходы на 1 км, ₽</span><input class="raznos-input" type="number" min="0" step="0.1" value="{{ costPerKm }}" onChange="{{ change_costPerKm }}" /></label></div>
+<label class="raznos-field"><span class="raznos-field-label">Район доставки</span><select class="raznos-input" value="{{ zone }}" onChange="{{ changeZone }}"><option value="all">Любой район</option><option value="Белорусская">Белорусская</option><option value="Тверская">Тверская</option><option value="Баррикадная">Баррикадная</option></select></label>
+<label class="raznos-field"><span class="raznos-field-label">Название набора</span><input class="raznos-input" value="{{ name }}" onChange="{{ changeName }}" /></label>
+<p class="raznos-text-small">Расходы на километр включают вашу оценку аренды, зарядки и обслуживания, налоги отдельно</p>
+<div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Фильтры подсвечивают неподходящие условия, но не отправляют отказ сервису, неизвестные данные требуют вашей проверки</span></div>
+<sc-if value="{{ error }}"><p class="raznos-notice raznos-notice-warn">{{ error }}</p></sc-if>
+<button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ save }}">Сохранить для {{ serviceTitle }}</button>
+</div></x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"value":{"editor":null},"onChange":{"editor":null},"onBack":{"editor":null}}'>
+class Component extends DCLogic {
+ renderVals() {
+  const st=this.state||{}, p=this.props||{}, key=st.service||'vkusvill';
+  const defaults={name:'Стандартные настройки',minPay:250,minHourly:600,maxDistance:3,maxWeight:8,maxPackages:4,maxMinutes:35,costPerKm:12,zone:'all'};
+  const current=Object.assign({},defaults,(p.value||{})[key]||{},(st.drafts||{})[key]||{});
+  const patch=(v)=>this.setState({drafts:Object.assign({},st.drafts,{[key]:Object.assign({},current,v)}),error:''});
+  const presetData=[{title:'Рядом с домом',note:'До 2 км, Белорусская',value:{maxDistance:2,zone:'Белорусская'}},{title:'Без тяжёлых заказов',note:'До 3 кг и двух пакетов',value:{maxWeight:3,maxPackages:2}},{title:'Работаю два часа',note:'Короткие заказы до 25 минут',value:{maxMinutes:25}}];
+  const services=[{key:'vkusvill',title:'ВкусВилл'},{key:'samokat',title:'Самокат'},{key:'x5',title:'X5'}];
+  const vals=Object.assign({},current,{serviceTitle:services.find(s=>s.key===key).title,error:st.error||'',savedLabel:'Сохранено: '+(((p.value||{})[key]||{}).name||'Стандартные настройки'),onBack:p.onBack||(()=>{}),services:services.map(s=>Object.assign({},s,{cls:'raznos-svc-select-card raznos-svc-border-'+s.key+(s.key===key?' raznos-is-active':''),checkCls:'raznos-check-box'+(s.key===key?' raznos-is-on':''),checkMark:s.key===key?'✓':'',tap:()=>this.setState({service:s.key,error:''})})),presets:presetData.filter(v=>!(current.savedSets||[]).some(s=>s.name===v.title)).concat((current.savedSets||[]).map(v=>({title:v.name,note:'Ваш сохранённый набор',value:v}))).map(v=>({title:v.title,note:v.note,cls:'raznos-list-row raznos-card',tap:()=>patch(Object.assign({},current,v.value,{name:v.title,savedSets:current.savedSets||[]}))})),changeZone:e=>patch({zone:e.target.value}),changeName:e=>patch({name:e.target.value}),save:()=>{if(!current.name.trim()||Object.keys(defaults).some(k=>typeof defaults[k]==='number'&&(current[k]===''||!Number.isFinite(Number(current[k]))||Number(current[k])<0))||!Number.isInteger(Number(current.maxPackages))){this.setState({error:'Укажите название и числа от нуля, пакеты целым числом'});return;}const result=Object.assign({},current);Object.keys(defaults).forEach(k=>{if(typeof defaults[k]==='number')result[k]=Number(current[k])});const saved=Object.assign({},result);delete saved.savedSets;result.savedSets=(current.savedSets||[]).filter(v=>v.name!==saved.name).concat([saved]);if(p.onChange)p.onChange(Object.assign({},p.value,{[key]:result}));}});
+  const EFF={vkusvill:{today:{got:20,passed:3,reasons:[['Далеко ехать',11],['Низкая оплата',4],['Большой вес',2]],tip:{field:'maxDistance',value:4,gain:6}},week:{got:134,passed:29,reasons:[['Далеко ехать',71],['Низкая оплата',25],['Большой вес',9]],tip:{field:'maxDistance',value:4,gain:38}}},samokat:{today:{got:16,passed:9,reasons:[['Низкая оплата',5],['Большой вес',2]]},week:{got:97,passed:58,reasons:[['Низкая оплата',30],['Большой вес',9]]}},x5:{}};
+  const effPeriod=st.effPeriod||'today', eff=(EFF[key]||{})[effPeriod], effStage=(st.effStage||{})[key]||'idle';
+  const tip=eff&&eff.tip&&Number(current[eff.tip.field])<eff.tip.value?eff.tip:null;
+  const setEff=(v)=>this.setState({effStage:Object.assign({},st.effStage,{[key]:v})});
+  Object.assign(vals,{eff_title:effPeriod==='today'?'сегодня':'за 7 дней',eff_periods:[['today','Сегодня'],['week','7 дней']].map(x=>({label:x[1],cls:'raznos-chip'+(effPeriod===x[0]?' raznos-is-active':''),tap:()=>this.setState({effPeriod:x[0]})})),eff_has_data:!!eff,eff_no_data:!eff,eff_summary:eff?'Из '+eff.got+' предложений подошли '+eff.passed+', остальные не прошли по причинам ниже':'',eff_bar_style:eff?'width:'+Math.round(eff.passed/eff.got*100)+'%':'',eff_reasons:eff?eff.reasons.map(r=>({label:r[0],count:r[1]})):[],eff_has_tip:!!tip||effStage==='applied',eff_no_tip:!!eff&&!tip&&effStage!=='applied',eff_tip_title:tip?'Маршрут до '+tip.value+' км вместо '+current.maxDistance:'Маршрут до 4 км',eff_tip_note:tip?'С таким фильтром подошли бы ещё '+tip.gain+' из '+eff.got+'. Решение за вами, сами фильтры мы не меняем':'',eff_tip_button:tip?'Изменить на '+tip.value+' км':'',eff_can_ask:!!tip&&effStage==='idle',eff_confirming:!!tip&&effStage==='confirm',eff_applied:effStage==='applied',eff_ask:()=>setEff('confirm'),eff_cancel:()=>setEff('idle'),eff_apply:()=>{if(!tip)return;this.setState({drafts:Object.assign({},st.drafts,{[key]:Object.assign({},current,{[tip.field]:tip.value})}),effStage:Object.assign({},st.effStage,{[key]:'applied'}),error:''});}});
+  vals.change_minPay=e=>patch({minPay:e.target.value});
+vals.change_minHourly=e=>patch({minHourly:e.target.value});
+vals.change_maxDistance=e=>patch({maxDistance:e.target.value});
+vals.change_maxWeight=e=>patch({maxWeight:e.target.value});
+vals.change_maxPackages=e=>patch({maxPackages:e.target.value});
+vals.change_maxMinutes=e=>patch({maxMinutes:e.target.value});
+vals.change_costPerKm=e=>patch({costPerKm:e.target.value});
+  return vals;
+ }
+}
+</script></body></html>

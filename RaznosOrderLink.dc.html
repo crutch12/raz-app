@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-links.css" /></helmet>
+      <div class="raznos-order-link" style="{{ boxStyle }}">
+        <div class="raznos-order-link-head">
+          <dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ title }}" size="sm"></dc-import>
+          <span class="raznos-list-title">{{ title }}</span>
+          <span class="raznos-text-tiny">{{ orderNo }}</span>
+        </div>
+        <sc-if value="{{ canOpen }}" hint-placeholder-val="{{ true }}">
+          <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ open }}">{{ openLabel }}</button>
+        </sc-if>
+        <sc-if value="{{ blocked }}" hint-placeholder-val="{{ false }}">
+          <button type="button" class="raznos-btn-disabled" disabled="{{ true }}">Переход недоступен</button>
+          <p class="raznos-order-link-reason"><span class="raznos-order-link-reason-mark">!</span><span>{{ reason }}</span></p>
+        </sc-if>
+        <sc-if value="{{ isOpened }}" hint-placeholder-val="{{ false }}">
+          <div class="raznos-notice raznos-notice-ok">
+            <span class="raznos-notice-title">Демо: переход имитирован</span>
+            <span class="raznos-text-small">{{ openedText }}</span>
+            <button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" style="align-self:flex-start" onClick="{{ reset }}">Понятно</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isFailed }}" hint-placeholder-val="{{ false }}">
+          <div class="raznos-notice raznos-notice-warn">
+            <span class="raznos-notice-title">Не удалось открыть {{ title }}</span>
+            <span class="raznos-text-small">Вы остались на этом заказе. Попробуйте ещё раз или откройте приложение сервиса вручную</span>
+            <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" style="align-self:flex-start" onClick="{{ reset }}">Попробовать снова</button>
+          </div>
+        </sc-if>
+        <p class="raznos-order-link-hint">{{ hint }}</p>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "svc": { "editor": "text", "default": "vkusvill" },
+      "svcTitle": { "editor": "text", "default": "ВкусВилл" },
+      "orderNo": { "editor": "text", "default": "№48200" },
+      "orderRef": { "editor": "text", "default": "48200" },
+      "orderState": { "editor": "enum", "default": "done", "options": ["current", "done"] },
+      "app": { "editor": "enum", "default": "ready", "options": ["ready", "missing", "unresolved"] },
+      "launch": { "editor": "enum", "default": "ok", "options": ["ok", "fail"] },
+      "matchesCurrentTask": { "editor": "boolean", "default": false },
+      "taskShipments": { "editor": "int", "default": 1 },
+      "platform": { "editor": "enum", "default": "android", "options": ["android", "ios"] },
+      "resetKey": { "editor": "int", "default": 0 },
+      "$preview": { "width": 360, "height": 240 }
+    }'>
+      // по статическому аудиту APK из ORDER-APP-LINKS.md, на телефоне маршруты ещё не проверялись
+      // iOS принимает ту же ссылку временно по решению пользователя, Activity Android на iOS не переносится
+      const ROUTES = {
+        vkusvill: { kind: 'order', idName: 'ID посылки', link: 'com.vkusvill.courier://order?id_parcel=…&type=…' },
+        dostavista: { kind: 'order', idName: 'номера заказа', link: 'https://dostavista.ru/courier-app-links/order/…', activity: true },
+        magnit: { kind: 'order', idName: 'номера заказа', link: 'magnitcourier://courier/order?id=…' },
+        'ozon-fresh': { kind: 'task', idName: 'номера задачи курьера', link: 'app://ru.ozon.maple_app/courier_task/…' },
+        samokat: { kind: 'current', link: 'samokatdeliverypro://LiveActivityPressed' }
+      };
+      const UNVERIFIED_APP = {
+        'yandex-eda': 'Яндекс Про 13.65', delivery: 'Яндекс Про 13.65', x5: 'X5 Доставка 1.94', lenta: 'Лента 4.1',
+        kuper: 'Купер 126.26', dostaevsky: 'Достаевский 1.4'
+      };
+      function linkState(p) {
+        const title = p.svcTitle || 'сервиса';
+        const route = ROUTES[p.svc];
+        if (!route) return { blocked: true, reason: 'Переход к заказу в ' + (UNVERIFIED_APP[p.svc] ? 'приложении ' + UNVERIFIED_APP[p.svc] : 'этой версии приложения') + ' ещё не проверен' };
+        if (route.kind === 'current' && (p.orderState !== 'current' || !p.matchesCurrentTask)) {
+          return { blocked: true, reason: p.orderState === 'current' ? 'Самокат открывает только текущую задачу, а она не совпадает с этим заказом' : 'Самокат открывает только текущую задачу, завершённый заказ так не открыть' };
+        }
+        if (route.kind !== 'current' && !p.orderRef) return { blocked: true, reason: 'Не хватает данных заказа: нет ' + route.idName };
+        if (p.app === 'missing') return { blocked: true, reason: 'Приложение ' + title + ' не установлено' };
+        if (p.app === 'unresolved') return { blocked: true, reason: 'Приложение недоступно для открытия на этом устройстве' };
+        return { blocked: false, route };
+      }
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const st = this.state || {};
+          const title = p.svcTitle || 'сервис';
+          const res = linkState(p);
+          const route = res.route || ROUTES[p.svc] || null;
+          const stageKey = [p.resetKey || 0, p.svc, p.orderNo, p.app, p.launch].join(':');
+          const stage = res.blocked ? 'idle' : ((st.stages || {})[stageKey] || 'idle');
+          const setStage = (v) => this.setState({ stages: Object.assign({}, st.stages, { [stageKey]: v }) });
+          const isTask = !!route && route.kind === 'task';
+          const shipments = Number(p.taskShipments) || 1;
+          let openedText = 'В приложении ' + title + ' открылась бы карточка заказа ' + (p.orderNo || '') + '. Разнос остаётся на месте, заказ не принимается и не завершается';
+          if (isTask) openedText = 'В приложении ' + title + ' открылась бы задача курьера' + (shipments > 1 ? ', в ней ' + shipments + ' отправления, это не карточка одного заказа' : '') + '. Заказ не принимается и не завершается';
+          if (route && route.kind === 'current') openedText = 'В Самокате открылась бы текущая задача, она совпадает с этим заказом. Заказ не принимается и не завершается';
+          // технические допущения по Android и iOS остаются в ORDER-APP-LINKS.md и подписях сценариев, в интерфейс курьера не выводятся
+          let hint = isTask ? 'Откроет эту задачу в приложении сервиса, статус заказа не изменится' : 'Откроет этот заказ в приложении сервиса, статус заказа не изменится';
+          if (res.blocked) hint = 'Остальные действия с заказом в Разносе доступны';
+          return {
+            svc: p.svc || 'vkusvill',
+            title,
+            orderNo: p.orderNo || '',
+            boxStyle: 'border-left-color:var(--raznos-svc-' + (p.svc || 'vkusvill') + ')',
+            canOpen: !res.blocked && stage === 'idle',
+            blocked: !!res.blocked,
+            reason: res.reason || '',
+            openLabel: isTask ? 'Открыть задачу в приложении' : 'Открыть заказ в приложении',
+            isOpened: stage === 'opened',
+            isFailed: stage === 'failed',
+            openedText,
+            hint,
+            open: () => { if (!res.blocked) setStage(p.launch === 'fail' ? 'failed' : 'opened'); },
+            reset: () => setStage('idle')
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

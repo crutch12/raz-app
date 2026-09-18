@@ -1,0 +1,92 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-final.css" /></helmet>
+<div class="raznos-card raznos-card-pad">
+  <div class="raznos-head-row"><span class="raznos-text-h3 raznos-head-title">{{ title }}</span><span class="raznos-status-pill raznos-pill-concept raznos-head-side">Демо</span></div>
+  <p class="raznos-text-tiny">{{ basis_note }}</p>
+  <sc-if value="{{ show_delay }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Данные курьеров города публикуются с задержкой в сутки, сравнение за сегодня появится завтра</p></sc-if>
+  <sc-if value="{{ show_no_city }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">По этому городу статистики пока нет</p></sc-if>
+  <sc-if value="{{ show_cross_city }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Ваши заказы в другом городе, поэтому сравнивать себя с этой медианой некорректно. Ниже только данные выбранного города</span></div></sc-if>
+  <sc-if value="{{ show_no_rows }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Для этого транспорта статистики пока нет</p></sc-if>
+  <sc-for list="{{ rows }}" as="r" hint-placeholder-count="2">
+    <div class="raznos-cohort-row">
+      <div class="raznos-fx raznos-ac raznos-gap8"><dc-import name="RaznosIcon" svc="{{ r.svc }}" alt="{{ r.title }}" size="sm"></dc-import><span class="raznos-list-title">{{ r.title }}</span><span class="raznos-text-tiny raznos-head-side">{{ r.n_label }}</span></div>
+      <sc-if value="{{ r.enough }}" hint-placeholder-val="{{ true }}">
+        <div class="{{ r.grid_class }}">
+          <span class="raznos-cohort-grid-head"></span><sc-if value="{{ r.has_mine }}" hint-placeholder-val="{{ true }}"><span class="raznos-cohort-grid-head">Вы</span></sc-if><span class="raznos-cohort-grid-head">Медиана</span>
+          <sc-for list="{{ r.metrics }}" as="m" hint-placeholder-count="4">
+            <span class="raznos-text-small">{{ m.label }}</span><sc-if value="{{ r.has_mine }}" hint-placeholder-val="{{ true }}"><span class="raznos-cohort-cell">{{ m.mine }}</span></sc-if><span class="raznos-cohort-cell raznos-cohort-cell-muted">{{ m.median }}</span>
+          </sc-for>
+        </div>
+        <sc-if value="{{ r.has_summary }}" hint-placeholder-val="{{ true }}"><span class="{{ r.summary_class }}" style="align-self:flex-start">{{ r.summary }}</span></sc-if>
+      </sc-if>
+      <sc-if value="{{ r.not_enough }}"><p class="raznos-text-small">Недостаточно данных: меньше {{ min_n }} курьеров, медиану не показываем</p></sc-if>
+    </div>
+  </sc-for>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"city":{"editor":"text","default":"moscow"},"mineCity":{"editor":"text","default":"moscow"},"transport":{"editor":"enum","default":"bike","options":["bike","foot","car","electric","public"]},"period":{"editor":"enum","default":"month","options":["today","week","month","year","12m","custom"]},"svc":{"editor":"text","default":"all"},"mine":{"editor":null},"onlyMine":{"editor":"boolean","default":false},"title":{"editor":"text","default":"Я и другие курьеры"},"$preview":{"width":360,"height":420}}'>
+const CC_MIN_N = 30;
+const CC_TITLES = { vkusvill: 'ВкусВилл', samokat: 'Самокат', x5: 'X5 Доставка', 'yandex-eda': 'Яндекс Еда' };
+const CC_TRANSPORT = { bike: 'велосипед', foot: 'пешком', car: 'авто', electric: 'электро', public: 'общественный транспорт' };
+// медиана за месяц, остальные периоды получают небольшой сдвиг и свою выборку
+const CC_BASE = {
+  moscow: {
+    bike: { vkusvill: [590, 2.2, 14, 6, 48], samokat: [560, 2.4, 16, 8, 36], x5: [540, 2.0, 17, 9, 21], 'yandex-eda': [610, 2.1, 18, 7, 55] },
+    foot: { vkusvill: [470, 1.8, 19, 6, 41], samokat: [450, 2.0, 18, 7, 33] },
+    car: { vkusvill: [720, 2.3, 22, 8, 38], samokat: [690, 2.2, 21, 9, 12] }
+  },
+  spb: {
+    bike: { vkusvill: [560, 2.1, 15, 7, 33], samokat: [540, 2.3, 16, 8, 3], x5: [520, 1.9, 18, 9, 17], 'yandex-eda': [580, 2.0, 19, 8, 36] },
+    foot: { vkusvill: [440, 1.7, 20, 7, 14] }
+  }
+};
+const CC_PERIOD = { week: [10, 0.7], month: [0, 1], year: [-15, 1.3], '12m': [-20, 1.4], custom: [-5, 1.1] };
+function ccPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
+const ccNum = (v) => String(v).replace('.', ',');
+function ccCohort(city, transport, svc, period) {
+  const row = ((CC_BASE[city] || {})[transport] || {})[svc];
+  const shift = CC_PERIOD[period];
+  if (!row || !shift) return null;
+  return { incomeH: row[0] + shift[0], ordersH: row[1], dur: row[2], wait: row[3], n: Math.round(row[4] * shift[1]) };
+}
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const city = p.city || 'moscow';
+    const transport = p.transport || 'bike';
+    const period = p.period || 'month';
+    const svcFilter = p.svc || 'all';
+    const mine = p.mine || null;
+    const cityData = CC_BASE[city];
+    const crossCity = !!mine && !!p.mineCity && p.mineCity !== city;
+    const delayed = period === 'today';
+    const keys = !cityData || delayed ? [] : Object.keys((cityData[transport] || {})).filter((k) => (svcFilter === 'all' || k === svcFilter) && (!p.onlyMine || (mine && mine[k])));
+    const rows = keys.map((k) => {
+      const c = ccCohort(city, transport, k, period);
+      const my = !crossCity && mine ? mine[k] : null;
+      const enough = !!c && c.n >= CC_MIN_N;
+      const diff = my && enough ? Math.round(((my.incomeH - c.incomeH) / c.incomeH) * 100) : 0;
+      const metric = (label, m, med, unit) => ({ label, mine: m == null ? '—' : ccNum(m) + unit, median: ccNum(med) + unit });
+      return {
+        svc: k, title: CC_TITLES[k] || k, enough, not_enough: !enough,
+        n_label: c ? c.n + ' ' + ccPlural(c.n, 'курьер', 'курьера', 'курьеров') : 'нет выборки',
+        has_mine: !!my, grid_class: my ? 'raznos-cohort-grid' : 'raznos-cohort-grid raznos-cohort-grid-two',
+        metrics: !c ? [] : [
+          metric('Доход в час', my ? my.incomeH : null, c.incomeH, ' ₽'),
+          metric('Заказов в час', my ? my.ordersH : null, c.ordersH, ''),
+          metric('Длительность заказа', my ? my.dur : null, c.dur, ' мин'),
+          metric('Ожидание', my ? my.wait : null, c.wait, ' мин')
+        ],
+        has_summary: !!my && enough,
+        summary: diff === 0 ? 'Доход в час на уровне медианы' : ('Доход в час ' + (diff > 0 ? 'выше' : 'ниже') + ' медианы на ' + Math.abs(diff) + '%'),
+        summary_class: 'raznos-delta ' + (diff >= 0 ? 'raznos-delta-up' : 'raznos-delta-down')
+      };
+    });
+    return {
+      title: p.title || 'Я и другие курьеры',
+      basis_note: 'Медиана курьеров Разноса: ' + ((cityData && city === 'spb') ? 'Санкт-Петербург' : (city === 'moscow' ? 'Москва' : 'выбранный город')) + ', ' + (CC_TRANSPORT[transport] || transport) + ', тот же сервис и период. Доход до расходов, начисления за час на линии',
+      show_delay: delayed && !!cityData, show_no_city: !cityData, show_cross_city: crossCity && !!cityData && !delayed,
+      rows, min_n: CC_MIN_N, show_no_rows: !!cityData && !delayed && rows.length === 0
+    };
+  }
+}
+</script></body></html>

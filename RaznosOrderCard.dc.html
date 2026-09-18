@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+      <button type="button" class="{{ cardClass }}" onClick="{{ onTap }}">
+        <div class="raznos-fx raznos-ac raznos-gap12">
+          <dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ svcTitle }}" size="sm"></dc-import>
+          <div class="raznos-list-main">
+            <span class="raznos-list-title">{{ svcTitle }} · {{ orderNo }}</span>
+            <span class="raznos-text-small">{{ dateLabel }} · {{ deliveryStatus }}</span>
+          </div>
+          <div class="raznos-list-end">
+            <span class="raznos-num">{{ payout }} ₽</span>
+            <span class="{{ moneyStatusClass }}">{{ moneyStatus }}</span>
+          </div>
+        </div>
+        <sc-if value="{{ hasRoute }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ routeLabel }}</span></sc-if>
+        <sc-if value="{{ hasTip }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ tipLabel }}</span></sc-if>
+      </button>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "svc": { "editor": "text", "default": "vkusvill" },
+      "svcTitle": { "editor": "text", "default": "" },
+      "orderNo": { "editor": "text", "default": "" },
+      "dateLabel": { "editor": "text", "default": "" },
+      "deliveryStatus": { "editor": "text", "default": "" },
+      "moneyStatus": { "editor": "text", "default": "" },
+      "payout": { "editor": "text", "default": "0" },
+      "tipLabel": { "editor": "text", "default": "" },
+      "routeLabel": { "editor": "text", "default": "" },
+      "onTap": { "editor": null },
+      "$preview": { "width": 340, "height": 96 }
+    }'>
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          return {
+            cardClass: 'raznos-card raznos-card-pad raznos-order-card raznos-svc-border-' + (p.svc || 'vkusvill'),
+            svc: p.svc || 'vkusvill',
+            svcTitle: p.svcTitle || '',
+            orderNo: p.orderNo || '',
+            dateLabel: p.dateLabel || '',
+            deliveryStatus: p.deliveryStatus || '',
+            moneyStatus: p.moneyStatus || '',
+            moneyStatusClass: 'raznos-text-tiny',
+            payout: p.payout != null ? p.payout : '0',
+            hasTip: !!p.tipLabel,
+            tipLabel: p.tipLabel || '',
+            hasRoute: !!p.routeLabel,
+            routeLabel: p.routeLabel || '',
+            onTap: p.onTap || (() => {})
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

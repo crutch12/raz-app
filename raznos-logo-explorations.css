@@ -1,0 +1,121 @@
+@import url("https://fonts.googleapis.com/css2?family=Onest:wght@500;700;800&family=JetBrains+Mono:wght@600&display=swap");
+
+:root {
+  --rzlogo-ink: #192029;
+  --rzlogo-paper: #f9f7f1;
+  --rzlogo-green: #20a04e;
+  --rzlogo-deep: #1b552c;
+  --rzlogo-amber: #fab72a;
+  --rzlogo-coral: #ef5b36;
+  --rzlogo-cobalt: #3860ac;
+  --rzlogo-lime: #d0ee5f;
+  --rzlogo-board: oklch(0.93 0.006 250);
+  --rzlogo-surface: oklch(0.995 0.002 250);
+  --rzlogo-muted: oklch(0.45 0.012 250);
+  --rzlogo-line: oklch(0.86 0.008 250);
+}
+
+.rzlogo-page {
+  width: 1400px;
+  padding: 56px 60px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  background: var(--rzlogo-board);
+  color: var(--rzlogo-ink);
+  font-family: "Onest", "Helvetica Neue", Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.rzlogo-head { display: flex; flex-direction: column; gap: 10px; max-width: 880px; }
+.rzlogo-title { margin: 0; font-size: 38px; font-weight: 800; letter-spacing: -0.02em; }
+.rzlogo-lead { margin: 0; font-size: 15px; line-height: 1.55; color: var(--rzlogo-muted); }
+.rzlogo-note { margin: 0; font-size: 13px; line-height: 1.5; color: var(--rzlogo-muted); font-style: normal; }
+
+.rzlogo-group { display: flex; flex-direction: column; gap: 18px; }
+.rzlogo-group-title { margin: 0; font-size: 20px; font-weight: 700; }
+.rzlogo-group-sub { margin: -10px 0 0; font-size: 13px; color: var(--rzlogo-muted); }
+
+.rzlogo-grid { display: grid; grid-template-columns: repeat(5, 240px); gap: 20px; }
+
+.rzlogo-card {
+  background: var(--rzlogo-surface);
+  border-radius: 20px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 1px 2px oklch(0.24 0.02 255 / 0.08);
+}
+
+.rzlogo-hero-wrap { display: flex; justify-content: center; }
+.rzlogo-hero { width: 120px; height: 120px; border-radius: 27px; display: block; }
+
+.rzlogo-meta { display: flex; flex-direction: column; gap: 2px; }
+.rzlogo-num { font: 600 11px "JetBrains Mono", ui-monospace, Menlo, monospace; color: var(--rzlogo-muted); }
+.rzlogo-name { font-size: 15px; font-weight: 700; line-height: 1.2; }
+.rzlogo-meaning { margin: 0; font-size: 12px; line-height: 1.4; color: var(--rzlogo-muted); }
+
+.rzlogo-row-title { font: 600 10px "JetBrains Mono", ui-monospace, Menlo, monospace; color: var(--rzlogo-muted); text-transform: uppercase; letter-spacing: 0.02em; }
+
+.rzlogo-chip-row { display: flex; align-items: flex-end; gap: 6px; }
+.rzlogo-chip { border-radius: 10px; display: flex; align-items: center; justify-content: center; flex: none; }
+.rzlogo-chip-light { background: var(--rzlogo-board); }
+.rzlogo-chip-dark { background: var(--rzlogo-ink); }
+.rzlogo-chip img { display: block; }
+
+.rzlogo-tone-row { display: flex; align-items: center; gap: 6px; }
+.rzlogo-tone-chip { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.rzlogo-tone-chip img { width: 32px; height: 32px; border-radius: 7px; }
+
+.rzlogo-mono-row { display: flex; align-items: center; gap: 6px; }
+.rzlogo-mono-chip { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.rzlogo-mono-mark {
+  width: 32px;
+  height: 32px;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+}
+.rzlogo-mono-on-light .rzlogo-mono-mark { background-color: var(--rzlogo-ink); }
+.rzlogo-mono-on-dark .rzlogo-mono-mark { background-color: var(--rzlogo-paper); }
+
+.rzlogo-lockups { display: flex; flex-direction: column; gap: 6px; padding-top: 2px; border-top: 1px solid var(--rzlogo-line); }
+.rzlogo-lockup { display: flex; align-items: center; gap: 8px; }
+.rzlogo-lockup img { width: 24px; height: 24px; border-radius: 6px; flex: none; }
+.rzlogo-lockup-word { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+.rzlogo-lockup-word-latin { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; font-size: 13px; font-weight: 600; letter-spacing: 0.01em; text-transform: uppercase; }
+
+.rzlogo-best {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: var(--rzlogo-surface);
+  border-radius: 24px;
+  padding: 28px 32px;
+}
+.rzlogo-best-row { display: flex; flex-wrap: wrap; gap: 24px; }
+.rzlogo-best-card { width: 260px; display: flex; flex-direction: column; gap: 10px; }
+.rzlogo-best-icon { width: 96px; height: 96px; border-radius: 22px; display: block; }
+.rzlogo-best-why { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--rzlogo-muted); }
+
+.rzlogo-compare { display: flex; align-items: center; gap: 28px; }
+.rzlogo-compare-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.rzlogo-compare-item img { width: 72px; height: 72px; border-radius: 18px; display: block; }
+.rzlogo-compare-label { font-size: 12px; color: var(--rzlogo-muted); }
+
+.rzlogo-phone {
+  width: 220px;
+  border-radius: 32px;
+  background: var(--rzlogo-ink);
+  padding: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.rzlogo-phone-app { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.rzlogo-phone-app img { width: 60px; height: 60px; border-radius: 15px; display: block; }
+.rzlogo-phone-app-label { font-size: 9px; color: var(--rzlogo-paper); opacity: 0.7; text-align: center; }

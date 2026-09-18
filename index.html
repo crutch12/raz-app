@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Разнос</title>
+  <meta name="description" content="Прототип приложения Разнос" />
+
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <meta name="theme-color" content="#eef1f4" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#212429" media="(prefers-color-scheme: dark)" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Разнос" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+
+  <style>
+    html, body { margin: 0; height: 100%; background: #eef1f4; overscroll-behavior: none; }
+    @media (prefers-color-scheme: dark) { html, body { background: #212429; } }
+    body { min-height: 100dvh; }
+    .raznos-pwa { min-height: 100dvh; }
+
+    /* Телефон-хозяин: рамкой служит сам экран устройства */
+    .raznos-pwa .raznos-phone-frame {
+      width: 100vw;
+      max-width: 100%;
+      height: 100dvh;
+      max-height: none;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      padding-top: env(safe-area-inset-top);
+      box-sizing: border-box;
+    }
+    /* Настоящая строка состояния ОС заменяет нарисованную */
+    .raznos-pwa .raznos-phone-status { display: none; }
+
+    /* Широкий экран: показываем макет телефона по центру, как в исходном прототипе */
+    @media (min-width: 720px) {
+      body { display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box; }
+      .raznos-pwa .raznos-phone-frame {
+        width: 390px;
+        height: 844px;
+        max-height: calc(100dvh - 48px);
+        border: 1px solid var(--raznos-line);
+        border-radius: 34px;
+        box-shadow: 0 20px 50px rgba(20, 25, 40, 0.16);
+        padding-top: 0;
+      }
+      .raznos-pwa .raznos-phone-status { display: flex; }
+    }
+  </style>
+
+  <script src="./support.js"></script>
+</head>
+<body>
+  <x-dc>
+    <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+    <div class="raznos-pwa">
+      <dc-import name="RaznosApp" initialScreen="{{ screen }}" initialRole="{{ role }}" initialDemo="{{ demo }}"></dc-import>
+    </div>
+  </x-dc>
+  <script type="text/x-dc" data-dc-script data-props='{}'>
+    class Component extends DCLogic {
+      renderVals() {
+        return { screen: 'welcome', role: 'courier', demo: true };
+      }
+    }
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function () {});
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360">
+  <title>Демо-фото: закрытый проход во двор с ограждением, вымышленная иллюстрация</title>
+  <defs>
+    <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9c7d3"/><stop offset="1" stop-color="#e4e8ec"/></linearGradient>
+  </defs>
+  <rect width="480" height="360" fill="url(#sky2)"/>
+  <rect x="0" y="60" width="160" height="220" fill="#c7a98b"/>
+  <rect x="320" y="60" width="160" height="220" fill="#c7a98b"/>
+  <g fill="#8fa3b3"><rect x="24" y="90" width="40" height="46"/><rect x="92" y="90" width="40" height="46"/><rect x="24" y="170" width="40" height="46"/><rect x="92" y="170" width="40" height="46"/><rect x="348" y="90" width="40" height="46"/><rect x="416" y="90" width="40" height="46"/><rect x="348" y="170" width="40" height="46"/><rect x="416" y="170" width="40" height="46"/></g>
+  <path d="M160 280 L160 120 Q240 60 320 120 L320 280 Z" fill="#4a3f38"/>
+  <rect x="0" y="280" width="480" height="80" fill="#7b7f84"/>
+  <g>
+    <rect x="150" y="226" width="180" height="16" fill="#e23b2e"/>
+    <rect x="150" y="226" width="30" height="16" fill="#ffffff"/><rect x="210" y="226" width="30" height="16" fill="#ffffff"/><rect x="270" y="226" width="30" height="16" fill="#ffffff"/>
+    <rect x="158" y="242" width="8" height="46" fill="#3a3a3a"/><rect x="314" y="242" width="8" height="46" fill="#3a3a3a"/>
+  </g>
+  <rect x="196" y="150" width="88" height="56" rx="6" fill="#ffffff"/>
+  <text x="240" y="174" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#e23b2e">ПРОХОДА</text>
+  <text x="240" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#e23b2e">НЕТ</text>
+  <text x="16" y="340" font-family="Arial, sans-serif" font-size="14" fill="#ffffff" opacity="0.85">Демо-иллюстрация</text>
+</svg>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-live.css" /></helmet>
+      <div class="{{ cardClass }}" style="{{ cardStyle }}">
+        <sc-if value="{{ isPost }}" hint-placeholder-val="{{ true }}">
+          <div class="raznos-live-card-head">
+            <span class="raznos-live-svc" role="group" aria-label="{{ svcsLabel }}"><sc-for list="{{ svcs }}" as="s" hint-placeholder-count="2"><dc-import name="RaznosIcon" svc="{{ s.key }}" alt="{{ s.title }}" size="sm"></dc-import></sc-for></span>
+            <span class="raznos-live-city">{{ cityLabel }}</span>
+          </div>
+        </sc-if>
+        <div class="raznos-live-card-meta">
+          <button type="button" class="raznos-link-btn raznos-live-author" onClick="{{ onAuthor }}">{{ authorLabel }}</button>
+          <span class="raznos-live-time">{{ timeLabel }}</span>
+        </div>
+        <sc-if value="{{ hasState }}" hint-placeholder-val="{{ false }}"><span class="{{ statePill }}">{{ stateLabel }}</span></sc-if>
+        <sc-if value="{{ showText }}" hint-placeholder-val="{{ true }}">
+          <sc-if value="{{ canOpen }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-live-open" onClick="{{ onOpen }}">{{ text }}</button></sc-if>
+          <sc-if value="{{ staticText }}" hint-placeholder-val="{{ false }}"><p class="raznos-live-text">{{ text }}</p></sc-if>
+        </sc-if>
+        <sc-if value="{{ hasAttach }}" hint-placeholder-val="{{ true }}">
+          <div class="raznos-live-attach">
+            <sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-live-photo-btn" onClick="{{ onPhoto }}" aria-label="Открыть фото"><img src="{{ photoSrc }}" alt="{{ photoAlt }}" /></button></sc-if>
+            <sc-if value="{{ hasPlace }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-live-place-btn" onClick="{{ onPlace }}"><span class="raznos-live-pin-glyph"></span>{{ placeLabel }}</button></sc-if>
+          </div>
+        </sc-if>
+        <sc-if value="{{ showText }}" hint-placeholder-val="{{ true }}">
+          <div class="raznos-live-foot">
+            <button type="button" class="{{ likeClass }}" onClick="{{ onLike }}" disabled="{{ voteDisabled }}" aria-label="Лайк, {{ likes }}"><svg class="raznos-reaction-glyph" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 18.2H3.7a1.7 1.7 0 0 1-1.7-1.7v-6.3c0-.9.8-1.7 1.7-1.7H6v9.7Z" /><path d="M7.4 8.2 11.1 2.2a1.35 1.35 0 0 1 2.5.8l-.7 4.2h3.5c1.2 0 2.1 1.1 1.85 2.25l-1.1 5.4a2.25 2.25 0 0 1-2.2 1.8H7.4V8.2Z" /></svg> {{ likes }}</button>
+            <button type="button" class="{{ dislikeClass }}" onClick="{{ onDislike }}" disabled="{{ voteDisabled }}" aria-label="Дизлайк, {{ dislikes }}"><svg class="raznos-reaction-glyph" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 1.8H3.7A1.7 1.7 0 0 0 2 3.5v6.3c0 .9.8 1.7 1.7 1.7H6V1.8Z" /><path d="M7.4 11.8 11.1 17.8a1.35 1.35 0 0 0 2.5-.8l-.7-4.2h3.5c1.2 0 2.1-1.1 1.85-2.25l-1.1-5.4A2.25 2.25 0 0 0 14.85 1.35H7.4v10.45Z" /></svg> {{ dislikes }}</button>
+            <sc-if value="{{ isPost }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-live-replies" onClick="{{ onOpen }}">{{ repliesLabel }}</button></sc-if>
+            <span class="raznos-live-foot-side">
+              <sc-if value="{{ showReport }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-live-mini" onClick="{{ onReport }}">Пожаловаться</button></sc-if>
+              <sc-if value="{{ showDelete }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-live-mini" onClick="{{ onDelete }}">Удалить</button></sc-if>
+            </span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ hasNote }}" hint-placeholder-val="{{ false }}"><p class="raznos-live-note">{{ note }}</p></sc-if>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "kind": { "editor": "enum", "default": "post", "options": ["post", "reply"] },
+      "svcKey": { "editor": "text", "default": "vkusvill" },
+      "svcTitle": { "editor": "text", "default": "ВкусВилл" },
+      "multi": { "editor": "boolean", "default": false },
+      "svcs": { "editor": null },
+      "cityLabel": { "editor": "text", "default": "Москва" },
+      "timeLabel": { "editor": "text", "default": "35 мин назад" },
+      "text": { "editor": "text", "default": "Приложение не показывает новые заказы уже 20 минут" },
+      "repliesCount": { "editor": "int", "default": 0 },
+      "likes": { "editor": "int", "default": 0 },
+      "dislikes": { "editor": "int", "default": 0 },
+      "myVote": { "editor": "enum", "default": "", "options": ["", "like", "dislike"] },
+      "mine": { "editor": "boolean", "default": false },
+      "status": { "editor": "enum", "default": "active", "options": ["active", "archived", "deleted", "hidden", "reported"] },
+      "photoSrc": { "editor": "text", "default": "" },
+      "placeLabel": { "editor": "text", "default": "" },
+      "note": { "editor": "text", "default": "" },
+      "canOpen": { "editor": "boolean", "default": true },
+      "onOpen": { "editor": null },
+      "onLike": { "editor": null },
+      "onDislike": { "editor": null },
+      "onPhoto": { "editor": null },
+      "onPlace": { "editor": null },
+      "onAuthor": { "editor": null },
+      "onReport": { "editor": null },
+      "onDelete": { "editor": null },
+      "$preview": { "width": 360, "height": 240 }
+    }'>
+      function plural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
+      const STATE = {
+        archived: ['В архиве', 'raznos-status-pill raznos-pill-muted raznos-live-state'],
+        deleted: ['Удалено вами', 'raznos-status-pill raznos-pill-muted raznos-live-state'],
+        hidden: ['Скрыто модератором', 'raznos-status-pill raznos-pill-error raznos-live-state'],
+        reported: ['Жалоба отправлена', 'raznos-status-pill raznos-pill-warn raznos-live-state']
+      };
+      const noop = () => {};
+      // карточка только показывает данные и зовёт обработчики, правила голосов и архива считает RaznosApp
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const isPost = p.kind !== 'reply';
+          const status = p.status || 'active';
+          const mine = !!p.mine;
+          const readOnly = status !== 'active';
+          const likes = Number(p.likes) || 0;
+          const dislikes = Number(p.dislikes) || 0;
+          const replies = Number(p.repliesCount) || 0;
+          const hasSvcs = Array.isArray(p.svcs) && p.svcs.length > 0;
+          const svcs = hasSvcs ? p.svcs : [{ key: p.svcKey || 'vkusvill', title: p.svcTitle || '' }];
+          const isMultiSvc = hasSvcs ? svcs.length > 1 : !!p.multi;
+          const svcKey = hasSvcs ? svcs[0].key : (p.svcKey || 'vkusvill');
+          // скрытое и чужое удалённое не показываем текстом, автор своё удалённое видит в истории
+          const showText = status !== 'reported' && (status !== 'hidden' || mine) && (status !== 'deleted' || mine);
+          const hasPhoto = showText && !!p.photoSrc;
+          const hasPlace = showText && !!p.placeLabel;
+          const state = STATE[status];
+          const selfNote = mine && status === 'active' ? 'Свои сообщения оценивать нельзя' : '';
+          return {
+            isPost,
+            cardClass: 'raznos-live-card' + (isPost ? '' : ' raznos-live-is-reply') + (readOnly ? ' raznos-live-is-archived' : ''),
+            cardStyle: isPost && !isMultiSvc ? 'border-left-color:var(--raznos-svc-' + svcKey + ')' : (isPost ? 'border-left-color:var(--raznos-line-strong)' : ''),
+            isMulti: isMultiSvc, isSingle: !isMultiSvc,
+            svcs, svcsLabel: svcs.map((s) => s.title).join(', '),
+            svcKey, svcTitle: p.svcTitle || '',
+            cityLabel: p.cityLabel || '',
+            authorLabel: mine ? (isPost ? 'Вы · обезличенно' : 'Ваш ответ · обезличенно') : (isPost ? 'Курьер' : 'Ответ курьера'),
+            onAuthor: p.onAuthor || noop,
+            timeLabel: p.timeLabel || '',
+            hasState: !!state, stateLabel: state ? state[0] : '', statePill: state ? state[1] : '',
+            showText,
+            canOpen: showText && p.canOpen !== false && !!p.onOpen,
+            staticText: showText && !(p.canOpen !== false && !!p.onOpen),
+            text: p.text || '',
+            onOpen: p.onOpen || noop,
+            hasAttach: hasPhoto || hasPlace,
+            hasPhoto, photoSrc: p.photoSrc || '', photoAlt: 'Фото к сообщению, метаданные удалены',
+            hasPlace, placeLabel: p.placeLabel || '',
+            onPhoto: p.onPhoto || noop, onPlace: p.onPlace || noop,
+            likes, dislikes,
+            likeClass: 'raznos-live-vote' + (p.myVote === 'like' ? ' raznos-is-on' : ''),
+            dislikeClass: 'raznos-live-vote raznos-live-vote-down' + (p.myVote === 'dislike' ? ' raznos-is-on' : ''),
+            voteDisabled: readOnly || mine,
+            onLike: p.onLike || noop, onDislike: p.onDislike || noop,
+            repliesLabel: replies ? replies + ' ' + plural(replies, 'ответ', 'ответа', 'ответов') : 'Ответить',
+            showReport: !mine && status === 'active' && !!p.onReport,
+            showDelete: mine && (status === 'active' || status === 'archived') && !!p.onDelete,
+            onReport: p.onReport || noop, onDelete: p.onDelete || noop,
+            hasNote: !!(p.note || selfNote),
+            note: p.note || selfNote
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

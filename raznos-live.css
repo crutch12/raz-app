@@ -1,0 +1,67 @@
+/* Что происходит: оперативные сообщения курьеров */
+.raznos-live-card { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 16px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-left-width: 4px; min-width: 0; }
+.raznos-live-card.raznos-live-is-reply { background: var(--raznos-surface-2); border-left-width: 1px; }
+.raznos-live-card.raznos-live-is-archived { background: var(--raznos-surface-2); }
+.raznos-live-card-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-width: 0; }
+.raznos-live-svc { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; min-width: 0; padding: 0; border: 0; background: transparent; border-radius: 0; }
+.raznos-live-city { font: 500 13px/1.3 var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-live-time { margin-left: auto; font: 500 13px/1.3 var(--raznos-font); color: var(--raznos-ink-3); white-space: nowrap; }
+.raznos-live-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.raznos-live-author { font: 500 13px/1.3 var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-live-open { display: block; width: 100%; padding: 0; border: 0; background: transparent; text-align: left; font: 400 16px/1.45 var(--raznos-font); color: var(--raznos-ink); cursor: pointer; overflow-wrap: anywhere; }
+.raznos-live-text { margin: 0; font: 400 16px/1.45 var(--raznos-font); color: var(--raznos-ink); overflow-wrap: anywhere; }
+.raznos-live-attach { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.raznos-live-photo-btn { flex: none; width: 96px; height: 72px; padding: 0; border-radius: 10px; border: 1px solid var(--raznos-line); overflow: hidden; background: var(--raznos-surface-2); cursor: pointer; }
+.raznos-live-photo-btn img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.raznos-live-place-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; max-width: 100%; padding: 0 10px; border-radius: 10px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); font: 600 13px/1.3 var(--raznos-font); color: var(--raznos-ink); cursor: pointer; text-align: left; }
+.raznos-live-pin-glyph { flex: none; width: 10px; height: 10px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--raznos-red); }
+.raznos-live-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.raznos-live-vote { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; min-width: 56px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); font: 600 14px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; }
+.raznos-live-vote.raznos-is-on { background: var(--raznos-green-tint); border-color: var(--raznos-green-deep); color: var(--raznos-green-deep); }
+.raznos-live-vote.raznos-live-vote-down.raznos-is-on { background: var(--raznos-red-tint); border-color: var(--raznos-red); color: var(--raznos-red); }
+.raznos-live-vote:disabled { cursor: default; opacity: 0.6; }
+.raznos-live-replies { min-height: 40px; padding: 0 10px; border-radius: 10px; border: 0; background: transparent; font: 600 14px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
+.raznos-live-foot-side { margin-left: auto; display: flex; gap: 4px; }
+.raznos-live-mini { min-height: 36px; padding: 0 8px; border: 0; background: transparent; font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); cursor: pointer; }
+.raznos-live-note { margin: 0; font: 500 13px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-live-state { align-self: flex-start; }
+
+.raznos-live-filters { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.raznos-live-sort .raznos-segment { white-space: nowrap; font-size: 13px; padding: 8px 2px; }
+.raznos-live-filters .raznos-field-label { font-size: 13px; }
+.raznos-live-filters .raznos-input { min-height: 44px; font-size: 14px; padding: 0 10px; }
+.raznos-live-quota { display: flex; align-items: center; gap: 8px; font: 600 14px/1.35 var(--raznos-font); color: var(--raznos-ink); }
+.raznos-live-quota-dots { display: inline-flex; gap: 3px; }
+.raznos-live-quota-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--raznos-green); }
+.raznos-live-quota-dot.raznos-is-used { background: var(--raznos-line); }
+
+.raznos-live-option { display: flex; align-items: center; gap: 10px; width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); text-align: left; cursor: pointer; font: inherit; color: inherit; }
+.raznos-live-option.raznos-is-active { border-color: var(--raznos-green-deep); background: var(--raznos-green-tint); }
+.raznos-live-option .raznos-list-main { flex: 1; min-width: 0; }
+.raznos-live-option-multi-mark { flex: none; width: 28px; height: 28px; border-radius: 8px; border: 1px dashed var(--raznos-line-strong); display: inline-flex; align-items: center; justify-content: center; font: 700 14px var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-live-preview { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 12px; border: 1px solid var(--raznos-line); background: var(--raznos-surface-2); }
+.raznos-live-preview img { width: 64px; height: 48px; border-radius: 8px; object-fit: cover; flex: none; }
+.raznos-live-preview .raznos-list-main { flex: 1; min-width: 0; }
+
+.raznos-live-map { position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--raznos-line); background: var(--raznos-surface-2); }
+.raznos-live-map svg { display: block; width: 100%; height: auto; }
+.raznos-live-map-bg { fill: var(--raznos-surface-2); }
+.raznos-live-map-block { fill: var(--raznos-surface); stroke: var(--raznos-line); }
+.raznos-live-map-street { stroke: var(--raznos-line-strong); stroke-width: 5; stroke-linecap: round; }
+.raznos-live-map-river { fill: none; stroke: oklch(0.86 0.04 230); stroke-width: 10; }
+.raznos-live-map-spot { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.raznos-live-map-spot-pin { width: 22px; height: 22px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--raznos-ink-3); border: 2px solid var(--raznos-surface); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); }
+.raznos-live-map-spot.raznos-is-active .raznos-live-map-spot-pin { background: var(--raznos-red); width: 28px; height: 28px; }
+.raznos-live-map-spot-label { padding: 2px 6px; border-radius: 6px; background: var(--raznos-surface); font: 600 11px/1.2 var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15); }
+
+.raznos-live-today { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 18px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
+.raznos-live-today-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.raznos-live-today-row { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 10px 0; border: 0; border-top: 1px solid var(--raznos-line); background: transparent; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+.raznos-live-today-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font: 500 13px/1.3 var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-live-today-text { font: 500 15px/1.4 var(--raznos-font); color: var(--raznos-ink); overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.raznos-live-entry { display: flex; align-items: center; gap: 10px; width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); cursor: pointer; text-align: left; font: inherit; color: inherit; }
+.raznos-live-entry .raznos-list-main { flex: 1; min-width: 0; }
+.raznos-live-entry-dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--raznos-amber); }
+
+.raznos-live-photo-view { border-radius: 14px; overflow: hidden; border: 1px solid var(--raznos-line); background: var(--raznos-dark); }
+.raznos-live-photo-view img { display: block; width: 100%; height: auto; }

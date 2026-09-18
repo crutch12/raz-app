@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+      <div class="raznos-reaction-rows">
+        <div class="raznos-reaction-groups">
+          <div class="raznos-reaction-group">
+            <button type="button" class="{{ courierWhoClass }}" onClick="{{ onCourierWho }}" aria-label="Кто это: курьеры сервиса" aria-expanded="{{ courierHintOpen }}">
+              <svg class="raznos-reaction-who-glyph" viewBox="0 0 20 20" aria-hidden="true">
+                <circle cx="6.8" cy="4.6" r="2.8" />
+                <path d="M6.8 8.7c2.8 0 5.1 1.9 5.1 4.3V17H1.7v-4c0-2.4 2.3-4.3 5.1-4.3Z" />
+                <path d="M15.2 6.3a1.5 1.5 0 0 1 3 0v1.1h-1.2V6.3a.3.3 0 0 0-.6 0v1.1h-1.2V6.3Z" />
+                <rect x="13.4" y="8.4" width="5.2" height="6.6" rx="1.2" />
+              </svg>
+            </button>
+            <button type="button" class="{{ courierLikeClass }}" onClick="{{ onCourierLike }}" disabled="{{ courierDisabled }}" aria-pressed="{{ courierLikeOn }}" aria-label="{{ courierLikeLabel }}">
+              <svg class="raznos-reaction-glyph" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M6 18.2H3.7a1.7 1.7 0 0 1-1.7-1.7v-6.3c0-.9.8-1.7 1.7-1.7H6v9.7Z" />
+                <path d="M7.4 8.2 11.1 2.2a1.35 1.35 0 0 1 2.5.8l-.7 4.2h3.5c1.2 0 2.1 1.1 1.85 2.25l-1.1 5.4a2.25 2.25 0 0 1-2.2 1.8H7.4V8.2Z" />
+              </svg>
+              <span class="raznos-reaction-count">{{ courierLikes }}</span>
+            </button>
+            <button type="button" class="{{ courierDislikeClass }}" onClick="{{ onCourierDislike }}" disabled="{{ courierDisabled }}" aria-pressed="{{ courierDislikeOn }}" aria-label="{{ courierDislikeLabel }}">
+              <svg class="raznos-reaction-glyph" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M6 1.8H3.7A1.7 1.7 0 0 0 2 3.5v6.3c0 .9.8 1.7 1.7 1.7H6V1.8Z" />
+                <path d="M7.4 11.8 11.1 17.8a1.35 1.35 0 0 0 2.5-.8l-.7-4.2h3.5c1.2 0 2.1-1.1 1.85-2.25l-1.1-5.4A2.25 2.25 0 0 0 14.85 1.35H7.4v10.45Z" />
+              </svg>
+              <span class="raznos-reaction-count">{{ courierDislikes }}</span>
+            </button>
+          </div>
+          <div class="raznos-reaction-group">
+            <button type="button" class="{{ userWhoClass }}" onClick="{{ onUserWho }}" aria-label="Кто это: остальные пользователи" aria-expanded="{{ userHintOpen }}">
+              <svg class="raznos-reaction-who-glyph" viewBox="0 0 20 20" aria-hidden="true">
+                <circle cx="10" cy="5.6" r="3.2" />
+                <path d="M10 10.4c3.3 0 6 2.2 6 5v2.2H4v-2.2c0-2.8 2.7-5 6-5Z" />
+              </svg>
+            </button>
+            <button type="button" class="{{ userLikeClass }}" onClick="{{ onUserLike }}" disabled="{{ userDisabled }}" aria-pressed="{{ userLikeOn }}" aria-label="{{ userLikeLabel }}">
+              <svg class="raznos-reaction-glyph" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M6 18.2H3.7a1.7 1.7 0 0 1-1.7-1.7v-6.3c0-.9.8-1.7 1.7-1.7H6v9.7Z" />
+                <path d="M7.4 8.2 11.1 2.2a1.35 1.35 0 0 1 2.5.8l-.7 4.2h3.5c1.2 0 2.1 1.1 1.85 2.25l-1.1 5.4a2.25 2.25 0 0 1-2.2 1.8H7.4V8.2Z" />
+              </svg>
+              <span class="raznos-reaction-count">{{ userLikes }}</span>
+            </button>
+            <button type="button" class="{{ userDislikeClass }}" onClick="{{ onUserDislike }}" disabled="{{ userDisabled }}" aria-pressed="{{ userDislikeOn }}" aria-label="{{ userDislikeLabel }}">
+              <svg class="raznos-reaction-glyph" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M6 1.8H3.7A1.7 1.7 0 0 0 2 3.5v6.3c0 .9.8 1.7 1.7 1.7H6V1.8Z" />
+                <path d="M7.4 11.8 11.1 17.8a1.35 1.35 0 0 0 2.5-.8l-.7-4.2h3.5c1.2 0 2.1-1.1 1.85-2.25l-1.1-5.4A2.25 2.25 0 0 0 14.85 1.35H7.4v10.45Z" />
+              </svg>
+              <span class="raznos-reaction-count">{{ userDislikes }}</span>
+            </button>
+          </div>
+        </div>
+        <sc-if value="{{ hintOpen }}" hint-placeholder-val="{{ false }}">
+          <p class="raznos-reaction-hint raznos-text-tiny" role="status">{{ hintText }}</p>
+        </sc-if>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "courierLikes": { "editor": "int", "default": 0 },
+      "courierDislikes": { "editor": "int", "default": 0 },
+      "userLikes": { "editor": "int", "default": 0 },
+      "userDislikes": { "editor": "int", "default": 0 },
+      "myCategory": { "editor": "text", "default": "courier" },
+      "myVote": { "editor": "text", "default": "" },
+      "canVote": { "editor": "boolean", "default": true },
+      "onLike": { "editor": null },
+      "onDislike": { "editor": null },
+      "$preview": { "width": 320, "height": 92 }
+    }'>
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const st = this.state || {};
+          const hint = st.hint || '';
+          const myCategory = p.myCategory || '';
+          const myVote = p.myVote || '';
+          const canVote = p.canVote !== false;
+          const courierActive = canVote && myCategory === 'courier';
+          const userActive = canVote && myCategory === 'user';
+          const cls = (active, on) => 'raznos-reaction-btn' + (on ? ' raznos-is-on' : '') + (active ? '' : ' raznos-is-readonly');
+          const whoCls = (open) => 'raznos-reaction-who' + (open ? ' raznos-is-open' : '');
+          const onLike = p.onLike || (() => {});
+          const onDislike = p.onDislike || (() => {});
+          const toggleHint = (key) => () => this.setState({ hint: hint === key ? '' : key });
+          // голосом счётчик сам по себе непонятен, поэтому в подписи и кто, и оценка
+          const label = (who, kind, n) => kind + ', ' + who + ': ' + n;
+          const courierWho = 'курьеры сервиса';
+          const userWho = 'остальные пользователи';
+          const hints = {
+            courier: 'Курьеры сервиса: те, кто вошёл в этот сервис через Разнос. Их отметки считаются отдельно',
+            user: 'Остальные пользователи: без входа в этот сервис, например заказчики. Их отметки считаются отдельно'
+          };
+          return {
+            courierLikes: p.courierLikes || 0, courierDislikes: p.courierDislikes || 0,
+            userLikes: p.userLikes || 0, userDislikes: p.userDislikes || 0,
+            courierLikeClass: cls(courierActive, myVote === 'courier_like'),
+            courierDislikeClass: cls(courierActive, myVote === 'courier_dislike'),
+            userLikeClass: cls(userActive, myVote === 'user_like'),
+            userDislikeClass: cls(userActive, myVote === 'user_dislike'),
+            courierLikeOn: myVote === 'courier_like',
+            courierDislikeOn: myVote === 'courier_dislike',
+            userLikeOn: myVote === 'user_like',
+            userDislikeOn: myVote === 'user_dislike',
+            courierLikeLabel: label(courierWho, 'Полезно', p.courierLikes || 0),
+            courierDislikeLabel: label(courierWho, 'Бесполезно', p.courierDislikes || 0),
+            userLikeLabel: label(userWho, 'Полезно', p.userLikes || 0),
+            userDislikeLabel: label(userWho, 'Бесполезно', p.userDislikes || 0),
+            courierDisabled: !courierActive,
+            userDisabled: !userActive,
+            courierWhoClass: whoCls(hint === 'courier'),
+            userWhoClass: whoCls(hint === 'user'),
+            courierHintOpen: hint === 'courier',
+            userHintOpen: hint === 'user',
+            hintOpen: !!hint,
+            hintText: hints[hint] || '',
+            onCourierWho: toggleHint('courier'),
+            onUserWho: toggleHint('user'),
+            onCourierLike: courierActive ? () => onLike('courier') : () => {},
+            onCourierDislike: courierActive ? () => onDislike('courier') : () => {},
+            onUserLike: userActive ? () => onLike('user') : () => {},
+            onUserDislike: userActive ? () => onDislike('user') : () => {}
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

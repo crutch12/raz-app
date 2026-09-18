@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-work.css" /><link rel="stylesheet" href="./raznos-route-map.css" /></helmet>
+      <div class="raznos-route-map">
+        <div class="raznos-card raznos-card-pad">
+          <div class="raznos-route-row"><span class="raznos-route-dot raznos-route-dot-a">А</span><div class="raznos-list-main"><span class="raznos-text-tiny">{{ pickupLabel }}</span><span class="raznos-text-body">{{ pickupAddr }}</span></div></div>
+          <div class="raznos-route-line"></div>
+          <div class="raznos-route-row"><span class="raznos-route-dot raznos-route-dot-b">Б</span><div class="raznos-list-main"><span class="raznos-text-tiny">{{ dropLabel }}</span><span class="raznos-text-body">{{ dropAddr }}</span></div></div>
+          <sc-if value="{{ hasDistance }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-small">Расстояние по маршруту: {{ distance }}</span></sc-if>
+          <sc-if value="{{ showMap }}" hint-placeholder-val="{{ true }}">
+            <details class="raznos-route-map-details">
+              <summary class="raznos-text-small">Схема маршрута</summary>
+              <div class="raznos-route-map-svg-wrap">
+                <svg viewBox="0 0 280 160" class="raznos-route-map-svg" role="img" aria-label="Условная схема маршрута от точки А до точки Б, не настоящая карта">
+                  <rect x="0" y="0" width="280" height="160" class="raznos-route-map-bg" />
+                  <line x1="0" y1="40" x2="280" y2="40" class="raznos-route-map-street" />
+                  <line x1="0" y1="120" x2="280" y2="120" class="raznos-route-map-street" />
+                  <line x1="70" y1="0" x2="70" y2="160" class="raznos-route-map-street" />
+                  <line x1="210" y1="0" x2="210" y2="160" class="raznos-route-map-street" />
+                  <path d="M40 120 C 90 60, 150 130, 230 40" class="raznos-route-map-path" />
+                  <circle cx="40" cy="120" r="7" class="raznos-route-map-pin raznos-route-map-pin-a" />
+                  <text x="40" y="124" class="raznos-route-map-pin-label">А</text>
+                  <circle cx="230" cy="40" r="7" class="raznos-route-map-pin raznos-route-map-pin-b" />
+                  <text x="230" y="44" class="raznos-route-map-pin-label">Б</text>
+                </svg>
+              </div>
+              <p class="raznos-text-tiny">Условная схема улиц для ориентира, не настоящая карта и не координаты сервиса</p>
+            </details>
+          </sc-if>
+        </div>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "pickupAddr": { "editor": "text", "default": "" },
+      "dropAddr": { "editor": "text", "default": "" },
+      "pickupLabel": { "editor": "text", "default": "Забрать" },
+      "dropLabel": { "editor": "text", "default": "Доставить" },
+      "distance": { "editor": "text", "default": "" },
+      "showMap": { "editor": "boolean", "default": true },
+      "$preview": { "width": 360, "height": 320 }
+    }'>
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          return {
+            pickupAddr: p.pickupAddr || '',
+            dropAddr: p.dropAddr || '',
+            pickupLabel: p.pickupLabel || 'Забрать',
+            dropLabel: p.dropLabel || 'Доставить',
+            distance: p.distance || '',
+            hasDistance: !!p.distance,
+            showMap: p.showMap !== false
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

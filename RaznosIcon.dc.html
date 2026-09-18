@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+      <sc-if value="{{ is_raznos }}" hint-placeholder-val="{{ true }}">
+        <svg class="{{ css_class }}" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Raznos">
+          <rect width="160" height="160" rx="36" fill="oklch(0.62 0.16 150)" />
+          <rect x="40" y="40" width="26" height="96" rx="4" fill="oklch(0.975 0.008 90)" />
+          <path d="M84 24A44 44 0 0 1 128 68A44 44 0 0 1 84 112H40V68A44 44 0 0 1 84 24Z" fill="oklch(0.975 0.008 90)" />
+          <circle cx="84" cy="68" r="14" fill="oklch(0.62 0.16 150)" />
+        </svg>
+      </sc-if>
+      <sc-if value="{{ is_photo }}">
+        <img class="{{ css_class }}" src="{{ src }}" alt="{{ alt }}" />
+      </sc-if>
+      <sc-if value="{{ is_letter }}">
+        <span class="{{ css_class }}" style="display:flex;align-items:center;justify-content:center;font:700 14px var(--raznos-font);color:var(--raznos-ink-2)">{{ letter }}</span>
+      </sc-if>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "svc": { "editor": "text", "default": "raznos" },
+      "size": { "editor": "enum", "default": "md", "options": ["sm", "md", "lg"] }
+    }'>
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const name = p.svc || 'raznos';
+          const size = p.size || 'md';
+          const sizeClass = size === 'sm' ? 'raznos-svc-icon-sm' : (size === 'lg' ? 'raznos-app-glyph' : 'raznos-svc-icon');
+          const photos = {
+            vkusvill: './assets/vkusvill-icon.png',
+            samokat: './assets/samokat-icon.png',
+            x5: './assets/x5-icon.png',
+            'yandex-eda': './assets/yandex-eda-icon.png',
+            magnit: './assets/magnit-icon.png',
+            lenta: './assets/lenta-icon.png',
+            'ozon-fresh': './assets/ozon-fresh-icon.png',
+            delivery: './assets/delivery-icon.png',
+            dostavista: './assets/dostavista-icon.png',
+            kuper: './assets/kuper-icon.png',
+            dostaevsky: './assets/dostaevsky-icon.png'
+          };
+          const isRaznos = name === 'raznos';
+          const src = photos[name];
+          const borderClass = !isRaznos && src ? ' raznos-svc-border-' + name : '';
+          return {
+            is_raznos: isRaznos,
+            is_photo: !isRaznos && !!src,
+            is_letter: !isRaznos && !src,
+            css_class: sizeClass + borderClass + (!isRaznos && src ? ' raznos-icon-bordered' : ''),
+            src: src || '',
+            alt: p.alt || name,
+            letter: (p.alt || name || '?').slice(0, 2).toUpperCase()
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

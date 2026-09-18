@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+      <button type="button" class="raznos-list-row raznos-row-btn" onClick="{{ onTap }}" style="{{ rowStyle }}">
+        <dc-import name="RaznosIcon" svc="{{ svcName }}" alt="{{ title }}" size="md"></dc-import>
+        <div class="raznos-list-main">
+          <span class="raznos-list-title">{{ title }}</span>
+          <sc-if value="{{ hasNote }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-small">{{ note }}</span></sc-if>
+        </div>
+        <sc-if value="{{ hasStatus }}"><span class="{{ pillClass }}">{{ statusLabel }}</span></sc-if>
+        <sc-if value="{{ showChevron }}"><span class="raznos-row-chevron">›</span></sc-if>
+      </button>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "svcName": { "editor": "text", "default": "vkusvill" },
+      "title": { "editor": "text", "default": "ВкусВилл" },
+      "note": { "editor": "text", "default": "" },
+      "status": { "editor": "enum", "default": "none", "options": ["connected", "disabled", "unsupported", "limited", "exited", "none"] },
+      "statusLabel": { "editor": "text", "default": "" },
+      "showChevron": { "editor": "boolean", "default": false },
+      "onTap": { "editor": null }
+    }'>
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const status = p.status || 'none';
+          const pillMap = {
+            connected: 'raznos-status-pill raznos-pill-ok',
+            disabled: 'raznos-status-pill raznos-pill-muted',
+            unsupported: 'raznos-status-pill raznos-pill-concept',
+            limited: 'raznos-status-pill raznos-pill-warn',
+            exited: 'raznos-status-pill raznos-pill-muted',
+            relogin: 'raznos-status-pill raznos-pill-error',
+            rate: 'raznos-status-pill raznos-pill-warn'
+          };
+          const labelMap = {
+            connected: 'Подключено',
+            disabled: 'Отключено',
+            unsupported: 'Недоступно',
+            limited: 'Временно',
+            exited: 'Вы вышли'
+          };
+          return {
+            svcName: p.svcName || 'vkusvill',
+            title: p.title || '',
+            hasNote: !!p.note,
+            note: p.note || '',
+            hasStatus: status !== 'none',
+            pillClass: pillMap[status] || 'raznos-status-pill raznos-pill-muted',
+            statusLabel: p.statusLabel || labelMap[status] || '',
+            showChevron: !!p.showChevron,
+            rowStyle: p.last ? 'border-bottom:0' : '',
+            onTap: p.onTap || (() => {})
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

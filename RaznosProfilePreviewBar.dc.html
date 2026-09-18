@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-links.css" /></helmet>
+      <div class="raznos-profile-preview-bar">
+        <div class="raznos-profile-preview-bar-head">
+          <span class="raznos-profile-preview-bar-title">Предпросмотр для других</span>
+          <button type="button" class="raznos-profile-preview-bar-back" onClick="{{ back }}">В Приватность</button>
+        </div>
+        <span class="raznos-profile-preview-bar-note">{{ note }}</span>
+        <sc-if value="{{ canNamed }}" hint-placeholder-val="{{ true }}">
+          <div class="raznos-segmented">
+            <button type="button" class="{{ namedClass }}" onClick="{{ pickNamed }}">Именной профиль</button>
+            <button type="button" class="{{ anonClass }}" onClick="{{ pickAnon }}">Из отзывов</button>
+          </div>
+        </sc-if>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "mode": { "editor": "enum", "default": "public", "options": ["public", "anon"] },
+      "canNamed": { "editor": "boolean", "default": true },
+      "onMode": { "editor": null },
+      "onBack": { "editor": null },
+      "$preview": { "width": 360, "height": 150 }
+    }'>
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const canNamed = !!p.canNamed;
+          const anon = !canNamed || p.mode === 'anon';
+          let note = 'Так видят профиль посетители: только поля, которые вы разрешили, оценки точные';
+          if (anon) note = canNamed ? 'Так вас видят из отзывов о сервисах: без имени и фото, оценки диапазоном' : 'Профиль не опубликован, посетители видят только обезличенный вариант';
+          return {
+            canNamed,
+            note: note + '. Ничего не публикуется и не меняется',
+            namedClass: anon ? 'raznos-segment' : 'raznos-segment raznos-is-active',
+            anonClass: anon ? 'raznos-segment raznos-is-active' : 'raznos-segment',
+            pickNamed: () => { if (p.onMode) p.onMode('public'); },
+            pickAnon: () => { if (p.onMode) p.onMode('anon'); },
+            back: () => { if (p.onBack) p.onBack(); }
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

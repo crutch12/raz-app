@@ -1,0 +1,20 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-work.css" /></helmet>
+<div class="raznos-card raznos-card-pad raznos-svc-border-vkusvill">
+  <div class="raznos-head-row"><div class="raznos-fx raznos-ac raznos-gap8 raznos-head-title"><dc-import name="RaznosIcon" svc="vkusvill" alt="ВкусВилл" size="sm"></dc-import><span class="raznos-text-h3">Бонус ВкусВилла рядом</span></div><span class="raznos-status-pill raznos-pill-warn raznos-head-side">до 21:00</span></div>
+  <span class="raznos-text-body">Осталось {{ left }} заказа до бонуса {{ amount }} ₽, выполнено {{ done }} из {{ target }}</span>
+  <div class="raznos-progress-track"><span class="raznos-progress-fill" style="{{ progress_style }}"></span></div>
+  <div class="raznos-breakdown-row"><span class="raznos-text-small">ВкусВилл без бонуса сейчас</span><span class="raznos-num">≈ 560 ₽/ч</span></div>
+  <div class="raznos-breakdown-row"><span class="raznos-text-small">Самокат сейчас</span><span class="raznos-num">≈ 610 ₽/ч</span></div>
+  <p class="raznos-text-small">По вашей истории 2 заказа ВкусВилла занимают 50–70 минут, до срока осталось 5 ч 20 мин, время есть</p>
+  <p class="raznos-text-tiny">Бонус начисляет сервис после проверки, отменённые и возвращённые заказы не считаются. Пока бонус не начислен, он не входит в доход и не делится на заказы</p>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"done":{"editor":"int","default":9},"target":{"editor":"int","default":11},"amount":{"editor":"int","default":500},"$preview":{"width":360,"height":300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const done = p.done != null ? p.done : 9, target = p.target || 11;
+    return { done, target, left: Math.max(0, target - done), amount: p.amount || 500, progress_style: 'width:' + Math.round((done / target) * 100) + '%' };
+  }
+}
+</script></body></html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+      <div class="raznos-card raznos-card-pad">
+        <sc-if value="{{ fields_empty }}" hint-placeholder-val="{{ false }}">
+          <p class="raznos-text-small">Ни одно поле не выбрано, ссылку нельзя создать</p>
+        </sc-if>
+        <sc-if value="{{ fields_not_empty }}" hint-placeholder-val="{{ true }}">
+          <div class="raznos-fx raznos-ac raznos-gap12">
+            <sc-if value="{{ show_photo }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosAvatar" kind="{{ photo_kind }}" uploadedSrc="{{ uploaded_src }}" size="sm"></dc-import></sc-if>
+            <sc-if value="{{ show_name }}"><span class="raznos-text-h3">{{ name }}</span></sc-if>
+            <sc-if value="{{ show_none_id }}"><span class="raznos-text-h3 raznos-text-muted">Имя скрыто</span></sc-if>
+          </div>
+          <sc-if value="{{ show_city }}" hint-placeholder-val="{{ false }}"><div class="raznos-kv-row"><span class="raznos-kv-key">Город</span><span class="raznos-kv-val">{{ city_text }}</span></div></sc-if>
+          <sc-if value="{{ show_periods }}"><div class="raznos-kv-row"><span class="raznos-kv-key">Период данных</span><span class="raznos-kv-val">{{ periods_text }}</span></div></sc-if>
+          <sc-if value="{{ show_orders }}"><div class="raznos-kv-row"><span class="raznos-kv-key">Заказов</span><span class="raznos-kv-val">{{ orders_text }}</span></div></sc-if>
+          <sc-if value="{{ show_ratings }}">
+            <div class="raznos-kv-row"><span class="raznos-kv-key">Оценки клиентов</span><sc-if value="{{ ratings_empty }}" hint-placeholder-val="{{ false }}"><span class="raznos-kv-val">{{ ratings_empty_text }}</span></sc-if></div>
+            <sc-for list="{{ ratings_rows }}" as="r" hint-placeholder-count="2">
+              <div class="raznos-fx raznos-jb"><span class="raznos-text-small">{{ r.title }}</span><span class="raznos-num">{{ r.score }}</span></div>
+              <span class="raznos-text-tiny">{{ r.source }}</span>
+            </sc-for>
+          </sc-if>
+          <sc-if value="{{ show_income }}"><div class="raznos-kv-row"><span class="raznos-kv-key">Доход</span><span class="raznos-kv-val">{{ income_text }}</span></div></sc-if>
+          <sc-if value="{{ show_contacts }}"><div class="raznos-kv-row" style="border-bottom:0"><span class="raznos-kv-key">Контакты</span><span class="raznos-kv-val">{{ contacts_text }}</span></div></sc-if>
+        </sc-if>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "showPhoto": { "editor": "boolean", "default": false },
+      "photoKind": { "editor": "text", "default": "portrait1" },
+      "uploadedSrc": { "editor": "text", "default": "" },
+      "showName": { "editor": "boolean", "default": true },
+      "name": { "editor": "text", "default": "Алексей Соколов" },
+      "showCity": { "editor": "boolean", "default": false },
+      "cityText": { "editor": "text", "default": "" },
+      "showPeriods": { "editor": "boolean", "default": false },
+      "periodsText": { "editor": "text", "default": "" },
+      "showOrders": { "editor": "boolean", "default": false },
+      "ordersText": { "editor": "text", "default": "" },
+      "showRatings": { "editor": "boolean", "default": false },
+      "ratingsRows": { "editor": null },
+      "ratingsEmptyText": { "editor": "text", "default": "" },
+      "showIncome": { "editor": "boolean", "default": false },
+      "incomeText": { "editor": "text", "default": "" },
+      "showContacts": { "editor": "boolean", "default": false },
+      "contactsText": { "editor": "text", "default": "" },
+      "fieldsEmpty": { "editor": "boolean", "default": false },
+      "$preview": { "width": 360, "height": 260 }
+    }'>
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          return {
+            fields_empty: !!p.fieldsEmpty,
+            fields_not_empty: !p.fieldsEmpty,
+            show_photo: !!p.showPhoto, photo_kind: p.photoKind || 'portrait1', uploaded_src: p.uploadedSrc || '',
+            show_name: !!p.showName, name: p.name || 'Алексей Соколов',
+            show_none_id: !p.showPhoto && !p.showName,
+            show_city: !!p.showCity, city_text: p.cityText || 'Нет данных',
+            show_periods: !!p.showPeriods, periods_text: p.periodsText || 'Нет данных',
+            show_orders: !!p.showOrders, orders_text: p.ordersText || 'Нет данных',
+            show_ratings: !!p.showRatings,
+            ratings_rows: p.ratingsRows || [],
+            ratings_empty: !(p.ratingsRows && p.ratingsRows.length),
+            ratings_empty_text: p.ratingsEmptyText || 'Нет данных',
+            show_income: !!p.showIncome, income_text: p.incomeText || 'Нет данных',
+            show_contacts: !!p.showContacts, contacts_text: p.contactsText || 'Нет данных'
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

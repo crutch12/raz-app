@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360">
+  <title>Демо-фото: очередь курьеров у выдачи склада, вымышленная иллюстрация</title>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fb4c8"/><stop offset="1" stop-color="#d6dde4"/></linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a8f96"/><stop offset="1" stop-color="#5d6268"/></linearGradient>
+  </defs>
+  <rect width="480" height="360" fill="url(#sky)"/>
+  <rect x="0" y="250" width="480" height="110" fill="url(#floor)"/>
+  <rect x="250" y="70" width="230" height="190" fill="#e9ecef"/>
+  <rect x="250" y="70" width="230" height="28" fill="#2f3b45"/>
+  <rect x="270" y="78" width="120" height="12" rx="3" fill="#ffffff" opacity="0.85"/>
+  <rect x="300" y="120" width="120" height="130" fill="#3c4650"/>
+  <rect x="306" y="126" width="108" height="118" fill="#f4d58d" opacity="0.55"/>
+  <rect x="352" y="126" width="4" height="118" fill="#3c4650"/>
+  <g>
+    <circle cx="268" cy="176" r="14" fill="#e6b999"/><rect x="250" y="190" width="36" height="62" rx="10" fill="#2e8b57"/><rect x="246" y="194" width="44" height="40" rx="8" fill="#1f6b41"/>
+    <circle cx="214" cy="180" r="14" fill="#c99a7a"/><rect x="196" y="194" width="36" height="60" rx="10" fill="#e0457b"/><rect x="192" y="198" width="44" height="38" rx="8" fill="#b8325f"/>
+    <circle cx="160" cy="182" r="14" fill="#e3b28e"/><rect x="142" y="196" width="36" height="58" rx="10" fill="#2e8b57"/><rect x="138" y="200" width="44" height="38" rx="8" fill="#1f6b41"/>
+    <circle cx="106" cy="184" r="14" fill="#b88a6a"/><rect x="88" y="198" width="36" height="56" rx="10" fill="#f28c28"/><rect x="84" y="202" width="44" height="36" rx="8" fill="#c96d14"/>
+    <circle cx="52" cy="186" r="14" fill="#deb08f"/><rect x="34" y="200" width="36" height="54" rx="10" fill="#e0457b"/><rect x="30" y="204" width="44" height="34" rx="8" fill="#b8325f"/>
+  </g>
+  <rect x="0" y="252" width="480" height="4" fill="#ffffff" opacity="0.25"/>
+  <text x="16" y="340" font-family="Arial, sans-serif" font-size="14" fill="#ffffff" opacity="0.8">Демо-иллюстрация</text>
+</svg>

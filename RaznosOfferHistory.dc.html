@@ -1,0 +1,62 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-opportunities.css" /></helmet>
+<div class="raznos-phone-body" data-screen-label="Offer history"><div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><span class="raznos-text-small">История предложений</span></div><h1 class="raznos-text-h1">История предложений</h1><p class="raznos-text-small">Здесь все решения, суммы предложений не прибавляются к вашему заработку</p>
+<div class="raznos-segmented">
+<button type="button" class="{{ period_today_class }}" onClick="{{ set_period_today }}">Сегодня</button>
+<button type="button" class="{{ period_week_class }}" onClick="{{ set_period_week }}">Неделя</button>
+<button type="button" class="{{ period_month_class }}" onClick="{{ set_period_month }}">Месяц</button>
+<button type="button" class="{{ period_custom_class }}" onClick="{{ set_period_custom }}">Период</button>
+</div>
+<sc-if value="{{ is_custom }}" hint-placeholder-val="{{ false }}">
+<div class="raznos-fx raznos-ac raznos-gap8">
+<label class="raznos-field"><span class="raznos-field-label">С</span><input class="raznos-input" type="date" max="{{ max_date }}" value="{{ from_date }}" onChange="{{ from_change }}" /></label>
+<label class="raznos-field"><span class="raznos-field-label">По</span><input class="raznos-input" type="date" max="{{ max_date }}" value="{{ to_date }}" onChange="{{ to_change }}" /></label>
+</div>
+</sc-if>
+<p class="raznos-text-small">{{ range_label }}</p>
+<div class="raznos-chip-row"><sc-for list="{{ tabs }}" as="t"><button type="button" class="{{ t.cls }}" onClick="{{ t.tap }}">{{ t.label }}</button></sc-for></div>
+<sc-if value="{{ empty }}"><div class="raznos-empty-state"><span class="raznos-text-h3">Нет предложений за выбранные даты</span><p class="raznos-text-small">Решения появятся здесь после того, как вы примете, отклоните или пропустите предложение</p></div></sc-if>
+<sc-for list="{{ rows }}" as="r"><div class="raznos-card raznos-opportunity-log"><div class="raznos-fx raznos-ac raznos-gap8"><dc-import name="RaznosIcon" svc="{{ r.svc }}" size="sm"></dc-import><span class="raznos-list-main"><span class="raznos-list-title">{{ r.title }}</span><span class="raznos-text-tiny">{{ r.date }}</span></span><strong class="raznos-num">{{ r.pay }} ₽</strong></div><span class="raznos-status-pill raznos-pill-muted" style="align-self:flex-start">{{ r.label }}</span><span class="raznos-text-body">{{ r.reason }}</span><details><summary>Как принято решение</summary><p class="raznos-text-small">{{ r.details }}</p></details></div></sc-for>
+</div></x-dc><script type="text/x-dc" data-dc-script data-props='{"items":{"editor":null},"onBack":{"editor":null}}'>
+const OH_TODAY_ISO = '2026-09-15';
+const RU_MONTHS_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+function ohDateLabel(iso) { if (!iso) return ''; const d = new Date(iso + 'T00:00:00'); return d.getDate() + ' ' + RU_MONTHS_GEN[d.getMonth()]; }
+function ohPeriodRange(period, from, to) {
+  if (period === 'week') return ['2026-09-09', OH_TODAY_ISO];
+  if (period === 'month') return ['2026-09-01', OH_TODAY_ISO];
+  if (period === 'period') { const f = from || OH_TODAY_ISO, t = to || OH_TODAY_ISO; return f <= t ? [f, t] : [t, f]; }
+  return [OH_TODAY_ISO, OH_TODAY_ISO];
+}
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {};
+    const kind = st.kind || 'all';
+    const period = st.period || 'today';
+    const from = st.from || OH_TODAY_ISO;
+    const to = st.to || OH_TODAY_ISO;
+    const range = ohPeriodRange(period, from, to);
+    const tabs = [['all', 'Все'], ['accepted', 'Приняты'], ['declined', 'Отклонены'], ['missed', 'Пропущены'], ['received', 'Получены'], ['hidden', 'Скрыты'], ['unknown', 'Проверить']];
+    const items = this.props.items || [];
+    const inRange = items.filter((r) => (r.dateISO || OH_TODAY_ISO) >= range[0] && (r.dateISO || OH_TODAY_ISO) <= range[1]);
+    const rows = inRange.filter((r) => kind === 'all' || r.kind === kind);
+    return {
+      rows, empty: !rows.length,
+      onBack: this.props.onBack || (() => {}),
+      tabs: tabs.map((t) => ({ label: t[1], cls: 'raznos-chip' + (kind === t[0] ? ' raznos-is-active' : ''), tap: () => this.setState({ kind: t[0] }) })),
+      period_today_class: period === 'today' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
+      period_week_class: period === 'week' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
+      period_month_class: period === 'month' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
+      period_custom_class: period === 'period' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
+      set_period_today: () => this.setState({ period: 'today' }),
+      set_period_week: () => this.setState({ period: 'week' }),
+      set_period_month: () => this.setState({ period: 'month' }),
+      set_period_custom: () => this.setState({ period: 'period', from, to }),
+      is_custom: period === 'period',
+      from_date: from, to_date: to, max_date: OH_TODAY_ISO,
+      from_change: (e) => this.setState({ from: e && e.target ? e.target.value : from }),
+      to_change: (e) => this.setState({ to: e && e.target ? e.target.value : to }),
+      range_label: range[0] === range[1] ? ohDateLabel(range[0]) : (ohDateLabel(range[0]) + ' – ' + ohDateLabel(range[1]))
+    };
+  }
+}
+</script></body></html>

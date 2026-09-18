@@ -1,0 +1,55 @@
+.raznos-onboarding { display: flex; flex-direction: column; gap: 20px; padding: 8px 20px 20px; background: var(--raznos-bg); box-sizing: border-box; min-height: 100%; }
+.raznos-onboarding-top { display: flex; justify-content: space-between; align-items: center; }
+.raznos-onboarding-brand { display: flex; align-items: center; gap: 8px; font: 750 22px var(--raznos-font); }
+.raznos-onboarding-brand img { width: 32px; height: 32px; border-radius: 9px; }
+.raznos-onboarding-art { position: relative; flex: none; height: 320px; margin: 0 -20px; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; }
+
+/* Слайд 1: итог дня */
+.raznos-onboarding-art-income { background: var(--raznos-dark); color: var(--raznos-on-dark); padding: 24px 20px 20px; justify-content: flex-start; }
+.raznos-onboarding-total { font: 700 48px/1.15 var(--raznos-mono); letter-spacing: -0.02em; }
+.raznos-onboarding-total small { font-size: 28px; }
+.raznos-onboarding-caption { font: 400 13px/1.4 var(--raznos-font); margin: 4px 0 22px; opacity: 0.82; }
+.raznos-onboarding-income-strip { display: flex; gap: 3px; height: 30px; }
+.raznos-onboarding-income-seg { border-radius: 6px; display: flex; align-items: center; justify-content: flex-end; padding: 0 4px; }
+.raznos-onboarding-income-seg .raznos-svc-icon-sm { width: 22px; height: 22px; border-radius: 6px; }
+.raznos-onboarding-income-seg-a { flex: 235; background: var(--raznos-svc-vkusvill); border-radius: 8px 3px 3px 8px; }
+.raznos-onboarding-income-seg-b { flex: 185; background: var(--raznos-svc-samokat); border-radius: 3px 8px 8px 3px; }
+.raznos-onboarding-income-rows { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.raznos-onboarding-income-row { display: flex; align-items: center; gap: 8px; }
+.raznos-onboarding-income-row .raznos-svc-icon-sm { width: 22px; height: 22px; border-radius: 6px; }
+.raznos-onboarding-income-row-name { flex: 1; font: 500 13px var(--raznos-font); opacity: 0.82; }
+.raznos-onboarding-income-row-sum { font: 600 14px var(--raznos-mono); }
+.raznos-onboarding-summary { display: flex; justify-content: space-between; gap: 8px; font: 500 13px var(--raznos-font); margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--raznos-dark-2); }
+
+/* Слайд 2: куда ехать */
+.raznos-onboarding-art-map { background: var(--raznos-svc-vkusvill-tint); color: var(--raznos-ink); }
+.raznos-onboarding-map { position: absolute; inset: 0; width: 100%; height: 100%; }
+.raznos-onboarding-zone { position: absolute; top: 22px; right: 18px; background: var(--raznos-surface); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 8px 24px rgba(24, 53, 44, 0.16); }
+.raznos-onboarding-zone span { font: 600 14px var(--raznos-font); }
+.raznos-onboarding-zone b { font: 700 23px var(--raznos-mono); color: var(--raznos-green-deep); }
+.raznos-onboarding-zone small { font: 400 11px var(--raznos-font); color: var(--raznos-ink-2); }
+
+/* Слайд 3: выбор заказа */
+.raznos-onboarding-art-work { background: var(--raznos-amber-tint); padding: 16px; }
+.raznos-onboarding-offer-stack { position: relative; flex: 1; margin-top: 6px; }
+.raznos-onboarding-offer-back { position: absolute; left: 50%; width: 74%; padding: 10px 12px; border-radius: 16px; background: var(--raznos-surface); box-shadow: 0 6px 16px rgba(48, 35, 19, 0.14); display: flex; align-items: center; gap: 8px; font: 600 13px var(--raznos-mono); color: var(--raznos-ink-2); box-sizing: border-box; }
+.raznos-onboarding-offer-back-1 { top: 4px; transform: translateX(-66%) rotate(-7deg); z-index: 1; }
+.raznos-onboarding-offer-back-2 { top: 16px; transform: translateX(-46%) rotate(5deg); z-index: 2; opacity: 0.92; }
+.raznos-onboarding-offer { position: absolute; left: 50%; top: 34px; transform: translateX(-50%); z-index: 3; width: 84%; background: var(--raznos-surface); padding: 14px 16px; border-radius: 18px; box-shadow: 0 10px 24px rgba(48, 35, 19, 0.18); display: flex; flex-direction: column; gap: 6px; font: 600 12px var(--raznos-font); box-sizing: border-box; }
+.raznos-onboarding-offer strong { font: 700 34px/1.1 var(--raznos-mono); }
+.raznos-onboarding-offer strong small { font-size: 22px; }
+.raznos-onboarding-offer-meta { font: 400 12px var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-onboarding-accept { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 10px; background: var(--raznos-green-deep); color: var(--raznos-on-dark); font: 600 14px var(--raznos-font); }
+.raznos-onboarding-accept .raznos-svc-icon-sm { width: 20px; height: 20px; border-radius: 6px; }
+.raznos-onboarding-accept-label { flex: 1; }
+
+.raznos-onboarding-copy { display: flex; flex-direction: column; gap: 10px; }
+.raznos-onboarding-copy h1 { margin: 0; font: 750 31px/1.08 var(--raznos-font); letter-spacing: -0.8px; }
+.raznos-onboarding-copy p { margin: 0; font: 400 16px/1.45 var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-onboarding-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
+.raznos-onboarding-dots { display: flex; justify-content: center; gap: 6px; }
+.raznos-onboarding-dots span { width: 6px; height: 6px; border-radius: 4px; background: var(--raznos-line-strong); }
+.raznos-onboarding-dots .raznos-onboarding-dot-active { width: 24px; background: var(--raznos-brand, var(--raznos-green-deep)); }
+.raznos-onboarding-controls { display: flex; gap: 8px; }
+.raznos-onboarding-controls .raznos-btn-primary { flex: 1; }
+.raznos-onboarding-demo { text-align: center; font: 400 10px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }

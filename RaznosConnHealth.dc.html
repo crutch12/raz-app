@@ -1,0 +1,63 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-final.css" /></helmet>
+<sc-if value="{{ visible }}" hint-placeholder-val="{{ true }}">
+<div class="raznos-conn-health">
+  <sc-if value="{{ all_ok }}" hint-placeholder-val="{{ true }}">
+    <button type="button" class="raznos-conn-health-ok" onClick="{{ open_list }}"><span class="raznos-conn-dot"></span><span class="raznos-list-main">{{ ok_label }}</span><span class="raznos-row-chevron">›</span></button>
+  </sc-if>
+  <sc-if value="{{ has_problems }}">
+    <div class="raznos-notice raznos-notice-warn">
+      <sc-if value="{{ net_offline }}"><div class="raznos-conn-problem"><span class="raznos-conn-dot raznos-is-error"></span><div class="raznos-list-main"><span class="raznos-notice-title">Нет интернета на телефоне</span><span class="raznos-text-small">{{ net_note }}</span></div><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ check_net }}">Проверить связь</button></div></sc-if>
+      <sc-for list="{{ problems }}" as="pr" hint-placeholder-count="1">
+        <div class="raznos-conn-problem">
+          <dc-import name="RaznosIcon" svc="{{ pr.key }}" alt="{{ pr.title }}" size="sm"></dc-import>
+          <div class="raznos-list-main"><span class="raznos-notice-title">{{ pr.headline }}</span><span class="raznos-text-small">{{ pr.note }}</span></div>
+          <sc-if value="{{ pr.has_action }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ pr.tap }}">{{ pr.action }}</button></sc-if>
+        </div>
+      </sc-for>
+      <sc-if value="{{ has_rest }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-tiny">{{ rest_label }}</span></sc-if>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"items":{"editor":null},"netOffline":{"editor":"boolean","default":false},"netNote":{"editor":"text","default":""},"okNote":{"editor":"text","default":""},"onAction":{"editor":null},"$preview":{"width":360,"height":160}}'>
+const CH_PROBLEM = {
+  relogin: ['нужно войти снова', 'Войти'],
+  offline: ['нет связи с сервисом', 'Проверить связь'],
+  rate: ['сервис временно ограничил запросы', ''],
+  error: ['ошибка на стороне сервиса', 'Открыть приложение']
+};
+function chPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const items = p.items || [];
+    const onAction = p.onAction || (() => {});
+    const netOffline = !!p.netOffline;
+    const active = items.filter((i) => i.state !== 'off');
+    const off = items.filter((i) => i.state === 'off');
+    const problems = netOffline ? [] : active.filter((i) => CH_PROBLEM[i.state]);
+    const okCount = active.length - problems.length;
+    const offNote = off.length ? ' · ' + off.map((i) => i.title).join(', ') + ' ' + (off.length === 1 ? 'выключен' : 'выключены') + ' вами' : '';
+    return {
+      visible: items.length > 0 || netOffline,
+      all_ok: !netOffline && problems.length === 0,
+      has_problems: netOffline || problems.length > 0,
+      ok_label: okCount + ' ' + chPlural(okCount, 'сервис', 'сервиса', 'сервисов') + ' на связи' + (p.okNote ? ' · ' + p.okNote : '') + offNote,
+      open_list: () => onAction('', 'open'),
+      net_offline: netOffline,
+      net_note: p.netNote || 'Показываем последние полученные данные, новые предложения не принимаем вслепую',
+      check_net: () => onAction('', 'net'),
+      problems: problems.map((i) => ({
+        key: i.key, title: i.title,
+        headline: i.title + ': ' + CH_PROBLEM[i.state][0],
+        note: i.note,
+        has_action: !!CH_PROBLEM[i.state][1], action: CH_PROBLEM[i.state][1],
+        tap: () => onAction(i.key, i.state)
+      })),
+      has_rest: !netOffline && problems.length > 0 && okCount > 0,
+      rest_label: (okCount === 1 ? 'Работает ' : 'Работают ') + active.filter((i) => !CH_PROBLEM[i.state]).map((i) => i.title).join(', ') + ', активный заказ не теряется'
+    };
+  }
+}
+</script></body></html>

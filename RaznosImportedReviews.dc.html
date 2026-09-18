@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+      <div class="raznos-imp-reviews">
+        <div class="raznos-imp-reviews__head">
+          <span class="raznos-text-h3">{{ headTitle }}</span>
+          <span class="raznos-status-pill raznos-pill-concept">Демо-примеры</span>
+        </div>
+        <p class="raznos-text-tiny">{{ headNote }}</p>
+        <sc-if value="{{ isFull }}" hint-placeholder-val="{{ false }}">
+          <div class="raznos-chip-row">
+            <sc-for list="{{ svcChips }}" as="ch" hint-placeholder-count="3"><button type="button" class="{{ ch.cls }}" onClick="{{ ch.tap }}">{{ ch.label }}</button></sc-for>
+          </div>
+          <div class="raznos-chip-row">
+            <sc-for list="{{ periodChips }}" as="ch" hint-placeholder-count="3"><button type="button" class="{{ ch.cls }}" onClick="{{ ch.tap }}">{{ ch.label }}</button></sc-for>
+          </div>
+          <span class="raznos-text-small">{{ fullSummary }}</span>
+        </sc-if>
+        <sc-if value="{{ isEmpty }}">
+          <div class="raznos-imp-reviews__empty raznos-text-small">{{ emptyText }}</div>
+        </sc-if>
+        <sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
+          <div class="raznos-imp-reviews__group">
+            <div class="raznos-imp-reviews__group-head">
+              <dc-import name="RaznosIcon" svc="{{ g.svc }}" alt="{{ g.title }}" size="sm"></dc-import>
+              <span class="raznos-list-title">{{ g.title }}</span>
+              <sc-if value="{{ g.hasRating }}" hint-placeholder-val="{{ true }}"><span class="raznos-head-side raznos-fx raznos-col" style="align-items:flex-end"><span class="raznos-num">{{ g.ratingLabel }}</span><span class="raznos-text-tiny">{{ g.countLabel }}</span></span></sc-if>
+            </div>
+            <sc-if value="{{ g.hasCards }}">
+              <div class="raznos-fx raznos-col raznos-gap8">
+                <sc-for list="{{ g.cards }}" as="c" hint-placeholder-count="1">
+                  <div class="raznos-imp-reviews__card">
+                    <div class="raznos-head-row">
+                      <span class="raznos-text-tiny">{{ c.badge }}</span>
+                      <span class="raznos-text-tiny raznos-head-side">{{ c.date }}</span>
+                    </div>
+                    <sc-if value="{{ c.hasRating }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-small">Оценка {{ c.ratingLabel }}</span></sc-if>
+                    <sc-if value="{{ c.hasText }}" hint-placeholder-val="{{ true }}"><p class="raznos-text-body">{{ c.text }}</p></sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+        <sc-if value="{{ showAllBtn }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ onAll }}">{{ allLabel }}</button></sc-if>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "courierId": { "editor": "text", "default": "c1" },
+      "anon": { "editor": "boolean", "default": false },
+      "visitor": { "editor": "boolean", "default": false },
+      "svc": { "editor": "text", "default": "" },
+      "hideRatings": { "editor": "boolean", "default": false },
+      "hideReviews": { "editor": "boolean", "default": false },
+      "full": { "editor": "boolean", "default": false },
+      "onAll": { "editor": null },
+      "$preview": { "width": 360, "height": 320 }
+    }'>
+      // даты отзывов от демо-времени 15 сентября 2026, в превью показываем самый свежий по сервису
+      const DEMO_BY_COURIER = {
+        c1: [
+          { svc: "vkusvill", title: "ВкусВилл", rating: 4.93, count: 212, reviews: [
+            { rating: 5, iso: "2026-09-12", date: "12 сент", month: "сентябре", text: "Заказ привезли быстро, курьер предупредил заранее" },
+            { rating: 5, iso: "2026-09-08", date: "8 сент", month: "сентябре", text: "Пакеты целые, яйца не побились, спасибо" },
+            { rating: 4, iso: "2026-08-30", date: "30 авг", month: "августе", text: "Привёз вовремя, но не позвонил перед приездом" },
+            { rating: 5, iso: "2026-08-14", date: "14 авг", month: "августе", text: "" },
+            { rating: 3, iso: "2026-07-20", date: "20 июля", month: "июле", text: "Опоздал на 10 минут, зато предупредил в чате" },
+            { rating: 5, iso: "2026-06-03", date: "3 июня", month: "июне", text: "Очень вежливый курьер, донёс до двери" }
+          ] },
+          { svc: "samokat", title: "Самокат", rating: 4.68, count: 87, reviews: [
+            { rating: 2, iso: "2026-09-05", date: "5 сент", month: "сентябре", text: "Пришлось долго ждать у подъезда" },
+            { rating: 5, iso: "2026-08-28", date: "28 авг", month: "августе", text: "Быстро и аккуратно, всё холодное" },
+            { rating: 4, iso: "2026-08-10", date: "10 авг", month: "августе", text: "Нормально, одна бутылка была помята" },
+            { rating: 5, iso: "2026-07-02", date: "2 июля", month: "июле", text: "Приехал раньше времени" }
+          ] }
+        ],
+        c2: [
+          { svc: "samokat", title: "Самокат", rating: 4.34, count: 34, reviews: [
+            { rating: 5, iso: "2026-09-10", date: "10 сент", month: "сентябре", text: "Приехал точно в срок, всё аккуратно упаковано" },
+            { rating: 4, iso: "2026-08-22", date: "22 авг", month: "августе", text: "Немного задержался, но предупредил заранее" },
+            { rating: 4, iso: "2026-07-15", date: "15 июля", month: "июле", text: "" }
+          ] }
+        ],
+        c3: [
+          { svc: "x5", title: "X5 Доставка", rating: 4.51, count: 41, reviews: [
+            { rating: 5, iso: "2026-09-06", date: "6 сент", month: "сентябре", text: "Донёс тяжёлые пакеты до двери, вежливо поздоровался" },
+            { rating: 4, iso: "2026-08-02", date: "2 авг", month: "августе", text: "Заказ был немного дольше обычного, но всё довезли целым" }
+          ] }
+        ],
+        // автор отзыва о сервисе из обсуждения: показываем только выбранный сервис, связь с другими не раскрываем
+        "svc-author": [
+          { svc: "vkusvill", title: "ВкусВилл", rating: 4.82, count: 164, reviews: [{ rating: 5, iso: "2026-09-02", date: "2 сент", month: "сентябре", text: "Курьер вежливый, заказ собран полностью" }] },
+          { svc: "samokat", title: "Самокат", rating: 4.61, count: 118, reviews: [{ rating: 4, iso: "2026-08-21", date: "21 авг", month: "августе", text: "Привёз быстро, пакет немного помят" }] },
+          { svc: "x5", title: "X5 Доставка", rating: 4.9, count: 23, reviews: [{ rating: 5, iso: "2026-09-09", date: "9 сент", month: "сентябре", text: "Всё вовремя" }] }
+        ]
+      };
+      const PERIODS = [["month", "За месяц", "2026-08-16"], ["quarter", "3 месяца", "2026-06-16"], ["all", "Всё время", ""]];
+      // владелец и посетитель именного профиля видят точное среднее, обезличенный профиль получает только границы диапазона
+      const RATING_BUCKETS = [[4.8, 5.0], [4.5, 4.7], [4.0, 4.4], [3.0, 3.9], [1.0, 2.9]];
+      const COUNT_BUCKETS = [[500, "больше 500 оценок"], [100, "100–500 оценок"], [50, "50–100 оценок"], [0, "меньше 50 оценок"]];
+      const oneDecimal = (v) => v.toFixed(1).replace(".", ",");
+      const exactAvg = (v) => v.toFixed(2).replace(".", ",") + " из 5";
+      function ratingRangeLabel(v) {
+        const b = RATING_BUCKETS.find((x) => v >= x[0]) || RATING_BUCKETS[RATING_BUCKETS.length - 1];
+        return oneDecimal(b[0]) + "–" + oneDecimal(b[1]) + " из 5";
+      }
+      function countRangeLabel(n) { return (COUNT_BUCKETS.find((x) => n >= x[0]) || COUNT_BUCKETS[3])[1]; }
+      function plural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const st = this.state || {};
+          const anon = !!p.anon;
+          const full = !anon && !!p.full;
+          const fSvc = st.fSvc || "all";
+          const fPeriod = st.fPeriod || "all";
+          const periodFrom = (PERIODS.find((x) => x[0] === fPeriod) || PERIODS[2])[2];
+          const visitor = !anon && !!p.visitor;
+          const scaled = (v) => (v == null ? "" : String(v).replace(".", ",") + " из 5");
+          // обезличенный профиль всегда про один сервис, иначе сочетание сервисов связывает человека
+          const allGroups = (DEMO_BY_COURIER[p.courierId] || []).filter((g) => !p.svc || g.svc === p.svc);
+          const list = full ? allGroups.filter((g) => fSvc === "all" || g.svc === fSvc) : allGroups;
+          const groups = list.map((g) => {
+            const valid = p.hideReviews ? [] : g.reviews.filter((r) => r.rating != null || !!r.text);
+            const reviews = full ? valid.filter((r) => !periodFrom || r.iso >= periodFrom) : valid.slice(0, 1);
+            return {
+              svc: g.svc,
+              title: g.title,
+              hasRating: g.rating != null && !p.hideRatings,
+              ratingLabel: g.rating == null ? "" : (anon ? ratingRangeLabel(g.rating) : exactAvg(g.rating)),
+              countLabel: g.count == null ? "" : (anon ? countRangeLabel(g.count) : g.count + " " + plural(g.count, "оценка", "оценки", "оценок")),
+              hasCards: reviews.length > 0,
+              cards: reviews.map((r) => ({
+                hasRating: r.rating != null,
+                ratingLabel: scaled(r.rating),
+                hasText: !!r.text,
+                text: r.text || "",
+                badge: anon ? "Пересказ" : (full ? "Отзыв покупателя" : "Пример отзыва из сервиса"),
+                date: anon ? ("В " + (r.month || "недавнем месяце") + " 2026") : (r.date || "")
+              }))
+            };
+          }).filter((g) => g.hasRating || g.hasCards);
+          const shownCount = groups.reduce((sum, g) => sum + g.cards.length, 0);
+          const hasMore = allGroups.some((g) => g.reviews.length > 1);
+          return {
+            headTitle: full ? "История отзывов из сервисов" : (p.hideReviews ? "Оценки покупателей" : "Последние отзывы"),
+            headNote: anon ? "Пересказы отзывов покупателей из сервиса, без исходного текста и точной даты. Средняя оценка показана диапазоном" : (visitor ? "Оценки и отзывы из сервисов доставки, которые курьер разрешил показывать. Средние точные, число оценок за всю историю в сервисе. Покупатели не могут писать отзывы о курьерах в Разносе" : "Ваши точные данные из сервисов доставки. В именном профиле посетители видят только разрешённые поля, средние там тоже точные, в обезличенном профиле диапазоны. Покупатели не могут писать отзывы о курьерах в Разносе"),
+            isFull: full,
+            svcChips: [{ key: "all", label: "Все сервисы" }].concat(allGroups.map((g) => ({ key: g.svc, label: g.title }))).map((c) => ({ label: c.label, cls: fSvc === c.key ? "raznos-chip raznos-is-active" : "raznos-chip", tap: () => this.setState({ fSvc: c.key }) })),
+            periodChips: PERIODS.map((x) => ({ label: x[1], cls: fPeriod === x[0] ? "raznos-chip raznos-is-active" : "raznos-chip", tap: () => this.setState({ fPeriod: x[0] }) })),
+            fullSummary: shownCount + " " + plural(shownCount, "отзыв", "отзыва", "отзывов") + " за период, средняя и число оценок за всю историю в сервисе",
+            groups,
+            isEmpty: groups.length === 0,
+            emptyText: full && allGroups.length ? "За этот период отзывов нет, выберите период длиннее" : "Отзывов из сервисов пока нет",
+            showAllBtn: !full && !anon && !visitor && !!p.onAll && hasMore,
+            allLabel: "Все отзывы",
+            onAll: p.onAll || (() => {})
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

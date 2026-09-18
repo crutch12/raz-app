@@ -1,0 +1,54 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+<div class="{{ rootClass }}" role="{{ role }}">
+  <div class="raznos-alert-main">
+    <span class="raznos-notice-title">{{ title }}</span>
+    <span class="raznos-text-small">{{ text }}</span>
+    <sc-if value="{{ hasAction }}" hint-placeholder-val="{{ false }}">
+      <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small raznos-alert-action" onClick="{{ onAction }}">{{ actionLabel }}</button>
+    </sc-if>
+    <sc-if value="{{ isBlocking }}" hint-placeholder-val="{{ false }}">
+      <span class="raznos-text-tiny">Пока сообщение висит, остальные экраны недоступны</span>
+    </sc-if>
+    <sc-if value="{{ isPermanent }}" hint-placeholder-val="{{ false }}">
+      <span class="raznos-text-tiny">Сообщение не закрывается, пока причина не исчезнет</span>
+    </sc-if>
+  </div>
+  <sc-if value="{{ dismissible }}" hint-placeholder-val="{{ true }}">
+    <button type="button" class="raznos-alert-close" onClick="{{ onDismiss }}" aria-label="Закрыть сообщение">×</button>
+  </sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "kind": { "editor": "enum", "default": "info", "options": ["info", "warn", "critical"] },
+  "title": { "editor": "text", "default": "Плановые работы" },
+  "text": { "editor": "text", "default": "С 03:00 до 04:00 обновление данных может задерживаться" },
+  "dismissible": { "editor": "boolean", "default": true },
+  "blocking": { "editor": "boolean", "default": false },
+  "actionLabel": { "editor": "text", "default": "" },
+  "onAction": { "editor": null },
+  "onDismiss": { "editor": null },
+  "$preview": { "width": 350, "height": 140 }
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const kind = p.kind || 'info';
+    const blocking = !!p.blocking;
+    // блокирующее сообщение нельзя закрыть по определению, отдельным флагом это не перебить
+    const dismissible = !blocking && p.dismissible !== false;
+    const kindClass = { info: 'raznos-notice-info', warn: 'raznos-notice-warn', critical: 'raznos-notice-error' };
+    return {
+      rootClass: 'raznos-notice raznos-alert ' + (kindClass[kind] || 'raznos-notice-info') + (blocking ? ' raznos-alert-blocking' : ''),
+      role: kind === 'critical' || blocking ? 'alert' : 'status',
+      title: p.title || '', text: p.text || '',
+      dismissible: dismissible,
+      isBlocking: blocking,
+      isPermanent: !blocking && !dismissible,
+      hasAction: !!p.actionLabel,
+      actionLabel: p.actionLabel || '',
+      onAction: p.onAction || (() => {}),
+      onDismiss: p.onDismiss || (() => {})
+    };
+  }
+}
+</script></body></html>
