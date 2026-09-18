@@ -63,7 +63,7 @@
           const services = !hasData ? [] : rates.map((r) => ({
             key: r.key,
             title: svcTitles[r.key],
-            note: r.sufficient ? `Медиана курьеров: ${r.hourly} ₽/ч` : 'Недостаточно данных',
+            note: r.sufficient ? `Медиана курьеров: ${r.hourly} ₽/ч` : 'Мало данных',
             cardClass: 'user-home-service-card raznos-svc-border-' + r.key,
             tintStyle: 'background:var(--raznos-svc-' + r.key + '-tint)',
             onTap: () => onNavigate('compare', r.key)

@@ -335,6 +335,28 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-dialog { width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 18px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); box-shadow: 0 18px 44px rgba(20, 25, 40, 0.28); }
 .raznos-dialog .raznos-btn-row { gap: 8px; }
 
+/* Выбор города: поле-триггер и модалка с поиском */
+.raznos-city-field { display: flex; flex-direction: column; gap: 6px; }
+.raznos-city-trigger { min-height: 48px; border-radius: 12px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 14px; font: 500 16px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; text-align: left; }
+.raznos-city-trigger-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.raznos-city-trigger-icon { flex: 0 0 auto; color: var(--raznos-ink-2); display: block; }
+.raznos-city-modal-layer { position: absolute; inset: 0; z-index: 70; display: flex; flex-direction: column; justify-content: flex-end; background: oklch(0.22 0.012 250 / 0.42); }
+.raznos-city-modal-backdrop { position: absolute; inset: 0; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.raznos-city-modal { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; max-height: 76%; padding: 16px 16px 8px; border-radius: 20px 20px 0 0; background: var(--raznos-surface); border: 1px solid var(--raznos-line); box-shadow: 0 -12px 40px rgba(20, 25, 40, 0.22); }
+.raznos-city-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.raznos-city-search-box { min-height: 46px; border-radius: 12px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-bg); display: flex; align-items: center; gap: 8px; padding: 0 12px; }
+.raznos-city-search-box:focus-within { border-color: var(--raznos-ink); border-width: 2px; padding: 0 11px; }
+.raznos-city-search-icon { flex: 0 0 auto; color: var(--raznos-ink-2); display: block; }
+.raznos-city-search { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; font: 500 16px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-city-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; padding-bottom: 8px; }
+.raznos-city-option { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 46px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; font: 500 16px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; text-align: left; }
+.raznos-city-option:hover { background: var(--raznos-surface-2); }
+.raznos-city-option.raznos-is-active { background: var(--raznos-surface-2); color: var(--raznos-brand); }
+.raznos-city-option-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.raznos-city-option-check { color: var(--raznos-brand); font-size: 15px; }
+.raznos-city-truncated { padding: 8px 12px; color: var(--raznos-ink-2); }
+.raznos-city-empty { padding: 20px 12px; text-align: center; color: var(--raznos-ink-2); }
+
 /* Обезличенный автор: цветной кружок с первой буквой клички вместо портрета */
 .raznos-anon-avatar { width: 64px; height: 64px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: 700 26px var(--raznos-font); }
 
@@ -393,6 +415,7 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-phone-frame.raznos-theme-dark .raznos-icon-bordered { background: oklch(0.95 0.004 250); }
 .raznos-phone-frame.raznos-theme-dark .raznos-demo-ribbon { background: oklch(0.34 0.016 250); color: var(--raznos-ink); }
 .raznos-phone-frame.raznos-theme-dark .raznos-dialog-layer { background: oklch(0.12 0.012 250 / 0.62); }
+.raznos-phone-frame.raznos-theme-dark .raznos-city-modal-layer { background: oklch(0.12 0.012 250 / 0.62); }
 
 /* Общие состояния: сообщения и блоки, которые ведут себя одинаково на всех экранах */
 .raznos-alert { display: flex; flex-direction: row; align-items: flex-start; gap: 8px; }
