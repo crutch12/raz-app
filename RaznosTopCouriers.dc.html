@@ -1,0 +1,116 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rtc-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+    .rtc-chips .raznos-chip { white-space: nowrap; flex: none; }
+    .rtc-me { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-radius: 18px; background: var(--raznos-dark); color: var(--raznos-on-dark); }
+    .rtc-me-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .rtc-me-col { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .rtc-me-place { font: 800 20px var(--raznos-font); letter-spacing: -0.01em; }
+    .rtc-me-sub { font: 500 13px var(--raznos-font); color: color-mix(in oklab, var(--raznos-on-dark) 72%, transparent); }
+    .rtc-me-end { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+    .rtc-me-val { font: 800 22px var(--raznos-mono); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rtc-me-metric { font: 500 12px var(--raznos-font); color: color-mix(in oklab, var(--raznos-on-dark) 70%, transparent); }
+    .rtc-list { display: flex; flex-direction: column; gap: 6px; }
+    .rtc-row { display: grid; grid-template-columns: 26px 40px 1fr auto; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); width: 100%; text-align: left; cursor: pointer; }
+    .rtc-rank { font: 700 14px var(--raznos-mono); color: var(--raznos-ink-3); text-align: center; }
+    .rtc-face { width: 40px; height: 40px; border-radius: 50%; background: var(--raznos-surface-2); border: 1px solid var(--raznos-line); display: flex; align-items: center; justify-content: center; font: 700 16px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rtc-namecol { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .rtc-name { font: 600 15px var(--raznos-font); color: var(--raznos-ink); }
+    .rtc-sub { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rtc-val { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+  </style>
+</helmet>
+<div class="raznos-phone-body" data-screen-label="Top couriers">
+  <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><span class="raznos-text-small">Статистика</span></div>
+  <h1 class="raznos-text-h1">Топ курьеров</h1>
+
+  <div class="raznos-fx raznos-gap8" style="align-items:center">
+    <span class="raznos-status-pill raznos-pill-muted">{{ scope_label }}</span>
+    <span class="raznos-status-pill raznos-pill-muted">{{ period_label }}</span>
+  </div>
+
+  <div class="rtc-chips">
+    <sc-for list="{{ metrics }}" as="m" hint-placeholder-count="5">
+      <button type="button" class="{{ m.cls }}" onClick="{{ m.tap }}">{{ m.label }}</button>
+    </sc-for>
+  </div>
+
+  <div class="rtc-me">
+    <div class="rtc-me-left">
+      <dc-import name="RaznosAvatar" kind="portrait1" alt="Вы" size="sm"></dc-import>
+      <div class="rtc-me-col"><span class="rtc-me-place">{{ my_place }}</span><span class="rtc-me-sub">{{ my_sub }}</span></div>
+    </div>
+    <div class="rtc-me-end"><span class="rtc-me-val">{{ my_val }}</span><span class="rtc-me-metric">{{ my_metric }}</span></div>
+  </div>
+
+  <span class="raznos-text-h3">Лидеры {{ scope_label }}</span>
+  <div class="rtc-list">
+    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+      <button type="button" class="rtc-row" onClick="{{ r.tap }}">
+        <span class="rtc-rank">{{ r.rank }}</span>
+        <span class="rtc-face">{{ r.face }}</span>
+        <span class="rtc-namecol"><span class="rtc-name">{{ r.name }}</span><span class="rtc-sub">{{ r.sub }}</span></span>
+        <span class="rtc-val">{{ r.val }}</span>
+      </button>
+    </sc-for>
+  </div>
+  <p class="raznos-text-tiny">Себя видно как есть, остальные обезличены, суммы у них реальные. Тап по строке открывает обезличенный профиль. Данные с задержкой агрегатов, срез по городу и периоду</p>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"onOpenAnon":{"editor":null},"$preview":{"width":390,"height":760}}'>
+const RTC_METRICS = [
+  { key: 'money', label: 'Заработок', unit: 'money' },
+  { key: 'orders', label: 'Заказы', unit: 'plain' },
+  { key: 'tips', label: 'Чаевые', unit: 'money' },
+  { key: 'hour', label: 'Доход в час', unit: 'hour' },
+  { key: 'dist', label: 'Расстояние', unit: 'dist' }
+];
+// демо-когорта, каждый курьер со всеми показателями
+const RTC_COURIERS = [
+  { money: 41900, orders: 212, tips: 9800, hour: 1420, dist: 690 },
+  { money: 39400, orders: 198, tips: 7200, hour: 1360, dist: 640 },
+  { money: 37100, orders: 231, tips: 6100, hour: 1180, dist: 720 },
+  { money: 35800, orders: 176, tips: 8600, hour: 1510, dist: 520 },
+  { money: 34200, orders: 205, tips: 5400, hour: 1240, dist: 610 },
+  { money: 32900, orders: 189, tips: 6900, hour: 1300, dist: 470 }
+];
+const RTC_ME = { money: 18240, orders: 96, tips: 4100, hour: 1180, dist: 210 };
+// демо-место среди всех участников города по каждому показателю
+const RTC_MY_RANK = { money: 28, orders: 41, tips: 33, hour: 12, dist: 56 };
+const rtcFmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const rtcVal = (v, unit) => unit === 'money' ? (rtcFmt(v) + ' ₽') : unit === 'hour' ? (rtcFmt(v) + ' ₽/ч') : unit === 'dist' ? (rtcFmt(v) + ' км') : rtcFmt(v);
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const set = (patch) => this.setState(patch);
+    const metric = st.metric || 'money';
+    const md = RTC_METRICS.find((m) => m.key === metric) || RTC_METRICS[0];
+    const onOpen = p.onOpenAnon || (() => {});
+    const ranked = RTC_COURIERS.slice().sort((a, b) => b[metric] - a[metric]);
+    return {
+      onBack: p.onBack || (() => {}),
+      scope_label: 'Москва',
+      period_label: 'за неделю',
+      metrics: RTC_METRICS.map((m) => ({
+        label: m.label,
+        cls: 'raznos-chip' + (m.key === metric ? ' raznos-is-active' : ''),
+        tap: () => set({ metric: m.key })
+      })),
+      my_place: RTC_MY_RANK[metric] + ' место',
+      my_sub: 'Вы · Москва · велосипед',
+      my_val: rtcVal(RTC_ME[metric], md.unit),
+      my_metric: md.label,
+      rows: ranked.map((c, i) => ({
+        rank: String(i + 1),
+        face: '?',
+        name: 'Курьер',
+        sub: 'обезличено',
+        val: rtcVal(c[metric], md.unit),
+        tap: () => onOpen()
+      })),
+    };
+  }
+}
+</script></body></html>

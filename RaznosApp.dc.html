@@ -178,10 +178,12 @@
             </div>
           </sc-if>
 
+          <sc-if value="{{ is_top }}"><dc-import name="RaznosTopCouriers" onBack="{{ top_back }}" onOpenAnon="{{ top_open_anon }}"></dc-import></sc-if>
           <sc-if value="{{ is_stats }}">
             <div class="raznos-phone-body" data-screen-label="7 Stats">
               <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Статистика</h1></div>
               <dc-import name="RaznosConnHealth" items="{{ conn_health_items }}" okNote="{{ conn_health_ok_note }}" netOffline="{{ net_offline }}" onAction="{{ conn_health_action }}"></dc-import>
+              <div class="raznos-card"><button type="button" class="raznos-list-row" onClick="{{ go_top }}"><div class="raznos-list-main"><span class="raznos-list-title">Топ курьеров</span><span class="raznos-text-small">ваше место среди курьеров города</span></div><span class="raznos-status-pill raznos-pill-ok">28 место</span></button></div>
               <div class="raznos-segmented">
                 <button type="button" class="{{ stats_scope_my_class }}" onClick="{{ set_stats_scope_my }}">Моя</button>
                 <button type="button" class="{{ stats_scope_city_class }}" onClick="{{ set_stats_scope_city }}">По городу</button>
@@ -332,10 +334,12 @@
           <sc-if value="{{ is_work_filters }}"><dc-import name="RaznosWorkFilters" value="{{ work_filters }}" onChange="{{ save_work_filters }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
           <sc-if value="{{ is_offer_history }}"><dc-import name="RaznosOfferHistory" items="{{ offer_log }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
           <sc-if value="{{ is_slots }}"><dc-import name="RaznosSlotCalendar" onBack="{{ back_work_tools }}"></dc-import></sc-if>
+          <sc-if value="{{ is_smart }}"><dc-import name="RaznosSmartSchedule" onBack="{{ back_work_tools }}"></dc-import></sc-if>
+          <sc-if value="{{ is_work_schedule }}"><dc-import name="RaznosWorkSchedule" onBack="{{ work_schedule_back }}"></dc-import></sc-if>
 
           <sc-if value="{{ is_work_setup }}">
             <div class="raznos-phone-body" data-screen-label="9 Work setup">
-              <div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_work_filters }}">Мои фильтры</button><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_offer_history }}">Предложения</button><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_slots }}">Расписание</button></div>
+              <div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_smart }}">Умное расписание</button><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_slots }}">Смены</button><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_work_filters }}">Мои фильтры</button></div>
               <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Режим Работа</h1></div>
               <div class="raznos-notice raznos-notice-info">
                 <span class="raznos-notice-title">Статистика ≠ Работа</span>
@@ -363,7 +367,7 @@
           <sc-if value="{{ is_offers }}">
             <div class="raznos-phone-body" data-screen-label="10 Offers">
               <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ stop_work }}" aria-label="Завершить смену" title="Завершить смену">×</button><h1 class="raznos-text-h1" style="margin:0">Лента предложений</h1><sc-if value="{{ show_work_status_pill }}"><span class="{{ work_status_pill_class }}">{{ work_status_label }}</span></sc-if></div>
-              <div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_work_filters }}">Мои фильтры</button><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_offer_history }}">Предложения</button><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_slots }}">Расписание</button></div>
+              <div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_smart }}">Умное расписание</button><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_slots }}">Смены</button><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_work_filters }}">Мои фильтры</button></div>
               <div class="raznos-card"><sc-for list="{{ work_service_statuses }}" as="cs"><button type="button" class="raznos-list-row raznos-opportunity-status-row" onClick="{{ cs.tap }}" disabled="{{ cs.noAction }}"><dc-import name="RaznosIcon" svc="{{ cs.key }}" size="sm"></dc-import><span class="raznos-list-main"><span class="raznos-list-title">{{ cs.title }}</span><sc-if value="{{ cs.hasNote }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ cs.healthNote }}</span></sc-if></span><span class="{{ cs.pillClass }}">{{ cs.label }}</span></button></sc-for></div>
               <sc-if value="{{ cancel_notice_visible }}" hint-placeholder-val="{{ false }}">
                 <div class="{{ cancel_notice_class }}"><span class="raznos-notice-title">{{ cancel_notice_title }}</span><span class="raznos-text-small">{{ cancel_notice_text }}</span><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" style="align-self:flex-start" onClick="{{ dismiss_cancel_notice }}">Понятно</button></div>
@@ -432,7 +436,7 @@
             <div class="raznos-phone-body" data-screen-label="13 Active order">
               <div class="raznos-fx raznos-ac raznos-gap8"><dc-import name="RaznosIcon" svc="{{ active_offer_svc }}" size="md"></dc-import><h1 class="raznos-text-h1" style="margin:0">{{ active_offer_title }}</h1></div>
               <div class="raznos-fx raznos-jb raznos-ac"><span class="raznos-status-pill raznos-pill-ok">{{ order_stage_pill_label }}</span><span class="raznos-num">{{ active_offer_pay }} ₽</span></div>
-              <div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_work_filters }}">Мои фильтры</button><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_offer_history }}">Предложения</button></div>
+              <div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_work_filters }}">Мои фильтры</button></div>
               <sc-if value="{{ active_svc_unhealthy }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">{{ active_health_title }}</span><span class="raznos-text-small">Заказ сохранён в Разносе, этап и адреса на месте. Пока связи нет, отмечать этапы лучше в приложении сервиса</span><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" style="align-self:flex-start" onClick="{{ active_open_service }}">Открыть приложение сервиса</button></div></sc-if>
               <details><summary class="raznos-text-small">Статусы сервисов</summary>
               <div class="raznos-card"><sc-for list="{{ work_service_statuses }}" as="cs"><button type="button" class="raznos-list-row raznos-opportunity-status-row" onClick="{{ cs.tap }}" disabled="{{ cs.noAction }}"><dc-import name="RaznosIcon" svc="{{ cs.key }}" size="sm"></dc-import><span class="raznos-list-main"><span class="raznos-list-title">{{ cs.title }}</span></span><span class="{{ cs.pillClass }}">{{ cs.label }}</span></button></sc-for></div>
@@ -839,6 +843,7 @@
                 </sc-for>
               </div>
               <p class="raznos-text-tiny">Методика: доход в час считается из начислений за вычетом удержаний за известное рабочее время, без наличных, расходов и налогов. Место присваивается при 30+ курьерах и 100+ заказах. Публичные данные обновляются с задержкой не менее суток, «Вчера» показывает предыдущий закрытый день</p>
+              <dc-import name="RaznosDemandChart"></dc-import>
               </sc-if>
               <sc-if value="{{ mk_no_data }}">
                 <div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">{{ mk_city_label }}</span><span class="raznos-text-small">Пока нет данных по этому городу</span></div>
@@ -1220,17 +1225,19 @@
             <div class="raznos-phone-body" data-screen-label="24 Profile">
               <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Профиль</h1></div>
               <sc-if value="{{ is_role_courier }}" hint-placeholder-val="{{ true }}">
-                <div class="raznos-profile-head">
+                <div class="raznos-profile-hero">
                   <dc-import name="RaznosAvatar" kind="{{ pf_photo_kind }}" uploadedSrc="{{ pf_uploaded_src }}" alt="{{ pf_my_name }}, демо-профиль"></dc-import>
-                  <div class="raznos-fx raznos-col raznos-gap4"><span class="raznos-text-h2">{{ pf_my_name }}</span><span class="raznos-text-small">{{ city_title }} · {{ transport_title }} · аккаунт alexey.sokolov</span></div>
+                  <div class="raznos-fx raznos-col raznos-ac raznos-gap4"><span class="raznos-text-h2">{{ pf_my_name }}</span><span class="raznos-profile-hero-meta">{{ city_title }} · {{ transport_title }} · аккаунт alexey.sokolov</span></div>
+                  <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}">
+                    <div class="raznos-profile-stats">
+                      <div class="raznos-profile-stat"><span class="raznos-profile-stat-value">38 200 ₽</span><span class="raznos-profile-stat-label">Доход за нед.</span></div>
+                      <div class="raznos-profile-stat"><span class="raznos-profile-stat-value">4 100 ₽</span><span class="raznos-profile-stat-label">Чаевые за нед.</span></div>
+                      <div class="raznos-profile-stat"><span class="raznos-profile-stat-value">96</span><span class="raznos-profile-stat-label">Заказов за нед.</span></div>
+                    </div>
+                  </sc-if>
                 </div>
                 <dc-import name="RaznosConnHealth" items="{{ conn_health_items }}" okNote="{{ conn_health_ok_note }}" netOffline="{{ net_offline }}" onAction="{{ conn_health_action }}"></dc-import>
                 <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-col raznos-gap16">
-                  <div class="raznos-profile-panel">
-                    <div class="raznos-profile-panel-row"><span class="raznos-profile-panel-label">Часов за неделю</span><span class="raznos-profile-panel-value">42</span></div>
-                    <div class="raznos-profile-panel-row"><span class="raznos-profile-panel-label">Заказов за неделю</span><span class="raznos-profile-panel-value">96</span></div>
-                    <div class="raznos-profile-panel-row"><span class="raznos-profile-panel-label">В Разносе</span><span class="raznos-profile-panel-value-text">8 мес</span></div>
-                  </div>
                   <div class="raznos-badge-row">
                     <sc-for list="{{ pf_connected_badges }}" as="b" hint-placeholder-count="2">
                       <span class="raznos-service-chip"><dc-import name="RaznosIcon" svc="{{ b.key }}" alt="{{ b.title }}" size="sm"></dc-import>{{ b.label }}</span>
@@ -1258,6 +1265,8 @@
                 <div class="raznos-card">
                   <button type="button" class="raznos-list-row" onClick="{{ go_profile_edit }}"><div class="raznos-list-main"><span class="raznos-list-title">Редактировать профиль</span><span class="raznos-text-small">{{ pf_my_name }}</span></div><span class="raznos-row-chevron">›</span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ go_history }}"><div class="raznos-list-main"><span class="raznos-list-title">История заказов</span></div><span class="raznos-row-chevron">›</span></button>
+                  <button type="button" class="raznos-list-row" onClick="{{ go_offer_history }}"><div class="raznos-list-main"><span class="raznos-list-title">История предложений</span><span class="raznos-text-small">полученные, принятые, отклонённые и пропущенные</span></div><span class="raznos-row-chevron">›</span></button>
+                  <button type="button" class="raznos-list-row" onClick="{{ go_work_schedule }}"><div class="raznos-list-main"><span class="raznos-list-title">График работы</span><span class="raznos-text-small">рабочие дни и часы для умного расписания</span></div><span class="raznos-row-chevron">›</span></button>
                   <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-list-row" onClick="{{ go_imported_reviews }}"><div class="raznos-list-main"><span class="raznos-list-title">История отзывов из сервисов</span><span class="raznos-text-small">ВкусВилл и Самокат, по периодам</span></div><span class="raznos-row-chevron">›</span></button></sc-if>
                   <button type="button" class="raznos-list-row" onClick="{{ go_wallet }}"><div class="raznos-list-main"><span class="raznos-list-title">Баланс и чаевые</span><span class="raznos-text-small">Доступно {{ w_available }} ₽</span></div><span class="raznos-row-chevron">›</span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ go_integrations }}"><div class="raznos-list-main"><span class="raznos-list-title">Сервисы доставки</span><span class="raznos-text-small">{{ profile_services_note }}</span></div><span class="raznos-row-chevron">›</span></button>
@@ -4456,10 +4465,10 @@
             'work-setup', 'offers', 'offer-detail', 'active-order', 'confirm-decline',
             'offer-result', 'service-open-demo', 'work-summary', 'user-home', 'integrations', 'integration-connect',
             'history', 'order', 'market', 'service', 'form-review', 'review-complaint', 'review-complaint-sent',
-            'review-restricted', 'review-appeal', 'review-appeal-sent', 'questions', 'anon-courier', 'profile', 'profile-edit', 'photo', 'share', 'share-link-view', 'privacy',
+            'review-restricted', 'review-appeal', 'review-appeal-sent', 'questions', 'anon-courier', 'top', 'profile', 'profile-edit', 'photo', 'share', 'share-link-view', 'privacy',
             'favorites', 'couriers', 'public-profile', 'tips', 'tips-sent', 'contest', 'admin-login', 'admin-queue', 'admin-case',
             'expenses', 'expense-form', 'recurring', 'recurring-form', 'my-activity', 'imported-reviews', 'live-feed', 'live-thread', 'live-compose', 'live-place-pick', 'live-photo', 'live-place', 'live-report', 'live-mine',
-            'wallet', 'wallet-income', 'wallet-withdraw', 'wallet-withdraw-history', 'slots', 'job-guide',
+            'wallet', 'wallet-income', 'wallet-withdraw', 'wallet-withdraw-history', 'slots', 'smart', 'work-schedule', 'job-guide',
             'notifications', 'support', 'worker-data', 'common-states', 'work-tasks'
           ];
           const adminGateBlocked = (s === 'admin-queue' || s === 'admin-case') && !st.adAuthed;
@@ -5311,7 +5320,7 @@
             toast_list,
             toast_layer_class: ['offer-detail', 'active-order', 'offer-result', 'order'].indexOf(st.s) !== -1 ? 'raznos-toast-layer raznos-toast-layer-reserved' : 'raznos-toast-layer',
             go_market_map: () => set({ s: 'market-map' }), mk_city_key: mkCity,
-            go_work_filters: () => set({ s: 'work-filters' }), go_offer_history: () => set({ s: 'offer-history' }), go_slots: () => set({ s: 'slots' }),
+            go_work_filters: () => set({ s: 'work-filters' }), go_offer_history: () => set({ s: 'offer-history' }), go_slots: () => set({ s: 'slots' }), go_smart: () => set({ s: 'smart' }), go_work_schedule: () => set({ s: 'work-schedule' }), work_schedule_back: () => set({ s: 'profile' }), go_top: () => set({ s: 'top' }), top_back: () => set({ s: 'stats' }), top_open_anon: () => set({ s: 'anon-courier', anonSvcKey: 'samokat', anonAuthor: 'Курьер', anonBack: 'top', pvPreview: '' }),
             ...(() => {
               // причину пустой ленты показываем только при подтверждённом сигнале
               const selectedKeys = Object.keys(workSelectedSvc).filter((k) => workSelectedSvc[k]);

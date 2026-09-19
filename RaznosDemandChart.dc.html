@@ -1,0 +1,69 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rdc-card { display: flex; flex-direction: column; gap: 12px; }
+    .rdc-chips { display: flex; gap: 8px; }
+    .rdc-chips .raznos-chip { white-space: nowrap; flex: none; }
+    .rdc-bars { display: flex; align-items: flex-end; gap: 8px; height: 150px; margin-top: 4px; }
+    .rdc-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; height: 100%; justify-content: flex-end; }
+    .rdc-val { font: 600 11px var(--raznos-mono); color: var(--raznos-ink-2); }
+    .rdc-fill { width: 100%; border-radius: 7px 7px 0 0; background: var(--raznos-green-tint); }
+    .rdc-fill.is-peak { background: var(--raznos-green-deep); }
+    .rdc-label { font: 600 12px var(--raznos-mono); color: var(--raznos-ink-3); }
+    .rdc-legend { display: flex; align-items: center; gap: 16px; font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); }
+    .rdc-sw { width: 12px; height: 12px; border-radius: 4px; display: inline-block; margin-right: 6px; vertical-align: -1px; }
+  </style>
+</helmet>
+<div class="raznos-card raznos-card-pad rdc-card" data-screen-label="Demand chart">
+  <div class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="raznos-text-h3">Спрос по времени</span><span class="raznos-text-tiny">Москва</span></div>
+  <div class="rdc-chips">
+    <sc-for list="{{ cuts }}" as="c" hint-placeholder-count="3"><button type="button" class="{{ c.cls }}" onClick="{{ c.tap }}">{{ c.label }}</button></sc-for>
+  </div>
+  <div class="rdc-bars">
+    <sc-for list="{{ bars }}" as="b" hint-placeholder-count="7">
+      <div class="rdc-col"><span class="rdc-val">{{ b.val }}</span><div class="{{ b.cls }}" style="{{ b.style }}"></div><span class="rdc-label">{{ b.label }}</span></div>
+    </sc-for>
+  </div>
+  <div class="rdc-legend"><span><span class="rdc-sw" style="background:var(--raznos-green-deep)"></span>пик</span><span><span class="rdc-sw" style="background:var(--raznos-green-tint)"></span>спокойно</span></div>
+  <p class="raznos-text-tiny">Строим только на собственных прогнозах из истории заказов участников. Это аналитика рынка по периодам и районам, а не личная подсказка когда выходить</p>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":360}}'>
+const RDC_CUTS = [
+  { key: 'days', label: 'По дням' },
+  { key: 'hours', label: 'По часам' },
+  { key: 'zones', label: 'По районам' }
+];
+const RDC_DATA = {
+  days: [
+    { label: 'пн', v: 640, h: 42 }, { label: 'вт', v: 760, h: 52 }, { label: 'ср', v: 680, h: 48 },
+    { label: 'чт', v: 920, h: 70 }, { label: 'пт', v: 1320, h: 100 }, { label: 'сб', v: 1240, h: 94 }, { label: 'вс', v: 820, h: 60 }
+  ],
+  hours: [
+    { label: '10', v: 560, h: 40 }, { label: '12', v: 900, h: 64 }, { label: '14', v: 680, h: 48 },
+    { label: '16', v: 900, h: 64 }, { label: '18', v: 1300, h: 100 }, { label: '20', v: 1200, h: 92 }, { label: '22', v: 820, h: 60 }
+  ],
+  zones: [
+    { label: 'Центр', v: 1320, h: 100 }, { label: 'Север', v: 980, h: 74 }, { label: 'Юг', v: 860, h: 65 },
+    { label: 'Запад', v: 780, h: 59 }, { label: 'Восток', v: 900, h: 68 }
+  ]
+};
+const rdcFmt = (n) => n >= 1000 ? (String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')) : String(n);
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {};
+    const set = (patch) => this.setState(patch);
+    const cut = st.cut || 'days';
+    const rows = RDC_DATA[cut];
+    const max = Math.max.apply(null, rows.map((r) => r.h));
+    return {
+      cuts: RDC_CUTS.map((c) => ({ label: c.label, cls: 'raznos-chip' + (c.key === cut ? ' raznos-is-active' : ''), tap: () => set({ cut: c.key }) })),
+      bars: rows.map((r) => ({
+        label: r.label, val: rdcFmt(r.v),
+        cls: 'rdc-fill' + (r.h >= max ? ' is-peak' : ''),
+        style: 'height:' + r.h + '%'
+      }))
+    };
+  }
+}
+</script></body></html>

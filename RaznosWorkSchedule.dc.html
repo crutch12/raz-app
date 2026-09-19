@@ -1,0 +1,60 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rws-days { display: flex; gap: 8px; }
+    .rws-days .raznos-chip { flex: 1; text-align: center; padding-left: 0; padding-right: 0; }
+    .rws-step { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
+    .rws-step-label { font: 600 15px var(--raznos-font); color: var(--raznos-ink); }
+    .rws-step-ctl { display: flex; align-items: center; gap: 14px; }
+    .rws-step-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); color: var(--raznos-ink); font: 600 18px var(--raznos-font); line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .rws-step-btn:disabled { opacity: 0.35; cursor: default; }
+    .rws-step-val { font: 700 17px var(--raznos-mono); color: var(--raznos-ink); min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; }
+  </style>
+</helmet>
+<div class="raznos-phone-body" data-screen-label="Work schedule">
+  <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><span class="raznos-text-small">Режим Работа</span></div>
+  <h1 class="raznos-text-h1">График работы</h1>
+  <p class="raznos-text-small">Дни и часы, когда вы обычно работаете. Умное расписание берёт эти рамки за основу, часы вне графика показываются, но не идут в потенциальный итог дня</p>
+
+  <div class="raznos-field"><span class="raznos-field-label">Рабочие дни</span>
+    <div class="rws-days">
+      <sc-for list="{{ days }}" as="d" hint-placeholder-count="7"><button type="button" class="{{ d.cls }}" onClick="{{ d.tap }}">{{ d.label }}</button></sc-for>
+    </div>
+  </div>
+
+  <div class="raznos-field"><span class="raznos-field-label">Часы смены</span>
+    <div class="raznos-fx raznos-col raznos-gap8">
+      <div class="rws-step"><span class="rws-step-label">Начало смены</span><div class="rws-step-ctl"><button type="button" class="rws-step-btn" onClick="{{ start_dec }}" disabled="{{ start_dec_off }}">−</button><span class="rws-step-val">{{ start_label }}</span><button type="button" class="rws-step-btn" onClick="{{ start_inc }}" disabled="{{ start_inc_off }}">+</button></div></div>
+      <div class="rws-step"><span class="rws-step-label">Конец смены</span><div class="rws-step-ctl"><button type="button" class="rws-step-btn" onClick="{{ end_dec }}" disabled="{{ end_dec_off }}">−</button><span class="rws-step-val">{{ end_label }}</span><button type="button" class="rws-step-btn" onClick="{{ end_inc }}" disabled="{{ end_inc_off }}">+</button></div></div>
+    </div>
+  </div>
+
+  <div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">{{ summary }}</span><span class="raznos-text-small">Расписание пересчитывается раз в сутки утром, перед началом смены. Пересчитать вручную можно на экране умного расписания</span></div>
+  <p class="raznos-text-tiny">По умолчанию пн-пт с 09:00 до 18:00. Если рабочих часов нет, умное расписание считает день с 09:00</p>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"$preview":{"width":390,"height":620}}'>
+const RWS_DAYS = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
+const rwsHour = (h) => String(h).padStart(2, '0') + ':00';
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const set = (patch) => this.setState(patch);
+    const active = st.active || [true, true, true, true, true, false, false];
+    const start = st.start == null ? 9 : st.start;
+    const end = st.end == null ? 18 : st.end;
+    const toggle = (i) => { const next = active.slice(); next[i] = !next[i]; set({ active: next }); };
+    const cnt = active.filter(Boolean).length;
+    return {
+      onBack: p.onBack || (() => {}),
+      days: RWS_DAYS.map((label, i) => ({ label, cls: 'raznos-chip' + (active[i] ? ' raznos-is-active' : ''), tap: () => toggle(i) })),
+      start_label: rwsHour(start), end_label: rwsHour(end),
+      start_dec: () => set({ start: Math.max(0, start - 1) }), start_inc: () => set({ start: Math.min(end - 1, start + 1) }),
+      end_dec: () => set({ end: Math.max(start + 1, end - 1) }), end_inc: () => set({ end: Math.min(23, end + 1) }),
+      start_dec_off: start <= 0, start_inc_off: start >= end - 1, end_dec_off: end <= start + 1, end_inc_off: end >= 23,
+      summary: cnt ? (cnt + ' ' + (cnt === 1 ? 'день' : (cnt < 5 ? 'дня' : 'дней')) + ' в неделю, ' + rwsHour(start) + '–' + rwsHour(end)) : 'Рабочие дни не выбраны, счёт с 09:00'
+    };
+  }
+}
+</script></body></html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rss-days { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+    .rss-day { flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); cursor: pointer; }
+    .rss-day-d { font: 600 11px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rss-day-n { font: 700 15px var(--raznos-mono); color: var(--raznos-ink); }
+    .rss-day.raznos-is-active { background: var(--raznos-dark); border-color: var(--raznos-dark); }
+    .rss-day.raznos-is-active .rss-day-d { color: color-mix(in oklab, var(--raznos-on-dark) 72%, transparent); }
+    .rss-day.raznos-is-active .rss-day-n { color: var(--raznos-on-dark); }
+    .rss-dayoff .rss-day-d { color: var(--raznos-ink-3); opacity: 0.7; }
+    .rss-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .rss-total { font: 800 22px var(--raznos-font); letter-spacing: -0.02em; color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rss-list { display: flex; flex-direction: column; gap: 6px; }
+    .rss-hour { display: grid; grid-template-columns: 46px 1fr auto; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--raznos-surface-2); border: 1px solid transparent; text-align: left; width: 100%; cursor: pointer; }
+    .rss-hour.rss-off { opacity: 0.55; }
+    .rss-hour.rss-edited-row { border-color: var(--raznos-green); }
+    .rss-hour-time { font: 700 13px var(--raznos-mono); color: var(--raznos-ink-3); }
+    .rss-hour-main { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .rss-hour-col { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .rss-hour-name { font: 600 14px var(--raznos-font); color: var(--raznos-ink); }
+    .rss-hour-sub { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rss-hour-end { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+    .rss-pay { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rss-dem { font: 600 11px var(--raznos-font); padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+    .rss-dem-high { background: var(--raznos-green-tint); color: var(--raznos-green-deep); }
+    .rss-dem-mid { background: var(--raznos-surface); color: var(--raznos-ink-2); border: 1px solid var(--raznos-line); }
+    .rss-dem-low { background: var(--raznos-surface); color: var(--raznos-ink-3); border: 1px solid var(--raznos-line); }
+    .rss-tag { font: 600 10px var(--raznos-font); text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 7px; border-radius: 6px; }
+    .rss-tag-off { color: var(--raznos-ink-3); background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
+    .rss-tag-edit { color: var(--raznos-green-deep); background: var(--raznos-green-tint); }
+    .rss-cmp { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 12px; border-radius: 12px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); width: 100%; text-align: left; cursor: pointer; }
+    .rss-cmp.rss-best { border-color: var(--raznos-green); background: var(--raznos-green-tint); }
+    .rss-cmp-name { font: 600 15px var(--raznos-font); color: var(--raznos-ink); }
+    .rss-cmp-end { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+    .rss-zones { display: flex; flex-wrap: wrap; gap: 8px; }
+    .rss-zone { display: inline-flex; align-items: baseline; gap: 6px; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); font: 600 13px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; }
+    .rss-zone .rss-zone-pay { font: 600 12px var(--raznos-mono); color: var(--raznos-ink-3); }
+    .rss-zone.raznos-is-active { background: var(--raznos-dark); border-color: var(--raznos-dark); color: var(--raznos-on-dark); }
+    .rss-zone.raznos-is-active .rss-zone-pay { color: color-mix(in oklab, var(--raznos-on-dark) 72%, transparent); }
+    .rss-recalc { display: flex; flex-direction: column; gap: 10px; }
+  </style>
+</helmet>
+
+<sc-if value="{{ is_list }}">
+<div class="raznos-phone-body" data-screen-label="Smart schedule">
+  <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><span class="raznos-text-small">Режим Работа</span></div>
+  <h1 class="raznos-text-h1">Умное расписание</h1>
+
+  <div class="rss-days">
+    <sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
+      <button type="button" class="{{ d.cls }}" onClick="{{ d.tap }}"><span class="rss-day-d">{{ d.d }}</span><span class="rss-day-n">{{ d.n }}</span></button>
+    </sc-for>
+  </div>
+
+  <div class="rss-head">
+    <div class="raznos-fx raznos-col raznos-gap4"><span class="raznos-text-h3">{{ day_title }}</span><span class="raznos-text-tiny">{{ total_note }}</span></div>
+    <span class="rss-total">{{ total }}</span>
+  </div>
+
+  <sc-if value="{{ few_data }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Данных пока мало, прогноз слабый. Считаем по правилам и вашей истории, будет точнее по мере накопления</span></div></sc-if>
+
+  <div class="rss-list">
+    <sc-for list="{{ hours }}" as="h" hint-placeholder-count="6">
+      <button type="button" class="{{ h.cls }}" onClick="{{ h.tap }}" aria-label="{{ h.aria }}">
+        <span class="rss-hour-time">{{ h.time }}</span>
+        <span class="rss-hour-main">
+          <dc-import name="RaznosIcon" svc="{{ h.svc }}" alt="{{ h.svcTitle }}" size="sm"></dc-import>
+          <span class="rss-hour-col">
+            <span class="rss-hour-name">{{ h.svcTitle }}</span>
+            <span class="rss-hour-sub">{{ h.sub }}</span>
+          </span>
+        </span>
+        <span class="rss-hour-end">
+          <span class="rss-pay">{{ h.pay }}</span>
+          <span class="{{ h.demCls }}">{{ h.demLabel }}</span>
+        </span>
+      </button>
+    </sc-for>
+  </div>
+
+  <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ ask_recalc }}">Пересчитать расписание</button>
+  <p class="raznos-text-tiny">План строится утром по вашему графику из личного кабинета. Пересчёт не приносит более свежих данных рынка чаще раза в сутки, меняет план по новым условиям и вашим правкам. Только рекомендация, смены не бронирует</p>
+
+  <sc-if value="{{ show_recalc }}" hint-placeholder-val="{{ false }}">
+    <div class="raznos-dialog-layer" role="dialog" aria-modal="true" aria-label="Пересчитать расписание">
+      <div class="raznos-dialog rss-recalc">
+        <span class="raznos-text-h3">Пересчитать расписание</span>
+        <p class="raznos-text-small">Полный пересбор перетрёт часы, которые вы меняли вручную. Вернуть их будет нельзя</p>
+        <div class="raznos-btn-row">
+          <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ cancel_recalc }}">Отмена</button>
+          <button type="button" class="raznos-btn" onClick="{{ do_recalc }}">Пересчитать</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ is_hour }}">
+<div class="raznos-phone-body" data-screen-label="Smart hour">
+  <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ back_list }}">‹</button><span class="raznos-text-small">Умное расписание</span></div>
+  <div class="raznos-fx raznos-ac raznos-jb raznos-gap8">
+    <h1 class="raznos-text-h1" style="margin:0">{{ hv_time }}</h1>
+    <span class="{{ hv_demCls }}">{{ hv_demLabel }}</span>
+  </div>
+  <sc-if value="{{ hv_off }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Этот час вне вашего графика. Выбрать можно, но в потенциальный итог дня он не войдёт</span></div></sc-if>
+  <sc-if value="{{ hv_edited }}" hint-placeholder-val="{{ false }}"><div class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="rss-tag rss-tag-edit">изменено вами</span><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ reset_hour }}">Сбросить на smart</button></div></sc-if>
+
+  <span class="raznos-text-h3">Сервис на этот час</span>
+  <p class="raznos-text-tiny">Сколько платят в этот час по прогнозу, лучший отмечен</p>
+  <div class="raznos-fx raznos-col raznos-gap8">
+    <sc-for list="{{ cmp }}" as="c" hint-placeholder-count="3">
+      <button type="button" class="{{ c.cls }}" onClick="{{ c.tap }}">
+        <dc-import name="RaznosIcon" svc="{{ c.svc }}" alt="{{ c.title }}" size="sm"></dc-import>
+        <span class="rss-cmp-name">{{ c.title }}</span>
+        <span class="rss-cmp-end"><span class="rss-pay">{{ c.pay }}</span><span class="{{ c.demCls }}">{{ c.demLabel }}</span></span>
+      </button>
+    </sc-for>
+  </div>
+
+  <span class="raznos-text-h3">Зона</span>
+  <p class="raznos-text-tiny">{{ zone_hint }}</p>
+  <div class="rss-zones">
+    <sc-for list="{{ zones }}" as="z" hint-placeholder-count="4">
+      <button type="button" class="{{ z.cls }}" onClick="{{ z.tap }}">{{ z.name }}<span class="rss-zone-pay">{{ z.pay }}</span></button>
+    </sc-for>
+  </div>
+  <p class="raznos-text-tiny">Зону обычно выбирают под удобство, доход это ориентир по прогнозу, а не обещание</p>
+</div>
+</sc-if>
+
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"$preview":{"width":390,"height":820}}'>
+const RSS_WEEK = [
+  { d: 'Пн', n: 8, work: true }, { d: 'Вт', n: 9, work: true }, { d: 'Ср', n: 10, work: true },
+  { d: 'Чт', n: 11, work: true }, { d: 'Пт', n: 12, work: true }, { d: 'Сб', n: 13, work: false }, { d: 'Вс', n: 14, work: false }
+];
+const RSS_WORK_START = 9, RSS_WORK_END = 18; // график по умолчанию пн-пт 9-18
+const RSS_SERVICES = [
+  { key: 'samokat', title: 'Самокат' },
+  { key: 'vkusvill', title: 'ВкусВилл' },
+  { key: 'yandex-eda', title: 'Яндекс Еда' }
+];
+const RSS_ZONES = [
+  { name: 'Центр', f: 1.0 }, { name: 'Север', f: 0.9 }, { name: 'Юг', f: 0.85 }, { name: 'Запад', f: 0.8 }
+];
+// прогнозная кривая спроса по часам 0..23, демо
+const RSS_DEMAND = [0.12,0.09,0.07,0.06,0.06,0.1,0.18,0.32,0.46,0.56,0.62,0.72,0.92,0.86,0.62,0.52,0.58,0.78,1.0,0.96,0.82,0.62,0.4,0.22];
+const rssFmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const rssBase = (h) => 600 + RSS_DEMAND[h] * 900;
+const rssSmartSvc = (h) => RSS_SERVICES[h % RSS_SERVICES.length].key;
+// оплата сервиса в час h в зоне zoneF, у рекомендованного сервиса бонус
+const rssPay = (h, svcKey, zoneF) => {
+  const best = rssSmartSvc(h);
+  const factor = svcKey === best ? 1.0 : 0.9;
+  return Math.round(rssBase(h) * zoneF * factor / 10) * 10;
+};
+const rssZoneF = (name) => (RSS_ZONES.find((z) => z.name === name) || RSS_ZONES[0]).f;
+const rssDem = (h) => {
+  const v = RSS_DEMAND[h];
+  if (v >= 0.7) return ['выше среднего', 'rss-dem rss-dem-high'];
+  if (v >= 0.4) return ['средний спрос', 'rss-dem rss-dem-mid'];
+  return ['ниже среднего', 'rss-dem rss-dem-low'];
+};
+const rssReason = (h) => {
+  if (h >= 23 || h < 6) return 'ночь';
+  if (RSS_DEMAND[h] >= 0.85) return 'пик';
+  if (RSS_DEMAND[h] >= 0.4) return 'ровный спрос';
+  return 'затишье';
+};
+const svcTitle = (key) => (RSS_SERVICES.find((s) => s.key === key) || {}).title || key;
+
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const set = (patch) => this.setState(patch);
+    const view = st.view || 'list';
+    const selDay = st.selDay == null ? 4 : st.selDay;
+    const edits = st.edits || {};
+    const dayInfo = RSS_WEEK[selDay];
+    const dayWorks = !!dayInfo.work;
+    const firstHour = dayWorks ? RSS_WORK_START : 9;
+    const inGrafik = (h) => dayWorks && h >= RSS_WORK_START && h < RSS_WORK_END;
+    const editKey = (h) => selDay + ':' + h;
+    const hourPlan = (h) => {
+      const e = edits[editKey(h)];
+      const svc = e ? e.svc : rssSmartSvc(h);
+      const zone = e ? e.zone : 'Центр';
+      return { svc, zone, edited: !!e, pay: rssPay(h, svc, rssZoneF(zone)) };
+    };
+    // порядок часов от первого рабочего часа
+    const order = [];
+    for (let i = 0; i < 24; i++) order.push((firstHour + i) % 24);
+
+    let total = 0;
+    for (let h = 0; h < 24; h++) if (inGrafik(h)) total += hourPlan(h).pay;
+
+    const days = RSS_WEEK.map((d, i) => ({
+      d: d.d, n: d.n,
+      cls: 'rss-day' + (i === selDay ? ' raznos-is-active' : '') + (d.work ? '' : ' rss-dayoff'),
+      tap: () => set({ selDay: i, view: 'list' })
+    }));
+
+    const hours = order.map((h) => {
+      const plan = hourPlan(h);
+      const dem = rssDem(h);
+      const off = !inGrafik(h);
+      const sub = plan.zone + ' · ' + rssReason(h) + (plan.edited ? ' · изменено вами' : '') + (off ? ' · вне графика' : '');
+      return {
+        time: (h < 10 ? '0' + h : h) + ':00',
+        svc: plan.svc, svcTitle: svcTitle(plan.svc), sub,
+        pay: plan.pay + ' ₽/ч',
+        demCls: dem[1], demLabel: dem[0],
+        cls: 'rss-hour' + (off ? ' rss-off' : '') + (plan.edited ? ' rss-edited-row' : ''),
+        aria: (h < 10 ? '0' + h : h) + ':00, ' + svcTitle(plan.svc) + ', ' + plan.zone + ', ' + plan.pay + ' рублей в час, ' + dem[0] + (off ? ', вне графика' : ''),
+        tap: () => set({ view: 'hour', selHour: h })
+      };
+    });
+
+    // экран часа
+    const selHour = st.selHour == null ? firstHour : st.selHour;
+    const cur = hourPlan(selHour);
+    const demH = rssDem(selHour);
+    const cmp = RSS_SERVICES.map((s) => {
+      const pay = rssPay(selHour, s.key, rssZoneF(cur.zone));
+      const best = s.key === rssSmartSvc(selHour);
+      return {
+        svc: s.key, title: s.title + (best ? ' · рекомендуем' : ''),
+        pay: pay + ' ₽/ч', demCls: demH[1], demLabel: demH[0],
+        cls: 'rss-cmp' + (s.key === cur.svc ? ' rss-best' : ''),
+        tap: () => set({ edits: Object.assign({}, edits, { [editKey(selHour)]: { svc: s.key, zone: cur.zone } }) })
+      };
+    });
+    const bestZone = RSS_ZONES.slice().sort((a, b) => b.f - a.f)[0].name;
+    const zones = RSS_ZONES.map((z) => ({
+      name: z.name, pay: rssPay(selHour, cur.svc, z.f) + ' ₽/ч',
+      cls: 'rss-zone' + (z.name === cur.zone ? ' raznos-is-active' : ''),
+      tap: () => set({ edits: Object.assign({}, edits, { [editKey(selHour)]: { svc: cur.svc, zone: z.name } }) })
+    }));
+    const zoneHint = cur.zone === bestZone
+      ? 'Сейчас выбрана зона с самым высоким прогнозом'
+      : ('В зоне ' + bestZone + ' в этот час прогноз выше, но выбирайте по удобству');
+
+    return {
+      onBack: p.onBack || (() => {}),
+      is_list: view === 'list', is_hour: view === 'hour',
+      days,
+      day_title: dayInfo.d + ', ' + dayInfo.n + ' сентября',
+      total: dayWorks ? ('≈ ' + rssFmt(total) + ' ₽') : '—',
+      total_note: dayWorks ? 'потенциал за день по графику' : 'нерабочий день по графику, часы вне плана',
+      few_data: false,
+      hours,
+      show_recalc: !!st.showRecalc,
+      ask_recalc: () => set({ showRecalc: true }),
+      cancel_recalc: () => set({ showRecalc: false }),
+      do_recalc: () => set({ edits: {}, showRecalc: false }),
+      back_list: () => set({ view: 'list' }),
+      hv_time: (selHour < 10 ? '0' + selHour : selHour) + ':00',
+      hv_demCls: demH[1], hv_demLabel: demH[0],
+      hv_off: !inGrafik(selHour),
+      hv_edited: cur.edited,
+      reset_hour: () => { const next = Object.assign({}, edits); delete next[editKey(selHour)]; set({ edits: next }); },
+      cmp, zones, zone_hint: zoneHint
+    };
+  }
+}
+</script></body></html>
