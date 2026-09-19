@@ -148,7 +148,6 @@
                 <div class="raznos-metric-card"><span class="raznos-text-small">Время на работе</span><span class="raznos-metric-value">{{ today_hours }} ч</span></div>
                 <div class="raznos-metric-card"><span class="raznos-text-small">Ожидание на точке</span><span class="raznos-metric-value">{{ today_avg_wait }}</span></div>
               </div>
-              <dc-import name="RaznosLiveToday" items="{{ live_today_items }}" cityTitle="{{ city_title }}" onAll="{{ live_go_feed_home }}" onWrite="{{ live_go_compose_home }}"></dc-import>
               <div class="raznos-card raznos-card-pad">
                 <span class="raznos-text-h3">Из чего сложилась сумма</span>
                 <button type="button" class="raznos-breakdown-row raznos-tap" style="width:100%;background:transparent;border:0;font:inherit;color:inherit;cursor:pointer" onClick="{{ go_history_vv }}"><div class="raznos-fx raznos-ac raznos-gap8"><dc-import name="RaznosIcon" svc="vkusvill" size="sm"></dc-import><span>ВкусВилл · {{ vv_hours }} ч</span></div><span class="raznos-num">{{ vv_earn }} ₽</span></button>
@@ -157,12 +156,19 @@
                 <p class="raznos-text-tiny">{{ vv_hours }} ч + {{ samokat_hours }} ч − {{ overlap_hours }} ч пересечения = {{ today_hours }} ч на работе, без двойного счёта</p>
               </div>
               <div class="raznos-card raznos-card-pad">
-                <span class="raznos-text-h3">Доход в час по сервисам</span>
-                <div class="raznos-bar-chart">
-                  <div class="raznos-bar-col"><span class="raznos-bar-value">{{ today_vv_hourly }} ₽/ч</span><div class="raznos-bar-track"><span class="raznos-bar-fill" style="{{ today_bar1_style }}"></span></div><span class="raznos-bar-label">ВкусВилл</span></div>
-                  <div class="raznos-bar-col"><span class="raznos-bar-value">{{ today_samokat_hourly }} ₽/ч</span><div class="raznos-bar-track"><span class="raznos-bar-fill raznos-is-alt" style="{{ today_bar2_style }}"></span></div><span class="raznos-bar-label">Самокат</span></div>
-                </div>
+                <div class="raznos-head-row"><span class="raznos-text-h3 raznos-head-title">Доход в час по сервисам</span><span class="raznos-text-tiny">сегодня</span></div>
+                <sc-for list="{{ svc_hourly_rows }}" as="r" hint-placeholder-count="2">
+                  <div class="raznos-svc-hourly-row">
+                    <span class="raznos-svc-hourly-dot" style="{{ r.dotstyle }}"></span>
+                    <span class="raznos-svc-hourly-name">{{ r.name }}</span>
+                    <div class="raznos-svc-hourly-track"><span class="raznos-svc-hourly-fill" style="{{ r.style }}"></span></div>
+                    <span class="raznos-num">{{ r.hourly }}</span>
+                    <span class="{{ r.tagcls }}">{{ r.tag }}</span>
+                  </div>
+                </sc-for>
+                <p class="raznos-text-tiny">{{ svc_hourly_note }}</p>
               </div>
+              <dc-import name="RaznosLiveToday" items="{{ live_today_items }}" cityTitle="{{ city_title }}" onAll="{{ live_go_feed_home }}" onWrite="{{ live_go_compose_home }}"></dc-import>
               <div class="raznos-card">
                 <button type="button" class="raznos-list-row" onClick="{{ go_integrations }}"><div class="raznos-list-main"><span class="raznos-list-title">Сервисы</span><span class="raznos-text-small">{{ profile_services_note }}</span></div><span class="raznos-row-chevron">›</span></button>
                 <button type="button" class="raznos-list-row" onClick="{{ go_history }}"><div class="raznos-list-main"><span class="raznos-list-title">История заказов</span><span class="raznos-text-small">{{ today_orders }} заказов сегодня</span></div><span class="raznos-row-chevron">›</span></button>
@@ -272,6 +278,7 @@
 
                 <div class="raznos-card raznos-card-pad">
                   <span class="raznos-text-h3">Лучшие часы</span>
+                  <div class="raznos-heat-peak"><span class="raznos-heat-peak-fire">🔥</span><span class="raznos-heat-peak-text">Пик недели {{ heat_peak_label }}</span><span class="raznos-num">{{ heat_peak_pay }}</span></div>
                   <div class="raznos-heatmap-daynames">
                     <span></span>
                     <sc-for list="{{ heatmap_days }}" as="dayname" hint-placeholder-count="7"><span class="raznos-heatmap-daylabel">{{ dayname }}</span></sc-for>
@@ -280,10 +287,19 @@
                     <div class="raznos-heatmap-row">
                       <span class="raznos-heatmap-rowlabel">{{ slotrow.label }}</span>
                       <div class="raznos-heatmap-cells">
-                        <sc-for list="{{ slotrow.cells }}" as="cell" hint-placeholder-count="7"><span class="{{ cell.cls }}"></span></sc-for>
+                        <sc-for list="{{ slotrow.cells }}" as="cell" hint-placeholder-count="7"><span class="{{ cell.cls }}" onClick="{{ cell.tap }}" title="{{ cell.hint }}"></span></sc-for>
                       </div>
                     </div>
                   </sc-for>
+                  <div class="raznos-heat-detail">
+                    <span class="raznos-heat-detail-title">{{ heat_sel_title }}</span>
+                    <span class="raznos-text-small">{{ heat_sel_note }}</span>
+                  </div>
+                  <div class="raznos-heat-legend raznos-text-tiny">
+                    <span><span class="raznos-heat-legend-dot raznos-heat-1"></span>низкий</span>
+                    <span><span class="raznos-heat-legend-dot raznos-heat-2"></span>средний</span>
+                    <span><span class="raznos-heat-legend-dot raznos-heat-3"></span>высокий</span>
+                  </div>
                   <p class="raznos-text-tiny">{{ heatmap_tip }}</p>
                 </div>
                 </div>
@@ -1256,6 +1272,8 @@
                 <dc-import name="RaznosAppSettings" theme="{{ app_theme }}" systemIsDark="{{ app_system_dark }}" notificationsSummary="{{ notif_summary }}" supportSummary="{{ support_summary }}" onTheme="{{ set_app_theme }}" onNotifications="{{ go_notifications }}" onSupport="{{ go_support }}"></dc-import>
                 <dc-import name="RaznosCitySelect" value="{{ city }}" onChange="{{ set_city }}" label="Город"></dc-import>
                 <dc-import name="RaznosLanguagePicker" value="{{ language }}" onChange="{{ change_language }}"></dc-import>
+                <sc-if value="{{ demo_on }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Демо-режим включён</span><span class="raznos-text-small">Данные вымышленные. Выключить можно кнопкой × на плашке вверху</span></div></sc-if>
+                <sc-if value="{{ demo_off }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ start_demo }}">Включить демо-режим</button></sc-if>
                 <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ pf_switch_to_user }}">Перейти в режим пользователя</button>
                 <button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ go_logout }}">Выйти</button>
               </sc-if>
@@ -3557,12 +3575,14 @@
         { label: '15 сент', pay: 4200 }
       ];
       const HEATMAP_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-      const HEATMAP_SLOTS = ['Утро', 'День', 'Вечер', 'Ночь'];
+      const HEATMAP_SLOTS = ['06–12', '12–17', '17–21', '21–06'];
       const HEATMAP_LEVELS = [
         [1, 2, 2, 1], [1, 2, 3, 1], [1, 2, 2, 1], [1, 2, 3, 2],
         [2, 3, 3, 2], [2, 2, 3, 3], [1, 1, 2, 2]
       ];
-      const HEATMAP_TIP = 'Обычно выгоднее пятница и суббота вечером, 17:00–21:00';
+      const HEATMAP_PAY = { 1: 620, 2: 940, 3: 1320 };
+      const HEATMAP_LVLNAME = { 1: 'низкий', 2: 'средний', 3: 'высокий' };
+      const HEATMAP_TIP = 'Спрос по выполненным заказам участников, тап по ячейке даёт доход в час и лучший сервис';
       const VV_PAYS = [300, 280, 260, 240, 320, 180, 250, 230, 290];
       const SK_PAYS = [260, 310, 240, 220, 290, 180, 200, 150];
       function buildHistory() {
@@ -4463,7 +4483,23 @@
           const todayTipsDigital = todayHistory.reduce((sum, o) => sum + o.tipDigital, 0);
           const todayPaidOutSum = todayHistory.filter((o) => o.money === 'Выплачено').reduce((sum, o) => sum + o.pay, 0);
           const todayRemain = todayEarn - todayExpenses;
-          const todayMaxBar = Math.max(todayVvHourly, todaySamokatHourly);
+          const svcHourlySrc = [
+            { name: 'ВкусВилл', hourly: todayVvHourly, hours: today.vvHours, color: 'var(--raznos-svc-vkusvill)' },
+            { name: 'Самокат', hourly: todaySamokatHourly, hours: today.samokatHours, color: 'var(--raznos-svc-samokat)' }
+          ].sort((a, b) => b.hourly - a.hourly);
+          const svcHourlyBest = svcHourlySrc[0];
+          const svcHourlyRows = svcHourlySrc.map((r, i) => ({
+            name: r.name,
+            hourly: r.hourly + ' ₽/ч',
+            dotstyle: 'background:' + r.color,
+            style: 'width:' + Math.max(6, Math.round((r.hourly / (svcHourlyBest.hourly || 1)) * 100)) + '%;background:' + r.color,
+            tag: i === 0 ? 'лучший' : '−' + (svcHourlyBest.hourly - r.hourly) + ' ₽/ч',
+            tagcls: i === 0 ? 'raznos-status-pill raznos-pill-ok' : 'raznos-text-tiny raznos-text-muted'
+          }));
+          const svcHourlyGap = svcHourlySrc.length > 1 ? svcHourlyBest.hourly - svcHourlySrc[1].hourly : 0;
+          const svcHourlyNote = svcHourlyGap > 0
+            ? 'Сегодня ' + svcHourlyBest.name + ' выгоднее на ' + svcHourlyGap + ' ₽/ч, ' + svcHourlyBest.hours + ' ч на линии'
+            : 'Сегодня доход в час примерно равный по сервисам';
 
           const stat = STATS[period];
           const statPeriodRange = expPeriodRange(period);
@@ -4503,10 +4539,28 @@
             return { label: c[1], cls: 'raznos-chip' + (active ? ' raznos-is-active' : ''), tap: () => set(isLong ? { statsLong: c[0] } : { statsLong: '', period: c[0] }) };
           });
           const statDayBars = dayBarsSource.map((d) => ({ label: (d.label || '').split(' ')[0], val: d.pay, style: 'height:' + Math.max(6, Math.round((d.pay / dayBarsMax) * 100)) + '%' }));
+          const heatPayOf = (lvl, ci) => HEATMAP_PAY[lvl] + ci * 8;
+          const heatSvcOf = (ci, ri) => ((ci + ri) % 2 === 0 ? 'Самокат' : 'ВкусВилл');
+          let heatPeak = { ri: 0, ci: 0, lvl: 0 };
+          HEATMAP_LEVELS.forEach((col, ci) => col.forEach((lvl, ri) => { if (lvl > heatPeak.lvl) heatPeak = { ri, ci, lvl }; }));
+          const heatSel = st.heatSel || { ri: heatPeak.ri, ci: heatPeak.ci };
           const heatmapRows = HEATMAP_SLOTS.map((slot, ri) => ({
             label: slot,
-            cells: HEATMAP_DAYS.map((d, ci) => ({ cls: 'raznos-heat-cell raznos-heat-' + HEATMAP_LEVELS[ci][ri] }))
+            cells: HEATMAP_DAYS.map((d, ci) => {
+              const lvl = HEATMAP_LEVELS[ci][ri];
+              const isSel = heatSel.ri === ri && heatSel.ci === ci;
+              return {
+                cls: 'raznos-heat-cell raznos-heat-' + lvl + (isSel ? ' raznos-is-sel' : ''),
+                hint: d + ' ' + slot + ': ' + heatPayOf(lvl, ci) + ' ₽/ч',
+                tap: () => set({ heatSel: { ri, ci } })
+              };
+            })
           }));
+          const heatSelLvl = HEATMAP_LEVELS[heatSel.ci][heatSel.ri];
+          const heatSelTitle = HEATMAP_DAYS[heatSel.ci] + ' ' + HEATMAP_SLOTS[heatSel.ri] + ' · ~' + heatPayOf(heatSelLvl, heatSel.ci) + ' ₽/ч';
+          const heatSelNote = 'Спрос ' + HEATMAP_LVLNAME[heatSelLvl] + ', лучший ' + heatSvcOf(heatSel.ci, heatSel.ri);
+          const heatPeakLabel = HEATMAP_DAYS[heatPeak.ci] + ' ' + HEATMAP_SLOTS[heatPeak.ri];
+          const heatPeakPay = '~' + heatPayOf(heatPeak.lvl, heatPeak.ci) + ' ₽/ч';
 
           const integrationStatus = st.integrationStatus || (demoOn ? { vkusvill: 'connected', samokat: 'connected' } : {});
           const connectedKeys = Object.keys(integrationStatus).filter((k) => integrationStatus[k] === 'connected' || integrationStatus[k] === 'limited');
@@ -5138,9 +5192,7 @@
             today_hourly: todayHourly, vv_earn: vvEarn, samokat_earn: samokatEarn, today_tips_digital: todayTipsDigital,
             vv_hours: today.vvHours, samokat_hours: today.samokatHours, overlap_hours: today.overlapHours,
             today_remain: formatMoney(todayRemain), today_avg_wait: today.avgWait,
-            today_vv_hourly: todayVvHourly, today_samokat_hourly: todaySamokatHourly,
-            today_bar1_style: 'height:' + Math.round((todayVvHourly / todayMaxBar) * 100) + '%;background:var(--raznos-svc-vkusvill)',
-            today_bar2_style: 'height:' + Math.round((todaySamokatHourly / todayMaxBar) * 100) + '%;background:var(--raznos-svc-samokat)',
+            svc_hourly_rows: svcHourlyRows, svc_hourly_note: svcHourlyNote,
             services_note: connectedKeys.length ? connectedKeys.map((k) => SERVICES[k].title).join(', ') + ' подключены' : 'ни один сервис не подключён',
             empty_has_real_connections: !demoOn && connectedKeys.length > 0,
             empty_no_connections: !demoOn && connectedKeys.length === 0,
@@ -5218,7 +5270,7 @@
             stats_show_sk: statsSvcFilter === 'all' || statsSvcFilter === 'samokat',
             stats_vv_orders: stat.vvOrders, stats_vv_wait: stat.vvWait, stats_vv_duration: stat.vvDuration, stats_vv_hourly: statVvHourly, stats_vv_earn: stat.vvEarn,
             stats_sk_orders: stat.samokatOrders, stats_sk_wait: stat.samokatWait, stats_sk_duration: stat.samokatDuration, stats_sk_hourly: statSamokatHourly, stats_sk_earn: stat.samokatEarn,
-            heatmap_days: HEATMAP_DAYS, heatmap_rows: heatmapRows, heatmap_tip: HEATMAP_TIP,
+            heatmap_days: HEATMAP_DAYS, heatmap_rows: heatmapRows, heatmap_tip: HEATMAP_TIP, heat_peak_label: heatPeakLabel, heat_peak_pay: heatPeakPay, heat_sel_title: heatSelTitle, heat_sel_note: heatSelNote,
 
             zones_city: city, zones_transport: transport,
             go_zones: () => set({ s: 'zones' }),
@@ -6456,7 +6508,7 @@
           const rfMonthImpact = rfAmountNum > 0 ? expensesFor(expPeriodRange('month')[0], expPeriodRange('month')[1], [], [{ amount: rfAmountNum, every: rfDraft.every, startDay: rfDraft.startDay, endDay: null }]).total : 0;
 
           Object.assign(vals, {
-            demo_on: demoOn,
+            demo_on: demoOn, demo_off: !demoOn,
             go_expenses_from_home: () => set({ s: 'expenses', expBack: 'courier-home', period: 'today' }),
             go_expenses_from_stats: () => set({ s: 'expenses', expBack: 'stats' }),
             go_history_stats_vv: () => set(Object.assign({ s: 'history', histPeriod: period, histSvc: 'vkusvill', histStatus: 'all', histPage: 0 }, resetHistDays())),
