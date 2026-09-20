@@ -60,6 +60,7 @@
                 <button type="button" class="{{ login_btn_class }}" onClick="{{ submit_login }}" disabled="{{ login_btn_disabled }}">Получить код</button>
                 <span class="raznos-text-tiny">В прототипе используйте код 123456, сообщения никуда не отправляются</span>
               </div>
+              <a class="raznos-list-row raznos-card" style="text-decoration:none;color:inherit" href="https://t.me/raznos_app_bot" target="_blank" rel="noopener"><span class="raznos-list-main"><span class="raznos-list-title">Чат для проблем и вопросов</span><span class="raznos-text-small">Напишите в Telegram-бота, если что-то не работает</span></span><span class="raznos-row-chevron">›</span></a>
             </div>
           </sc-if>
 
@@ -1280,6 +1281,7 @@
                   <button type="button" class="raznos-list-row" onClick="{{ go_privacy }}"><div class="raznos-list-main"><span class="raznos-list-title">Приватность и данные</span></div><span class="raznos-row-chevron">›</span></button>
                 </div>
                 <dc-import name="RaznosAppSettings" theme="{{ app_theme }}" systemIsDark="{{ app_system_dark }}" notificationsSummary="{{ notif_summary }}" supportSummary="{{ support_summary }}" onTheme="{{ set_app_theme }}" onNotifications="{{ go_notifications }}" onSupport="{{ go_support }}"></dc-import>
+                <a class="raznos-list-row raznos-card" style="text-decoration:none;color:inherit" href="https://t.me/raznos_app_bot" target="_blank" rel="noopener"><span class="raznos-list-main"><span class="raznos-list-title">Задать вопрос в Telegram</span><span class="raznos-text-small">Бот t.me/raznos_app_bot, вопросы и проблемы</span></span><span class="raznos-row-chevron">›</span></a>
                 <dc-import name="RaznosCitySelect" value="{{ city }}" onChange="{{ set_city }}" label="Город"></dc-import>
                 <dc-import name="RaznosLanguagePicker" value="{{ language }}" onChange="{{ change_language }}"></dc-import>
                 <sc-if value="{{ demo_on }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Демо-режим включён</span><span class="raznos-text-small">Данные вымышленные. Выключить можно кнопкой × на плашке вверху</span></div></sc-if>
@@ -1301,6 +1303,7 @@
                   <button type="button" class="raznos-list-row" onClick="{{ go_privacy }}"><div class="raznos-list-main"><span class="raznos-list-title">Приватность и данные</span></div><span class="raznos-row-chevron">›</span></button>
                 </div>
                 <dc-import name="RaznosAppSettings" theme="{{ app_theme }}" systemIsDark="{{ app_system_dark }}" notificationsSummary="{{ notif_summary }}" supportSummary="{{ support_summary }}" onTheme="{{ set_app_theme }}" onNotifications="{{ go_notifications }}" onSupport="{{ go_support }}"></dc-import>
+                <a class="raznos-list-row raznos-card" style="text-decoration:none;color:inherit" href="https://t.me/raznos_app_bot" target="_blank" rel="noopener"><span class="raznos-list-main"><span class="raznos-list-title">Задать вопрос в Telegram</span><span class="raznos-text-small">Бот t.me/raznos_app_bot, вопросы и проблемы</span></span><span class="raznos-row-chevron">›</span></a>
                 <dc-import name="RaznosCitySelect" value="{{ city }}" onChange="{{ set_city }}" label="Город"></dc-import>
                 <dc-import name="RaznosLanguagePicker" value="{{ language }}" onChange="{{ change_language }}"></dc-import>
                 <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ pf_switch_to_courier }}">Перейти в режим курьера</button>
