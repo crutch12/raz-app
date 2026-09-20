@@ -62,16 +62,17 @@ class Component extends DCLogic {
   const serviceTitle = services.find((s) => s.key === key).title;
 
   // активный набор для сервиса, пусто это Без фильтра
-  const activeName = (st.activeSet || {})[key] || '';
+  const activeName = (st.activeSet || {})[key] != null ? (st.activeSet || {})[key] : (p.activeValue || '');
   const rowMode = (st.rowMode || {})[key] || null; // { name, mode: 'rename'|'del' }
-  const setActive = (name) => this.setState({ activeSet: Object.assign({}, st.activeSet, { [key]: name }), rowMode: Object.assign({}, st.rowMode, { [key]: null }) });
+  const reportActive = (name) => { if (p.onActiveChange) p.onActiveChange(name); };
+  const setActive = (name) => { this.setState({ activeSet: Object.assign({}, st.activeSet, { [key]: name }), rowMode: Object.assign({}, st.rowMode, { [key]: null }) }); reportActive(name); };
   const setRow = (v) => this.setState({ rowMode: Object.assign({}, st.rowMode, { [key]: v }) });
   const loadValues = (v) => this.setState({ drafts: Object.assign({}, st.drafts, { [key]: Object.assign({}, current, v) }), error: '' });
-  const applySet = (name, value) => this.setState({
+  const applySet = (name, value) => { this.setState({
     activeSet: Object.assign({}, st.activeSet, { [key]: name }),
     drafts: Object.assign({}, st.drafts, { [key]: Object.assign({}, current, value, { name }) }),
     rowMode: Object.assign({}, st.rowMode, { [key]: null }), error: ''
-  });
+  }); reportActive(name); };
   const renameSaved = (oldName, newName) => {
     const nn = (newName || '').trim();
     if (!nn) { this.setState({ error: 'Название набора не может быть пустым' }); return; }
@@ -82,6 +83,7 @@ class Component extends DCLogic {
       activeSet: Object.assign({}, st.activeSet, { [key]: nextActive }),
       rowMode: Object.assign({}, st.rowMode, { [key]: null }), error: ''
     });
+    reportActive(nextActive);
   };
   const removeSaved = (name) => {
     const nextSaved = savedSets.filter((s) => s.name !== name);
@@ -91,6 +93,7 @@ class Component extends DCLogic {
       activeSet: Object.assign({}, st.activeSet, { [key]: nextActive }),
       rowMode: Object.assign({}, st.rowMode, { [key]: null }), error: ''
     });
+    reportActive(nextActive);
   };
 
   const activeBadge = (name) => name === activeName
@@ -167,6 +170,7 @@ class Component extends DCLogic {
         activeSet: Object.assign({}, st.activeSet, { [key]: saved.name }),
         error: ''
       });
+      reportActive(saved.name);
       if (p.onChange) p.onChange(Object.assign({}, p.value, { [key]: result }));
     }
   });

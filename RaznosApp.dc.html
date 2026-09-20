@@ -331,7 +331,7 @@
             </div>
           </sc-if>
 
-          <sc-if value="{{ is_work_filters }}"><dc-import name="RaznosWorkFilters" value="{{ work_filters }}" onChange="{{ save_work_filters }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
+          <sc-if value="{{ is_work_filters }}"><dc-import name="RaznosWorkFilters" value="{{ work_filters }}" onChange="{{ save_work_filters }}" activeValue="{{ active_filter }}" onActiveChange="{{ set_active_filter }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
           <sc-if value="{{ is_offer_history }}"><dc-import name="RaznosOfferHistory" items="{{ offer_log }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
           <sc-if value="{{ is_slots }}"><dc-import name="RaznosSlotCalendar" onBack="{{ back_work_tools }}"></dc-import></sc-if>
           <sc-if value="{{ is_smart }}"><dc-import name="RaznosSmartSchedule" onBack="{{ back_work_tools }}"></dc-import></sc-if>
@@ -381,7 +381,7 @@
                   <div class="raznos-metric-card"><span class="raznos-text-small">Заказов</span><span class="raznos-metric-value">{{ today_orders }}</span></div>
                 </div>
                 <sc-if value="{{ bonus_visible }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosBonusHint" done="{{ today_vv_orders }}" target="{{ 11 }}" amount="{{ 500 }}"></dc-import></sc-if>
-                <span class="raznos-text-h3">Новые предложения</span>
+                <div class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="raznos-text-h3">Новые предложения</span><button type="button" class="{{ active_filter_pill_class }}" onClick="{{ go_work_filters }}">{{ active_filter_label }}</button></div>
                 <sc-if value="{{ offers_none_fit }}"><p class="raznos-text-small">Нет подходящих предложений. Показываем все доступные, причины указаны в карточках</p></sc-if>
                 <div class="raznos-card">
                   <sc-for list="{{ offer_list }}" as="offer" hint-placeholder-count="3">
@@ -2986,7 +2986,7 @@
             tipsSent: [], walletIncome: [], walletWithdrawals: [],
             wdAmount: 0, wdTouched: false, wdMethod: 'card', wdStage: 'form', wdForceFail: false, wdPendingId: '',
             acceptOutcome: 'success', unknownPendingIds: [],
-            contestJoined: false, contestDisputeStage: 'none',
+            contestJoined: false, contestDisputeStage: 'none', activeFilter: '',
             restrictedAuthors: [], restrictionArchive: [], acctRestrictionAppealPending: false, acctRestrictionAppealText: '',
             expManual: null, expRecurring: null, expTemplates: null,
             expFormId: '', expFormDraft: null, expFormInit: null, expBack: 'courier-home',
@@ -4177,6 +4177,9 @@
             toast_layer_class: ['offer-detail', 'active-order', 'offer-result', 'order'].indexOf(st.s) !== -1 ? 'raznos-toast-layer raznos-toast-layer-reserved' : 'raznos-toast-layer',
             go_market_map: () => set({ s: 'market-map' }), mk_city_key: mkCity,
             go_work_filters: () => set({ s: 'work-filters' }), go_offer_history: () => set({ s: 'offer-history' }), go_slots: () => set({ s: 'slots' }), go_smart: () => set({ s: 'smart' }), go_work_schedule: () => set({ s: 'work-schedule' }), work_schedule_back: () => set({ s: 'profile' }), go_top: () => set({ s: 'top' }), top_back: () => set({ s: 'stats' }), top_open_anon: () => set({ s: 'anon-courier', anonSvcKey: 'samokat', anonAuthor: 'Курьер', anonBack: 'top', pvPreview: '' }),
+            active_filter: st.activeFilter || '', set_active_filter: (name) => set({ activeFilter: name || '' }),
+            active_filter_label: (st.activeFilter ? 'Фильтр: ' + st.activeFilter : 'Без фильтра'),
+            active_filter_pill_class: 'raznos-status-pill ' + (st.activeFilter ? 'raznos-pill-ok' : 'raznos-pill-muted'),
             ...(() => {
               // причину пустой ленты показываем только при подтверждённом сигнале
               const selectedKeys = Object.keys(workSelectedSvc).filter((k) => workSelectedSvc[k]);
