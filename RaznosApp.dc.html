@@ -341,6 +341,7 @@
             <div class="raznos-phone-body" data-screen-label="9 Work setup">
               <div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_smart }}">Умное расписание</button><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_slots }}">Смены</button><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_work_filters }}">Мои фильтры</button></div>
               <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Режим Работа</h1></div>
+              <button type="button" class="{{ active_filter_pill_class }}" onClick="{{ go_work_filters }}" style="align-self:flex-start">{{ active_filter_label }}</button>
               <div class="raznos-notice raznos-notice-info">
                 <span class="raznos-notice-title">Статистика ≠ Работа</span>
                 <span class="raznos-text-small">В режиме Статистика мы только читаем данные. В режиме Работа вы сможете принимать заказы, если сервис это поддерживает, и только после отдельного согласия</span>

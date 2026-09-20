@@ -25,7 +25,7 @@
 </div>
 </sc-for></div>
 <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ create }}">Создать набор</button>
-<button type="button" class="raznos-list-row raznos-card" onClick="{{ go_eff }}"><span class="raznos-list-main"><span class="raznos-list-title">Как работают фильтры</span><span class="raznos-text-small">Сколько предложений проходит активный набор</span></span><span class="raznos-row-chevron">›</span></button>
+<button type="button" class="raznos-list-row raznos-card" onClick="{{ go_eff }}"><span class="raznos-list-main"><span class="raznos-list-title">Проверить фильтр</span><span class="raznos-text-small">Сколько предложений проходит активный набор</span></span><span class="raznos-row-chevron">›</span></button>
 <div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Фильтры подсвечивают и отсекают неподходящее в ленте, но не отправляют отказ сервису. Неизвестные данные требуют вашей проверки</span></div>
 </div>
 </sc-if>
@@ -35,19 +35,18 @@
 <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ ed_back }}">‹</button><span class="raznos-text-small">Мои фильтры</span></div>
 <h1 class="raznos-text-h1">{{ ed_title }}</h1>
 <label class="raznos-field"><span class="raznos-field-label">Название набора</span><input class="raznos-input" value="{{ ed_name }}" onChange="{{ ed_change_name }}" /></label>
-
-<sc-if value="{{ ed_adv }}" hint-placeholder-val="{{ false }}">
-<span class="raznos-text-h3">{{ ed_scope_title }}</span>
-<div class="rwf-scope"><sc-for list="{{ ed_scopes }}" as="sc"><button type="button" class="{{ sc.cls }}" onClick="{{ sc.tap }}">{{ sc.label }}</button></sc-for></div>
-<sc-if value="{{ ed_scope_over }}" hint-placeholder-val="{{ false }}"><div class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="raznos-text-tiny">Отдельные значения для сервиса</span><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ ed_reset_scope }}">Сбросить на общие</button></div></sc-if>
-<sc-if value="{{ ed_scope_base }}" hint-placeholder-val="{{ true }}"><p class="raznos-text-tiny">Общие значения, применяются ко всем сервисам без своей настройки</p></sc-if>
-</sc-if>
-
+<sc-if value="{{ ed_adv }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">Значения для: {{ ed_scope_label }}</p></sc-if>
 <div class="raznos-opportunity-fields"><sc-for list="{{ ed_fields }}" as="f"><label class="raznos-field"><span class="raznos-field-label">{{ f.label }}</span><input class="raznos-input" type="number" min="0" step="{{ f.step }}" value="{{ f.value }}" onChange="{{ f.change }}" /></label></sc-for></div>
 <label class="raznos-field"><span class="raznos-field-label">Район доставки</span><select class="raznos-input" value="{{ ed_zone }}" onChange="{{ ed_change_zone }}"><option value="all">Любой район</option><option value="Белорусская">Белорусская</option><option value="Тверская">Тверская</option><option value="Баррикадная">Баррикадная</option></select></label>
 <p class="raznos-text-tiny">Расходы на километр включают вашу оценку аренды, зарядки и обслуживания, налоги отдельно</p>
 
 <button type="button" class="{{ ed_adv_btn_cls }}" onClick="{{ ed_toggle_adv }}">{{ ed_adv_label }}</button>
+<sc-if value="{{ ed_adv }}" hint-placeholder-val="{{ false }}">
+<span class="raznos-text-h3">Настроить под сервис</span>
+<p class="raznos-text-tiny">Выберите сервис, чтобы задать ему свои значения. Без своей настройки сервис берёт общие</p>
+<div class="raznos-card"><sc-for list="{{ ed_scopes }}" as="sc" hint-placeholder-count="4"><button type="button" class="raznos-list-row" onClick="{{ sc.tap }}"><span class="raznos-list-main"><span class="raznos-list-title">{{ sc.title }}</span><span class="raznos-text-small">{{ sc.sub }}</span></span><span class="{{ sc.badgeCls }}">{{ sc.badge }}</span></button></sc-for></div>
+<sc-if value="{{ ed_scope_over }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ ed_reset_scope }}">Сбросить {{ ed_scope_label }} на общие</button></sc-if>
+</sc-if>
 <sc-if value="{{ ed_error }}"><p class="raznos-notice raznos-notice-warn">{{ ed_error }}</p></sc-if>
 <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ ed_save }}">Сохранить и применить</button>
 <sc-if value="{{ ed_can_delete }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ ed_delete }}">Удалить набор</button></sc-if>
@@ -57,7 +56,7 @@
 <sc-if value="{{ is_eff }}">
 <div class="raznos-phone-body" data-screen-label="Filter effectiveness">
 <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ eff_back }}">‹</button><span class="raznos-text-small">Мои фильтры</span></div>
-<h1 class="raznos-text-h1">Как работают фильтры</h1>
+<h1 class="raznos-text-h1">Проверить фильтр</h1>
 <p class="raznos-text-small">Активный набор: {{ active_label }}</p>
 <div class="raznos-chip-row"><sc-for list="{{ eff_periods }}" as="ep"><button type="button" class="{{ ep.cls }}" onClick="{{ ep.tap }}">{{ ep.label }}</button></sc-for></div>
 <span class="raznos-text-body">{{ eff_summary }}</span>
@@ -158,14 +157,15 @@ class Component extends DCLogic {
         ed_adv_label: ed.adv ? 'Скрыть настройку по сервисам' : 'Разные настройки по сервисам',
         ed_adv_btn_cls: 'raznos-btn raznos-btn-secondary',
         ed_toggle_adv: () => this.setState({ ed: Object.assign({}, ed, { adv: !ed.adv, scope: 'all' }) }),
-        ed_scope_title: 'Для какого сервиса',
+        ed_scope_label: edScope === 'all' ? 'Все сервисы' : ((SVCS.find((s) => s.key === edScope) || {}).title || edScope),
         ed_scopes: [{ key: 'all', title: 'Все сервисы' }].concat(SVCS).map((s) => ({
-          label: s.title + (s.key !== 'all' && ed.over[s.key] ? ' ●' : ''),
-          cls: 'raznos-chip' + (edScope === s.key ? ' raznos-is-active' : ''),
+          title: s.title,
+          sub: s.key === 'all' ? 'общие значения для всех сервисов' : (ed.over[s.key] ? 'своя настройка' : 'берёт общие'),
+          badge: edScope === s.key ? 'Редактируется' : (s.key !== 'all' && ed.over[s.key] ? 'своя' : ''),
+          badgeCls: edScope === s.key ? 'raznos-status-pill raznos-pill-ok' : (s.key !== 'all' && ed.over[s.key] ? 'raznos-status-pill raznos-pill-muted' : 'raznos-text-tiny'),
           tap: () => this.setState({ ed: Object.assign({}, ed, { scope: s.key }) })
         })),
         ed_scope_over: edScope !== 'all' && !!ed.over[edScope],
-        ed_scope_base: edScope === 'all',
         ed_reset_scope: () => { const o = Object.assign({}, ed.over); delete o[edScope]; this.setState({ ed: Object.assign({}, ed, { over: o }) }); },
         ed_error: ed.error || '',
         ed_can_delete: ed.mode === 'edit',

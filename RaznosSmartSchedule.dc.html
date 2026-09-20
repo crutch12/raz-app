@@ -40,6 +40,8 @@
     .rss-zone.raznos-is-active { background: var(--raznos-dark); border-color: var(--raznos-dark); color: var(--raznos-on-dark); }
     .rss-zone.raznos-is-active .rss-zone-pay { color: color-mix(in oklab, var(--raznos-on-dark) 72%, transparent); }
     .rss-recalc { display: flex; flex-direction: column; gap: 10px; }
+    .rss-past { opacity: 0.5; }
+    .rss-locked { opacity: 0.55; cursor: default; }
   </style>
 </helmet>
 
@@ -80,14 +82,17 @@
     </sc-for>
   </div>
 
-  <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ ask_recalc }}">Пересчитать расписание</button>
-  <p class="raznos-text-tiny">План строится утром по вашему графику из личного кабинета. Пересчёт не приносит более свежих данных рынка чаще раза в сутки, меняет план по новым условиям и вашим правкам. Только рекомендация, смены не бронирует</p>
+  <sc-if value="{{ recalc_available }}" hint-placeholder-val="{{ true }}">
+  <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ ask_recalc }}">Пересчитать день</button>
+  <p class="raznos-text-tiny">Пересчёт только выбранного дня. План строится утром по вашему графику из личного кабинета, свежих данных рынка не приносит чаще раза в сутки, меняет план по новым условиям и вашим правкам. Только рекомендация, смены не бронирует</p>
+  </sc-if>
+  <sc-if value="{{ day_past }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">День уже прошёл, доступен только для просмотра</p></sc-if>
 
   <sc-if value="{{ show_recalc }}" hint-placeholder-val="{{ false }}">
-    <div class="raznos-dialog-layer" role="dialog" aria-modal="true" aria-label="Пересчитать расписание">
+    <div class="raznos-dialog-layer" role="dialog" aria-modal="true" aria-label="Пересчитать день">
       <div class="raznos-dialog rss-recalc">
-        <span class="raznos-text-h3">Пересчитать расписание</span>
-        <p class="raznos-text-small">Полный пересбор перетрёт часы, которые вы меняли вручную. Вернуть их будет нельзя</p>
+        <span class="raznos-text-h3">Пересчитать день</span>
+        <p class="raznos-text-small">Пересбор перетрёт ручные правки этого дня, кроме уже прошедших часов. Вернуть их будет нельзя</p>
         <div class="raznos-btn-row">
           <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ cancel_recalc }}">Отмена</button>
           <button type="button" class="raznos-btn" onClick="{{ do_recalc }}">Пересчитать</button>
@@ -105,6 +110,7 @@
     <h1 class="raznos-text-h1" style="margin:0">{{ hv_time }}</h1>
     <span class="{{ hv_demCls }}">{{ hv_demLabel }}</span>
   </div>
+  <sc-if value="{{ hv_past }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Этот час уже прошёл, доступен только для просмотра, менять и пересчитывать нельзя</span></div></sc-if>
   <sc-if value="{{ hv_off }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Этот час вне вашего графика. Выбрать можно, но в потенциальный итог дня он не войдёт</span></div></sc-if>
   <sc-if value="{{ hv_edited }}" hint-placeholder-val="{{ false }}"><div class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="rss-tag rss-tag-edit">изменено вами</span><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ reset_hour }}">Сбросить на smart</button></div></sc-if>
 
@@ -147,6 +153,10 @@ const RSS_ZONES = [
 ];
 // прогнозная кривая спроса по часам 0..23, демо
 const RSS_DEMAND = [0.12,0.09,0.07,0.06,0.06,0.1,0.18,0.32,0.46,0.56,0.62,0.72,0.92,0.86,0.62,0.52,0.58,0.78,1.0,0.96,0.82,0.62,0.4,0.22];
+const RSS_TODAY = 4; // Пт как сегодня в демо
+const RSS_NOW = 14;  // текущий час в демо
+const rssIsPastDay = (i) => i < RSS_TODAY;
+const rssIsPastHour = (day, h) => day < RSS_TODAY || (day === RSS_TODAY && h < RSS_NOW);
 const rssFmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const rssBase = (h) => 600 + RSS_DEMAND[h] * 900;
 const rssSmartSvc = (h) => RSS_SERVICES[h % RSS_SERVICES.length].key;
@@ -199,7 +209,7 @@ class Component extends DCLogic {
 
     const days = RSS_WEEK.map((d, i) => ({
       d: d.d, n: d.n,
-      cls: 'rss-day' + (i === selDay ? ' raznos-is-active' : '') + (d.work ? '' : ' rss-dayoff'),
+      cls: 'rss-day' + (i === selDay ? ' raznos-is-active' : '') + (d.work ? '' : ' rss-dayoff') + (rssIsPastDay(i) ? ' rss-past' : ''),
       tap: () => set({ selDay: i, view: 'list' })
     }));
 
@@ -207,14 +217,15 @@ class Component extends DCLogic {
       const plan = hourPlan(h);
       const dem = rssDem(h);
       const off = !inGrafik(h);
-      const sub = plan.zone + ' · ' + rssReason(h) + (plan.edited ? ' · изменено вами' : '') + (off ? ' · вне графика' : '');
+      const past = rssIsPastHour(selDay, h);
+      const sub = plan.zone + ' · ' + rssReason(h) + (plan.edited ? ' · изменено вами' : '') + (off ? ' · вне графика' : '') + (past ? ' · прошло' : '');
       return {
         time: (h < 10 ? '0' + h : h) + ':00',
         svc: plan.svc, svcTitle: svcTitle(plan.svc), sub,
         pay: plan.pay + ' ₽/ч',
         demCls: dem[1], demLabel: dem[0],
-        cls: 'rss-hour' + (off ? ' rss-off' : '') + (plan.edited ? ' rss-edited-row' : ''),
-        aria: (h < 10 ? '0' + h : h) + ':00, ' + svcTitle(plan.svc) + ', ' + plan.zone + ', ' + plan.pay + ' рублей в час, ' + dem[0] + (off ? ', вне графика' : ''),
+        cls: 'rss-hour' + (off ? ' rss-off' : '') + (past ? ' rss-past' : '') + (plan.edited ? ' rss-edited-row' : ''),
+        aria: (h < 10 ? '0' + h : h) + ':00, ' + svcTitle(plan.svc) + ', ' + plan.zone + ', ' + plan.pay + ' рублей в час, ' + dem[0] + (off ? ', вне графика' : '') + (past ? ', уже прошло' : ''),
         tap: () => set({ view: 'hour', selHour: h })
       };
     });
@@ -223,21 +234,22 @@ class Component extends DCLogic {
     const selHour = st.selHour == null ? firstHour : st.selHour;
     const cur = hourPlan(selHour);
     const demH = rssDem(selHour);
+    const hourPast = rssIsPastHour(selDay, selHour);
     const cmp = RSS_SERVICES.map((s) => {
       const pay = rssPay(selHour, s.key, rssZoneF(cur.zone));
       const best = s.key === rssSmartSvc(selHour);
       return {
         svc: s.key, title: s.title + (best ? ' · рекомендуем' : ''),
         pay: pay + ' ₽/ч', demCls: demH[1], demLabel: demH[0],
-        cls: 'rss-cmp' + (s.key === cur.svc ? ' rss-best' : ''),
-        tap: () => set({ edits: Object.assign({}, edits, { [editKey(selHour)]: { svc: s.key, zone: cur.zone } }) })
+        cls: 'rss-cmp' + (s.key === cur.svc ? ' rss-best' : '') + (hourPast ? ' rss-locked' : ''),
+        tap: hourPast ? (() => {}) : (() => set({ edits: Object.assign({}, edits, { [editKey(selHour)]: { svc: s.key, zone: cur.zone } }) }))
       };
     });
     const bestZone = RSS_ZONES.slice().sort((a, b) => b.f - a.f)[0].name;
     const zones = RSS_ZONES.map((z) => ({
       name: z.name, pay: rssPay(selHour, cur.svc, z.f) + ' ₽/ч',
-      cls: 'rss-zone' + (z.name === cur.zone ? ' raznos-is-active' : ''),
-      tap: () => set({ edits: Object.assign({}, edits, { [editKey(selHour)]: { svc: cur.svc, zone: z.name } }) })
+      cls: 'rss-zone' + (z.name === cur.zone ? ' raznos-is-active' : '') + (hourPast ? ' rss-locked' : ''),
+      tap: hourPast ? (() => {}) : (() => set({ edits: Object.assign({}, edits, { [editKey(selHour)]: { svc: cur.svc, zone: z.name } }) }))
     }));
     const zoneHint = cur.zone === bestZone
       ? 'Сейчас выбрана зона с самым высоким прогнозом'
@@ -252,17 +264,28 @@ class Component extends DCLogic {
       total_note: dayWorks ? 'потенциал за день по графику' : 'нерабочий день по графику, часы вне плана',
       few_data: false,
       hours,
+      recalc_available: !rssIsPastDay(selDay),
+      day_past: rssIsPastDay(selDay),
       show_recalc: !!st.showRecalc,
       ask_recalc: () => set({ showRecalc: true }),
       cancel_recalc: () => set({ showRecalc: false }),
-      do_recalc: () => set({ edits: {}, showRecalc: false }),
+      do_recalc: () => {
+        const next = {};
+        Object.keys(edits).forEach((k) => {
+          const parts = k.split(':'); const d = Number(parts[0]); const h = Number(parts[1]);
+          // чужие дни и прошедшие часы выбранного дня сохраняем, пересобираем только текущий и будущие часы этого дня
+          if (d !== selDay || rssIsPastHour(selDay, h)) next[k] = edits[k];
+        });
+        set({ edits: next, showRecalc: false });
+      },
       back_list: () => set({ view: 'list' }),
       hv_time: (selHour < 10 ? '0' + selHour : selHour) + ':00',
       hv_demCls: demH[1], hv_demLabel: demH[0],
       hv_off: !inGrafik(selHour),
-      hv_edited: cur.edited,
+      hv_past: hourPast,
+      hv_edited: cur.edited && !hourPast,
       reset_hour: () => { const next = Object.assign({}, edits); delete next[editKey(selHour)]; set({ edits: next }); },
-      cmp, zones, zone_hint: zoneHint
+      cmp, zones, zone_hint: hourPast ? 'Час уже прошёл, значения показаны для справки' : zoneHint
     };
   }
 }
