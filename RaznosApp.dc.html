@@ -775,7 +775,8 @@
                 <div class="raznos-breakdown-row"><span>Расстояние</span><span class="raznos-num">{{ ord_distance }}</span></div>
               </div>
               <div class="raznos-card raznos-card-pad">
-                <span class="raznos-text-h3">Личный комментарий</span>
+                <span class="raznos-text-h3">Заметка для себя</span>
+                <p class="raznos-text-tiny">Свободная заметка о заказе, видно только вам</p>
                 <sc-if value="{{ ord_comment_editing }}" hint-placeholder-val="{{ false }}">
                   <textarea class="raznos-textarea" value="{{ ord_comment_draft }}" onChange="{{ ord_comment_change }}"></textarea>
                   <div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-primary raznos-btn-small" onClick="{{ ord_comment_save }}">Сохранить</button><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ ord_comment_cancel }}">Отмена</button></div>
@@ -785,6 +786,48 @@
                   <span class="raznos-text-tiny">{{ ord_comment_meta }}</span>
                   <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ ord_comment_edit }}">{{ ord_comment_btn_label }}</button>
                 </sc-if>
+              </div>
+              <div class="raznos-card raznos-card-pad">
+                <span class="raznos-text-h3">Отзыв о заказе</span>
+                <p class="raznos-text-tiny">Оценка необязательна, оставьте если хотите</p>
+                <div class="raznos-review-block">
+                  <div class="raznos-fx raznos-jb raznos-ac"><span class="raznos-text-small raznos-review-label">Место доставки</span><span class="raznos-status-pill raznos-pill-ok">Видно всем</span></div>
+                  <div class="raznos-rate" role="group" aria-label="{{ rv_place_label }}">
+                    <button type="button" class="{{ pr_s1 }}" onClick="{{ set_place_1 }}" aria-label="1 звезда"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
+                    <button type="button" class="{{ pr_s2 }}" onClick="{{ set_place_2 }}" aria-label="2 звезды"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
+                    <button type="button" class="{{ pr_s3 }}" onClick="{{ set_place_3 }}" aria-label="3 звезды"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
+                    <button type="button" class="{{ pr_s4 }}" onClick="{{ set_place_4 }}" aria-label="4 звезды"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
+                    <button type="button" class="{{ pr_s5 }}" onClick="{{ set_place_5 }}" aria-label="5 звёзд"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
+                  </div>
+                  <p class="raznos-text-tiny">Про подъезд, лифт, домофон и доступ, помогает другим курьерам обезличенно</p>
+                  <sc-if value="{{ rv_place_editing }}" hint-placeholder-val="{{ false }}">
+                    <textarea class="raznos-textarea" value="{{ rv_place_draft }}" onChange="{{ rv_place_change }}"></textarea>
+                    <div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-primary raznos-btn-small" onClick="{{ rv_place_save }}">Сохранить</button><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ rv_place_cancel }}">Отмена</button></div>
+                  </sc-if>
+                  <sc-if value="{{ rv_place_view }}">
+                    <p class="raznos-text-body">{{ rv_place_text }}</p>
+                    <div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ rv_place_edit }}">{{ rv_place_btn_label }}</button><sc-if value="{{ rv_place_has }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ rv_place_clear }}">Убрать</button></sc-if></div>
+                  </sc-if>
+                </div>
+                <div class="raznos-review-block">
+                  <div class="raznos-fx raznos-jb raznos-ac"><span class="raznos-text-small raznos-review-label">Получатель</span><span class="raznos-status-pill raznos-pill-concept">Только вам</span></div>
+                  <div class="raznos-rate" role="group" aria-label="{{ rv_rec_label }}">
+                    <button type="button" class="{{ rr_s1 }}" onClick="{{ set_rec_1 }}" aria-label="1 звезда"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
+                    <button type="button" class="{{ rr_s2 }}" onClick="{{ set_rec_2 }}" aria-label="2 звезды"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
+                    <button type="button" class="{{ rr_s3 }}" onClick="{{ set_rec_3 }}" aria-label="3 звезды"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
+                    <button type="button" class="{{ rr_s4 }}" onClick="{{ set_rec_4 }}" aria-label="4 звезды"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
+                    <button type="button" class="{{ rr_s5 }}" onClick="{{ set_rec_5 }}" aria-label="5 звёзд"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
+                  </div>
+                  <p class="raznos-text-tiny">Приватно, в рынок уходит только средним по сервису, без привязки к человеку</p>
+                  <sc-if value="{{ rv_rec_editing }}" hint-placeholder-val="{{ false }}">
+                    <textarea class="raznos-textarea" value="{{ rv_rec_draft }}" onChange="{{ rv_rec_change }}"></textarea>
+                    <div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-primary raznos-btn-small" onClick="{{ rv_rec_save }}">Сохранить</button><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ rv_rec_cancel }}">Отмена</button></div>
+                  </sc-if>
+                  <sc-if value="{{ rv_rec_view }}">
+                    <p class="raznos-text-body">{{ rv_rec_text }}</p>
+                    <div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ rv_rec_edit }}">{{ rv_rec_btn_label }}</button><sc-if value="{{ rv_rec_has }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ rv_rec_clear }}">Убрать</button></sc-if></div>
+                  </sc-if>
+                </div>
               </div>
               <div class="raznos-card raznos-card-pad">
                 <div class="raznos-fx raznos-jb raznos-ac"><span class="raznos-text-h3">Наличные чаевые</span><span class="raznos-status-pill raznos-pill-warn">Не подтверждено</span></div>
@@ -997,7 +1040,8 @@
               <p class="raznos-text-tiny">Вопросы и ответы видны всем, ответить может курьер с действующей авторизацией в этом сервисе</p>
               <div class="raznos-fx raznos-col raznos-gap12">
                 <sc-for list="{{ sv_questions }}" as="q" hint-placeholder-count="1">
-                  <div class="raznos-card raznos-card-pad">
+                  <div class="{{ q.cardClass }}">
+                    <sc-if value="{{ q.focused }}" hint-placeholder-val="{{ false }}"><span class="raznos-status-pill raznos-pill-ok">Открыто из профиля</span></sc-if>
                     <div class="raznos-head-row"><span class="raznos-text-body">{{ q.text }}</span><span class="raznos-text-tiny raznos-head-side">{{ q.date }}</span></div>
                     <sc-if value="{{ q.mine }}" hint-placeholder-val="{{ false }}"><div class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="raznos-status-pill raznos-pill-concept">Ваш вопрос</span><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ q.onDelete }}">Удалить вопрос</button></div></sc-if>
                     <dc-import name="RaznosReactionRows" courierLikes="{{ q.courierLikes }}" courierDislikes="{{ q.courierDislikes }}" userLikes="{{ q.userLikes }}" userDislikes="{{ q.userDislikes }}" myCategory="{{ q.myCategory }}" myVote="{{ q.myVote }}" canVote="{{ q.canVote }}" onLike="{{ q.onLike }}" onDislike="{{ q.onDislike }}"></dc-import>
@@ -1240,11 +1284,6 @@
                 </div>
                 <dc-import name="RaznosConnHealth" items="{{ conn_health_items }}" okNote="{{ conn_health_ok_note }}" netOffline="{{ net_offline }}" onAction="{{ conn_health_action }}"></dc-import>
                 <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-col raznos-gap16">
-                  <div class="raznos-badge-row">
-                    <sc-for list="{{ pf_connected_badges }}" as="b" hint-placeholder-count="2">
-                      <span class="raznos-service-chip"><dc-import name="RaznosIcon" svc="{{ b.key }}" alt="{{ b.title }}" size="sm"></dc-import>{{ b.label }}</span>
-                    </sc-for>
-                  </div>
                   <span class="raznos-text-h3">Как вас оценили покупатели</span>
                   <p class="raznos-text-tiny">Клиент оценивает доставку в сервисе, это не отзывы курьера о сервисе</p>
                   <div class="raznos-fx raznos-col raznos-gap8">
@@ -2948,6 +2987,7 @@
             histSvc: 'all', histStatus: 'all', histPage: 0, histSelectedId: '', histPeriod: 'today', histFrom: '', histTo: '',
             histExpandedDays: {}, histLoadingDays: {}, histLoadedDays: {},
             orderComments: {}, orderCommentEditing: false, orderCommentDraft: '', cashTips: {}, cashDrafts: {},
+            orderReviews: {}, reviewTextEditing: '', reviewTextDraft: '',
             mkCity: 'moscow', mkPeriod: 'today', mkTransport: 'bike', mkSort: 'hourly',
             svKey: 'vkusvill', svGeoAll: false, svReviewTab: 'courier', rvRating: 5, rvText: '', rvSent: false,
             courierReviews: {}, hiddenReviewIds: [], ownReviewAudit: [], votes: {},
@@ -3196,6 +3236,9 @@
           const orderCommentDraft = st.orderCommentDraft != null ? st.orderCommentDraft : '';
           const cashTips = st.cashTips || {};
           const cashDrafts = st.cashDrafts || {};
+          const orderReviews = st.orderReviews || {};
+          const reviewTextEditing = st.reviewTextEditing || '';
+          const reviewTextDraft = st.reviewTextDraft != null ? st.reviewTextDraft : '';
 
           const mkCity = st.mkCity || city;
           const mkPeriod = st.mkPeriod || 'today';
@@ -3634,6 +3677,9 @@
           const ordCommentSaved = orderComments[ordSource.id] != null ? orderComments[ordSource.id] : ordSource.comment;
           const ordCash = cashTips[ordSource.id] || { amount: ordSource.cashTip || 0, hidden: false };
           const ordCashDraftAmount = cashDrafts[ordSource.id] != null ? cashDrafts[ordSource.id] : ordCash.amount;
+          const ordReview = orderReviews[ordSource.id] || { placeRating: 0, placeText: '', recRating: 0, recText: '' };
+          const putReview = (patch, extra) => set(Object.assign({ orderReviews: Object.assign({}, orderReviews, { [ordSource.id]: Object.assign({}, ordReview, patch) }) }, extra || {}));
+          const rateStar = (n, r) => (n <= r ? 'raznos-is-on' : '');
 
           const myName = [firstName, lastName].filter((x) => x && x.trim()).join(' ') || 'Алексей Соколов';
           const myAccountRestricted = restrictedAuthors.indexOf(myName) !== -1;
@@ -3781,6 +3827,7 @@
             });
             this.setState({ svcQuestions: Object.assign({}, st.svcQuestions, { [curSvKey]: next }) });
           };
+          const qFocusId = st.qFocusId || '';
           const svQuestions = svQAll.map((q) => {
             const qrx = reactionCounts(q.reactions || EMPTY_REACTIONS, votes, q.id);
             const answers = (q.answers || []).filter((a) => !a.deletedAt).map((a) => {
@@ -3798,6 +3845,7 @@
             const answeredByMe = (q.answers || []).some((a) => a.mine && !a.deletedAt);
             return {
               id: q.id, text: q.text, date: ruDateTimeLabel(new Date(q.createdAt)), mine: !!q.mine,
+              focused: q.id === qFocusId, cardClass: (q.id === qFocusId) ? 'raznos-card raznos-card-pad raznos-focus-card' : 'raznos-card raznos-card-pad',
               onDelete: () => softDeleteQa(q.id),
               courierLikes: qrx.courierLikes, courierDislikes: qrx.courierDislikes, userLikes: qrx.userLikes, userDislikes: qrx.userDislikes,
               myCategory: svVoterCategory, myVote: qrx.myVote, canVote: !q.mine,
@@ -3824,6 +3872,7 @@
               }
             };
           });
+          svQuestions.sort((a, b) => (b.focused ? 1 : 0) - (a.focused ? 1 : 0));
 
           // Работодатель
           const shFieldsAnyOn = Object.keys(shFields).some((k) => shFields[k]);
@@ -3884,12 +3933,12 @@
               const liveAnswers = (q.answers || []).filter((a) => !a.deletedAt);
               if (q.mine) {
                 myActivityCounts.questions += 1;
-                myActivityList.push({ kindLabel: 'Вопрос', svcKey: k, at: q.createdAt, svcTitle: SERVICES[k].title, summary: q.text, meta: ruDateTimeLabel(new Date(q.createdAt)) + ' · ' + (liveAnswers.length ? liveAnswers.length + ' ' + (liveAnswers.length === 1 ? 'ответ' : 'ответа') : 'пока без ответа'), onTap: () => set({ s: 'questions', svKey: k }) });
+                myActivityList.push({ kindLabel: 'Вопрос', svcKey: k, at: q.createdAt, svcTitle: SERVICES[k].title, summary: q.text, meta: ruDateTimeLabel(new Date(q.createdAt)) + ' · ' + (liveAnswers.length ? liveAnswers.length + ' ' + (liveAnswers.length === 1 ? 'ответ' : 'ответа') : 'пока без ответа'), onTap: () => set({ s: 'questions', svKey: k, qFocusId: q.id }) });
               }
               liveAnswers.forEach((a) => {
                 if (!a.mine) return;
                 myActivityCounts.answers += 1;
-                myActivityList.push({ kindLabel: 'Ответ', svcKey: k, at: a.createdAt, svcTitle: SERVICES[k].title, summary: a.text, meta: ruDateTimeLabel(new Date(a.createdAt)) + ' · на вопрос: ' + q.text, onTap: () => set({ s: 'questions', svKey: k }) });
+                myActivityList.push({ kindLabel: 'Ответ', svcKey: k, at: a.createdAt, svcTitle: SERVICES[k].title, summary: a.text, meta: ruDateTimeLabel(new Date(a.createdAt)) + ' · на вопрос: ' + q.text, onTap: () => set({ s: 'questions', svKey: k, qFocusId: q.id }) });
               });
             });
           });
@@ -4586,13 +4635,39 @@
             ord_pickup: ordSource.pickupAddr, ord_drop: ordSource.dropAddr,
             ord_link_ref: linkDemo.noRef ? '' : ordSource.orderNo.replace('№', ''),
             ord_comment_editing: orderCommentEditing, ord_comment_view: !orderCommentEditing,
-            ord_comment_text: ordCommentSaved || 'Комментария пока нет', ord_comment_draft: orderCommentEditing ? orderCommentDraft : ordCommentSaved,
+            ord_comment_text: ordCommentSaved || 'Заметки пока нет', ord_comment_draft: orderCommentEditing ? orderCommentDraft : ordCommentSaved,
             ord_comment_meta: ordCommentSaved ? 'Сохранено, видно только вам' : 'Заполните, чтобы запомнить детали',
-            ord_comment_btn_label: ordCommentSaved ? 'Изменить' : 'Добавить комментарий',
+            ord_comment_btn_label: ordCommentSaved ? 'Изменить' : 'Добавить заметку',
             ord_comment_edit: () => set({ orderCommentEditing: true, orderCommentDraft: ordCommentSaved || '' }),
             ord_comment_change: (e) => set({ orderCommentDraft: e && e.target ? e.target.value : orderCommentDraft }),
             ord_comment_save: () => set({ orderCommentEditing: false, orderComments: Object.assign({}, orderComments, { [ordSource.id]: orderCommentDraft }) }),
             ord_comment_cancel: () => set({ orderCommentEditing: false }),
+            rv_place_label: 'Оценка места ' + ordReview.placeRating + ' из 5',
+            rv_rec_label: 'Оценка получателя ' + ordReview.recRating + ' из 5',
+            pr_s1: rateStar(1, ordReview.placeRating), pr_s2: rateStar(2, ordReview.placeRating), pr_s3: rateStar(3, ordReview.placeRating), pr_s4: rateStar(4, ordReview.placeRating), pr_s5: rateStar(5, ordReview.placeRating),
+            rr_s1: rateStar(1, ordReview.recRating), rr_s2: rateStar(2, ordReview.recRating), rr_s3: rateStar(3, ordReview.recRating), rr_s4: rateStar(4, ordReview.recRating), rr_s5: rateStar(5, ordReview.recRating),
+            set_place_1: () => putReview({ placeRating: 1 }), set_place_2: () => putReview({ placeRating: 2 }), set_place_3: () => putReview({ placeRating: 3 }), set_place_4: () => putReview({ placeRating: 4 }), set_place_5: () => putReview({ placeRating: 5 }),
+            set_rec_1: () => putReview({ recRating: 1 }), set_rec_2: () => putReview({ recRating: 2 }), set_rec_3: () => putReview({ recRating: 3 }), set_rec_4: () => putReview({ recRating: 4 }), set_rec_5: () => putReview({ recRating: 5 }),
+            rv_place_editing: reviewTextEditing === 'place', rv_place_view: reviewTextEditing !== 'place',
+            rv_place_text: ordReview.placeText || 'Заметки о месте пока нет',
+            rv_place_draft: reviewTextEditing === 'place' ? reviewTextDraft : (ordReview.placeText || ''),
+            rv_place_btn_label: ordReview.placeText ? 'Изменить заметку' : 'Добавить заметку',
+            rv_place_edit: () => set({ reviewTextEditing: 'place', reviewTextDraft: ordReview.placeText || '' }),
+            rv_place_change: (e) => set({ reviewTextDraft: e && e.target ? e.target.value : reviewTextDraft }),
+            rv_place_save: () => putReview({ placeText: reviewTextDraft }, { reviewTextEditing: '' }),
+            rv_place_cancel: () => set({ reviewTextEditing: '' }),
+            rv_rec_editing: reviewTextEditing === 'recipient', rv_rec_view: reviewTextEditing !== 'recipient',
+            rv_rec_text: ordReview.recText || 'Заметки о получателе пока нет',
+            rv_rec_draft: reviewTextEditing === 'recipient' ? reviewTextDraft : (ordReview.recText || ''),
+            rv_rec_btn_label: ordReview.recText ? 'Изменить заметку' : 'Добавить заметку',
+            rv_rec_edit: () => set({ reviewTextEditing: 'recipient', reviewTextDraft: ordReview.recText || '' }),
+            rv_rec_change: (e) => set({ reviewTextDraft: e && e.target ? e.target.value : reviewTextDraft }),
+            rv_rec_save: () => putReview({ recText: reviewTextDraft }, { reviewTextEditing: '' }),
+            rv_rec_cancel: () => set({ reviewTextEditing: '' }),
+            rv_place_has: ordReview.placeRating > 0 || !!ordReview.placeText,
+            rv_rec_has: ordReview.recRating > 0 || !!ordReview.recText,
+            rv_place_clear: () => putReview({ placeRating: 0, placeText: '' }, { reviewTextEditing: '' }),
+            rv_rec_clear: () => putReview({ recRating: 0, recText: '' }, { reviewTextEditing: '' }),
             ord_cash_hidden: ordCash.hidden, ord_cash_visible: !ordCash.hidden, ord_cash_value: ordCashDraftAmount,
             ord_cash_dirty: ordCashDraftAmount !== ordCash.amount,
             ord_cash_save_class: ordCashDraftAmount !== ordCash.amount ? 'raznos-btn raznos-btn-secondary raznos-btn-small' : 'raznos-btn-disabled raznos-btn-small',
@@ -4673,7 +4748,7 @@
                 ownReviewAudit: st.ownReviewAudit.concat([{ reviewId: rec.id, svcKey: curSvKey, type: 'delete', at: now, snapshot: Object.assign({}, rec, { orders: Object.assign({}, rec.orders) }) }])
               });
             },
-            go_questions: () => set({ s: 'questions' }),
+            go_questions: () => set({ s: 'questions', qFocusId: '' }),
             sv_questions_summary: (() => { const qn = svQAll.length; const an = svQAll.reduce((sum, q) => sum + (q.answers || []).filter((a) => !a.deletedAt).length, 0); return qn === 0 ? 'Отсутствуют' : (qn + ' ' + ruPlural(qn, 'вопрос', 'вопроса', 'вопросов') + ' · ' + an + ' ' + ruPlural(an, 'ответ', 'ответа', 'ответов')); })(),
             sv_questions: svQuestions,
             q_asked_count: svQAskedCount,
@@ -4801,7 +4876,6 @@
             hist_show_empty: !hasData && !pvHideHistory,
             hist_show_list: hasData && !pvHideHistory,
             hist_unhide: () => set({ pvHideHistory: false }),
-            pf_connected_badges: connectedKeys.map((k) => ({ key: k, title: SERVICES[k].title, label: SERVICES[k].title + (integrationStatus[k] === 'limited' ? ' · демо-вход' : ' · опыт подтверждён') })),
             pf_client_ratings: connectedKeys.map((k) => { const cr = CLIENT_RATINGS[k]; return { key: k, title: SERVICES[k].title, value: cr ? (String(cr.rating).replace('.', ',') + ' / 5') : 'Нет данных' }; }),
             pf_restricted: myAccountRestricted,
             pf_restriction_reason: (() => {

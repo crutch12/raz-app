@@ -84,7 +84,7 @@
 
   <sc-if value="{{ recalc_available }}" hint-placeholder-val="{{ true }}">
   <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ ask_recalc }}">Пересчитать день</button>
-  <p class="raznos-text-tiny">Пересчёт только выбранного дня. План строится утром по вашему графику из личного кабинета, свежих данных рынка не приносит чаще раза в сутки, меняет план по новым условиям и вашим правкам. Только рекомендация, смены не бронирует</p>
+  <p class="raznos-text-tiny">Пересчитывает план только этого дня. Обычно план собирается сам утром по вашему графику. Свежих цифр рынка пересчёт не добавит, они обновляются раз в сутки, он лишь заново учтёт ваш график и ручные правки. Это подсказка, а не бронирование смен</p>
   </sc-if>
   <sc-if value="{{ day_past }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">День уже прошёл, доступен только для просмотра</p></sc-if>
 
@@ -138,10 +138,14 @@
 </sc-if>
 
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"$preview":{"width":390,"height":820}}'>
-const RSS_WEEK = [
-  { d: 'Пн', n: 8, work: true }, { d: 'Вт', n: 9, work: true }, { d: 'Ср', n: 10, work: true },
-  { d: 'Чт', n: 11, work: true }, { d: 'Пт', n: 12, work: true }, { d: 'Сб', n: 13, work: false }, { d: 'Вс', n: 14, work: false }
-];
+const RSS_TODAY = 7; // сегодня в середине двух недель, -7 и +7 дней
+const RSS_WD = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+// 15 дней: неделя назад, сегодня (Пт, 12), неделя вперёд
+const RSS_WEEK = Array.from({ length: 15 }, (_, i) => {
+  const off = i - RSS_TODAY;
+  const wd = ((4 + off) % 7 + 7) % 7; // сегодня приходится на Пт
+  return { d: RSS_WD[wd], n: 12 + off, work: wd < 5 };
+});
 const RSS_WORK_START = 9, RSS_WORK_END = 18; // график по умолчанию пн-пт 9-18
 const RSS_SERVICES = [
   { key: 'samokat', title: 'Самокат' },
@@ -153,7 +157,6 @@ const RSS_ZONES = [
 ];
 // прогнозная кривая спроса по часам 0..23, демо
 const RSS_DEMAND = [0.12,0.09,0.07,0.06,0.06,0.1,0.18,0.32,0.46,0.56,0.62,0.72,0.92,0.86,0.62,0.52,0.58,0.78,1.0,0.96,0.82,0.62,0.4,0.22];
-const RSS_TODAY = 4; // Пт как сегодня в демо
 const RSS_NOW = 14;  // текущий час в демо
 const rssIsPastDay = (i) => i < RSS_TODAY;
 const rssIsPastHour = (day, h) => day < RSS_TODAY || (day === RSS_TODAY && h < RSS_NOW);
@@ -187,7 +190,7 @@ class Component extends DCLogic {
     const st = this.state || {};
     const set = (patch) => this.setState(patch);
     const view = st.view || 'list';
-    const selDay = st.selDay == null ? 4 : st.selDay;
+    const selDay = st.selDay == null ? RSS_TODAY : st.selDay;
     const edits = st.edits || {};
     const dayInfo = RSS_WEEK[selDay];
     const dayWorks = !!dayInfo.work;
