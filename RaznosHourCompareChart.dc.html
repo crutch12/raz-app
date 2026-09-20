@@ -1,0 +1,182 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <link rel="stylesheet" href="./raznos-work.css" />
+  <style>
+    .rsc-card { display: flex; flex-direction: column; gap: 10px; }
+    .rsc-toggle-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+    .rsc-caret { font-size: 18px; line-height: 1; color: var(--raznos-ink-3); transition: transform 0.15s ease; }
+    .rsc-caret-open { transform: rotate(180deg); }
+    .rsc-body { display: flex; flex-direction: column; gap: 10px; }
+    .rsc-chips { display: flex; gap: 8px; }
+    .rsc-chips .raznos-chip { white-space: nowrap; flex: none; }
+    .rsc-chips-sub { flex-wrap: wrap; }
+    .rsc-bars { display: flex; align-items: flex-end; gap: 6px; height: 156px; margin-top: 2px; overflow-x: auto; padding-bottom: 6px; }
+    .rsc-bar { flex: 1 0 auto; min-width: 26px; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: 0; padding: 0; cursor: pointer; }
+    .rsc-bar.rsc-dim { opacity: 0.38; }
+    .rsc-group { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; gap: 2px; }
+    .rsc-fill { flex: 1; min-height: 3px; max-width: 16px; border-radius: 4px 4px 0 0; }
+    .rsc-lab { height: 12px; font: 600 10px var(--raznos-mono); color: var(--raznos-ink-3); }
+    .rsc-row-lab { font: 600 11px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rsc-legend { display: flex; flex-wrap: wrap; gap: 12px; }
+    .rsc-legend > span { display: inline-flex; align-items: center; font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); }
+    .rsc-sw { width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; display: inline-block; }
+    .rsc-toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 2px 0; background: none; border: 0; cursor: pointer; text-align: left; }
+    .rsc-bar.rsc-sel { background: var(--raznos-green-tint); border-radius: 8px; }
+    .rsc-readout { display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 14px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); box-shadow: 0 6px 20px rgba(20, 30, 25, 0.1); }
+    .rsc-ro-top { display: flex; align-items: baseline; gap: 8px; }
+    .rsc-ro-time { font: 800 20px var(--raznos-font); letter-spacing: -0.02em; color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rsc-ro-zone { font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rsc-ro-open { margin-left: auto; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); background: none; border: 0; cursor: pointer; padding: 0; }
+    .rsc-ro-list { display: flex; flex-direction: column; gap: 6px; }
+    .rsc-ro-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: var(--raznos-surface-2); }
+    .rsc-ro-row.rsc-ro-best { background: var(--raznos-green-tint); }
+    .rsc-ro-name { flex: 1; font: 600 14px var(--raznos-font); color: var(--raznos-ink); }
+    .rsc-ro-tag { font: 600 11px var(--raznos-font); color: var(--raznos-green-deep); }
+    .rsc-ro-pay { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rsc-ro-row.rsc-ro-best .rsc-ro-pay { color: var(--raznos-green-deep); }
+  </style>
+</helmet>
+<div class="raznos-card raznos-card-pad rsc-card" data-screen-label="Hour compare chart">
+  <button type="button" class="rsc-toggle-head" onClick="{{ toggle_chart }}"><span class="raznos-text-h3">Сравнить по часам</span><span class="{{ chart_caret_cls }}">⌄</span></button>
+  <sc-if value="{{ chart_closed }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-tiny">Доход по сервисам и районам за выбранный день</span></sc-if>
+  <sc-if value="{{ chart_open }}" hint-placeholder-val="{{ false }}">
+  <div class="rsc-body">
+    <span class="rsc-row-lab">Сервисы</span>
+    <div class="rsc-chips rsc-chips-sub">
+      <sc-for list="{{ chart_svc_chips }}" as="s" hint-placeholder-count="3"><button type="button" class="{{ s.cls }}" onClick="{{ s.tap }}">{{ s.label }}</button></sc-for>
+    </div>
+    <span class="rsc-row-lab">Район</span>
+    <div class="rsc-chips rsc-chips-sub">
+      <sc-for list="{{ chart_zone_chips }}" as="z" hint-placeholder-count="4"><button type="button" class="{{ z.cls }}" onClick="{{ z.tap }}">{{ z.label }}</button></sc-for>
+    </div>
+    <div class="rsc-bars">
+      <sc-for list="{{ chart_groups }}" as="g" hint-placeholder-count="9"><button type="button" class="{{ g.cls }}" onClick="{{ g.tap }}" onMouseEnter="{{ g.hover }}" aria-label="{{ g.aria }}"><span class="rsc-group"><sc-for list="{{ g.bars }}" as="b" hint-placeholder-count="3"><span class="rsc-fill" style="{{ b.style }}"></span></sc-for></span><span class="rsc-lab">{{ g.label }}</span></button></sc-for>
+    </div>
+    <sc-if value="{{ chart_has_sel }}" hint-placeholder-val="{{ true }}">
+    <div class="rsc-readout">
+      <div class="rsc-ro-top"><span class="rsc-ro-time">{{ chart_ro_time }}</span><span class="rsc-ro-zone">{{ chart_ro_zone }}</span><button type="button" class="rsc-ro-open" onClick="{{ chart_ro_open }}">Открыть час</button></div>
+      <div class="rsc-ro-list"><sc-for list="{{ chart_ro_rows }}" as="r" hint-placeholder-count="3"><div class="{{ r.cls }}"><dc-import name="RaznosIcon" svc="{{ r.svc }}" alt="{{ r.title }}" size="sm"></dc-import><span class="rsc-ro-name">{{ r.title }}</span><sc-if value="{{ r.best }}" hint-placeholder-val="{{ false }}"><span class="rsc-ro-tag">лучший</span></sc-if><span class="rsc-ro-pay">{{ r.pay }}</span></div></sc-for></div>
+    </div>
+    </sc-if>
+    <sc-if value="{{ chart_no_sel }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">Наведите или коснитесь часа, чтобы увидеть суммы</p></sc-if>
+    <div class="rsc-legend"><sc-for list="{{ chart_legend }}" as="l" hint-placeholder-count="3"><span><span class="rsc-sw" style="{{ l.sw }}"></span>{{ l.title }}</span></sc-for></div>
+    <button type="button" class="rsc-toggle" onClick="{{ toggle_all }}"><span class="raznos-text-small">Все часы, не только мой график</span><span class="{{ all_switch_cls }}"><span class="raznos-switch-knob"></span></span></button>
+    <p class="raznos-text-tiny">{{ chart_note }}</p>
+  </div>
+  </sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":460}}'>
+const HCC_SVCS = [
+  { key: 'samokat', title: 'Самокат' },
+  { key: 'vkusvill', title: 'ВкусВилл' },
+  { key: 'yandex-eda', title: 'Яндекс Еда' }
+];
+const HCC_ZONES = ['Центр', 'Север', 'Юг', 'Запад'];
+const HCC_ZONE_F = { 'Центр': 1.0, 'Север': 0.9, 'Юг': 0.85, 'Запад': 0.8 };
+const HCC_DEMAND = [0.12,0.09,0.07,0.06,0.06,0.1,0.18,0.32,0.46,0.56,0.62,0.72,0.92,0.86,0.62,0.52,0.58,0.78,1.0,0.96,0.82,0.62,0.4,0.22];
+const HCC_BEST = (h) => HCC_SVCS[h % HCC_SVCS.length].key;
+const HCC_DEMO_HOURS = Array.from({ length: 24 }, (_, i) => i);
+const HCC_DEMO_OWN = [9, 10, 11, 12, 13, 14, 15, 16, 17];
+const hccColor = (key) => 'var(--raznos-svc-' + key + ')';
+const hccFmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const hccDemoPay = (h, svcKey, zoneName) => {
+  const zf = HCC_ZONE_F[zoneName] != null ? HCC_ZONE_F[zoneName] : 1;
+  const f = svcKey === HCC_BEST(h) ? 1 : 0.9;
+  return Math.round((600 + HCC_DEMAND[h] * 900) * zf * f / 10) * 10;
+};
+
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const set = (patch) => this.setState(patch);
+
+    const services = (p.services && p.services.length) ? p.services : HCC_SVCS;
+    const zones = (p.zones && p.zones.length) ? p.zones : HCC_ZONES;
+    const payFn = typeof p.pay === 'function' ? p.pay : hccDemoPay;
+    const hours = (p.hours && p.hours.length) ? p.hours : HCC_DEMO_HOURS;
+    const ownHours = p.ownHours || HCC_DEMO_OWN;
+    const onOpenHour = typeof p.onOpenHour === 'function' ? p.onOpenHour : (() => {});
+
+    const svcKeys = services.map((s) => s.key);
+    const chartSvcs = (st.chartSvcs && st.chartSvcs.length) ? st.chartSvcs.filter((k) => svcKeys.indexOf(k) >= 0) : [];
+    const activeSvcs = chartSvcs.length ? chartSvcs : svcKeys.slice();
+    const chartZone = zones.indexOf(st.chartZone) >= 0 ? st.chartZone : zones[0];
+    const chartAll = !!st.chartAll;
+    const chartOpen = st.chartOpen == null ? !!p.open : !!st.chartOpen;
+    const chartSel = st.chartSel == null ? null : st.chartSel;
+
+    const payAt = (h, k) => payFn(h, k, chartZone);
+    let chartMax = 1;
+    for (const h of hours) for (const k of svcKeys) chartMax = Math.max(chartMax, payAt(h, k));
+
+    const ownSet = {};
+    ownHours.forEach((h) => { ownSet[h] = true; });
+    const isOwn = (h) => !!ownSet[h];
+    const hasOwn = ownHours.length > 0;
+    const chartHrs = (chartAll || !hasOwn) ? hours.slice() : hours.filter(isOwn);
+    const chartShowLab = chartHrs.length <= 12;
+    const onList = services.filter((s) => activeSvcs.indexOf(s.key) >= 0);
+
+    const chartGroups = chartHrs.map((h) => {
+      const dim = hasOwn && chartAll && !isOwn(h);
+      return {
+        cls: 'rsc-bar' + (dim ? ' rsc-dim' : '') + (h === chartSel ? ' rsc-sel' : ''),
+        bars: onList.map((s) => ({ style: 'height:' + Math.max(3, Math.round(payAt(h, s.key) / chartMax * 100)) + '%;background:' + hccColor(s.key) })),
+        label: (chartShowLab || h % 3 === 0) ? String(h) : '',
+        aria: h + ':00, район ' + chartZone + ', ' + onList.map((s) => s.title + ' ' + payAt(h, s.key) + ' рублей в час').join(', '),
+        tap: () => set({ chartSel: h }),
+        hover: () => set({ chartSel: h })
+      };
+    });
+
+    let chartRoTime = '', chartRoRows = [], chartRoOpen = () => {};
+    if (chartSel != null) {
+      const roMax = Math.max.apply(null, onList.map((s) => payAt(chartSel, s.key)));
+      chartRoTime = (chartSel < 10 ? '0' + chartSel : chartSel) + ':00';
+      chartRoRows = onList.map((s) => {
+        const pay = payAt(chartSel, s.key);
+        const best = pay >= roMax;
+        return { svc: s.key, title: s.title, pay: hccFmt(pay) + ' ₽/ч', best, cls: 'rsc-ro-row' + (best ? ' rsc-ro-best' : '') };
+      });
+      chartRoOpen = () => onOpenHour(chartSel);
+    }
+
+    const chartSvcChips = services.map((s) => {
+      const on = activeSvcs.indexOf(s.key) >= 0;
+      return {
+        label: s.title, cls: 'raznos-chip' + (on ? ' raznos-is-active' : ''),
+        tap: () => {
+          const cur = activeSvcs.slice(); const at = cur.indexOf(s.key);
+          if (at >= 0) { if (cur.length > 1) cur.splice(at, 1); } else cur.push(s.key);
+          set({ chartSvcs: cur });
+        }
+      };
+    });
+    const chartZoneChips = zones.map((z) => ({ label: z, cls: 'raznos-chip' + (z === chartZone ? ' raznos-is-active' : ''), tap: () => set({ chartZone: z }) }));
+    const chartLegend = onList.map((s) => ({ title: s.title, sw: 'background:' + hccColor(s.key) }));
+    const chartNote = 'Общая шкала до ' + hccFmt(Math.round(chartMax / 10) * 10) + ' ₽/ч, столбцы сравнимы между собой и по часам, тап по часу откроет сравнение';
+
+    return {
+      chart_svc_chips: chartSvcChips,
+      chart_zone_chips: chartZoneChips,
+      chart_groups: chartGroups,
+      chart_legend: chartLegend,
+      chart_open: chartOpen,
+      chart_closed: !chartOpen,
+      chart_caret_cls: 'rsc-caret' + (chartOpen ? ' rsc-caret-open' : ''),
+      toggle_chart: () => set({ chartOpen: !chartOpen }),
+      chart_has_sel: chartSel != null,
+      chart_no_sel: chartSel == null,
+      chart_ro_time: chartRoTime,
+      chart_ro_zone: chartZone,
+      chart_ro_rows: chartRoRows,
+      chart_ro_open: chartRoOpen,
+      all_switch_cls: 'raznos-switch' + (chartAll ? ' raznos-is-on' : ''),
+      toggle_all: () => set({ chartAll: !chartAll }),
+      chart_note: chartNote
+    };
+  }
+}
+</script></body></html>

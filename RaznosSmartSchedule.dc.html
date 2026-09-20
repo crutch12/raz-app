@@ -33,6 +33,9 @@
     .rss-cmp { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 12px; border-radius: 12px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); width: 100%; text-align: left; cursor: pointer; }
     .rss-cmp.rss-best { border-color: var(--raznos-green); background: var(--raznos-green-tint); }
     .rss-cmp-name { font: 600 15px var(--raznos-font); color: var(--raznos-ink); }
+    .rss-cmp-mid { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .rss-cmp-bar { height: 6px; border-radius: 999px; background: var(--raznos-line); overflow: hidden; }
+    .rss-cmp-bar-fill { display: block; height: 100%; border-radius: 999px; }
     .rss-cmp-end { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
     .rss-zones { display: flex; flex-wrap: wrap; gap: 8px; }
     .rss-zone { display: inline-flex; align-items: baseline; gap: 6px; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); font: 600 13px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; }
@@ -62,6 +65,8 @@
   </div>
 
   <sc-if value="{{ few_data }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Данных пока мало, прогноз слабый. Считаем по правилам и вашей истории, будет точнее по мере накопления</span></div></sc-if>
+
+  <dc-import name="RaznosHourCompareChart" services="{{ cc_services }}" zones="{{ cc_zones }}" pay="{{ cc_pay }}" hours="{{ cc_hours }}" ownHours="{{ cc_own }}" onOpenHour="{{ cc_open_hour }}"></dc-import>
 
   <div class="rss-list">
     <sc-for list="{{ hours }}" as="h" hint-placeholder-count="6">
@@ -120,7 +125,10 @@
     <sc-for list="{{ cmp }}" as="c" hint-placeholder-count="3">
       <button type="button" class="{{ c.cls }}" onClick="{{ c.tap }}">
         <dc-import name="RaznosIcon" svc="{{ c.svc }}" alt="{{ c.title }}" size="sm"></dc-import>
-        <span class="rss-cmp-name">{{ c.title }}</span>
+        <span class="rss-cmp-mid">
+          <span class="rss-cmp-name">{{ c.title }}</span>
+          <span class="rss-cmp-bar"><span class="rss-cmp-bar-fill" style="{{ c.barStyle }}"></span></span>
+        </span>
         <span class="rss-cmp-end"><span class="rss-pay">{{ c.pay }}</span><span class="{{ c.demCls }}">{{ c.demLabel }}</span></span>
       </button>
     </sc-for>
@@ -152,6 +160,7 @@ const RSS_SERVICES = [
   { key: 'vkusvill', title: 'ВкусВилл' },
   { key: 'yandex-eda', title: 'Яндекс Еда' }
 ];
+const RSS_SVC_COLOR = { samokat: 'var(--raznos-svc-samokat)', vkusvill: 'var(--raznos-svc-vkusvill)', 'yandex-eda': 'var(--raznos-svc-yandex-eda)' };
 const RSS_ZONES = [
   { name: 'Центр', f: 1.0 }, { name: 'Север', f: 0.9 }, { name: 'Юг', f: 0.85 }, { name: 'Запад', f: 0.8 }
 ];
@@ -233,17 +242,26 @@ class Component extends DCLogic {
       };
     });
 
+    // данные для компонента диаграммы сравнения
+    const ownHrs = order.filter((h) => inGrafik(h));
+    const cc_pay = (h, svcKey, zoneName) => rssPay(h, svcKey, rssZoneF(zoneName));
+    const cc_open_hour = (h) => set({ view: 'hour', selHour: h });
+
     // экран часа
     const selHour = st.selHour == null ? firstHour : st.selHour;
     const cur = hourPlan(selHour);
     const demH = rssDem(selHour);
     const hourPast = rssIsPastHour(selDay, selHour);
-    const cmp = RSS_SERVICES.map((s) => {
-      const pay = rssPay(selHour, s.key, rssZoneF(cur.zone));
+    const cmpZoneF = rssZoneF(cur.zone);
+    const cmpPays = RSS_SERVICES.map((s) => rssPay(selHour, s.key, cmpZoneF));
+    const cmpMax = Math.max.apply(null, cmpPays) || 1;
+    const cmp = RSS_SERVICES.map((s, i) => {
+      const pay = cmpPays[i];
       const best = s.key === rssSmartSvc(selHour);
       return {
         svc: s.key, title: s.title + (best ? ' · рекомендуем' : ''),
         pay: pay + ' ₽/ч', demCls: demH[1], demLabel: demH[0],
+        barStyle: 'width:' + Math.round(pay / cmpMax * 100) + '%;background:' + RSS_SVC_COLOR[s.key],
         cls: 'rss-cmp' + (s.key === cur.svc ? ' rss-best' : '') + (hourPast ? ' rss-locked' : ''),
         tap: hourPast ? (() => {}) : (() => set({ edits: Object.assign({}, edits, { [editKey(selHour)]: { svc: s.key, zone: cur.zone } }) }))
       };
@@ -267,6 +285,12 @@ class Component extends DCLogic {
       total_note: dayWorks ? 'потенциал за день по графику' : 'нерабочий день по графику, часы вне плана',
       few_data: false,
       hours,
+      cc_services: RSS_SERVICES,
+      cc_zones: RSS_ZONES.map((z) => z.name),
+      cc_pay,
+      cc_hours: order,
+      cc_own: ownHrs,
+      cc_open_hour,
       recalc_available: !rssIsPastDay(selDay),
       day_past: rssIsPastDay(selDay),
       show_recalc: !!st.showRecalc,
