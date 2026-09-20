@@ -1,208 +1,232 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
-<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-opportunities.css" /></helmet>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-opportunities.css" />
+<style>
+.rwf-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; padding: 14px 16px; border-radius: 14px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); width: 100%; text-align: left; cursor: pointer; }
+.rwf-row.rwf-active { border-color: var(--raznos-green); background: var(--raznos-green-tint); }
+.rwf-row-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.rwf-row-title { font: 600 15px var(--raznos-font); color: var(--raznos-ink); }
+.rwf-row-sub { font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
+.rwf-row-end { display: flex; align-items: center; gap: 8px; flex: none; }
+.rwf-edit-link { font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); background: none; border: 0; padding: 6px; cursor: pointer; flex: none; }
+.rwf-scope { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.rwf-scope .raznos-chip { white-space: nowrap; flex: none; }
+</style>
+</helmet>
+
+<sc-if value="{{ is_list }}">
 <div class="raznos-phone-body" data-screen-label="Work filters">
 <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><span class="raznos-text-small">Выбор заказов</span></div>
-<h1 class="raznos-text-h1">Мои фильтры</h1><p class="raznos-text-small">У каждого сервиса свои настройки, заказ всегда принимаете вы</p>
-<div class="raznos-fx raznos-col raznos-gap8"><sc-for list="{{ services }}" as="svc"><button type="button" class="{{ svc.cls }}" onClick="{{ svc.tap }}"><dc-import name="RaznosIcon" svc="{{ svc.key }}" size="md"></dc-import><span class="raznos-list-main"><span class="raznos-list-title">{{ svc.title }}</span></span><span class="{{ svc.checkCls }}">{{ svc.checkMark }}</span></button></sc-for></div>
-
-<div class="raznos-head-row"><span class="raznos-text-h3 raznos-head-title">Наборы для {{ serviceTitle }}</span><span class="{{ active_badge_cls }}">{{ active_badge }}</span></div>
-<p class="raznos-text-tiny">Тап по набору применяет его сразу, лента и метки пересчитываются, работа при этом не запускается</p>
-<div class="raznos-fx raznos-col raznos-gap8"><sc-for list="{{ sets }}" as="s">
-<div class="raznos-card">
-<button type="button" class="raznos-list-row" onClick="{{ s.apply }}" style="border-bottom:0"><span class="raznos-list-main"><span class="raznos-list-title">{{ s.title }}</span><span class="raznos-text-small">{{ s.note }}</span></span><span class="{{ s.badgeCls }}">{{ s.badge }}</span></button>
-<sc-if value="{{ s.isRenaming }}" hint-placeholder-val="{{ false }}"><div class="raznos-fx raznos-col raznos-gap8" style="padding:0 14px 14px"><input class="raznos-input" value="{{ rename_draft }}" onChange="{{ change_rename }}" /><div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-primary raznos-btn-small" onClick="{{ s.renameSave }}">Сохранить название</button><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ cancel_row }}">Отмена</button></div></div></sc-if>
-<sc-if value="{{ s.isConfirmDel }}" hint-placeholder-val="{{ false }}"><div class="raznos-fx raznos-col raznos-gap8" style="padding:0 14px 14px"><span class="raznos-text-small">Удалить набор {{ s.title }}? Отменить будет нельзя</span><div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-danger raznos-btn-small" onClick="{{ s.removeConfirm }}">Удалить</button><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ cancel_row }}">Отмена</button></div></div></sc-if>
-<sc-if value="{{ s.showManage }}" hint-placeholder-val="{{ false }}"><div class="raznos-btn-row" style="padding:0 14px 14px"><sc-if value="{{ s.isPreset }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ s.base }}">Взять за основу</button></sc-if><sc-if value="{{ s.own }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ s.rename }}">Переименовать</button><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ s.remove }}">Удалить</button></sc-if></div></sc-if>
+<h1 class="raznos-text-h1">Мои фильтры</h1>
+<p class="raznos-text-small">Выберите набор, он отсекает лишние предложения в ленте. Заказ всегда принимаете вы</p>
+<div class="raznos-fx raznos-col raznos-gap8"><sc-for list="{{ sets }}" as="s" hint-placeholder-count="4">
+<div class="raznos-fx raznos-ac raznos-gap8">
+<button type="button" class="{{ s.rowCls }}" onClick="{{ s.apply }}"><span class="rwf-row-main"><span class="rwf-row-title">{{ s.title }}</span><span class="rwf-row-sub">{{ s.sub }}</span></span><span class="rwf-row-end"><span class="{{ s.badgeCls }}">{{ s.badge }}</span></span></button>
+<sc-if value="{{ s.canEdit }}" hint-placeholder-val="{{ false }}"><button type="button" class="rwf-edit-link" onClick="{{ s.edit }}">{{ s.editLabel }}</button></sc-if>
 </div>
 </sc-for></div>
+<button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ create }}">Создать набор</button>
+<button type="button" class="raznos-list-row raznos-card" onClick="{{ go_eff }}"><span class="raznos-list-main"><span class="raznos-list-title">Как работают фильтры</span><span class="raznos-text-small">Сколько предложений проходит активный набор</span></span><span class="raznos-row-chevron">›</span></button>
+<div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Фильтры подсвечивают и отсекают неподходящее в ленте, но не отправляют отказ сервису. Неизвестные данные требуют вашей проверки</span></div>
+</div>
+</sc-if>
 
-<div class="raznos-card raznos-card-pad"><div class="raznos-head-row"><span class="raznos-text-h3 raznos-head-title">Как работают фильтры</span><span class="raznos-text-tiny raznos-head-side">{{ eff_title }}</span></div>
+<sc-if value="{{ is_editor }}">
+<div class="raznos-phone-body" data-screen-label="Filter editor">
+<div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ ed_back }}">‹</button><span class="raznos-text-small">Мои фильтры</span></div>
+<h1 class="raznos-text-h1">{{ ed_title }}</h1>
+<label class="raznos-field"><span class="raznos-field-label">Название набора</span><input class="raznos-input" value="{{ ed_name }}" onChange="{{ ed_change_name }}" /></label>
+
+<sc-if value="{{ ed_adv }}" hint-placeholder-val="{{ false }}">
+<span class="raznos-text-h3">{{ ed_scope_title }}</span>
+<div class="rwf-scope"><sc-for list="{{ ed_scopes }}" as="sc"><button type="button" class="{{ sc.cls }}" onClick="{{ sc.tap }}">{{ sc.label }}</button></sc-for></div>
+<sc-if value="{{ ed_scope_over }}" hint-placeholder-val="{{ false }}"><div class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="raznos-text-tiny">Отдельные значения для сервиса</span><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ ed_reset_scope }}">Сбросить на общие</button></div></sc-if>
+<sc-if value="{{ ed_scope_base }}" hint-placeholder-val="{{ true }}"><p class="raznos-text-tiny">Общие значения, применяются ко всем сервисам без своей настройки</p></sc-if>
+</sc-if>
+
+<div class="raznos-opportunity-fields"><sc-for list="{{ ed_fields }}" as="f"><label class="raznos-field"><span class="raznos-field-label">{{ f.label }}</span><input class="raznos-input" type="number" min="0" step="{{ f.step }}" value="{{ f.value }}" onChange="{{ f.change }}" /></label></sc-for></div>
+<label class="raznos-field"><span class="raznos-field-label">Район доставки</span><select class="raznos-input" value="{{ ed_zone }}" onChange="{{ ed_change_zone }}"><option value="all">Любой район</option><option value="Белорусская">Белорусская</option><option value="Тверская">Тверская</option><option value="Баррикадная">Баррикадная</option></select></label>
+<p class="raznos-text-tiny">Расходы на километр включают вашу оценку аренды, зарядки и обслуживания, налоги отдельно</p>
+
+<button type="button" class="{{ ed_adv_btn_cls }}" onClick="{{ ed_toggle_adv }}">{{ ed_adv_label }}</button>
+<sc-if value="{{ ed_error }}"><p class="raznos-notice raznos-notice-warn">{{ ed_error }}</p></sc-if>
+<button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ ed_save }}">Сохранить и применить</button>
+<sc-if value="{{ ed_can_delete }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ ed_delete }}">Удалить набор</button></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ is_eff }}">
+<div class="raznos-phone-body" data-screen-label="Filter effectiveness">
+<div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ eff_back }}">‹</button><span class="raznos-text-small">Мои фильтры</span></div>
+<h1 class="raznos-text-h1">Как работают фильтры</h1>
+<p class="raznos-text-small">Активный набор: {{ active_label }}</p>
 <div class="raznos-chip-row"><sc-for list="{{ eff_periods }}" as="ep"><button type="button" class="{{ ep.cls }}" onClick="{{ ep.tap }}">{{ ep.label }}</button></sc-for></div>
-<sc-if value="{{ eff_has_data }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-body">{{ eff_summary }}</span><div class="raznos-progress-track"><span class="raznos-progress-fill" style="{{ eff_bar_style }}"></span></div>
+<span class="raznos-text-body">{{ eff_summary }}</span>
+<div class="raznos-progress-track"><span class="raznos-progress-fill" style="{{ eff_bar_style }}"></span></div>
 <sc-for list="{{ eff_reasons }}" as="er"><div class="raznos-breakdown-row"><span class="raznos-text-small">{{ er.label }}</span><span class="raznos-num">{{ er.count }}</span></div></sc-for>
-<sc-if value="{{ eff_has_tip }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">{{ eff_tip_title }}</span><span class="raznos-text-small">{{ eff_tip_note }}</span>
-<sc-if value="{{ eff_can_ask }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" style="align-self:flex-start" onClick="{{ eff_ask }}">{{ eff_tip_button }}</button></sc-if>
-<sc-if value="{{ eff_confirming }}"><span class="raznos-text-small">Изменить фильтр {{ serviceTitle }}? Настройка поменяется только после Сохранить</span><div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-primary raznos-btn-small" onClick="{{ eff_apply }}">Изменить</button><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ eff_cancel }}">Оставить как есть</button></div></sc-if>
-<sc-if value="{{ eff_applied }}"><span class="raznos-text-small">Значение подставлено ниже, нажмите Сохранить</span></sc-if></div></sc-if>
-<sc-if value="{{ eff_no_tip }}"><p class="raznos-text-small">Фильтры не выглядят слишком строгими, менять ничего не предлагаем</p></sc-if>
-<p class="raznos-text-tiny">Считаем полученные предложения, а не упущенный заработок, непринятые заказы могли занять другие курьеры</p>
-<p class="raznos-text-tiny">Отдельная статистика по фильтрам, не совпадает со счётчиком в Истории предложений</p></sc-if>
-<sc-if value="{{ eff_no_data }}"><p class="raznos-text-small">За этот период предложений от сервиса не было, оценить фильтры не по чему</p></sc-if></div>
+<sc-if value="{{ eff_has_tip }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">{{ eff_tip_title }}</span><span class="raznos-text-small">{{ eff_tip_note }}</span></div></sc-if>
+<sc-if value="{{ eff_no_tip }}" hint-placeholder-val="{{ true }}"><p class="raznos-text-small">Набор не выглядит слишком строгим, менять ничего не предлагаем</p></sc-if>
+<p class="raznos-text-tiny">Считаем полученные предложения, а не упущенный заработок. Отдельная статистика по фильтрам, не совпадает со счётчиком в Истории предложений</p>
+</div>
+</sc-if>
 
-<div class="raznos-head-row"><span class="raznos-text-h3 raznos-head-title">{{ editor_title }}</span></div>
-<p class="raznos-text-tiny">{{ editor_hint }}</p>
-<div class="raznos-opportunity-fields"><label class="raznos-field"><span class="raznos-field-label">Оплата от, ₽</span><input class="raznos-input" type="number" min="0" step="1" value="{{ minPay }}" onChange="{{ change_minPay }}" /></label>
-<label class="raznos-field"><span class="raznos-field-label">После расходов от, ₽/ч</span><input class="raznos-input" type="number" min="0" step="1" value="{{ minHourly }}" onChange="{{ change_minHourly }}" /></label>
-<label class="raznos-field"><span class="raznos-field-label">Маршрут с переездом до, км</span><input class="raznos-input" type="number" min="0" step="0.1" value="{{ maxDistance }}" onChange="{{ change_maxDistance }}" /></label>
-<label class="raznos-field"><span class="raznos-field-label">Вес до, кг</span><input class="raznos-input" type="number" min="0" step="0.1" value="{{ maxWeight }}" onChange="{{ change_maxWeight }}" /></label>
-<label class="raznos-field"><span class="raznos-field-label">Пакетов до</span><input class="raznos-input" type="number" min="0" step="1" value="{{ maxPackages }}" onChange="{{ change_maxPackages }}" /></label>
-<label class="raznos-field"><span class="raznos-field-label">Вместе с переездом до, мин</span><input class="raznos-input" type="number" min="0" step="1" value="{{ maxMinutes }}" onChange="{{ change_maxMinutes }}" /></label>
-<label class="raznos-field"><span class="raznos-field-label">Мои расходы на 1 км, ₽</span><input class="raznos-input" type="number" min="0" step="0.1" value="{{ costPerKm }}" onChange="{{ change_costPerKm }}" /></label></div>
-<label class="raznos-field"><span class="raznos-field-label">Район доставки</span><select class="raznos-input" value="{{ zone }}" onChange="{{ changeZone }}"><option value="all">Любой район</option><option value="Белорусская">Белорусская</option><option value="Тверская">Тверская</option><option value="Баррикадная">Баррикадная</option></select></label>
-<label class="raznos-field"><span class="raznos-field-label">Название набора</span><input class="raznos-input" value="{{ name }}" onChange="{{ changeName }}" /></label>
-<p class="raznos-text-small">Расходы на километр включают вашу оценку аренды, зарядки и обслуживания, налоги отдельно</p>
-<div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Фильтры подсвечивают неподходящие условия, но не отправляют отказ сервису, неизвестные данные требуют вашей проверки</span></div>
-<sc-if value="{{ error }}"><p class="raznos-notice raznos-notice-warn">{{ error }}</p></sc-if>
-<button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ save }}">{{ save_label }}</button>
-</div></x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"value":{"editor":null},"onChange":{"editor":null},"onBack":{"editor":null}}'>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"value":{"editor":null},"onChange":{"editor":null},"activeValue":{"editor":"text"},"onActiveChange":{"editor":null},"onBack":{"editor":null}}'>
+const FIELDS = [
+  { k: 'minPay', label: 'Оплата от, ₽', step: '1' },
+  { k: 'minHourly', label: 'После расходов от, ₽/ч', step: '1' },
+  { k: 'maxDistance', label: 'Маршрут с переездом до, км', step: '0.1' },
+  { k: 'maxWeight', label: 'Вес до, кг', step: '0.1' },
+  { k: 'maxPackages', label: 'Пакетов до', step: '1' },
+  { k: 'maxMinutes', label: 'Вместе с переездом до, мин', step: '1' },
+  { k: 'costPerKm', label: 'Мои расходы на 1 км, ₽', step: '0.1' }
+];
+const DEF = { minPay: 250, minHourly: 600, maxDistance: 3, maxWeight: 8, maxPackages: 4, maxMinutes: 35, costPerKm: 12, zone: 'all' };
+const SVCS = [{ key: 'vkusvill', title: 'ВкусВилл' }, { key: 'samokat', title: 'Самокат' }, { key: 'x5', title: 'X5' }];
+const PRESETS = [
+  { name: 'Рядом с домом', vals: Object.assign({}, DEF, { maxDistance: 2, zone: 'Белорусская' }) },
+  { name: 'Без тяжёлых заказов', vals: Object.assign({}, DEF, { maxWeight: 3, maxPackages: 2 }) },
+  { name: 'Работаю два часа', vals: Object.assign({}, DEF, { maxMinutes: 25 }) }
+];
+const wfSummary = (v) => {
+  const parts = [];
+  parts.push('оплата от ' + v.minPay + ' ₽');
+  parts.push('до ' + v.maxDistance + ' км');
+  parts.push('вес до ' + v.maxWeight + ' кг');
+  if (v.zone && v.zone !== 'all') parts.push(v.zone);
+  return parts.slice(0, 3).join(' · ');
+};
+
 class Component extends DCLogic {
- renderVals() {
-  const st = this.state || {}, p = this.props || {}, key = st.service || 'vkusvill';
-  const defaults = { name: 'Мой набор', minPay: 250, minHourly: 600, maxDistance: 3, maxWeight: 8, maxPackages: 4, maxMinutes: 35, costPerKm: 12, zone: 'all' };
-  const current = Object.assign({}, defaults, (p.value || {})[key] || {}, (st.drafts || {})[key] || {});
-  const savedSets = current.savedSets || [];
-  const patch = (v) => this.setState({ drafts: Object.assign({}, st.drafts, { [key]: Object.assign({}, current, v) }), error: '' });
-  const presetData = [
-    { title: 'Рядом с домом', note: 'До 2 км, Белорусская', value: { maxDistance: 2, zone: 'Белорусская' } },
-    { title: 'Без тяжёлых заказов', note: 'До 3 кг и двух пакетов', value: { maxWeight: 3, maxPackages: 2 } },
-    { title: 'Работаю два часа', note: 'Короткие заказы до 25 минут', value: { maxMinutes: 25 } }
-  ];
-  const services = [{ key: 'vkusvill', title: 'ВкусВилл' }, { key: 'samokat', title: 'Самокат' }, { key: 'x5', title: 'X5' }];
-  const serviceTitle = services.find((s) => s.key === key).title;
+  renderVals() {
+    const st = this.state || {}, p = this.props || {};
+    const view = st.view || 'list';
+    const savedSets = st.savedSets || [];
+    const active = st.active != null ? st.active : (p.activeValue || '');
+    const reportActive = (name) => { if (p.onActiveChange) p.onActiveChange(name); };
+    const findSet = (name) => savedSets.find((s) => s.name === name) || PRESETS.find((s) => s.name === name) || null;
 
-  // активный набор для сервиса, пусто это Без фильтра
-  const activeName = (st.activeSet || {})[key] != null ? (st.activeSet || {})[key] : (p.activeValue || '');
-  const rowMode = (st.rowMode || {})[key] || null; // { name, mode: 'rename'|'del' }
-  const reportActive = (name) => { if (p.onActiveChange) p.onActiveChange(name); };
-  const setActive = (name) => { this.setState({ activeSet: Object.assign({}, st.activeSet, { [key]: name }), rowMode: Object.assign({}, st.rowMode, { [key]: null }) }); reportActive(name); };
-  const setRow = (v) => this.setState({ rowMode: Object.assign({}, st.rowMode, { [key]: v }) });
-  const loadValues = (v) => this.setState({ drafts: Object.assign({}, st.drafts, { [key]: Object.assign({}, current, v) }), error: '' });
-  const applySet = (name, value) => { this.setState({
-    activeSet: Object.assign({}, st.activeSet, { [key]: name }),
-    drafts: Object.assign({}, st.drafts, { [key]: Object.assign({}, current, value, { name }) }),
-    rowMode: Object.assign({}, st.rowMode, { [key]: null }), error: ''
-  }); reportActive(name); };
-  const renameSaved = (oldName, newName) => {
-    const nn = (newName || '').trim();
-    if (!nn) { this.setState({ error: 'Название набора не может быть пустым' }); return; }
-    const nextSaved = savedSets.map((s) => s.name === oldName ? Object.assign({}, s, { name: nn }) : s);
-    const nextActive = activeName === oldName ? nn : activeName;
-    this.setState({
-      drafts: Object.assign({}, st.drafts, { [key]: Object.assign({}, current, { savedSets: nextSaved }) }),
-      activeSet: Object.assign({}, st.activeSet, { [key]: nextActive }),
-      rowMode: Object.assign({}, st.rowMode, { [key]: null }), error: ''
+    // экран список
+    const rowFor = (name, title, sub, kind) => ({
+      title, sub,
+      rowCls: 'rwf-row' + (name === active ? ' rwf-active' : ''),
+      badge: name === active ? 'Активен' : 'Применить',
+      badgeCls: name === active ? 'raznos-status-pill raznos-pill-ok' : 'raznos-text-tiny',
+      apply: () => { this.setState({ active: name }); reportActive(name); },
+      canEdit: kind === 'own',
+      editLabel: 'Изменить',
+      edit: () => this.openEditor(kind, name)
     });
-    reportActive(nextActive);
-  };
-  const removeSaved = (name) => {
-    const nextSaved = savedSets.filter((s) => s.name !== name);
-    const nextActive = activeName === name ? '' : activeName;
-    this.setState({
-      drafts: Object.assign({}, st.drafts, { [key]: Object.assign({}, current, { savedSets: nextSaved }) }),
-      activeSet: Object.assign({}, st.activeSet, { [key]: nextActive }),
-      rowMode: Object.assign({}, st.rowMode, { [key]: null }), error: ''
-    });
-    reportActive(nextActive);
-  };
+    const sets = [];
+    sets.push(rowFor('', 'Без фильтра', 'Показываем все предложения, ничего не отсекаем', 'none'));
+    PRESETS.filter((pr) => !savedSets.some((s) => s.name === pr.name)).forEach((pr) => sets.push(rowFor(pr.name, pr.name, wfSummary(pr.vals), 'preset')));
+    savedSets.forEach((s) => sets.push(rowFor(s.name, s.name, wfSummary(s.vals), 'own')));
 
-  const activeBadge = (name) => name === activeName
-    ? { badge: 'Активен', badgeCls: 'raznos-status-pill raznos-pill-ok' }
-    : { badge: 'Применить', badgeCls: 'raznos-text-tiny' };
-
-  const sets = [];
-  // Без фильтра всегда первый, свой особый набор
-  sets.push(Object.assign({
-    title: 'Без фильтра', note: 'Показываем все предложения, ничего не отсекаем',
-    isPreset: false, own: false,
-    apply: () => setActive(''),
-    showManage: false, isRenaming: false, isConfirmDel: false
-  }, activeBadge('')));
-  // готовые наборы
-  presetData.filter((v) => !savedSets.some((s) => s.name === v.title)).forEach((v) => {
-    sets.push(Object.assign({
-      title: v.title, note: v.note, isPreset: true, own: false,
-      apply: () => applySet(v.title, v.value),
-      base: () => loadValues(Object.assign({}, v.value, { name: v.title })),
-      showManage: !rowMode, isRenaming: false, isConfirmDel: false
-    }, activeBadge(v.title)));
-  });
-  // сохранённые пользователем наборы
-  savedSets.forEach((v) => {
-    const isRen = !!rowMode && rowMode.name === v.name && rowMode.mode === 'rename';
-    const isDel = !!rowMode && rowMode.name === v.name && rowMode.mode === 'del';
-    sets.push(Object.assign({
-      title: v.name, note: 'Ваш сохранённый набор', isPreset: false, own: true,
-      apply: () => applySet(v.name, v),
-      rename: () => this.setState({ rowMode: Object.assign({}, st.rowMode, { [key]: { name: v.name, mode: 'rename' } }), renameDraft: v.name, error: '' }),
-      renameSave: () => renameSaved(v.name, st.renameDraft),
-      remove: () => setRow({ name: v.name, mode: 'del' }),
-      removeConfirm: () => removeSaved(v.name),
-      isRenaming: isRen, isConfirmDel: isDel,
-      showManage: !rowMode
-    }, activeBadge(v.name)));
-  });
-
-  const vals = Object.assign({}, current, {
-    serviceTitle,
-    onBack: p.onBack || (() => {}),
-    error: st.error || '',
-    active_badge: activeName ? ('Активен: ' + activeName) : 'Активен: Без фильтра',
-    active_badge_cls: 'raznos-status-pill ' + (activeName ? 'raznos-pill-ok' : 'raznos-pill-muted') + ' raznos-head-side',
-    editor_title: 'Настроить и сохранить набор',
-    editor_hint: 'Отредактируйте условия и сохраните как набор, затем примените его выше',
-    save_label: 'Сохранить набор',
-    rename_draft: st.renameDraft != null ? st.renameDraft : '',
-    change_rename: (e) => this.setState({ renameDraft: e && e.target ? e.target.value : (st.renameDraft || '') }),
-    cancel_row: () => setRow(null),
-    sets,
-    services: services.map((s) => Object.assign({}, s, {
-      cls: 'raznos-svc-select-card raznos-svc-border-' + s.key + (s.key === key ? ' raznos-is-active' : ''),
-      checkCls: 'raznos-check-box' + (s.key === key ? ' raznos-is-on' : ''),
-      checkMark: s.key === key ? '✓' : '',
-      tap: () => this.setState({ service: s.key, error: '' })
-    })),
-    changeZone: (e) => patch({ zone: e.target.value }),
-    changeName: (e) => patch({ name: e.target.value }),
-    save: () => {
-      if (!current.name.trim() || Object.keys(defaults).some((k) => typeof defaults[k] === 'number' && (current[k] === '' || !Number.isFinite(Number(current[k])) || Number(current[k]) < 0)) || !Number.isInteger(Number(current.maxPackages))) {
-        this.setState({ error: 'Укажите название и числа от нуля, пакеты целым числом' });
-        return;
+    // редактор
+    const ed = st.ed || null;
+    const edScope = (ed && ed.scope) || 'all';
+    const edEffVals = ed ? (edScope === 'all' ? ed.vals : Object.assign({}, ed.vals, ed.over[edScope] || {})) : DEF;
+    const patchField = (k, raw) => {
+      if (!ed) return;
+      const val = raw;
+      if (edScope === 'all') {
+        this.setState({ ed: Object.assign({}, ed, { vals: Object.assign({}, ed.vals, { [k]: val }), error: '' }) });
+      } else {
+        const cur = Object.assign({}, ed.vals, ed.over[edScope] || {}, { [k]: val });
+        this.setState({ ed: Object.assign({}, ed, { over: Object.assign({}, ed.over, { [edScope]: cur }), error: '' }) });
       }
-      const result = Object.assign({}, current);
-      Object.keys(defaults).forEach((k) => { if (typeof defaults[k] === 'number') result[k] = Number(current[k]); });
-      const saved = Object.assign({}, result);
-      delete saved.savedSets;
-      result.savedSets = savedSets.filter((v) => v.name !== saved.name).concat([saved]);
-      // сохранённый набор становится активным
-      this.setState({
-        drafts: Object.assign({}, st.drafts, { [key]: result }),
-        activeSet: Object.assign({}, st.activeSet, { [key]: saved.name }),
-        error: ''
-      });
-      reportActive(saved.name);
-      if (p.onChange) p.onChange(Object.assign({}, p.value, { [key]: result }));
-    }
-  });
+    };
 
-  const EFF = { vkusvill: { today: { got: 20, passed: 3, reasons: [['Далеко ехать', 11], ['Низкая оплата', 4], ['Большой вес', 2]], tip: { field: 'maxDistance', value: 4, gain: 6 } }, week: { got: 134, passed: 29, reasons: [['Далеко ехать', 71], ['Низкая оплата', 25], ['Большой вес', 9]], tip: { field: 'maxDistance', value: 4, gain: 38 } } }, samokat: { today: { got: 16, passed: 9, reasons: [['Низкая оплата', 5], ['Большой вес', 2]] }, week: { got: 97, passed: 58, reasons: [['Низкая оплата', 30], ['Большой вес', 9]] } }, x5: {} };
-  const effPeriod = st.effPeriod || 'today', eff = (EFF[key] || {})[effPeriod], effStage = (st.effStage || {})[key] || 'idle';
-  const tip = eff && eff.tip && Number(current[eff.tip.field]) < eff.tip.value ? eff.tip : null;
-  const setEff = (v) => this.setState({ effStage: Object.assign({}, st.effStage, { [key]: v }) });
-  Object.assign(vals, {
-    eff_title: effPeriod === 'today' ? 'сегодня, активный набор' : 'за 7 дней, активный набор',
-    eff_periods: [['today', 'Сегодня'], ['week', '7 дней']].map((x) => ({ label: x[1], cls: 'raznos-chip' + (effPeriod === x[0] ? ' raznos-is-active' : ''), tap: () => this.setState({ effPeriod: x[0] }) })),
-    eff_has_data: !!eff, eff_no_data: !eff,
-    eff_summary: eff ? 'Из ' + eff.got + ' предложений подошли ' + eff.passed + ', остальные не прошли по причинам ниже' : '',
-    eff_bar_style: eff ? 'width:' + Math.round(eff.passed / eff.got * 100) + '%' : '',
-    eff_reasons: eff ? eff.reasons.map((r) => ({ label: r[0], count: r[1] })) : [],
-    eff_has_tip: !!tip || effStage === 'applied',
-    eff_no_tip: !!eff && !tip && effStage !== 'applied',
-    eff_tip_title: tip ? 'Маршрут до ' + tip.value + ' км вместо ' + current.maxDistance : 'Маршрут до 4 км',
-    eff_tip_note: tip ? 'С таким фильтром подошли бы ещё ' + tip.gain + ' из ' + eff.got + '. Решение за вами, сами фильтры мы не меняем' : '',
-    eff_tip_button: tip ? 'Изменить на ' + tip.value + ' км' : '',
-    eff_can_ask: !!tip && effStage === 'idle', eff_confirming: !!tip && effStage === 'confirm', eff_applied: effStage === 'applied',
-    eff_ask: () => setEff('confirm'), eff_cancel: () => setEff('idle'),
-    eff_apply: () => { if (!tip) return; this.setState({ drafts: Object.assign({}, st.drafts, { [key]: Object.assign({}, current, { [tip.field]: tip.value }) }), effStage: Object.assign({}, st.effStage, { [key]: 'applied' }), error: '' }); }
-  });
-  vals.change_minPay = (e) => patch({ minPay: e.target.value });
-  vals.change_minHourly = (e) => patch({ minHourly: e.target.value });
-  vals.change_maxDistance = (e) => patch({ maxDistance: e.target.value });
-  vals.change_maxWeight = (e) => patch({ maxWeight: e.target.value });
-  vals.change_maxPackages = (e) => patch({ maxPackages: e.target.value });
-  vals.change_maxMinutes = (e) => patch({ maxMinutes: e.target.value });
-  vals.change_costPerKm = (e) => patch({ costPerKm: e.target.value });
-  return vals;
- }
+    const vals = {
+      onBack: p.onBack || (() => {}),
+      is_list: view === 'list', is_editor: view === 'editor', is_eff: view === 'eff',
+      sets,
+      create: () => this.openEditor('create', ''),
+      go_eff: () => this.setState({ view: 'eff' }),
+      eff_back: () => this.setState({ view: 'list' }),
+      active_label: active || 'Без фильтра'
+    };
+
+    if (view === 'editor' && ed) {
+      Object.assign(vals, {
+        ed_title: ed.mode === 'edit' ? 'Изменить набор' : 'Новый набор',
+        ed_name: ed.name,
+        ed_change_name: (e) => this.setState({ ed: Object.assign({}, ed, { name: e && e.target ? e.target.value : ed.name, error: '' }) }),
+        ed_zone: edEffVals.zone,
+        ed_change_zone: (e) => patchField('zone', e.target.value),
+        ed_fields: FIELDS.map((f) => ({ label: f.label, step: f.step, value: edEffVals[f.k], change: (e) => patchField(f.k, e.target.value) })),
+        ed_adv: !!ed.adv,
+        ed_adv_label: ed.adv ? 'Скрыть настройку по сервисам' : 'Разные настройки по сервисам',
+        ed_adv_btn_cls: 'raznos-btn raznos-btn-secondary',
+        ed_toggle_adv: () => this.setState({ ed: Object.assign({}, ed, { adv: !ed.adv, scope: 'all' }) }),
+        ed_scope_title: 'Для какого сервиса',
+        ed_scopes: [{ key: 'all', title: 'Все сервисы' }].concat(SVCS).map((s) => ({
+          label: s.title + (s.key !== 'all' && ed.over[s.key] ? ' ●' : ''),
+          cls: 'raznos-chip' + (edScope === s.key ? ' raznos-is-active' : ''),
+          tap: () => this.setState({ ed: Object.assign({}, ed, { scope: s.key }) })
+        })),
+        ed_scope_over: edScope !== 'all' && !!ed.over[edScope],
+        ed_scope_base: edScope === 'all',
+        ed_reset_scope: () => { const o = Object.assign({}, ed.over); delete o[edScope]; this.setState({ ed: Object.assign({}, ed, { over: o }) }); },
+        ed_error: ed.error || '',
+        ed_can_delete: ed.mode === 'edit',
+        ed_back: () => this.setState({ view: 'list', ed: null }),
+        ed_delete: () => {
+          const next = savedSets.filter((s) => s.name !== ed.origName);
+          const nextActive = active === ed.origName ? '' : active;
+          this.setState({ savedSets: next, active: nextActive, view: 'list', ed: null });
+          reportActive(nextActive);
+        },
+        ed_save: () => {
+          const nm = (ed.name || '').trim();
+          const bad = FIELDS.some((f) => { const n = Number(ed.vals[f.k]); return ed.vals[f.k] === '' || !Number.isFinite(n) || n < 0; }) || !Number.isInteger(Number(ed.vals.maxPackages));
+          if (!nm || bad) { this.setState({ ed: Object.assign({}, ed, { error: 'Укажите название и числа от нуля, пакеты целым числом' }) }); return; }
+          const norm = (o) => { const r = Object.assign({}, o); FIELDS.forEach((f) => { r[f.k] = Number(o[f.k]); }); return r; };
+          const over = {};
+          Object.keys(ed.over).forEach((k) => { over[k] = norm(Object.assign({}, ed.vals, ed.over[k])); });
+          const saved = { name: nm, vals: norm(ed.vals), over };
+          const next = savedSets.filter((s) => s.name !== ed.origName && s.name !== nm).concat([saved]);
+          this.setState({ savedSets: next, active: nm, view: 'list', ed: null });
+          reportActive(nm);
+          if (p.onChange) p.onChange({ sets: next, active: nm });
+        }
+      });
+    }
+
+    if (view === 'eff') {
+      const EFF = {
+        today: { got: 20, passed: 3, reasons: [['Далеко ехать', 11], ['Низкая оплата', 4], ['Большой вес', 2]] },
+        week: { got: 134, passed: 29, reasons: [['Далеко ехать', 71], ['Низкая оплата', 25], ['Большой вес', 9]] }
+      };
+      const effPeriod = st.effPeriod || 'today';
+      const eff = EFF[effPeriod];
+      const activeVals = (findSet(active) || {}).vals;
+      const tip = active && activeVals && Number(activeVals.maxDistance) < 4;
+      Object.assign(vals, {
+        eff_periods: [['today', 'Сегодня'], ['week', '7 дней']].map((x) => ({ label: x[1], cls: 'raznos-chip' + (effPeriod === x[0] ? ' raznos-is-active' : ''), tap: () => this.setState({ effPeriod: x[0] }) })),
+        eff_summary: active ? ('Из ' + eff.got + ' предложений набор пропустил ' + eff.passed) : ('Без фильтра проходят все ' + eff.got + ' предложений'),
+        eff_bar_style: 'width:' + (active ? Math.round(eff.passed / eff.got * 100) : 100) + '%',
+        eff_reasons: active ? eff.reasons.map((r) => ({ label: r[0], count: r[1] })) : [],
+        eff_has_tip: !!tip,
+        eff_no_tip: !tip,
+        eff_tip_title: tip ? 'Маршрут до 4 км вместо ' + activeVals.maxDistance : '',
+        eff_tip_note: tip ? 'С таким набором прошли бы ещё несколько заказов. Решение за вами, сами фильтры мы не меняем' : ''
+      });
+    }
+    return vals;
+  }
+
+  openEditor(kind, name) {
+    const st = this.state || {};
+    const savedSets = st.savedSets || [];
+    if (kind === 'create') {
+      this.setState({ view: 'editor', ed: { mode: 'create', origName: '', name: '', vals: Object.assign({}, DEF), over: {}, adv: false, scope: 'all', error: '' } });
+    } else if (kind === 'preset') {
+      const pr = PRESETS.find((s) => s.name === name);
+      this.setState({ view: 'editor', ed: { mode: 'create', origName: '', name: pr.name + ' (моя копия)', vals: Object.assign({}, pr.vals), over: {}, adv: false, scope: 'all', error: '' } });
+    } else {
+      const s = savedSets.find((x) => x.name === name);
+      this.setState({ view: 'editor', ed: { mode: 'edit', origName: s.name, name: s.name, vals: Object.assign({}, s.vals), over: Object.assign({}, s.over || {}), adv: Object.keys(s.over || {}).length > 0, scope: 'all', error: '' } });
+    }
+  }
 }
 </script></body></html>
