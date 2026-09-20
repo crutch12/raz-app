@@ -1280,8 +1280,8 @@
                   <button type="button" class="raznos-list-row" onClick="{{ live_go_mine }}"><div class="raznos-list-main"><span class="raznos-list-title">Мои оперативные сообщения</span><span class="raznos-text-small">{{ live_profile_label }}</span></div><span class="raznos-row-chevron">›</span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ go_privacy }}"><div class="raznos-list-main"><span class="raznos-list-title">Приватность и данные</span></div><span class="raznos-row-chevron">›</span></button>
                 </div>
-                <dc-import name="RaznosAppSettings" theme="{{ app_theme }}" systemIsDark="{{ app_system_dark }}" notificationsSummary="{{ notif_summary }}" supportSummary="{{ support_summary }}" onTheme="{{ set_app_theme }}" onNotifications="{{ go_notifications }}" onSupport="{{ go_support }}"></dc-import>
-                <a class="raznos-list-row raznos-card" style="text-decoration:none;color:inherit" href="https://t.me/raznos_app_bot" target="_blank" rel="noopener"><span class="raznos-list-main"><span class="raznos-list-title">Задать вопрос в Telegram</span><span class="raznos-text-small">Бот t.me/raznos_app_bot, вопросы и проблемы</span></span><span class="raznos-row-chevron">›</span></a>
+                <dc-import name="RaznosAppSettings" theme="{{ app_theme }}" systemIsDark="{{ app_system_dark }}" notificationsSummary="{{ notif_summary }}" onTheme="{{ set_app_theme }}" onNotifications="{{ go_notifications }}"></dc-import>
+                <a class="raznos-list-row raznos-card" style="text-decoration:none;color:inherit" href="https://t.me/raznos_app_bot" target="_blank" rel="noopener"><span class="raznos-list-main"><span class="raznos-list-title">Поддержка в Telegram</span><span class="raznos-text-small">Вопросы и проблемы в бот t.me/raznos_app_bot</span></span><span class="raznos-row-chevron">›</span></a>
                 <dc-import name="RaznosCitySelect" value="{{ city }}" onChange="{{ set_city }}" label="Город"></dc-import>
                 <dc-import name="RaznosLanguagePicker" value="{{ language }}" onChange="{{ change_language }}"></dc-import>
                 <sc-if value="{{ demo_on }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Демо-режим включён</span><span class="raznos-text-small">Данные вымышленные. Выключить можно кнопкой × на плашке вверху</span></div></sc-if>
@@ -1302,8 +1302,8 @@
                   <button type="button" class="raznos-list-row" onClick="{{ go_my_activity }}"><div class="raznos-list-main"><span class="raznos-list-title">Мои отзывы, вопросы и ответы</span><span class="raznos-text-small">{{ my_activity_count_label }}</span></div><span class="raznos-row-chevron">›</span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ go_privacy }}"><div class="raznos-list-main"><span class="raznos-list-title">Приватность и данные</span></div><span class="raznos-row-chevron">›</span></button>
                 </div>
-                <dc-import name="RaznosAppSettings" theme="{{ app_theme }}" systemIsDark="{{ app_system_dark }}" notificationsSummary="{{ notif_summary }}" supportSummary="{{ support_summary }}" onTheme="{{ set_app_theme }}" onNotifications="{{ go_notifications }}" onSupport="{{ go_support }}"></dc-import>
-                <a class="raznos-list-row raznos-card" style="text-decoration:none;color:inherit" href="https://t.me/raznos_app_bot" target="_blank" rel="noopener"><span class="raznos-list-main"><span class="raznos-list-title">Задать вопрос в Telegram</span><span class="raznos-text-small">Бот t.me/raznos_app_bot, вопросы и проблемы</span></span><span class="raznos-row-chevron">›</span></a>
+                <dc-import name="RaznosAppSettings" theme="{{ app_theme }}" systemIsDark="{{ app_system_dark }}" notificationsSummary="{{ notif_summary }}" onTheme="{{ set_app_theme }}" onNotifications="{{ go_notifications }}"></dc-import>
+                <a class="raznos-list-row raznos-card" style="text-decoration:none;color:inherit" href="https://t.me/raznos_app_bot" target="_blank" rel="noopener"><span class="raznos-list-main"><span class="raznos-list-title">Поддержка в Telegram</span><span class="raznos-text-small">Вопросы и проблемы в бот t.me/raznos_app_bot</span></span><span class="raznos-row-chevron">›</span></a>
                 <dc-import name="RaznosCitySelect" value="{{ city }}" onChange="{{ set_city }}" label="Город"></dc-import>
                 <dc-import name="RaznosLanguagePicker" value="{{ language }}" onChange="{{ change_language }}"></dc-import>
                 <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ pf_switch_to_courier }}">Перейти в режим курьера</button>
@@ -1449,27 +1449,6 @@
             </div>
           </sc-if>
 
-          <sc-if value="{{ is_support }}">
-            <div class="raznos-phone-body" data-screen-label="46 Support">
-              <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ go_profile }}">‹</button><span></span></div>
-              <h1 class="raznos-text-h1">Поддержка в Telegram</h1>
-              <sc-if value="{{ support_unavailable }}" hint-placeholder-val="{{ true }}">
-                <div class="raznos-notice raznos-notice-warn">
-                  <span class="raznos-notice-title">Поддержка временно недоступна</span>
-                  <span class="raznos-text-small">Чат пока не открывается. Адрес не подставляем наугад, чтобы вы не написали не туда</span>
-                </div>
-                <sc-if value="{{ support_retrying }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Запрашиваем настройки…</p></sc-if>
-                <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ support_retry }}" disabled="{{ support_retrying }}">Проверить ещё раз</button>
-                <p class="raznos-text-tiny">Пока адрес не пришёл, вопрос можно оставить в обсуждениях сервиса, там отвечают другие курьеры</p>
-                <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ go_market }}">Перейти в Рынок</button>
-              </sc-if>
-              <sc-if value="{{ support_ready }}" hint-placeholder-val="{{ false }}">
-                <div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Чат поддержки готов</span><span class="raznos-text-small">{{ support_address }}</span></div>
-                <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ support_open }}">Открыть чат</button>
-                <sc-if value="{{ support_opened }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">В прототипе переход в Telegram не выполняется</p></sc-if>
-              </sc-if>
-            </div>
-          </sc-if>
 
           <sc-if value="{{ is_expenses }}">
             <div class="raznos-phone-body" data-screen-label="35 Expenses">
@@ -2139,7 +2118,6 @@
         'theme-dark-service': { s: 'service', appTheme: 'dark' },
         'theme-light-profile': { s: 'profile', appTheme: 'light' },
         'notifications-some-off': { s: 'notifications', notifOff: ['news', 'answers'] },
-        'support-ready': { s: 'support', supportAddress: '@raznos_support_demo, адрес пришёл из настроек сервера' },
         'conn-exited': { s: 'integration-connect', connKey: 'vkusvill', integrationStatus: { vkusvill: 'exited', samokat: 'connected' }, connExitedAt: { vkusvill: '15 сентября, 15:40' } },
         'conn-exited-other-id': { s: 'integration-connect', connKey: 'vkusvill', integrationStatus: { vkusvill: 'exited', samokat: 'connected' }, connExitedAt: { vkusvill: '15 сентября, 15:40' }, connReloginDemo: 'other' },
         'conn-exited-no-id': { s: 'integration-connect', connKey: 'vkusvill', integrationStatus: { vkusvill: 'exited', samokat: 'connected' }, connExitedAt: { vkusvill: '15 сентября, 15:40' }, connReloginDemo: 'noid' },
@@ -3271,7 +3249,6 @@
           const appTheme = st.appTheme || 'system';
           const notifOff = st.notifOff || [];
           const notifOnCount = NOTIF_CATS.length - NOTIF_CATS.filter((c) => notifOff.indexOf(c.key) !== -1).length;
-          const supportAddress = st.supportAddress || '';
 
           const favCouriers = st.favCouriers || [];
           const crShort = !!st.crShort;
@@ -3337,7 +3314,7 @@
             'favorites', 'couriers', 'public-profile', 'tips', 'tips-sent', 'contest',
             'expenses', 'expense-form', 'recurring', 'recurring-form', 'my-activity', 'imported-reviews', 'live-feed', 'live-thread', 'live-compose', 'live-place-pick', 'live-photo', 'live-place', 'live-report', 'live-mine',
             'wallet', 'wallet-income', 'wallet-withdraw', 'wallet-withdraw-history', 'slots', 'smart', 'work-schedule', 'job-guide',
-            'notifications', 'support', 'worker-data', 'common-states', 'work-tasks'
+            'notifications', 'worker-data', 'common-states', 'work-tasks'
           ];
           const vals = {};
           screens.forEach((name) => { vals['is_' + name.replace(/-/g, '_')] = s === name; });
@@ -4845,7 +4822,6 @@
             frame_class: 'raznos-phone-frame' + ((appTheme === 'dark' || (appTheme === 'system' && SYSTEM_IS_DARK)) ? ' raznos-theme-dark' : ''),
             set_app_theme: (v) => set({ appTheme: v }),
             go_notifications: () => set({ s: 'notifications' }),
-            go_support: () => set({ s: 'support' }),
             notif_summary: notifOnCount + ' из ' + NOTIF_CATS.length + ' категорий включено',
             notif_rows: NOTIF_CATS.map((c) => {
               const on = notifOff.indexOf(c.key) === -1;
@@ -4858,18 +4834,6 @@
             }),
             notif_system_note: 'Показывать уведомления разрешает телефон. Если запрет стоит в системе, ни одна категория не придёт, а поиск заказов без работы в фоне идёт только при открытом приложении',
             notif_open_system: () => set({ notifSystemHint: true }),
-            support_summary: supportAddress ? 'Чат готов' : 'Временно недоступна',
-            support_unavailable: !supportAddress,
-            support_ready: !!supportAddress,
-            support_address: supportAddress || '',
-            support_retrying: !!st.supportRetrying,
-            support_retry: () => {
-              set({ supportRetrying: true });
-              // демонстрация: второй запрос конфига возвращает адрес
-              setTimeout(() => this.setState({ supportRetrying: false, supportAddress: '@raznos_support_demo, адрес пришёл из настроек сервера' }), 900);
-            },
-            support_open: () => set({ supportOpened: true }),
-            support_opened: !!st.supportOpened,
             go_my_activity: () => set({ s: 'my-activity' }),
             go_imported_reviews: () => set({ s: 'imported-reviews' }),
 

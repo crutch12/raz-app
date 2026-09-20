@@ -12,18 +12,15 @@
     <span class="raznos-text-tiny">{{ themeNote }}</span>
   </div>
   <div class="raznos-card">
-    <button type="button" class="raznos-list-row" onClick="{{ onNotifications }}"><div class="raznos-list-main"><span class="raznos-list-title">Уведомления</span><span class="raznos-text-small">{{ notificationsSummary }}</span></div><span class="raznos-row-chevron">›</span></button>
-    <button type="button" class="raznos-list-row" onClick="{{ onSupport }}"><div class="raznos-list-main"><span class="raznos-list-title">Поддержка в Telegram</span><span class="raznos-text-small">{{ supportSummary }}</span></div><span class="raznos-row-chevron">›</span></button>
+    <button type="button" class="raznos-list-row" onClick="{{ onNotifications }}" style="border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">Уведомления</span><span class="raznos-text-small">{{ notificationsSummary }}</span></div><span class="raznos-row-chevron">›</span></button>
   </div>
 </div>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{
   "theme": { "editor": "enum", "default": "system", "options": ["light", "dark", "system"] },
   "systemIsDark": { "editor": "boolean", "default": true },
   "notificationsSummary": { "editor": "text", "default": "Включено 3 из 5 категорий" },
-  "supportSummary": { "editor": "text", "default": "Временно недоступна" },
   "onTheme": { "editor": null },
   "onNotifications": { "editor": null },
-  "onSupport": { "editor": null },
   "$preview": { "width": 350, "height": 260 }
 }'>
 class Component extends DCLogic {
@@ -42,9 +39,7 @@ class Component extends DCLogic {
       setLight: () => onTheme('light'), setDark: () => onTheme('dark'), setSystem: () => onTheme('system'),
       themeNote: note,
       notificationsSummary: p.notificationsSummary || '',
-      supportSummary: p.supportSummary || '',
-      onNotifications: p.onNotifications || (() => {}),
-      onSupport: p.onSupport || (() => {})
+      onNotifications: p.onNotifications || (() => {})
     };
   }
 }
