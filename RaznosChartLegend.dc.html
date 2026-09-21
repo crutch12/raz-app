@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rcl-legend { display: flex; flex-wrap: wrap; gap: 12px; }
+    .rcl-legend > span { display: inline-flex; align-items: center; font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); }
+    .rcl-sw { width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; display: inline-block; }
+  </style>
+</helmet>
+<div class="rcl-legend"><sc-for list="{{ items }}" as="l" hint-placeholder-count="3"><span><span class="rcl-sw" style="{{ l.sw }}"></span>{{ l.title }}</span></sc-for></div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":40}}'>
+const RCL_DEMO = [
+  { title: 'Самокат', color: 'var(--raznos-svc-samokat)' },
+  { title: 'ВкусВилл', color: 'var(--raznos-svc-vkusvill)' },
+  { title: 'Яндекс Еда', color: 'var(--raznos-svc-yandex-eda)' }
+];
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const src = (p.items && p.items.length) ? p.items : RCL_DEMO;
+    const items = src.map((i) => ({ title: i.title, sw: 'background:' + (i.color || i.sw) }));
+    return { items };
+  }
+}
+</script></body></html>

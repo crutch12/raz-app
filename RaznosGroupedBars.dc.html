@@ -1,0 +1,47 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rgb-bars { display: flex; align-items: flex-end; gap: 6px; height: 156px; margin-top: 2px; overflow-x: auto; padding-bottom: 6px; }
+    .rgb-bar { flex: 1 0 auto; min-width: 26px; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: 0; padding: 0; cursor: pointer; }
+    .rgb-bar.rgb-dim { opacity: 0.38; }
+    .rgb-bar.rgb-sel { background: var(--raznos-green-tint); border-radius: 8px; }
+    .rgb-group { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; gap: 2px; }
+    .rgb-fill { flex: 1; min-height: 3px; max-width: 16px; border-radius: 4px 4px 0 0; }
+    .rgb-lab { height: 12px; font: 600 10px var(--raznos-mono); color: var(--raznos-ink-3); }
+  </style>
+</helmet>
+<div class="rgb-bars">
+  <sc-for list="{{ groups }}" as="g" hint-placeholder-count="9"><button type="button" class="{{ g.cls }}" onClick="{{ g.tap }}" onMouseEnter="{{ g.hover }}" aria-label="{{ g.aria }}"><span class="rgb-group"><sc-for list="{{ g.bars }}" as="b" hint-placeholder-count="3"><span class="rgb-fill" style="{{ b.style }}"></span></sc-for></span><span class="rgb-lab">{{ g.label }}</span></button></sc-for>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":180}}'>
+const RGB_SVC = ['samokat', 'vkusvill', 'yandex-eda'];
+const RGB_DEMAND = [0.32, 0.46, 0.62, 0.92, 0.86, 0.62, 0.78, 1.0, 0.82];
+const RGB_DEMO = RGB_DEMAND.map((d, i) => {
+  const h = 9 + i;
+  return {
+    sel: i === 7,
+    dim: false,
+    label: String(h),
+    aria: h + ':00',
+    bars: RGB_SVC.map((k, si) => ({
+      style: 'height:' + Math.max(3, Math.round(d * 100 * (si === 0 ? 1 : 0.9 - si * 0.08))) + '%;background:var(--raznos-svc-' + k + ')'
+    }))
+  };
+});
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const src = (p.groups && p.groups.length) ? p.groups : RGB_DEMO;
+    const groups = src.map((g) => ({
+      cls: 'rgb-bar' + (g.dim ? ' rgb-dim' : '') + (g.sel ? ' rgb-sel' : ''),
+      bars: g.bars || [],
+      label: g.label != null ? g.label : '',
+      aria: g.aria || '',
+      tap: typeof g.tap === 'function' ? g.tap : (() => {}),
+      hover: typeof g.hover === 'function' ? g.hover : (() => {})
+    }));
+    return { groups };
+  }
+}
+</script></body></html>

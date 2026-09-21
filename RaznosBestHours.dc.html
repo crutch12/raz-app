@@ -1,0 +1,67 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <link rel="stylesheet" href="./raznos-work.css" />
+</helmet>
+<div class="raznos-card raznos-card-pad">
+  <span class="raznos-text-h3">Лучшие часы</span>
+  <div class="raznos-heat-peak"><span class="raznos-heat-peak-fire">🔥</span><span class="raznos-heat-peak-text">Пик недели {{ peak_label }}</span><span class="raznos-num">{{ peak_pay }}</span></div>
+  <div class="raznos-heatmap-daynames">
+    <span></span>
+    <sc-for list="{{ days }}" as="d" hint-placeholder-count="7"><span class="raznos-heatmap-daylabel">{{ d }}</span></sc-for>
+  </div>
+  <sc-for list="{{ rows }}" as="slotrow" hint-placeholder-count="4">
+    <div class="raznos-heatmap-row">
+      <span class="raznos-heatmap-rowlabel">{{ slotrow.label }}</span>
+      <div class="raznos-heatmap-cells">
+        <sc-for list="{{ slotrow.cells }}" as="cell" hint-placeholder-count="7"><span class="{{ cell.cls }}" onClick="{{ cell.tap }}" title="{{ cell.hint }}"></span></sc-for>
+      </div>
+    </div>
+  </sc-for>
+  <div class="raznos-heat-detail">
+    <span class="raznos-heat-detail-title">{{ sel_title }}</span>
+    <span class="raznos-text-small">{{ sel_note }}</span>
+  </div>
+  <div class="raznos-heat-legend raznos-text-tiny">
+    <span><span class="raznos-heat-legend-dot raznos-heat-1"></span>низкий</span>
+    <span><span class="raznos-heat-legend-dot raznos-heat-2"></span>средний</span>
+    <span><span class="raznos-heat-legend-dot raznos-heat-3"></span>высокий</span>
+  </div>
+  <p class="raznos-text-tiny">Тепловая карта доходности по дням недели и времени суток, тап по ячейке показывает детали. Демо-данные</p>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":420}}'>
+const BH_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+const BH_SLOTS = [
+  { label: 'Утро', lv: [1, 1, 2, 2, 2, 3, 2] },
+  { label: 'День', lv: [2, 2, 2, 3, 3, 3, 3] },
+  { label: 'Вечер', lv: [2, 3, 3, 3, 3, 3, 2] },
+  { label: 'Ночь', lv: [1, 1, 1, 1, 2, 2, 1] }
+];
+const BH_PAY = ['0', '450 ₽/ч', '700 ₽/ч', '1200 ₽/ч'];
+const BH_LVLNOTE = ['нет данных', 'низкий спрос', 'средний спрос', 'высокий спрос'];
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {};
+    const set = (patch) => this.setState(patch);
+    const sel = st.sel || { r: 2, c: 5 };
+    const rows = BH_SLOTS.map((slot, r) => ({
+      label: slot.label,
+      cells: slot.lv.map((lvl, c) => ({
+        cls: 'raznos-heat-cell raznos-heat-' + lvl + (r === sel.r && c === sel.c ? ' raznos-is-sel' : ''),
+        hint: BH_DAYS[c] + ', ' + slot.label + ', ' + BH_LVLNOTE[lvl],
+        tap: () => set({ sel: { r, c } })
+      }))
+    }));
+    const selLvl = BH_SLOTS[sel.r].lv[sel.c];
+    return {
+      days: BH_DAYS,
+      rows,
+      peak_label: 'Сб вечер',
+      peak_pay: '1200 ₽/ч',
+      sel_title: BH_DAYS[sel.c] + ', ' + BH_SLOTS[sel.r].label,
+      sel_note: BH_LVLNOTE[selLvl] + ', примерно ' + BH_PAY[selLvl],
+      heatmap_tip: ''
+    };
+  }
+}
+</script></body></html>
