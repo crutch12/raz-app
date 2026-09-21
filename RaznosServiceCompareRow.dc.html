@@ -1,0 +1,44 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .scr-row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 12px; border-radius: 12px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); width: 100%; text-align: left; cursor: pointer; }
+    .scr-row.scr-best { border-color: var(--raznos-green); background: var(--raznos-green-tint); }
+    .scr-row.scr-locked { opacity: 0.55; cursor: default; }
+    .scr-mid { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .scr-name { font: 600 15px var(--raznos-font); color: var(--raznos-ink); }
+    .scr-bar { height: 6px; border-radius: 999px; background: var(--raznos-line); overflow: hidden; }
+    .scr-bar-fill { display: block; height: 100%; border-radius: 999px; }
+    .scr-end { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+    .scr-pay { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .scr-dem { font: 600 11px var(--raznos-font); padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+    .scr-dem-high { background: var(--raznos-green-tint); color: var(--raznos-green-deep); }
+    .scr-dem-mid { background: var(--raznos-surface); color: var(--raznos-ink-2); border: 1px solid var(--raznos-line); }
+    .scr-dem-low { background: var(--raznos-surface); color: var(--raznos-ink-3); border: 1px solid var(--raznos-line); }
+  </style>
+</helmet>
+<button type="button" class="{{ cls }}" onClick="{{ onTap }}">
+  <dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ title }}" size="sm"></dc-import>
+  <span class="scr-mid"><span class="scr-name">{{ title }}</span><span class="scr-bar"><span class="scr-bar-fill" style="{{ barStyle }}"></span></span></span>
+  <span class="scr-end"><span class="scr-pay">{{ pay }}</span><span class="{{ demCls }}">{{ demLabel }}</span></span>
+</button>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":80}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const svc = p.svc || 'samokat';
+    const pct = p.barPct == null ? 100 : p.barPct;
+    const tone = p.demTone || 'mid';
+    return {
+      svc,
+      title: p.title || '',
+      pay: p.pay || '',
+      barStyle: 'width:' + pct + '%;background:var(--raznos-svc-' + svc + ')',
+      demCls: 'scr-dem scr-dem-' + tone,
+      demLabel: p.demLabel || '',
+      cls: 'scr-row' + (p.selected ? ' scr-best' : '') + (p.locked ? ' scr-locked' : ''),
+      onTap: typeof p.onTap === 'function' ? p.onTap : (() => {})
+    };
+  }
+}
+</script></body></html>

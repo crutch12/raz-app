@@ -30,13 +30,6 @@
     .rss-tag { font: 600 10px var(--raznos-font); text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 7px; border-radius: 6px; }
     .rss-tag-off { color: var(--raznos-ink-3); background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
     .rss-tag-edit { color: var(--raznos-green-deep); background: var(--raznos-green-tint); }
-    .rss-cmp { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 12px; border-radius: 12px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); width: 100%; text-align: left; cursor: pointer; }
-    .rss-cmp.rss-best { border-color: var(--raznos-green); background: var(--raznos-green-tint); }
-    .rss-cmp-name { font: 600 15px var(--raznos-font); color: var(--raznos-ink); }
-    .rss-cmp-mid { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-    .rss-cmp-bar { height: 6px; border-radius: 999px; background: var(--raznos-line); overflow: hidden; }
-    .rss-cmp-bar-fill { display: block; height: 100%; border-radius: 999px; }
-    .rss-cmp-end { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
     .rss-zones { display: flex; flex-wrap: wrap; gap: 8px; }
     .rss-zone { display: inline-flex; align-items: baseline; gap: 6px; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); font: 600 13px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; }
     .rss-zone .rss-zone-pay { font: 600 12px var(--raznos-mono); color: var(--raznos-ink-3); }
@@ -65,6 +58,9 @@
   </div>
 
   <sc-if value="{{ few_data }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Данных пока мало, прогноз слабый. Считаем по правилам и вашей истории, будет точнее по мере накопления</span></div></sc-if>
+
+  <span class="raznos-text-h3">Доход по часам</span>
+  <dc-import name="RaznosBarChart" bars="{{ base_bars }}" note="Прогноз дохода в час по плану дня, цвет по рекомендованному сервису"></dc-import>
 
   <dc-import name="RaznosHourCompareChart" services="{{ cc_services }}" zones="{{ cc_zones }}" pay="{{ cc_pay }}" hours="{{ cc_hours }}" ownHours="{{ cc_own }}" onOpenHour="{{ cc_open_hour }}"></dc-import>
 
@@ -123,14 +119,7 @@
   <p class="raznos-text-tiny">Сколько платят в этот час по прогнозу, лучший отмечен</p>
   <div class="raznos-fx raznos-col raznos-gap8">
     <sc-for list="{{ cmp }}" as="c" hint-placeholder-count="3">
-      <button type="button" class="{{ c.cls }}" onClick="{{ c.tap }}">
-        <dc-import name="RaznosIcon" svc="{{ c.svc }}" alt="{{ c.title }}" size="sm"></dc-import>
-        <span class="rss-cmp-mid">
-          <span class="rss-cmp-name">{{ c.title }}</span>
-          <span class="rss-cmp-bar"><span class="rss-cmp-bar-fill" style="{{ c.barStyle }}"></span></span>
-        </span>
-        <span class="rss-cmp-end"><span class="rss-pay">{{ c.pay }}</span><span class="{{ c.demCls }}">{{ c.demLabel }}</span></span>
-      </button>
+      <dc-import name="RaznosServiceCompareRow" svc="{{ c.svc }}" title="{{ c.title }}" pay="{{ c.pay }}" barPct="{{ c.barPct }}" demTone="{{ c.demTone }}" demLabel="{{ c.demLabel }}" selected="{{ c.selected }}" locked="{{ c.locked }}" onTap="{{ c.tap }}"></dc-import>
     </sc-for>
   </div>
 
@@ -244,6 +233,8 @@ class Component extends DCLogic {
 
     // данные для компонента диаграммы сравнения
     const ownHrs = order.filter((h) => inGrafik(h));
+    const baseHrs = ownHrs.length ? ownHrs : order;
+    const base_bars = baseHrs.map((h) => { const pl = hourPlan(h); return { value: pl.pay, label: h, color: 'var(--raznos-svc-' + pl.svc + ')' }; });
     const cc_pay = (h, svcKey, zoneName) => rssPay(h, svcKey, rssZoneF(zoneName));
     const cc_open_hour = (h) => set({ view: 'hour', selHour: h });
 
@@ -255,14 +246,15 @@ class Component extends DCLogic {
     const cmpZoneF = rssZoneF(cur.zone);
     const cmpPays = RSS_SERVICES.map((s) => rssPay(selHour, s.key, cmpZoneF));
     const cmpMax = Math.max.apply(null, cmpPays) || 1;
+    const demTone = demH[1].indexOf('high') >= 0 ? 'high' : (demH[1].indexOf('mid') >= 0 ? 'mid' : 'low');
     const cmp = RSS_SERVICES.map((s, i) => {
       const pay = cmpPays[i];
       const best = s.key === rssSmartSvc(selHour);
       return {
         svc: s.key, title: s.title + (best ? ' · рекомендуем' : ''),
-        pay: pay + ' ₽/ч', demCls: demH[1], demLabel: demH[0],
-        barStyle: 'width:' + Math.round(pay / cmpMax * 100) + '%;background:' + RSS_SVC_COLOR[s.key],
-        cls: 'rss-cmp' + (s.key === cur.svc ? ' rss-best' : '') + (hourPast ? ' rss-locked' : ''),
+        pay: pay + ' ₽/ч', demTone, demLabel: demH[0],
+        barPct: Math.round(pay / cmpMax * 100),
+        selected: s.key === cur.svc, locked: hourPast,
         tap: hourPast ? (() => {}) : (() => set({ edits: Object.assign({}, edits, { [editKey(selHour)]: { svc: s.key, zone: cur.zone } }) }))
       };
     });
@@ -290,6 +282,7 @@ class Component extends DCLogic {
       cc_pay,
       cc_hours: order,
       cc_own: ownHrs,
+      base_bars,
       cc_open_hour,
       recalc_available: !rssIsPastDay(selDay),
       day_past: rssIsPastDay(selDay),

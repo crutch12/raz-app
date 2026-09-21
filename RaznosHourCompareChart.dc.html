@@ -5,7 +5,7 @@
   <style>
     .rsc-card { display: flex; flex-direction: column; gap: 10px; }
     .rsc-toggle-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
-    .rsc-caret { font-size: 18px; line-height: 1; color: var(--raznos-ink-3); transition: transform 0.15s ease; }
+    .rsc-caret { display: inline-flex; align-items: center; color: var(--raznos-ink-3); transition: transform 0.15s ease; }
     .rsc-caret-open { transform: rotate(180deg); }
     .rsc-body { display: flex; flex-direction: column; gap: 10px; }
     .rsc-chips { display: flex; gap: 8px; }
@@ -38,7 +38,7 @@
   </style>
 </helmet>
 <div class="raznos-card raznos-card-pad rsc-card" data-screen-label="Hour compare chart">
-  <button type="button" class="rsc-toggle-head" onClick="{{ toggle_chart }}"><span class="raznos-text-h3">Сравнить по часам</span><span class="{{ chart_caret_cls }}">⌄</span></button>
+  <button type="button" class="rsc-toggle-head" onClick="{{ toggle_chart }}"><span class="raznos-text-h3">Сравнить по часам</span><span class="{{ chart_caret_cls }}"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></button>
   <sc-if value="{{ chart_closed }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-tiny">Доход по сервисам и районам за выбранный день</span></sc-if>
   <sc-if value="{{ chart_open }}" hint-placeholder-val="{{ false }}">
   <div class="rsc-body">

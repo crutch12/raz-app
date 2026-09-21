@@ -1,0 +1,48 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rbc-wrap { display: flex; flex-direction: column; gap: 8px; }
+    .rbc-bars { display: flex; align-items: flex-end; gap: 6px; height: 150px; overflow-x: auto; padding-bottom: 6px; }
+    .rbc-col { flex: 1 0 auto; min-width: 22px; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .rbc-val { height: 12px; font: 600 10px var(--raznos-mono); color: var(--raznos-ink-2); white-space: nowrap; }
+    .rbc-col.rbc-peak .rbc-val { color: var(--raznos-ink); font-weight: 700; }
+    .rbc-fill-wrap { flex: 1; width: 100%; display: flex; align-items: flex-end; }
+    .rbc-fill { width: 100%; min-height: 3px; border-radius: 6px 6px 0 0; }
+    .rbc-lab { height: 12px; font: 600 10px var(--raznos-mono); color: var(--raznos-ink-3); }
+  </style>
+</helmet>
+<div class="rbc-wrap">
+  <div class="rbc-bars">
+    <sc-for list="{{ bars }}" as="b" hint-placeholder-count="7"><span class="{{ b.cls }}"><span class="rbc-val">{{ b.val }}</span><span class="rbc-fill-wrap"><span class="rbc-fill" style="{{ b.style }}"></span></span><span class="rbc-lab">{{ b.label }}</span></span></sc-for>
+  </div>
+  <sc-if value="{{ hasNote }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">{{ note }}</p></sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":190}}'>
+const RBC_DEMO = [
+  { value: 560, label: '10' }, { value: 900, label: '12' }, { value: 680, label: '14' },
+  { value: 900, label: '16' }, { value: 1300, label: '18' }, { value: 1200, label: '20' }, { value: 820, label: '22' }
+];
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const rows = (p.bars && p.bars.length) ? p.bars : RBC_DEMO;
+    const max = Math.max.apply(null, rows.map((r) => r.value || 0)) || 1;
+    const showVals = rows.length <= 12;
+    const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    return {
+      bars: rows.map((r) => {
+        const peak = r.value >= max;
+        return {
+          cls: 'rbc-col' + (peak ? ' rbc-peak' : ''),
+          val: (showVals || peak) ? fmt(r.value) : '',
+          label: r.label != null ? String(r.label) : '',
+          style: 'height:' + Math.max(3, Math.round((r.value || 0) / max * 100)) + '%;background:' + (r.color || 'var(--raznos-green)')
+        };
+      }),
+      hasNote: !!p.note,
+      note: p.note || ''
+    };
+  }
+}
+</script></body></html>
