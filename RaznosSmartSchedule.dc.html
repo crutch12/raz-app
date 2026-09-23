@@ -136,11 +136,13 @@
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"$preview":{"width":390,"height":820}}'>
 const RSS_TODAY = 7; // сегодня в середине двух недель, -7 и +7 дней
 const RSS_WD = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-// 15 дней: неделя назад, сегодня (Пт, 12), неделя вперёд
+const RSS_MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+const RSS_NOW_DATE = new Date();
+// 15 дней вокруг сегодня, реальные даты
 const RSS_WEEK = Array.from({ length: 15 }, (_, i) => {
-  const off = i - RSS_TODAY;
-  const wd = ((4 + off) % 7 + 7) % 7; // сегодня приходится на Пт
-  return { d: RSS_WD[wd], n: 12 + off, work: wd < 5 };
+  const dt = new Date(RSS_NOW_DATE.getFullYear(), RSS_NOW_DATE.getMonth(), RSS_NOW_DATE.getDate() + (i - RSS_TODAY));
+  const wd = (dt.getDay() + 6) % 7; // 0 = понедельник
+  return { d: RSS_WD[wd], n: dt.getDate(), m: dt.getMonth(), work: wd < 5 };
 });
 const RSS_WORK_START = 9, RSS_WORK_END = 18; // график по умолчанию пн-пт 9-18
 const RSS_SERVICES = [
@@ -154,7 +156,7 @@ const RSS_ZONES = [
 ];
 // прогнозная кривая спроса по часам 0..23, демо
 const RSS_DEMAND = [0.12,0.09,0.07,0.06,0.06,0.1,0.18,0.32,0.46,0.56,0.62,0.72,0.92,0.86,0.62,0.52,0.58,0.78,1.0,0.96,0.82,0.62,0.4,0.22];
-const RSS_NOW = 14;  // текущий час в демо
+const RSS_NOW = RSS_NOW_DATE.getHours();  // текущий час
 const rssIsPastDay = (i) => i < RSS_TODAY;
 const rssIsPastHour = (day, h) => day < RSS_TODAY || (day === RSS_TODAY && h < RSS_NOW);
 const rssFmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
@@ -215,7 +217,7 @@ class Component extends DCLogic {
 
     const isToday = selDay === RSS_TODAY;
     const hhmm = (x) => (x < 10 ? '0' + x : x) + ':00';
-    const nowLabel = (RSS_NOW < 10 ? '0' + RSS_NOW : RSS_NOW) + ':20';
+    const nowLabel = (RSS_NOW < 10 ? '0' + RSS_NOW : RSS_NOW) + ':' + String(RSS_NOW_DATE.getMinutes()).padStart(2, '0');
     const hours = order.map((h) => {
       const plan = hourPlan(h);
       const dem = rssDem(h);
@@ -278,7 +280,7 @@ class Component extends DCLogic {
       onBack: p.onBack || (() => {}),
       is_list: view === 'list', is_hour: view === 'hour',
       days,
-      day_title: dayInfo.d + ', ' + dayInfo.n + ' сентября',
+      day_title: dayInfo.d + ', ' + dayInfo.n + ' ' + RSS_MONTHS[dayInfo.m],
       total: dayWorks ? ('≈ ' + rssFmt(total) + ' ₽') : '—',
       total_note: dayWorks ? 'потенциал за день по графику' : 'нерабочий день по графику, часы вне плана',
       few_data: false,

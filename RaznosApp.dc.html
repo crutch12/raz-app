@@ -2929,8 +2929,8 @@
             role: fresh ? 'courier' : (p.initialRole || 'courier'),
             demoOn, demoReturnState: null, language: prevLanguage || 'ru',
             city: 'moscow', transport: 'bike', channel: 'telegram', phoneInput: '916 555-01-23',
-            firstName: '', lastName: '', peFirst: '', peLast: '',
-            agree: false, codeError: false, codeInput: '', resendCount: 0, resendSecondsLeft: 60,
+            firstName: 'Алексей', lastName: 'Соколов', peFirst: '', peLast: '',
+            agree: true, codeError: false, codeInput: '123456', resendCount: 0, resendSecondsLeft: 60,
             period: 'today',
             workVv: true, workSamokat: true, workX5: false, workAgree: false, workPreset: 'unverified', workOn: false,
             soundOn: true, vibrateOn: true, workPaused: !!p.initialWorkPaused,
@@ -3977,7 +3977,7 @@
             phone_input_change: (e) => set({ phoneInput: e && e.target ? e.target.value : (st.phoneInput || '') }),
             submit_login: () => {
               if (!agree) return;
-              set({ s: 'code', codeError: false, codeInput: '', resendSecondsLeft: 60, channelSwitched: false });
+              set({ s: 'code', codeError: false, codeInput: '123456', resendSecondsLeft: 60, channelSwitched: false });
             },
 
             channel_title: channel === 'telegram' ? 'Telegram' : 'SMS',
