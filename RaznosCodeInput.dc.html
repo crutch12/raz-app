@@ -1,0 +1,40 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+</helmet>
+<div class="raznos-code-input">
+  <input class="{{ input_cls }}" inputmode="numeric" maxlength="{{ len }}" placeholder="{{ placeholder }}" value="{{ value }}" onChange="{{ on_change }}" />
+  <div class="raznos-otp-cells">
+    <sc-for list="{{ cells }}" as="c" hint-placeholder-count="6"><span class="{{ c.cls }}">{{ c.ch }}</span></sc-for>
+  </div>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "value": { "editor": "text", "default": "1234" },
+  "length": { "editor": "int", "default": 6 },
+  "error": { "editor": "boolean", "default": false },
+  "placeholder": { "editor": "text", "default": "123456" },
+  "onChange": { "editor": null },
+  "$preview": { "width": 320, "height": 120 }
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const len = Number(p.length) || 6;
+    const value = p.value != null ? String(p.value).replace(/\D/g, '').slice(0, len) : '';
+    const error = !!p.error;
+    const onChange = typeof p.onChange === 'function' ? p.onChange : (() => {});
+    const cells = [];
+    for (let i = 0; i < len; i++) {
+      cells.push({ ch: value[i] || '·', cls: 'raznos-otp-cell' + (error ? ' raznos-is-error' : '') });
+    }
+    return {
+      len,
+      value,
+      placeholder: p.placeholder != null ? String(p.placeholder) : '123456',
+      input_cls: 'raznos-input' + (error ? ' raznos-is-error' : ''),
+      cells,
+      on_change: (e) => { const v = (e && e.target ? e.target.value : '').replace(/\D/g, '').slice(0, len); onChange(v); }
+    };
+  }
+}
+</script></body></html>

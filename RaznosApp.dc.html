@@ -69,11 +69,7 @@
               <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ go_auth }}">‹</button><span></span></div>
               <h1 class="raznos-text-h1">Введите код</h1>
               <p class="raznos-text-small">Демо-канал {{ channel_title }} на +7 916 ***-01-23 · в прототипе введите 123456</p>
-              <input class="raznos-input" inputmode="numeric" maxlength="6" placeholder="123456" value="{{ code_input_value }}" onChange="{{ code_input_change }}" />
-              <div class="{{ otp_row_class }}">
-                <span class="{{ otp_cell_class }}">{{ code_c1 }}</span><span class="{{ otp_cell_class }}">{{ code_c2 }}</span><span class="{{ otp_cell_class }}">{{ code_c3 }}</span>
-                <span class="{{ otp_cell_class }}">{{ code_c4 }}</span><span class="{{ otp_cell_class }}">{{ code_c5 }}</span><span class="{{ otp_cell_class }}">{{ code_c6 }}</span>
-              </div>
+              <dc-import name="RaznosCodeInput" value="{{ code_input_value }}" error="{{ code_has_error }}" onChange="{{ code_input_set }}"></dc-import>
               <sc-if value="{{ code_has_error }}" hint-placeholder-val="{{ true }}"><p class="raznos-text-small" style="color:var(--raznos-red)">Неверный код, введите 123456</p></sc-if>
               <div class="raznos-field"><span class="raznos-field-label">Канал доставки</span>
                 <div class="raznos-segmented">
@@ -618,7 +614,7 @@
 
               <sc-if value="{{ conn_form_code_entry }}"><div class="raznos-fx raznos-col raznos-gap12">
                 <p class="raznos-text-small">В прототипе введите 123456, сообщения никуда не отправляются</p>
-                <input class="raznos-input" inputmode="numeric" maxlength="6" placeholder="123456" value="{{ conn_code_value }}" onChange="{{ conn_code_change }}" />
+                <dc-import name="RaznosCodeInput" value="{{ conn_code_value }}" error="{{ conn_code_error }}" onChange="{{ conn_code_set }}"></dc-import>
                 <sc-if value="{{ conn_code_error }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small" style="color:var(--raznos-red)">Неверный код, введите 123456</p></sc-if>
                 <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ conn_resend_code }}">Отправить снова</button>
                 <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ conn_confirm_code }}">Войти</button>
@@ -3986,11 +3982,7 @@
 
             channel_title: channel === 'telegram' ? 'Telegram' : 'SMS',
             code_input_value: codeInput,
-            code_input_change: (e) => { const v = (e && e.target ? e.target.value : '').replace(/\D/g, '').slice(0, 6); set({ codeInput: v, codeError: false }); },
-            otp_row_class: 'raznos-otp-cells',
-            otp_cell_class: codeError ? 'raznos-otp-cell raznos-is-error' : 'raznos-otp-cell',
-            code_c1: codeInput[0] || '·', code_c2: codeInput[1] || '·', code_c3: codeInput[2] || '·',
-            code_c4: codeInput[3] || '·', code_c5: codeInput[4] || '·', code_c6: codeInput[5] || '·',
+            code_input_set: (v) => { set({ codeInput: v, codeError: false }); },
             code_has_error: codeError,
             code_channel_switched: !!st.channelSwitched,
             resend_disabled: resendSecondsLeft > 0,
@@ -4516,7 +4508,7 @@
             conn_form_external: !connIsConnected && effectiveMethod === 'external' && !isDeliveryConn,
             conn_request_code: () => { if (connAgree) set({ connStage: 'code-entry', connCodeInput: '', connCodeError: false }); },
             conn_code_value: connCodeInput,
-            conn_code_change: (e) => set({ connCodeInput: (e && e.target ? e.target.value : '').replace(/\D/g, '').slice(0, 6), connCodeError: false }),
+            conn_code_set: (v) => set({ connCodeInput: v, connCodeError: false }),
             conn_code_error: connCodeError,
             conn_resend_code: () => set({ connCodeInput: '', connCodeError: false }),
             conn_confirm_code: () => { if (connCodeInput === '123456') finalizeConnection(); else set({ connCodeError: true }); },

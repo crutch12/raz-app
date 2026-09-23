@@ -59,13 +59,11 @@
 
   <sc-if value="{{ few_data }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Данных пока мало, прогноз слабый. Считаем по правилам и вашей истории, будет точнее по мере накопления</span></div></sc-if>
 
-  <span class="raznos-text-h3">Доход по часам</span>
-  <dc-import name="RaznosBarChart" bars="{{ base_bars }}" note="Прогноз дохода в час по плану дня, цвет по рекомендованному сервису"></dc-import>
-
   <dc-import name="RaznosHourCompareChart" services="{{ cc_services }}" zones="{{ cc_zones }}" pay="{{ cc_pay }}" hours="{{ cc_hours }}" ownHours="{{ cc_own }}" onOpenHour="{{ cc_open_hour }}"></dc-import>
 
   <div class="rss-list">
     <sc-for list="{{ hours }}" as="h" hint-placeholder-count="6">
+      <sc-for list="{{ h.marks_before }}" as="m" hint-placeholder-count="1"><dc-import name="RaznosShiftMarker" kind="{{ m.kind }}" label="{{ m.label }}" time="{{ m.time }}"></dc-import></sc-for>
       <button type="button" class="{{ h.cls }}" onClick="{{ h.tap }}" aria-label="{{ h.aria }}">
         <span class="rss-hour-time">{{ h.time }}</span>
         <span class="rss-hour-main">
@@ -80,6 +78,7 @@
           <span class="{{ h.demCls }}">{{ h.demLabel }}</span>
         </span>
       </button>
+      <sc-for list="{{ h.marks_after }}" as="m" hint-placeholder-count="1"><dc-import name="RaznosShiftMarker" kind="{{ m.kind }}" label="{{ m.label }}" time="{{ m.time }}"></dc-import></sc-for>
     </sc-for>
   </div>
 
@@ -214,12 +213,20 @@ class Component extends DCLogic {
       tap: () => set({ selDay: i, view: 'list' })
     }));
 
+    const isToday = selDay === RSS_TODAY;
+    const hhmm = (x) => (x < 10 ? '0' + x : x) + ':00';
+    const nowLabel = (RSS_NOW < 10 ? '0' + RSS_NOW : RSS_NOW) + ':20';
     const hours = order.map((h) => {
       const plan = hourPlan(h);
       const dem = rssDem(h);
       const off = !inGrafik(h);
       const past = rssIsPastHour(selDay, h);
       const sub = plan.zone + ' · ' + rssReason(h) + (plan.edited ? ' · изменено вами' : '') + (off ? ' · вне графика' : '') + (past ? ' · прошло' : '');
+      const marksBefore = [];
+      const marksAfter = [];
+      if (dayWorks && h === RSS_WORK_START) marksBefore.push({ kind: 'shift', label: 'Начало смены', time: hhmm(RSS_WORK_START) });
+      if (isToday && h === RSS_NOW) marksBefore.push({ kind: 'now', label: 'Сейчас', time: nowLabel });
+      if (dayWorks && h === RSS_WORK_END - 1) marksAfter.push({ kind: 'shift', label: 'Конец смены', time: hhmm(RSS_WORK_END) });
       return {
         time: (h < 10 ? '0' + h : h) + ':00',
         svc: plan.svc, svcTitle: svcTitle(plan.svc), sub,
@@ -227,14 +234,13 @@ class Component extends DCLogic {
         demCls: dem[1], demLabel: dem[0],
         cls: 'rss-hour' + (off ? ' rss-off' : '') + (past ? ' rss-past' : '') + (plan.edited ? ' rss-edited-row' : ''),
         aria: (h < 10 ? '0' + h : h) + ':00, ' + svcTitle(plan.svc) + ', ' + plan.zone + ', ' + plan.pay + ' рублей в час, ' + dem[0] + (off ? ', вне графика' : '') + (past ? ', уже прошло' : ''),
+        marks_before: marksBefore, marks_after: marksAfter,
         tap: () => set({ view: 'hour', selHour: h })
       };
     });
 
     // данные для компонента диаграммы сравнения
     const ownHrs = order.filter((h) => inGrafik(h));
-    const baseHrs = ownHrs.length ? ownHrs : order;
-    const base_bars = baseHrs.map((h) => { const pl = hourPlan(h); return { value: pl.pay, label: h, color: 'var(--raznos-svc-' + pl.svc + ')' }; });
     const cc_pay = (h, svcKey, zoneName) => rssPay(h, svcKey, rssZoneF(zoneName));
     const cc_open_hour = (h) => set({ view: 'hour', selHour: h });
 
@@ -282,7 +288,6 @@ class Component extends DCLogic {
       cc_pay,
       cc_hours: order,
       cc_own: ownHrs,
-      base_bars,
       cc_open_hour,
       recalc_available: !rssIsPastDay(selDay),
       day_past: rssIsPastDay(selDay),

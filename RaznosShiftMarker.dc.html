@@ -1,0 +1,38 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rsm { display: flex; align-items: center; gap: 8px; padding: 2px 2px; }
+    .rsm-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--raznos-green); flex: none; }
+    .rsm-label { font: 600 11px var(--raznos-font); color: var(--raznos-ink-3); white-space: nowrap; letter-spacing: 0.02em; }
+    .rsm-time { font: 600 11px var(--raznos-mono); color: var(--raznos-ink-2); }
+    .rsm-line { flex: 1; height: 1px; background: var(--raznos-line); }
+    .rsm-now .rsm-label, .rsm-now .rsm-time { color: var(--raznos-green-deep); }
+    .rsm-now .rsm-line { background: var(--raznos-green); }
+  </style>
+</helmet>
+<div class="{{ cls }}">
+  <sc-if value="{{ is_now }}" hint-placeholder-val="{{ true }}"><span class="rsm-dot"></span></sc-if>
+  <span class="rsm-label">{{ label }}</span>
+  <span class="rsm-time">{{ time }}</span>
+  <span class="rsm-line"></span>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "kind": { "editor": "enum", "default": "shift", "options": ["shift", "now"] },
+  "label": { "editor": "text", "default": "Начало смены" },
+  "time": { "editor": "text", "default": "09:00" },
+  "$preview": { "width": 320, "height": 40 }
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const isNow = p.kind === 'now';
+    return {
+      cls: 'rsm' + (isNow ? ' rsm-now' : ''),
+      is_now: isNow,
+      label: p.label != null ? String(p.label) : '',
+      time: p.time != null ? String(p.time) : ''
+    };
+  }
+}
+</script></body></html>
