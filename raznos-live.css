@@ -22,7 +22,7 @@
 .raznos-live-vote:disabled { cursor: default; opacity: 0.6; }
 .raznos-live-replies { min-height: 40px; padding: 0 10px; border-radius: 10px; border: 0; background: transparent; font: 600 14px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
 .raznos-live-foot-side { margin-left: auto; display: flex; gap: 4px; }
-.raznos-live-mini { min-height: 36px; padding: 0 8px; border: 0; background: transparent; font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); cursor: pointer; }
+.raznos-live-mini { min-height: 36px; padding: 0 8px; border: 0; background: transparent; font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 .raznos-live-note { margin: 0; font: 500 13px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
 .raznos-live-state { align-self: flex-start; }
 

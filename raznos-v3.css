@@ -290,6 +290,8 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-input.raznos-is-error, .raznos-field-box.raznos-is-error { border-color: var(--raznos-red); }
 .raznos-input.raznos-is-success, .raznos-field-box.raznos-is-success { border-color: var(--raznos-green); }
 .raznos-input.raznos-is-warn, .raznos-field-box.raznos-is-warn { border-color: var(--raznos-amber); }
+.raznos-input::placeholder { color: var(--raznos-ink-3); opacity: 1; }
+.raznos-pill-action { display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--raznos-green); background: transparent; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); white-space: nowrap; }
 .raznos-file-input { display: flex; align-items: center; justify-content: center; min-height: 96px; border-radius: 14px; border: 1.5px dashed var(--raznos-line-strong); background: var(--raznos-surface-2); font: 500 14px var(--raznos-font); color: var(--raznos-ink-2); }
 .raznos-badge-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .raznos-badge { padding: 6px 12px; border-radius: 10px; background: var(--raznos-green-tint); color: var(--raznos-green-deep); font: 600 14px var(--raznos-font); }
@@ -382,7 +384,8 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-app-settings { display: flex; flex-direction: column; gap: 10px; }
 
 /* Тёмная тема: переопределяем только токены, компоненты и цвета сервисов остаются своими */
-.raznos-phone-frame.raznos-theme-dark {
+.raznos-phone-frame.raznos-theme-dark,
+.raznos-theme-dark {
   --raznos-bg: oklch(0.21 0.012 250);
   --raznos-surface: oklch(0.26 0.014 250);
   --raznos-surface-2: oklch(0.30 0.014 250);
@@ -403,34 +406,36 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
   --raznos-red: oklch(0.74 0.15 25);
   --raznos-red-tint: oklch(0.31 0.07 25);
 
-  --raznos-svc-vkusvill: oklch(0.72 0.15 150);
+  --raznos-svc-vkusvill: oklch(0.68 0.13 150);
   --raznos-svc-vkusvill-tint: oklch(0.31 0.06 150);
-  --raznos-svc-samokat: oklch(0.74 0.17 355);
+  --raznos-svc-samokat: oklch(0.70 0.14 355);
   --raznos-svc-samokat-tint: oklch(0.31 0.06 355);
-  --raznos-svc-x5: oklch(0.78 0.15 55);
+  --raznos-svc-x5: oklch(0.74 0.13 55);
   --raznos-svc-x5-tint: oklch(0.32 0.07 55);
-  --raznos-svc-yandex-eda: oklch(0.74 0.16 35);
+  --raznos-svc-yandex-eda: oklch(0.70 0.14 35);
   --raznos-svc-yandex-eda-tint: oklch(0.32 0.07 35);
-  --raznos-svc-magnit: oklch(0.70 0.16 25);
+  --raznos-svc-magnit: oklch(0.67 0.13 25);
   --raznos-svc-magnit-tint: oklch(0.31 0.06 25);
-  --raznos-svc-ozon-fresh: oklch(0.74 0.11 200);
+  --raznos-svc-ozon-fresh: oklch(0.71 0.10 200);
   --raznos-svc-ozon-fresh-tint: oklch(0.31 0.05 200);
-  --raznos-svc-lenta: oklch(0.70 0.15 255);
+  --raznos-svc-lenta: oklch(0.67 0.13 255);
   --raznos-svc-lenta-tint: oklch(0.31 0.05 255);
-  --raznos-svc-delivery: oklch(0.76 0.16 138);
+  --raznos-svc-delivery: oklch(0.72 0.13 138);
   --raznos-svc-delivery-tint: oklch(0.32 0.06 138);
-  --raznos-svc-dostavista: oklch(0.70 0.11 155);
+  --raznos-svc-dostavista: oklch(0.68 0.10 155);
   --raznos-svc-dostavista-tint: oklch(0.31 0.05 155);
-  --raznos-svc-kuper: oklch(0.74 0.14 142);
+  --raznos-svc-kuper: oklch(0.70 0.12 142);
   --raznos-svc-kuper-tint: oklch(0.31 0.06 142);
-  --raznos-svc-dostaevsky: oklch(0.68 0.13 300);
+  --raznos-svc-dostaevsky: oklch(0.66 0.12 300);
   --raznos-svc-dostaevsky-tint: oklch(0.31 0.06 300);
 
   color-scheme: dark;
   color: var(--raznos-ink);
 }
-.raznos-phone-frame.raznos-theme-dark ::selection { background: oklch(0.45 0.10 150); color: oklch(0.97 0.006 250); }
-.raznos-phone-frame.raznos-theme-dark .raznos-icon-bordered { background: oklch(0.95 0.004 250); }
+.raznos-phone-frame.raznos-theme-dark ::selection,
+.raznos-theme-dark ::selection { background: oklch(0.45 0.10 150); color: oklch(0.97 0.006 250); }
+.raznos-phone-frame.raznos-theme-dark .raznos-icon-bordered,
+.raznos-theme-dark .raznos-icon-bordered { background: oklch(0.95 0.004 250); }
 .raznos-phone-frame.raznos-theme-dark .raznos-demo-ribbon { background: oklch(0.34 0.016 250); color: var(--raznos-ink); }
 .raznos-phone-frame.raznos-theme-dark .raznos-dialog-layer { background: oklch(0.12 0.012 250 / 0.62); }
 .raznos-phone-frame.raznos-theme-dark .raznos-city-modal-layer { background: oklch(0.12 0.012 250 / 0.62); }

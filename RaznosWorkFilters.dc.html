@@ -109,7 +109,7 @@ class Component extends DCLogic {
       title, sub,
       rowCls: 'rwf-row' + (name === active ? ' rwf-active' : ''),
       badge: name === active ? 'Активен' : 'Применить',
-      badgeCls: name === active ? 'raznos-status-pill raznos-pill-ok' : 'raznos-text-tiny',
+      badgeCls: name === active ? 'raznos-status-pill raznos-pill-ok' : 'raznos-pill-action',
       apply: () => { this.setState({ active: name }); reportActive(name); },
       canEdit: kind === 'own',
       editLabel: 'Изменить',

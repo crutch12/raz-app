@@ -71,6 +71,8 @@
 .raznos-heat-3 { background: var(--raznos-green-deep); }
 .raznos-heat-cell { cursor: pointer; }
 .raznos-heat-cell.raznos-is-sel { outline: 2px solid var(--raznos-ink); outline-offset: 1px; }
+.raznos-theme-dark .raznos-heat-cell { border: 1px solid oklch(1 0 0 / 0.07); }
+.raznos-theme-dark .raznos-heat-1 { background: oklch(0.45 0.07 150); }
 .raznos-heat-peak { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; background: var(--raznos-surface-2); }
 .raznos-heat-peak-fire { font-size: 14px; line-height: 1; }
 .raznos-heat-peak-text { flex: 1; font: 600 14px var(--raznos-font); color: var(--raznos-ink); }

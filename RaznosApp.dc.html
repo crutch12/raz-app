@@ -279,32 +279,7 @@
                   </div>
                 </sc-if>
 
-                <div class="raznos-card raznos-card-pad">
-                  <span class="raznos-text-h3">Лучшие часы</span>
-                  <div class="raznos-heat-peak"><span class="raznos-heat-peak-fire">🔥</span><span class="raznos-heat-peak-text">Пик недели {{ heat_peak_label }}</span><span class="raznos-num">{{ heat_peak_pay }}</span></div>
-                  <div class="raznos-heatmap-daynames">
-                    <span></span>
-                    <sc-for list="{{ heatmap_days }}" as="dayname" hint-placeholder-count="7"><span class="raznos-heatmap-daylabel">{{ dayname }}</span></sc-for>
-                  </div>
-                  <sc-for list="{{ heatmap_rows }}" as="slotrow" hint-placeholder-count="4">
-                    <div class="raznos-heatmap-row">
-                      <span class="raznos-heatmap-rowlabel">{{ slotrow.label }}</span>
-                      <div class="raznos-heatmap-cells">
-                        <sc-for list="{{ slotrow.cells }}" as="cell" hint-placeholder-count="7"><span class="{{ cell.cls }}" onClick="{{ cell.tap }}" title="{{ cell.hint }}"></span></sc-for>
-                      </div>
-                    </div>
-                  </sc-for>
-                  <div class="raznos-heat-detail">
-                    <span class="raznos-heat-detail-title">{{ heat_sel_title }}</span>
-                    <span class="raznos-text-small">{{ heat_sel_note }}</span>
-                  </div>
-                  <div class="raznos-heat-legend raznos-text-tiny">
-                    <span><span class="raznos-heat-legend-dot raznos-heat-1"></span>низкий</span>
-                    <span><span class="raznos-heat-legend-dot raznos-heat-2"></span>средний</span>
-                    <span><span class="raznos-heat-legend-dot raznos-heat-3"></span>высокий</span>
-                  </div>
-                  <p class="raznos-text-tiny">{{ heatmap_tip }}</p>
-                </div>
+                <dc-import name="RaznosBestHours"></dc-import>
                 </div>
                 </sc-if>
 
@@ -2474,15 +2449,6 @@
         { label: '8–14 сент', pay: 27121 },
         { label: '15 сент', pay: 4200 }
       ];
-      const HEATMAP_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-      const HEATMAP_SLOTS = ['06–12', '12–17', '17–21', '21–06'];
-      const HEATMAP_LEVELS = [
-        [1, 2, 2, 1], [1, 2, 3, 1], [1, 2, 2, 1], [1, 2, 3, 2],
-        [2, 3, 3, 2], [2, 2, 3, 3], [1, 1, 2, 2]
-      ];
-      const HEATMAP_PAY = { 1: 620, 2: 940, 3: 1320 };
-      const HEATMAP_LVLNAME = { 1: 'низкий', 2: 'средний', 3: 'высокий' };
-      const HEATMAP_TIP = 'Спрос по выполненным заказам участников, тап по ячейке даёт доход в час и лучший сервис';
       const VV_PAYS = [300, 280, 260, 240, 320, 180, 250, 230, 290];
       const SK_PAYS = [260, 310, 240, 220, 290, 180, 200, 150];
       function buildHistory() {
@@ -3431,28 +3397,6 @@
             return { label: c[1], cls: 'raznos-chip' + (active ? ' raznos-is-active' : ''), tap: () => set(isLong ? { statsLong: c[0] } : { statsLong: '', period: c[0] }) };
           });
           const statDayBars = dayBarsSource.map((d) => ({ label: (d.label || '').split(' ')[0], val: d.pay, style: 'height:' + Math.max(6, Math.round((d.pay / dayBarsMax) * 100)) + '%' }));
-          const heatPayOf = (lvl, ci) => HEATMAP_PAY[lvl] + ci * 8;
-          const heatSvcOf = (ci, ri) => ((ci + ri) % 2 === 0 ? 'Самокат' : 'ВкусВилл');
-          let heatPeak = { ri: 0, ci: 0, lvl: 0 };
-          HEATMAP_LEVELS.forEach((col, ci) => col.forEach((lvl, ri) => { if (lvl > heatPeak.lvl) heatPeak = { ri, ci, lvl }; }));
-          const heatSel = st.heatSel || { ri: heatPeak.ri, ci: heatPeak.ci };
-          const heatmapRows = HEATMAP_SLOTS.map((slot, ri) => ({
-            label: slot,
-            cells: HEATMAP_DAYS.map((d, ci) => {
-              const lvl = HEATMAP_LEVELS[ci][ri];
-              const isSel = heatSel.ri === ri && heatSel.ci === ci;
-              return {
-                cls: 'raznos-heat-cell raznos-heat-' + lvl + (isSel ? ' raznos-is-sel' : ''),
-                hint: d + ' ' + slot + ': ' + heatPayOf(lvl, ci) + ' ₽/ч',
-                tap: () => set({ heatSel: { ri, ci } })
-              };
-            })
-          }));
-          const heatSelLvl = HEATMAP_LEVELS[heatSel.ci][heatSel.ri];
-          const heatSelTitle = HEATMAP_DAYS[heatSel.ci] + ' ' + HEATMAP_SLOTS[heatSel.ri] + ' · ~' + heatPayOf(heatSelLvl, heatSel.ci) + ' ₽/ч';
-          const heatSelNote = 'Спрос ' + HEATMAP_LVLNAME[heatSelLvl] + ', лучший ' + heatSvcOf(heatSel.ci, heatSel.ri);
-          const heatPeakLabel = HEATMAP_DAYS[heatPeak.ci] + ' ' + HEATMAP_SLOTS[heatPeak.ri];
-          const heatPeakPay = '~' + heatPayOf(heatPeak.lvl, heatPeak.ci) + ' ₽/ч';
 
           const integrationStatus = st.integrationStatus || (demoOn ? { vkusvill: 'connected', samokat: 'connected' } : {});
           const connectedKeys = Object.keys(integrationStatus).filter((k) => integrationStatus[k] === 'connected' || integrationStatus[k] === 'limited');
@@ -4164,7 +4108,6 @@
             stats_show_sk: statsSvcFilter === 'all' || statsSvcFilter === 'samokat',
             stats_vv_orders: stat.vvOrders, stats_vv_wait: stat.vvWait, stats_vv_duration: stat.vvDuration, stats_vv_hourly: statVvHourly, stats_vv_earn: stat.vvEarn,
             stats_sk_orders: stat.samokatOrders, stats_sk_wait: stat.samokatWait, stats_sk_duration: stat.samokatDuration, stats_sk_hourly: statSamokatHourly, stats_sk_earn: stat.samokatEarn,
-            heatmap_days: HEATMAP_DAYS, heatmap_rows: heatmapRows, heatmap_tip: HEATMAP_TIP, heat_peak_label: heatPeakLabel, heat_peak_pay: heatPeakPay, heat_sel_title: heatSelTitle, heat_sel_note: heatSelNote,
 
             zones_city: city, zones_transport: transport,
             go_zones: () => set({ s: 'zones' }),

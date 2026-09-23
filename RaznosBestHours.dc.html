@@ -27,40 +27,61 @@
     <span><span class="raznos-heat-legend-dot raznos-heat-2"></span>средний</span>
     <span><span class="raznos-heat-legend-dot raznos-heat-3"></span>высокий</span>
   </div>
-  <p class="raznos-text-tiny">Тепловая карта доходности по дням недели и времени суток, тап по ячейке показывает детали. Демо-данные</p>
+  <p class="raznos-text-tiny">{{ tip }}</p>
 </div>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":420}}'>
 const BH_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-const BH_SLOTS = [
-  { label: 'Утро', lv: [1, 1, 2, 2, 2, 3, 2] },
-  { label: 'День', lv: [2, 2, 2, 3, 3, 3, 3] },
-  { label: 'Вечер', lv: [2, 3, 3, 3, 3, 3, 2] },
-  { label: 'Ночь', lv: [1, 1, 1, 1, 2, 2, 1] }
+const BH_SLOTS = ['06–12', '12–17', '17–21', '21–06'];
+const BH_LEVELS = [
+  [1, 2, 2, 1], [1, 2, 3, 1], [1, 2, 2, 1], [1, 2, 3, 2],
+  [2, 3, 3, 2], [2, 2, 3, 3], [1, 1, 2, 2]
 ];
-const BH_PAY = ['0', '450 ₽/ч', '700 ₽/ч', '1200 ₽/ч'];
-const BH_LVLNOTE = ['нет данных', 'низкий спрос', 'средний спрос', 'высокий спрос'];
+const BH_PAY = { 1: 620, 2: 940, 3: 1320 };
+const BH_LVLNAME = { 1: 'низкий', 2: 'средний', 3: 'высокий' };
+const BH_TIP = 'Спрос по выполненным заказам участников, тап по ячейке даёт доход в час и лучший сервис';
+const bhPay = (lvl, ci) => BH_PAY[lvl] + ci * 8;
+const bhSvc = (ci, ri) => ((ci + ri) % 2 === 0 ? 'Самокат' : 'ВкусВилл');
+
 class Component extends DCLogic {
   renderVals() {
+    const p = this.props || {};
     const st = this.state || {};
     const set = (patch) => this.setState(patch);
-    const sel = st.sel || { r: 2, c: 5 };
-    const rows = BH_SLOTS.map((slot, r) => ({
-      label: slot.label,
-      cells: slot.lv.map((lvl, c) => ({
-        cls: 'raznos-heat-cell raznos-heat-' + lvl + (r === sel.r && c === sel.c ? ' raznos-is-sel' : ''),
-        hint: BH_DAYS[c] + ', ' + slot.label + ', ' + BH_LVLNOTE[lvl],
-        tap: () => set({ sel: { r, c } })
-      }))
+
+    const days = (p.days && p.days.length) ? p.days : BH_DAYS;
+    const slots = (p.slots && p.slots.length) ? p.slots : BH_SLOTS;
+    const levels = (p.levels && p.levels.length) ? p.levels : BH_LEVELS;
+    const payOf = typeof p.payOf === 'function' ? p.payOf : bhPay;
+    const svcOf = typeof p.svcOf === 'function' ? p.svcOf : bhSvc;
+    const lvlName = p.lvlName || BH_LVLNAME;
+    const tip = p.tip != null ? p.tip : BH_TIP;
+
+    let peak = { ri: 0, ci: 0, lvl: 0 };
+    levels.forEach((col, ci) => col.forEach((lvl, ri) => { if (lvl > peak.lvl) peak = { ri, ci, lvl }; }));
+    const sel = st.sel || { ri: peak.ri, ci: peak.ci };
+
+    const rows = slots.map((slot, ri) => ({
+      label: slot,
+      cells: days.map((d, ci) => {
+        const lvl = levels[ci][ri];
+        const isSel = sel.ri === ri && sel.ci === ci;
+        return {
+          cls: 'raznos-heat-cell raznos-heat-' + lvl + (isSel ? ' raznos-is-sel' : ''),
+          hint: d + ' ' + slot + ': ' + payOf(lvl, ci) + ' ₽/ч',
+          tap: () => set({ sel: { ri, ci } })
+        };
+      })
     }));
-    const selLvl = BH_SLOTS[sel.r].lv[sel.c];
+
+    const selLvl = levels[sel.ci][sel.ri];
     return {
-      days: BH_DAYS,
+      days,
       rows,
-      peak_label: 'Сб вечер',
-      peak_pay: '1200 ₽/ч',
-      sel_title: BH_DAYS[sel.c] + ', ' + BH_SLOTS[sel.r].label,
-      sel_note: BH_LVLNOTE[selLvl] + ', примерно ' + BH_PAY[selLvl],
-      heatmap_tip: ''
+      tip,
+      peak_label: days[peak.ci] + ' ' + slots[peak.ri],
+      peak_pay: '~' + payOf(peak.lvl, peak.ci) + ' ₽/ч',
+      sel_title: days[sel.ci] + ' ' + slots[sel.ri] + ' · ~' + payOf(selLvl, sel.ci) + ' ₽/ч',
+      sel_note: 'Спрос ' + lvlName[selLvl] + ', лучший ' + svcOf(sel.ci, sel.ri)
     };
   }
 }

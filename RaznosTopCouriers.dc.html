@@ -2,7 +2,7 @@
 <helmet data-dc-atomics>
   <link rel="stylesheet" href="./raznos-v3.css" />
   <style>
-    .rtc-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+    .rtc-chips { display: flex; flex-wrap: wrap; gap: 8px; }
     .rtc-chips .raznos-chip { white-space: nowrap; flex: none; }
     .rtc-me { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-radius: 18px; background: var(--raznos-dark); color: var(--raznos-on-dark); }
     .rtc-me-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
@@ -14,7 +14,7 @@
     .rtc-me-metric { font: 500 12px var(--raznos-font); color: color-mix(in oklab, var(--raznos-on-dark) 70%, transparent); }
     .rtc-list { display: flex; flex-direction: column; gap: 6px; }
     .rtc-row { display: grid; grid-template-columns: 26px 40px 1fr auto; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); width: 100%; text-align: left; cursor: pointer; }
-    .rtc-rank { font: 700 14px var(--raznos-mono); color: var(--raznos-ink-3); text-align: center; }
+    .rtc-rank { font: 700 14px var(--raznos-mono); color: var(--raznos-ink-2); text-align: center; }
     .rtc-face { width: 40px; height: 40px; border-radius: 50%; background: var(--raznos-surface-2); border: 1px solid var(--raznos-line); display: flex; align-items: center; justify-content: center; font: 700 16px var(--raznos-font); color: var(--raznos-ink-3); }
     .rtc-namecol { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
     .rtc-name { font: 600 15px var(--raznos-font); color: var(--raznos-ink); }
