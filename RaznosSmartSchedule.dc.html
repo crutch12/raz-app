@@ -226,9 +226,9 @@ class Component extends DCLogic {
       const sub = plan.zone + ' · ' + rssReason(h) + (plan.edited ? ' · изменено вами' : '') + (off ? ' · вне графика' : '') + (past ? ' · прошло' : '');
       const marksBefore = [];
       const marksAfter = [];
-      if (dayWorks && h === RSS_WORK_START) marksBefore.push({ kind: 'shift', label: 'Начало смены', time: hhmm(RSS_WORK_START) });
+      if (dayWorks && h === RSS_WORK_START) marksBefore.push({ kind: 'shift', label: 'Начало рабочего дня', time: hhmm(RSS_WORK_START) });
       if (isToday && h === RSS_NOW) marksBefore.push({ kind: 'now', label: 'Сейчас', time: nowLabel });
-      if (dayWorks && h === RSS_WORK_END - 1) marksAfter.push({ kind: 'shift', label: 'Конец смены', time: hhmm(RSS_WORK_END) });
+      if (dayWorks && h === RSS_WORK_END - 1) marksAfter.push({ kind: 'shift', label: 'Конец рабочего дня', time: hhmm(RSS_WORK_END) });
       return {
         time: (h < 10 ? '0' + h : h) + ':00',
         svc: plan.svc, svcTitle: svcTitle(plan.svc), sub,
