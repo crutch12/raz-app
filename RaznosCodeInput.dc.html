@@ -1,6 +1,9 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
 <helmet data-dc-atomics>
   <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .raznos-code-input { display: flex; flex-direction: column; gap: 8px; }
+  </style>
 </helmet>
 <div class="raznos-code-input">
   <input class="{{ input_cls }}" inputmode="numeric" maxlength="{{ len }}" placeholder="{{ placeholder }}" value="{{ value }}" onChange="{{ on_change }}" />
