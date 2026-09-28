@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
+<div class="raznos-stats-taxes">
+  <div class="raznos-stats-section">
+    <div class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">{{ month_title }} <em>{{ month_value }}</em></h2><small>{{ month_sub }}</small></div>
+    <div class="raznos-stats-tax-limit">
+      <div class="raznos-stats-goal-copy"><span>{{ year_value }}</span><strong>{{ year_share }}</strong></div>
+      <div class="raznos-stats-goal-track" role="progressbar" aria-label="Доход с начала года относительно лимита самозанятого"><span style="{{ year_style }}"></span></div>
+      <span class="raznos-stats-goal-note">{{ year_sub }}</span>
+    </div>
+  </div>
+  <dc-import name="RaznosStatsLedger" title="Как считается" rows="{{ rows }}" note="Расчёт предварительный, точную сумму и квитанцию формирует приложение Мой налог"></dc-import>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"monthTitle":{"editor":"text","default":"К уплате за сентябрь"},"monthValue":{"editor":"text","default":"2 356 ₽"},"monthSub":{"editor":"text","default":"Заплатить до 28 октября, до конца месяца сумма ещё вырастет"},"rows":{"editor":null},"yearValue":{"editor":"text","default":"444 400 ₽"},"yearSub":{"editor":"text","default":"Доход с начала года из 2 400 000 ₽ лимита самозанятого"},"yearStyle":{"editor":"text","default":"width:19%"},"yearShare":{"editor":"text","default":"19%"},"$preview":{"width":360,"height":520}}'>
+// налоги самозанятого: сумма к уплате, лимит дохода за год и как считается ставка
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    return {
+      month_title: p.monthTitle || 'К уплате за сентябрь', month_value: p.monthValue || '2 356 ₽',
+      month_sub: p.monthSub || 'Заплатить до 28 октября, до конца месяца сумма ещё вырастет',
+      year_value: p.yearValue || '444 400 ₽', year_sub: p.yearSub || 'Доход с начала года из 2 400 000 ₽ лимита самозанятого',
+      year_style: p.yearStyle || 'width:19%', year_share: p.yearShare || '19%',
+      rows: p.rows || [
+        { label: 'Налог за выбранный период', value: '≈ 320 ₽', strong: true },
+        { label: 'Доход за период', value: '8 000 ₽', note: 'Налог считается со всех начислений, расходы его не уменьшают' },
+        { label: 'Ставка', value: '4%', note: 'Сервисы платят как компании, базовая ставка 6%, налоговый бонус снижает её до 4%' },
+        { label: 'Налоговый бонус', value: '1 112 из 10 000 ₽', note: 'Когда закончится, ставка станет 6%' }
+      ]
+    };
+  }
+}
+</script></body></html>

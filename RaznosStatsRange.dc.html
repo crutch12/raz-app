@@ -6,8 +6,9 @@
     <div class="raznos-stats-range-copy"><strong>{{ title }}</strong><sc-if value="{{ hint }}" hint-placeholder-val="{{ true }}"><span>{{ hint }}</span></sc-if></div>
     <sc-if value="{{ step_visible }}" hint-placeholder-val="{{ true }}"><div class="raznos-stats-range-steps"><button type="button" class="raznos-stats-step" aria-label="Предыдущий период" disabled="{{ back_disabled }}" onClick="{{ on_back }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><button type="button" class="raznos-stats-step" aria-label="Следующий период" disabled="{{ next_disabled }}" onClick="{{ on_next }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></div></sc-if>
   </div>
+  <sc-if value="{{ has_filter }}" hint-placeholder-val="{{ false }}"><div class="raznos-stats-filter-strip"><button type="button" class="raznos-stats-filter-chip" onClick="{{ on_filters }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span>{{ filter_label }}</span></button><button type="button" class="raznos-stats-filter-reset-link" onClick="{{ on_reset }}">Сбросить</button></div></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"chips":{"editor":null},"title":{"editor":"text","default":"Неделя · 14–20 сентября"},"hint":{"editor":"text","default":"данные по 15 сентября"},"stepVisible":{"editor":"boolean","default":true},"backDisabled":{"editor":"boolean","default":false},"nextDisabled":{"editor":"boolean","default":true},"onBack":{"editor":null},"onNext":{"editor":null},"$preview":{"width":360,"height":130}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"chips":{"editor":null},"title":{"editor":"text","default":"Неделя · 14–20 сентября"},"hint":{"editor":"text","default":"данные по 15 сентября"},"stepVisible":{"editor":"boolean","default":true},"backDisabled":{"editor":"boolean","default":false},"nextDisabled":{"editor":"boolean","default":true},"onBack":{"editor":null},"onNext":{"editor":null},"filterLabel":{"editor":"text","default":""},"onFilters":{"editor":null},"onReset":{"editor":null},"$preview":{"width":360,"height":130}}'>
 // переключатель периода статистики: день, неделя, месяц, год, свои даты и стрелки соседнего периода
 const RSR_NOOP = () => {};
 class Component extends DCLogic {
@@ -18,7 +19,11 @@ class Component extends DCLogic {
       chips, title: p.title || '', hint: p.hint || '',
       step_visible: p.stepVisible !== false, back_disabled: !!p.backDisabled, next_disabled: p.nextDisabled !== false,
       on_back: typeof p.onBack === 'function' ? p.onBack : RSR_NOOP,
-      on_next: typeof p.onNext === 'function' ? p.onNext : RSR_NOOP
+      on_next: typeof p.onNext === 'function' ? p.onNext : RSR_NOOP,
+      // активный личный фильтр виден прямо на экране, иначе отчёт выглядит как полный
+      has_filter: !!p.filterLabel, filter_label: p.filterLabel || '',
+      on_filters: typeof p.onFilters === 'function' ? p.onFilters : RSR_NOOP,
+      on_reset: typeof p.onReset === 'function' ? p.onReset : RSR_NOOP
     };
   }
 }

@@ -67,7 +67,7 @@ class Component extends DCLogic {
       status_class: 'raznos-stats-recap-status' + (/идёт/.test(p.statusLabel || '') ? ' raznos-is-live' : ''),
       lead_label: netKnown ? 'Заработали' : (p.mainLabel || 'Начислено'),
       main_value: p.mainValue || 'Нет данных', net_known: netKnown,
-      sub_label: (hasOrders ? 'за ' + RSS_FMT(orders) + ' ' + RSS_PLURAL(orders, 'заказ', 'заказа', 'заказов') : 'Число заказов неизвестно') +
+      sub_label: (hasOrders ? 'за ' + RSS_FMT(orders) + ' ' + RSS_PLURAL(orders, 'заказ', 'заказа', 'заказов') : (String(p.ordersLabel) === '0' ? 'Заказов не было' : 'Число заказов неизвестно')) +
         (hasHours ? ' и ' + p.hoursLabel + ' на линии' : '') + (netKnown ? '' : ' · расходы внесены не полностью'),
       delta_visible: delta != null,
       delta_label: delta == null ? '' : (delta === 0 ? 'Начислено столько же, ' + prevWord.replace(/^чем /, 'как ') : 'Начислено на ' + Math.abs(delta) + '% ' + (delta > 0 ? 'больше, ' : 'меньше, ') + prevWord),

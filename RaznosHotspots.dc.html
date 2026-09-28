@@ -144,14 +144,14 @@ class Component extends DCLogic {
         routeAria: 'Маршрут в район ' + x.z.name,
         action: 'route', divider: x !== list[list.length - 1],
         trend: big ? x.z.trend : 0,
-        trendTail: 'дохода в час за 4 недели' + (x.z.trend > 0 ? ', район набирает' : ', заказов стало меньше')
+        trendTail: 'дохода в час за 4 недели' + (x.z.trend > 0 ? ', платят всё больше' : ', заказов стало меньше')
       });
     });
 
     // карточка: топ-3 и район, который растёт быстрее всех вне топа
     const top = byValue.slice(0, 3);
     const risingX = byValue.slice(3).filter((x) => x.z.trend >= 10).sort((a, b) => b.z.trend - a.z.trend)[0];
-    const rising = risingX ? Object.assign(rowOf(risingX), { trend: risingX.z.trend, trendTail: 'дохода в час за 4 недели, район набирает' }) : null;
+    const rising = risingX ? Object.assign(rowOf(risingX), { trend: risingX.z.trend, trendTail: 'дохода в час за 4 недели, платят всё больше' }) : null;
 
     const optsOf = (l) => l.map((o) => ({ k: o.k, label: o.label, note: o.note }));
     const filters = [

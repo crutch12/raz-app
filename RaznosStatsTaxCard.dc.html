@@ -1,0 +1,18 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
+<button type="button" class="raznos-stats-top-card raznos-stats-tax-card" onClick="{{ on_open }}" aria-label="{{ aria }}">
+  <span class="raznos-stats-top-medal raznos-stats-tax-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h5"/></svg></span>
+  <span class="raznos-stats-top-copy"><strong>Налог {{ value }}</strong><small>{{ sub }}</small></span>
+  <svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+</button>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"value":{"editor":"text","default":"≈ 320 ₽"},"sub":{"editor":"text","default":"4% с учётом налогового бонуса · за сентябрь до 28 октября"},"onOpen":{"editor":null},"$preview":{"width":360,"height":84}}'>
+// налог самозанятого за период, по нажатию экран с суммой к уплате, бонусом и лимитом
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const value = p.value || '≈ 320 ₽';
+    const sub = p.sub || '4% с учётом налогового бонуса · за сентябрь до 28 октября';
+    return { value, sub, aria: 'Налог за период ' + value + ', ' + sub, on_open: typeof p.onOpen === 'function' ? p.onOpen : (() => {}) };
+  }
+}
+</script></body></html>

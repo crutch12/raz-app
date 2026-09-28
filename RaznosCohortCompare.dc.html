@@ -4,7 +4,7 @@
   <div class="raznos-stats-section raznos-stats-cohort-card">
     <div class="raznos-stats-cohort-head">
       <span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">{{ recap_title }} <em>{{ recap_accent }}</em></h2><small>{{ cohort_label }} · {{ basis_label }}</small></span>
-      <button type="button" class="raznos-stats-cohort-settings" onClick="{{ on_settings }}" aria-label="Настроить сравнение"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
+      <sc-if value="{{ has_settings }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-stats-cohort-settings" onClick="{{ on_settings }}" aria-label="Настроить сравнение"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button></sc-if>
     </div>
     <sc-if value="{{ recap_enough }}" hint-placeholder-val="{{ true }}">
       <div class="raznos-stats-cohort-result" aria-label="Сравнение с медианой"><div class="raznos-stats-cohort-column raznos-is-you"><small>Вы</small><strong>{{ recap_mine }}</strong></div><div class="raznos-stats-cohort-column"><small>Медиана</small><strong>{{ recap_median }}</strong></div></div>
@@ -108,7 +108,9 @@ class Component extends DCLogic {
           (period === 'today' ? 'За сегодня выборка слишком мала, сравнение появится позже' :
           (period === 'custom' ? 'Для выбранных дат сопоставимой выборки пока нет' :
             (n > 0 && n < CC_MIN_N ? 'Недостаточно данных: меньше 30 курьеров' : 'Для этой группы данных пока нет'))),
-        on_settings: typeof p.onSettings === 'function' ? p.onSettings : (() => {})
+        on_settings: typeof p.onSettings === 'function' ? p.onSettings : (() => {}),
+        // на экране настройки сравнения кнопка настройки не нужна
+        has_settings: typeof p.onSettings === 'function'
       };
     }
     const city = p.city || 'moscow';

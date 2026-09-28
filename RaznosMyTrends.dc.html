@@ -98,7 +98,8 @@ class Component extends DCLogic {
         cls: 'raznos-stats-trend raznos-is-' + kind
       };
     };
-    const rows = [row('Начислено', 'earn', ' ₽'), row('За час', 'rate', ' ₽/ч'), row('За заказ', 'perOrder', ' ₽'), row('Заказов в час', 'ordersPerHour', '')];
+    // названия как в ТЗ, доход в час до расходов
+    const rows = [row('Начислено', 'earn', ' ₽'), row('Заказы', 'orders', ''), row('Доход в час', 'rate', ' ₽/ч'), row('Доход за заказ', 'perOrder', ' ₽'), row('Заказов в час', 'ordersPerHour', ''), row('Часы на линии', 'hours', ' ч')];
     // часы на линии не бывают хорошими или плохими сами по себе, поэтому стрелка у них серая
     const tile = (item, judged) => {
       const kind = /raznos-is-(up|down)/.test(item.cls) ? RegExp.$1 : 'neutral';
@@ -110,9 +111,9 @@ class Component extends DCLogic {
       });
     };
     const tiles = [
-      tile(rows[0], true), tile(row('Заказы', 'orders', ''), true),
-      tile(rows[1], true), tile(rows[2], true),
-      tile(rows[3], true), tile(row('На линии', 'hours', ' ч'), false)
+      tile(rows[0], true), tile(rows[1], true),
+      tile(rows[2], true), tile(rows[3], true),
+      tile(rows[4], true), tile(rows[5], false)
     ];
     const detail = !!p.detailMode;
     const selected = rows.find((item) => item.key === st.metric) || rows[0];
@@ -136,7 +137,7 @@ class Component extends DCLogic {
       demoPoint('апр', 'Апрель 2026', 60950, 56700), demoPoint('май', 'Май 2026', 70000, 72800), demoPoint('июн', 'Июнь 2026', 75400, 67900),
       demoPoint('июл', 'Июль 2026', 49500, 48500), demoPoint('авг', 'Август 2026', 79650, 84400), demoPoint('сен', 'Сентябрь 2026, период идёт', 58900, 54200, true)
     ];
-    const unit = ({ earn: ' ₽', rate: ' ₽/ч', perOrder: ' ₽', ordersPerHour: '' })[selected.key] || '';
+    const unit = ({ earn: ' ₽', orders: '', rate: ' ₽/ч', perOrder: ' ₽', ordersPerHour: '', hours: ' ч' })[selected.key] || '';
     const known = series.filter((point) => point.values && point.values[selected.key] != null);
     const maxValue = Math.max.apply(null, known.map((point) => Math.max(point.values[selected.key], point.medians[selected.key] || 0)).concat([1])) * 1.08;
     const lastKnown = series.length - 1 - series.slice().reverse().findIndex((point) => point.values && point.values[selected.key] != null);
@@ -163,10 +164,10 @@ class Component extends DCLogic {
       city_label: p.cityLabel || 'Город',
       focus_mine: mine == null ? 'Нет данных' : format(mine) + unit,
       focus_median: median == null ? 'Нет данных' : format(median) + unit,
-      focus_title: focus ? focus.title + (selected.key === 'rate' ? ' · до расходов' : '') : '',
+      focus_title: focus ? focus.title : '',
       focus_verdict: gap == null ? '' : (gap === 0 ? 'На уровне медианы города' : (gap > 0 ? 'Выше медианы на ' + gap + '%' : 'Ниже медианы на ' + Math.abs(gap) + '%')),
       focus_verdict_class: 'raznos-stats-compare-verdict' + (gap > 0 ? ' raznos-is-positive' : (gap < 0 ? ' raznos-is-negative' : '')),
-      primary: rows[0], supportRows: rows.slice(1), detailRows: rows, rows, tiles, selected, detail, compact: !detail,
+      primary: rows[0], supportRows: [rows[2], rows[3], rows[4]], detailRows: rows, rows, tiles, selected, detail, compact: !detail,
       scope_label: p.scopeLabel || 'Все данные',
       period_label: p.periodLabel || 'Неделя',
       metric_options: metricOptions,

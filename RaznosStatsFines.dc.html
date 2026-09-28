@@ -1,0 +1,39 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
+<div class="raznos-stats-fines">
+  <div class="raznos-stats-section">
+    <div class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">{{ title }} <em class="raznos-stats-fines-accent">{{ accent }}</em></h2><small>{{ sub }}</small></div>
+    <sc-if value="{{ share }}" hint-placeholder-val="{{ true }}"><span class="raznos-stats-fines-share">{{ share }}</span></sc-if>
+    <sc-if value="{{ has_services }}" hint-placeholder-val="{{ true }}">
+      <div class="raznos-stats-service-bars"><sc-for list="{{ by_service }}" as="row" hint-placeholder-count="2"><div class="raznos-stats-service-bar raznos-is-{{ row.key }} raznos-is-static"><span class="raznos-stats-service-track"><i style="{{ row.bar_style }}"></i></span><span class="raznos-stats-service-head"><span class="raznos-stats-service-label"><dc-import name="RaznosIcon" svc="{{ row.key }}" size="sm"></dc-import><strong>{{ row.title }}</strong></span><strong class="raznos-stats-fines-amount">{{ row.amount }}</strong></span></div></sc-for></div>
+    </sc-if>
+  </div>
+  <sc-if value="{{ has_cases }}" hint-placeholder-val="{{ true }}">
+    <div class="raznos-stats-section">
+      <h2 class="raznos-stats-section-title">За что удержали</h2>
+      <div class="raznos-stats-fine-list"><sc-for list="{{ cases }}" as="row" hint-placeholder-count="3"><button type="button" class="raznos-stats-fine-row" onClick="{{ row.tap }}"><dc-import name="RaznosIcon" svc="{{ row.key }}" size="sm"></dc-import><span class="raznos-stats-fine-copy"><strong>{{ row.reason }}</strong><small>{{ row.meta }}</small><small>{{ row.lost }}</small></span><strong class="raznos-stats-fines-amount">{{ row.amount }}</strong></button></sc-for></div>
+      <p class="raznos-stats-note">Удержания берём из заказов и личного кабинета сервиса, один случай учитывается один раз</p>
+    </div>
+  </sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"title":{"editor":"text","default":"Удержано"},"accent":{"editor":"text","default":"650 ₽"},"sub":{"editor":"text","default":"5 случаев за период"},"share":{"editor":"text","default":"1,1% от начисленного"},"byService":{"editor":null},"cases":{"editor":null},"$preview":{"width":360,"height":620}}'>
+// штрафы и удержания: сумма, доля от начисленного, по сервисам и список случаев с переходом к заказу
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const byService = p.byService || [
+      { key: 'samokat', title: 'Самокат', amount: '−350 ₽', bar_style: 'width:100%' },
+      { key: 'vkusvill', title: 'ВкусВилл', amount: '−300 ₽', bar_style: 'width:86%' }
+    ];
+    const cases = (p.cases || [
+      { key: 'samokat', reason: 'Опоздание к клиенту', amount: '−100 ₽', meta: '15 сентября · Самокат · заказ СМ-40731', lost: 'Обещали 260 ₽, выплатили 160 ₽' },
+      { key: 'vkusvill', reason: 'Нет фото вручения', amount: '−50 ₽', meta: '14 сентября · ВкусВилл · заказ ВВ-88602', lost: 'Обещали 290 ₽, выплатили 240 ₽' }
+    ]).map((row) => Object.assign({}, row, { tap: typeof row.tap === 'function' ? row.tap : (() => {}) }));
+    return {
+      title: p.title || 'Удержано', accent: p.accent === undefined ? '650 ₽' : (p.accent || ''), sub: p.sub || '',
+      share: p.share === undefined ? '1,1% от начисленного' : (p.share || ''),
+      by_service: byService, has_services: byService.length > 0, cases, has_cases: cases.length > 0
+    };
+  }
+}
+</script></body></html>

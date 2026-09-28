@@ -190,52 +190,28 @@
                 <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ stats_detail_close }}" aria-label="Назад к статистике">‹</button><h1 class="raznos-text-h1" style="margin:0">{{ stats_detail_title }}</h1></div>
                 <p class="raznos-stats-range">{{ stats_range_human }}<sc-if value="{{ stats_range_hint }}" hint-placeholder-val="{{ true }}"> · {{ stats_range_hint }}</sc-if></p>
                 <sc-if value="{{ stats_detail_is_money }}">
-                  <div class="raznos-stats-section">
-                    <div class="raznos-stats-metrics">
-                      <div class="raznos-stats-metric"><span class="raznos-stats-metric-label">Начислено</span><span class="raznos-stats-metric-value">{{ stats_earn_label }}</span></div>
-                      <div class="raznos-stats-metric"><span class="raznos-stats-metric-label">Выплачено</span><span class="raznos-stats-metric-value">{{ stats_payout_label }}</span></div>
-                      <div class="raznos-stats-metric"><span class="raznos-stats-metric-label">Ждёт выплаты</span><span class="raznos-stats-metric-value">{{ stats_pending_label }}</span></div>
-                      <div class="raznos-stats-metric"><span class="raznos-stats-metric-label">Осталось после расходов</span><span class="raznos-stats-metric-value">{{ stats_net_label }}</span></div>
-                    </div>
-                    <p class="raznos-stats-note">{{ stats_net_note }}</p>
-                    <p class="raznos-stats-note">Подтверждённые чаевые: {{ stats_tips_label }} · наличные чаевые, внесены вручную, не подтверждены сервисом: {{ stats_cash_tips_label }} · бонусы: Нет данных · удержания: Нет данных</p>
-                    <p class="raznos-stats-note">Чаевые и бонусы уже входят в начисление, если их передал сервис</p>
-                    <button type="button" class="raznos-stats-row" onClick="{{ go_expenses_from_stats }}"><span>Расходы за период</span><span class="raznos-stats-row-value">{{ stats_expenses_label }}</span></button>
-                    <button type="button" class="raznos-stats-row" onClick="{{ stats_history_open }}"><span>Заказы и суммы</span><span class="raznos-row-chevron">›</span></button>
-                  </div>
+                  <dc-import name="RaznosStatsMoney" title="{{ stats_money_title }}" accent="{{ stats_money_accent }}" sub="{{ stats_money_sub }}" rows="{{ stats_money_rows }}" finesLabel="{{ stats_fines_link }}" onFines="{{ stats_detail_go_fines }}" onExpenses="{{ go_expenses_from_stats }}"></dc-import>
+                  <dc-import name="RaznosStatsLedger" title="Из чего сложилось" rows="{{ stats_money_ledger }}" note="Чаевые и бонусы уже входят в начисление, если их передал сервис"></dc-import>
+                  <dc-import name="RaznosStatsTaxCard" value="{{ stats_tax_card_value }}" sub="{{ stats_tax_card_sub }}" onOpen="{{ stats_detail_go_taxes }}"></dc-import>
+                  <dc-import name="RaznosStatsOrdersLink" caption="{{ stats_orders_caption }}" onOpen="{{ stats_history_open }}"></dc-import>
                 </sc-if>
                 <sc-if value="{{ stats_detail_is_time }}">
-                  <div class="raznos-stats-section">
-                    <div class="raznos-stats-metrics">
-                      <div class="raznos-stats-metric"><span class="raznos-stats-metric-label">На линии, без пересечений</span><span class="raznos-stats-metric-value">{{ stats_hours_label }}</span></div>
-                      <div class="raznos-stats-metric"><span class="raznos-stats-metric-label">С заказами</span><span class="raznos-stats-metric-value">{{ stats_with_order_label }}</span></div>
-                      <div class="raznos-stats-metric"><span class="raznos-stats-metric-label">Ожидание заказа</span><span class="raznos-stats-metric-value">{{ stats_wait_order_label }}</span></div>
-                      <div class="raznos-stats-metric"><span class="raznos-stats-metric-label">Ожидание выдачи</span><span class="raznos-stats-metric-value">{{ stats_wait_pickup_label }}</span></div>
-                      <div class="raznos-stats-metric"><span class="raznos-stats-metric-label">Активное время</span><span class="raznos-stats-metric-value">{{ stats_active_time_label }}</span></div>
-                      <div class="raznos-stats-metric"><span class="raznos-stats-metric-label">Расстояние</span><span class="raznos-stats-metric-value">{{ stats_distance_label }}</span></div>
-                      <div class="raznos-stats-metric"><span class="raznos-stats-metric-label">Отмены</span><span class="raznos-stats-metric-value">{{ stats_cancellations_label }}</span></div>
-                      <div class="raznos-stats-metric"><span class="raznos-stats-metric-label">Возвраты</span><span class="raznos-stats-metric-value">{{ stats_returns_label }}</span></div>
-                    </div>
-                    <p class="raznos-stats-note">Пропуски времени не считаются нулём</p>
-                  </div>
+                  <dc-import name="RaznosStatsTime" share="{{ stats_time_share }}" caption="{{ stats_time_caption }}" withOrder="{{ stats_with_order_label }}" waitOrder="{{ stats_wait_order_label }}" pickup="{{ stats_wait_pickup_label }}"></dc-import>
+                  <dc-import name="RaznosStatsLedger" title="Подробно" rows="{{ stats_time_ledger }}" note="Пропуски времени не считаются нулём, пересекающиеся смены разных сервисов считаются один раз"></dc-import>
                 </sc-if>
                 <sc-if value="{{ stats_detail_is_services }}">
-                  <div class="raznos-stats-section"><h2 class="raznos-stats-section-title">Сервисы</h2>
-                    <sc-for list="{{ stats_services }}" as="row" hint-placeholder-count="2"><button type="button" class="raznos-stats-row" onClick="{{ row.tap }}"><span class="raznos-stats-service-label"><dc-import name="RaznosIcon" svc="{{ row.key }}" size="sm"></dc-import><span>{{ row.title }}</span></span><span class="raznos-stats-row-value">{{ row.amount }}</span></button></sc-for>
-                  </div>
-                  <div class="raznos-stats-section"><h2 class="raznos-stats-section-title">Районы получения</h2>
-                    <sc-for list="{{ stats_districts_all }}" as="row" hint-placeholder-count="3"><button type="button" class="raznos-stats-row" onClick="{{ row.tap }}"><span>{{ row.name }} · {{ row.orders_label }}</span><span class="raznos-stats-row-value">{{ row.amount }}</span></button></sc-for>
-                    <p class="raznos-stats-note">Район заказа определяется по адресу получения</p>
-                  </div>
+                  <dc-import name="RaznosStatsServices" rows="{{ stats_services }}" title="{{ stats_services_title }}" accent="{{ stats_services_accent }}" accentClass="{{ stats_services_accent_class }}"></dc-import>
+                  <dc-import name="RaznosStatsDistricts" rows="{{ stats_districts_all }}" limit="{{ 10 }}"></dc-import>
                 </sc-if>
                 <sc-if value="{{ stats_detail_is_compare }}">
-                  <div class="raznos-stats-section">
-                    <div class="raznos-stats-fields">
-                      <label class="raznos-stats-field">Сервис когорты<select value="{{ stats_cohort_service }}" onChange="{{ stats_cohort_service_change }}"><option value="all">Все сервисы</option><option value="vkusvill">ВкусВилл</option><option value="samokat">Самокат</option></select></label>
-                      <label class="raznos-stats-field">Район когорты<select value="{{ stats_cohort_district }}" onChange="{{ stats_cohort_district_change }}"><option value="all">Все районы</option><option value="Пресненский">Пресненский</option><option value="Беговой">Беговой</option></select></label>
-                    </div>
-                  </div>
-                  <dc-import name="RaznosCohortCompare" recapMode="{{ true }}" city="{{ city }}" mineCity="moscow" transport="{{ transport }}" period="{{ stats_cohort_period }}" svc="{{ stats_cohort_service }}" district="{{ stats_cohort_district }}" mineAmount="{{ stats_cohort_mine }}" onSettings="{{ stats_detail_go_compare }}"></dc-import>
+                  <dc-import name="RaznosCohortCompare" recapMode="{{ true }}" city="{{ city }}" mineCity="moscow" transport="{{ transport }}" period="{{ stats_cohort_period }}" svc="{{ stats_cohort_service }}" district="{{ stats_cohort_district }}" mineAmount="{{ stats_cohort_mine }}" medianHint="{{ stats_cohort_median_hint }}"></dc-import>
+                  <dc-import name="RaznosStatsChoiceGroup" title="С кем сравнивать" sub="Город, транспорт и период берутся из профиля и отчёта, личные фильтры сравнение не меняют" groups="{{ stats_compare_groups }}"></dc-import>
+                </sc-if>
+                <sc-if value="{{ stats_detail_is_taxes }}">
+                  <dc-import name="RaznosStatsTaxes" monthTitle="{{ stats_tax_month_title }}" monthValue="{{ stats_tax_month_value }}" monthSub="{{ stats_tax_month_sub }}" rows="{{ stats_tax_rows }}" yearValue="{{ stats_tax_year_value }}" yearSub="{{ stats_tax_year_sub }}" yearStyle="{{ stats_tax_year_style }}" yearShare="{{ stats_tax_year_share }}"></dc-import>
+                </sc-if>
+                <sc-if value="{{ stats_detail_is_fines }}">
+                  <dc-import name="RaznosStatsFines" title="{{ stats_fines_title }}" accent="{{ stats_fines_accent }}" sub="{{ stats_fines_sub }}" share="{{ stats_fines_share }}" byService="{{ stats_fines_by_service }}" cases="{{ stats_fine_cases }}"></dc-import>
                 </sc-if>
                 <sc-if value="{{ stats_detail_is_trends }}">
                   <div class="raznos-stats-trends-detail-host"><dc-import name="RaznosMyTrends" current="{{ stats_recap }}" previous="{{ stats_trend_previous }}" detailMode="{{ true }}" series="{{ stats_trend_series }}" cityLabel="{{ stats_trend_city }}" scopeLabel="{{ stats_filter_summary }}" periodLabel="{{ stats_trend_period_label }}" periodOptions="{{ stats_trend_period_options }}" onFilters="{{ stats_trends_open_filters }}"></dc-import></div>
@@ -243,13 +219,14 @@
               </sc-if>
               <sc-if value="{{ stats_detail_closed }}" hint-placeholder-val="{{ true }}">
                 <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Статистика</h1></div>
-                <dc-import name="RaznosStatsRange" chips="{{ stats_period_chips }}" title="{{ stats_range_human }}" hint="{{ stats_range_hint }}" stepVisible="{{ stats_step_visible }}" backDisabled="{{ stats_step_back_disabled }}" nextDisabled="{{ stats_step_next_disabled }}" onBack="{{ stats_step_back }}" onNext="{{ stats_step_next }}"></dc-import>
+                <dc-import name="RaznosStatsRange" chips="{{ stats_period_chips }}" title="{{ stats_range_human }}" hint="{{ stats_range_hint }}" stepVisible="{{ stats_step_visible }}" backDisabled="{{ stats_step_back_disabled }}" nextDisabled="{{ stats_step_next_disabled }}" onBack="{{ stats_step_back }}" onNext="{{ stats_step_next }}" filterLabel="{{ stats_filter_names }}" onFilters="{{ stats_detail_go_filters }}" onReset="{{ stats_filters_reset }}"></dc-import>
                 <sc-if value="{{ stats_period_is_custom }}"><div class="raznos-stats-section"><div class="raznos-stats-fields raznos-stats-fields-row"><label class="raznos-stats-field">С даты<input type="date" max="{{ stats_max_day }}" value="{{ stats_from_day }}" onChange="{{ stats_from_day_change }}" /></label><label class="raznos-stats-field">По дату<input type="date" max="{{ stats_max_day }}" value="{{ stats_to_day }}" onChange="{{ stats_to_day_change }}" /></label></div></div></sc-if>
                 <sc-if value="{{ stats_has_data }}" hint-placeholder-val="{{ true }}">
                   <dc-import name="RaznosStatsSummary" mainLabel="{{ stats_main_label }}" mainValue="{{ stats_main_value }}" netKnown="{{ stats_net_known }}" statusLabel="{{ stats_status_label }}" delta="{{ stats_delta }}" prevWord="{{ stats_prev_word }}" earnLabel="{{ stats_earn_label }}" expensesLabel="{{ stats_expenses_label }}" hoursLabel="{{ stats_hours_label }}" ordersLabel="{{ stats_orders_label }}" goalTitle="{{ stats_goal_title }}" goalFact="{{ stats_goal_fact }}" goalTotal="{{ stats_goal_total }}" goalPace="{{ stats_goal_pace }}" goalNote="{{ stats_goal_note }}" chart="{{ stats_chart }}" chartMode="{{ stats_chart_mode }}"></dc-import>
                   <sc-if value="{{ stats_has_missing }}"><p class="raznos-stats-note raznos-stats-missing">{{ stats_missing_note }}</p></sc-if>
                   <div class="raznos-stats-section raznos-stats-trends-card"><button type="button" class="raznos-stats-head-link" onClick="{{ stats_detail_go_trends }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">Мои тренды</h2><small>{{ stats_trend_caption }}</small></span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><dc-import name="RaznosMyTrends" current="{{ stats_recap }}" previous="{{ stats_trend_previous }}"></dc-import></div>
-                  <dc-import name="RaznosStatsMoney" title="{{ stats_money_title }}" accent="{{ stats_money_accent }}" sub="{{ stats_money_sub }}" rows="{{ stats_money_rows }}" onOpen="{{ stats_detail_go_money }}" onExpenses="{{ go_expenses_from_stats }}"></dc-import>
+                  <dc-import name="RaznosStatsMoney" title="{{ stats_money_title }}" accent="{{ stats_money_accent }}" sub="{{ stats_money_sub }}" rows="{{ stats_money_rows }}" finesLabel="{{ stats_fines_link }}" onFines="{{ stats_detail_go_fines }}" onOpen="{{ stats_detail_go_money }}" onExpenses="{{ go_expenses_from_stats }}"></dc-import>
+                  <dc-import name="RaznosStatsTaxCard" value="{{ stats_tax_card_value }}" sub="{{ stats_tax_card_sub }}" onOpen="{{ stats_detail_go_taxes }}"></dc-import>
                   <dc-import name="RaznosStatsTime" share="{{ stats_time_share }}" caption="{{ stats_time_caption }}" withOrder="{{ stats_with_order_label }}" waitOrder="{{ stats_wait_order_label }}" pickup="{{ stats_wait_pickup_label }}" onOpen="{{ stats_detail_go_time }}"></dc-import>
                   <dc-import name="RaznosStatsServices" rows="{{ stats_services }}" title="{{ stats_services_title }}" accent="{{ stats_services_accent }}" accentClass="{{ stats_services_accent_class }}" onOpen="{{ stats_detail_go_services }}"></dc-import>
                   <dc-import name="RaznosStatsDistricts" rows="{{ stats_districts }}" onAll="{{ stats_detail_go_services }}"></dc-import>
@@ -288,16 +265,16 @@
               </sc-if>
 
               <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}">
+                <dc-import name="RaznosWeekGoal" goal="{{ work_week_goal }}" earned="{{ work_week_earned }}" open="{{ go_smart }}"></dc-import>
                 <p class="raznos-text-small">План, смены и куда ехать - на сегодня и неделю вперёд</p>
                 <sc-if value="{{ active_order_hub_visible }}" hint-placeholder-val="{{ false }}">
                   <button type="button" class="raznos-live-entry" onClick="{{ go_active_order }}"><span class="raznos-live-entry-dot"></span><span class="raznos-list-main"><span class="raznos-list-title">Ведёте заказ</span><span class="raznos-text-small">Открыть карточку заказа на чтение</span></span><span class="raznos-row-chevron">›</span></button>
                 </sc-if>
                 <dc-import name="RaznosSchedulePreview" goal="{{ work_week_goal }}" open="{{ go_smart }}"></dc-import>
+                <dc-import name="RaznosShiftsWidget" open="{{ go_slots }}"></dc-import>
                 <dc-import name="RaznosHotspots" open="{{ go_best_places }}" cityTitle="{{ city_title }}" transportTitle="{{ transport_title }}"></dc-import>
                 <dc-import name="RaznosBestTimes" open="{{ go_best_times }}" workStart="{{ work_start }}" workEnd="{{ work_end }}"></dc-import>
                 <dc-import name="RaznosServiceRank" open="{{ go_services_compare }}" connected="{{ svc_connected }}" cityTitle="{{ city_title }}" transportTitle="{{ transport_title }}"></dc-import>
-                <dc-import name="RaznosShiftsWidget" open="{{ go_slots }}"></dc-import>
-                <dc-import name="RaznosWeekGoal" goal="{{ work_week_goal }}" earned="{{ work_week_earned }}" open="{{ go_smart }}"></dc-import>
                 <div class="raznos-card">
                   <button type="button" class="raznos-list-row" onClick="{{ go_work_schedule }}" style="border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">График и районы</span><span class="raznos-text-small">Дни, часы и районы, где вы хотите работать</span></div><span class="raznos-row-chevron">›</span></button>
                 </div>
@@ -307,7 +284,7 @@
 
           <sc-if value="{{ is_active_order }}">
             <div class="raznos-phone-body" data-screen-label="13 Active order">
-              <div class="raznos-fx raznos-ac raznos-gap8"><dc-import name="RaznosIcon" svc="{{ active_offer_svc }}" size="md"></dc-import><h1 class="raznos-text-h1" style="margin:0">{{ active_offer_title }}</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ back_work_tools }}" aria-label="Назад в Работу">‹</button><dc-import name="RaznosIcon" svc="{{ active_offer_svc }}" size="md"></dc-import><h1 class="raznos-text-h1" style="margin:0">{{ active_offer_title }}</h1></div>
               <div class="raznos-fx raznos-jb raznos-ac"><span class="raznos-fx raznos-col raznos-gap4"><span class="raznos-status-pill raznos-pill-ok" style="align-self:flex-start">{{ order_stage_pill_label }}</span><span class="raznos-text-small">Заказ {{ active_link_no }}</span></span><span class="raznos-num">{{ active_offer_pay }} ₽</span></div>
               <sc-if value="{{ active_svc_unhealthy }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">{{ active_health_title }}</span><span class="raznos-text-small">Заказ сохранён в Разносе, этап и адреса на месте. Пока связи нет, отмечать этапы лучше в приложении сервиса</span><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" style="align-self:flex-start" onClick="{{ active_open_service }}">Открыть приложение сервиса</button></div></sc-if>
               <dc-import name="RaznosRouteMap" pickupAddr="{{ active_offer_pickup }}" dropAddr="{{ active_offer_drop }}" distance="{{ active_offer_distance }}"></dc-import>
@@ -1924,6 +1901,8 @@
         'stats-compare': { s: 'stats', statsDetail: 'compare' },
         'stats-trends': { s: 'stats', statsDetail: 'trends' },
         'stats-filters': { s: 'stats', statsDetail: 'filters' },
+        'stats-taxes': { s: 'stats', statsDetail: 'taxes' },
+        'stats-fines': { s: 'stats', statsDetail: 'fines' },
         'cancel': { s: 'active-order', activeAccepted: true, activeOfferId: 'o1', selectedOfferId: 'o1', orderStage: 'to_pickup', cancelScheduled: true },
         'cancel-paused': { s: 'active-order', activeAccepted: true, activeOfferId: 'o1', selectedOfferId: 'o1', orderStage: 'to_pickup', workPaused: true, cancelScheduled: true },
         'feed-filters': { s: 'offers', feedEmpty: 'filters', workFilters: { vkusvill: { minPay: 1000 }, samokat: { minPay: 1000 }, x5: { minPay: 1000 } } },
@@ -2012,8 +1991,9 @@
       };
       // сценарии без демо-данных, только выбор вида экрана
       const VIEW_SCENARIOS = {
-        'stats-year': { statsLong: 'year' },
-        'stats-city': { statsScope: 'city', period: 'month' },
+        // после редизайна: год открывает период Год, по городу открывает сравнение с курьерами
+        'stats-year': { statsPeriod: 'year', statsStep: 0 },
+        'stats-city': { statsPeriod: 'month', statsStep: 0, statsDetail: 'compare' },
         'guide-newbies': { guideSection: 'newbies' },
         'guide-start': { guideSection: 'start' },
         'guide-schedule': { guideSection: 'schedule' },
@@ -2145,6 +2125,23 @@
         const a = (from && from < TODAY_ISO ? from : TODAY_ISO), b = (to && to < TODAY_ISO ? to : TODAY_ISO);
         return a <= b ? [a, b] : [b, a];
       }
+      // демо удержаний, бонусов и отмен с 1 сентября, по каждому случаю есть сервис, причина и заказ
+      const STATS_FINES = [
+        { date: '2026-09-03', svc: 'samokat', reason: 'Опоздание к клиенту', amount: 150, promised: 280, order: 'СМ-40211' },
+        { date: '2026-09-08', svc: 'vkusvill', reason: 'Недовложение товара', amount: 250, promised: 310, order: 'ВВ-88170' },
+        { date: '2026-09-12', svc: 'samokat', reason: 'Отмена после принятия', amount: 100, promised: 0, order: 'СМ-40588' },
+        { date: '2026-09-14', svc: 'vkusvill', reason: 'Нет фото вручения', amount: 50, promised: 290, order: 'ВВ-88602' },
+        { date: '2026-09-15', svc: 'samokat', reason: 'Опоздание к клиенту', amount: 100, promised: 260, order: 'СМ-40731' }
+      ];
+      const STATS_BONUSES = [
+        { date: '2026-09-07', svc: 'samokat', title: '30 заказов за неделю', amount: 500 },
+        { date: '2026-09-13', svc: 'vkusvill', title: 'Выход в пиковые часы', amount: 300 }
+      ];
+      const STATS_CANCELS = ['2026-09-04', '2026-09-12', '2026-09-15'];
+      // НПД: доход от юрлиц 6%, налоговый бонус 10 000 ₽ снижает ставку до 4% пока не израсходован, лимит 2,4 млн в год
+      const NPD_RATE = 0.06, NPD_BONUS_RATE = 0.02, NPD_BONUS = 10000, NPD_LIMIT = 2400000;
+      // районы получения заказа, один список для фильтра, разбивки и настройки сравнения
+      const STATS_DISTRICTS = ['Беговой', 'Тверской', 'Пресненский', 'Дорогомилово', 'Арбат', 'Гагаринский'];
       function statsPickupDistrict(address) {
         const street = address || '';
         if (/Правды|Ленинградский пр-т/.test(street)) return 'Беговой';
@@ -2167,7 +2164,8 @@
         if (STATS_DAY_CACHE[monthKey]) return STATS_DAY_CACHE[monthKey];
         const month = STATS_MONTHS.find((m) => m.key === monthKey);
         const days = {};
-        if (month) {
+        // месяц без данных остаётся пропуском, а не нулями
+        if (month && (month.vv || month.sk)) {
           const y = Number(monthKey.slice(0, 4)), mi = Number(monthKey.slice(5, 7)) - 1, count = daysInMonth(y, mi);
           const weekday = [0.85, 0.9, 0.95, 1, 1, 1.1, 1.2];
           const noise = (d, salt) => ((d * 9301 + (mi + 1) * 49297 + salt * 233) % 233280) / 233280;
@@ -2199,9 +2197,11 @@
       }
       // итог по дням диапазона: до 1 сентября демо-раскладка, с 1 сентября заказы из истории
       function statsDaysSource(period, range, withPrev) {
-        const acc = { earn: 0, vvEarn: 0, samokatEarn: 0, orders: 0, vvOrders: 0, samokatOrders: 0, hours: 0, vvHours: 0, samokatHours: 0, unique: 0, payout: 0, days: 0 };
+        const acc = { earn: 0, vvEarn: 0, samokatEarn: 0, orders: 0, vvOrders: 0, samokatOrders: 0, hours: 0, vvHours: 0, samokatHours: 0, unique: 0, payout: 0, days: 0, known: 0 };
         isoRange(range[0], range[1] < TODAY_ISO ? range[1] : TODAY_ISO).forEach((iso) => {
           const demo = statsDemoDay(iso);
+          // день известен, если есть демо-раскладка или история заказов с 1 сентября, пустой известный день это 0 ₽
+          if (demo || iso >= '2026-09-01') acc.known++;
           if (demo) {
             const vv = demo.vv, sk = demo.sk;
             acc.vvEarn += vv[0] || 0; acc.samokatEarn += sk[0] || 0; acc.vvOrders += vv[1] || 0; acc.samokatOrders += sk[1] || 0;
@@ -2228,7 +2228,7 @@
           acc.unique += dayHours;
         });
         acc.earn = acc.vvEarn + acc.samokatEarn; acc.orders = acc.vvOrders + acc.samokatOrders; acc.hours = Math.round(acc.unique * 10) / 10;
-        const has = acc.days > 0;
+        const has = acc.known > 0;
         let prevEarn = null;
         if (withPrev && period !== 'custom') {
           const len = isoRange(range[0], range[1]).length;
@@ -2387,7 +2387,8 @@
         return { total: (manualCents + recurringCents) / 100, manual: manualCents / 100, recurring: recurringCents / 100 };
       }
       function expPeriodRange(period) {
-        if (period === 'week') return ['2026-09-09', TODAY_ISO];
+        // неделя календарная, как в Статистике, с понедельника по сегодня
+        if (period === 'week') return ['2026-09-14', TODAY_ISO];
         if (period === 'month') return ['2026-09-01', TODAY_ISO];
         return [TODAY_ISO, TODAY_ISO];
       }
@@ -2891,7 +2892,7 @@
         }
         return { count: null, coverage: 'unknown' };
       }
-      const STATS_DETAIL_ROUTES = ['money', 'time', 'services', 'compare', 'trends', 'filters'];
+      const STATS_DETAIL_ROUTES = ['money', 'time', 'services', 'compare', 'trends', 'filters', 'taxes', 'fines'];
       function routeKeyOf(screen, statsDetail) {
         if (screen === 'stats' && STATS_DETAIL_ROUTES.indexOf(statsDetail) !== -1) return 'stats-' + statsDetail;
         return screen || 'welcome';
@@ -3473,6 +3474,10 @@
           const statsShiftNow = st.statsShift || 'all';
           const statsFilterCount = [statsSvcFilterNow, statsDistrictNow, statsTransportNow, statsShiftNow].filter((value) => value !== 'all').length;
           const statsFilterSummary = statsFilterCount ? 'Фильтры · ' + statsFilterCount : 'Все данные';
+          const statsFilterNames = [
+            ({ vkusvill: 'ВкусВилл', samokat: 'Самокат' })[statsSvcFilterNow], statsDistrictNow !== 'all' ? statsDistrictNow : '',
+            ({ bike: 'Велосипед', foot: 'Пешком', car: 'Авто' })[statsTransportNow], ({ morning: 'Утро', evening: 'Вечер' })[statsShiftNow]
+          ].filter(Boolean).join(' · ');
           const statsFilterGroup = (key, label, stateKey, selected, options) => ({
             key, label,
             options: options.map((option) => ({
@@ -3486,7 +3491,7 @@
           if (demoOn || statsSavedServices.indexOf('samokat') !== -1) statsServiceOptions.push(['samokat', 'Самокат']);
           const statsFilterGroups = [
             statsFilterGroup('service', 'Сервис', 'statsSvcFilter', statsSvcFilterNow, statsServiceOptions),
-            statsFilterGroup('district', 'Район получения', 'statsDistrict', statsDistrictNow, [['all', 'Все районы'], ['Пресненский', 'Пресненский'], ['Беговой', 'Беговой'], ['Тверской', 'Тверской']]),
+            statsFilterGroup('district', 'Район получения', 'statsDistrict', statsDistrictNow, [['all', 'Все районы']].concat(STATS_DISTRICTS.map((name) => [name, name]))),
             statsFilterGroup('transport', 'Способ доставки', 'statsTransport', statsTransportNow, [['all', 'Все способы'], ['bike', 'Велосипед'], ['foot', 'Пешком'], ['car', 'Авто']]),
             statsFilterGroup('shift', 'Смена', 'statsShift', statsShiftNow, [['all', 'Все смены'], ['morning', 'Утро'], ['evening', 'Вечер']])
           ];
@@ -3518,8 +3523,36 @@
             computeExpensesFor(statsRange[0], statsRange[1] < TODAY_ISO ? statsRange[1] : TODAY_ISO).total;
           const statsExpensesKnown = st.statsExpensesComplete !== false && statsSvcFilterNow === 'all' && !statsByDistrict &&
             !statsNoGranularData && (statsSource.expensesComplete !== false) && !statsSource.missing.length;
-          const statsNet = statsGross != null && statsExpensesKnown ? statsGross - statsExpensesValue : null;
-          const statsPrevious = statsSvcFilterNow === 'all' && !statsByDistrict && !statsNoGranularData ? statsSource.prevEarn : null;
+          let statsNet = statsGross != null && statsExpensesKnown ? statsGross - statsExpensesValue : null;
+          // прошлый период для сравнения: у идущего периода столько же дней с начала, у завершённого весь предыдущий
+          const statsPickSvc = (src, allKey, vvKey, skKey) => {
+            if (!src) return null;
+            const keep = (key) => demoOn || statsSavedServices.indexOf(key) !== -1;
+            if (statsSvcFilterNow === 'vkusvill') return src[vvKey] == null ? null : src[vvKey];
+            if (statsSvcFilterNow === 'samokat') return src[skKey] == null ? null : src[skKey];
+            if (demoOn || statsSavedServices.length === 2 || allKey === 'hours') return src[allKey] == null ? null : src[allKey];
+            return src[allKey] == null ? null : (keep('vkusvill') ? src[vvKey] || 0 : 0) + (keep('samokat') ? src[skKey] || 0 : 0);
+          };
+          const statsPrevValues = (() => {
+            if (statsPeriod === 'custom' || statsByDistrict || statsNoGranularData) return {};
+            const running = statsRange[0] <= TODAY_ISO && statsRange[1] >= TODAY_ISO;
+            let src;
+            if (running) {
+              const elapsed = isoRange(statsRange[0], TODAY_ISO).length;
+              const prevStart = statsPeriod === 'month' || statsPeriod === 'year' ? statsCalendarRange(statsPeriod, '', '', statsStep - 1)[0] : statsShiftISO(statsRange[0], -isoRange(statsRange[0], statsRange[1]).length);
+              if (prevStart < STATS_DEMO_FROM) return {};
+              src = statsDaysSource(statsPeriod, [prevStart, statsShiftISO(prevStart, elapsed - 1)], false);
+            } else {
+              src = statsRecapSource(statsPeriod, statsCalendarRange(statsPeriod, '', '', statsStep - 1), statsMonths, statsStep - 1);
+            }
+            const earn = statsPickSvc(src, 'earn', 'vvEarn', 'samokatEarn'), orders = statsPickSvc(src, 'orders', 'vvOrders', 'samokatOrders');
+            const hours = statsSvcFilterNow === 'all' ? src.hours : statsPickSvc(src, 'hours', 'vvHours', 'samokatHours');
+            return { earn, orders, hours,
+              rate: earn != null && hours > 0 ? Math.round(earn / hours) : null,
+              perOrder: earn != null && orders > 0 ? Math.round(earn / orders) : null,
+              ordersPerHour: orders != null && hours > 0 ? Math.round(orders / hours * 10) / 10 : null };
+          })();
+          const statsPrevious = statsPrevValues.earn != null ? statsPrevValues.earn : null;
           const statsDelta = statsGross != null && statsPrevious > 0 ? Math.round((statsGross - statsPrevious) * 100 / statsPrevious) : null;
           const statsCurrentPeriod = statsRange[0] <= TODAY_ISO && statsRange[1] >= TODAY_ISO;
           const statsDaysElapsed = statsCurrentPeriod ? isoRange(statsRange[0], TODAY_ISO).length : 0;
@@ -3527,22 +3560,56 @@
           const statsGoalSnapshot = (st.statsGoalSnapshots || {})[statsGoalKey];
           // завершённый период берёт сохранённую цель, без снимка цель недели из Работы на число дней периода
           const statsGoal = statsCurrentPeriod ? workGoalFor(statsDaysElapsed) : (statsGoalSnapshot != null ? statsGoalSnapshot : (statsPeriod === 'custom' ? null : workGoalFor(isoRange(statsRange[0], statsRange[1]).length)));
-          const statsPayout = statsSvcFilterNow === 'all' && !statsByDistrict && !statsNoGranularData ? statsSource.payout : null;
-          const statsPending = statsPayout == null || statsGross == null ? null : Math.max(0, statsGross - statsPayout);
+          let statsPayout = statsSvcFilterNow === 'all' && !statsByDistrict && !statsNoGranularData ? statsSource.payout : null;
+          // удержания, бонусы и отмены по случаям известны с 1 сентября, раньше удержания оцениваются по доле от начислений
+          const statsCaseScope = (row) => row.date >= statsRange[0] && row.date <= statsRange[1] && row.date <= TODAY_ISO &&
+            (statsSvcFilterNow === 'all' || row.svc === statsSvcFilterNow) && (demoOn || statsSavedServices.indexOf(row.svc) !== -1);
+          const statsCasesKnown = statsOrdersCovered && !statsByDistrict && !statsNoGranularData;
+          const statsFineRows = statsCasesKnown ? STATS_FINES.filter(statsCaseScope) : [];
+          const statsFines = statsNoGranularData || statsByDistrict || statsGross == null ? null :
+            (statsCasesKnown ? statsFineRows.reduce((sum, row) => sum + row.amount, 0) : Math.round(statsGross * 0.006 / 50) * 50);
+          const statsBonusRows = statsCasesKnown ? STATS_BONUSES.filter(statsCaseScope) : [];
+          const statsBonuses = statsCasesKnown ? statsBonusRows.reduce((sum, row) => sum + row.amount, 0) : null;
+          const statsCancels = statsCasesKnown ? STATS_CANCELS.filter((date) => date >= statsRange[0] && date <= statsRange[1]).length : null;
+          // чистыми это начислено минус удержания и расходы
+          if (statsNet != null && statsFines) statsNet -= statsFines;
+          // выплата не больше начисленного за вычетом удержаний
+          if (statsPayout != null && statsGross != null && statsFines) statsPayout = Math.min(statsPayout, statsGross - statsFines);
+          const statsPending = statsPayout == null || statsGross == null ? null : Math.max(0, statsGross - (statsFines || 0) - statsPayout);
+          // налог самозанятого считается со всех начислений периода, бонус тратится с начала года
+          const statsYearIncomeBefore = (iso) => {
+            const year = iso.slice(0, 4), month = iso.slice(0, 7);
+            const full = statsMonths.filter((m) => m.key.slice(0, 4) === year && m.key < month).reduce((sum, m) => sum + ((m.vv && m.vv[0]) || 0) + ((m.sk && m.sk[0]) || 0), 0);
+            const partial = iso.slice(8) === '01' ? 0 : (statsDaysSource('custom', [month + '-01', statsShiftISO(iso, -1)], false).earn || 0);
+            return full + partial;
+          };
+          const statsNpdFor = (income, startISO) => {
+            if (income == null) return null;
+            const bonusLeft = Math.max(0, NPD_BONUS - statsYearIncomeBefore(startISO) * NPD_BONUS_RATE);
+            return Math.round(income * NPD_RATE - Math.min(bonusLeft, income * NPD_BONUS_RATE));
+          };
+          const statsTaxKnown = statsSvcFilterNow === 'all' && !statsByDistrict && !statsNoGranularData && statsGross != null;
+          const statsTax = statsTaxKnown ? statsNpdFor(statsGross, statsRange[0] < '2025-01-01' ? '2025-01-01' : statsRange[0]) : null;
+          // месяц уплаты: месяц последнего дня периода, но не позже сегодняшнего
+          const statsTaxAnchor = statsRange[1] < TODAY_ISO ? statsRange[1] : TODAY_ISO;
+          const statsTaxMonthRange = statsCalendarRange('month', '', '', (Number(statsTaxAnchor.slice(0, 4)) - 2026) * 12 + Number(statsTaxAnchor.slice(5, 7)) - 9);
+          const statsTaxMonthIncome = statsTaxKnown ? (statsTaxMonthRange[0] === '2026-09-01' ? STATS.month.earn : statsRecapSource('month', statsTaxMonthRange, statsMonths, -1).earn) : null;
+          const statsTaxMonth = statsNpdFor(statsTaxMonthIncome, statsTaxMonthRange[0]);
+          const statsYearIncome = statsYearIncomeBefore(TODAY_ISO) + STATS.today.earn;
+          const statsBonusLeftNow = Math.max(0, NPD_BONUS - statsYearIncome * NPD_BONUS_RATE);
           const statsRecap = {
             range: statsRange, earn: statsGross, hours: statsHours, orders: statsOrdersCount,
             mainLabel: statsNet == null ? 'Начислено' : 'Осталось после расходов', mainValue: statsNet == null ? statsGross : statsNet,
             net: statsNet, payout: statsPayout, pending: statsPending, expenses: statsExpensesKnown ? statsExpensesValue : null,
             delta: statsDelta, goal: statsGoal, goalIsCurrent: statsCurrentPeriod,
             preliminary: statsCurrentPeriod || !!st.statsFinalAmountMissing, missing: statsSource.missing,
-            rate: statsNet != null && statsHours > 0 ? Math.round(statsNet / statsHours) : null,
+            // доход в час до расходов, чистыми отдельно
+            rate: statsGross != null && statsHours > 0 ? Math.round(statsGross / statsHours) : null,
+            netRate: statsNet != null && statsHours > 0 ? Math.round(statsNet / statsHours) : null,
             perOrder: statsGross != null && statsOrdersCount > 0 ? Math.round(statsGross / statsOrdersCount) : null,
             ordersPerHour: statsHours > 0 && statsOrdersCount != null ? Math.round(statsOrdersCount / statsHours * 10) / 10 : null
           };
-          const statsTrendPrevious = !statsStep && statsSvcFilterNow === 'all' && !statsByDistrict && !statsNoGranularData ?
-            ({ today: { earn: 3900, rate: 580, perOrder: 260, ordersPerHour: 2.4, orders: 15, hours: 6.3 },
-              week: { earn: 7840, rate: 600, perOrder: 270, ordersPerHour: 2.5, orders: 29, hours: 11.6 },
-              month: { earn: 54200, rate: 590, perOrder: 288, ordersPerHour: 2.2, orders: 188, hours: 85 } })[statsPeriod] || {} : {};
+          const statsTrendPrevious = statsPrevValues;
           const statsDistrictRows = Object.entries(statsVisibleOrders.reduce((rows, o) => {
             const district = statsPickupDistrict(o.pickupAddr);
             if (district) { if (!rows[district]) rows[district] = { name: district, earn: 0, orders: 0 }; rows[district].earn += o.pay; rows[district].orders++; }
@@ -3612,32 +3679,28 @@
           })();
           // ряд для экрана Мои тренды, шесть периодов до выбранного, медиана города берётся из демо-когорты
           const statsTrendSeries = (() => {
-            if (statsPeriod === 'custom' || statsSvcFilterNow !== 'all' || statsByDistrict || statsNoGranularData) return [];
+            if (statsPeriod === 'custom' || statsByDistrict || statsNoGranularData) return [];
             const cityRatio = [0.93, 1.04, 0.9, 0.98, 1.06, ({ today: 0.93, week: 0.95, month: 0.92, year: 0.945 })[statsPeriod]];
             const shortMonths = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
             const points = [];
             for (let k = statsStep - 5; k <= statsStep; k++) {
               const range = statsCalendarRange(statsPeriod, '', '', k);
-              const raw = k === statsStep ? statsSource : statsRecapSource(statsPeriod, range, statsMonths, k);
-              // вне демо прошлые периоды режем по тем же сохранённым сервисам, что и текущий
-              const keep = (key) => demoOn || statsSavedServices.indexOf(key) !== -1;
-              const src = k === statsStep || demoOn || statsSavedServices.length === 2 ? raw : Object.assign({}, raw, {
-                earn: raw.earn == null ? null : (keep('vkusvill') ? raw.vvEarn || 0 : 0) + (keep('samokat') ? raw.samokatEarn || 0 : 0),
-                orders: raw.orders == null ? null : (keep('vkusvill') ? raw.vvOrders || 0 : 0) + (keep('samokat') ? raw.samokatOrders || 0 : 0),
-                hours: null, months: null
-              });
-              const hours = src.hours != null ? src.hours : ((src.months || []).length ? src.months.reduce((sum, m) => sum + ((m.vv && m.vv[1]) || 0) + ((m.sk && m.sk[1]) || 0), 0) || null : null);
-              const earn = src.earn, orders = src.orders;
+              const src = k === statsStep ? statsSource : statsRecapSource(statsPeriod, range, statsMonths, k);
+              // срез по сервису и сохранённым сервисам тот же, что у итога
+              const earn = statsPickSvc(src, 'earn', 'vvEarn', 'samokatEarn'), orders = statsPickSvc(src, 'orders', 'vvOrders', 'samokatOrders');
+              const hours = statsSvcFilterNow === 'all' ? src.hours : statsPickSvc(src, 'hours', 'vvHours', 'samokatHours');
               const values = {
-                earn, orders,
+                earn, orders, hours: hours > 0 ? hours : null,
                 rate: earn != null && hours > 0 ? Math.round(earn / hours) : null,
                 perOrder: earn != null && orders > 0 ? Math.round(earn / orders) : null,
                 ordersPerHour: orders != null && hours > 0 ? Math.round(orders / hours * 10) / 10 : null
               };
               const ratio = cityRatio[k - statsStep + 5];
               const medians = {};
+              // медиана города появляется с задержкой на сутки, у сегодняшнего дня её нет
+              const noMedian = range[0] === TODAY_ISO && range[1] === TODAY_ISO;
               Object.keys(values).forEach((key, i) => {
-                if (values[key] == null) { medians[key] = null; return; }
+                if (values[key] == null || noMedian) { medians[key] = null; return; }
                 const r = key === 'earn' || key === 'orders' ? ratio : 1 + (ratio - 1) * (0.4 + i * 0.15);
                 medians[key] = key === 'ordersPerHour' ? Math.round(values[key] * r * 10) / 10 : Math.round(values[key] * r / (key === 'earn' ? 100 : 1)) * (key === 'earn' ? 100 : 1);
               });
@@ -3652,7 +3715,7 @@
             return points;
           })();
           // для прошлых периодов сравнение берём из соседней точки ряда
-          const statsTrendPrev = !statsStep ? statsTrendPrevious : ((statsTrendSeries[4] && statsTrendSeries[4].values) || {});
+          const statsTrendPrev = statsPrevValues;
           const statsPrevWord = ({ today: 'чем вчера', week: 'чем на прошлой неделе', month: 'чем в прошлом месяце', year: 'чем в прошлом году' })[statsPeriod] || 'чем за прошлый период';
           const statsPayoutShare = statsPayout != null && statsGross > 0 ? Math.max(0, Math.min(100, Math.round(statsPayout * 100 / statsGross))) : null;
           const statsActiveShare = statsHours > 0 && statsWithOrderHours != null ? Math.round(statsWithOrderHours * 100 / statsHours) : null;
@@ -4349,7 +4412,7 @@
               else if (role === 'courier') set({ s: 'integrations' });
             },
             go_market: () => set({ s: 'market' }),
-            go_history: () => { if (role === 'courier') set({ s: 'history' }); },
+            go_history: () => { if (role === 'courier') set({ s: 'history', histBack: '', histSvc: 'all', histDistrict: 'all' }); },
             recent_orders: HISTORY.filter((o) => o.dateISO === TODAY_ISO && (demoOn || activeDataSvcs.indexOf(o.svc) !== -1)).slice().sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 3).map((o) => ({
               id: o.id, svc: o.svc,
               route: o.pickupAddr + ' → ' + o.dropAddr,
@@ -4456,7 +4519,11 @@
             stats_net_known: statsNet != null, stats_delta: statsDelta, stats_prev_word: statsPrevWord,
             stats_range_human: statsRangeHuman,
             stats_range_hint: statsCurrentPeriod && statsPeriod !== 'today' ? 'данные по 15 сентября' : '',
-            stats_filter_count: statsFilterCount,
+            stats_filter_count: statsFilterCount, stats_filter_names: statsFilterNames,
+            stats_compare_groups: [
+              { label: 'Сервис', options: [['all', 'Все сервисы'], ['vkusvill', 'ВкусВилл'], ['samokat', 'Самокат']].map(([value, label]) => ({ label, selected: statsCohortService === value, tap: () => set({ statsCohortService: value }) })) },
+              { label: 'Район получения', options: [['all', 'Все районы']].concat(STATS_DISTRICTS.map((name) => [name, name])).map(([value, label]) => ({ label, selected: statsCohortDistrict === value, tap: () => set({ statsCohortDistrict: value }) })) }
+            ],
             stats_top_scope: (city === 'spb' ? 'Санкт-Петербург' : 'Москва') + ' · заработок за 7–13 сентября',
             stats_cohort_median_hint: statsStep && statsCohortService === 'all' && statsCohortDistrict === 'all' && statsTrendSeries.length ? statsTrendSeries[5].medians.earn : null,
             stats_time_caption: statsHours == null ? 'Часы на линии неизвестны' : String(statsHours).replace('.', ',') + ' ч на линии',
@@ -4466,13 +4533,79 @@
             stats_money_accent: statsPayoutShare == null ? '' : statsPayoutShare + '%',
             stats_money_sub: statsPayout == null ? 'Выплаты по выбранным данным неизвестны' : (statsPending > 0 ? formatMoney(statsPending) + ' ₽ ещё ждёт выплаты' : 'Всё начисленное уже выплачено'),
             stats_money_rows: [
-              ['Начислено', statsGross, 'earn'], ['Выплачено', statsPayout, 'payout'], ['Ждёт выплаты', statsPending, 'pending'],
+              ['Начислено', statsGross, 'earn'], ['Удержано', statsFines, 'fines'], ['Выплачено', statsPayout, 'payout'], ['Ждёт выплаты', statsPending, 'pending'],
               ['Расходы', statsExpensesKnown ? statsExpensesValue : null, 'expenses']
-            ].map(([label, amount, kind]) => ({
+            ].filter(([, amount, kind]) => kind !== 'fines' || amount > 0).map(([label, amount, kind]) => ({
               label, cls: 'raznos-stats-money-bar raznos-is-' + kind + (amount == null ? ' raznos-is-unknown' : ''),
-              value: amount == null ? (kind === 'expenses' ? 'Неполные' : 'Нет данных') : (kind === 'expenses' ? '−' : '') + formatMoney(amount) + ' ₽',
+              value: amount == null ? (kind === 'expenses' ? 'Неполные' : 'Нет данных') : (kind === 'expenses' || kind === 'fines' ? '−' : '') + formatMoney(amount) + ' ₽',
               style: 'width:' + (amount == null || !statsGross ? 0 : Math.max(amount > 0 ? 3 : 0, Math.min(100, Math.round(amount * 100 / statsGross)))) + '%'
             })),
+            ...(() => {
+              // подробные экраны денег, времени, налогов и штрафов
+              const money = (value) => value == null ? 'Нет данных' : formatMoney(value) + ' ₽';
+              const svcTitle = { vkusvill: 'ВкусВилл', samokat: 'Самокат' };
+              const dayLabel = (iso) => Number(iso.slice(8)) + ' ' + RU_MONTHS_GEN[Number(iso.slice(5, 7)) - 1];
+              const tipsConfirmed = statsFullOrderCoverage ? statsVisibleOrders.reduce((sum, o) => sum + (o.tipDigital || 0), 0) : null;
+              const tipsCash = statsFullOrderCoverage ? statsVisibleOrders.reduce((sum, o) => { const e = cashTips[o.id] || { amount: o.cashTip || 0, hidden: false }; return sum + (e.hidden ? 0 : e.amount); }, 0) : null;
+              const fineBySvc = Object.entries(statsFineRows.reduce((acc, row) => { acc[row.svc] = (acc[row.svc] || 0) + row.amount; return acc; }, {}))
+                .sort((a, b) => b[1] - a[1]);
+              const fineMax = fineBySvc.length ? fineBySvc[0][1] : 1;
+              const taxMonthName = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'][Number(statsTaxMonthRange[0].slice(5, 7)) - 1];
+              const dueMonth = new Date(Number(statsTaxMonthRange[0].slice(0, 4)), Number(statsTaxMonthRange[0].slice(5, 7)), 28);
+              const dueLabel = dueMonth.getDate() + ' ' + RU_MONTHS_GEN[dueMonth.getMonth()];
+              const taxPaid = statsTaxMonthRange[1] < '2026-09-01';
+              return {
+                stats_money_ledger: [
+                  { label: 'Начислено', value: money(statsGross), strong: true },
+                  { label: 'из них бонусы сервисов', value: money(statsBonuses), note: statsBonusRows.map((row) => svcTitle[row.svc] + ', ' + row.title.toLowerCase()).join(' · ') },
+                  { label: 'из них чаевые от сервиса', value: money(tipsConfirmed) },
+                  { label: 'Наличные чаевые', value: money(tipsCash), note: 'Внесены вручную, сервис их не подтверждает' },
+                  { label: 'Удержано', value: statsFines == null ? 'Нет данных' : (statsFines ? '−' : '') + formatMoney(statsFines) + ' ₽', tone: statsFines ? 'negative' : '' },
+                  { label: 'Выплачено', value: money(statsPayout) },
+                  { label: 'Ждёт выплаты', value: money(statsPending) },
+                  { label: 'Расходы', value: statsExpensesKnown ? '−' + formatMoney(statsExpensesValue) + ' ₽' : 'Неполные', tone: statsExpensesKnown ? 'negative' : '' },
+                  { label: 'Осталось после расходов', value: money(statsNet), strong: true },
+                  { label: 'Доход в час', value: statsRecap.rate == null ? 'Нет данных' : formatMoney(statsRecap.rate) + ' ₽/ч', note: 'До расходов, так же считается у других курьеров' },
+                  { label: 'Чистыми в час', value: statsRecap.netRate == null ? 'Нет данных' : formatMoney(statsRecap.netRate) + ' ₽/ч', note: statsRecap.netRate == null ? 'Нужны все расходы за период' : 'После удержаний и расходов' }
+                ],
+                stats_time_ledger: [
+                  { label: 'На линии, без пересечений', value: statsHours == null ? 'Нет данных' : String(statsHours).replace('.', ',') + ' ч', strong: true },
+                  { label: 'С заказами', value: statsWithOrderHours == null ? 'Нет данных' : String(statsWithOrderHours).replace('.', ',') + ' ч' },
+                  { label: 'Ожидание заказа', value: statsHours == null || statsWithOrderHours == null ? 'Нет данных' : String(Math.max(0, Math.round((statsHours - statsWithOrderHours) * 10) / 10)).replace('.', ',') + ' ч' },
+                  { label: 'На выдаче, в среднем', value: statsSvcFilterNow === 'all' && !statsByDistrict && !statsNoGranularData ? (statsSource.avgWait || 'Нет данных') : 'Нет данных' },
+                  { label: 'Расстояние', value: statsSvcFilterNow === 'all' && !statsByDistrict && !statsNoGranularData && statsSource.km != null ? String(statsSource.km).replace('.', ',') + ' км' : 'Нет данных' },
+                  { label: 'Отмены', value: statsCancels == null ? 'Нет данных' : String(statsCancels) },
+                  { label: 'Возвраты', value: statsFullOrderCoverage ? String(statsVisibleOrders.filter((o) => o.delivery === 'Возврат').length) : 'Нет данных' }
+                ],
+                stats_fines_link: statsFines ? 'Штрафы и удержания · −' + formatMoney(statsFines) + ' ₽' : '',
+                stats_fines_title: statsFines == null ? 'Удержания неизвестны' : (statsFines ? 'Удержано' : 'Удержаний не было'),
+                stats_fines_accent: statsFines ? formatMoney(statsFines) + ' ₽' : '',
+                stats_fines_sub: statsFines == null ? 'По выбранному срезу данных нет' : (statsCasesKnown ? statsFineRows.length + ' ' + ruPlural(statsFineRows.length, 'случай', 'случая', 'случаев') + ' за период' : 'Оценка по доле от начислений, разбор по случаям есть с 1 сентября'),
+                stats_fines_share: statsFines && statsGross ? String(Math.round(statsFines * 1000 / statsGross) / 10).replace('.', ',') + '% от начисленного' : '',
+                stats_fines_by_service: fineBySvc.map(([key, amount]) => ({ key, title: svcTitle[key] || key, amount: '−' + formatMoney(amount) + ' ₽', bar_style: 'width:' + Math.max(8, Math.round(amount * 100 / fineMax)) + '%' })),
+                stats_fine_cases: statsFineRows.slice().reverse().map((row) => ({
+                  key: row.svc, reason: row.reason, amount: '−' + formatMoney(row.amount) + ' ₽',
+                  meta: dayLabel(row.date) + ' · ' + (svcTitle[row.svc] || row.svc) + ' · заказ ' + row.order,
+                  lost: row.promised ? 'Обещали ' + formatMoney(row.promised) + ' ₽, выплатили ' + formatMoney(Math.max(0, row.promised - row.amount)) + ' ₽' : 'Заказ не оплачен',
+                  tap: () => set(Object.assign({ s: 'history', histBack: 'stats', histPeriod: 'period', histFrom: row.date, histTo: row.date, histSvc: row.svc, histDistrict: 'all', histStatus: 'all', histPage: 0 }, resetHistDays()))
+                })),
+                stats_tax_card_value: statsTax == null ? 'Нет данных' : '≈ ' + formatMoney(statsTax) + ' ₽',
+                stats_tax_card_sub: statsTax == null ? 'Налог считается по всем начислениям без фильтров' : (statsBonusLeftNow > 0 ? '4% с учётом налогового бонуса' : '6% с дохода от сервисов') + ' · за ' + taxMonthName + (taxPaid ? ' оплачен' : ' до ' + dueLabel),
+                stats_tax_month_title: taxPaid ? 'Налог за ' + taxMonthName : 'К уплате за ' + taxMonthName,
+                stats_tax_month_value: statsTaxMonth == null ? 'Нет данных' : formatMoney(statsTaxMonth) + ' ₽',
+                stats_tax_month_sub: taxPaid ? 'Оплачен до ' + dueLabel : 'Заплатить до ' + dueLabel + ', до конца месяца сумма ещё вырастет',
+                stats_tax_rows: [
+                  { label: 'Налог за выбранный период', value: statsTax == null ? 'Нет данных' : '≈ ' + formatMoney(statsTax) + ' ₽', strong: true },
+                  { label: 'Доход за период', value: money(statsGross), note: 'Налог считается со всех начислений, расходы его не уменьшают' },
+                  { label: 'Ставка', value: statsBonusLeftNow > 0 ? '4%' : '6%', note: 'Сервисы платят как компании, базовая ставка 6%, налоговый бонус снижает её до 4%' },
+                  { label: 'Налоговый бонус', value: formatMoney(Math.round(statsBonusLeftNow)) + ' из ' + formatMoney(NPD_BONUS) + ' ₽', note: statsBonusLeftNow > 0 ? 'Когда закончится, ставка станет 6%' : 'Бонус израсходован' }
+                ],
+                stats_tax_year_value: formatMoney(statsYearIncome) + ' ₽',
+                stats_tax_year_sub: 'Доход с начала года из ' + formatMoney(NPD_LIMIT) + ' ₽ лимита самозанятого',
+                stats_tax_year_style: 'width:' + Math.max(2, Math.min(100, Math.round(statsYearIncome * 100 / NPD_LIMIT))) + '%',
+                stats_tax_year_share: Math.round(statsYearIncome * 100 / NPD_LIMIT) + '%'
+              };
+            })(),
             stats_time_share: statsActiveShare,
             stats_time_title: statsActiveShare == null ? 'Куда ушло время' : 'С заказами',
             stats_time_accent: statsActiveShare == null ? '' : statsActiveShare + '%',
@@ -4545,11 +4678,15 @@
             stats_cohort_period: statsPeriod, stats_cohort_mine: statsCohortMine,
             stats_detail_open: !!st.statsDetail && (st.statsDetail !== 'filters' || st.statsFiltersBack === 'trends'),
             stats_detail_closed: !st.statsDetail || (st.statsDetail === 'filters' && st.statsFiltersBack !== 'trends'),
-            stats_detail_title: st.statsDetail === 'filters' && st.statsFiltersBack === 'trends' ? 'Мои тренды' : (({ money: 'Деньги', time: 'Время', services: 'Сервисы и районы', compare: 'Сравнение', trends: 'Мои тренды' })[st.statsDetail] || ''),
+            stats_detail_title: st.statsDetail === 'filters' && st.statsFiltersBack === 'trends' ? 'Мои тренды' : (({ money: 'Деньги', time: 'Время', services: 'Сервисы и районы', compare: 'Сравнение', trends: 'Мои тренды', taxes: 'Налоги', fines: 'Штрафы и удержания' })[st.statsDetail] || ''),
             stats_detail_is_money: st.statsDetail === 'money', stats_detail_is_time: st.statsDetail === 'time',
             stats_detail_is_services: st.statsDetail === 'services', stats_detail_is_compare: st.statsDetail === 'compare',
+            stats_detail_is_taxes: st.statsDetail === 'taxes', stats_detail_is_fines: st.statsDetail === 'fines',
+            stats_detail_go_taxes: () => set({ statsDetail: 'taxes', statsDetailBack: st.statsDetail || '' }),
+            stats_detail_go_fines: () => set({ statsDetail: 'fines', statsDetailBack: st.statsDetail || '' }),
             stats_detail_is_trends: st.statsDetail === 'trends' || (st.statsDetail === 'filters' && st.statsFiltersBack === 'trends'),
-            stats_detail_close: () => set({ statsDetail: st.statsDetail === 'filters' && st.statsFiltersBack === 'trends' ? 'trends' : '', statsFiltersBack: '' }), stats_detail_go_money: () => set({ statsDetail: 'money' }),
+            // налоги и штрафы возвращают туда, откуда открыты: на главный экран или в Деньги
+            stats_detail_close: () => set(st.statsDetailBack && (st.statsDetail === 'taxes' || st.statsDetail === 'fines') ? { statsDetail: st.statsDetailBack, statsDetailBack: '' } : { statsDetail: st.statsDetail === 'filters' && st.statsFiltersBack === 'trends' ? 'trends' : '', statsFiltersBack: '', statsDetailBack: '' }), stats_detail_go_money: () => set({ statsDetail: 'money' }),
             stats_detail_go_time: () => set({ statsDetail: 'time' }), stats_detail_go_services: () => set({ statsDetail: 'services' }),
             stats_detail_go_compare: () => set({ statsDetail: 'compare' }), stats_detail_go_trends: () => set({ statsDetail: 'trends', statsFiltersBack: '' }),
             stats_detail_go_filters: () => set({ statsDetail: 'filters', statsFiltersBack: '' }),
@@ -5771,14 +5908,15 @@
           Object.assign(vals, {
             demo_on: demoOn, demo_off: !demoOn,
             go_expenses_from_home: () => set({ s: 'expenses', expBack: 'courier-home', period: 'today' }),
-            go_expenses_from_stats: () => set({ s: 'expenses', expBack: 'stats' }),
+            // расходы открываются на том же периоде, что выбран в статистике, если такой период там есть
+            go_expenses_from_stats: () => set({ s: 'expenses', expBack: 'stats', period: !st.statsStep && ['today', 'week', 'month'].indexOf(st.statsPeriod || 'week') !== -1 ? (st.statsPeriod || 'week') : 'month' }),
             go_history_stats_vv: () => set(Object.assign({ s: 'history', histPeriod: period, histSvc: 'vkusvill', histStatus: 'all', histPage: 0 }, resetHistDays())),
             go_history_stats_sk: () => set(Object.assign({ s: 'history', histPeriod: period, histSvc: 'samokat', histStatus: 'all', histPage: 0 }, resetHistDays())),
             go_recurring_from_profile: () => set({ s: 'recurring', recBack: 'profile' }),
             go_recurring_from_expenses: () => set({ s: 'recurring', recBack: 'expenses' }),
             exp_back: () => set({ s: expBack }), rec_back: () => set({ s: recBack }),
             exp_recurring_summary: expRecurringSummary,
-            exp_period_label: period === 'today' ? '15 сентября' : stat.title,
+            exp_period_label: period === 'today' ? '15 сентября' : (period === 'week' ? '14–15 сентября' : '1–15 сентября'),
             exp_total: formatMoney(expStatResult.total), exp_recurring_total: formatMoney(expStatResult.recurring),
             exp_has_templates: expTemplates.length > 0,
             exp_template_chips: expTemplates.map((t) => ({ id: t.id, label: EXPENSE_CATS[t.cat] + (t.note ? ' · ' + t.note : ''), onTap: () => { const d = { day: TODAY_ISO, cat: t.cat, amount: '', note: t.note, saveTemplate: false }; set({ s: 'expense-form', expFormId: '', expFormDraft: d, expFormInit: d }); } })),

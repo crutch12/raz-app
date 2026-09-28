@@ -5,13 +5,13 @@
   <sc-if value="{{ has_rows }}" hint-placeholder-val="{{ true }}"><div class="raznos-stats-ranking"><sc-for list="{{ rows }}" as="row" hint-placeholder-count="3"><button type="button" class="raznos-stats-rank-row" onClick="{{ row.tap }}"><span class="raznos-stats-rank-number">{{ row.rank }}</span><span class="raznos-stats-rank-copy"><strong>{{ row.name }}</strong><span class="raznos-stats-rank-orders">{{ row.orders_label }}</span></span><span class="raznos-stats-rank-track"><i style="{{ row.style }}"></i></span><span class="raznos-stats-rank-value">{{ row.amount }}</span></button></sc-for></div></sc-if>
   <sc-if value="{{ no_rows }}" hint-placeholder-val="{{ false }}"><p class="raznos-stats-note">По выбранным заказам район получения неизвестен</p></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"rows":{"editor":null},"onAll":{"editor":null},"$preview":{"width":340,"height":220}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"rows":{"editor":null},"onAll":{"editor":null},"limit":{"editor":null},"$preview":{"width":340,"height":220}}'>
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
     const rows = p.rows || [{ name: 'Беговой', earn: 2350, orders: 9, amount: '2 350 ₽', tap: () => {} }, { name: 'Пресненский', earn: 1850, orders: 7, amount: '1 850 ₽', tap: () => {} }];
     const max = Math.max.apply(null, rows.map((row) => row.earn || 0).concat([1]));
-    const prepared = rows.slice(0, 3).map((row, index) => Object.assign({}, row, {
+    const prepared = rows.slice(0, p.limit || 3).map((row, index) => Object.assign({}, row, {
       rank: index + 1,
       orders_label: row.orders == null ? '' : row.orders + ' заказов',
       style: 'width:' + Math.max(8, Math.round((row.earn || 0) / max * 100)) + '%'

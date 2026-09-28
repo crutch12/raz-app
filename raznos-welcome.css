@@ -2,7 +2,7 @@
 .raznos-onboarding-top { display: flex; justify-content: space-between; align-items: center; }
 .raznos-onboarding-brand { display: flex; align-items: center; gap: 8px; font: 750 22px var(--raznos-font); }
 .raznos-onboarding-brand img { width: 32px; height: 32px; border-radius: 9px; }
-.raznos-onboarding-art { position: relative; flex: none; height: 320px; margin: 0 -20px; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; }
+.raznos-onboarding-art { position: relative; flex: none; height: 320px; margin: 0 calc(-1 * var(--raznos-screen-x, 20px)); box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; }
 
 /* Слайд 1: итог дня */
 .raznos-onboarding-art-income { background: var(--raznos-dark); color: var(--raznos-on-dark); padding: 24px 20px 20px; justify-content: flex-start; }

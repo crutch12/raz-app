@@ -1,0 +1,34 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
+<div class="raznos-stats-section raznos-stats-ledger">
+  <sc-if value="{{ has_title }}" hint-placeholder-val="{{ true }}"><h2 class="raznos-stats-section-title">{{ title }}</h2></sc-if>
+  <div class="raznos-stats-ledger-rows">
+    <sc-for list="{{ rows }}" as="row" hint-placeholder-count="5">
+      <div class="{{ row.cls }}"><span class="raznos-stats-ledger-label">{{ row.label }}<sc-if value="{{ row.note }}" hint-placeholder-val="{{ false }}"><small>{{ row.note }}</small></sc-if></span><strong>{{ row.value }}</strong></div>
+    </sc-for>
+  </div>
+  <sc-if value="{{ note }}" hint-placeholder-val="{{ false }}"><p class="raznos-stats-note">{{ note }}</p></sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"title":{"editor":"text","default":"Из чего сложилось"},"rows":{"editor":null},"note":{"editor":"text","default":""},"$preview":{"width":360,"height":320}}'>
+// строки «подпись и сумма» для подробных экранов статистики, итоговые строки выделены
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const rows = p.rows || [
+      { label: 'Начислено', value: '8 000 ₽', strong: true },
+      { label: 'из них бонусы сервисов', value: '0 ₽' },
+      { label: 'Удержано', value: '−150 ₽', tone: 'negative' },
+      { label: 'Выплачено', value: '7 400 ₽' },
+      { label: 'Осталось после расходов', value: '7 250 ₽', strong: true }
+    ];
+    return {
+      title: p.title === undefined ? 'Из чего сложилось' : (p.title || ''), has_title: p.title !== '',
+      note: p.note || '',
+      rows: rows.map((row) => Object.assign({}, row, {
+        note: row.note || '',
+        cls: 'raznos-stats-ledger-row' + (row.strong ? ' raznos-is-strong' : '') + (row.tone === 'negative' ? ' raznos-is-negative' : '') + (/^Нет данных|^Неполные/.test(row.value || '') ? ' raznos-is-unknown' : '')
+      }))
+    };
+  }
+}
+</script></body></html>

@@ -158,7 +158,7 @@ class Component extends DCLogic {
     const top = byValue.slice(0, 3);
     const risingR = byValue.slice(3).filter((r) => r.x.trend >= 10).sort((a, b) => b.x.trend - a.x.trend)[0];
     const cardRows = top.map((r, i) => Object.assign(rowOf(r), { divider: !!risingR && i === top.length - 1 }));
-    if (risingR) cardRows.push(Object.assign(rowOf(risingR), { trend: risingR.x.trend, trendTail: 'дохода в час за 4 недели, сервис набирает' }));
+    if (risingR) cardRows.push(Object.assign(rowOf(risingR), { trend: risingR.x.trend, trendTail: 'дохода в час за 4 недели, платят всё больше' }));
     const rest = Math.max(0, byValue.length - cardRows.length);
 
     const optsOf = (l) => l.map((o) => ({ k: o.k, label: o.label, note: o.note }));
