@@ -1,0 +1,183 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rhs { box-sizing: border-box; width: 100%; max-width: 100%; text-align: left; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .rhs-title { display: inline-flex; align-items: center; gap: 8px; font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
+    .rhs-sub { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); margin-top: 2px; }
+
+    .rhs-list { display: flex; flex-direction: column; }
+
+    .rhs-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .rhs-best { font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); }
+    .rhs-best b { color: var(--raznos-ink); font-weight: 700; }
+    .rhs-more { flex: none; display: inline-flex; align-items: center; gap: 2px; border: 0; background: none; padding: 0; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
+
+    .rhs-full { display: flex; flex-direction: column; gap: 12px; }
+    .rhs-full .rhs-list { background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 4px 16px; }
+    .rhs-empty { padding: 20px 0; font: 500 14px var(--raznos-font); color: var(--raznos-ink-2); text-align: center; }
+  </style>
+</helmet>
+
+<sc-if value="{{ is_card }}" hint-placeholder-val="{{ true }}">
+  <div class="rhs">
+    <span class="raznos-fx raznos-col"><span class="rhs-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg>Где выгоднее</span><span class="rhs-sub">{{ card_sub }}</span></span>
+    <div class="rhs-list">
+      <sc-for list="{{ card_rows }}" as="z" hint-placeholder-count="4">
+        <dc-import name="RaznosRankRow" rank="{{ z.rank }}" title="{{ z.name }}" meta="{{ z.meta }}" fill="{{ z.fill }}" value="{{ z.val }}" action="{{ z.action }}" href="{{ z.routeHref }}" actionLabel="{{ z.routeAria }}" trend="{{ z.trend }}" trendTail="{{ z.trendTail }}" divider="{{ z.divider }}"></dc-import>
+      </sc-for>
+    </div>
+    <div class="rhs-foot"><span class="rhs-best">{{ more_label }}</span><button type="button" class="rhs-more" onClick="{{ open_more }}">Подробнее<span class="raznos-row-chevron">›</span></button></div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ is_full }}" hint-placeholder-val="{{ false }}">
+  <div class="rhs-full">
+    <div class="raznos-segmented" role="tablist" aria-label="Порядок районов">
+      <button type="button" role="tab" aria-selected="{{ by_rank }}" class="{{ seg_rank_cls }}" onClick="{{ sort_rank }}">Выгоднее</button>
+      <button type="button" role="tab" aria-selected="{{ by_near }}" class="{{ seg_near_cls }}" onClick="{{ sort_near }}">Ближе ко мне</button>
+    </div>
+    <dc-import name="RaznosFilterChips" filters="{{ filters }}" onChange="{{ on_filter }}"></dc-import>
+    <div class="rhs-list">
+      <sc-for list="{{ rows }}" as="z" hint-placeholder-count="8">
+        <dc-import name="RaznosRankRow" rank="{{ z.rank }}" title="{{ z.name }}" meta="{{ z.meta }}" fill="{{ z.fill }}" value="{{ z.val }}" action="{{ z.action }}" href="{{ z.routeHref }}" actionLabel="{{ z.routeAria }}" trend="{{ z.trend }}" trendTail="{{ z.trendTail }}" divider="{{ z.divider }}"></dc-import>
+      </sc-for>
+      <sc-if value="{{ is_empty }}" hint-placeholder-val="{{ false }}"><p class="rhs-empty">В этих районах нет заказов выбранного сервиса</p></sc-if>
+    </div>
+    <p class="raznos-text-tiny">{{ source_note }}</p>
+  </div>
+</sc-if>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"open":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"transportTitle":{"editor":"text","default":"велосипед"},"$preview":{"width":390,"height":330}}'>
+// где выгоднее по мотивам Gridwise Where to Work: районы по доходу, полоса от лучшего, тренд за 4 недели
+// один компонент на карточку хаба Работа и экран, чтобы цифры совпадали
+// районы те же, что в фильтре Когда выгоднее, демо
+const RHS_ZONES = [
+  { k: 'presnya', name: 'Пресненский', pay: 760, km: 3.1, trend: 4, wk: 0.92, tod: [0.9, 1.08, 1.02, 0.8], svc: { vkusvill: 1.04, samokat: 1, 'yandex-eda': 1.06 } },
+  { k: 'tverskoy', name: 'Тверской', pay: 740, km: 4.6, trend: 19, wk: 0.86, tod: [0.84, 1.14, 1.04, 0.9], svc: { vkusvill: 1, samokat: 0.96, 'yandex-eda': 1.08 } },
+  { k: 'khamovniki', name: 'Хамовники', pay: 700, km: 1.8, trend: 2, wk: 1.08, tod: [0.96, 0.98, 1.06, 0.82], svc: { vkusvill: 1.08, samokat: 1.02, 'yandex-eda': 0.98 } },
+  { k: 'arbat', name: 'Арбат', pay: 680, km: 2.4, trend: -3, wk: 1.04, tod: [0.86, 1.04, 1.1, 0.96], svc: { vkusvill: 0.98, samokat: 0, 'yandex-eda': 1.1 } },
+  { k: 'basmanny', name: 'Басманный', pay: 640, km: 5.2, trend: 6, wk: 1, tod: [0.92, 1, 1.06, 0.88], svc: { vkusvill: 1, samokat: 1.04, 'yandex-eda': 1 } },
+  { k: 'zamoskvorechye', name: 'Замоскворечье', pay: 620, km: 3.9, trend: -12, wk: 0.94, tod: [0.9, 1.06, 1.02, 0.84], svc: { vkusvill: 1.02, samokat: 1, 'yandex-eda': 1.02 } },
+  { k: 'begovoy', name: 'Беговой', pay: 590, km: 2.7, trend: 8, wk: 1.1, tod: [1.02, 0.96, 1.04, 0.9], svc: { vkusvill: 0, samokat: 1.08, 'yandex-eda': 0.96 } },
+  { k: 'meshchansky', name: 'Мещанский', pay: 570, km: 5.8, trend: 1, wk: 0.96, tod: [0.94, 1.02, 1.02, 0.88], svc: { vkusvill: 1, samokat: 0.98, 'yandex-eda': 1 } },
+  { k: 'dorogomilovo', name: 'Дорогомилово', pay: 540, km: 3.3, trend: 16, wk: 1.06, tod: [1, 0.96, 1.06, 0.86], svc: { vkusvill: 1.06, samokat: 1.02, 'yandex-eda': 0.94 } },
+  { k: 'krasnoselsky', name: 'Красносельский', pay: 510, km: 6.4, trend: -4, wk: 0.98, tod: [0.96, 1, 1.02, 0.9], svc: { vkusvill: 0.96, samokat: 1, 'yandex-eda': 1 } }
+];
+const RHS_METRICS = [{ k: 'pay', label: '₽ в час' }, { k: 'ord', label: 'Заказов в час' }];
+const RHS_CATS = [{ k: 'all', label: 'Все сервисы' }, { k: 'vkusvill', label: 'ВкусВилл' }, { k: 'samokat', label: 'Самокат' }, { k: 'yandex-eda', label: 'Яндекс Еда' }];
+const RHS_WHEN = [
+  { k: 'week', label: 'Вся неделя' },
+  { k: 'weekdays', label: 'Будни', note: 'Пн–Пт' },
+  { k: 'weekend', label: 'Выходные', note: 'Сб–Вс' }
+];
+const RHS_TODS = [
+  { k: 'all', label: 'Весь день', note: '8–24' },
+  { k: 'morning', label: 'Утро', note: '8–12', i: 0 },
+  { k: 'day', label: 'День', note: '12–17', i: 1 },
+  { k: 'evening', label: 'Вечер', note: '17–22', i: 2 },
+  { k: 'night', label: 'Ночь', note: '22–24', i: 3 }
+];
+const RHS_TRANSPORTS = [
+  { k: 'foot', label: 'Пешком', mul: 0.78, reach: 2.5 },
+  { k: 'bike', label: 'Велосипед', mul: 1, reach: 6 },
+  { k: 'ebike', label: 'Электровелосипед', mul: 1.12, reach: 8 },
+  { k: 'car', label: 'Авто', mul: 1.22, reach: 99 }
+];
+const rhsTransportKey = (t) => {
+  const s = String(t || '').toLowerCase();
+  if (s.includes('пеш')) return 'foot';
+  if (s.includes('электро')) return 'ebike';
+  if (s.includes('авто') || s.includes('машин')) return 'car';
+  return 'bike';
+};
+const RHS_FMT = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const byKey = (list, k) => list.find((x) => x.k === k) || list[0];
+const rhsKm = (km) => String(km).replace('.', ',') + ' км';
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const set = (patch) => this.setState(patch);
+    const full = p.mode === 'full';
+    const metric = byKey(RHS_METRICS, st.metric);
+    const cat = byKey(RHS_CATS, st.cat);
+    const when = byKey(RHS_WHEN, st.when);
+    const tod = byKey(RHS_TODS, st.tod);
+    const trDefault = byKey(RHS_TRANSPORTS, rhsTransportKey(p.transportTitle));
+    const tr = byKey(RHS_TRANSPORTS, st.transport || trDefault.k);
+    const city = p.cityTitle || 'Москва';
+
+    // доход в час по району с учётом фильтров, 0 если сервиса в районе нет
+    const valueOf = (z) => {
+      const svc = cat.k === 'all' ? 1 : (z.svc[cat.k] || 0);
+      if (!svc) return 0;
+      const wk = when.k === 'weekend' ? z.wk : (when.k === 'weekdays' ? (1 - (z.wk - 1) * 0.4) : 1);
+      const td = tod.i == null ? 1 : z.tod[tod.i];
+      return Math.round(z.pay * svc * wk * td * tr.mul / trDefault.mul / 10) * 10;
+    };
+    const scored = RHS_ZONES.map((z) => ({ z, v: valueOf(z) })).filter((x) => x.v > 0);
+    const byValue = scored.slice().sort((a, b) => b.v - a.v);
+    byValue.forEach((x, i) => { x.rank = i + 1; });
+    const max = byValue.length ? byValue[0].v : 1;
+    const min = byValue.length ? byValue[byValue.length - 1].v : 0;
+    const shown = (v) => metric.k === 'pay' ? RHS_FMT(v) + ' ₽' : String(Math.round(v / 260 * 10) / 10).replace('.', ',');
+    // полоса от минимума к лучшему, чтобы разница читалась
+    const fillW = (v) => Math.round(18 + 82 * (max === min ? 1 : (v - min) / (max - min)));
+    const rowOf = (x) => ({
+      rank: x.rank, name: x.z.name, val: shown(x.v), fill: fillW(x.v),
+      meta: '', action: '', routeHref: '', routeAria: '', trend: 0, trendTail: '', divider: false
+    });
+
+    // экран: сортировка по доходу или по расстоянию, выноски трендов от 10%
+    const nearFirst = st.sort === 'near';
+    const list = nearFirst ? byValue.slice().sort((a, b) => a.z.km - b.z.km) : byValue;
+    // выноски только у самого растущего и самого падающего района, чтобы список не пестрел
+    const upX = byValue.filter((x) => x.z.trend >= 10).sort((a, b) => b.z.trend - a.z.trend)[0];
+    const downX = byValue.filter((x) => x.z.trend <= -10).sort((a, b) => a.z.trend - b.z.trend)[0];
+    const rows = list.map((x) => {
+      const r = rowOf(x);
+      const far = x.z.km > tr.reach;
+      const big = x === upX || x === downX;
+      return Object.assign(r, {
+        meta: rhsKm(x.z.km) + (far ? ' · далеко' : ''),
+        routeHref: 'https://yandex.ru/maps/?mode=routes&rtt=' + (tr.k === 'car' ? 'auto' : (tr.k === 'foot' ? 'pd' : 'bc')) + '&rtext=~' + encodeURIComponent(city + ', район ' + x.z.name),
+        routeAria: 'Маршрут в район ' + x.z.name,
+        action: 'route', divider: x !== list[list.length - 1],
+        trend: big ? x.z.trend : 0,
+        trendTail: 'дохода в час за 4 недели' + (x.z.trend > 0 ? ', район набирает' : ', заказов стало меньше')
+      });
+    });
+
+    // карточка: топ-3 и район, который растёт быстрее всех вне топа
+    const top = byValue.slice(0, 3);
+    const risingX = byValue.slice(3).filter((x) => x.z.trend >= 10).sort((a, b) => b.z.trend - a.z.trend)[0];
+    const rising = risingX ? Object.assign(rowOf(risingX), { trend: risingX.z.trend, trendTail: 'дохода в час за 4 недели, район набирает' }) : null;
+
+    const optsOf = (l) => l.map((o) => ({ k: o.k, label: o.label, note: o.note }));
+    const filters = [
+      { key: 'when', title: 'Когда', value: when.k, def: 'week', options: optsOf(RHS_WHEN) },
+      { key: 'tod', title: 'Время суток', value: tod.k, def: 'all', options: optsOf(RHS_TODS) },
+      { key: 'transport', title: 'Транспорт', value: tr.k, def: trDefault.k, options: optsOf(RHS_TRANSPORTS) },
+      { key: 'metric', title: 'Показатель', value: metric.k, def: 'pay', options: optsOf(RHS_METRICS) },
+      { key: 'cat', title: 'Сервис', value: cat.k, def: 'all', options: optsOf(RHS_CATS) }
+    ];
+    const open = typeof p.open === 'function' ? p.open : (() => {});
+
+    return {
+      is_card: !full, is_full: full,
+      card_sub: city + ' · ₽ в час · вся неделя',
+      // растущий район отделяем чертой от топа
+      card_rows: top.map((x, i) => Object.assign(rowOf(x), { divider: !!rising && i === top.length - 1 })).concat(rising ? [rising] : []),
+      more_label: (() => { const n = Math.max(0, byValue.length - 3 - (rising ? 1 : 0)); const w = (n % 10 === 1 && n % 100 !== 11) ? 'район' : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'района' : 'районов'); return 'Ещё ' + n + ' ' + w; })(),
+      open_more: () => open(),
+      by_rank: !nearFirst, by_near: nearFirst,
+      seg_rank_cls: 'raznos-segment' + (!nearFirst ? ' raznos-is-active' : ''),
+      seg_near_cls: 'raznos-segment' + (nearFirst ? ' raznos-is-active' : ''),
+      sort_rank: () => set({ sort: 'rank' }), sort_near: () => set({ sort: 'near' }),
+      filters, on_filter: (key, k) => set({ [key]: k }),
+      rows, is_empty: rows.length === 0,
+      source_note: 'По заказам курьеров Разноса: ' + city + ', последние 4 недели. Расстояние считаем от вашего района'
+    };
+  }
+}
+</script></body></html>

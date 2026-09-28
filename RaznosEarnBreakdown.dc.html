@@ -1,0 +1,66 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .reb { box-sizing: border-box; width: 100%; max-width: 100%; text-align: left; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 14px; font: inherit; color: inherit; }
+    .reb-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .reb-title { font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
+    .reb-total { font: 700 14px var(--raznos-mono); color: var(--raznos-ink-3); font-variant-numeric: tabular-nums; }
+    .reb-item { display: flex; flex-direction: column; gap: 6px; }
+    .reb-bar { height: 6px; border-radius: 999px; background: var(--raznos-surface-2); overflow: hidden; }
+    .reb-fill { display: block; height: 100%; border-radius: 999px; }
+    .reb-row { display: flex; align-items: center; gap: 8px; width: 100%; background: none; border: 0; padding: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+    .reb-exp { display: flex; align-items: center; gap: 8px; width: 100%; background: none; border: 0; padding: 8px 0 0; font: inherit; color: inherit; text-align: left; cursor: pointer; border-top: 1px solid var(--raznos-line); }
+    .reb-exp-name { flex: 1; font: 600 14px var(--raznos-font); color: var(--raznos-ink); }
+    .reb-exp-sum { font: 700 14px var(--raznos-mono); color: var(--raznos-red); font-variant-numeric: tabular-nums; }
+    .reb-name { font: 600 14px var(--raznos-font); color: var(--raznos-ink); }
+    .reb-meta { margin-left: auto; display: flex; align-items: baseline; gap: 8px; }
+    .reb-cnt { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .reb-sum { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+  </style>
+</helmet>
+<div class="reb">
+  <div class="reb-head"><span class="reb-title">Из чего сложилась сумма</span><span class="reb-total">{{ total }} ₽</span></div>
+  <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
+    <div class="reb-item">
+      <button type="button" class="reb-row" onClick="{{ r.open }}">
+        <dc-import name="RaznosIcon" svc="{{ r.svc }}" alt="{{ r.name }}" size="sm"></dc-import>
+        <span class="reb-name">{{ r.name }}</span>
+        <span class="reb-meta"><span class="reb-cnt">{{ r.count }} заказов</span><span class="reb-sum">{{ r.sum }} ₽</span></span>
+        <span class="raznos-row-chevron">›</span>
+      </button>
+      <div class="reb-bar"><span class="reb-fill" style="{{ r.fillStyle }}"></span></div>
+    </div>
+  </sc-for>
+  <button type="button" class="reb-exp" onClick="{{ open_expenses }}"><span class="reb-exp-name">Расходы</span><span class="reb-exp-sum">−{{ expenses }} ₽</span><span class="raznos-row-chevron">›</span></button>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":230}}'>
+// разбивка заработка по сервисам прогресс-баром для раздела Сегодня, по мотивам Gridwise Weekly Recap
+const REB_SVC = { samokat: 'Самокат', vkusvill: 'ВкусВилл', 'yandex-eda': 'Яндекс Еда' };
+const REB_DEMO = [
+  { svc: 'samokat', count: 7, sum: 3100 },
+  { svc: 'vkusvill', count: 5, sum: 2400 },
+  { svc: 'yandex-eda', count: 3, sum: 1500 }
+];
+const REB_FMT = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const REB_COLOR = (k) => 'var(--raznos-svc-' + k + ')';
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const src = (p.services && p.services.length) ? p.services : REB_DEMO;
+    const onOpenService = typeof p.onOpenService === 'function' ? p.onOpenService : (() => {});
+    const openExpenses = typeof p.onOpenExpenses === 'function' ? p.onOpenExpenses : (() => {});
+    const expenses = p.expenses != null ? p.expenses : 300;
+    const ordered = src.slice().sort((a, b) => b.sum - a.sum);
+    const total = ordered.reduce((a, b) => a + b.sum, 0);
+    const max = ordered.length ? ordered[0].sum : 1;
+    const rows = ordered.map((r) => ({
+      svc: r.svc, name: REB_SVC[r.svc] || r.svc,
+      count: r.count, sum: REB_FMT(r.sum),
+      fillStyle: 'width:' + Math.max(6, Math.round(r.sum / max * 100)) + '%;background:' + REB_COLOR(r.svc),
+      open: () => onOpenService(r.svc)
+    }));
+    return { total: REB_FMT(total), rows, expenses: REB_FMT(expenses), open_expenses: openExpenses };
+  }
+}
+</script></body></html>

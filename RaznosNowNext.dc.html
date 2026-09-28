@@ -1,0 +1,57 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rnn { box-sizing: border-box; width: 100%; max-width: 100%; text-align: left; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .rnn-title { font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
+    .rnn-now { box-sizing: border-box; display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 12px; background: var(--raznos-green-tint); }
+    .rnn-now-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .rnn-now-lab { font: 600 11px var(--raznos-font); text-transform: uppercase; letter-spacing: 0.04em; color: var(--raznos-green-deep); }
+    .rnn-now-name { font: 700 16px var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rnn-now-sub { font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rnn-now-pay { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); flex: none; font-variant-numeric: tabular-nums; }
+    .rnn-next { display: flex; align-items: center; gap: 8px; padding: 0 2px; min-width: 0; }
+    .rnn-next-lab { font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); flex: none; }
+    .rnn-next-name { font: 600 13px var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .rnn-next-pay { font: 600 12px var(--raznos-mono); color: var(--raznos-ink-3); margin-left: auto; flex: none; }
+    .rnn-open { align-self: flex-start; background: none; border: 0; padding: 0; cursor: pointer; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); display: inline-flex; align-items: center; gap: 4px; }
+  </style>
+</helmet>
+<div class="rnn">
+  <span class="rnn-title">Сейчас и дальше</span>
+  <div class="rnn-now">
+    <dc-import name="RaznosIcon" svc="{{ now_svc }}" alt="{{ now_name }}" size="md"></dc-import>
+    <span class="rnn-now-body">
+      <span class="rnn-now-lab">Сейчас по плану</span>
+      <span class="rnn-now-name">{{ now_name }}</span>
+      <span class="rnn-now-sub">{{ now_sub }}</span>
+    </span>
+    <span class="rnn-now-pay">{{ now_pay }} ₽/ч</span>
+  </div>
+  <div class="rnn-next">
+    <span class="rnn-next-lab">Дальше {{ next_time }}</span>
+    <dc-import name="RaznosIcon" svc="{{ next_svc }}" alt="{{ next_name }}" size="sm"></dc-import>
+    <span class="rnn-next-name">{{ next_name }}</span>
+    <span class="rnn-next-pay">{{ next_pay }} ₽/ч</span>
+  </div>
+  <button type="button" class="rnn-open" onClick="{{ open_plan }}">Открыть план дня<span class="raznos-row-chevron">›</span></button>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"onOpenPlan":{"editor":null},"$preview":{"width":390,"height":190}}'>
+// виджет Сейчас и дальше для раздела Сегодня: чистый гид, текущий и следующий час из плана
+const RNN_SVC = { samokat: 'Самокат', vkusvill: 'ВкусВилл', 'yandex-eda': 'Яндекс Еда' };
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const openPlan = typeof p.onOpenPlan === 'function' ? p.onOpenPlan : (() => {});
+    const nowSvc = p.nowSvc || 'vkusvill';
+    const nextSvc = p.nextSvc || 'yandex-eda';
+    return {
+      now_svc: nowSvc, now_name: RNN_SVC[nowSvc] || 'ВкусВилл',
+      now_sub: p.nowSub || 'Центр · 13:00–14:00',
+      now_pay: p.nowPay || '1 370',
+      next_time: p.nextTime || '14:00', next_svc: nextSvc, next_name: RNN_SVC[nextSvc] || 'Яндекс Еда', next_pay: p.nextPay || '1 160',
+      open_plan: openPlan
+    };
+  }
+}
+</script></body></html>

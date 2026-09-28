@@ -1,0 +1,24 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
+<div class="raznos-stats-time-card">
+  <button type="button" class="raznos-stats-head-link" onClick="{{ on_open }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">{{ title }} <em>{{ accent }}</em> {{ tail }}</h2><small>{{ caption }}</small></span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+  <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><div class="raznos-stats-time-track" aria-label="Распределение времени"><span class="raznos-stats-time-active" style="{{ active_style }}"></span><span class="raznos-stats-time-wait" style="{{ wait_style }}"></span></div></sc-if>
+  <div class="raznos-stats-time-grid"><div><i class="raznos-stats-time-dot raznos-is-active"></i><strong>{{ with_order }}</strong><span>с заказами</span></div><div><i class="raznos-stats-time-dot raznos-is-wait"></i><strong>{{ wait_order }}</strong><span>ожидание заказа</span></div><div><i class="raznos-stats-time-dot raznos-is-pickup"></i><strong>{{ pickup }}</strong><span>на выдаче, в среднем</span></div></div>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"share":{"editor":null},"caption":{"editor":"text","default":"11,5 ч на линии"},"withOrder":{"editor":"text","default":"8 ч"},"waitOrder":{"editor":"text","default":"3,5 ч"},"pickup":{"editor":"text","default":"6 мин"},"onOpen":{"editor":null},"$preview":{"width":360,"height":220}}'>
+// куда ушло время: доля времени с заказами и ожидание одной полосой
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const share = p.share === undefined ? 70 : (p.share == null ? null : Math.max(0, Math.min(100, Math.round(Number(p.share)))));
+    return {
+      title: share == null ? 'Куда ушло время' : 'С заказами', accent: share == null ? '' : share + '%', tail: share == null ? '' : 'времени',
+      caption: p.caption === undefined ? '11,5 ч на линии' : (p.caption || ''), has_data: share != null,
+      active_style: 'width:' + (share || 0) + '%', wait_style: 'width:' + (share == null ? 0 : 100 - share) + '%',
+      with_order: p.withOrder === undefined ? '8 ч' : (p.withOrder || 'Нет данных'), wait_order: p.waitOrder === undefined ? '3,5 ч' : (p.waitOrder || 'Нет данных'),
+      pickup: p.pickup === undefined ? '6 мин' : (p.pickup || 'Нет данных'),
+      on_open: typeof p.onOpen === 'function' ? p.onOpen : (() => {})
+    };
+  }
+}
+</script></body></html>

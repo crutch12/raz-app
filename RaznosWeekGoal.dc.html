@@ -1,0 +1,50 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rwg { box-sizing: border-box; width: 100%; max-width: 100%; text-align: left; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; cursor: pointer; font: inherit; color: inherit; }
+    .rwg:hover { border-color: var(--raznos-ink-3); }
+    .rwg-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .rwg-title { font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
+    .rwg-open { font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); display: flex; align-items: center; gap: 2px; }
+    .rwg-nums { display: flex; align-items: baseline; gap: 6px; }
+    .rwg-earned { font: 800 24px var(--raznos-font); letter-spacing: -0.02em; color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rwg-goal { font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rwg-bar { height: 8px; border-radius: 999px; background: var(--raznos-surface-2); overflow: hidden; }
+    .rwg-fill { display: block; height: 100%; border-radius: 999px; background: var(--raznos-green); }
+    .rwg-sub { font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); }
+  </style>
+</helmet>
+<button type="button" class="rwg" onClick="{{ open }}" aria-label="{{ aria }}">
+  <div class="rwg-head"><span style="display:inline-flex;align-items:center;gap:8px;color:var(--raznos-green-deep)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.5" fill="currentColor" stroke="none"/></svg><span class="rwg-title">Цель недели</span></span><span class="rwg-open">Изменить<span class="raznos-row-chevron">›</span></span></div>
+  <div class="rwg-nums"><span class="rwg-earned">{{ earned }} ₽</span><span class="rwg-goal">из {{ goal }} ₽</span></div>
+  <div class="rwg-bar"><span class="rwg-fill" style="{{ fill_style }}"></span></div>
+  <span class="rwg-sub">{{ sub }}</span>
+</button>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"open":{"editor":null},"$preview":{"width":390,"height":150}}'>
+// прогресс к цели недели для хаба Работа, демо
+const RWG_FMT = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const RWG_PLURAL = (n, a, b, c) => { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return a; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return b; return c; };
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const open = typeof p.open === 'function' ? p.open : (() => {});
+    const goal = p.goal != null ? p.goal : 65000;
+    const earned = p.earned != null ? p.earned : 41800;
+    const perShift = p.perShift != null ? p.perShift : 4500;
+    const pct = Math.max(2, Math.min(100, Math.round(earned / (goal || 1) * 100)));
+    const remain = Math.max(0, goal - earned);
+    const shifts = Math.ceil(remain / (perShift || 1));
+    const sub = remain > 0
+      ? ('Осталось ' + RWG_FMT(remain) + ' ₽ · примерно ' + shifts + ' ' + RWG_PLURAL(shifts, 'смена', 'смены', 'смен'))
+      : 'Цель недели выполнена';
+    return {
+      open,
+      earned: RWG_FMT(earned), goal: RWG_FMT(goal),
+      fill_style: 'width:' + pct + '%',
+      sub,
+      aria: 'Цель недели, заработано ' + RWG_FMT(earned) + ' из ' + RWG_FMT(goal) + ' рублей, ' + sub
+    };
+  }
+}
+</script></body></html>

@@ -32,7 +32,8 @@
     <sc-if value="{{ chart_has_sel }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosHourReadout" time="{{ chart_ro_time }}" zone="{{ chart_ro_zone }}" rows="{{ chart_ro_rows }}" onOpen="{{ chart_ro_open }}"></dc-import></sc-if>
     <sc-if value="{{ chart_no_sel }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">Наведите или коснитесь часа, чтобы увидеть суммы</p></sc-if>
     <dc-import name="RaznosChartLegend" items="{{ chart_legend }}"></dc-import>
-    <button type="button" class="rsc-toggle" onClick="{{ toggle_all }}"><span class="raznos-text-small">Все часы, не только мой график</span><span class="{{ all_switch_cls }}"><span class="raznos-switch-knob"></span></span></button>
+    <sc-if value="{{ has_own }}" hint-placeholder-val="{{ true }}"><button type="button" class="rsc-toggle" onClick="{{ toggle_all }}"><span class="raznos-text-small">Все часы, не только мой график</span><span class="{{ all_switch_cls }}"><span class="raznos-switch-knob"></span></span></button></sc-if>
+    <sc-if value="{{ no_own }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">В этот день у вас нет графика, показаны все часы</p></sc-if>
     <p class="raznos-text-tiny">{{ chart_note }}</p>
   </div>
   </sc-if>
@@ -145,6 +146,8 @@ class Component extends DCLogic {
       chart_ro_open: chartRoOpen,
       all_switch_cls: 'raznos-switch' + (chartAll ? ' raznos-is-on' : ''),
       toggle_all: () => set({ chartAll: !chartAll }),
+      has_own: hasOwn,
+      no_own: !hasOwn,
       chart_note: chartNote
     };
   }

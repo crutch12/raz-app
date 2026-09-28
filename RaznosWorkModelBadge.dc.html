@@ -1,0 +1,29 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rwmb { font: 600 10px var(--raznos-font); text-transform: uppercase; letter-spacing: 0.03em; padding: 2px 7px; border-radius: 6px; white-space: nowrap; display: inline-block; }
+    .rwmb-stable { background: var(--raznos-green-tint); color: var(--raznos-green-deep); }
+    .rwmb-flex { background: var(--raznos-surface); color: var(--raznos-ink-2); border: 1px solid var(--raznos-line); }
+  </style>
+</helmet>
+<span class="{{ cls }}">{{ label }}</span>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"model":{"editor":"string","value":"slot"},"$preview":{"width":200,"height":60}}'>
+// Модель получения работы у окна расписания или слота
+const RWMB_MODEL = {
+  plan: { label: 'плановый слот', tone: 'stable' },
+  slot: { label: 'слот', tone: 'stable' },
+  free: { label: 'свободный выход', tone: 'flex' },
+  birzha: { label: 'биржа', tone: 'flex' }
+};
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const m = RWMB_MODEL[p.model] || RWMB_MODEL.slot;
+    return {
+      label: m.label,
+      cls: 'rwmb ' + (m.tone === 'stable' ? 'rwmb-stable' : 'rwmb-flex')
+    };
+  }
+}
+</script></body></html>

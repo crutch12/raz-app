@@ -1,0 +1,29 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
+<div class="raznos-stats-money-card">
+  <button type="button" class="raznos-stats-head-link" onClick="{{ on_open }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">{{ title }} <em>{{ accent }}</em></h2><small>{{ sub }}</small></span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+  <div class="raznos-stats-money-bars"><sc-for list="{{ rows }}" as="row" hint-placeholder-count="4"><div class="{{ row.cls }}"><span class="raznos-stats-money-bar-copy"><span>{{ row.label }}</span><strong>{{ row.value }}</strong></span><span class="raznos-stats-money-bar-track"><i style="{{ row.style }}"></i></span></div></sc-for></div>
+  <button type="button" class="raznos-stats-inline-link" onClick="{{ on_expenses }}"><span>Расходы за период</span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"title":{"editor":"text","default":"Выплачено"},"accent":{"editor":"text","default":"93%"},"sub":{"editor":"text","default":"600 ₽ ещё ждёт выплаты"},"rows":{"editor":null},"onOpen":{"editor":null},"onExpenses":{"editor":null},"$preview":{"width":360,"height":340}}'>
+// деньги периода: начислено, выплачено, ждёт выплаты и расходы полосами относительно начисленного
+const RSM_NOOP = () => {};
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const rows = p.rows || [
+      { label: 'Начислено', value: '8 000 ₽', style: 'width:100%', cls: 'raznos-stats-money-bar raznos-is-earn' },
+      { label: 'Выплачено', value: '7 400 ₽', style: 'width:93%', cls: 'raznos-stats-money-bar raznos-is-payout' },
+      { label: 'Ждёт выплаты', value: '600 ₽', style: 'width:8%', cls: 'raznos-stats-money-bar raznos-is-pending' },
+      { label: 'Расходы', value: '−600 ₽', style: 'width:8%', cls: 'raznos-stats-money-bar raznos-is-expenses' }
+    ];
+    return {
+      // без пропсов показываем демо для дизайн-системы
+      title: p.title === undefined ? 'Выплачено' : (p.title || 'Деньги за период'), accent: p.accent === undefined ? '93%' : (p.accent || ''),
+      sub: p.sub === undefined ? '600 ₽ ещё ждёт выплаты' : (p.sub || ''), rows,
+      on_open: typeof p.onOpen === 'function' ? p.onOpen : RSM_NOOP,
+      on_expenses: typeof p.onExpenses === 'function' ? p.onExpenses : RSM_NOOP
+    };
+  }
+}
+</script></body></html>

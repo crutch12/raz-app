@@ -1,0 +1,79 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rsp { box-sizing: border-box; width: 100%; max-width: 100%; text-align: left; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; font: inherit; color: inherit; }
+    .rsp:hover { border-color: var(--raznos-ink-3); }
+    .rsp-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .rsp-title { font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
+    .rsp-day { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rsp-hero { display: flex; align-items: baseline; gap: 8px; }
+    .rsp-value { font: 800 26px var(--raznos-font); letter-spacing: -0.02em; color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rsp-hero-sub { font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); }
+    .rsp-slots { display: flex; flex-direction: column; gap: 6px; }
+    .rsp-slot { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--raznos-surface-2); }
+    .rsp-slot-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+    .rsp-slot-name { font: 600 14px var(--raznos-font); color: var(--raznos-ink); }
+    .rsp-slot-sub { font: 500 11px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rsp-slot-pay { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; flex: none; }
+    .rsp-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 10px; border-top: 1px solid var(--raznos-line); }
+    .rsp-goal { font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); }
+    .rsp-goal b { font-weight: 700; color: var(--raznos-ink); }
+    .rsp-open { font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); display: flex; align-items: center; gap: 4px; }
+  </style>
+</helmet>
+<button type="button" class="rsp" onClick="{{ open }}" aria-label="{{ aria }}">
+  <div class="rsp-head"><span style="display:inline-flex;align-items:center;gap:8px;color:var(--raznos-ink-2)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg><span class="rsp-title">Расписание</span></span><span class="rsp-day">{{ day_label }}</span></div>
+  <div class="rsp-hero"><span class="rsp-value">≈ {{ potential }} ₽</span><span class="rsp-hero-sub">{{ hours_label }}</span></div>
+  <div class="rsp-slots">
+    <sc-for list="{{ svc_rows }}" as="r" hint-placeholder-count="3">
+      <div class="rsp-slot"><dc-import name="RaznosIcon" svc="{{ r.svc }}" alt="{{ r.name }}" size="sm"></dc-import><span class="rsp-slot-main"><span class="rsp-slot-name">{{ r.name }}</span><span class="rsp-slot-sub">{{ r.hours }} ч в графике</span></span><span class="rsp-slot-pay">≈ {{ r.total }} ₽</span></div>
+    </sc-for>
+  </div>
+  <div class="rsp-foot"><span class="rsp-goal">План недели <b>{{ planned }}</b> из цели <b>{{ goal }} ₽</b></span><span class="rsp-open">Открыть<span class="raznos-row-chevron">›</span></span></div>
+</button>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"open":{"editor":null},"$preview":{"width":390,"height":300}}'>
+// превью плана на сегодня для хаба Работа: сводка по сервисам за день, демо
+const RSP_SVC = { samokat: 'Самокат', vkusvill: 'ВкусВилл', 'yandex-eda': 'Яндекс Еда' };
+const RSP_DEMO = [
+  { from: 9, to: 12, svc: 'samokat', pay: 1100 },
+  { from: 13, to: 15, svc: 'vkusvill', pay: 1370 },
+  { from: 15, to: 18, svc: 'yandex-eda', pay: 1240 }
+];
+const RSP_FMT = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const RSP_ROUND = (n) => RSP_FMT(Math.round(n / 10) * 10);
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const open = typeof p.open === 'function' ? p.open : (() => {});
+    const src = (p.blocks && p.blocks.length) ? p.blocks : RSP_DEMO;
+    const goal = p.goal != null ? p.goal : 65000;
+    const planned = p.planned != null ? p.planned : 54800;
+    const dayLabel = p.dayLabel || 'Сегодня';
+
+    const agg = {}, order = [];
+    src.forEach((b) => {
+      if (!agg[b.svc]) { agg[b.svc] = { hours: 0, total: 0 }; order.push(b.svc); }
+      agg[b.svc].hours += (b.to - b.from);
+      agg[b.svc].total += b.pay * (b.to - b.from);
+    });
+    let potential = 0, workHours = 0;
+    order.forEach((k) => { potential += agg[k].total; workHours += agg[k].hours; });
+
+    const svcRows = order.map((k) => ({
+      svc: k, name: RSP_SVC[k] || k, hours: agg[k].hours, total: RSP_ROUND(agg[k].total)
+    }));
+
+    return {
+      open,
+      day_label: dayLabel,
+      potential: RSP_ROUND(potential),
+      hours_label: workHours + ' ч в графике',
+      svc_rows: svcRows,
+      goal: RSP_FMT(goal),
+      planned: RSP_ROUND(planned),
+      aria: 'Расписание, ' + dayLabel + ', потенциал примерно ' + RSP_ROUND(potential) + ' рублей, ' + workHours + ' часов в графике, открыть полный план'
+    };
+  }
+}
+</script></body></html>

@@ -1,8 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
 <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-final.css" /></helmet>
 <div class="raznos-phone-body" data-screen-label="Job guide">
-  <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><span class="raznos-text-small">{{ city_title }}</span></div>
-  <h1 class="raznos-text-h1">Подобрать работу</h1>
+  <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Подобрать работу</h1></div>
   <div class="raznos-segmented">
     <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4"><button type="button" class="{{ t.cls }}" onClick="{{ t.tap }}">{{ t.label }}</button></sc-for>
   </div>

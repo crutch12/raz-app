@@ -1,0 +1,193 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rsr { box-sizing: border-box; width: 100%; max-width: 100%; text-align: left; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .rsr-title { display: inline-flex; align-items: center; gap: 8px; font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
+    .rsr-sub { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); margin-top: 2px; }
+    .rsr-list { display: flex; flex-direction: column; }
+    .rsr-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .rsr-more-note { font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); }
+    .rsr-more { flex: none; display: inline-flex; align-items: center; gap: 2px; border: 0; background: none; padding: 0; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
+    .rsr-full { display: flex; flex-direction: column; gap: 12px; }
+    .rsr-full .rsr-list { background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 4px 16px; }
+    .rsr-empty { margin: 0; padding: 20px 0; font: 500 14px/1.4 var(--raznos-font); color: var(--raznos-ink-2); text-align: center; }
+  </style>
+</helmet>
+
+<sc-if value="{{ is_card }}" hint-placeholder-val="{{ true }}">
+  <div class="rsr">
+    <span class="raznos-fx raznos-col"><span class="rsr-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M4 12h16M4 17h7"/></svg>Сравнение сервисов</span><span class="rsr-sub">{{ card_sub }}</span></span>
+    <div class="rsr-list">
+      <sc-for list="{{ card_rows }}" as="r" hint-placeholder-count="4">
+        <dc-import name="RaznosRankRow" rank="{{ r.rank }}" svc="{{ r.svc }}" title="{{ r.name }}" mine="{{ r.mine }}" fill="{{ r.fill }}" value="{{ r.val }}" trend="{{ r.trend }}" trendTail="{{ r.trendTail }}" divider="{{ r.divider }}"></dc-import>
+      </sc-for>
+    </div>
+    <div class="rsr-foot"><span class="rsr-more-note">{{ more_label }}</span><button type="button" class="rsr-more" onClick="{{ open_more }}">Подробнее<span class="raznos-row-chevron">›</span></button></div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ is_full }}" hint-placeholder-val="{{ false }}">
+  <div class="rsr-full">
+    <div class="raznos-segmented" role="tablist" aria-label="Какие сервисы показать">
+      <button type="button" role="tab" aria-selected="{{ show_all }}" class="{{ seg_all_cls }}" onClick="{{ pick_all }}">Все сервисы</button>
+      <button type="button" role="tab" aria-selected="{{ show_mine }}" class="{{ seg_mine_cls }}" onClick="{{ pick_mine }}">{{ mine_label }}</button>
+    </div>
+    <dc-import name="RaznosFilterChips" filters="{{ filters }}" onChange="{{ on_filter }}"></dc-import>
+    <div class="rsr-list">
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
+        <dc-import name="RaznosRankRow" rank="{{ r.rank }}" svc="{{ r.svc }}" title="{{ r.name }}" mine="{{ r.mine }}" meta="{{ r.meta }}" hot="{{ r.hot }}" fill="{{ r.fill }}" value="{{ r.val }}" action="{{ r.action }}" actionLabel="{{ r.actionLabel }}" onAction="{{ r.connect }}" trend="{{ r.trend }}" trendTail="{{ r.trendTail }}" divider="{{ r.divider }}"></dc-import>
+      </sc-for>
+      <sc-if value="{{ is_empty }}" hint-placeholder-val="{{ false }}"><p class="rsr-empty">{{ empty_text }}</p></sc-if>
+    </div>
+    <p class="raznos-text-tiny">{{ source_note }}</p>
+  </div>
+</sc-if>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"open":{"editor":null},"connected":{"editor":null},"onConnect":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"transportTitle":{"editor":"text","default":"велосипед"},"$preview":{"width":390,"height":340}}'>
+// сравнение сервисов по мотивам Gridwise Compare Companies и Solo Jobs: доход по сервисам города, тренд, горячие дни
+// hot: индексы дней Пн=0, tod: утро, день, вечер, ночь, демо
+const RSR_SERVICES = [
+  { k: 'yandex-eda', name: 'Яндекс Еда', cat: 'food', pay: 760, per: 290, trend: 3, hot: [4, 5, 6], wk: 1.1, tod: [0.8, 1.1, 1.12, 0.92] },
+  { k: 'vkusvill', name: 'ВкусВилл', cat: 'grocery', pay: 720, per: 260, trend: 6, hot: [4, 5, 6], wk: 1.06, tod: [0.92, 1.02, 1.06, 0.8] },
+  { k: 'samokat', name: 'Самокат', cat: 'grocery', pay: 690, per: 230, trend: -4, hot: [4, 5, 6], wk: 1.08, tod: [0.9, 1, 1.08, 0.96] },
+  { k: 'kuper', name: 'Купер', cat: 'grocery', pay: 650, per: 340, trend: 13, hot: [5, 6, 0], wk: 1.04, tod: [0.96, 1.04, 1.02, 0.7] },
+  { k: 'dostaevsky', name: 'Достаевский', cat: 'food', pay: 640, per: 270, trend: 8, hot: [3, 4, 5], wk: 1.12, tod: [0.7, 0.96, 1.1, 1.14] },
+  { k: 'x5', name: 'X5 Доставка', cat: 'grocery', pay: 610, per: 240, trend: -2, hot: [0, 1, 4], wk: 0.98, tod: [0.98, 1.02, 1.04, 0.8] },
+  { k: 'dostavista', name: 'Достависта', cat: 'parcels', pay: 600, per: 380, trend: 5, hot: [0, 1, 2], wk: 0.84, tod: [1.02, 1.12, 0.94, 0.6] },
+  { k: 'magnit', name: 'Магнит', cat: 'grocery', pay: 580, per: 220, trend: -14, hot: [4, 5, 6], wk: 1.02, tod: [0.94, 1, 1.06, 0.82] },
+  { k: 'lenta', name: 'Лента', cat: 'grocery', pay: 560, per: 300, trend: 1, hot: [5, 6, 0], wk: 1.06, tod: [0.96, 1.02, 1.02, 0.78] },
+  { k: 'ozon-fresh', name: 'Ozon fresh', cat: 'grocery', pay: 540, per: 250, trend: 11, hot: [1, 2, 3], wk: 0.96, tod: [1, 1.04, 1, 0.82] }
+];
+const RSR_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+const RSR_CATS = [
+  { k: 'all', label: 'Все заказы' },
+  { k: 'grocery', label: 'Продукты' },
+  { k: 'food', label: 'Еда из ресторанов' },
+  { k: 'parcels', label: 'Посылки' }
+];
+const RSR_METRICS = [{ k: 'pay', label: '₽ в час' }, { k: 'per', label: '₽ за заказ' }, { k: 'ord', label: 'Заказов в час' }];
+const RSR_WHEN = [{ k: 'week', label: 'Вся неделя' }, { k: 'weekdays', label: 'Будни', note: 'Пн–Пт' }, { k: 'weekend', label: 'Выходные', note: 'Сб–Вс' }];
+const RSR_TODS = [
+  { k: 'all', label: 'Весь день', note: '8–24' },
+  { k: 'morning', label: 'Утро', note: '8–12', i: 0 },
+  { k: 'day', label: 'День', note: '12–17', i: 1 },
+  { k: 'evening', label: 'Вечер', note: '17–22', i: 2 },
+  { k: 'night', label: 'Ночь', note: '22–24', i: 3 }
+];
+const RSR_TRANSPORTS = [
+  { k: 'foot', label: 'Пешком', mul: 0.78 },
+  { k: 'bike', label: 'Велосипед', mul: 1 },
+  { k: 'ebike', label: 'Электровелосипед', mul: 1.12 },
+  { k: 'car', label: 'Авто', mul: 1.22 }
+];
+const rsrTransportKey = (t) => {
+  const s = String(t || '').toLowerCase();
+  if (s.includes('пеш')) return 'foot';
+  if (s.includes('электро')) return 'ebike';
+  if (s.includes('авто') || s.includes('машин')) return 'car';
+  return 'bike';
+};
+const RSR_FMT = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const byKey = (list, k) => list.find((x) => x.k === k) || list[0];
+const rsrPlural = (n, one, few, many) => (n % 10 === 1 && n % 100 !== 11) ? one : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? few : many);
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const set = (patch) => this.setState(patch);
+    const full = p.mode === 'full';
+    const metric = byKey(RSR_METRICS, st.metric);
+    const cat = byKey(RSR_CATS, st.cat);
+    const when = byKey(RSR_WHEN, st.when);
+    const tod = byKey(RSR_TODS, st.tod);
+    const trDefault = byKey(RSR_TRANSPORTS, rsrTransportKey(p.transportTitle));
+    const tr = byKey(RSR_TRANSPORTS, st.transport || trDefault.k);
+    const city = p.cityTitle || 'Москва';
+    const connected = Array.isArray(p.connected) ? p.connected : ['vkusvill', 'samokat'];
+    const isMine = (k) => connected.indexOf(k) !== -1;
+
+    // доход в час с учётом фильтров, из него считаем показатель
+    const payOf = (x) => {
+      const wk = when.k === 'weekend' ? x.wk : (when.k === 'weekdays' ? (1 - (x.wk - 1) * 0.4) : 1);
+      const td = tod.i == null ? 1 : x.tod[tod.i];
+      return Math.round(x.pay * wk * td * tr.mul / trDefault.mul / 10) * 10;
+    };
+    const metricOf = (x) => {
+      const pay = payOf(x);
+      if (metric.k === 'per') return Math.round(x.per * tr.mul / trDefault.mul / 10) * 10;
+      if (metric.k === 'ord') return Math.round(pay / x.per * 10) / 10;
+      return pay;
+    };
+    const shown = (v) => metric.k === 'ord' ? String(v).replace('.', ',') : RSR_FMT(v) + ' ₽';
+
+    const scored = RSR_SERVICES.filter((x) => cat.k === 'all' || x.cat === cat.k).map((x) => ({ x, v: metricOf(x), pay: payOf(x) }));
+    const byValue = scored.slice().sort((a, b) => b.v - a.v);
+    byValue.forEach((r, i) => { r.rank = i + 1; });
+    const max = byValue.length ? byValue[0].v : 1;
+    const min = byValue.length ? byValue[byValue.length - 1].v : 0;
+    const fillOf = (v) => Math.round(18 + 82 * (max === min ? 1 : (v - min) / (max - min)));
+    const tail = metric.k === 'per' ? 'за заказ за 4 недели' : (metric.k === 'ord' ? 'заказов в час за 4 недели' : 'дохода в час за 4 недели');
+    const rowOf = (r) => ({
+      rank: r.rank, svc: r.x.k, name: r.x.name, mine: isMine(r.x.k), val: shown(r.v), fill: fillOf(r.v),
+      meta: '', hot: false, action: '', actionLabel: '', connect: () => {}, trend: 0, trendTail: tail, divider: false
+    });
+
+    // выноски только у самого растущего и самого падающего сервиса
+    const upR = byValue.filter((r) => r.x.trend >= 10).sort((a, b) => b.x.trend - a.x.trend)[0];
+    const downR = byValue.filter((r) => r.x.trend <= -10).sort((a, b) => a.x.trend - b.x.trend)[0];
+    const onlyMine = st.show === 'mine';
+    const list = onlyMine ? byValue.filter((r) => isMine(r.x.k)) : byValue;
+    const onConnect = typeof p.onConnect === 'function' ? p.onConnect : (() => {});
+    const rows = list.map((r, i) => {
+      const mine = isMine(r.x.k);
+      const days = r.x.hot.map((d) => RSR_DAYS[d]).join(', ');
+      // для подключённых показываем свой доход, демо чуть ниже среднего по городу
+      const own = Math.round(r.pay * 0.94 / 10) * 10;
+      return Object.assign(rowOf(r), {
+        meta: mine ? ('у вас ≈ ' + RSR_FMT(own) + ' ₽/ч') : days,
+        hot: !mine,
+        action: mine ? 'done' : 'connect',
+        actionLabel: mine ? r.x.name + ' подключён' : 'Подключить ' + r.x.name,
+        connect: () => onConnect(r.x.k),
+        trend: (r === upR || r === downR) ? r.x.trend : 0,
+        divider: i < list.length - 1
+      });
+    });
+
+    // карточка: топ-3 и сервис, который растёт быстрее всех вне топа
+    const top = byValue.slice(0, 3);
+    const risingR = byValue.slice(3).filter((r) => r.x.trend >= 10).sort((a, b) => b.x.trend - a.x.trend)[0];
+    const cardRows = top.map((r, i) => Object.assign(rowOf(r), { divider: !!risingR && i === top.length - 1 }));
+    if (risingR) cardRows.push(Object.assign(rowOf(risingR), { trend: risingR.x.trend, trendTail: 'дохода в час за 4 недели, сервис набирает' }));
+    const rest = Math.max(0, byValue.length - cardRows.length);
+
+    const optsOf = (l) => l.map((o) => ({ k: o.k, label: o.label, note: o.note }));
+    const filters = [
+      { key: 'metric', title: 'Показатель', value: metric.k, def: 'pay', options: optsOf(RSR_METRICS) },
+      { key: 'cat', title: 'Тип заказов', value: cat.k, def: 'all', options: optsOf(RSR_CATS) },
+      { key: 'when', title: 'Когда', value: when.k, def: 'week', options: optsOf(RSR_WHEN) },
+      { key: 'tod', title: 'Время суток', value: tod.k, def: 'all', options: optsOf(RSR_TODS) },
+      { key: 'transport', title: 'Транспорт', value: tr.k, def: trDefault.k, options: optsOf(RSR_TRANSPORTS) }
+    ];
+    const open = typeof p.open === 'function' ? p.open : (() => {});
+    const mineCount = RSR_SERVICES.filter((x) => isMine(x.k)).length;
+
+    return {
+      is_card: !full, is_full: full,
+      card_sub: city + ' · ₽ в час · вся неделя',
+      card_rows: cardRows,
+      more_label: 'Ещё ' + rest + ' ' + rsrPlural(rest, 'сервис', 'сервиса', 'сервисов'),
+      open_more: () => open(),
+      show_all: !onlyMine, show_mine: onlyMine,
+      seg_all_cls: 'raznos-segment' + (!onlyMine ? ' raznos-is-active' : ''),
+      seg_mine_cls: 'raznos-segment' + (onlyMine ? ' raznos-is-active' : ''),
+      mine_label: 'Мои' + (mineCount ? ' · ' + mineCount : ''),
+      pick_all: () => set({ show: 'all' }), pick_mine: () => set({ show: 'mine' }),
+      filters, on_filter: (key, k) => set({ [key]: k }),
+      rows, is_empty: rows.length === 0,
+      empty_text: onlyMine ? 'Среди этих сервисов нет подключённых. Нажмите + у сервиса, чтобы подключить' : 'Нет сервисов с такими заказами',
+      source_note: 'По заказам курьеров Разноса: ' + city + ', последние 4 недели. Горячие дни это дни с самым высоким доходом'
+    };
+  }
+}
+</script></body></html>

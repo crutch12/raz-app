@@ -1,5 +1,23 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
-<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-final.css" /></helmet>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-final.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
+<sc-if value="{{ recap_mode }}" hint-placeholder-val="{{ false }}">
+  <div class="raznos-stats-section raznos-stats-cohort-card">
+    <div class="raznos-stats-cohort-head">
+      <span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">{{ recap_title }} <em>{{ recap_accent }}</em></h2><small>{{ cohort_label }} · {{ basis_label }}</small></span>
+      <button type="button" class="raznos-stats-cohort-settings" onClick="{{ on_settings }}" aria-label="Настроить сравнение"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
+    </div>
+    <sc-if value="{{ recap_enough }}" hint-placeholder-val="{{ true }}">
+      <div class="raznos-stats-cohort-result" aria-label="Сравнение с медианой"><div class="raznos-stats-cohort-column raznos-is-you"><small>Вы</small><strong>{{ recap_mine }}</strong></div><div class="raznos-stats-cohort-column"><small>Медиана</small><strong>{{ recap_median }}</strong></div></div>
+      <div class="raznos-stats-cohort-gauge" aria-label="Ваш результат относительно курьеров города">
+        <div class="raznos-stats-cohort-track"><span class="raznos-stats-cohort-range" style="{{ recap_range_style }}"></span><i class="raznos-stats-cohort-median" style="{{ recap_median_style }}"></i><i class="raznos-stats-cohort-you" style="{{ recap_you_style }}"></i></div>
+        <div class="raznos-stats-cohort-legend"><span><i class="raznos-stats-cohort-swatch raznos-is-you"></i>вы</span><span><i class="raznos-stats-cohort-swatch raznos-is-median"></i>медиана</span><span><i class="raznos-stats-cohort-swatch raznos-is-range"></i>обычно {{ recap_range }}</span></div>
+      </div>
+      <p class="raznos-stats-note">{{ recap_percentile }} · {{ recap_n }}</p>
+    </sc-if>
+    <sc-if value="{{ recap_not_enough }}" hint-placeholder-val="{{ false }}"><p class="raznos-stats-note">{{ recap_missing }}</p></sc-if>
+  </div>
+</sc-if>
+<sc-if value="{{ legacy_mode }}" hint-placeholder-val="{{ true }}">
 <div class="raznos-card raznos-card-pad">
   <div class="raznos-head-row"><span class="raznos-text-h3 raznos-head-title">{{ title }}</span><span class="raznos-status-pill raznos-pill-concept raznos-head-side">Демо</span></div>
   <p class="raznos-text-tiny">{{ basis_note }}</p>
@@ -23,7 +41,8 @@
     </div>
   </sc-for>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"city":{"editor":"text","default":"moscow"},"mineCity":{"editor":"text","default":"moscow"},"transport":{"editor":"enum","default":"bike","options":["bike","foot","car","electric","public"]},"period":{"editor":"enum","default":"month","options":["today","week","month","year","12m","custom"]},"svc":{"editor":"text","default":"all"},"mine":{"editor":null},"onlyMine":{"editor":"boolean","default":false},"title":{"editor":"text","default":"Я и другие курьеры"},"$preview":{"width":360,"height":420}}'>
+</sc-if>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"city":{"editor":"text","default":"moscow"},"mineCity":{"editor":"text","default":"moscow"},"transport":{"editor":"enum","default":"bike","options":["bike","foot","car","electric","public"]},"period":{"editor":"enum","default":"month","options":["today","week","month","year","12m","custom"]},"svc":{"editor":"text","default":"all"},"medianHint":{"editor":null},"district":{"editor":"text","default":"all"},"mineAmount":{"editor":null},"recapMode":{"editor":"boolean","default":false},"onSettings":{"editor":null},"mine":{"editor":null},"onlyMine":{"editor":"boolean","default":false},"title":{"editor":"text","default":"Я и другие курьеры"},"$preview":{"width":360,"height":420}}'>
 const CC_MIN_N = 30;
 const CC_TITLES = { vkusvill: 'ВкусВилл', samokat: 'Самокат', x5: 'X5 Доставка', 'yandex-eda': 'Яндекс Еда' };
 const CC_TRANSPORT = { bike: 'велосипед', foot: 'пешком', car: 'авто', electric: 'электро', public: 'общественный транспорт' };
@@ -40,6 +59,10 @@ const CC_BASE = {
   }
 };
 const CC_PERIOD = { week: [10, 0.7], month: [0, 1], year: [-15, 1.3], '12m': [-20, 1.4], custom: [-5, 1.1] };
+const CC_RECAP = {
+  moscow: { bike: { week: { all: [7600, 5700, 10200, 72], vkusvill: [4400, 3100, 5900, 46], samokat: [3300, 2200, 4700, 38] }, month: { all: [54200, 42000, 71000, 120], vkusvill: [31200, 23000, 41000, 68], samokat: [23700, 17000, 32000, 54] }, year: { all: [420000, 310000, 560000, 96] } } },
+  spb: { bike: { week: { all: [7100, 5300, 9400, 48] }, month: { all: [50800, 39000, 67000, 84] } } }
+};
 function ccPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
 const ccNum = (v) => String(v).replace('.', ',');
 function ccCohort(city, transport, svc, period) {
@@ -51,6 +74,43 @@ function ccCohort(city, transport, svc, period) {
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
+    if (p.recapMode) {
+      const city = p.city || 'moscow', transport = p.transport || 'bike', period = p.period || 'week';
+      const service = p.svc || 'all', district = p.district || 'all';
+      const base = ((((CC_RECAP[city] || {})[transport] || {})[period] || {})[service] || null);
+      const districtBase = base && district === 'Пресненский' ? [Math.round(base[0] * .91), Math.round(base[1] * .91), Math.round(base[2] * .91), Math.round(base[3] * .35)] : (district === 'all' ? base : null);
+      // для прошлого периода экран передаёт медиану того периода, диапазон масштабируется вместе с ней
+      const factor = districtBase && p.medianHint > 0 ? p.medianHint / districtBase[0] : 1;
+      const adjusted = districtBase ? [Math.round(districtBase[0] * factor / 100) * 100, Math.round(districtBase[1] * factor / 100) * 100, Math.round(districtBase[2] * factor / 100) * 100, districtBase[3]] : null;
+      const n = adjusted ? adjusted[3] : 0;
+      const mine = p.mineAmount == null ? null : Number(p.mineAmount);
+      const crossCity = !!p.mineCity && p.mineCity !== city;
+      const enough = !!adjusted && n >= CC_MIN_N && mine != null && period !== 'today' && !crossCity;
+      const amount = (value) => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
+      const diff = enough ? mine - adjusted[0] : 0;
+      const domainMin = enough ? Math.round(adjusted[1] * .82) : 0;
+      const domainMax = enough ? Math.round(adjusted[2] * 1.12) : 1;
+      const position = (value) => Math.max(0, Math.min(100, Math.round((value - domainMin) * 100 / Math.max(1, domainMax - domainMin))));
+      const cityTitle = city === 'moscow' ? 'Москва' : (city === 'spb' ? 'Санкт-Петербург' : 'Ваш город');
+      return {
+        recap_mode: true, legacy_mode: false, recap_enough: enough, recap_not_enough: !enough,
+        cohort_label: cityTitle + ' · ' + (CC_TRANSPORT[transport] || transport) + ' · ' + (CC_TITLES[service] || 'все сервисы') + (district === 'all' ? ' · все районы' : ' · ' + district),
+        basis_label: 'начислено за тот же период', recap_mine: enough ? amount(mine) : 'Нет данных',
+        recap_median: enough ? amount(adjusted[0]) : 'Нет данных',
+        recap_range: enough ? amount(adjusted[1]) + ' – ' + amount(adjusted[2]) : 'Нет данных',
+        recap_diff: enough ? (diff >= 0 ? 'выше медианы на ' : 'ниже медианы на ') + amount(Math.abs(diff)) : '',
+        recap_title: enough ? (diff >= 0 ? 'Выше медианы на' : 'Ниже медианы на') : 'Сравнение с курьерами', recap_accent: enough ? amount(Math.abs(diff)) : '',
+        recap_percentile: enough ? (mine >= adjusted[2] ? 'Выше 80% курьеров' : (mine >= adjusted[0] ? 'Выше 50% курьеров' : 'Выше 25% курьеров')) : '',
+        recap_n: enough ? n + ' ' + ccPlural(n, 'курьер', 'курьера', 'курьеров') : '',
+        recap_range_style: enough ? 'left:' + position(adjusted[1]) + '%;width:' + Math.max(4, position(adjusted[2]) - position(adjusted[1])) + '%' : '',
+        recap_median_style: enough ? 'left:' + position(adjusted[0]) + '%' : '', recap_you_style: enough ? 'left:' + position(mine) + '%' : '',
+        recap_missing: crossCity ? 'Ваши заказы относятся к другому городу, личное сравнение недоступно' :
+          (period === 'today' ? 'За сегодня выборка слишком мала, сравнение появится позже' :
+          (period === 'custom' ? 'Для выбранных дат сопоставимой выборки пока нет' :
+            (n > 0 && n < CC_MIN_N ? 'Недостаточно данных: меньше 30 курьеров' : 'Для этой группы данных пока нет'))),
+        on_settings: typeof p.onSettings === 'function' ? p.onSettings : (() => {})
+      };
+    }
     const city = p.city || 'moscow';
     const transport = p.transport || 'bike';
     const period = p.period || 'month';
@@ -82,6 +142,7 @@ class Component extends DCLogic {
       };
     });
     return {
+      recap_mode: false, legacy_mode: true,
       title: p.title || 'Я и другие курьеры',
       basis_note: 'Медиана курьеров Разноса: ' + ((cityData && city === 'spb') ? 'Санкт-Петербург' : (city === 'moscow' ? 'Москва' : 'выбранный город')) + ', ' + (CC_TRANSPORT[transport] || transport) + ', тот же сервис и период. Доход до расходов, начисления за час на линии',
       show_delay: delayed && !!cityData, show_no_city: !cityData, show_cross_city: crossCity && !!cityData && !delayed,

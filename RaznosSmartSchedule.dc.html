@@ -16,6 +16,7 @@
     .rss-hour { display: grid; grid-template-columns: 46px 1fr auto; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--raznos-surface-2); border: 1px solid transparent; text-align: left; width: 100%; cursor: pointer; }
     .rss-hour.rss-off { opacity: 0.55; }
     .rss-hour.rss-edited-row { border-color: var(--raznos-green); }
+    .rss-hour.rss-booked-row { border-color: var(--raznos-green); background: var(--raznos-green-tint); }
     .rss-hour-time { font: 700 13px var(--raznos-mono); color: var(--raznos-ink-3); }
     .rss-hour-main { display: flex; align-items: center; gap: 8px; min-width: 0; }
     .rss-hour-col { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
@@ -30,6 +31,13 @@
     .rss-tag { font: 600 10px var(--raznos-font); text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 7px; border-radius: 6px; }
     .rss-tag-off { color: var(--raznos-ink-3); background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
     .rss-tag-edit { color: var(--raznos-green-deep); background: var(--raznos-green-tint); }
+    .rss-hour-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .rss-balance { display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 12px; background: var(--raznos-surface-2); }
+    .rss-balance-bar { display: flex; height: 8px; border-radius: 999px; overflow: hidden; background: var(--raznos-line); }
+    .rss-balance-stable { background: var(--raznos-green); }
+    .rss-balance-flex { background: var(--raznos-ink-3); }
+    .rss-model-block { display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 12px; background: var(--raznos-surface-2); }
+    .rss-model-row { display: flex; align-items: center; gap: 8px; }
     .rss-zones { display: flex; flex-wrap: wrap; gap: 8px; }
     .rss-zone { display: inline-flex; align-items: baseline; gap: 6px; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); font: 600 13px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; }
     .rss-zone .rss-zone-pay { font: 600 12px var(--raznos-mono); color: var(--raznos-ink-3); }
@@ -38,13 +46,21 @@
     .rss-recalc { display: flex; flex-direction: column; gap: 10px; }
     .rss-past { opacity: 0.5; }
     .rss-locked { opacity: 0.55; cursor: default; }
+    .rss-lens { display: flex; gap: 6px; background: var(--raznos-surface-2); padding: 4px; border-radius: 12px; }
+    .rss-lens-btn { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 9px; font: 600 13px var(--raznos-font); color: var(--raznos-ink-3); cursor: pointer; }
+    .rss-lens-btn.raznos-is-active { background: var(--raznos-surface); color: var(--raznos-ink); }
+    .rss-now-card { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 14px; background: var(--raznos-surface-2); }
   </style>
 </helmet>
 
 <sc-if value="{{ is_list }}">
 <div class="raznos-phone-body" data-screen-label="Smart schedule">
-  <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><span class="raznos-text-small">Режим Работа</span></div>
-  <h1 class="raznos-text-h1">Умное расписание</h1>
+  <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Умное расписание</h1></div>
+
+  <div class="rss-lens">
+    <button type="button" class="{{ lens_plan_cls }}" onClick="{{ lens_to_plan }}">Расписание</button>
+    <button type="button" class="{{ lens_summary_cls }}" onClick="{{ lens_to_summary }}">Аналитика</button>
+  </div>
 
   <div class="rss-days">
     <sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
@@ -57,10 +73,7 @@
     <span class="rss-total">{{ total }}</span>
   </div>
 
-  <sc-if value="{{ few_data }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Данных пока мало, прогноз слабый. Считаем по правилам и вашей истории, будет точнее по мере накопления</span></div></sc-if>
-
-  <dc-import name="RaznosHourCompareChart" services="{{ cc_services }}" zones="{{ cc_zones }}" pay="{{ cc_pay }}" hours="{{ cc_hours }}" ownHours="{{ cc_own }}" onOpenHour="{{ cc_open_hour }}"></dc-import>
-
+  <sc-if value="{{ lens_plan }}" hint-placeholder-val="{{ true }}">
   <div class="rss-list">
     <sc-for list="{{ hours }}" as="h" hint-placeholder-count="6">
       <sc-for list="{{ h.marks_before }}" as="m" hint-placeholder-count="1"><dc-import name="RaznosShiftMarker" kind="{{ m.kind }}" label="{{ m.label }}" time="{{ m.time }}"></dc-import></sc-for>
@@ -70,7 +83,7 @@
           <dc-import name="RaznosIcon" svc="{{ h.svc }}" alt="{{ h.svcTitle }}" size="sm"></dc-import>
           <span class="rss-hour-col">
             <span class="rss-hour-name">{{ h.svcTitle }}</span>
-            <span class="rss-hour-sub">{{ h.sub }}</span>
+            <span class="rss-hour-meta"><dc-import name="RaznosWorkModelBadge" model="{{ h.modelKey }}"></dc-import><span class="rss-hour-sub">{{ h.sub }}</span></span>
           </span>
         </span>
         <span class="rss-hour-end">
@@ -83,19 +96,48 @@
   </div>
 
   <sc-if value="{{ recalc_available }}" hint-placeholder-val="{{ true }}">
-  <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ ask_recalc }}">Пересчитать день</button>
-  <p class="raznos-text-tiny">Пересчитывает план только этого дня. Обычно план собирается сам утром по вашему графику. Свежих цифр рынка пересчёт не добавит, они обновляются раз в сутки, он лишь заново учтёт ваш график и ручные правки. Это подсказка, а не бронирование смен</p>
+  <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ ask_recalc }}">Обновить план на день</button>
+  <p class="raznos-text-tiny">Заново соберёт план только этого дня по вашему графику и правкам. Обычно план собирается сам утром. Свежих цифр рынка не добавит, они обновляются раз в сутки. Это подсказка, а не бронирование смен</p>
   </sc-if>
   <sc-if value="{{ day_past }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">День уже прошёл, доступен только для просмотра</p></sc-if>
+  </sc-if>
+
+  <sc-if value="{{ lens_summary }}" hint-placeholder-val="{{ false }}">
+  <dc-import name="RaznosWeekGoal" goal="{{ wg_goal }}" planned="{{ wg_planned }}" nudge="{{ wg_nudge }}" onEdit="{{ wg_edit }}"></dc-import>
+
+  <sc-if value="{{ goal_edit_open }}" hint-placeholder-val="{{ false }}">
+    <div class="raznos-card raznos-card-pad raznos-fx raznos-col raznos-gap8">
+      <span class="raznos-text-small">Цель недели по доходу</span>
+      <div class="raznos-fx raznos-ac raznos-jb raznos-gap8">
+        <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ goal_dec }}">−5 000</button>
+        <span class="raznos-text-h3">{{ goal_value_label }}</span>
+        <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ goal_inc }}">+5 000</button>
+      </div>
+      <button type="button" class="raznos-btn" onClick="{{ goal_done }}">Готово</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ few_data }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Данных пока мало, прогноз слабый. Считаем по правилам и вашей истории, будет точнее по мере накопления</span></div></sc-if>
+
+  <sc-if value="{{ show_balance }}" hint-placeholder-val="{{ true }}">
+  <div class="rss-balance">
+    <div class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="raznos-text-small">Баланс дохода в плане</span><span class="raznos-text-tiny">{{ balance_note }}</span></div>
+    <div class="rss-balance-bar"><span class="rss-balance-stable" style="{{ balance_stable_style }}"></span><span class="rss-balance-flex" style="{{ balance_flex_style }}"></span></div>
+    <span class="raznos-text-tiny">Зелёное это окна со страховкой минимума и слоты, серое это свободный выход и биржа с плавающим доходом</span>
+  </div>
+  </sc-if>
+
+  <dc-import name="RaznosHourCompareChart" services="{{ cc_services }}" zones="{{ cc_zones }}" pay="{{ cc_pay }}" hours="{{ cc_hours }}" ownHours="{{ cc_own }}" onOpenHour="{{ cc_open_hour }}"></dc-import>
+  </sc-if>
 
   <sc-if value="{{ show_recalc }}" hint-placeholder-val="{{ false }}">
-    <div class="raznos-dialog-layer" role="dialog" aria-modal="true" aria-label="Пересчитать день">
+    <div class="raznos-dialog-layer" role="dialog" aria-modal="true" aria-label="Обновить план на день">
       <div class="raznos-dialog rss-recalc">
-        <span class="raznos-text-h3">Пересчитать день</span>
+        <span class="raznos-text-h3">Обновить план на день</span>
         <p class="raznos-text-small">Пересбор перетрёт ручные правки этого дня, кроме уже прошедших часов. Вернуть их будет нельзя</p>
         <div class="raznos-btn-row">
           <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ cancel_recalc }}">Отмена</button>
-          <button type="button" class="raznos-btn" onClick="{{ do_recalc }}">Пересчитать</button>
+          <button type="button" class="raznos-btn" onClick="{{ do_recalc }}">Обновить</button>
         </div>
       </div>
     </div>
@@ -113,6 +155,11 @@
   <sc-if value="{{ hv_past }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Этот час уже прошёл, доступен только для просмотра, менять и пересчитывать нельзя</span></div></sc-if>
   <sc-if value="{{ hv_off }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Этот час вне вашего графика. Выбрать можно, но в потенциальный итог дня он не войдёт</span></div></sc-if>
   <sc-if value="{{ hv_edited }}" hint-placeholder-val="{{ false }}"><div class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="rss-tag rss-tag-edit">изменено вами</span><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ reset_hour }}">Сбросить на smart</button></div></sc-if>
+
+  <div class="rss-model-block">
+    <div class="rss-model-row"><dc-import name="RaznosWorkModelBadge" model="{{ hv_modelKey }}"></dc-import><span class="raznos-text-small">{{ hv_riskLabel }}</span></div>
+    <span class="raznos-text-tiny">{{ hv_modelNote }}</span>
+  </div>
 
   <span class="raznos-text-h3">Сервис на этот час</span>
   <p class="raznos-text-tiny">Сколько платят в этот час по прогнозу, лучший отмечен</p>
@@ -133,7 +180,7 @@
 </div>
 </sc-if>
 
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"$preview":{"width":390,"height":820}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"weekGoal":{"editor":null},"$preview":{"width":390,"height":820}}'>
 const RSS_TODAY = 7; // сегодня в середине двух недель, -7 и +7 дней
 const RSS_WD = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 const RSS_MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
@@ -145,6 +192,8 @@ const RSS_WEEK = Array.from({ length: 15 }, (_, i) => {
   return { d: RSS_WD[wd], n: dt.getDate(), m: dt.getMonth(), work: wd < 5 };
 });
 const RSS_WORK_START = 9, RSS_WORK_END = 18; // график по умолчанию пн-пт 9-18
+// планирование открываем на сегодня, а если сегодня выходной по графику, на ближайшем рабочем дне
+const RSS_DEFAULT_DAY = (() => { for (let i = RSS_TODAY; i < RSS_WEEK.length; i++) if (RSS_WEEK[i].work) return i; return RSS_TODAY; })();
 const RSS_SERVICES = [
   { key: 'samokat', title: 'Самокат' },
   { key: 'vkusvill', title: 'ВкусВилл' },
@@ -169,6 +218,13 @@ const rssPay = (h, svcKey, zoneF) => {
   return Math.round(rssBase(h) * zoneF * factor / 10) * 10;
 };
 const rssZoneF = (name) => (RSS_ZONES.find((z) => z.name === name) || RSS_ZONES[0]).f;
+// потенциал дня по дефолтному плану (без ручных правок), для недельной цели
+const rssDayPotential = (dayI) => {
+  if (!RSS_WEEK[dayI] || !RSS_WEEK[dayI].work) return 0;
+  let t = 0;
+  for (let h = RSS_WORK_START; h < RSS_WORK_END; h++) t += rssPay(h, rssSmartSvc(h), rssZoneF('Центр'));
+  return t;
+};
 const rssDem = (h) => {
   const v = RSS_DEMAND[h];
   if (v >= 0.7) return ['выше среднего', 'rss-dem rss-dem-high'];
@@ -182,6 +238,15 @@ const rssReason = (h) => {
   return 'затишье';
 };
 const svcTitle = (key) => (RSS_SERVICES.find((s) => s.key === key) || {}).title || key;
+// модель получения работы у окна: плановый слот, слот-смена или свободный выход, влияет на риск дохода
+const RSS_MODEL = {
+  plan: { label: 'плановый слот', risk: 'минимум гарантирован', tone: 'stable', note: 'Бронь заранее, обязательный выход, есть штраф за невыход. Бронировать в приложении сервиса' },
+  slot: { label: 'слот', risk: 'стабильно, нужен выход', tone: 'stable', note: 'Смена бронируется в сервисе, есть штраф за невыход или опоздание' },
+  free: { label: 'свободный выход', risk: 'плавающий доход', tone: 'flex', note: 'Старт и стоп в любой момент, поток заказов не гарантирован' }
+};
+const rssModelKey = (h, svcKey) => (svcKey === 'yandex-eda' ? (RSS_DEMAND[h] >= 0.85 ? 'plan' : 'free') : 'slot');
+// забронированные слоты из раздела Смены (импорт), показываем как факт внутри плана, демо на сегодня
+const RSS_BOOKED = [{ svc: 'vkusvill', title: 'ВкусВилл', from: 14, to: 17 }];
 
 class Component extends DCLogic {
   renderVals() {
@@ -189,7 +254,8 @@ class Component extends DCLogic {
     const st = this.state || {};
     const set = (patch) => this.setState(patch);
     const view = st.view || 'list';
-    const selDay = st.selDay == null ? RSS_TODAY : st.selDay;
+    const lens = st.lens || 'plan'; // ракурс списка: планирование или сейчас
+    const selDay = st.selDay == null ? RSS_DEFAULT_DAY : st.selDay;
     const edits = st.edits || {};
     const dayInfo = RSS_WEEK[selDay];
     const dayWorks = !!dayInfo.work;
@@ -220,26 +286,69 @@ class Component extends DCLogic {
     const nowLabel = (RSS_NOW < 10 ? '0' + RSS_NOW : RSS_NOW) + ':' + String(RSS_NOW_DATE.getMinutes()).padStart(2, '0');
     const hours = order.map((h) => {
       const plan = hourPlan(h);
+      const booked = isToday ? RSS_BOOKED.find((b) => h >= b.from && h < b.to) : null;
+      const dispSvc = booked ? booked.svc : plan.svc;
+      const dispPay = booked ? rssPay(h, booked.svc, rssZoneF(plan.zone)) : plan.pay;
+      const dispModel = booked ? 'slot' : rssModelKey(h, plan.svc);
       const dem = rssDem(h);
       const off = !inGrafik(h);
       const past = rssIsPastHour(selDay, h);
-      const sub = plan.zone + ' · ' + rssReason(h) + (plan.edited ? ' · изменено вами' : '') + (off ? ' · вне графика' : '') + (past ? ' · прошло' : '');
+      const sub = plan.zone + ' · ' + rssReason(h) + (booked ? ' · забронировано' : '') + (plan.edited ? ' · изменено вами' : '') + (off ? ' · вне графика' : '') + (past ? ' · прошло' : '');
       const marksBefore = [];
       const marksAfter = [];
       if (dayWorks && h === RSS_WORK_START) marksBefore.push({ kind: 'shift', label: 'Начало рабочего дня', time: hhmm(RSS_WORK_START) });
       if (isToday && h === RSS_NOW) marksBefore.push({ kind: 'now', label: 'Сейчас', time: nowLabel });
+      if (booked && h === booked.from) marksBefore.push({ kind: 'shift', label: 'Забронировано в ' + booked.title + ' (факт из Смен)', time: hhmm(booked.from) + '–' + hhmm(booked.to) });
       if (dayWorks && h === RSS_WORK_END - 1) marksAfter.push({ kind: 'shift', label: 'Конец рабочего дня', time: hhmm(RSS_WORK_END) });
       return {
         time: (h < 10 ? '0' + h : h) + ':00',
-        svc: plan.svc, svcTitle: svcTitle(plan.svc), sub,
-        pay: plan.pay + ' ₽/ч',
+        svc: dispSvc, svcTitle: svcTitle(dispSvc), sub,
+        modelKey: dispModel,
+        pay: dispPay + ' ₽/ч',
         demCls: dem[1], demLabel: dem[0],
-        cls: 'rss-hour' + (off ? ' rss-off' : '') + (past ? ' rss-past' : '') + (plan.edited ? ' rss-edited-row' : ''),
-        aria: (h < 10 ? '0' + h : h) + ':00, ' + svcTitle(plan.svc) + ', ' + plan.zone + ', ' + plan.pay + ' рублей в час, ' + dem[0] + (off ? ', вне графика' : '') + (past ? ', уже прошло' : ''),
+        cls: 'rss-hour' + (off ? ' rss-off' : '') + (past ? ' rss-past' : '') + (booked ? ' rss-booked-row' : '') + (plan.edited && !booked ? ' rss-edited-row' : ''),
+        aria: (h < 10 ? '0' + h : h) + ':00, ' + svcTitle(dispSvc) + ', ' + plan.zone + ', ' + dispPay + ' рублей в час, ' + dem[0] + (booked ? ', забронировано' : '') + (off ? ', вне графика' : '') + (past ? ', уже прошло' : ''),
         marks_before: marksBefore, marks_after: marksAfter,
         tap: () => set({ view: 'hour', selHour: h })
       };
     });
+
+    // недельный баланс: сколько часов со страховкой (плановый/слот) против плавающих (свободный/биржа)
+    let stableH = 0, flexH = 0;
+    for (let h = 0; h < 24; h++) if (inGrafik(h)) { (RSS_MODEL[rssModelKey(h, hourPlan(h).svc)].tone === 'stable' ? stableH++ : flexH++); }
+    const balTot = stableH + flexH;
+    const stablePct = balTot ? Math.round(stableH / balTot * 100) : 0;
+
+    // недельная цель: потенциал по плану на 7 дней вперёд и цель чуть выше
+    let weekPlanned = 0;
+    for (let i = RSS_TODAY; i <= RSS_TODAY + 6 && i < RSS_WEEK.length; i++) if (RSS_WEEK[i].work) weekPlanned += rssDayPotential(i);
+    // цель недели приходит из приложения, без неё считаем от плана
+    const weekGoal = st.weekGoal != null ? st.weekGoal : (p.weekGoal != null ? p.weekGoal : Math.max(1000, Math.ceil(weekPlanned * 1.08 / 1000) * 1000));
+
+    // ракурс Сейчас: текущий и ближайшие часы сегодня из плана
+    const nowList = [];
+    for (let k = 0; k < 3; k++) {
+      const h = RSS_NOW + k; if (h > 23) break;
+      const e = edits[RSS_TODAY + ':' + h];
+      const svc = e ? e.svc : rssSmartSvc(h);
+      const zone = e ? e.zone : 'Центр';
+      const dem = rssDem(h);
+      nowList.push({
+        time: (h < 10 ? '0' + h : h) + ':00', svc, svcTitle: svcTitle(svc),
+        sub: zone + ' · ' + rssReason(h) + (k === 0 ? ' · сейчас' : ''),
+        modelKey: rssModelKey(h, svc),
+        pay: rssPay(h, svc, rssZoneF(zone)) + ' ₽/ч', demCls: dem[1], demLabel: dem[0],
+        cls: 'rss-hour', aria: (h < 10 ? '0' + h : h) + ':00, ' + svcTitle(svc),
+        tap: () => set({ view: 'hour', selDay: RSS_TODAY, selHour: h })
+      });
+    }
+
+    // активный заказ на чтение и состояние выходного для ракурса Сейчас
+    const smActiveLabel = p.activeOrderLabel || '';
+    const smOpenActive = typeof p.onOpenActiveOrder === 'function' ? p.onOpenActiveOrder : (() => {});
+    const todayWorks = !!RSS_WEEK[RSS_TODAY].work;
+    let nowNextWork = '';
+    if (!todayWorks) { const w = RSS_WEEK[RSS_DEFAULT_DAY]; if (w && !(RSS_DEFAULT_DAY === RSS_TODAY)) nowNextWork = 'Ближайший рабочий день: ' + w.d + ' ' + w.n + ' ' + RSS_MONTHS[w.m]; }
 
     // данные для компонента диаграммы сравнения
     const ownHrs = order.filter((h) => inGrafik(h));
@@ -249,6 +358,8 @@ class Component extends DCLogic {
     // экран часа
     const selHour = st.selHour == null ? firstHour : st.selHour;
     const cur = hourPlan(selHour);
+    const curModelKey = rssModelKey(selHour, cur.svc);
+    const curModel = RSS_MODEL[curModelKey];
     const demH = rssDem(selHour);
     const hourPast = rssIsPastHour(selDay, selHour);
     const cmpZoneF = rssZoneF(cur.zone);
@@ -279,11 +390,32 @@ class Component extends DCLogic {
     return {
       onBack: p.onBack || (() => {}),
       is_list: view === 'list', is_hour: view === 'hour',
+      lens_plan: lens === 'plan', lens_summary: lens === 'summary',
+      lens_plan_cls: 'rss-lens-btn' + (lens === 'plan' ? ' raznos-is-active' : ''),
+      lens_summary_cls: 'rss-lens-btn' + (lens === 'summary' ? ' raznos-is-active' : ''),
+      lens_to_plan: () => set({ lens: 'plan' }), lens_to_summary: () => set({ lens: 'summary' }),
+      now_title: 'Сейчас и ближайшие часы', now_hours: nowList,
+      now_note: 'Живой ракурс на сегодня. Рынок обновляется раз в сутки, вживую меняются ваш статус и ближайшие часы',
+      now_active_visible: !!smActiveLabel, now_active_label: smActiveLabel, open_active_order: smOpenActive,
+      now_is_dayoff: !todayWorks, now_next_work: nowNextWork,
+      open_slots: p.onOpenSlots || (() => {}),
       days,
       day_title: dayInfo.d + ', ' + dayInfo.n + ' ' + RSS_MONTHS[dayInfo.m],
       total: dayWorks ? ('≈ ' + rssFmt(total) + ' ₽') : '—',
       total_note: dayWorks ? 'потенциал за день по графику' : 'нерабочий день по графику, часы вне плана',
       few_data: false,
+      show_balance: dayWorks && balTot > 0,
+      balance_note: (dayWorks && balTot > 0) ? (stableH + ' ч со страховкой, ' + flexH + ' ч плавающих') : '',
+      balance_stable_style: 'width:' + stablePct + '%',
+      balance_flex_style: 'width:' + (100 - stablePct) + '%',
+      wg_goal: weekGoal, wg_planned: weekPlanned,
+      wg_nudge: 'В Центре в вечерние часы платят больше, добавьте пару часов к плану',
+      wg_edit: () => set({ goalEdit: !st.goalEdit }),
+      goal_edit_open: !!st.goalEdit,
+      goal_value_label: rssFmt(weekGoal) + ' ₽',
+      goal_dec: () => set({ weekGoal: Math.max(5000, weekGoal - 5000) }),
+      goal_inc: () => set({ weekGoal: weekGoal + 5000 }),
+      goal_done: () => set({ goalEdit: false }),
       hours,
       cc_services: RSS_SERVICES,
       cc_zones: RSS_ZONES.map((z) => z.name),
@@ -311,6 +443,8 @@ class Component extends DCLogic {
       hv_off: !inGrafik(selHour),
       hv_past: hourPast,
       hv_edited: cur.edited && !hourPast,
+      hv_modelKey: curModelKey,
+      hv_riskLabel: curModel.risk, hv_modelNote: curModel.note,
       reset_hour: () => { const next = Object.assign({}, edits); delete next[editKey(selHour)]; set({ edits: next }); },
       cmp, zones, zone_hint: hourPast ? 'Час уже прошёл, значения показаны для справки' : zoneHint
     };

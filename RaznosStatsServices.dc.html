@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
+<div class="raznos-stats-services-card">
+  <button type="button" class="raznos-stats-head-link" onClick="{{ on_open }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">{{ title }} <em class="{{ accent_class }}">{{ accent }}</em></h2></span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+  <div class="raznos-stats-service-bars"><sc-for list="{{ rows }}" as="row" hint-placeholder-count="2"><button type="button" class="raznos-stats-service-bar raznos-is-{{ row.key }}" onClick="{{ row.tap }}"><span class="raznos-stats-service-track"><i style="{{ row.bar_style }}"></i></span><span class="raznos-stats-service-head"><span class="raznos-stats-service-label"><dc-import name="RaznosIcon" svc="{{ row.key }}" size="sm"></dc-import><strong>{{ row.title }}</strong></span><span class="raznos-stats-service-meta"><span class="raznos-stats-service-orders">{{ row.orders_label }}</span><strong>{{ row.amount }}</strong></span></span></button></sc-for></div>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"rows":{"editor":null},"title":{"editor":null},"accent":{"editor":null},"accentClass":{"editor":null},"onOpen":{"editor":null},"$preview":{"width":360,"height":240}}'>
+// где заработали: сервисы полосами в своих цветах, заголовок называет лидера
+const RSS_SVC_PLURAL = (n) => { const m10 = n % 10, m100 = n % 100; return m10 === 1 && m100 !== 11 ? 'заказ' : (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? 'заказа' : 'заказов'); };
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const rows = p.rows || [
+      { key: 'vkusvill', title: 'ВкусВилл', earn: 4600, orders: 17, amount: '4 600 ₽', bar_style: 'width:58%' },
+      { key: 'samokat', title: 'Самокат', earn: 3400, orders: 13, amount: '3 400 ₽', bar_style: 'width:43%' }
+    ];
+    const known = rows.filter((row) => row.earn != null);
+    const top = known.reduce((best, row) => !best || row.earn > best.earn ? row : best, null);
+    // экран может передать свой заголовок, например когда список сужен фильтром
+    const own = p.title != null;
+    return {
+      title: own ? p.title : (!top ? 'Где заработали' : (known.length > 1 ? 'Больше всего дал' : 'Весь доход дал')),
+      accent: own ? (p.accent || '') : (top ? top.title : ''),
+      accent_class: own ? (p.accentClass || '') : (top ? 'raznos-stats-svc-accent raznos-is-' + top.key : ''),
+      rows: rows.map((row) => Object.assign({}, row, {
+        orders_label: row.orders_label || (row.orders == null ? 'Нет данных' : row.orders + ' ' + RSS_SVC_PLURAL(row.orders)),
+        tap: typeof row.tap === 'function' ? row.tap : (() => {})
+      })),
+      on_open: typeof p.onOpen === 'function' ? p.onOpen : (() => {})
+    };
+  }
+}
+</script></body></html>

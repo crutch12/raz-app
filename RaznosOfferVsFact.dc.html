@@ -1,32 +1,35 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
 <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-final.css" /></helmet>
 <div class="raznos-card raznos-card-pad">
-  <div class="raznos-head-row"><span class="raznos-text-h3 raznos-head-title">Предложение и факт</span><span class="{{ pill_class }}">{{ pill }}</span></div>
-  <sc-if value="{{ has_snapshot }}" hint-placeholder-val="{{ true }}">
-    <div class="raznos-cohort-grid">
-      <span class="raznos-cohort-grid-head"></span><span class="raznos-cohort-grid-head">Обещано</span><span class="raznos-cohort-grid-head">Факт</span>
-      <span class="raznos-text-small">Оплата</span><span class="raznos-cohort-cell raznos-cohort-cell-muted">{{ promised_pay }}</span><span class="raznos-cohort-cell">{{ fact_pay }}</span>
-      <span class="raznos-text-small">Время с ожиданием</span><span class="raznos-cohort-cell raznos-cohort-cell-muted">{{ promised_min }}</span><span class="raznos-cohort-cell">{{ fact_min }}</span>
-    </div>
-    <sc-for list="{{ reasons }}" as="r" hint-placeholder-count="2"><span class="raznos-text-small">{{ r }}</span></sc-for>
-    <p class="raznos-text-tiny">Условия сохранены в момент принятия, разницу объясняем только данными сервиса</p>
-  </sc-if>
-  <sc-if value="{{ no_snapshot }}"><p class="raznos-text-small">Заказ принят не через Разнос, условий на момент принятия нет, сравнить не с чем</p></sc-if>
+  <div class="raznos-head-row"><span class="raznos-text-h3 raznos-head-title">Обещано и начислено</span><span class="{{ pill_class }}">{{ pill }}</span></div>
+  <div class="raznos-cohort-grid" style="grid-template-columns:1fr auto">
+    <span class="raznos-text-small">Обещано сервисом</span><span class="raznos-cohort-cell raznos-cohort-cell-muted">{{ promised }} ₽</span>
+    <span class="raznos-text-small">Начислено</span><span class="raznos-cohort-cell">{{ accrued }} ₽</span>
+    <span class="raznos-text-small">Выплата</span><span class="raznos-cohort-cell">{{ payout_label }}</span>
+  </div>
+  <sc-if value="{{ has_note }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">{{ note }}</p></sc-if>
+  <p class="raznos-text-tiny">Сверяем с тем, что показал сервис по заказу, разницу объясняем его же данными</p>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"snapshot":{"editor":null},"factPay":{"editor":"int","default":300},"factMin":{"editor":"int","default":15},"$preview":{"width":360,"height":240}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"promised":{"editor":"int","default":320},"accrued":{"editor":"int","default":320},"payout":{"editor":"text","default":"Выплачено"},"$preview":{"width":360,"height":220}}'>
+// обещанная сервисом сумма по заказу против начисленной и выплаченной, данные из интеграции
+const OVF_FMT = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
-    const snap = p.snapshot || null;
-    const factPay = p.factPay, factMin = p.factMin;
-    const same = !!snap && !snap.partial && snap.pay === factPay && snap.min === factMin;
+    const promised = p.promised != null ? p.promised : 0;
+    const accrued = p.accrued != null ? p.accrued : 0;
+    const payout = p.payout || 'Выплачено';
+    const diff = accrued - promised;
+    const payoutLabel = payout === 'Выплачено' ? ('Выплачено ' + OVF_FMT(accrued) + ' ₽')
+      : (payout === 'Скорректировано' ? 'Скорректирована' : 'Ожидает выплаты');
+    let pill, pillCls, note = '';
+    if (diff === 0) { pill = 'Совпало'; pillCls = 'raznos-pill-ok'; }
+    else if (diff > 0) { pill = 'Доплата'; pillCls = 'raznos-pill-ok'; note = 'Сервис доплатил ' + OVF_FMT(diff) + ' ₽ сверх обещанного, обычно за ожидание или расстояние'; }
+    else { pill = 'Меньше обещанного'; pillCls = 'raznos-pill-warn'; note = 'Начислено на ' + OVF_FMT(-diff) + ' ₽ меньше обещанного, стоит уточнить в сервисе'; }
     return {
-      has_snapshot: !!snap, no_snapshot: !snap,
-      pill: !snap ? 'Нет данных' : (snap.partial ? 'Неполные данные' : (same ? 'Совпало' : 'Есть разница')),
-      pill_class: 'raznos-status-pill ' + (!snap ? 'raznos-pill-muted' : (snap.partial ? 'raznos-pill-warn' : (same ? 'raznos-pill-ok' : 'raznos-pill-warn'))),
-      promised_pay: snap ? snap.pay + ' ₽' : '', promised_min: snap ? snap.min + ' мин' : '',
-      fact_pay: snap && snap.partial ? 'ждём' : factPay + ' ₽', fact_min: factMin + ' мин',
-      reasons: snap ? (snap.reasons || []) : []
+      promised: OVF_FMT(promised), accrued: OVF_FMT(accrued), payout_label: payoutLabel,
+      pill, pill_class: 'raznos-status-pill ' + pillCls,
+      has_note: !!note, note
     };
   }
 }

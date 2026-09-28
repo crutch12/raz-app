@@ -12,7 +12,7 @@
         <div class="raznos-fx raznos-ac raznos-gap12">
           <dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ svcTitle }}" size="sm"></dc-import>
           <div class="raznos-list-main">
-            <span class="raznos-list-title">{{ svcTitle }} · {{ orderNo }}</span>
+            <span class="raznos-list-title">{{ svcTitle }} · {{ orderNo }}<sc-if value="{{ hasBadge }}" hint-placeholder-val="{{ false }}"><span class="raznos-order-badge"><span class="raznos-order-badge-dot"></span>{{ badge }}</span></sc-if></span>
             <span class="raznos-text-small">{{ dateLabel }} · {{ deliveryStatus }}</span>
           </div>
           <div class="raznos-list-end">
@@ -20,8 +20,7 @@
             <span class="{{ moneyStatusClass }}">{{ moneyStatus }}</span>
           </div>
         </div>
-        <sc-if value="{{ hasRoute }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ routeLabel }}</span></sc-if>
-        <sc-if value="{{ hasTip }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ tipLabel }}</span></sc-if>
+        <sc-if value="{{ hasFooter }}" hint-placeholder-val="{{ false }}"><div class="raznos-order-foot"><div class="raznos-order-foot-lines"><sc-if value="{{ hasRoute }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ routeLabel }}</span></sc-if><sc-if value="{{ hasTip }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ tipLabel }}</span></sc-if></div><sc-if value="{{ hasQuality }}" hint-placeholder-val="{{ false }}"><span class="raznos-order-quality {{ qualityClass }}">{{ quality }}</span></sc-if></div></sc-if>
       </button>
     </x-dc>
     <script type="text/x-dc" data-dc-script data-props='{
@@ -34,6 +33,9 @@
       "payout": { "editor": "text", "default": "0" },
       "tipLabel": { "editor": "text", "default": "" },
       "routeLabel": { "editor": "text", "default": "" },
+      "badge": { "editor": "text", "default": "" },
+      "quality": { "editor": "text", "default": "" },
+      "qualityTone": { "editor": "enum", "default": "up", "options": ["up", "mid", "down"] },
       "onTap": { "editor": null },
       "$preview": { "width": 340, "height": 96 }
     }'>
@@ -54,6 +56,12 @@
             tipLabel: p.tipLabel || '',
             hasRoute: !!p.routeLabel,
             routeLabel: p.routeLabel || '',
+            hasFooter: (!!p.routeLabel) || (!!p.tipLabel) || (!!p.quality),
+            hasBadge: !!p.badge,
+            badge: p.badge || '',
+            hasQuality: !!p.quality,
+            quality: p.quality || '',
+            qualityClass: 'raznos-status-pill ' + (p.qualityTone === 'down' ? 'raznos-pill-error' : (p.qualityTone === 'mid' ? 'raznos-pill-warn' : 'raznos-pill-ok')),
             onTap: p.onTap || (() => {})
           };
         }

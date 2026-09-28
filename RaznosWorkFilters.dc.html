@@ -15,9 +15,9 @@
 
 <sc-if value="{{ is_list }}">
 <div class="raznos-phone-body" data-screen-label="Work filters">
-<div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><span class="raznos-text-small">Выбор заказов</span></div>
-<h1 class="raznos-text-h1">Мои фильтры</h1>
-<p class="raznos-text-small">Выберите набор, он отсекает лишние предложения в ленте. Заказ всегда принимаете вы</p>
+<div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Мои фильтры</h1></div>
+<p class="raznos-text-small">Тонкий фильтр конкретных заказов для ракурса Сейчас, когда виден пул одного сервиса. Заказ всегда принимаете вы</p>
+<div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Плановые предпочтения (районы, сервисы, часы, цель дохода) теперь в графике и цели умного расписания. Здесь остаются только параметры конкретного заказа</span></div>
 <div class="raznos-fx raznos-col raznos-gap8"><sc-for list="{{ sets }}" as="s" hint-placeholder-count="4">
 <div class="raznos-fx raznos-ac raznos-gap8">
 <button type="button" class="{{ s.rowCls }}" onClick="{{ s.apply }}"><span class="rwf-row-main"><span class="rwf-row-title">{{ s.title }}</span><span class="rwf-row-sub">{{ s.sub }}</span></span><span class="rwf-row-end"><span class="{{ s.badgeCls }}">{{ s.badge }}</span></span></button>
@@ -32,13 +32,11 @@
 
 <sc-if value="{{ is_editor }}">
 <div class="raznos-phone-body" data-screen-label="Filter editor">
-<div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ ed_back }}">‹</button><span class="raznos-text-small">Мои фильтры</span></div>
-<h1 class="raznos-text-h1">{{ ed_title }}</h1>
+<div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ ed_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">{{ ed_title }}</h1></div>
 <label class="raznos-field"><span class="raznos-field-label">Название набора</span><input class="raznos-input" value="{{ ed_name }}" onChange="{{ ed_change_name }}" /></label>
 <sc-if value="{{ ed_adv }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">Значения для: {{ ed_scope_label }}</p></sc-if>
 <div class="raznos-opportunity-fields"><sc-for list="{{ ed_fields }}" as="f"><label class="raznos-field"><span class="raznos-field-label">{{ f.label }}</span><input class="raznos-input" type="number" min="0" step="{{ f.step }}" value="{{ f.value }}" onChange="{{ f.change }}" /></label></sc-for></div>
-<label class="raznos-field"><span class="raznos-field-label">Район доставки</span><select class="raznos-input" value="{{ ed_zone }}" onChange="{{ ed_change_zone }}"><option value="all">Любой район</option><option value="Белорусская">Белорусская</option><option value="Тверская">Тверская</option><option value="Баррикадная">Баррикадная</option></select></label>
-<p class="raznos-text-tiny">Расходы на километр включают вашу оценку аренды, зарядки и обслуживания, налоги отдельно</p>
+<p class="raznos-text-tiny">Расходы на километр включают вашу оценку аренды, зарядки и обслуживания, налоги отдельно. Район и часы задаются в графике умного расписания</p>
 
 <button type="button" class="{{ ed_adv_btn_cls }}" onClick="{{ ed_toggle_adv }}">{{ ed_adv_label }}</button>
 <sc-if value="{{ ed_adv }}" hint-placeholder-val="{{ false }}">
@@ -55,8 +53,7 @@
 
 <sc-if value="{{ is_eff }}">
 <div class="raznos-phone-body" data-screen-label="Filter effectiveness">
-<div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ eff_back }}">‹</button><span class="raznos-text-small">Мои фильтры</span></div>
-<h1 class="raznos-text-h1">Проверить фильтр</h1>
+<div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ eff_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Проверить фильтр</h1></div>
 <p class="raznos-text-small">Активный набор: {{ active_label }}</p>
 <div class="raznos-chip-row"><sc-for list="{{ eff_periods }}" as="ep"><button type="button" class="{{ ep.cls }}" onClick="{{ ep.tap }}">{{ ep.label }}</button></sc-for></div>
 <span class="raznos-text-body">{{ eff_summary }}</span>
@@ -79,10 +76,10 @@ const FIELDS = [
   { k: 'maxMinutes', label: 'Вместе с переездом до, мин', step: '1' },
   { k: 'costPerKm', label: 'Мои расходы на 1 км, ₽', step: '0.1' }
 ];
-const DEF = { minPay: 250, minHourly: 600, maxDistance: 3, maxWeight: 8, maxPackages: 4, maxMinutes: 35, costPerKm: 12, zone: 'all' };
+const DEF = { minPay: 250, minHourly: 600, maxDistance: 3, maxWeight: 8, maxPackages: 4, maxMinutes: 35, costPerKm: 12 };
 const SVCS = [{ key: 'vkusvill', title: 'ВкусВилл' }, { key: 'samokat', title: 'Самокат' }, { key: 'x5', title: 'X5' }];
 const PRESETS = [
-  { name: 'Рядом с домом', vals: Object.assign({}, DEF, { maxDistance: 2, zone: 'Белорусская' }) },
+  { name: 'Рядом с домом', vals: Object.assign({}, DEF, { maxDistance: 2 }) },
   { name: 'Без тяжёлых заказов', vals: Object.assign({}, DEF, { maxWeight: 3, maxPackages: 2 }) },
   { name: 'Работаю два часа', vals: Object.assign({}, DEF, { maxMinutes: 25 }) }
 ];
@@ -91,7 +88,6 @@ const wfSummary = (v) => {
   parts.push('оплата от ' + v.minPay + ' ₽');
   parts.push('до ' + v.maxDistance + ' км');
   parts.push('вес до ' + v.maxWeight + ' кг');
-  if (v.zone && v.zone !== 'all') parts.push(v.zone);
   return parts.slice(0, 3).join(' · ');
 };
 
@@ -150,8 +146,6 @@ class Component extends DCLogic {
         ed_title: ed.mode === 'edit' ? 'Изменить набор' : 'Новый набор',
         ed_name: ed.name,
         ed_change_name: (e) => this.setState({ ed: Object.assign({}, ed, { name: e && e.target ? e.target.value : ed.name, error: '' }) }),
-        ed_zone: edEffVals.zone,
-        ed_change_zone: (e) => patchField('zone', e.target.value),
         ed_fields: FIELDS.map((f) => ({ label: f.label, step: f.step, value: edEffVals[f.k], change: (e) => patchField(f.k, e.target.value) })),
         ed_adv: !!ed.adv,
         ed_adv_label: ed.adv ? 'Скрыть настройку по сервисам' : 'Разные настройки по сервисам',

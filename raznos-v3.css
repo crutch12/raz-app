@@ -65,7 +65,7 @@
   border: 1px solid var(--raznos-line);
 }
 
-body { margin: 0; background: var(--raznos-bg); color: var(--raznos-ink); font-family: var(--raznos-font); -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--raznos-bg); color: var(--raznos-ink); font-family: var(--raznos-font); -webkit-font-smoothing: antialiased; overscroll-behavior-x: none; }
 a { color: var(--raznos-green-deep); }
 a:hover { color: var(--raznos-ink); }
 
@@ -97,7 +97,7 @@ a:hover { color: var(--raznos-ink); }
 .raznos-demo-ribbon-close { position: relative; flex: 0 0 auto; width: 20px; height: 20px; padding: 0; background: rgba(255, 255, 255, 0.18); border: 0; border-radius: 999px; color: var(--raznos-on-dark); font: 700 13px/20px var(--raznos-font); text-align: center; }
 .raznos-demo-ribbon-close::before { content: ""; position: absolute; inset: -12px; }
 .raznos-demo-ribbon-close:focus { outline: 2px solid var(--raznos-on-dark); outline-offset: 2px; }
-.raznos-phone-scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+.raznos-phone-scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; overscroll-behavior-x: none; }
 .raznos-phone-body { flex: 1; padding: 12px 20px 20px; display: flex; flex-direction: column; gap: 14px; background: var(--raznos-bg); }
 
 .raznos-app-bar { display: flex; align-items: center; justify-content: space-between; min-height: 32px; }
@@ -453,3 +453,15 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 
 /* Значок пальца в строках ленты стоит на базовой линии текста */
 .raznos-live-foot .raznos-reaction-glyph, .raznos-live-today-meta .raznos-reaction-glyph { vertical-align: -2px; }
+
+/* RaznosOrderCard: бейдж активного заказа и пилюля оценки */
+.raznos-order-badge { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; background: var(--raznos-green-deep); color: var(--raznos-on-dark); font: 700 10px var(--raznos-font); padding: 2px 7px; border-radius: 999px; vertical-align: middle; }
+.raznos-order-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: #fff; animation: raznosBadgePulse 1.4s ease-in-out infinite; }
+@keyframes raznosBadgePulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.6); } }
+@media (prefers-reduced-motion: reduce) { .raznos-order-badge-dot { animation: none; } }
+
+/* RaznosOrderCard: пилюля оценки в углу, не двигает контент */
+.raznos-order-card { position: relative; }
+.raznos-order-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
+.raznos-order-foot-lines { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.raznos-order-quality { flex: none; }

@@ -1,0 +1,124 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rro { box-sizing: border-box; width: 100%; max-width: 100%; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .rro-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .rro-title { font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
+    .rro-all { background: none; border: 0; padding: 0; cursor: pointer; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); }
+    .rro-row { display: flex; align-items: center; gap: 8px; }
+    .rro-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; background: none; border: 0; margin: -4px -6px; padding: 4px 6px; border-radius: 10px; font: inherit; color: inherit; text-align: left; cursor: pointer; transition: background 0.12s ease; }
+    .rro-open:hover, .rro-open:active { background: var(--raznos-surface-2); }
+    .rro-chev { flex: none; color: var(--raznos-ink-3); font: 600 16px var(--raznos-font); line-height: 1; }
+    .rro-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+    .rro-route { font: 600 14px var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rro-meta { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rro-pay { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); flex: none; font-variant-numeric: tabular-nums; }
+    .rro-add { flex: none; width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--raznos-line); background: var(--raznos-surface-2); color: var(--raznos-ink); font: 600 18px var(--raznos-font); line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .rro-add:hover { border-color: var(--raznos-ink-3); }
+    .rro-sheet { display: flex; flex-direction: column; gap: 12px; }
+    .rro-sheet-seg { display: flex; gap: 6px; background: var(--raznos-surface-2); padding: 4px; border-radius: 10px; }
+    .rro-seg-btn { flex: 1; padding: 8px; border: 0; background: transparent; border-radius: 8px; font: 600 13px var(--raznos-font); color: var(--raznos-ink-3); cursor: pointer; }
+    .rro-seg-btn.raznos-is-active { background: var(--raznos-surface); color: var(--raznos-ink); }
+    .rro-amt { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .rro-amt-val { font: 800 22px var(--raznos-font); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+  </style>
+</helmet>
+<div class="rro">
+  <div class="rro-head"><span class="rro-title">Последние заказы</span><button type="button" class="rro-all" onClick="{{ on_all }}">Показать все</button></div>
+  <sc-for list="{{ rows }}" as="o" hint-placeholder-count="3">
+    <div class="rro-row">
+      <button type="button" class="rro-open" onClick="{{ o.openOrder }}">
+        <dc-import name="RaznosIcon" svc="{{ o.svc }}" alt="{{ o.svcTitle }}" size="sm"></dc-import>
+        <span class="rro-main"><span class="rro-route">{{ o.route }}</span><span class="rro-meta">{{ o.meta }}</span></span>
+        <span class="rro-pay">{{ o.pay }} ₽</span>
+        <span class="rro-chev">›</span>
+      </button>
+      <button type="button" class="rro-add" onClick="{{ o.add }}" aria-label="Добавить чаевые или расход к заказу">＋</button>
+    </div>
+  </sc-for>
+
+  <sc-if value="{{ sheet_open }}" hint-placeholder-val="{{ false }}">
+    <div class="raznos-dialog-layer" role="dialog" aria-modal="true" aria-label="Добавить к заказу">
+      <div class="raznos-dialog rro-sheet">
+        <span class="raznos-text-h3">К заказу {{ sheet_order }}</span>
+        <div class="rro-sheet-seg">
+          <button type="button" class="{{ tip_cls }}" onClick="{{ pick_tip }}">Чаевые</button>
+          <button type="button" class="{{ exp_cls }}" onClick="{{ pick_exp }}">Расход</button>
+        </div>
+        <div class="rro-amt">
+          <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ amt_dec }}">−50</button>
+          <span class="rro-amt-val">{{ amt }} ₽</span>
+          <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ amt_inc }}">+50</button>
+        </div>
+        <sc-if value="{{ is_tip }}" hint-placeholder-val="{{ true }}">
+          <span class="raznos-text-small">Тип чаевых</span>
+          <div class="rro-sheet-seg">
+            <button type="button" class="{{ tt_cash_cls }}" onClick="{{ tt_cash }}">Наличные</button>
+            <button type="button" class="{{ tt_card_cls }}" onClick="{{ tt_card }}">Картой</button>
+            <button type="button" class="{{ tt_qr_cls }}" onClick="{{ tt_qr }}">QR</button>
+          </div>
+        </sc-if>
+        <div class="raznos-field"><span class="raznos-field-label">Комментарий</span><input class="raznos-input" placeholder="{{ comment_ph }}" value="{{ comment_val }}" onInput="{{ comment_change }}" /></div>
+        <div class="raznos-btn-row">
+          <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ sheet_cancel }}">Отмена</button>
+          <button type="button" class="raznos-btn" onClick="{{ sheet_save }}">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"onAll":{"editor":null},"$preview":{"width":390,"height":260}}'>
+// последние заказы для раздела Сегодня с быстрым добавлением чаевых или расхода к конкретному заказу
+const RRO_SVC = { samokat: 'Самокат', vkusvill: 'ВкусВилл', 'yandex-eda': 'Яндекс Еда' };
+const RRO_DEMO = [
+  { id: 'V-9021', svc: 'vkusvill', route: 'Садовая 3 → Клин 8', meta: 'сейчас · в пути', pay: 320 },
+  { id: 'А-2481', svc: 'samokat', route: 'Ленина 12 → Мира 5', meta: '14:20 · доставлен · чаевые 120 ₽', pay: 480 },
+  { id: 'V-9020', svc: 'vkusvill', route: 'Садовая 3 → Клин 8', meta: '13:40 · доставлен', pay: 360 }
+];
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const set = (patch) => this.setState(patch);
+    const onAll = typeof p.onAll === 'function' ? p.onAll : (() => {});
+    const onOpenOrder = typeof p.onOpenOrder === 'function' ? p.onOpenOrder : (() => {});
+    const src = (p.orders && p.orders.length) ? p.orders : RRO_DEMO;
+    const kind = st.kind || 'tip';
+    const amt = st.amt == null ? 100 : st.amt;
+    const openId = st.openId || null;
+    const tipType = st.tipType || 'cash';
+    const comment = st.comment || '';
+
+    const rows = src.map((o) => ({
+      svc: o.svc, svcTitle: RRO_SVC[o.svc] || o.svc, route: o.route, meta: o.meta, pay: o.pay,
+      openOrder: () => onOpenOrder(o.id),
+      add: () => set({ openId: o.id, kind: 'tip', amt: 100, tipType: 'cash', comment: '' })
+    }));
+
+    const ttCls = (v) => 'rro-seg-btn' + (tipType === v ? ' raznos-is-active' : '');
+
+    return {
+      on_all: onAll,
+      rows,
+      sheet_open: !!openId,
+      sheet_order: openId || '',
+      is_tip: kind === 'tip',
+      tip_cls: 'rro-seg-btn' + (kind === 'tip' ? ' raznos-is-active' : ''),
+      exp_cls: 'rro-seg-btn' + (kind === 'exp' ? ' raznos-is-active' : ''),
+      pick_tip: () => set({ kind: 'tip' }),
+      pick_exp: () => set({ kind: 'exp' }),
+      amt: amt,
+      amt_dec: () => set({ amt: Math.max(0, amt - 50) }),
+      amt_inc: () => set({ amt: amt + 50 }),
+      tt_cash_cls: ttCls('cash'), tt_card_cls: ttCls('card'), tt_qr_cls: ttCls('qr'),
+      tt_cash: () => set({ tipType: 'cash' }), tt_card: () => set({ tipType: 'card' }), tt_qr: () => set({ tipType: 'qr' }),
+      comment_val: comment,
+      comment_ph: kind === 'tip' ? 'Например, спасибо за скорость' : 'Например, бензин или мойка',
+      comment_change: (e) => set({ comment: (e && e.target && e.target.value) || '' }),
+      sheet_cancel: () => set({ openId: null }),
+      sheet_save: () => set({ openId: null })
+    };
+  }
+}
+</script></body></html>

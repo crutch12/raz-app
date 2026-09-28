@@ -1,0 +1,50 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rdr { box-sizing: border-box; width: 100%; max-width: 100%; text-align: left; background: var(--raznos-green-tint); border: 1px solid var(--raznos-green); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; cursor: pointer; font: inherit; color: inherit; }
+    .rdr:hover { border-color: var(--raznos-green-deep); }
+    .rdr-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .rdr-title { display: inline-flex; align-items: center; gap: 8px; font: 700 15px var(--raznos-font); color: var(--raznos-green-deep); }
+    .rdr-open { font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); display: inline-flex; align-items: center; gap: 2px; }
+    .rdr-hero { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+    .rdr-earn { font: 800 28px var(--raznos-font); letter-spacing: -0.02em; color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rdr-delta { display: inline-flex; align-items: center; gap: 3px; font: 700 13px var(--raznos-font); color: var(--raznos-green-deep); }
+    .rdr-sub { font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); }
+  </style>
+</helmet>
+<button type="button" class="rdr" onClick="{{ open }}" aria-label="{{ aria }}">
+  <div class="rdr-head">
+    <span class="rdr-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.3 5.1 5.6.5-4.2 3.7 1.3 5.5L12 15.9 7 17.8l1.3-5.5-4.2-3.7 5.6-.5z"/></svg>Итог дня</span>
+    <span class="rdr-open">Открыть<span class="raznos-row-chevron">›</span></span>
+  </div>
+  <div class="rdr-hero">
+    <span class="rdr-earn">{{ earn }} ₽</span>
+    <sc-if value="{{ has_delta }}" hint-placeholder-val="{{ true }}"><span class="rdr-delta"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>{{ delta }}</span></sc-if>
+  </div>
+  <span class="rdr-sub">{{ sub }}</span>
+</button>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"open":{"editor":null},"$preview":{"width":390,"height":150}}'>
+// итог смены для раздела Сегодня, тап открывает полный разбор дня
+const RDR_FMT = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const RDR_PLURAL = (n, a, b, c) => { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return a; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return b; return c; };
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const earn = p.earn != null ? p.earn : 4200;
+    const orders = p.orders != null ? p.orders : 17;
+    const hourly = p.hourly != null ? p.hourly : 700;
+    const hours = p.hours != null ? p.hours : 6;
+    const deltaPct = p.deltaPct !== undefined ? p.deltaPct : 11;
+    return {
+      open: typeof p.open === 'function' ? p.open : (() => {}),
+      earn: RDR_FMT(earn),
+      // рост показываем только вверх, падение в итоге дня не выделяем
+      has_delta: deltaPct != null && deltaPct > 0,
+      delta: deltaPct + '% больше, чем вчера',
+      sub: orders + ' ' + RDR_PLURAL(orders, 'заказ', 'заказа', 'заказов') + ' · ' + hourly + ' ₽/ч · ' + hours + ' ч на линии',
+      aria: 'Итог дня, заработано ' + RDR_FMT(earn) + ' рублей, открыть полный разбор'
+    };
+  }
+}
+</script></body></html>

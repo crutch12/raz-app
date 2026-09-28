@@ -1,0 +1,79 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rrr-row { display: grid; align-items: center; gap: 8px; padding: 9px 0; }
+    .rrr-divider { border-bottom: 1px solid var(--raznos-line); padding: 10px 0; }
+    .rrr-rank { font: 700 14px var(--raznos-font); color: var(--raznos-ink-3); font-variant-numeric: tabular-nums; }
+    .rrr-rank-top { color: var(--raznos-ink); }
+    .rrr-name { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+    .rrr-title { display: flex; align-items: center; gap: 5px; min-width: 0; }
+    .rrr-title b { font: 600 14px var(--raznos-font); color: var(--raznos-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rrr-mine { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--raznos-green); color: var(--raznos-on-dark); }
+    .rrr-name small { display: flex; align-items: center; gap: 4px; font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rrr-track { display: block; height: 6px; border-radius: 999px; background: color-mix(in oklab, var(--raznos-ink) 10%, transparent); overflow: hidden; }
+    .rrr-fill { display: block; height: 100%; border-radius: 999px; background: color-mix(in oklab, var(--raznos-green) 55%, var(--raznos-surface)); }
+    .rrr-fill-top { background: var(--raznos-green); }
+    .rrr-val { font: 700 13px var(--raznos-font); color: var(--raznos-ink); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+    .rrr-act { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 10px; background: var(--raznos-surface-2); color: var(--raznos-ink); text-decoration: none; cursor: pointer; padding: 0; }
+    .rrr-act:hover { background: color-mix(in oklab, var(--raznos-ink) 12%, var(--raznos-surface)); }
+    .rrr-act:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; }
+    .rrr-act-done { background: var(--raznos-green-tint); color: var(--raznos-green-deep); cursor: default; }
+    .rrr-act-done:hover { background: var(--raznos-green-tint); }
+
+    .rrr-trend { display: flex; align-items: flex-start; gap: 8px; margin: 2px 0 8px; padding: 9px 12px; border-radius: 12px; font: 500 13px/1.35 var(--raznos-font); }
+    .rrr-trend b { font-weight: 700; }
+    .rrr-trend svg { flex: none; margin-top: 1px; }
+    .rrr-trend-up { background: var(--raznos-green-tint); color: var(--raznos-green-deep); }
+    .rrr-trend-down { background: var(--raznos-red-tint); color: color-mix(in oklab, var(--raznos-red) 80%, var(--raznos-ink)); }
+  </style>
+</helmet>
+<div>
+  <div class="{{ row_cls }}" style="{{ grid_style }}">
+    <span class="{{ rank_cls }}">{{ rank }}</span>
+    <sc-if value="{{ has_icon }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ title }}" size="sm"></dc-import></sc-if>
+    <span class="rrr-name">
+      <span class="rrr-title"><b>{{ title }}</b><sc-if value="{{ mine }}" hint-placeholder-val="{{ false }}"><span class="rrr-mine" title="Подключён"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span></sc-if></span>
+      <sc-if value="{{ has_meta }}" hint-placeholder-val="{{ false }}"><small><sc-if value="{{ hot }}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c1 3.2 4.6 5.4 4.6 10a4.6 4.6 0 0 1-9.2 0c0-1.9.8-3.2 1.9-4.4.2 1.6.9 2.6 2 3 0-3.3-.4-5.8.7-8.6Z"/></svg></sc-if>{{ meta }}</small></sc-if>
+    </span>
+    <span class="rrr-track"><span class="{{ fill_cls }}" style="{{ fill_style }}"></span></span>
+    <span class="rrr-val">{{ value }}</span>
+    <sc-if value="{{ is_route }}" hint-placeholder-val="{{ false }}"><a class="rrr-act" href="{{ href }}" target="_blank" rel="noopener" aria-label="{{ action_label }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8-8-2z"/></svg></a></sc-if>
+    <sc-if value="{{ is_connect }}" hint-placeholder-val="{{ false }}"><button type="button" class="rrr-act" onClick="{{ act }}" aria-label="{{ action_label }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></sc-if>
+    <sc-if value="{{ is_done }}" hint-placeholder-val="{{ false }}"><span class="rrr-act rrr-act-done" aria-label="{{ action_label }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span></sc-if>
+  </div>
+  <sc-if value="{{ has_trend }}" hint-placeholder-val="{{ false }}">
+    <div class="{{ trend_cls }}"><sc-if value="{{ up }}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></sc-if><sc-if value="{{ down }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7 17 17M17 9v8H9"/></svg></sc-if><span><b>{{ trend_text }}</b> {{ trend_tail }}</span></div>
+  </sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"rank":{"editor":"number","default":1},"svc":{"editor":"text","default":""},"title":{"editor":"text","default":"Пресненский"},"meta":{"editor":"text","default":"3,1 км"},"hot":{"editor":"boolean","default":false},"mine":{"editor":"boolean","default":false},"fill":{"editor":"number","default":100},"value":{"editor":"text","default":"760 ₽"},"action":{"editor":"text","default":"route"},"href":{"editor":"text","default":"#"},"actionLabel":{"editor":"text","default":""},"onAction":{"editor":null},"trend":{"editor":"number","default":0},"trendTail":{"editor":"text","default":"дохода в час за 4 недели"},"divider":{"editor":"boolean","default":false},"$preview":{"width":358,"height":120}}'>
+// строка рейтинга: место, иконка сервиса, название, полоса от лучшего, значение, действие, выноска тренда
+// action: route (ссылка маршрута) | connect (кнопка +) | done (подключено) | пусто
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const rank = +p.rank || 0;
+    const action = p.action || '';
+    const hasIcon = !!p.svc;
+    const cols = ['20px'].concat(hasIcon ? ['28px'] : [], ['minmax(0, 1fr)', '44px', 'auto'], action ? ['36px'] : []);
+    const trend = +p.trend || 0;
+    const fill = Math.max(0, Math.min(100, p.fill == null ? 100 : +p.fill));
+    return {
+      row_cls: 'rrr-row' + (p.divider ? ' rrr-divider' : ''),
+      grid_style: 'grid-template-columns:' + cols.join(' '),
+      rank, rank_cls: 'rrr-rank' + (rank && rank <= 3 ? ' rrr-rank-top' : ''),
+      has_icon: hasIcon, svc: p.svc || '', title: p.title || '',
+      mine: !!p.mine, has_meta: !!p.meta, meta: p.meta || '', hot: !!p.hot,
+      fill_cls: 'rrr-fill' + (rank === 1 ? ' rrr-fill-top' : ''), fill_style: 'width:' + fill + '%',
+      value: p.value || '',
+      is_route: action === 'route', is_connect: action === 'connect', is_done: action === 'done',
+      href: p.href || '#', action_label: p.actionLabel || '',
+      act: typeof p.onAction === 'function' ? p.onAction : (() => {}),
+      has_trend: trend !== 0, up: trend > 0, down: trend < 0,
+      trend_cls: 'rrr-trend ' + (trend > 0 ? 'rrr-trend-up' : 'rrr-trend-down'),
+      trend_text: (trend > 0 ? '+' : '−') + Math.abs(trend) + '%',
+      trend_tail: p.trendTail || 'дохода в час за 4 недели'
+    };
+  }
+}
+</script></body></html>

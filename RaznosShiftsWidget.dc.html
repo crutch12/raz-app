@@ -1,0 +1,73 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rsw { box-sizing: border-box; width: 100%; max-width: 100%; text-align: left; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; cursor: pointer; font: inherit; color: inherit; }
+    .rsw:hover { border-color: var(--raznos-ink-3); }
+    .rsw-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .rsw-title { font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
+    .rsw-day { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rsw-list { display: flex; flex-direction: column; gap: 6px; }
+    .rsw-slot { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--raznos-surface-2); }
+    .rsw-time { flex: none; font: 700 13px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; min-width: 92px; }
+    .rsw-slot-main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
+    .rsw-name { font: 600 14px var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rsw-gap { display: flex; align-items: center; gap: 8px; padding: 4px 12px; }
+    .rsw-gap-line { flex: none; width: 92px; text-align: left; font: 600 12px var(--raznos-mono); color: var(--raznos-ink-3); }
+    .rsw-gap-label { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rsw-warn { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 12px; background: var(--raznos-amber-tint); }
+    .rsw-warn-text { font: 500 12px var(--raznos-font); color: var(--raznos-ink); }
+    .rsw-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 8px; border-top: 1px solid var(--raznos-line); }
+    .rsw-total { font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); }
+    .rsw-open { font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); display: flex; align-items: center; gap: 2px; }
+  </style>
+</helmet>
+<button type="button" class="rsw" onClick="{{ open }}" aria-label="{{ aria }}">
+  <div class="rsw-head"><span style="display:inline-flex;align-items:center;gap:8px;color:var(--raznos-ink-2)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 1.8"/></svg><span class="rsw-title">Смены</span></span><span class="rsw-day">{{ day_label }}</span></div>
+  <div class="rsw-list">
+    <sc-for list="{{ items }}" as="it" hint-placeholder-count="4">
+      <sc-if value="{{ it.is_slot }}" hint-placeholder-val="{{ true }}"><div class="rsw-slot"><span class="rsw-time">{{ it.time }}</span><span class="rsw-slot-main"><dc-import name="RaznosIcon" svc="{{ it.svc }}" alt="{{ it.name }}" size="sm"></dc-import><span class="rsw-name">{{ it.name }}</span></span></div></sc-if>
+      <sc-if value="{{ it.is_gap }}" hint-placeholder-val="{{ false }}"><div class="rsw-gap"><span class="rsw-gap-line">{{ it.time }}</span><span class="rsw-gap-label">окно без смены</span></div></sc-if>
+      <sc-if value="{{ it.is_overlap }}" hint-placeholder-val="{{ false }}"><div class="rsw-warn"><span class="rsw-warn-text">{{ it.text }}</span></div></sc-if>
+    </sc-for>
+  </div>
+  <div class="rsw-foot"><span class="rsw-total">{{ total_note }}</span><span class="rsw-open">Все смены<span class="raznos-row-chevron">›</span></span></div>
+</button>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"open":{"editor":null},"$preview":{"width":390,"height":300}}'>
+// карта смен на день для хаба Работа: слоты по сервисам, окна и пересечения, демо
+const RSW_SVC = { samokat: 'Самокат', vkusvill: 'ВкусВилл', 'yandex-eda': 'Яндекс Еда' };
+const RSW_DEMO = [
+  { svc: 'samokat', from: '09:00', to: '12:00' },
+  { svc: 'vkusvill', from: '13:00', to: '15:00' },
+  { svc: 'yandex-eda', from: '15:00', to: '18:00' }
+];
+const RSW_MIN = (t) => parseInt(t.slice(0, 2), 10) * 60 + parseInt(t.slice(3), 10);
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const open = typeof p.open === 'function' ? p.open : (() => {});
+    const src = (p.slots && p.slots.length) ? p.slots.slice() : RSW_DEMO.slice();
+    src.sort((a, b) => RSW_MIN(a.from) - RSW_MIN(b.from));
+    const items = [];
+    let totalMin = 0;
+    src.forEach((s, i) => {
+      totalMin += RSW_MIN(s.to) - RSW_MIN(s.from);
+      if (i > 0) {
+        const prev = src[i - 1];
+        const gap = RSW_MIN(s.from) - RSW_MIN(prev.to);
+        if (gap < 0) items.push({ is_overlap: true, text: 'Пересечение ' + s.from + '–' + prev.to + ': ' + (RSW_SVC[prev.svc] || prev.svc) + ' и ' + (RSW_SVC[s.svc] || s.svc) });
+        else if (gap >= 30) items.push({ is_gap: true, time: prev.to + '–' + s.from });
+      }
+      items.push({ is_slot: true, svc: s.svc, name: RSW_SVC[s.svc] || s.svc, time: s.from + '–' + s.to });
+    });
+    const h = Math.floor(totalMin / 60), m = totalMin % 60;
+    return {
+      open,
+      day_label: p.dayLabel || 'сегодня',
+      items,
+      total_note: src.length + ' ' + (src.length === 1 ? 'смена' : (src.length < 5 ? 'смены' : 'смен')) + ' · ' + h + (m ? (' ч ' + m + ' мин') : ' ч') + ' в графике',
+      aria: 'Смены на день, ' + src.length + ' слотов, открыть все смены'
+    };
+  }
+}
+</script></body></html>

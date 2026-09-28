@@ -1,0 +1,78 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rfc-row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 0 2px; }
+    .rfc-row::-webkit-scrollbar { display: none; }
+    .rfc-chip { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); font: 600 13px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; white-space: nowrap; }
+    .rfc-chip-on { border-color: var(--raznos-dark); background: var(--raznos-dark); color: var(--raznos-on-dark); }
+    .rfc-chip:focus-visible, .rfc-opt:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; }
+    .rfc-opt { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 4px; background: none; border: 0; border-bottom: 1px solid var(--raznos-line); font: 600 15px var(--raznos-font); color: var(--raznos-ink); text-align: left; cursor: pointer; }
+    .rfc-opt:last-child { border-bottom: 0; }
+    .rfc-opt-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .rfc-opt-note { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rfc-check { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--raznos-line); display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; }
+    .rfc-check-on { background: var(--raznos-dark); border-color: var(--raznos-dark); color: var(--raznos-on-dark); }
+  </style>
+</helmet>
+<div class="rfc-row">
+  <sc-for list="{{ chips }}" as="c" hint-placeholder-count="3">
+    <button type="button" class="{{ c.cls }}" onClick="{{ c.open }}" aria-label="{{ c.aria }}">{{ c.label }}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+  </sc-for>
+</div>
+<sc-if value="{{ sheet_open }}" hint-placeholder-val="{{ false }}">
+  <div class="raznos-dialog-layer" role="dialog" aria-modal="true" aria-label="{{ sheet_title }}" onClick="{{ close }}">
+    <div class="raznos-dialog" onClick="{{ stop }}">
+      <span class="raznos-text-h3">{{ sheet_title }}</span>
+      <div>
+        <sc-for list="{{ sheet_opts }}" as="o" hint-placeholder-count="4">
+          <button type="button" class="rfc-opt" onClick="{{ o.tap }}"><span class="rfc-opt-main"><span>{{ o.label }}</span><sc-if value="{{ o.has_note }}" hint-placeholder-val="{{ false }}"><span class="rfc-opt-note">{{ o.note }}</span></sc-if></span><span class="{{ o.checkClass }}">{{ o.mark }}</span></button>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</sc-if>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"filters":{"editor":null},"onChange":{"editor":null},"$preview":{"width":390,"height":120}}'>
+// чипы-фильтры, каждый открывает шторку с выбором одного варианта
+// filters: [{ key, title, value, def?, options: [{ k, label, note? }] }], onChange(key, k)
+// чип темнеет, когда значение отличается от def (по умолчанию первый вариант)
+const RFC_PREVIEW = [
+  { key: 'metric', title: 'Показатель', value: 'pay', options: [{ k: 'pay', label: '₽ в час' }, { k: 'ord', label: 'Заказов в час' }] },
+  { key: 'cat', title: 'Сервис', value: 'all', options: [{ k: 'all', label: 'Все сервисы' }, { k: 'vkusvill', label: 'ВкусВилл' }, { k: 'samokat', label: 'Самокат' }] },
+  { key: 'tod', title: 'Время суток', value: 'all', options: [{ k: 'all', label: 'Весь день', note: '8–24' }, { k: 'evening', label: 'Вечер', note: '17–22' }] }
+];
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const set = (patch) => this.setState(patch);
+    const filters = Array.isArray(p.filters) ? p.filters : RFC_PREVIEW;
+    // без onChange (превью в ДС) выбор держим у себя
+    const local = st.local || {};
+    const valueOf = (f) => (typeof p.onChange === 'function' ? f.value : (local[f.key] != null ? local[f.key] : f.value));
+    const pick = (f, k) => {
+      if (typeof p.onChange === 'function') p.onChange(f.key, k);
+      else set({ local: Object.assign({}, local, { [f.key]: k }) });
+      set({ open: '' });
+    };
+    const cur = filters.find((f) => f.key === st.open);
+    const chips = filters.map((f) => {
+      const v = valueOf(f);
+      const o = f.options.find((x) => x.k === v) || f.options[0];
+      const def = f.def != null ? f.def : f.options[0].k;
+      return { label: o.label, aria: f.title + ': ' + o.label, cls: 'rfc-chip' + (o.k !== def ? ' rfc-chip-on' : ''), open: () => set({ open: f.key }) };
+    });
+    return {
+      chips,
+      sheet_open: !!cur,
+      sheet_title: cur ? cur.title : '',
+      sheet_opts: cur ? cur.options.map((o) => {
+        const on = o.k === valueOf(cur);
+        return { label: o.label, note: o.note || '', has_note: !!o.note, checkClass: 'rfc-check' + (on ? ' rfc-check-on' : ''), mark: on ? '✓' : '', tap: () => pick(cur, o.k) };
+      }) : [],
+      close: () => set({ open: '' }),
+      stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
+    };
+  }
+}
+</script></body></html>

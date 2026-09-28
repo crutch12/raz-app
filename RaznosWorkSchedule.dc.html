@@ -4,18 +4,23 @@
   <style>
     .rws-days { display: flex; gap: 8px; }
     .rws-days .raznos-chip { flex: 1; text-align: center; padding-left: 0; padding-right: 0; }
+    .rws-zone-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
     .rws-step { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
     .rws-step-label { font: 600 15px var(--raznos-font); color: var(--raznos-ink); }
     .rws-step-ctl { display: flex; align-items: center; gap: 14px; }
     .rws-step-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); color: var(--raznos-ink); font: 600 18px var(--raznos-font); line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; }
     .rws-step-btn:disabled { opacity: 0.35; cursor: default; }
     .rws-step-val { font: 700 17px var(--raznos-mono); color: var(--raznos-ink); min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; }
+    .rws-recap { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 14px; background: var(--raznos-green-tint); border: 1px solid var(--raznos-green); }
+    .rws-recap-label { font: 500 12px var(--raznos-font); color: var(--raznos-green-deep); }
+    .rws-recap-value { font: 700 16px var(--raznos-font); color: var(--raznos-ink); }
   </style>
 </helmet>
 <div class="raznos-phone-body" data-screen-label="Work schedule">
-  <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><span class="raznos-text-small">Режим Работа</span></div>
-  <h1 class="raznos-text-h1">График работы</h1>
-  <p class="raznos-text-small">Дни и часы, когда вы обычно работаете. Умное расписание берёт эти рамки за основу, часы вне графика показываются, но не идут в потенциальный итог дня</p>
+  <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><h1 class="raznos-text-h1" style="margin:0">График работы</h1></div>
+  <p class="raznos-text-small">Когда вы обычно на линии. Умное расписание берёт это за основу плана дня</p>
+
+  <div class="rws-recap"><span class="rws-recap-label">Сейчас в графике</span><span class="rws-recap-value">{{ summary }}</span></div>
 
   <div class="raznos-field"><span class="raznos-field-label">Рабочие дни</span>
     <div class="rws-days">
@@ -30,11 +35,24 @@
     </div>
   </div>
 
-  <div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">{{ summary }}</span><span class="raznos-text-small">Расписание пересчитывается раз в сутки утром, перед началом смены. Пересчитать вручную можно на экране умного расписания</span></div>
-  <p class="raznos-text-tiny">По умолчанию пн-пт с 09:00 до 18:00. Если рабочих часов нет, умное расписание считает день с 09:00</p>
+  <div class="raznos-field"><span class="raznos-field-label">Районы города</span>
+    <sc-if value="{{ has_districts }}" hint-placeholder-val="{{ true }}">
+    <div class="rws-zone-wrap">
+      <sc-for list="{{ zones }}" as="z" hint-placeholder-count="5"><button type="button" class="{{ z.cls }}" onClick="{{ z.tap }}">{{ z.label }}</button></sc-for>
+    </div>
+    <p class="raznos-text-tiny">По умолчанию весь город</p>
+    </sc-if>
+    <sc-if value="{{ no_districts }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">В вашем городе нет деления на районы, считаем по всему городу</p></sc-if>
+  </div>
+
+  <div class="raznos-sticky-actions">
+    <sc-if value="{{ saved }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small" style="color:var(--raznos-green-deep);text-align:center;margin:0">График сохранён, учтём при следующем пересчёте</p></sc-if>
+    <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ do_save }}">Сохранить график</button>
+  </div>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"$preview":{"width":390,"height":620}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"hasDistricts":{"editor":"boolean"},"$preview":{"width":390,"height":720}}'>
 const RWS_DAYS = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
+const RWS_ZONES = ['Центр', 'Север', 'Юг', 'Запад'];
 const rwsHour = (h) => String(h).padStart(2, '0') + ':00';
 class Component extends DCLogic {
   renderVals() {
@@ -46,6 +64,13 @@ class Component extends DCLogic {
     const end = st.end == null ? 18 : st.end;
     const toggle = (i) => { const next = active.slice(); next[i] = !next[i]; set({ active: next }); };
     const cnt = active.filter(Boolean).length;
+    const hasDistricts = p.hasDistricts !== false; // город без районов передаёт hasDistricts=false
+    const selZones = st.zones || []; // пусто = весь город
+    const toggleZone = (name) => { const next = selZones.indexOf(name) >= 0 ? selZones.filter((z) => z !== name) : selZones.concat([name]); set({ zones: next }); };
+    const zoneChips = [{ label: 'Весь город', cls: 'raznos-chip' + (selZones.length === 0 ? ' raznos-is-active' : ''), tap: () => set({ zones: [] }) }]
+      .concat(RWS_ZONES.map((name) => ({ label: name, cls: 'raznos-chip' + (selZones.indexOf(name) >= 0 ? ' raznos-is-active' : ''), tap: () => toggleZone(name) })));
+    const zonesNote = !hasDistricts ? '' : (selZones.length === 0 ? 'весь город' : (selZones.length + ' ' + (selZones.length === 1 ? 'район' : (selZones.length < 5 ? 'района' : 'районов'))));
+    const daysPart = cnt ? (cnt + ' ' + (cnt === 1 ? 'день' : (cnt < 5 ? 'дня' : 'дней')) + ' в неделю, ' + rwsHour(start) + '–' + rwsHour(end)) : 'Рабочие дни не выбраны, счёт с 09:00';
     return {
       onBack: p.onBack || (() => {}),
       days: RWS_DAYS.map((label, i) => ({ label, cls: 'raznos-chip' + (active[i] ? ' raznos-is-active' : ''), tap: () => toggle(i) })),
@@ -53,7 +78,10 @@ class Component extends DCLogic {
       start_dec: () => set({ start: Math.max(0, start - 1) }), start_inc: () => set({ start: Math.min(end - 1, start + 1) }),
       end_dec: () => set({ end: Math.max(start + 1, end - 1) }), end_inc: () => set({ end: Math.min(23, end + 1) }),
       start_dec_off: start <= 0, start_inc_off: start >= end - 1, end_dec_off: end <= start + 1, end_inc_off: end >= 23,
-      summary: cnt ? (cnt + ' ' + (cnt === 1 ? 'день' : (cnt < 5 ? 'дня' : 'дней')) + ' в неделю, ' + rwsHour(start) + '–' + rwsHour(end)) : 'Рабочие дни не выбраны, счёт с 09:00'
+      has_districts: hasDistricts, no_districts: !hasDistricts, zones: zoneChips,
+      summary: daysPart + (hasDistricts && zonesNote ? (', ' + zonesNote) : ''),
+      saved: !!st.saved,
+      do_save: () => { set({ saved: true }); if (typeof p.onSave === 'function') p.onSave({ start, end, days: active }); }
     };
   }
 }

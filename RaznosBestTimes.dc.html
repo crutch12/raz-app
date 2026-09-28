@@ -1,0 +1,299 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rbt { box-sizing: border-box; width: 100%; max-width: 100%; text-align: left; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .rbt-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .rbt-title { display: inline-flex; align-items: center; gap: 8px; font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
+    .rbt-sub { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); margin-top: 2px; }
+    .rbt-seg { flex: none; display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--raznos-surface-2); }
+    .rbt-seg-btn { padding: 5px 10px; border: 0; border-radius: 8px; background: transparent; font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); cursor: pointer; }
+    .rbt-seg-btn.raznos-is-active { background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 1px 2px color-mix(in oklab, var(--raznos-ink) 10%, transparent); }
+    .rbt-seg-wide { display: flex; }
+    .rbt-seg-wide .rbt-seg-btn { flex: 1; padding: 8px; font-size: 13px; }
+
+    /* график */
+    .rbt-chart { display: flex; align-items: stretch; height: 92px; padding-top: 26px; border-bottom: 1px solid var(--raznos-line); }
+    .rbt-chart-full { height: 170px; }
+    .rbt-col { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; background: none; border: 0; padding: 0; font: inherit; }
+    button.rbt-col { cursor: pointer; }
+    .rbt-bar { position: relative; display: block; border-radius: 999px 999px 3px 3px; background: color-mix(in oklab, var(--raznos-ink) 14%, transparent); transition: background .15s ease; }
+    .rbt-chart-week .rbt-bar { width: 24px; border-radius: 7px 7px 3px 3px; }
+    .rbt-chart-day .rbt-bar { width: 10px; }
+    .rbt-scroll-on { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+    .rbt-scroll-on::-webkit-scrollbar { display: none; }
+    .rbt-col-shift-start::before, .rbt-col-shift-end::after { content: ''; position: absolute; top: -20px; bottom: -4px; width: 0; border-left: 2px dashed var(--raznos-line-strong); pointer-events: none; }
+    .rbt-col-shift-start::before { left: -1px; }
+    .rbt-col-shift-end::after { right: -1px; }
+    .rbt-bar-hi { background: var(--raznos-green); }
+    .rbt-bar-sel { background: var(--raznos-green-deep); }
+    .rbt-bar-selmute { background: color-mix(in oklab, var(--raznos-ink) 40%, transparent); }
+    .rbt-val { position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); padding: 3px 8px; border-radius: 999px; background: var(--raznos-dark); color: var(--raznos-on-dark); font: 700 11px var(--raznos-mono); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .rbt-val-l { left: 0; transform: none; }
+    .rbt-val-r { left: auto; right: 0; transform: none; }
+    .rbt-axis { display: flex; margin-top: 6px; padding-top: 4px; }
+    .rbt-axis span { flex: 1; min-width: 0; text-align: center; font: 600 11px var(--raznos-font); color: var(--raznos-ink-3); white-space: nowrap; }
+    .rbt-axis .rbt-ax-today { color: var(--raznos-green-deep); font-weight: 800; }
+
+    .rbt-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .rbt-best { font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); }
+    .rbt-best b { color: var(--raznos-ink); font-weight: 700; }
+    .rbt-more { flex: none; display: inline-flex; align-items: center; gap: 2px; border: 0; background: none; padding: 0; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
+
+    /* экран */
+    .rbt-full { display: flex; flex-direction: column; gap: 12px; }
+    .rbt-daypick { display: flex; gap: 6px; }
+    .rbt-dp { flex: 1; padding: 7px 0; border-radius: 10px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); font: 600 13px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; }
+    .rbt-dp-today { color: var(--raznos-green-deep); }
+    .rbt-dp.raznos-is-active { background: var(--raznos-dark); border-color: var(--raznos-dark); color: var(--raznos-on-dark); }
+    .rbt-readout { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
+    .rbt-ro-label { font: 600 13px var(--raznos-font); color: var(--raznos-ink-2); }
+    .rbt-ro-val { font: 800 26px var(--raznos-font); letter-spacing: -0.02em; color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rbt-ro-sub { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rbt-pill { flex: none; padding: 4px 10px; border-radius: 999px; background: var(--raznos-green-tint); color: var(--raznos-green-deep); font: 700 12px var(--raznos-font); white-space: nowrap; }
+    .rbt-pill-mute { background: var(--raznos-surface-2); color: var(--raznos-ink-3); }
+    .rbt-trend { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--raznos-green-tint); color: var(--raznos-green-deep); font: 600 13px var(--raznos-font); }
+    .rbt-full { flex: 1; }
+  </style>
+</helmet>
+
+<sc-if value="{{ is_card }}" hint-placeholder-val="{{ true }}">
+  <div class="rbt">
+    <div class="rbt-head">
+      <span class="raznos-fx raznos-col"><span class="rbt-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M9 20V4M14 20v-7M19 20V8"/></svg>Когда выгоднее</span><span class="rbt-sub">{{ card_sub }}</span></span>
+      <span class="rbt-seg"><button type="button" class="{{ seg_day_cls }}" onClick="{{ view_day }}">День</button><button type="button" class="{{ seg_week_cls }}" onClick="{{ view_week }}">Неделя</button></span>
+    </div>
+    <div class="{{ scroll_cls }}" data-rbt-scroll="{{ uid }}"><div style="{{ scroll_style }}">
+      <div class="{{ chart_cls }}">
+        <sc-for list="{{ bars }}" as="b" hint-placeholder-count="7">
+          <span class="{{ b.colCls }}"><span class="{{ b.barCls }}" style="{{ b.barStyle }}"><sc-if value="{{ b.show_val }}" hint-placeholder-val="{{ false }}"><span class="{{ b.valCls }}">{{ b.val }}</span></sc-if></span></span>
+        </sc-for>
+      </div>
+      <div class="rbt-axis"><sc-for list="{{ bars }}" as="b" hint-placeholder-count="7"><span class="{{ b.axCls }}">{{ b.ax }}</span></sc-for></div>
+    </div></div>
+    <div class="rbt-foot"><span class="rbt-best">{{ best_prefix }} <b>{{ best_label }}</b> · ≈ {{ best_val }}</span><button type="button" class="rbt-more" onClick="{{ open_more }}">Подробнее<span class="raznos-row-chevron">›</span></button></div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ is_full }}" hint-placeholder-val="{{ false }}">
+  <div class="rbt-full">
+    <span class="rbt-seg rbt-seg-wide"><button type="button" class="{{ seg_day_cls }}" onClick="{{ view_day }}">День</button><button type="button" class="{{ seg_week_cls }}" onClick="{{ view_week }}">Неделя</button></span>
+    <dc-import name="RaznosFilterChips" filters="{{ filters }}" onChange="{{ on_filter }}"></dc-import>
+    <sc-if value="{{ is_day }}" hint-placeholder-val="{{ false }}">
+      <div class="rbt-daypick"><sc-for list="{{ daypick }}" as="d" hint-placeholder-count="7"><button type="button" class="{{ d.cls }}" onClick="{{ d.tap }}">{{ d.label }}</button></sc-for></div>
+    </sc-if>
+
+    <div class="rbt">
+      <div class="rbt-readout">
+        <span class="raznos-fx raznos-col raznos-gap4"><span class="rbt-ro-label">{{ ro_label }}</span><span class="rbt-ro-val">{{ ro_val }}</span></span>
+        <span class="{{ ro_pill_cls }}">{{ ro_pill }}</span>
+      </div>
+      <div class="{{ scroll_cls }}" data-rbt-scroll="{{ uid }}"><div style="{{ scroll_style }}">
+        <div class="{{ chart_cls }} rbt-chart-full">
+          <sc-for list="{{ bars }}" as="b" hint-placeholder-count="7">
+            <button type="button" class="{{ b.colCls }}" onClick="{{ b.tap }}" aria-label="{{ b.aria }}"><span class="{{ b.barCls }}" style="{{ b.barStyle }}"><sc-if value="{{ b.show_val }}" hint-placeholder-val="{{ false }}"><span class="{{ b.valCls }}">{{ b.val }}</span></sc-if></span></button>
+          </sc-for>
+        </div>
+        <div class="rbt-axis"><sc-for list="{{ bars }}" as="b" hint-placeholder-count="7"><span class="{{ b.axCls }}">{{ b.ax }}</span></sc-for></div>
+      </div></div>
+      <span class="rbt-ro-sub">{{ ro_note }}</span>
+      <div class="rbt-trend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg>{{ trend }}</div>
+    </div>
+
+    <p class="raznos-text-tiny">{{ source_note }}</p>
+    <div class="raznos-sticky-actions"><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ open_plan }}">Поставить в план</button></div>
+  </div>
+</sc-if>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"initialView":{"editor":"text","default":"week"},"open":{"editor":null},"onOpenPlan":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"transportTitle":{"editor":"text","default":"велосипед"},"workStart":{"editor":"number","default":9},"workEnd":{"editor":"number","default":18},"$preview":{"width":390,"height":250}}'>
+// когда выгоднее по мотивам Gridwise When to Work, два представления: день по часам и неделя по дням
+// один компонент на карточку хаба Работа и экран, чтобы цифры совпадали
+const RBT_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+const RBT_DAYS_FULL = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'];
+const RBT_WEEK_FROM = 8; // неделю считаем по часам 8..23, как раньше
+// доход в час по часам суток (демо): ночью мало, обед, вечерний пик
+const RBT_BASE = [460, 380, 320, 280, 280, 340, 420, 480, 520, 560, 620, 700, 860, 980, 900, 760, 720, 820, 1040, 1220, 1300, 1180, 920, 700];
+const RBT_DAY_MUL = [0.92, 1.02, 0.95, 1.0, 1.06, 1.1, 0.86];
+const RBT_TODAY = 1; // 15 сентября, вторник
+const RBT_METRICS = [{ k: 'pay', label: '₽ в час' }, { k: 'ord', label: 'Заказов в час' }];
+const RBT_CATS = [
+  { k: 'all', label: 'Все сервисы', mul: 1 },
+  { k: 'vkusvill', label: 'ВкусВилл', mul: 1.05 },
+  { k: 'samokat', label: 'Самокат', mul: 0.96 },
+  { k: 'yandex-eda', label: 'Яндекс Еда', mul: 1.02 }
+];
+const RBT_DISTRICTS = [
+  { k: 'all', label: 'Все районы', mul: 1, tilt: [0, 0, 0, 0, 0, 0, 0] },
+  { k: 'presnya', label: 'Пресненский', mul: 1.08, tilt: [0.04, 0.03, 0.02, 0.02, 0, -0.06, -0.08] },
+  { k: 'tverskoy', label: 'Тверской', mul: 1.12, tilt: [0.06, 0.05, 0.05, 0.04, 0.02, -0.08, -0.12] },
+  { k: 'khamovniki', label: 'Хамовники', mul: 1.04, tilt: [0, 0, 0, 0, 0.02, 0.04, 0.06] },
+  { k: 'basmanny', label: 'Басманный', mul: 0.98, tilt: [0, 0.01, 0, 0.01, 0.03, 0.02, -0.02] },
+  { k: 'begovoy', label: 'Беговой', mul: 0.94, tilt: [-0.02, -0.02, -0.02, -0.01, 0.02, 0.06, 0.08] }
+];
+const RBT_TRANSPORTS = [
+  { k: 'foot', label: 'Пешком', mul: 0.78 },
+  { k: 'bike', label: 'Велосипед', mul: 1 },
+  { k: 'ebike', label: 'Электровелосипед', mul: 1.12 },
+  { k: 'car', label: 'Авто', mul: 1.22 }
+];
+const rbtTransportKey = (t) => {
+  const s = String(t || '').toLowerCase();
+  if (s.includes('пеш')) return 'foot';
+  if (s.includes('электро')) return 'ebike';
+  if (s.includes('авто') || s.includes('машин')) return 'car';
+  return 'bike';
+};
+const RBT_FMT = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const rbtOrd = (pay) => Math.round(pay / 260 * 10) / 10;
+const rbtHour = (h) => String(h).padStart(2, '0');
+const byKey = (list, k) => list.find((x) => x.k === k) || list[0];
+const cap = (s) => s[0].toUpperCase() + s.slice(1);
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const set = (patch) => this.setState(patch);
+    const full = p.mode === 'full';
+    const view = st.view || p.initialView || 'week';
+    const isDay = view === 'day';
+    const metric = byKey(RBT_METRICS, st.metric);
+    const cat = byKey(RBT_CATS, st.cat);
+    const dist = byKey(RBT_DISTRICTS, st.district);
+    // транспорт по умолчанию из профиля, множитель считаем от него, чтобы цифры карточки и экрана совпадали
+    const trDefault = byKey(RBT_TRANSPORTS, rbtTransportKey(p.transportTitle));
+    const tr = byKey(RBT_TRANSPORTS, st.transport || trDefault.k);
+    const k = cat.mul * dist.mul * tr.mul / trDefault.mul;
+    const pay = (d, i) => Math.round(RBT_BASE[i] * (RBT_DAY_MUL[d] + dist.tilt[d]) * k / 10) * 10;
+    const toVal = (v) => metric.k === 'pay' ? v : rbtOrd(v);
+    const fmt = (v) => metric.k === 'pay' ? RBT_FMT(v) + ' ₽/ч' : String(v).replace('.', ',') + ' зак/ч';
+    const fmtShort = (v) => metric.k === 'pay' ? RBT_FMT(v) : String(v).replace('.', ',');
+    const weekIdx = RBT_BASE.map((_, i) => i).filter((i) => i >= RBT_WEEK_FROM);
+    const allIdx = RBT_BASE.map((_, i) => i);
+    const ws = Math.max(0, Math.min(23, p.workStart == null ? 9 : +p.workStart));
+    const we = Math.max(ws + 1, Math.min(24, p.workEnd == null ? 18 : +p.workEnd));
+
+    // неделя: средний доход в час по дню
+    const dayPay = RBT_DAYS.map((_, d) => Math.round(weekIdx.reduce((a, i) => a + pay(d, i), 0) / weekIdx.length / 10) * 10);
+    let bestDay = 0;
+    dayPay.forEach((v, d) => { if (v > dayPay[bestDay]) bestDay = d; });
+    // карточка в режиме дня всегда про сегодня
+    const selDay = full ? (st.day != null ? st.day : (isDay ? RBT_TODAY : bestDay)) : (isDay ? RBT_TODAY : bestDay);
+
+    // день: все 24 часа выбранного дня, лучшее окно из 3 часов
+    const hp = RBT_BASE.map((_, i) => pay(selDay, i));
+    const winLen = 3;
+    let wStart = 0, wSum = -1;
+    for (let k = 0; k + winLen <= allIdx.length; k++) {
+      const s = allIdx.slice(k, k + winLen).reduce((a, i) => a + hp[i], 0);
+      if (s > wSum) { wSum = s; wStart = allIdx[k]; }
+    }
+    const inWin = (i) => i >= wStart && i < wStart + winLen;
+    const peakInWin = allIdx.filter(inWin).reduce((a, i) => (hp[i] > hp[a] ? i : a), wStart);
+    const selHour = full && st.hour != null ? st.hour : peakInWin;
+
+    const series = isDay ? hp.map(toVal) : dayPay.map(toVal);
+    const n = series.length;
+    const max = Math.max.apply(null, series), min = Math.min.apply(null, series);
+    const heightOf = (v) => Math.round(20 + 80 * (max === min ? 1 : (v - min) / (max - min)));
+    const selIdx = isDay ? selHour : selDay;
+    const hiOf = (i) => isDay ? inWin(i) : i === bestDay;
+
+    const bars = series.map((v, i) => {
+      const hi = hiOf(i), sel = i === selIdx;
+      const barCls = 'rbt-bar' + (sel ? (hi ? ' rbt-bar-sel' : ' rbt-bar-selmute') : (hi ? ' rbt-bar-hi' : ''));
+      const edge = i <= 1 ? ' rbt-val-l' : (i >= n - 2 ? ' rbt-val-r' : '');
+      const axToday = !isDay && i === RBT_TODAY;
+      return {
+        colCls: 'rbt-col' + (isDay && i === ws ? ' rbt-col-shift-start' : '') + (isDay && i === we - 1 ? ' rbt-col-shift-end' : ''),
+        barCls, barStyle: 'height:' + heightOf(v) + '%',
+        show_val: sel, val: fmtShort(v), valCls: 'rbt-val' + (isDay ? edge : ''),
+        ax: isDay ? (i % 3 === 0 ? String(i) : '') : RBT_DAYS[i],
+        axCls: axToday ? 'rbt-ax-today' : '',
+        tap: () => set(isDay ? { hour: i } : { day: i }),
+        aria: (isDay ? rbtHour(i) + ':00' : RBT_DAYS_FULL[i]) + ', ' + fmt(v)
+      };
+    });
+
+    const winAvg = Math.round(wSum / winLen / 10) * 10;
+    const winLabel = wStart + '–' + (wStart + winLen);
+    const demandOf = (pv) => pv >= 1100 ? 'высокий спрос' : (pv >= 800 ? 'средний спрос' : 'низкий спрос');
+
+    // шапка значения на экране
+    let roLabel, roVal, roPill, roMuted, roNote, trend;
+    if (isDay) {
+      roLabel = rbtHour(selHour) + ':00–' + rbtHour((selHour + 1) % 24) + ':00 · ' + RBT_DAYS_FULL[selDay] + (selDay === RBT_TODAY ? ', сегодня' : '');
+      roVal = fmt(toVal(hp[selHour]));
+      roPill = inWin(selHour) ? 'лучшее окно' : demandOf(hp[selHour]);
+      roMuted = !inWin(selHour);
+      roNote = 'Лучшее окно ' + winLabel + ' · ≈ ' + fmt(toVal(winAvg)) + '. Серые черты отмечают начало и конец вашей смены ' + rbtHour(ws) + '–' + rbtHour(we);
+      trend = winLabel + ' на 12% выше, чем 4 недели назад';
+    } else {
+      roLabel = cap(RBT_DAYS_FULL[selDay]);
+      roVal = fmt(toVal(dayPay[selDay]));
+      const diff = Math.round((dayPay[bestDay] - dayPay[selDay]) / dayPay[bestDay] * 100);
+      roPill = selDay === bestDay ? 'лучший день' : ('на ' + diff + '% ниже лучшего');
+      roMuted = selDay !== bestDay;
+      roNote = 'Средний доход в час по дням недели. Тапните день, чтобы сравнить';
+      trend = cap(RBT_DAYS_FULL[bestDay]) + ' на 12% выше, чем 4 недели назад';
+    }
+
+    // фильтры чипами, район и транспорт первыми
+    const optsOf = (list) => list.map((o) => ({ k: o.k, label: o.label, note: o.note }));
+    const filters = [
+      { key: 'district', title: 'Район', value: dist.k, def: 'all', options: optsOf(RBT_DISTRICTS) },
+      { key: 'transport', title: 'Транспорт', value: tr.k, def: trDefault.k, options: optsOf(RBT_TRANSPORTS) },
+      { key: 'metric', title: 'Показатель', value: metric.k, def: 'pay', options: optsOf(RBT_METRICS) },
+      { key: 'cat', title: 'Сервис', value: cat.k, def: 'all', options: optsOf(RBT_CATS) }
+    ];
+    const open = typeof p.open === 'function' ? p.open : (() => {});
+
+    // лента часов шире экрана, при открытии прокручиваем к началу графика курьера
+    const colW = full ? 26 : 20;
+    if (!this._uid) this._uid = 'rbt' + Math.random().toString(36).slice(2, 8);
+    this._scrollKey = isDay ? [selDay, ws, full].join(':') : '';
+    this._scrollLeft = ws * colW;
+    // хуки обновления не приходят на смену своего состояния, поэтому проверяем после каждого рендера
+    if (this._scrollKey && this._scrollKey !== this._scrolledKey) setTimeout(() => this.syncScroll(), 0);
+
+    return {
+      is_card: !full, is_full: full, is_day: isDay,
+      seg_day_cls: 'rbt-seg-btn' + (isDay ? ' raznos-is-active' : ''),
+      seg_week_cls: 'rbt-seg-btn' + (!isDay ? ' raznos-is-active' : ''),
+      view_day: () => set({ view: 'day', day: null, hour: null }),
+      view_week: () => set({ view: 'week', day: null, hour: null }),
+      chart_cls: 'rbt-chart ' + (isDay ? 'rbt-chart-day' : 'rbt-chart-week'),
+      uid: this._uid,
+      scroll_cls: isDay ? 'rbt-scroll-on' : '',
+      scroll_style: isDay ? 'width:' + (24 * colW) + 'px' : '',
+      bars,
+      card_sub: isDay ? ('сегодня, ' + RBT_DAYS_FULL[RBT_TODAY] + ' · ₽ в час') : ((p.cityTitle || 'Москва') + ' · ₽ в час · вся неделя'),
+      best_prefix: isDay ? 'Лучшее окно' : 'Лучше всего',
+      best_label: isDay ? winLabel : RBT_DAYS_FULL[bestDay],
+      best_val: isDay ? fmt(toVal(winAvg)) : fmt(toVal(dayPay[bestDay])),
+      open_more: () => open(view),
+      daypick: RBT_DAYS.map((label, d) => ({ label, cls: 'rbt-dp' + (d === RBT_TODAY ? ' rbt-dp-today' : '') + (d === selDay ? ' raznos-is-active' : ''), tap: () => set({ day: d, hour: null }) })),
+      ro_label: roLabel, ro_val: roVal, ro_pill: roPill, ro_pill_cls: 'rbt-pill' + (roMuted ? ' rbt-pill-mute' : ''), ro_note: roNote, trend,
+      filters,
+      on_filter: (key, k) => set({ [key]: k, hour: null }),
+      open_plan: typeof p.onOpenPlan === 'function' ? p.onOpenPlan : (() => {}),
+      source_note: 'По заказам курьеров Разноса: ' + (p.cityTitle || 'Москва') + ', ' + (dist.k === 'all' ? 'все районы' : dist.label) + ', ' + tr.label.toLowerCase() + ', последние 4 недели'
+    };
+  }
+
+  componentDidMount() { this.syncScroll(); }
+  componentDidUpdate() { this.syncScroll(); }
+
+  syncScroll() {
+    const key = this._scrollKey;
+    if (!key || key === this._scrolledKey) return;
+    // ждём, пока лента станет шире контейнера, иначе прокрутка не применится
+    const tryScroll = (left) => {
+      const el = document.querySelector('[data-rbt-scroll="' + this._uid + '"]');
+      if (el && el.scrollWidth > el.clientWidth) {
+        el.scrollLeft = this._scrollLeft;
+        this._scrolledKey = key;
+      } else if (left > 0) requestAnimationFrame(() => tryScroll(left - 1));
+    };
+    requestAnimationFrame(() => tryScroll(20));
+  }
+}
+</script></body></html>

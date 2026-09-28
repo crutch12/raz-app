@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
+<div class="raznos-stats-range-bar">
+  <div class="raznos-stats-periods"><sc-for list="{{ chips }}" as="pc" hint-placeholder-count="5"><button type="button" class="{{ pc.cls }}" aria-pressed="{{ pc.pressed }}" onClick="{{ pc.tap }}">{{ pc.label }}</button></sc-for></div>
+  <div class="raznos-stats-range-row">
+    <div class="raznos-stats-range-copy"><strong>{{ title }}</strong><sc-if value="{{ hint }}" hint-placeholder-val="{{ true }}"><span>{{ hint }}</span></sc-if></div>
+    <sc-if value="{{ step_visible }}" hint-placeholder-val="{{ true }}"><div class="raznos-stats-range-steps"><button type="button" class="raznos-stats-step" aria-label="Предыдущий период" disabled="{{ back_disabled }}" onClick="{{ on_back }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><button type="button" class="raznos-stats-step" aria-label="Следующий период" disabled="{{ next_disabled }}" onClick="{{ on_next }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></div></sc-if>
+  </div>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"chips":{"editor":null},"title":{"editor":"text","default":"Неделя · 14–20 сентября"},"hint":{"editor":"text","default":"данные по 15 сентября"},"stepVisible":{"editor":"boolean","default":true},"backDisabled":{"editor":"boolean","default":false},"nextDisabled":{"editor":"boolean","default":true},"onBack":{"editor":null},"onNext":{"editor":null},"$preview":{"width":360,"height":130}}'>
+// переключатель периода статистики: день, неделя, месяц, год, свои даты и стрелки соседнего периода
+const RSR_NOOP = () => {};
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const chips = p.chips || ['День', 'Неделя', 'Месяц', 'Год', 'Даты'].map((label, i) => ({ label, pressed: i === 1, cls: 'raznos-chip' + (i === 1 ? ' raznos-is-active' : ''), tap: RSR_NOOP }));
+    return {
+      chips, title: p.title || '', hint: p.hint || '',
+      step_visible: p.stepVisible !== false, back_disabled: !!p.backDisabled, next_disabled: p.nextDisabled !== false,
+      on_back: typeof p.onBack === 'function' ? p.onBack : RSR_NOOP,
+      on_next: typeof p.onNext === 'function' ? p.onNext : RSR_NOOP
+    };
+  }
+}
+</script></body></html>

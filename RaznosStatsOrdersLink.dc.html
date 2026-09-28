@@ -1,0 +1,12 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
+<button type="button" class="raznos-stats-history-card" onClick="{{ on_open }}"><span class="raznos-stats-history-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg></span><span class="raznos-stats-history-copy"><strong>Заказы за период</strong><small>{{ caption }}</small></span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"caption":{"editor":"text","default":"30 заказов, выплаты и детали"},"onOpen":{"editor":null},"$preview":{"width":360,"height":80}}'>
+// переход из статистики к заказам того же периода
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    return { caption: p.caption || 'Выплаты и детали по каждому заказу', on_open: typeof p.onOpen === 'function' ? p.onOpen : (() => {}) };
+  }
+}
+</script></body></html>

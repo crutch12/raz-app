@@ -23,8 +23,7 @@
   </style>
 </helmet>
 <div class="raznos-phone-body" data-screen-label="Top couriers">
-  <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><span class="raznos-text-small">Статистика</span></div>
-  <h1 class="raznos-text-h1">Топ курьеров</h1>
+  <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Топ курьеров</h1></div>
 
   <div class="raznos-fx raznos-gap8" style="align-items:center">
     <span class="raznos-status-pill raznos-pill-muted">{{ scope_label }}</span>
@@ -68,16 +67,17 @@ const RTC_METRICS = [
 ];
 // демо-когорта, каждый курьер со всеми показателями
 const RTC_COURIERS = [
-  { money: 41900, orders: 212, tips: 9800, hour: 1420, dist: 690 },
-  { money: 39400, orders: 198, tips: 7200, hour: 1360, dist: 640 },
-  { money: 37100, orders: 231, tips: 6100, hour: 1180, dist: 720 },
-  { money: 35800, orders: 176, tips: 8600, hour: 1510, dist: 520 },
-  { money: 34200, orders: 205, tips: 5400, hour: 1240, dist: 610 },
-  { money: 32900, orders: 189, tips: 6900, hour: 1300, dist: 470 }
+  { money: 41900, orders: 212, tips: 980, hour: 960, dist: 690 },
+  { money: 39400, orders: 198, tips: 720, hour: 930, dist: 640 },
+  { money: 37100, orders: 231, tips: 610, hour: 880, dist: 720 },
+  { money: 35800, orders: 176, tips: 860, hour: 1010, dist: 520 },
+  { money: 34200, orders: 205, tips: 540, hour: 900, dist: 610 },
+  { money: 32900, orders: 189, tips: 690, hour: 940, dist: 470 }
 ];
-const RTC_ME = { money: 18240, orders: 96, tips: 4100, hour: 1180, dist: 210 };
+// те же цифры, что в Статистике и Профиле за 7–13 сентября
+const RTC_ME = { money: 27240, orders: 92, tips: 105, hour: 650, dist: 210 };
 // демо-место среди всех участников города по каждому показателю
-const RTC_MY_RANK = { money: 28, orders: 41, tips: 33, hour: 12, dist: 56 };
+const RTC_MY_RANK = { money: 28, orders: 64, tips: 118, hour: 71, dist: 56 };
 const rtcFmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const rtcVal = (v, unit) => unit === 'money' ? (rtcFmt(v) + ' ₽') : unit === 'hour' ? (rtcFmt(v) + ' ₽/ч') : unit === 'dist' ? (rtcFmt(v) + ' км') : rtcFmt(v);
 class Component extends DCLogic {
@@ -92,7 +92,7 @@ class Component extends DCLogic {
     return {
       onBack: p.onBack || (() => {}),
       scope_label: 'Москва',
-      period_label: 'за неделю',
+      period_label: '7–13 сентября',
       metrics: RTC_METRICS.map((m) => ({
         label: m.label,
         cls: 'raznos-chip' + (m.key === metric ? ' raznos-is-active' : ''),
