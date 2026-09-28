@@ -99,7 +99,7 @@ a:hover { color: var(--raznos-ink); }
 .raznos-demo-ribbon-close:focus { outline: 2px solid var(--raznos-on-dark); outline-offset: 2px; }
 .raznos-phone-scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; overscroll-behavior-x: none; }
 /* отступ от краёв экрана до блоков и между основными блоками, плотнее как у Gridwise */
-.raznos-phone-body { --raznos-screen-x: 10px; --raznos-screen-gap: 7px; flex: 1; padding: 12px var(--raznos-screen-x) 20px; display: flex; flex-direction: column; gap: var(--raznos-screen-gap); background: var(--raznos-bg); }
+.raznos-phone-body { --raznos-screen-x: 12px; --raznos-screen-gap: 12px; flex: 1; padding: 12px var(--raznos-screen-x) 20px; display: flex; flex-direction: column; gap: var(--raznos-screen-gap); background: var(--raznos-bg); }
 
 .raznos-app-bar { display: flex; align-items: center; justify-content: space-between; min-height: 32px; }
 /* заголовок экрана чуть отодвинут от края, чтобы не прилипал при узких полях */
