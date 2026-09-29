@@ -274,7 +274,8 @@ class Component extends DCLogic {
       ro_label: roLabel, ro_val: roVal, ro_pill: roPill, ro_pill_cls: 'rbt-pill' + (roMuted ? ' rbt-pill-mute' : ''), ro_note: roNote, trend,
       filters,
       on_filter: (key, k) => set({ [key]: k, hour: null }),
-      open_plan: typeof p.onOpenPlan === 'function' ? p.onOpenPlan : (() => {}),
+      // в план уходит лучшее окно выбранного дня, умное расписание добавляет его как намерение, а не бронь
+      open_plan: () => { if (typeof p.onOpenPlan === 'function') p.onOpenPlan({ day: selDay, from: wStart, to: wStart + winLen, dayTitle: RBT_DAYS_FULL[selDay] }); },
       source_note: 'По заказам курьеров Разноса: ' + (p.cityTitle || 'Москва') + ', ' + (dist.k === 'all' ? 'все районы' : dist.label) + ', ' + tr.label.toLowerCase() + ', последние 4 недели'
     };
   }

@@ -139,33 +139,21 @@
           <sc-if value="{{ is_courier_home }}">
             <div class="raznos-phone-body" data-screen-label="6 Courier home">
               <div class="raznos-app-bar" style="align-items:baseline;justify-content:space-between;gap:10px"><h1 class="raznos-text-h1" style="margin:0">Сегодня</h1><span class="raznos-text-small" style="text-align:right">{{ city_title }} · {{ transport_title }} · 15.09</span></div>
-              <sc-if value="{{ home_shift_on }}" hint-placeholder-val="{{ true }}">
-                <div class="raznos-card" style="padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px"><span class="raznos-fx raznos-col raznos-gap4"><span class="raznos-text-body"><b>Смена идёт</b></span><span class="raznos-text-tiny">09:00–18:00 · осталось 4 ч 20 мин</span></span><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ end_home_shift }}">Завершить</button></div>
-              </sc-if>
               <sc-if value="{{ home_shift_ended }}" hint-placeholder-val="{{ false }}">
                 <dc-import name="RaznosDayResult" earn="{{ today_earn }}" orders="{{ today_orders }}" hourly="{{ today_hourly }}" hours="{{ today_hours }}" deltaPct="{{ today_delta_pct }}" open="{{ go_day_recap }}"></dc-import>
                 <button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" style="align-self:flex-start" onClick="{{ start_home_shift }}">Выйти на смену снова</button>
               </sc-if>
-              <sc-if value="{{ home_shift_idle }}" hint-placeholder-val="{{ false }}">
-                <div class="raznos-card" style="padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px"><span class="raznos-text-body">Смена не начата</span><button type="button" class="raznos-btn raznos-btn-small" onClick="{{ start_home_shift }}">Начать смену</button></div>
-              </sc-if>
 
               <dc-import name="RaznosConnHealth" items="{{ conn_health_items }}" okNote="{{ conn_health_ok_note }}" netOffline="{{ net_offline }}" onAction="{{ conn_health_action }}"></dc-import>
+              <sc-if value="{{ home_now_visible }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosNowNext" state="{{ home_now_state }}" dayLine="{{ home_now_day }}" rows="{{ home_now_rows }}" warning="{{ home_now_warning }}" onEnd="{{ end_home_shift }}" onStart="{{ start_home_shift }}" onOpenPlan="{{ go_smart }}" onOpenShift="{{ go_slots }}"></dc-import></sc-if>
 
               <div class="raznos-hero-dark">
                 <span class="raznos-hero-label">Заработано сегодня</span>
                 <div class="raznos-fx raznos-ac raznos-gap8"><span class="raznos-hero-value">{{ today_earn }}</span><span class="raznos-hero-unit">₽</span></div>
                 <span style="color:var(--raznos-on-dark);opacity:0.88;font:600 13px var(--raznos-mono);margin-top:2px">{{ today_hero_stats }}</span>
                 <sc-if value="{{ today_hero_note_show }}" hint-placeholder-val="{{ true }}"><span class="raznos-hero-formula">{{ today_hero_note }}</span></sc-if>
+                <div class="raznos-hero-pace"><div class="raznos-hero-pace-track"><span class="raznos-hero-pace-fill" style="{{ today_pace_style }}"></span></div><span class="raznos-hero-pace-note">{{ today_earn_label }} из {{ today_target }} ₽ · {{ today_pace_note }}</span></div>
               </div>
-              <div class="raznos-card raznos-card-pad">
-                <div class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="raznos-text-small">Темп дня</span><span class="raznos-text-small"><b>{{ today_earn }} ₽</b> из ≈ {{ today_target }} ₽</span></div>
-                <div style="height:8px;border-radius:999px;background:var(--raznos-surface-2);overflow:hidden;margin:2px 0"><span style="{{ today_pace_style }}"></span></div>
-                <span class="raznos-text-tiny">{{ today_pace_note }}</span>
-              </div>
-
-              <dc-import name="RaznosNowNext" onOpenPlan="{{ go_smart }}"></dc-import>
-
               <dc-import name="RaznosEarnBreakdown" services="{{ earn_services }}" expenses="{{ earn_expenses }}" onOpenService="{{ go_history }}" onOpenExpenses="{{ go_expenses_from_home }}"></dc-import>
               <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ go_expenses_from_home }}">Добавить расход</button>
 
@@ -248,8 +236,8 @@
           </sc-if>
 
           <sc-if value="{{ is_work_filters }}"><dc-import name="RaznosWorkFilters" value="{{ work_filters }}" onChange="{{ save_work_filters }}" activeValue="{{ active_filter }}" onActiveChange="{{ set_active_filter }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
-          <sc-if value="{{ is_slots }}"><dc-import name="RaznosSlotCalendar" onBack="{{ back_work_tools }}" onOpenService="{{ slots_open_service }}"></dc-import></sc-if>
-          <sc-if value="{{ is_smart }}"><dc-import name="RaznosSmartSchedule" weekGoal="{{ work_week_goal }}" onBack="{{ back_work_tools }}" activeOrderLabel="{{ smart_active_label }}" onOpenActiveOrder="{{ go_active_order }}"></dc-import></sc-if>
+          <sc-if value="{{ is_slots }}"><div class="raznos-phone-body" data-screen-label="Shifts"><dc-import name="RaznosShifts" shifts="{{ shifts_week }}" slots="{{ shifts_slots }}" rules="{{ shifts_rules }}" openings="{{ shifts_openings }}" deficits="{{ shifts_deficits }}" watches="{{ shifts_watches }}" today="2026-09-15" nowMinutes="{{ 940 }}" initialTab="{{ slots_tab }}" initialDay="{{ slots_day }}" initialSvc="{{ slots_svc }}" onBack="{{ slots_back }}" onOpenService="{{ slots_open_service }}"></dc-import></div></sc-if>
+          <sc-if value="{{ is_smart }}"><dc-import name="RaznosSmartSchedule" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ go_work_schedule }}" build="{{ smart_build }}" svcs="{{ smart_svcs }}" onSettings="{{ smart_settings }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
           <sc-if value="{{ is_work_schedule }}"><dc-import name="RaznosWorkSchedule" onBack="{{ work_schedule_back }}" onSave="{{ save_work_graph }}"></dc-import></sc-if>
 
           <sc-if value="{{ is_work_hub }}">
@@ -270,8 +258,8 @@
                 <sc-if value="{{ active_order_hub_visible }}" hint-placeholder-val="{{ false }}">
                   <button type="button" class="raznos-live-entry" onClick="{{ go_active_order }}"><span class="raznos-live-entry-dot"></span><span class="raznos-list-main"><span class="raznos-list-title">Ведёте заказ</span><span class="raznos-text-small">Открыть карточку заказа на чтение</span></span><span class="raznos-row-chevron">›</span></button>
                 </sc-if>
-                <dc-import name="RaznosSchedulePreview" goal="{{ work_week_goal }}" open="{{ go_smart }}"></dc-import>
-                <dc-import name="RaznosShiftsWidget" open="{{ go_slots }}"></dc-import>
+                <dc-import name="RaznosSchedulePreview" bookings="{{ shifts_week }}" today="2026-09-15" nowMinutes="{{ 940 }}" open="{{ go_smart }}"></dc-import>
+                <dc-import name="RaznosShiftsWidget" shifts="{{ shifts_week }}" rules="{{ shifts_rules }}" today="2026-09-15" nowMinutes="{{ 940 }}" open="{{ go_slots }}"></dc-import>
                 <dc-import name="RaznosHotspots" open="{{ go_best_places }}" cityTitle="{{ city_title }}" transportTitle="{{ transport_title }}"></dc-import>
                 <dc-import name="RaznosBestTimes" open="{{ go_best_times }}" workStart="{{ work_start }}" workEnd="{{ work_end }}"></dc-import>
                 <dc-import name="RaznosServiceRank" open="{{ go_services_compare }}" connected="{{ svc_connected }}" cityTitle="{{ city_title }}" transportTitle="{{ transport_title }}"></dc-import>
@@ -667,7 +655,7 @@
                 <div class="raznos-metric-card"><span class="raznos-text-small">Ожидание</span><span class="raznos-metric-value">{{ sv_wait }}</span></div>
                 <div class="raznos-metric-card"><span class="raznos-text-small">Заказов за период</span><span class="raznos-metric-value">{{ sv_orders }}</span></div>
               </div>
-              <sc-if value="{{ sv_insufficient }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">Меньше 30 курьеров или 100 заказов за период, цифры выше показаны как «Нет данных» вместо нуля</p></sc-if>
+              <sc-if value="{{ sv_insufficient }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">Данных за период пока нет, цифры выше показаны как «Нет данных» вместо нуля</p></sc-if>
               <sc-if value="{{ sv_ratings_shown }}" hint-placeholder-val="{{ true }}">
               <div class="raznos-card raznos-card-pad">
                 <div class="raznos-fx raznos-jb"><span class="raznos-text-small">Средняя оценка курьеров</span><span class="raznos-num">{{ sv_r_overall }}</span></div>
@@ -1169,7 +1157,7 @@
             <div class="raznos-phone-body" data-screen-label="Best times">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ best_times_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Когда выгоднее</h1></div>
               <span class="raznos-text-small" style="margin-top:-4px">{{ city_title }}</span>
-              <dc-import name="RaznosBestTimes" mode="full" initialView="{{ bt_view }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" cityTitle="{{ city_title }}" transportTitle="{{ transport_title }}" onOpenPlan="{{ go_smart }}"></dc-import>
+              <dc-import name="RaznosBestTimes" mode="full" initialView="{{ bt_view }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" cityTitle="{{ city_title }}" transportTitle="{{ transport_title }}" onOpenPlan="{{ bt_add_to_plan }}"></dc-import>
             </div>
           </sc-if>
 
@@ -2140,6 +2128,50 @@
       const STATS_CANCELS = ['2026-09-04', '2026-09-12', '2026-09-15'];
       // НПД: доход от юрлиц 6%, налоговый бонус 10 000 ₽ снижает ставку до 4% пока не израсходован, лимит 2,4 млн в год
       const NPD_RATE = 0.06, NPD_BONUS_RATE = 0.02, NPD_BONUS = 10000, NPD_LIMIT = 2400000;
+      // смены на неделю 14–20 сентября, один набор для экрана Смены, виджета в Работе и умного расписания
+      // время в минутах от полуночи, rateVerified только там, где ставка за смену подтверждена в коде сервиса
+      const SHIFT_PLACES = { samokat: 'Даркстор Беговая, 7', vkusvill: 'Магазин на Правды, 24', 'yandex-eda': 'Зона Беговой', x5: 'Пятёрочка, Ленинградский пр-т, 15' };
+      const SHIFT_TITLES = { samokat: 'Самокат', vkusvill: 'ВкусВилл', 'yandex-eda': 'Яндекс Еда', x5: 'X5 Доставка' };
+      const SHIFT_RATES = { samokat: [370, false], vkusvill: [400, true], 'yandex-eda': [390, false], x5: [380, true] };
+      const shiftRow = (id, iso, svc, from, to, status, extra) => Object.assign({ id, iso, svc, title: SHIFT_TITLES[svc], place: SHIFT_PLACES[svc], from: from * 60, to: to * 60, status, rate: SHIFT_RATES[svc][0], rateVerified: SHIFT_RATES[svc][1] }, extra || {});
+      const SHIFTS_WEEK = [
+        shiftRow('s1', '2026-09-14', 'samokat', 9, 13, 'completed'), shiftRow('s2', '2026-09-14', 'vkusvill', 14, 18, 'completed'),
+        shiftRow('s3', '2026-09-15', 'samokat', 9, 12, 'completed'), shiftRow('s4', '2026-09-15', 'vkusvill', 14, 17, 'active'),
+        shiftRow('s5', '2026-09-15', 'yandex-eda', 17, 20, 'confirmed'),
+        shiftRow('s6', '2026-09-16', 'samokat', 10.5, 13.5, 'confirmed'), shiftRow('s7', '2026-09-16', 'vkusvill', 14, 18, 'requested'),
+        shiftRow('s8', '2026-09-17', 'x5', 11, 17, 'confirmed'),
+        shiftRow('s9', '2026-09-18', 'samokat', 18, 22, 'confirmed', { transfer: true }),
+        shiftRow('s10', '2026-09-19', 'yandex-eda', 12, 16, 'tentative'), shiftRow('s11', '2026-09-19', 'vkusvill', 16, 20, 'cancelled')
+      ];
+      const slotRow = (id, iso, svc, from, to, seats, extra) => Object.assign({ id, iso, svc, title: SHIFT_TITLES[svc], place: SHIFT_PLACES[svc], from: from * 60, to: to * 60, seats, full: seats === 0, rate: SHIFT_RATES[svc][0], rateVerified: SHIFT_RATES[svc][1], appName: ({ 'yandex-eda': 'Яндекс Про', x5: 'X5' })[svc] || SHIFT_TITLES[svc] }, extra || {});
+      const SHIFT_SLOTS = [
+        slotRow('f1', '2026-09-15', 'samokat', 18, 22, 3), slotRow('f2', '2026-09-15', 'yandex-eda', 20, 23, 1),
+        slotRow('f3', '2026-09-16', 'samokat', 18, 22, 5, { rate: 410, bonus: '+50 ₽/ч вечером' }), slotRow('f4', '2026-09-16', 'yandex-eda', 12, 15, 0),
+        slotRow('f5', '2026-09-16', 'x5', 9, 15, 2), slotRow('f6', '2026-09-16', 'vkusvill', 19, 22, 1, { apply: true }),
+        slotRow('f7', '2026-09-17', 'yandex-eda', 17, 21, 4, { bonus: '+15% за пиковые часы' }), slotRow('f8', '2026-09-17', 'samokat', 9, 13, 8),
+        slotRow('f9', '2026-09-18', 'x5', 12, 18, 3),
+        slotRow('f10', '2026-09-19', 'samokat', 10, 14, 2), slotRow('f11', '2026-09-19', 'yandex-eda', 18, 22, 0),
+        slotRow('f12', '2026-09-20', 'samokat', 12, 16, 6), slotRow('f13', '2026-09-20', 'yandex-eda', 14, 18, 0)
+      ];
+      // правила отмены и неявки из открытых правил и отзывов, это справка, а не данные аккаунта
+      const SHIFT_RULES = {
+        samokat: { freeCancel: 'hours', hoursBefore: 24, late: 'Позже: жёлтая карточка, за неявку по отзывам курьеров до 10 000 ₽' },
+        'yandex-eda': { freeCancel: 'noonBefore', late: 'Позже: ≈ 300 ₽ и минус приоритет, за неявку блокировка на сутки' },
+        vkusvill: { freeCancel: 'none', note: 'Штрафа за неявку у ВкусВилла нет, опоздание уменьшает оплату смены' },
+        x5: { freeCancel: 'hours', hoursBefore: 12, late: 'Правила штрафов X5 не нашли, уточните у куратора' }
+      };
+      const SHIFT_OPENINGS = [
+        { id: 'o1', svc: 'yandex-eda', title: 'Запись в Яндекс на 21–27 сентября', text: 'Откроется в чт 17 сентября в 10:00 для уровня Золото', meta: 'Платина видит слоты на 2 часа раньше · правила Яндекс Про', remind: false },
+        { id: 'o2', svc: 'samokat', title: 'Слоты Самоката на следующую неделю', text: 'Появляются по пятницам около 12:00', meta: 'По наблюдениям Разноса за 4 недели', remind: true }
+      ];
+      const SHIFT_DEFICITS = [
+        { iso: '2026-09-19', svc: 'samokat', title: 'Суббота в Самокате почти занята', text: 'На Беговой свободно 2 места из 24, обычно их разбирают за 7 минут', meta: 'По 46 курьерам Разноса в Москве, обезличено' },
+        { iso: '2026-09-16', svc: 'yandex-eda', title: 'Дневные слоты Яндекса на среду закончились', text: 'Можно следить за местом, после отмен оно появляется примерно раз в день', meta: 'По 38 курьерам Разноса в Москве, обезличено' },
+        { iso: '2026-09-17', svc: 'x5', title: 'В четверг у X5 на Ленинградском мало мест', text: 'Свободно 2 из 10, на прошлой неделе закончились к обеду среды', meta: 'По 31 курьеру Разноса в Москве, обезличено' },
+        { iso: '2026-09-18', svc: 'x5', title: 'Пятница у X5 спокойнее обычного', text: 'Свободно 3 места, в прошлые пятницы оставалось не больше одного', meta: 'По 31 курьеру Разноса в Москве, обезличено' },
+        { iso: '2026-09-19', svc: 'yandex-eda', title: 'Вечер субботы в Яндексе разбирают первым', text: 'Места на 18–22 заканчиваются за 4 минуты после открытия записи', meta: 'По 38 курьерам Разноса в Москве, обезличено' },
+        { iso: '2026-09-20', svc: 'samokat', title: 'Воскресенье в Самокате свободнее обычного', text: 'Свободно 6 мест, в прошлые воскресенья было не больше двух', meta: 'По 46 курьерам Разноса в Москве, обезличено' }
+      ];
       // районы получения заказа, один список для фильтра, разбивки и настройки сравнения
       const STATS_DISTRICTS = ['Беговой', 'Тверской', 'Пресненский', 'Дорогомилово', 'Арбат', 'Гагаринский'];
       function statsPickupDistrict(address) {
@@ -3697,10 +3729,8 @@
               };
               const ratio = cityRatio[k - statsStep + 5];
               const medians = {};
-              // медиана города появляется с задержкой на сутки, у сегодняшнего дня её нет
-              const noMedian = range[0] === TODAY_ISO && range[1] === TODAY_ISO;
               Object.keys(values).forEach((key, i) => {
-                if (values[key] == null || noMedian) { medians[key] = null; return; }
+                if (values[key] == null) { medians[key] = null; return; }
                 const r = key === 'earn' || key === 'orders' ? ratio : 1 + (ratio - 1) * (0.4 + i * 0.15);
                 medians[key] = key === 'ordersPerHour' ? Math.round(values[key] * r * 10) / 10 : Math.round(values[key] * r / (key === 'earn' ? 100 : 1)) * (key === 'earn' ? 100 : 1);
               });
@@ -4051,7 +4081,7 @@
 
           // Сервис и отзывы
           const svBase = MARKET_BASE[svKey];
-          const svSufficient = svBase.couriers >= 30 && svBase.orders >= 100;
+          const svSufficient = svBase.couriers > 0 && svBase.orders > 0;
           const svConnected = (integrationStatus[svKey] || 'none') === 'connected';
           const svVoterCategory = reviewCategoryFor(svConnected);
           const svReviewsAll = reviewsWithMineFor(svKey, svConnected);
@@ -4368,16 +4398,51 @@
             ].filter(Boolean).join(' · '),
             today_target: formatMoney(todayTarget), today_delta_pct: todayDeltaPct,
             work_week_goal: WORK_WEEK_GOAL, work_week_earned: STATS_CALENDAR_WEEK.earn,
+            shifts_week: SHIFTS_WEEK, shifts_slots: SHIFT_SLOTS, shifts_rules: SHIFT_RULES, shifts_openings: SHIFT_OPENINGS, shifts_deficits: SHIFT_DEFICITS,
+            shifts_watches: { f4: true },
+            // окно из Когда выгоднее уходит в умное расписание как намерение, расписание открывается на этом дне
+            bt_add_to_plan: (w) => set({ s: 'smart', smartAddWindow: w || null, smartFocusAdded: true }),
+            smart_add_window: st.smartAddWindow || null, smart_focus_added: !!st.smartFocusAdded,
+            smart_build: st.smartBuild || 'auto', smart_svcs: st.smartSvcs || 'all',
+            smart_settings: (v) => set({ smartBuild: v.build, smartSvcs: v.svcs }),
+            ...(() => {
+              // Сейчас и дальше: бронь из Смен важнее плана, план закрывает только свободные часы рабочего дня
+              const nowMin = 15 * 60 + 40, fmt = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+              const left = (m) => ((m >= 60 ? Math.floor(m / 60) + ' ч ' : '') + (m % 60 ? (m % 60) + ' мин' : '')).trim();
+              const dayRows = SHIFTS_WEEK.filter((row) => row.iso === TODAY_ISO && row.status !== 'cancelled').sort((a, b) => a.from - b.from);
+              const todayRows = dayRows.filter((row) => row.to > nowMin);
+              const current = todayRows.find((row) => row.from <= nowMin), next = todayRows.find((row) => row.from > nowMin);
+              const graphStart = (st.graphStart != null ? st.graphStart : 9) * 60, graphEnd = (st.graphEnd != null ? st.graphEnd : 18) * 60;
+              // рабочий день растягивается до последней брони, иначе остаток времени врёт
+              const dayStart = Math.min(graphStart, dayRows.length ? dayRows[0].from : graphStart);
+              const dayEnd = Math.max(graphEnd, dayRows.length ? dayRows[dayRows.length - 1].to : graphEnd);
+              const booking = (row, kind) => ({ id: row.id, svc: row.svc, kind, source: 'booking', title: row.title, place: row.place, time: fmt(row.from) + '–' + fmt(row.to), hint: kind === 'now' ? 'ещё ' + left(row.to - nowMin) : 'через ' + left(row.from - nowMin) });
+              // без брони план ставит только то, куда можно выйти сразу: свободный выход в Яндекс Еде
+              const best = { key: 'yandex-eda', name: 'Яндекс Еда' };
+              const planRow = (kind, from) => best ? { svc: best.key, kind, source: 'plan', title: best.name, time: fmt(from) + '–' + fmt(from + 60), pay: '', hint: kind === 'now' ? '' : 'через ' + left(from - nowMin) } : null;
+              const rows = [];
+              if (current) rows.push(booking(current, 'now'));
+              else if (nowMin < dayEnd) rows.push(planRow('now', Math.floor(nowMin / 60) * 60));
+              if (next) rows.push(booking(next, 'next'));
+              else if (current && current.to < dayEnd) rows.push(planRow('next', current.to));
+              const gap = current && next ? next.from - current.to : null;
+              return {
+                home_now_rows: rows.filter(Boolean),
+                home_now_day: 'Рабочий день ' + fmt(dayStart) + '–' + fmt(dayEnd) + (nowMin < dayEnd ? ' · осталось ' + left(dayEnd - nowMin) : ''),
+                home_now_warning: gap != null && current.svc !== next.svc && gap < 20 ? 'Не успеете доехать: между сменами ' + gap + ' мин, дорога ≈ 20 мин' : ''
+              };
+            })(),
             ...(() => {
               // профиль и топ берут последнюю полную календарную неделю из той же истории, что и Статистика
               const week = statsDaysSource('week', ['2026-09-07', '2026-09-13'], false);
               const tips = HISTORY.filter((o) => o.dateISO >= '2026-09-07' && o.dateISO <= '2026-09-13').reduce((sum, o) => sum + (o.tipDigital || 0) + (o.cashTip || 0), 0);
               return { pf_week_earn: formatMoney(week.earn || 0), pf_week_orders: week.orders || 0, pf_week_tips: formatMoney(tips) };
             })(),
-            today_pace_style: 'display:block;height:100%;width:' + todayPacePct + '%;background:var(--raznos-green);border-radius:999px',
-            today_pace_note: todayOrdersLeft > 0
-              ? ('Цель дня из недельной цели Работы, осталось примерно ' + todayOrdersLeft + ' ' + ruPlural(todayOrdersLeft, 'заказ', 'заказа', 'заказов'))
-              : ('Цель дня из недельной цели Работы выполнена'),
+            today_pace_style: 'width:' + todayPacePct + '%',
+            today_pace_note: todayEarn >= todayTarget
+              ? 'цель дня выполнена'
+              : ('до цели дня ≈ ' + Math.max(1, todayOrdersLeft) + ' ' + ruPlural(Math.max(1, todayOrdersLeft), 'заказ', 'заказа', 'заказов')),
+            today_earn_label: formatMoney(todayEarn),
             svc_hourly_rows: svcHourlyRows, svc_hourly_note: svcHourlyNote,
             services_note: connectedKeys.length ? connectedKeys.map((k) => SERVICES[k].title).join(', ') + ' подключены' : 'ни один сервис не подключён',
             empty_has_real_connections: !demoOn && connectedKeys.length > 0,
@@ -4736,7 +4801,11 @@
             toast_list,
             toast_layer_class: ['offer-detail', 'active-order', 'offer-result', 'order'].indexOf(st.s) !== -1 ? 'raznos-toast-layer raznos-toast-layer-reserved' : 'raznos-toast-layer',
             go_market_map: () => set({ s: 'market-map' }), mk_city_key: mkCity,
-            go_work_filters: () => set({ s: 'work-filters' }), go_offer_history: () => set({ s: 'offer-history' }), go_slots: () => set({ s: 'slots' }), go_smart: () => set({ s: 'smart' }), go_work_schedule: () => set({ s: 'work-schedule', wsFrom: s }), work_schedule_back: () => set({ s: (this.state && this.state.wsFrom) || 'profile' }),
+            go_work_filters: () => set({ s: 'work-filters' }), go_offer_history: () => set({ s: 'offer-history' }), go_slots: () => set({ s: 'slots', slotsTab: '', slotsDay: '', slotsSvc: '', slotsFrom: s }),
+            // Найти слот из умного расписания: Свободные на этот день и сервис
+            go_slots_find: (w) => set({ s: 'slots', slotsTab: 'free', slotsDay: (w && w.iso) || '', slotsSvc: (w && w.svc) || '', slotsFrom: 'smart' }),
+            slots_tab: st.slotsTab || 'mine', slots_day: st.slotsDay || '', slots_svc: st.slotsSvc || '',
+            slots_back: () => set({ s: ['smart', 'courier-home'].indexOf(st.slotsFrom) !== -1 ? st.slotsFrom : 'work-hub' }), go_smart: () => set({ s: 'smart', smartFocusAdded: false }), go_work_schedule: () => set({ s: 'work-schedule', wsFrom: s }), work_schedule_back: () => set({ s: (this.state && this.state.wsFrom) || 'profile' }),
             work_setup_needed: !demoOn && !graphSaved,
             work_ready: demoOn || graphSaved,
             go_best_times: (v) => set({ s: 'best-times', btFrom: s, btView: v === 'day' ? 'day' : 'week' }),
@@ -4748,7 +4817,7 @@
             svc_connected: connectedKeys,
             svc_compare_connect: (key) => set({ s: 'integration-connect', connKey: key, connAgree: false, connStage: 'form', connCodeInput: '', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: '' }),
             best_places_back: () => set({ s: (this.state && this.state.bpFrom) || 'work-hub' }),
-          go_active_order: () => set({ s: 'active-order' }), active_order_hub_visible: activeAccepted, smart_active_label: activeAccepted ? 'Открыть карточку заказа на чтение' : '',
+          go_active_order: () => set({ s: 'active-order' }), active_order_hub_visible: activeAccepted,
           go_settings: () => set({ s: 'settings' }),
           save_work_graph: (g) => set({ graphSaved: true, graphStart: g && g.start != null ? g.start : 9, graphEnd: g && g.end != null ? g.end : 18 }),
           work_start: st.graphStart != null ? st.graphStart : 9,
@@ -4756,6 +4825,8 @@
           home_shift_on: (st.homeShiftOn !== false) && !st.homeShiftEnded,
           home_shift_ended: !!st.homeShiftEnded,
           home_shift_idle: (st.homeShiftOn === false) && !st.homeShiftEnded,
+          home_now_visible: role === 'courier' && !st.homeShiftEnded,
+          home_now_state: (st.homeShiftOn === false) ? 'idle' : 'on',
           start_home_shift: () => set({ homeShiftOn: true, homeShiftEnded: false }),
           end_home_shift: () => set({ homeShiftOn: false, homeShiftEnded: true }),
           go_day_recap: () => set({ s: 'stats', statsPeriod: 'today', statsStep: 0, statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' }),

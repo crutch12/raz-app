@@ -9,12 +9,12 @@
     <div class="raznos-empty-state">
       <span class="raznos-empty-glyph">?</span>
       <span class="raznos-text-h3">По этому городу статистики пока нет</span>
-      <p class="raznos-text-small">Покажем медианы, когда наберётся хотя бы 30 курьеров Разноса на сервис</p>
+      <p class="raznos-text-small">Покажем медианы, когда в городе появятся курьеры Разноса</p>
     </div>
   </sc-if>
   <sc-if value="{{ has_city_data }}" hint-placeholder-val="{{ true }}">
     <dc-import name="RaznosCohortCompare" city="{{ city }}" mineCity="{{ mineCity }}" transport="{{ transport }}" period="{{ period }}" svc="all" mine="{{ mine }}" title="{{ compare_title }}"></dc-import>
-    <p class="raznos-text-tiny">Статистика участников Разноса, а не всех курьеров города. Только агрегаты с задержкой в сутки, редкие сочетания скрыты</p>
+    <p class="raznos-text-tiny">Статистика участников Разноса, а не всех курьеров города. Рядом с медианой указано, по скольким курьерам она посчитана</p>
   </sc-if>
 </div>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"profileCity":{"editor":"text","default":"moscow"},"cityTitle":{"editor":"text","default":"Москва"},"mineCity":{"editor":"text","default":"moscow"},"transport":{"editor":"enum","default":"bike","options":["bike","foot","car","electric","public"]},"period":{"editor":"text","default":"month"},"mine":{"editor":null},"$preview":{"width":360,"height":640}}'>

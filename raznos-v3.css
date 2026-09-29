@@ -200,6 +200,10 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 .raznos-hero-unit { font: 600 16px var(--raznos-font); opacity: 0.8; }
 .raznos-hero-formula { font: 500 14px var(--raznos-font); font-variant-numeric: tabular-nums; opacity: 0.85; }
 .raznos-hero-dark .raznos-text-tiny, .raznos-hero-dark .raznos-text-small { color: var(--raznos-on-dark); opacity: 0.78; }
+.raznos-hero-pace { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.raznos-hero-pace-track { height: 4px; border-radius: 999px; background: color-mix(in oklab, var(--raznos-on-dark) 18%, transparent); overflow: hidden; }
+.raznos-hero-pace-fill { display: block; height: 100%; border-radius: 999px; background: var(--raznos-green); }
+.raznos-hero-pace-note { font: 500 12.5px var(--raznos-font); font-variant-numeric: tabular-nums; color: var(--raznos-on-dark); opacity: 0.72; }
 .raznos-metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .raznos-metric-card { background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
 .raznos-metric-value { font: 700 22px var(--raznos-mono); }

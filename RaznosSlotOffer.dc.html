@@ -1,0 +1,42 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-shifts.css" /></helmet>
+<article class="{{ cls }}" aria-label="{{ aria }}">
+  <div class="raznos-shift-head">
+    <dc-import name="RaznosIcon" svc="{{ svc }}" size="sm"></dc-import>
+    <span class="raznos-shift-where"><strong>{{ title }}</strong><small>{{ place }}</small></span>
+    <span class="{{ seats_cls }}"><sc-if value="{{ full }}" hint-placeholder-val="{{ false }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></sc-if>{{ seats }}</span>
+  </div>
+  <div class="raznos-shift-time"><strong>{{ time }}</strong><span>{{ duration }}</span></div>
+  <div class="raznos-shift-pay"><strong>{{ pay }}</strong><span>{{ pay_note }}</span><sc-if value="{{ bonus }}" hint-placeholder-val="{{ true }}"><b class="raznos-shift-tag raznos-is-bonus"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>{{ bonus }}</b></sc-if></div>
+  <sc-if value="{{ rule }}" hint-placeholder-val="{{ true }}"><p class="raznos-shift-rule"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>{{ rule }}</span></p></sc-if>
+  <sc-if value="{{ conflict }}" hint-placeholder-val="{{ false }}"><p class="raznos-shift-conflict"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg><span>{{ conflict }}</span></p></sc-if>
+  <div class="raznos-slot-actions">
+    <sc-if value="{{ can_take }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-shift-action raznos-is-primary" onClick="{{ on_take }}">{{ take_label }}</button></sc-if>
+    <button type="button" class="{{ watch_cls }}" aria-pressed="{{ watching }}" onClick="{{ on_watch }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>{{ watch_label }}</button>
+  </div>
+</article>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"svc":{"editor":"text","default":"samokat"},"title":{"editor":"text","default":"Самокат"},"place":{"editor":"text","default":"Даркстор Беговая, 7"},"time":{"editor":"text","default":"18:00–22:00"},"duration":{"editor":"text","default":"4 ч"},"seats":{"editor":"text","default":"5 мест"},"full":{"editor":"boolean","default":false},"pay":{"editor":"text","default":"≈ 1 840 ₽"},"payNote":{"editor":"text","default":"410 ₽/ч, не проверено"},"bonus":{"editor":"text","default":"+50 ₽/ч вечером"},"rule":{"editor":"text","default":"Отменить можно не позже чем за 24 ч, иначе жёлтая карточка"},"conflict":{"editor":"text","default":""},"takeLabel":{"editor":"text","default":"Взять в Самокате"},"watching":{"editor":"boolean","default":false},"onTake":{"editor":null},"onWatch":{"editor":null},"$preview":{"width":366,"height":280}}'>
+// свободный слот сервиса: места, ставка, надбавка, правило отмены, взять в приложении сервиса или следить
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const val = (key, fallback) => p[key] === undefined ? fallback : (p[key] || '');
+    const full = !!p.full;
+    const watching = !!p.watching;
+    return {
+      svc: p.svc || 'samokat', title: val('title', 'Самокат'), place: val('place', 'Даркстор Беговая, 7'),
+      time: val('time', '18:00–22:00'), duration: val('duration', '4 ч'), seats: val('seats', '5 мест'), full,
+      seats_cls: 'raznos-slot-seats' + (full ? ' raznos-is-full' : ''),
+      pay: val('pay', '≈ 1 840 ₽'), pay_note: val('payNote', '410 ₽/ч, не проверено'), bonus: val('bonus', '+50 ₽/ч вечером'),
+      rule: val('rule', 'Отменить можно не позже чем за 24 ч, иначе жёлтая карточка'), conflict: val('conflict', ''),
+      can_take: !full, take_label: val('takeLabel', 'Взять в Самокате'),
+      watching, watch_label: watching ? 'Слежу' : (full ? 'Следить за местом' : 'Следить'),
+      watch_cls: 'raznos-shift-action raznos-is-watch' + (watching ? ' raznos-is-on' : ''),
+      cls: 'raznos-shift-card raznos-is-offer' + (full ? ' raznos-is-full' : ''),
+      aria: val('title', 'Самокат') + ', свободный слот ' + val('time', '18:00–22:00') + ', ' + val('seats', '5 мест'),
+      on_take: typeof p.onTake === 'function' ? p.onTake : (() => {}),
+      on_watch: typeof p.onWatch === 'function' ? p.onWatch : (() => {})
+    };
+  }
+}
+</script></body></html>

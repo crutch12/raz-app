@@ -1,0 +1,30 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-shifts.css" /></helmet>
+<div class="raznos-week-strip" role="tablist" aria-label="Дни недели">
+  <sc-for list="{{ days }}" as="day" hint-placeholder-count="7">
+    <button type="button" role="tab" class="{{ day.cls }}" aria-selected="{{ day.selected }}" aria-label="{{ day.aria }}" onClick="{{ day.tap }}">
+      <span class="raznos-week-dow">{{ day.dow }}</span>
+      <span class="raznos-week-date">{{ day.date }}</span>
+      <span class="raznos-week-dots"><sc-for list="{{ day.dots }}" as="dot" hint-placeholder-count="2"><i class="{{ dot.cls }}"></i></sc-for></span>
+      <span class="raznos-week-free">{{ day.free }}</span>
+    </button>
+  </sc-for>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"days":{"editor":null},"$preview":{"width":366,"height":96}}'>
+// лента недели: у своих смен цветные точки сервисов, под днём число свободных слотов
+const RWS_NOOP = () => {};
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const demo = [['Пн', '14', ['samokat', 'vkusvill'], ''], ['Вт', '15', ['samokat', 'vkusvill', 'yandex-eda'], '2 своб.'], ['Ср', '16', ['samokat', 'vkusvill'], '4 своб.'], ['Чт', '17', ['x5'], '2 своб.'], ['Пт', '18', ['samokat'], '1 своб.'], ['Сб', '19', ['yandex-eda'], '1 своб.'], ['Вс', '20', [], '2 своб.']]
+      .map(([dow, date, svcs, free], i) => ({ dow, date, svcs, free, selected: i === 1, today: i === 1, past: i === 0, tap: RWS_NOOP }));
+    const days = (p.days || demo).map((day) => Object.assign({}, day, {
+      cls: 'raznos-week-day' + (day.selected ? ' raznos-is-selected' : '') + (day.today ? ' raznos-is-today' : '') + (day.past ? ' raznos-is-past' : ''),
+      dots: (day.svcs || []).slice(0, 3).map((svc) => ({ cls: 'raznos-week-dot raznos-is-' + svc })),
+      aria: day.aria || (day.dow + ' ' + day.date + ', смен ' + (day.svcs || []).length + (day.free ? ', ' + day.free : '')),
+      tap: typeof day.tap === 'function' ? day.tap : RWS_NOOP
+    }));
+    return { days };
+  }
+}
+</script></body></html>

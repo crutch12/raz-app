@@ -21,7 +21,6 @@
 <div class="raznos-card raznos-card-pad">
   <div class="raznos-head-row"><span class="raznos-text-h3 raznos-head-title">{{ title }}</span><span class="raznos-status-pill raznos-pill-concept raznos-head-side">Демо</span></div>
   <p class="raznos-text-tiny">{{ basis_note }}</p>
-  <sc-if value="{{ show_delay }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Данные курьеров города публикуются с задержкой в сутки, сравнение за сегодня появится завтра</p></sc-if>
   <sc-if value="{{ show_no_city }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">По этому городу статистики пока нет</p></sc-if>
   <sc-if value="{{ show_cross_city }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Ваши заказы в другом городе, поэтому сравнивать себя с этой медианой некорректно. Ниже только данные выбранного города</span></div></sc-if>
   <sc-if value="{{ show_no_rows }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Для этого транспорта статистики пока нет</p></sc-if>
@@ -37,13 +36,12 @@
         </div>
         <sc-if value="{{ r.has_summary }}" hint-placeholder-val="{{ true }}"><span class="{{ r.summary_class }}" style="align-self:flex-start">{{ r.summary }}</span></sc-if>
       </sc-if>
-      <sc-if value="{{ r.not_enough }}"><p class="raznos-text-small">Недостаточно данных: меньше {{ min_n }} курьеров, медиану не показываем</p></sc-if>
+      <sc-if value="{{ r.not_enough }}"><p class="raznos-text-small">По этой группе данных пока нет</p></sc-if>
     </div>
   </sc-for>
 </div>
 </sc-if>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"city":{"editor":"text","default":"moscow"},"mineCity":{"editor":"text","default":"moscow"},"transport":{"editor":"enum","default":"bike","options":["bike","foot","car","electric","public"]},"period":{"editor":"enum","default":"month","options":["today","week","month","year","12m","custom"]},"svc":{"editor":"text","default":"all"},"medianHint":{"editor":null},"district":{"editor":"text","default":"all"},"mineAmount":{"editor":null},"recapMode":{"editor":"boolean","default":false},"onSettings":{"editor":null},"mine":{"editor":null},"onlyMine":{"editor":"boolean","default":false},"title":{"editor":"text","default":"Я и другие курьеры"},"$preview":{"width":360,"height":420}}'>
-const CC_MIN_N = 30;
 const CC_TITLES = { vkusvill: 'ВкусВилл', samokat: 'Самокат', x5: 'X5 Доставка', 'yandex-eda': 'Яндекс Еда' };
 const CC_TRANSPORT = { bike: 'велосипед', foot: 'пешком', car: 'авто', electric: 'электро', public: 'общественный транспорт' };
 // медиана за месяц, остальные периоды получают небольшой сдвиг и свою выборку
@@ -77,7 +75,9 @@ class Component extends DCLogic {
     if (p.recapMode) {
       const city = p.city || 'moscow', transport = p.transport || 'bike', period = p.period || 'week';
       const service = p.svc || 'all', district = p.district || 'all';
-      const base = ((((CC_RECAP[city] || {})[transport] || {})[period] || {})[service] || null);
+      // за сегодня медиана считается по текущему дню, в демо это доля недели
+      const weekBase = (((CC_RECAP[city] || {})[transport] || {}).week || {})[service] || null;
+      const base = ((((CC_RECAP[city] || {})[transport] || {})[period] || {})[service] || null) || (period === 'today' && weekBase ? [Math.round(weekBase[0] / 7), Math.round(weekBase[1] / 7), Math.round(weekBase[2] / 7), Math.round(weekBase[3] * 0.6)] : null);
       const districtBase = base && district === 'Пресненский' ? [Math.round(base[0] * .91), Math.round(base[1] * .91), Math.round(base[2] * .91), Math.round(base[3] * .35)] : (district === 'all' ? base : null);
       // для прошлого периода экран передаёт медиану того периода, диапазон масштабируется вместе с ней
       const factor = districtBase && p.medianHint > 0 ? p.medianHint / districtBase[0] : 1;
@@ -85,7 +85,7 @@ class Component extends DCLogic {
       const n = adjusted ? adjusted[3] : 0;
       const mine = p.mineAmount == null ? null : Number(p.mineAmount);
       const crossCity = !!p.mineCity && p.mineCity !== city;
-      const enough = !!adjusted && n >= CC_MIN_N && mine != null && period !== 'today' && !crossCity;
+      const enough = !!adjusted && n > 0 && mine != null && !crossCity;
       const amount = (value) => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
       const diff = enough ? mine - adjusted[0] : 0;
       const domainMin = enough ? Math.round(adjusted[1] * .82) : 0;
@@ -105,9 +105,7 @@ class Component extends DCLogic {
         recap_range_style: enough ? 'left:' + position(adjusted[1]) + '%;width:' + Math.max(4, position(adjusted[2]) - position(adjusted[1])) + '%' : '',
         recap_median_style: enough ? 'left:' + position(adjusted[0]) + '%' : '', recap_you_style: enough ? 'left:' + position(mine) + '%' : '',
         recap_missing: crossCity ? 'Ваши заказы относятся к другому городу, личное сравнение недоступно' :
-          (period === 'today' ? 'За сегодня выборка слишком мала, сравнение появится позже' :
-          (period === 'custom' ? 'Для выбранных дат сопоставимой выборки пока нет' :
-            (n > 0 && n < CC_MIN_N ? 'Недостаточно данных: меньше 30 курьеров' : 'Для этой группы данных пока нет'))),
+          (period === 'custom' ? 'Для выбранных дат сопоставимой выборки пока нет' : 'Для этой группы данных пока нет'),
         on_settings: typeof p.onSettings === 'function' ? p.onSettings : (() => {}),
         // на экране настройки сравнения кнопка настройки не нужна
         has_settings: typeof p.onSettings === 'function'
@@ -120,12 +118,11 @@ class Component extends DCLogic {
     const mine = p.mine || null;
     const cityData = CC_BASE[city];
     const crossCity = !!mine && !!p.mineCity && p.mineCity !== city;
-    const delayed = period === 'today';
-    const keys = !cityData || delayed ? [] : Object.keys((cityData[transport] || {})).filter((k) => (svcFilter === 'all' || k === svcFilter) && (!p.onlyMine || (mine && mine[k])));
+    const keys = !cityData ? [] : Object.keys((cityData[transport] || {})).filter((k) => (svcFilter === 'all' || k === svcFilter) && (!p.onlyMine || (mine && mine[k])));
     const rows = keys.map((k) => {
       const c = ccCohort(city, transport, k, period);
       const my = !crossCity && mine ? mine[k] : null;
-      const enough = !!c && c.n >= CC_MIN_N;
+      const enough = !!c && c.n > 0;
       const diff = my && enough ? Math.round(((my.incomeH - c.incomeH) / c.incomeH) * 100) : 0;
       const metric = (label, m, med, unit) => ({ label, mine: m == null ? '—' : ccNum(m) + unit, median: ccNum(med) + unit });
       return {
@@ -147,8 +144,8 @@ class Component extends DCLogic {
       recap_mode: false, legacy_mode: true,
       title: p.title || 'Я и другие курьеры',
       basis_note: 'Медиана курьеров Разноса: ' + ((cityData && city === 'spb') ? 'Санкт-Петербург' : (city === 'moscow' ? 'Москва' : 'выбранный город')) + ', ' + (CC_TRANSPORT[transport] || transport) + ', тот же сервис и период. Доход до расходов, начисления за час на линии',
-      show_delay: delayed && !!cityData, show_no_city: !cityData, show_cross_city: crossCity && !!cityData && !delayed,
-      rows, min_n: CC_MIN_N, show_no_rows: !!cityData && !delayed && rows.length === 0
+      show_no_city: !cityData, show_cross_city: crossCity && !!cityData,
+      rows, show_no_rows: !!cityData && rows.length === 0
     };
   }
 }

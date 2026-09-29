@@ -2,54 +2,73 @@
 <helmet data-dc-atomics>
   <link rel="stylesheet" href="./raznos-v3.css" />
   <style>
-    .rnn { box-sizing: border-box; width: 100%; max-width: 100%; text-align: left; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .rnn { box-sizing: border-box; width: 100%; max-width: 100%; text-align: left; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .rnn-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .rnn-head-copy { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
     .rnn-title { font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
-    .rnn-now { box-sizing: border-box; display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 12px; background: var(--raznos-green-tint); }
-    .rnn-now-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-    .rnn-now-lab { font: 600 11px var(--raznos-font); text-transform: uppercase; letter-spacing: 0.04em; color: var(--raznos-green-deep); }
-    .rnn-now-name { font: 700 16px var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .rnn-now-sub { font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .rnn-now-pay { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); flex: none; font-variant-numeric: tabular-nums; }
-    .rnn-next { display: flex; align-items: center; gap: 8px; padding: 0 2px; min-width: 0; }
-    .rnn-next-lab { font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); flex: none; }
-    .rnn-next-name { font: 600 13px var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-    .rnn-next-pay { font: 600 12px var(--raznos-mono); color: var(--raznos-ink-3); margin-left: auto; flex: none; }
+    .rnn-day { font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); font-variant-numeric: tabular-nums; }
+    .rnn-row { box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 0; border-radius: 12px; background: var(--raznos-surface-2); color: var(--raznos-ink); text-align: left; font: inherit; cursor: pointer; }
+    .rnn-row.rnn-row-now { background: var(--raznos-green-tint); }
+    .rnn-row:focus-visible, .rnn-open:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .rnn-row-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .rnn-row-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .rnn-row-lab { font: 600 11px var(--raznos-font); text-transform: uppercase; letter-spacing: 0.04em; color: var(--raznos-ink-3); }
+    .rnn-row-now .rnn-row-lab { color: var(--raznos-green-deep); }
+    .rnn-row-name { font: 700 15px var(--raznos-font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rnn-row-sub { font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+    .rnn-row-hint { flex: none; font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); font-variant-numeric: tabular-nums; }
+    .rnn-row-now .rnn-row-hint { color: var(--raznos-green-deep); }
+    .rnn-warning { padding: 8px 10px; border-radius: 10px; background: color-mix(in oklab, var(--raznos-red) 10%, var(--raznos-surface)); color: var(--raznos-red); font: 600 12.5px/1.35 var(--raznos-font); }
     .rnn-open { align-self: flex-start; background: none; border: 0; padding: 0; cursor: pointer; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); display: inline-flex; align-items: center; gap: 4px; }
   </style>
 </helmet>
 <div class="rnn">
-  <span class="rnn-title">Сейчас и дальше</span>
-  <div class="rnn-now">
-    <dc-import name="RaznosIcon" svc="{{ now_svc }}" alt="{{ now_name }}" size="md"></dc-import>
-    <span class="rnn-now-body">
-      <span class="rnn-now-lab">Сейчас по плану</span>
-      <span class="rnn-now-name">{{ now_name }}</span>
-      <span class="rnn-now-sub">{{ now_sub }}</span>
-    </span>
-    <span class="rnn-now-pay">{{ now_pay }} ₽/ч</span>
+  <div class="rnn-head">
+    <span class="rnn-head-copy"><span class="rnn-title">{{ title }}</span><span class="rnn-day">{{ day_line }}</span></span>
+    <sc-if value="{{ is_on }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ on_end }}">Завершить</button></sc-if>
+    <sc-if value="{{ is_idle }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-primary raznos-btn-small" onClick="{{ on_start }}">Начать смену</button></sc-if>
   </div>
-  <div class="rnn-next">
-    <span class="rnn-next-lab">Дальше {{ next_time }}</span>
-    <dc-import name="RaznosIcon" svc="{{ next_svc }}" alt="{{ next_name }}" size="sm"></dc-import>
-    <span class="rnn-next-name">{{ next_name }}</span>
-    <span class="rnn-next-pay">{{ next_pay }} ₽/ч</span>
-  </div>
-  <button type="button" class="rnn-open" onClick="{{ open_plan }}">Открыть план дня<span class="raznos-row-chevron">›</span></button>
+  <sc-for list="{{ rows }}" as="row" hint-placeholder-count="2">
+    <button type="button" class="{{ row.cls }}" onClick="{{ row.tap }}" aria-label="{{ row.aria }}">
+      <dc-import name="RaznosIcon" svc="{{ row.svc }}" alt="{{ row.title }}" size="md"></dc-import>
+      <span class="rnn-row-body"><span class="rnn-row-top"><span class="rnn-row-lab">{{ row.label }}</span><span class="rnn-row-hint">{{ row.hint }}</span></span><span class="rnn-row-name">{{ row.title }}</span><span class="rnn-row-sub">{{ row.sub }}</span></span>
+    </button>
+  </sc-for>
+  <sc-if value="{{ warning }}" hint-placeholder-val="{{ true }}"><span class="rnn-warning">{{ warning }}</span></sc-if>
+  <button type="button" class="rnn-open" onClick="{{ open_plan }}">План дня<span class="raznos-row-chevron">›</span></button>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"onOpenPlan":{"editor":null},"$preview":{"width":390,"height":190}}'>
-// виджет Сейчас и дальше для раздела Сегодня: чистый гид, текущий и следующий час из плана
-const RNN_SVC = { samokat: 'Самокат', vkusvill: 'ВкусВилл', 'yandex-eda': 'Яндекс Еда' };
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"text","default":"on"},"dayLine":{"editor":"text","default":"Рабочий день 09:00–20:00 · осталось 4 ч 20 мин"},"rows":{"editor":null},"warning":{"editor":"text","default":"Не успеете доехать: между сменами 0 мин, дорога ≈ 20 мин"},"onEnd":{"editor":null},"onStart":{"editor":null},"onOpenPlan":{"editor":null},"onOpenShift":{"editor":null},"$preview":{"width":390,"height":260}}'>
+// Сейчас и дальше в Сегодня: бронь из Смен важнее плана, план подставляется только в свободные часы
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
-    const openPlan = typeof p.onOpenPlan === 'function' ? p.onOpenPlan : (() => {});
-    const nowSvc = p.nowSvc || 'vkusvill';
-    const nextSvc = p.nextSvc || 'yandex-eda';
+    const noop = () => {};
+    const openShift = typeof p.onOpenShift === 'function' ? p.onOpenShift : noop;
+    const openPlan = typeof p.onOpenPlan === 'function' ? p.onOpenPlan : noop;
+    const state = p.state || 'on';
+    const rows = (p.rows || [
+      { svc: 'vkusvill', kind: 'now', source: 'booking', title: 'ВкусВилл', time: '14:00–17:00', place: 'Магазин на Правды, 24', hint: 'ещё 1 ч 20 мин' },
+      { svc: 'yandex-eda', kind: 'next', source: 'booking', title: 'Яндекс Еда', time: '17:00–20:00', place: 'Зона Беговой', hint: 'через 1 ч 20 мин' }
+    ]).map((row) => {
+      const now = row.kind === 'now';
+      const label = (now ? 'Сейчас' : 'Дальше') + (row.source === 'booking' ? ' · бронь' : ' · по плану');
+      const sub = [row.time, row.source === 'booking' ? row.place : (row.pay ? row.pay + ' ₽/ч' : '')].filter(Boolean).join(' · ');
+      return Object.assign({}, row, {
+        label, sub,
+        cls: 'rnn-row' + (now ? ' rnn-row-now' : ''),
+        aria: label + ', ' + row.title + ', ' + sub + (row.hint ? ', ' + row.hint : ''),
+        // бронь открывает Смены, час из плана открывает план дня
+        tap: row.source === 'booking' ? () => openShift(row) : openPlan
+      });
+    });
+    const warning = p.warning === undefined ? 'Не успеете доехать: между сменами 0 мин, дорога ≈ 20 мин' : (p.warning || '');
     return {
-      now_svc: nowSvc, now_name: RNN_SVC[nowSvc] || 'ВкусВилл',
-      now_sub: p.nowSub || 'Центр · 13:00–14:00',
-      now_pay: p.nowPay || '1 370',
-      next_time: p.nextTime || '14:00', next_svc: nextSvc, next_name: RNN_SVC[nextSvc] || 'Яндекс Еда', next_pay: p.nextPay || '1 160',
+      title: state === 'idle' ? 'Смена не начата' : 'Сейчас и дальше',
+      day_line: p.dayLine === undefined ? 'Рабочий день 09:00–20:00 · осталось 4 ч 20 мин' : p.dayLine,
+      is_on: state === 'on', is_idle: state === 'idle',
+      rows, warning,
+      on_end: typeof p.onEnd === 'function' ? p.onEnd : noop,
+      on_start: typeof p.onStart === 'function' ? p.onStart : noop,
       open_plan: openPlan
     };
   }

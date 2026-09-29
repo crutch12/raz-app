@@ -1,0 +1,38 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-shifts.css" /></helmet>
+<article class="{{ cls }}" aria-label="{{ aria }}">
+  <div class="raznos-shift-head">
+    <dc-import name="RaznosIcon" svc="{{ svc }}" size="sm"></dc-import>
+    <span class="raznos-shift-where"><strong>{{ title }}</strong><small>{{ place }}</small></span>
+    <span class="{{ status_cls }}">{{ status }}</span>
+  </div>
+  <div class="raznos-shift-time"><strong>{{ time }}</strong><span>{{ duration }}</span><sc-if value="{{ countdown }}" hint-placeholder-val="{{ true }}"><em>{{ countdown }}</em></sc-if></div>
+  <sc-if value="{{ status_note }}" hint-placeholder-val="{{ false }}"><p class="raznos-shift-note">{{ status_note }}</p></sc-if>
+  <div class="raznos-shift-pay"><strong>{{ pay }}</strong><span>{{ pay_note }}</span><sc-if value="{{ tag }}" hint-placeholder-val="{{ false }}"><b class="raznos-shift-tag">{{ tag }}</b></sc-if></div>
+  <sc-if value="{{ rule }}" hint-placeholder-val="{{ true }}"><p class="{{ rule_cls }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>{{ rule }}</span></p></sc-if>
+  <sc-if value="{{ conflict }}" hint-placeholder-val="{{ false }}"><p class="raznos-shift-conflict"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg><span>{{ conflict }}</span></p></sc-if>
+  <sc-if value="{{ has_action }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-shift-action" onClick="{{ on_open }}">{{ action }}</button></sc-if>
+</article>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"svc":{"editor":"text","default":"yandex-eda"},"title":{"editor":"text","default":"Яндекс Еда"},"place":{"editor":"text","default":"Зона Беговой, Ленинградский пр-т"},"time":{"editor":"text","default":"17:00–20:00"},"duration":{"editor":"text","default":"3 ч"},"countdown":{"editor":"text","default":"через 1 ч 20 мин"},"status":{"editor":"text","default":"Подтверждена"},"tone":{"editor":"text","default":"ok"},"statusNote":{"editor":"text","default":""},"pay":{"editor":"text","default":"≈ 1 170 ₽"},"payNote":{"editor":"text","default":"390 ₽/ч по условиям сервиса, не проверено"},"tag":{"editor":"text","default":""},"rule":{"editor":"text","default":"Бесплатная отмена закончилась в 12:00 вчера, дальше ≈ 300 ₽ и минус приоритет"},"ruleTone":{"editor":"text","default":"warn"},"conflict":{"editor":"text","default":"Не успеете доехать: ВкусВилл до 17:00, дорога ≈ 20 мин"},"action":{"editor":"text","default":"Открыть в Яндекс Про"},"muted":{"editor":"boolean","default":false},"onOpen":{"editor":null},"$preview":{"width":366,"height":300}}'>
+// своя смена в любом сервисе: время, место, статус, ставка, правило отмены и пересечения
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const tone = p.tone || 'ok';
+    const val = (key, fallback) => p[key] === undefined ? fallback : (p[key] || '');
+    return {
+      svc: p.svc || 'yandex-eda', title: val('title', 'Яндекс Еда'), place: val('place', 'Зона Беговой, Ленинградский пр-т'),
+      time: val('time', '17:00–20:00'), duration: val('duration', '3 ч'), countdown: val('countdown', 'через 1 ч 20 мин'),
+      status: val('status', 'Подтверждена'), status_cls: 'raznos-shift-status raznos-is-' + tone, status_note: val('statusNote', ''),
+      pay: val('pay', '≈ 1 170 ₽'), pay_note: val('payNote', '390 ₽/ч по условиям сервиса, не проверено'), tag: val('tag', ''),
+      rule: val('rule', 'Бесплатная отмена закончилась в 12:00 вчера, дальше ≈ 300 ₽ и минус приоритет'),
+      rule_cls: 'raznos-shift-rule' + ((p.ruleTone || 'warn') === 'warn' ? ' raznos-is-warn' : ''),
+      conflict: val('conflict', 'Не успеете доехать: ВкусВилл до 17:00, дорога ≈ 20 мин'),
+      action: val('action', 'Открыть в Яндекс Про'), has_action: !!val('action', 'Открыть в Яндекс Про'),
+      cls: 'raznos-shift-card' + (p.muted ? ' raznos-is-muted' : '') + (tone === 'live' ? ' raznos-is-live' : ''),
+      aria: val('title', 'Яндекс Еда') + ', ' + val('time', '17:00–20:00') + ', ' + val('status', 'Подтверждена'),
+      on_open: typeof p.onOpen === 'function' ? p.onOpen : (() => {})
+    };
+  }
+}
+</script></body></html>

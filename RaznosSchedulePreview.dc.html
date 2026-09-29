@@ -7,72 +7,83 @@
     .rsp-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .rsp-title { font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
     .rsp-day { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
-    .rsp-hero { display: flex; align-items: baseline; gap: 8px; }
-    .rsp-value { font: 800 26px var(--raznos-font); letter-spacing: -0.02em; color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
-    .rsp-hero-sub { font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); }
     .rsp-slots { display: flex; flex-direction: column; gap: 6px; }
-    .rsp-slot { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--raznos-surface-2); }
-    .rsp-slot-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-    .rsp-slot-name { font: 600 14px var(--raznos-font); color: var(--raznos-ink); }
-    .rsp-slot-sub { font: 500 11px var(--raznos-font); color: var(--raznos-ink-3); }
-    .rsp-slot-pay { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; flex: none; }
+    .rsp-slot { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px; background: var(--raznos-surface-2); }
+    .rsp-slot.rsp-slot-plan { background: transparent; border: 1px dashed var(--raznos-line); }
+    .rsp-slot.rsp-slot-past { opacity: 0.55; }
+    .rsp-slot-time { flex: none; min-width: 88px; font: 600 12px var(--raznos-mono); color: var(--raznos-ink-2); font-variant-numeric: tabular-nums; }
+    .rsp-slot-name { flex: 1; min-width: 0; font: 600 14px var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rsp-tag { flex: none; font: 600 11.5px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rsp-tag.rsp-tag-book { color: var(--raznos-green-deep); }
+    .rsp-tag.rsp-tag-pending { color: var(--raznos-amber); }
     .rsp-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 10px; border-top: 1px solid var(--raznos-line); }
     .rsp-goal { font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); }
-    .rsp-goal b { font-weight: 700; color: var(--raznos-ink); }
     .rsp-open { font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); display: flex; align-items: center; gap: 4px; }
   </style>
 </helmet>
 <button type="button" class="rsp" onClick="{{ open }}" aria-label="{{ aria }}">
   <div class="rsp-head"><span style="display:inline-flex;align-items:center;gap:8px;color:var(--raznos-ink-2)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg><span class="rsp-title">Расписание</span></span><span class="rsp-day">{{ day_label }}</span></div>
-  <div class="rsp-hero"><span class="rsp-value">≈ {{ potential }} ₽</span><span class="rsp-hero-sub">{{ hours_label }}</span></div>
   <div class="rsp-slots">
-    <sc-for list="{{ svc_rows }}" as="r" hint-placeholder-count="3">
-      <div class="rsp-slot"><dc-import name="RaznosIcon" svc="{{ r.svc }}" alt="{{ r.name }}" size="sm"></dc-import><span class="rsp-slot-main"><span class="rsp-slot-name">{{ r.name }}</span><span class="rsp-slot-sub">{{ r.hours }} ч в графике</span></span><span class="rsp-slot-pay">≈ {{ r.total }} ₽</span></div>
+    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
+      <div class="{{ r.cls }}"><span class="rsp-slot-time">{{ r.time }}</span><dc-import name="RaznosIcon" svc="{{ r.svc }}" alt="{{ r.name }}" size="sm"></dc-import><span class="rsp-slot-name">{{ r.name }}</span><span class="{{ r.tag_cls }}">{{ r.tag }}</span></div>
     </sc-for>
   </div>
-  <div class="rsp-foot"><span class="rsp-goal">План недели <b>{{ planned }}</b> из цели <b>{{ goal }} ₽</b></span><span class="rsp-open">Открыть<span class="raznos-row-chevron">›</span></span></div>
+  <div class="rsp-foot"><span class="rsp-goal">{{ foot_note }}</span><span class="rsp-open">План дня<span class="raznos-row-chevron">›</span></span></div>
 </button>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"open":{"editor":null},"$preview":{"width":390,"height":300}}'>
-// превью плана на сегодня для хаба Работа: сводка по сервисам за день, демо
-const RSP_SVC = { samokat: 'Самокат', vkusvill: 'ВкусВилл', 'yandex-eda': 'Яндекс Еда' };
-const RSP_DEMO = [
-  { from: 9, to: 12, svc: 'samokat', pay: 1100 },
-  { from: 13, to: 15, svc: 'vkusvill', pay: 1370 },
-  { from: 15, to: 18, svc: 'yandex-eda', pay: 1240 }
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"open":{"editor":null},"blocks":{"editor":null},"bookings":{"editor":null},"today":{"editor":"text","default":"2026-09-15"},"nowMinutes":{"editor":null},"dayLabel":{"editor":"text","default":"Сегодня"},"$preview":{"width":390,"height":330}}'>
+// превью плана на сегодня для хаба Работа: брони из Смен важнее плана, план закрывает свободные часы
+const RSP_SVC = { samokat: 'Самокат', vkusvill: 'ВкусВилл', 'yandex-eda': 'Яндекс Еда', x5: 'X5 Доставка' };
+// план закрывает свободные часы графика свободным выходом, брони из Смен важнее
+const RSP_DEMO = [{ from: 9, to: 18, svc: 'yandex-eda' }];
+const RSP_FREE = ['yandex-eda'];
+const RSP_DEMO_BOOKED = [
+  { iso: '2026-09-15', svc: 'samokat', from: 540, to: 720, status: 'completed' },
+  { iso: '2026-09-15', svc: 'vkusvill', from: 840, to: 1020, status: 'active' },
+  { iso: '2026-09-15', svc: 'yandex-eda', from: 1020, to: 1200, status: 'confirmed' }
 ];
-const RSP_FMT = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-const RSP_ROUND = (n) => RSP_FMT(Math.round(n / 10) * 10);
+const RSP_TIME = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
     const open = typeof p.open === 'function' ? p.open : (() => {});
-    const src = (p.blocks && p.blocks.length) ? p.blocks : RSP_DEMO;
-    const goal = p.goal != null ? p.goal : 65000;
-    const planned = p.planned != null ? p.planned : 54800;
-    const dayLabel = p.dayLabel || 'Сегодня';
-
-    const agg = {}, order = [];
-    src.forEach((b) => {
-      if (!agg[b.svc]) { agg[b.svc] = { hours: 0, total: 0 }; order.push(b.svc); }
-      agg[b.svc].hours += (b.to - b.from);
-      agg[b.svc].total += b.pay * (b.to - b.from);
+    const today = p.today || '2026-09-15';
+    const now = p.nowMinutes == null ? 940 : p.nowMinutes;
+    const plan = ((p.blocks && p.blocks.length) ? p.blocks : RSP_DEMO).map((b) => ({ svc: b.svc, from: b.from * 60, to: b.to * 60 }));
+    const booked = (p.bookings || RSP_DEMO_BOOKED).filter((b) => b.iso === today && b.status !== 'cancelled' && b.status !== 'missed');
+    const edges = plan.concat(booked);
+    const start = Math.min.apply(null, edges.map((b) => b.from)), end = Math.max.apply(null, edges.map((b) => b.to));
+    // шаг полчаса, в каждом слоте бронь перекрывает план
+    const slots = [];
+    for (let m = start; m < end; m += 30) {
+      const b = booked.find((x) => m >= x.from && m < x.to);
+      const pl = b ? null : plan.find((x) => m >= x.from && m < x.to);
+      slots.push(b ? { key: 'b' + booked.indexOf(b), svc: b.svc, source: 'booking', status: b.status, m } : (pl ? { key: 'p' + pl.svc, svc: pl.svc, source: 'plan', m } : { key: '', m }));
+    }
+    const rows = [];
+    slots.forEach((sl) => {
+      const last = rows[rows.length - 1];
+      if (last && last.key === sl.key) { last.to = sl.m + 30; return; }
+      rows.push({ key: sl.key, svc: sl.svc, source: sl.source, status: sl.status, from: sl.m, to: sl.m + 30 });
     });
-    let potential = 0, workHours = 0;
-    order.forEach((k) => { potential += agg[k].total; workHours += agg[k].hours; });
-
-    const svcRows = order.map((k) => ({
-      svc: k, name: RSP_SVC[k] || k, hours: agg[k].hours, total: RSP_ROUND(agg[k].total)
-    }));
-
+    // прошедшие часы плана без брони не показываем, в них не выходили
+    const visible = rows.filter((r) => r.key && !(r.source === 'plan' && r.to <= now)).map((r) => {
+      const hours = (r.to - r.from) / 60;
+      const pending = r.status === 'requested' || r.status === 'tentative';
+      return {
+        svc: r.svc, name: RSP_SVC[r.svc] || r.svc, time: RSP_TIME(r.from) + '–' + RSP_TIME(r.to),
+        tag: r.source === 'booking' ? (pending ? 'заявка' : 'бронь') : (RSP_FREE.indexOf(r.svc) !== -1 ? 'свободный выход' : 'нужен слот'), need: r.source === 'plan' && RSP_FREE.indexOf(r.svc) === -1, hours,
+        tag_cls: 'rsp-tag' + (r.source === 'booking' ? (pending ? ' rsp-tag-pending' : ' rsp-tag-book') : (RSP_FREE.indexOf(r.svc) !== -1 ? ' rsp-tag-book' : ' rsp-tag-pending')),
+        cls: 'rsp-slot' + (r.source === 'plan' ? ' rsp-slot-plan' : '') + (r.to <= now ? ' rsp-slot-past' : '')
+      };
+    });
+    const hours = visible.reduce((sum, r) => sum + r.hours, 0);
+    const needSlot = visible.filter((r) => r.need).length;
+    const dayLabel = p.dayLabel || 'Сегодня';
     return {
-      open,
-      day_label: dayLabel,
-      potential: RSP_ROUND(potential),
-      hours_label: workHours + ' ч в графике',
-      svc_rows: svcRows,
-      goal: RSP_FMT(goal),
-      planned: RSP_ROUND(planned),
-      aria: 'Расписание, ' + dayLabel + ', потенциал примерно ' + RSP_ROUND(potential) + ' рублей, ' + workHours + ' часов в графике, открыть полный план'
+      open, day_label: dayLabel,
+      rows: visible,
+      foot_note: String(hours).replace('.', ',') + ' ч' + (needSlot ? ' · нужно взять слот: ' + needSlot : ''),
+      aria: 'Расписание, ' + dayLabel + ', ' + hours + ' часов, открыть план дня'
     };
   }
 }
