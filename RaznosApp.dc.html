@@ -3759,7 +3759,7 @@
               const title = statsPeriod === 'custom' ? (customDays === 1 ? a.getDate() + ' ' + RU_MONTHS_GEN[a.getMonth()] : a.getDate() + ' ' + RU_MONTHS_GEN[a.getMonth()] + ' – ' + b.getDate() + ' ' + RU_MONTHS_GEN[b.getMonth()]) : statsPeriod === 'year' ? a.getFullYear() + ' год' : (statsPeriod === 'month' ? ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'][a.getMonth()] + ' ' + a.getFullYear() :
                 (statsPeriod === 'week' ? (a.getMonth() === b.getMonth() ? a.getDate() + '–' + b.getDate() + ' ' + RU_MONTHS_GEN[b.getMonth()] : a.getDate() + ' ' + RU_MONTHS_GEN[a.getMonth()] + ' – ' + b.getDate() + ' ' + RU_MONTHS_GEN[b.getMonth()]) : a.getDate() + ' ' + RU_MONTHS_GEN[a.getMonth()]));
               const running = range[0] <= TODAY_ISO && range[1] >= TODAY_ISO && range[0] !== range[1];
-              points.push({ label, title: title + (running ? ', период идёт' : ''), values, medians, running });
+              points.push({ k, label, title: title + (running ? ', период идёт' : ''), values, medians, running });
             }
             // годы, по которым данных нет, не показываем
             return statsPeriod === 'year' ? points.filter((pt) => pt.values.earn != null) : points;
@@ -4623,7 +4623,7 @@
               { label: 'Район получения', options: [['all', 'Все районы']].concat(STATS_DISTRICTS.map((name) => [name, name])).map(([value, label]) => ({ label, selected: statsCohortDistrict === value, tap: () => set({ statsCohortDistrict: value }) })) }
             ],
             stats_top_scope: (city === 'spb' ? 'Санкт-Петербург' : 'Москва') + ' · заработок за 7–13 сентября',
-            stats_cohort_median_hint: statsStep && statsCohortService === 'all' && statsCohortDistrict === 'all' && statsTrendSeries.length ? statsTrendSeries[5].medians.earn : null,
+            stats_cohort_median_hint: statsStep && statsCohortService === 'all' && statsCohortDistrict === 'all' && statsTrendSeries.some((pt) => pt.k === statsStep) ? statsTrendSeries.find((pt) => pt.k === statsStep).medians.earn : null,
             stats_time_caption: statsHours == null ? 'Часы на линии неизвестны' : String(statsHours).replace('.', ',') + ' ч на линии',
             stats_orders_caption: statsOrdersCount == null ? 'Выплаты и детали по каждому заказу' : statsOrdersCount + ' ' + ruPlural(statsOrdersCount, 'заказ', 'заказа', 'заказов') + ', выплаты и детали',
             stats_trend_caption: statsTrendPrev.earn == null ? 'Сравнения с прошлым периодом пока нет' : 'К прошлому периоду такой же длины',
