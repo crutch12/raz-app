@@ -13,6 +13,8 @@
     .reb-exp { display: flex; align-items: center; gap: 8px; width: 100%; background: none; border: 0; padding: 8px 0 0; font: inherit; color: inherit; text-align: left; cursor: pointer; border-top: 1px solid var(--raznos-line); }
     .reb-exp-name { flex: 1; font: 600 14px var(--raznos-font); color: var(--raznos-ink); }
     .reb-exp-sum { font: 700 14px var(--raznos-mono); color: var(--raznos-red); font-variant-numeric: tabular-nums; }
+    .reb-add { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border: 1px solid var(--raznos-line-strong); border-radius: 999px; background: var(--raznos-surface); font: 600 13.5px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; }
+    .reb-add:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
     .reb-name { font: 600 14px var(--raznos-font); color: var(--raznos-ink); }
     .reb-meta { margin-left: auto; display: flex; align-items: baseline; gap: 8px; }
     .reb-cnt { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
@@ -33,8 +35,9 @@
     </div>
   </sc-for>
   <button type="button" class="reb-exp" onClick="{{ open_expenses }}"><span class="reb-exp-name">Расходы</span><span class="reb-exp-sum">−{{ expenses }} ₽</span><span class="raznos-row-chevron">›</span></button>
+  <sc-if value="{{ has_add }}" hint-placeholder-val="{{ true }}"><button type="button" class="reb-add" onClick="{{ add_expense }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Добавить расход</button></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":230}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"services":{"editor":null},"expenses":{"editor":null},"onOpenService":{"editor":null},"onOpenExpenses":{"editor":null},"onAddExpense":{"editor":null},"$preview":{"width":390,"height":230}}'>
 // разбивка заработка по сервисам прогресс-баром для раздела Сегодня, по мотивам Gridwise Weekly Recap
 const REB_SVC = { samokat: 'Самокат', vkusvill: 'ВкусВилл', 'yandex-eda': 'Яндекс Еда' };
 const REB_DEMO = [
@@ -60,7 +63,9 @@ class Component extends DCLogic {
       fillStyle: 'width:' + Math.max(6, Math.round(r.sum / max * 100)) + '%;background:' + REB_COLOR(r.svc),
       open: () => onOpenService(r.svc)
     }));
-    return { total: REB_FMT(total), rows, expenses: REB_FMT(expenses), open_expenses: openExpenses };
+    // добавить расход прямо из разбивки, отдельная кнопка на экране не нужна
+    const addExpense = typeof p.onAddExpense === 'function' ? p.onAddExpense : null;
+    return { total: REB_FMT(total), rows, expenses: REB_FMT(expenses), open_expenses: openExpenses, has_add: !!addExpense, add_expense: addExpense || (() => {}) };
   }
 }
 </script></body></html>

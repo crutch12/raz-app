@@ -1,0 +1,89 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rcm { position: relative; width: 100%; aspect-ratio: 360 / 440; overflow: hidden; background: oklch(0.955 0.008 95); }
+    /* fill: карта занимает весь ближайший позиционированный контейнер, например экран или карточку */
+    .rcm.rcm-fill { position: absolute; inset: 0; aspect-ratio: auto; }
+    .rcm > svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    /* до согласия показываем только размытый намёк на точки, сами места не читаются */
+    .rcm.rcm-locked > svg { filter: saturate(0.7) blur(3px); transform: scale(1.04); }
+    .rcm-land { fill: oklch(0.955 0.008 95); }
+    .rcm-block { fill: oklch(0.93 0.01 95); }
+    .rcm-park { fill: oklch(0.9 0.06 145); }
+    .rcm-river { fill: none; stroke: oklch(0.86 0.05 235); stroke-width: 16; stroke-linecap: round; stroke-linejoin: round; }
+    .rcm-ring { fill: none; stroke: oklch(0.99 0.005 95); stroke-width: 6; }
+    .rcm-ring-ttk { fill: none; stroke: oklch(0.93 0.07 85); stroke-width: 5; }
+    .rcm-road { fill: none; stroke: oklch(0.99 0.005 95); stroke-width: 4; stroke-linecap: round; }
+    .rcm-street { fill: none; stroke: oklch(0.99 0.005 95); stroke-width: 1.6; }
+    .rcm-label { font: 700 8.5px var(--raznos-font); letter-spacing: 0.08em; fill: oklch(0.55 0.015 250); text-anchor: middle; }
+    .rcm-dot { stroke: #fff; stroke-width: 2.2; }
+    .rcm-me-halo { fill: color-mix(in oklab, var(--raznos-dark) 18%, transparent); }
+    .rcm-me { fill: var(--raznos-dark); stroke: #fff; stroke-width: 3; }
+    .rcm-me-label { font: 800 11px var(--raznos-font); fill: var(--raznos-dark); paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+    .rcm-compact .rcm-label { display: none; }
+    @media (prefers-reduced-motion: no-preference) {
+      .rcm-me-halo { transform-box: fill-box; transform-origin: center; animation: rcm-pulse 2.4s cubic-bezier(.16, 1, .3, 1) infinite; }
+      @keyframes rcm-pulse { from { transform: scale(0.6); opacity: 1; } to { transform: scale(1.8); opacity: 0; } }
+    }
+  </style>
+</helmet>
+<div class="{{ cls }}" role="img" aria-label="{{ aria }}">
+  <svg viewBox="0 0 360 440" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <rect class="rcm-land" x="0" y="0" width="360" height="440" />
+    <path class="rcm-block" d="M20 40h70v50H20zM110 30h60v45h-60zM200 36h70v40h-70zM290 50h60v60h-60zM24 300h60v60H24zM250 360h80v50h-80zM110 380h70v44h-70z" />
+    <path class="rcm-park" d="M40 110c22-14 52-8 60 12s-10 40-34 42-44-12-42-28 4-18 16-26z" />
+    <path class="rcm-park" d="M104 300c18-10 44-4 52 12s-4 30-26 32-38-8-38-22 2-14 12-22z" />
+    <path class="rcm-park" d="M280 120c16-12 42-10 50 6s-6 34-28 34-34-10-34-22 2-12 12-18z" />
+    <path class="rcm-park" d="M150 196c8-6 20-5 24 3s-3 16-13 16-16-5-15-11 0-5 4-8z" />
+    <g class="rcm-street">
+      <path d="M0 70h360M0 140h360M0 250h360M0 330h360M0 400h360M60 0v440M130 0v440M250 0v440M310 0v440" />
+    </g>
+    <ellipse class="rcm-ring-ttk" cx="180" cy="215" rx="150" ry="160" />
+    <path class="rcm-road" d="M180 215L40 10M180 215L0 170M180 215L10 380M180 215L150 440M180 215L360 300M180 215L330 0M180 215L230 0" />
+    <path class="rcm-river" d="M-10 150C40 140 60 190 96 214s70 20 90 10 34-24 56-8 18 60 40 86 56 34 90 30" />
+    <ellipse class="rcm-ring" cx="180" cy="215" rx="82" ry="86" />
+    <text class="rcm-label" x="92" y="86">БЕГОВОЙ</text>
+    <text class="rcm-label" x="186" y="150">ТВЕРСКОЙ</text>
+    <text class="rcm-label" x="96" y="184">ПРЕСНЕНСКИЙ</text>
+    <text class="rcm-label" x="150" y="252">АРБАТ</text>
+    <text class="rcm-label" x="52" y="272">ДОРОГОМИЛОВО</text>
+    <text class="rcm-label" x="150" y="360">ХАМОВНИКИ</text>
+    <text class="rcm-label" x="252" y="262">ЗАМОСКВОРЕЧЬЕ</text>
+    <text class="rcm-label" x="286" y="190">БАСМАННЫЙ</text>
+    <sc-for list="{{ dots }}" as="d" hint-placeholder-count="12"><circle class="rcm-dot" cx="{{ d.x }}" cy="{{ d.y }}" r="{{ d.r }}" style="{{ d.style }}" /></sc-for>
+    <sc-if value="{{ show_me }}" hint-placeholder-val="{{ true }}">
+      <circle class="rcm-me-halo" cx="{{ me_x }}" cy="{{ me_y }}" r="16" />
+      <circle class="rcm-me" cx="{{ me_x }}" cy="{{ me_y }}" r="{{ me_r }}" />
+      <text class="rcm-me-label" x="{{ me_lx }}" y="{{ me_ly }}">вы</text>
+    </sc-if>
+  </svg>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"dots":{"editor":null},"svc":{"editor":"text","default":"all"},"me":{"editor":"boolean","default":true},"locked":{"editor":"boolean"},"compact":{"editor":"boolean"},"fill":{"editor":"boolean"},"$preview":{"width":360,"height":440}}'>
+// условная схема центра Москвы: курьеры на смене точками в цвет сервиса, вы тёмной точкой
+// это не настоящая карта, точки примерные, с точностью до квартала
+const RCM_DEMO = [
+  [70, 60, 'samokat'], [104, 96, 'samokat'], [120, 120, 'vkusvill'], [84, 132, 'yandex-eda'], [150, 104, 'yandex-eda'],
+  [178, 128, 'samokat'], [206, 118, 'x5'], [196, 170, 'yandex-eda'], [230, 150, 'vkusvill'], [160, 180, 'samokat'],
+  [132, 214, 'yandex-eda'], [210, 206, 'yandex-eda'], [244, 222, 'samokat'], [272, 176, 'x5'], [300, 150, 'yandex-eda'],
+  [58, 230, 'vkusvill'], [96, 256, 'samokat'], [168, 270, 'x5'], [212, 280, 'yandex-eda'], [264, 290, 'vkusvill'],
+  [300, 250, 'samokat'], [130, 318, 'yandex-eda'], [190, 330, 'samokat'], [240, 350, 'yandex-eda'], [70, 350, 'x5'],
+  [320, 330, 'yandex-eda'], [150, 400, 'vkusvill'], [36, 190, 'yandex-eda'], [330, 90, 'samokat'], [226, 60, 'yandex-eda']
+];
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const svc = p.svc || 'all';
+    const locked = !!p.locked;
+    const compact = !!p.compact;
+    const all = (p.dots || RCM_DEMO.map(([x, y, s]) => ({ x, y, svc: s })));
+    const dots = all.filter((d) => svc === 'all' || d.svc === svc).map((d) => ({ x: d.x, y: d.y, r: compact ? 7 : 6.5, style: 'fill:var(--raznos-svc-' + d.svc + ')' }));
+    const showMe = p.me !== false;
+    return {
+      cls: 'rcm' + (p.fill ? ' rcm-fill' : '') + (locked ? ' rcm-locked' : '') + (compact ? ' rcm-compact' : ''),
+      aria: locked ? 'Карта курьеров скрыта, пока вы не показываете себя' : 'Условная карта центра, курьеров на смене: ' + dots.length,
+      dots: locked ? dots.filter((d, i) => i % 2 === 0) : dots, show_me: showMe && !locked, me_x: 118, me_y: 150, me_lx: 130, me_ly: 154, me_r: compact ? 7 : 7.5
+    };
+  }
+}
+</script></body></html>

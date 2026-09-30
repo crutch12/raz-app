@@ -15,8 +15,8 @@
 .raznos-shifts { display: flex; flex-direction: column; gap: var(--raznos-screen-gap, 12px); color: var(--sh-ink); }
 .raznos-shifts-bar { justify-content: flex-start !important; gap: 10px; }
 
-.raznos-shifts-summary { display: flex; flex-direction: column; gap: 6px; padding: 18px 18px 20px; border-radius: 18px; background: var(--sh-card); }
 .raznos-shifts-range { color: var(--sh-muted); font: 600 13px var(--raznos-font); }
+.raznos-shifts-summary { display: flex; flex-direction: column; gap: 6px; padding: 18px 18px 20px; border-radius: 18px; background: var(--sh-card); }
 .raznos-shifts-summary-title { margin: 0; font: 750 24px/1.15 var(--raznos-font); letter-spacing: -0.03em; }
 .raznos-shifts-summary-title em { font-style: normal; color: var(--raznos-green-deep); }
 .raznos-shifts-summary-sub { margin: 0; color: var(--sh-muted); font: 500 14px/1.35 var(--raznos-font); }
@@ -45,6 +45,8 @@
 .raznos-week-free { min-height: 12px; color: var(--raznos-green-deep); font: 650 11px/1.2 var(--raznos-font); white-space: nowrap; }
 .raznos-week-day.raznos-is-today .raznos-week-dow { color: var(--raznos-green-deep); }
 .raznos-week-day.raznos-is-past .raznos-week-date { color: var(--sh-muted); }
+.raznos-week-done { color: var(--raznos-green-deep); }
+.raznos-week-day.raznos-is-selected .raznos-week-done { color: var(--raznos-on-dark); }
 .raznos-week-day.raznos-is-selected { background: var(--raznos-dark); color: var(--raznos-on-dark); }
 .raznos-week-day.raznos-is-selected .raznos-week-dow,
 .raznos-week-day.raznos-is-selected .raznos-week-date,
@@ -52,8 +54,6 @@
 .raznos-week-day.raznos-is-selected .raznos-week-dot { box-shadow: 0 0 0 1.5px var(--raznos-dark); }
 .raznos-week-day:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 1px; }
 
-.raznos-shifts-past { align-self: stretch; min-height: 40px; border: 0; border-radius: 12px; background: transparent; color: var(--sh-muted); font: 600 13px var(--raznos-font); cursor: pointer; }
-.raznos-shifts-all { align-self: flex-start; min-height: 36px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--sh-card); color: var(--raznos-green-deep); font: 650 13px var(--raznos-font); cursor: pointer; }
 .raznos-shifts-day { display: flex; flex-direction: column; gap: 8px; }
 .raznos-shifts-day-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 8px 4px 0; }
 .raznos-shifts-day-head h3 { margin: 0; display: inline-flex; align-items: center; gap: 8px; font: 750 17px/1.2 var(--raznos-font); letter-spacing: -0.015em; }

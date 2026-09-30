@@ -101,10 +101,9 @@
     </div>
 
     <p class="raznos-text-tiny">{{ source_note }}</p>
-    <div class="raznos-sticky-actions"><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ open_plan }}">Поставить в план</button></div>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"initialView":{"editor":"text","default":"week"},"open":{"editor":null},"onOpenPlan":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"transportTitle":{"editor":"text","default":"велосипед"},"workStart":{"editor":"number","default":9},"workEnd":{"editor":"number","default":18},"$preview":{"width":390,"height":250}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"initialView":{"editor":"text","default":"week"},"open":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"transportTitle":{"editor":"text","default":"велосипед"},"workStart":{"editor":"number","default":9},"workEnd":{"editor":"number","default":18},"$preview":{"width":390,"height":250}}'>
 // когда выгоднее по мотивам Gridwise When to Work, два представления: день по часам и неделя по дням
 // один компонент на карточку хаба Работа и экран, чтобы цифры совпадали
 const RBT_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -275,7 +274,6 @@ class Component extends DCLogic {
       filters,
       on_filter: (key, k) => set({ [key]: k, hour: null }),
       // в план уходит лучшее окно выбранного дня, умное расписание добавляет его как намерение, а не бронь
-      open_plan: () => { if (typeof p.onOpenPlan === 'function') p.onOpenPlan({ day: selDay, from: wStart, to: wStart + winLen, dayTitle: RBT_DAYS_FULL[selDay] }); },
       source_note: 'По заказам курьеров Разноса: ' + (p.cityTitle || 'Москва') + ', ' + (dist.k === 'all' ? 'все районы' : dist.label) + ', ' + tr.label.toLowerCase() + ', последние 4 недели'
     };
   }

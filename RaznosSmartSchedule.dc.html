@@ -2,7 +2,8 @@
 <helmet data-dc-atomics>
   <link rel="stylesheet" href="./raznos-v3.css" />
   <style>
-    .rss-screen { position: relative; }
+    /* диалоги и шторки считаются от рамки телефона, а не от длинного тела экрана */
+    .rss-screen { position: static; }
     .rss-bar { justify-content: space-between; gap: 10px; }
     .rss-bar-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
     .rss-intro { margin: -4px 0 0; font: 500 13px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
@@ -14,11 +15,12 @@
     .rss-day-dots { display: flex; gap: 2px; height: 5px; }
     .rss-day-dots > i { width: 5px; height: 5px; border-radius: 50%; }
     .rss-day.rss-day-off > .rss-day-n { color: var(--raznos-ink-3); }
+    .rss-day.rss-day-past > .rss-day-n { color: var(--raznos-ink-3); }
+    .rss-day > .rss-day-done { color: var(--raznos-green-deep); }
+    .rss-day.raznos-is-active > .rss-day-done { color: var(--raznos-on-dark); }
     .rss-day.raznos-is-active { background: var(--raznos-dark); color: var(--raznos-on-dark); }
     .rss-day.raznos-is-active > .rss-day-d { color: color-mix(in oklab, var(--raznos-on-dark) 70%, transparent); }
     .rss-day.raznos-is-active > .rss-day-n { color: var(--raznos-on-dark); }
-    .rss-week { display: flex; align-items: center; justify-content: space-between; gap: 10px; font: 500 12.5px/1.35 var(--raznos-font); color: var(--raznos-ink-2); }
-    .rss-week > b { font-weight: 700; color: var(--raznos-ink); }
     .rss-link { flex: none; background: none; border: 0; padding: 0; cursor: pointer; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); }
     .rss-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; padding-top: 4px; }
     .rss-head-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -26,10 +28,9 @@
     .rss-head-sub { font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
     .rss-total { font: 800 22px var(--raznos-font); letter-spacing: -0.02em; color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
     .rss-list { display: flex; flex-direction: column; gap: 8px; }
-    .rss-gap { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 14px; border: 1px dashed var(--raznos-line-strong); }
-    .rss-gap-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-    .rss-gap-time { font: 700 13px var(--raznos-mono); color: var(--raznos-ink-2); font-variant-numeric: tabular-nums; }
-    .rss-gap-text { font: 500 12.5px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rss-alts { display: flex; flex-direction: column; gap: 8px; margin-left: 14px; }
+    .rss-goal.rss-goal-sticky { position: sticky; top: 0; z-index: 4; box-shadow: 0 6px 16px rgba(20, 25, 40, 0.08); }
+    .rss-goal-done, .rss-goal-plan { transition: left .4s cubic-bezier(.16, 1, .3, 1), width .4s cubic-bezier(.16, 1, .3, 1); }
     .rss-now-line { display: flex; align-items: center; gap: 8px; font: 600 12px var(--raznos-mono); color: var(--raznos-red); }
     .rss-now-line::after { content: ""; flex: 1; height: 1px; background: var(--raznos-red); opacity: 0.6; }
     .rss-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 18px 16px; border-radius: 16px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
@@ -57,6 +58,22 @@
     .rss-settings { max-width: 330px; gap: 12px; }
     .rss-settings-group { display: flex; flex-direction: column; gap: 6px; }
     .rss-settings-label { font: 650 13px var(--raznos-font); color: var(--raznos-ink); }
+    .rss-goal { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 10px 14px; border: 0; border-radius: 14px; background: var(--raznos-surface); text-align: left; font: inherit; color: var(--raznos-ink); cursor: pointer; }
+    .rss-goal:focus-visible, .rss-shifts:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .rss-goal-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .rss-goal-top > b { font: 700 15px var(--raznos-font); font-variant-numeric: tabular-nums; }
+    .rss-goal-top > span { font: 600 12.5px var(--raznos-font); color: var(--raznos-green-deep); white-space: nowrap; }
+    .rss-goal-top > span.rss-goal-short { color: var(--raznos-ink-2); }
+    .rss-goal-track { position: relative; height: 6px; border-radius: 999px; background: var(--raznos-surface-2); overflow: hidden; }
+    .rss-goal-done { position: absolute; left: 0; top: 0; bottom: 0; background: var(--raznos-green); border-radius: 999px; }
+    .rss-goal-plan { position: absolute; top: 0; bottom: 0; background: color-mix(in oklab, var(--raznos-green) 35%, var(--raznos-surface-2)); }
+    .rss-shifts { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 10px 14px; border: 0; border-radius: 14px; background: var(--raznos-surface); text-align: left; font: inherit; color: var(--raznos-ink); cursor: pointer; }
+    .rss-shifts-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .rss-shifts-copy > b { font: 650 14px var(--raznos-font); }
+    .rss-shifts-copy > span { font: 600 12.5px var(--raznos-font); color: var(--raznos-red); }
+    .rss-choice { display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 12px; border: 1px solid var(--raznos-line); border-radius: 12px; background: var(--raznos-surface); text-align: left; font: inherit; color: var(--raznos-ink); cursor: pointer; }
+    .rss-choice > b { font: 650 14px var(--raznos-font); }
+    .rss-choice > span { font: 500 12.5px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
     .rss-toast { position: sticky; bottom: 8px; z-index: 5; align-self: center; padding: 10px 14px; border-radius: 12px; background: var(--raznos-dark); color: var(--raznos-on-dark); font: 600 13px var(--raznos-font); box-shadow: 0 8px 22px rgba(20, 25, 40, 0.22); }
     @media (prefers-reduced-motion: no-preference) {
       .rss-toast { animation: rss-toast-in .25s cubic-bezier(.16, 1, .3, 1) both; }
@@ -68,24 +85,31 @@
 <sc-if value="{{ is_list }}">
 <div class="raznos-phone-body rss-screen" data-screen-label="Smart schedule">
   <div class="raznos-app-bar rss-bar">
-    <span class="rss-bar-left"><button type="button" class="raznos-icon-btn" onClick="{{ on_back }}" aria-label="Назад в Работу">‹</button><h1 class="raznos-text-h1" style="margin:0">Умное расписание</h1></span>
+    <span class="rss-bar-left"><sc-if value="{{ has_back }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-icon-btn" onClick="{{ on_back }}" aria-label="Назад">‹</button></sc-if><h1 class="raznos-text-h1" style="margin:0">{{ screen_title }}</h1></span>
     <button type="button" class="raznos-icon-btn" onClick="{{ open_settings }}" aria-label="Настройки плана"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
   </div>
-  <p class="rss-intro">{{ intro }}</p>
+  <sc-if value="{{ has_back }}" hint-placeholder-val="{{ false }}"><p class="rss-intro">{{ intro }}</p></sc-if>
 
-  <div class="raznos-segmented" role="tablist">
-    <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="2"><button type="button" role="tab" aria-selected="{{ t.selected }}" class="{{ t.cls }}" onClick="{{ t.tap }}">{{ t.label }}</button></sc-for>
-  </div>
+  <dc-import name="RaznosWeekNav" start="2026-09-14" offset="{{ week_off }}" onChange="{{ week_change }}"></dc-import>
+
+  <button type="button" class="rss-goal rss-goal-sticky" onClick="{{ open_goal }}" aria-label="{{ goal_aria }}">
+    <span class="rss-goal-top"><b>{{ goal_value }}</b><span class="{{ goal_state_cls }}">{{ goal_state }}</span></span>
+    <span class="rss-goal-track"><span class="rss-goal-done" style="{{ goal_done_style }}"></span><span class="rss-goal-plan" style="{{ goal_plan_style }}"></span></span>
+  </button>
+
+  <button type="button" class="rss-shifts" onClick="{{ open_shifts }}" aria-label="{{ shifts_aria }}">
+    <span class="rss-shifts-copy"><b>{{ shifts_title }}</b><sc-if value="{{ shifts_flags }}" hint-placeholder-val="{{ true }}"><span>{{ shifts_flags }}</span></sc-if></span>
+    <span class="raznos-row-chevron">›</span>
+  </button>
+
 
   <div class="rss-days">
     <sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
-      <button type="button" class="{{ d.cls }}" onClick="{{ d.tap }}" aria-label="{{ d.aria }}"><span class="rss-day-d">{{ d.dow }}</span><span class="rss-day-n">{{ d.date }}</span><span class="rss-day-dots"><sc-for list="{{ d.dots }}" as="dot" hint-placeholder-count="2"><i style="{{ dot }}"></i></sc-for></span></button>
+      <button type="button" class="{{ d.cls }}" onClick="{{ d.tap }}" aria-label="{{ d.aria }}"><span class="rss-day-d">{{ d.dow }}</span><span class="rss-day-n">{{ d.date }}</span><sc-if value="{{ d.done }}" hint-placeholder-val="{{ false }}"><svg class="rss-day-done" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4.5 4.5L19 7"/></svg></sc-if><sc-if value="{{ d.show_dots }}" hint-placeholder-val="{{ true }}"><span class="rss-day-dots"><sc-for list="{{ d.dots }}" as="dot" hint-placeholder-count="2"><i style="{{ dot }}"></i></sc-for></span></sc-if></button>
     </sc-for>
   </div>
 
   <sc-if value="{{ is_mine }}" hint-placeholder-val="{{ true }}">
-    <div class="rss-week"><span>{{ week_text }}</span><sc-if value="{{ week_short }}" hint-placeholder-val="{{ false }}"><button type="button" class="rss-link" onClick="{{ week_fix }}">Добрать</button></sc-if></div>
-
     <div class="rss-head">
       <span class="rss-head-copy"><h2 class="rss-head-title">{{ day_title }}</h2><span class="rss-head-sub">{{ day_sub }}</span></span>
       <sc-if value="{{ has_total }}" hint-placeholder-val="{{ true }}"><span class="rss-total">{{ day_total }}</span></sc-if>
@@ -96,10 +120,11 @@
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
         <sc-if value="{{ r.is_now_line }}" hint-placeholder-val="{{ false }}"><span class="rss-now-line">{{ r.label }}</span></sc-if>
         <sc-if value="{{ r.is_window }}" hint-placeholder-val="{{ true }}">
-          <dc-import name="RaznosPlanWindow" from="{{ r.from }}" to="{{ r.to }}" svc="{{ r.svc }}" title="{{ r.title }}" sub="{{ r.sub }}" pay="{{ r.pay }}" kind="{{ r.kind }}" badge="{{ r.badge }}" state="{{ r.state }}" note="{{ r.note }}" action="{{ r.action }}" actionKind="{{ r.actionKind }}" onTap="{{ r.tap }}" onAction="{{ r.onAction }}"></dc-import>
+          <dc-import name="RaznosPlanWindow" from="{{ r.from }}" to="{{ r.to }}" svc="{{ r.svc }}" title="{{ r.title }}" sub="{{ r.sub }}" pay="{{ r.pay }}" kind="{{ r.kind }}" badge="{{ r.badge }}" state="{{ r.state }}" note="{{ r.note }}" action="{{ r.action }}" actionKind="{{ r.actionKind }}" onTap="{{ r.tap }}" onAction="{{ r.onAction }}" onBadge="{{ r.onBadge }}" gain="{{ r.gain }}" urgent="{{ r.urgent }}"></dc-import>
         </sc-if>
         <sc-if value="{{ r.is_gap }}" hint-placeholder-val="{{ false }}">
-          <div class="rss-gap"><span class="rss-gap-copy"><span class="rss-gap-time">{{ r.time }}</span><span class="rss-gap-text">{{ r.text }}</span></span><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ r.onAction }}">{{ r.action }}</button></div>
+          <dc-import name="RaznosPlanGap" from="{{ r.from }}" to="{{ r.to }}" svc="{{ r.svc }}" title="{{ r.title }}" sub="{{ r.sub }}" gain="{{ r.gain }}" action="{{ r.action }}" more="{{ r.more }}" open="{{ r.open }}" onTap="{{ r.onTap }}" onAction="{{ r.onAction }}" onMore="{{ r.onMore }}"></dc-import>
+          <sc-if value="{{ r.open }}" hint-placeholder-val="{{ false }}"><div class="rss-alts"><sc-for list="{{ r.alts }}" as="o" hint-placeholder-count="2"><dc-import name="RaznosPlanWindow" from="{{ o.from }}" to="{{ o.to }}" svc="{{ o.svc }}" title="{{ o.title }}" sub="{{ o.sub }}" pay="{{ o.pay }}" kind="{{ o.kind }}" badge="{{ o.badge }}" note="{{ o.note }}" action="{{ o.action }}" actionKind="{{ o.actionKind }}" onTap="{{ o.tap }}" onAction="{{ o.onAction }}" onBadge="{{ o.onBadge }}" gain="{{ o.gain }}"></dc-import></sc-for></div></sc-if>
         </sc-if>
         <sc-if value="{{ r.is_nudge }}" hint-placeholder-val="{{ false }}">
           <dc-import name="RaznosPlanNudge" icon="{{ r.icon }}" title="{{ r.title }}" text="{{ r.text }}" meta="{{ r.meta }}" action="{{ r.action }}" dismiss="{{ r.dismiss }}" onAction="{{ r.onAction }}" onDismiss="{{ r.onDismiss }}"></dc-import>
@@ -120,21 +145,6 @@
     <p class="rss-note">{{ mine_note }}</p>
   </sc-if>
 
-  <sc-if value="{{ is_options }}" hint-placeholder-val="{{ false }}">
-    <div class="rss-head">
-      <span class="rss-head-copy"><h2 class="rss-head-title">{{ day_title }}</h2><span class="rss-head-sub">{{ options_sub }}</span></span>
-    </div>
-    <div class="raznos-chip-row">
-      <sc-for list="{{ filters }}" as="f" hint-placeholder-count="3"><button type="button" class="{{ f.cls }}" aria-pressed="{{ f.pressed }}" onClick="{{ f.tap }}">{{ f.label }}</button></sc-for>
-    </div>
-    <div class="rss-list">
-      <sc-for list="{{ options }}" as="o" hint-placeholder-count="4">
-        <dc-import name="RaznosPlanWindow" from="{{ o.from }}" to="{{ o.to }}" svc="{{ o.svc }}" title="{{ o.title }}" sub="{{ o.sub }}" pay="{{ o.pay }}" kind="{{ o.kind }}" badge="{{ o.badge }}" note="{{ o.note }}" action="{{ o.action }}" actionKind="{{ o.actionKind }}" onTap="{{ o.tap }}" onAction="{{ o.onAction }}"></dc-import>
-      </sc-for>
-    </div>
-    <sc-if value="{{ options_empty }}" hint-placeholder-val="{{ false }}"><div class="rss-empty"><h3 class="rss-empty-title">Вариантов нет</h3><p class="rss-empty-text">{{ options_empty_text }}</p></div></sc-if>
-    <p class="rss-note">{{ options_note }}</p>
-  </sc-if>
 
   <sc-if value="{{ show_settings }}" hint-placeholder-val="{{ false }}">
     <div class="raznos-dialog-layer" role="dialog" aria-modal="true" aria-label="Настройки плана">
@@ -146,15 +156,38 @@
           <span class="rss-note">{{ set_build_note }}</span>
         </div>
         <div class="rss-settings-group">
-          <span class="rss-settings-label">Сервисы в плане</span>
-          <div class="raznos-segmented"><sc-for list="{{ set_svcs }}" as="o" hint-placeholder-count="2"><button type="button" class="{{ o.cls }}" onClick="{{ o.tap }}">{{ o.label }}</button></sc-for></div>
-          <span class="rss-note">{{ set_svcs_note }}</span>
+          <span class="rss-settings-label">Как вы работаете</span>
+          <div class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="raznos-text-small">{{ onboard_label }}</span><button type="button" class="rss-link" onClick="{{ open_onboard }}">Изменить</button></div>
         </div>
         <div class="rss-settings-group">
           <span class="rss-settings-label">График</span>
           <div class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="raznos-text-small">{{ graph_label }}</span><button type="button" class="rss-link" onClick="{{ edit_graph }}">Изменить</button></div>
         </div>
         <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ close_settings }}">Готово</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ show_goal }}" hint-placeholder-val="{{ false }}">
+    <dc-import name="RaznosGoalSheet" goal="{{ gs_goal }}" daysLeft="{{ gs_days }}" earned="{{ gs_earned_v }}" booked="{{ gs_booked_v }}" planned="{{ gs_plan_v }}" onGoal="{{ goal_set }}" onFix="{{ goal_fix }}" onClose="{{ close_goal }}"></dc-import>
+  </sc-if>
+
+  <sc-if value="{{ show_term }}" hint-placeholder-val="{{ false }}">
+    <div class="raznos-dialog-layer" role="dialog" aria-modal="true" aria-label="{{ term_title }}">
+      <div class="raznos-dialog rss-settings">
+        <span class="raznos-text-h3">{{ term_title }}</span>
+        <p class="rss-empty-text">{{ term_text }}</p>
+        <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ close_term }}">Понятно</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ show_onboard }}" hint-placeholder-val="{{ false }}">
+    <div class="raznos-dialog-layer" role="dialog" aria-modal="true" aria-label="Как вы работаете">
+      <div class="raznos-dialog rss-settings">
+        <span class="raznos-text-h3">Как вы работаете?</span>
+        <sc-for list="{{ onboard_choices }}" as="c" hint-placeholder-count="4"><button type="button" class="rss-choice" onClick="{{ c.tap }}"><b>{{ c.title }}</b><span>{{ c.text }}</span></button></sc-for>
+        <button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ onboard_skip }}">{{ onboard_skip_label }}</button>
       </div>
     </div>
   </sc-if>
@@ -197,7 +230,7 @@
 </div>
 </sc-if>
 
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"weekGoal":{"editor":null},"weekEarned":{"editor":null},"booked":{"editor":null},"slots":{"editor":null},"workStart":{"editor":null},"todayEarned":{"editor":null},"build":{"editor":null},"svcs":{"editor":null},"onSettings":{"editor":null},"workEnd":{"editor":null},"onFindSlot":{"editor":null},"onOpenShifts":{"editor":null},"onEditGraph":{"editor":null},"addWindow":{"editor":null},"focusAdded":{"editor":null},"$preview":{"width":390,"height":1100}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"weekGoal":{"editor":null},"weekEarned":{"editor":null},"booked":{"editor":null},"slots":{"editor":null},"workStart":{"editor":null},"todayEarned":{"editor":null},"build":{"editor":null},"onSettings":{"editor":null},"stay":{"editor":null},"onStay":{"editor":null},"fact":{"editor":null},"embedded":{"editor":null},"onGoalChange":{"editor":null},"onboarded":{"editor":null},"onOnboard":{"editor":null},"workEnd":{"editor":null},"onFindSlot":{"editor":null},"onOpenShifts":{"editor":null},"onEditGraph":{"editor":null},"addWindow":{"editor":null},"focusAdded":{"editor":null},"$preview":{"width":390,"height":1100}}'>
 // демо-дата прототипа, как у Смен и Статистики: вторник 15 сентября, 15:40
 const RSS_TODAY = new Date(2026, 8, 15);
 const RSS_NOW = 15 * 60 + 40;
@@ -207,8 +240,8 @@ const RSS_MONTHS = ['января', 'февраля', 'марта', 'апрел�
 const rssIso = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 const RSS_TODAY_ISO = rssIso(RSS_TODAY);
 // неделя плана: сегодня и 6 дней вперёд, прошедшие дни смотрят в Статистике
-const RSS_DAYS = Array.from({ length: 7 }, (_, i) => new Date(2026, 8, 15 + i));
-const RSS_WEEK_END_ISO = '2026-09-20';
+// текущая неделя пн–вс, соседние недели листаются в Плане
+const RSS_DAYS = Array.from({ length: 7 }, (_, i) => new Date(2026, 8, 14 + i));
 const RSS_SVC = {
   'yandex-eda': { title: 'Яндекс Еда', in: 'Яндекс Еде', free: true },
   samokat: { title: 'Самокат', in: 'Самокате', free: false },
@@ -216,8 +249,6 @@ const RSS_SVC = {
   x5: { title: 'X5 Доставка', in: 'X5 Доставке', free: false }
 };
 const RSS_ORDER = ['yandex-eda', 'samokat', 'vkusvill', 'x5'];
-// привычные сервисы курьера: подключены раньше остальных и дают основную часть дохода
-const RSS_FAVORITES = ['samokat', 'vkusvill'];
 const RSS_ZONES = [{ name: 'Центр', f: 1 }, { name: 'Север', f: 0.95 }, { name: 'Юг', f: 0.92 }, { name: 'Запад', f: 0.9 }];
 const rssZoneF = (name) => (RSS_ZONES.find((z) => z.name === name) || RSS_ZONES[0]).f;
 // спрос по часам и поправки сервисов по времени суток, демо на основе заказов курьеров Разноса
@@ -243,7 +274,7 @@ const RSS_BOOK_STATUS = { requested: ['заявка', 'pending'], tentative: ['�
 const RSS_DEMO_BOOKED = [
   { id: 's3', iso: '2026-09-15', svc: 'samokat', title: 'Самокат', place: 'Даркстор Беговая, 7', from: 540, to: 720, status: 'completed' },
   { id: 's4', iso: '2026-09-15', svc: 'vkusvill', title: 'ВкусВилл', place: 'Магазин на Правды, 24', from: 840, to: 1020, status: 'active' },
-  { id: 's5', iso: '2026-09-15', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Зона Беговой', from: 1020, to: 1200, status: 'confirmed' },
+  { id: 's5', iso: '2026-09-15', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Зона Беговой', from: 1020, to: 1260, status: 'confirmed' },
   { id: 's6', iso: '2026-09-16', svc: 'samokat', title: 'Самокат', place: 'Даркстор Беговая, 7', from: 630, to: 810, status: 'confirmed' },
   { id: 's7', iso: '2026-09-16', svc: 'vkusvill', title: 'ВкусВилл', place: 'Магазин на Правды, 24', from: 840, to: 1080, status: 'requested' },
   { id: 's8', iso: '2026-09-17', svc: 'x5', title: 'X5 Доставка', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 660, to: 1020, status: 'confirmed' },
@@ -251,18 +282,50 @@ const RSS_DEMO_BOOKED = [
   { id: 's10', iso: '2026-09-19', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Зона Беговой', from: 720, to: 960, status: 'tentative' }
 ];
 const RSS_DEMO_SLOTS = [
-  { id: 'f1', iso: '2026-09-15', svc: 'samokat', from: 1080, to: 1320, seats: 3, full: false },
-  { id: 'f3', iso: '2026-09-16', svc: 'samokat', from: 1080, to: 1320, seats: 5, full: false },
-  { id: 'f5', iso: '2026-09-16', svc: 'x5', from: 540, to: 900, seats: 2, full: false },
-  { id: 'f6', iso: '2026-09-16', svc: 'vkusvill', from: 1140, to: 1320, seats: 1, full: false, apply: true },
-  { id: 'f9', iso: '2026-09-18', svc: 'x5', from: 720, to: 1080, seats: 3, full: false },
-  { id: 'f12', iso: '2026-09-20', svc: 'samokat', from: 720, to: 960, seats: 6, full: false },
+  { id: 'f1', iso: '2026-09-15', svc: 'samokat', place: 'Даркстор Беговая, 7', from: 1080, to: 1320, seats: 3, full: false },
+  { id: 'f3', iso: '2026-09-16', svc: 'samokat', place: 'Даркстор Беговая, 7', from: 1080, to: 1320, seats: 5, full: false },
+  { id: 'f5', iso: '2026-09-16', svc: 'x5', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 540, to: 900, seats: 2, full: false },
+  { id: 'f6', iso: '2026-09-16', svc: 'vkusvill', place: 'Магазин на Правды, 24', from: 1140, to: 1320, seats: 1, full: false, apply: true },
+  { id: 'f9', iso: '2026-09-18', svc: 'x5', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 720, to: 1080, seats: 3, full: false },
+  { id: 'f12', iso: '2026-09-20', svc: 'samokat', place: 'Даркстор Беговая, 7', from: 720, to: 960, seats: 6, full: false },
   { id: 'f13', iso: '2026-09-20', svc: 'yandex-eda', from: 840, to: 1080, seats: 0, full: true }
 ];
 // слоты, которые план сам ставит в свободные часы, остальное закрывает свободный выход
+// соседние недели для демо: прошлая выполнена, на следующей часть записи уже открылась
+const RSS_EXTRA_BOOKED = [
+  { id: 'p1', iso: '2026-09-07', svc: 'samokat', title: 'Самокат', place: 'Даркстор Беговая, 7', from: 540, to: 780, status: 'completed' },
+  { id: 'p2', iso: '2026-09-07', svc: 'vkusvill', title: 'ВкусВилл', place: 'Магазин на Правды, 24', from: 840, to: 1080, status: 'completed' },
+  { id: 'p3', iso: '2026-09-08', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Зона Беговой', from: 720, to: 1080, status: 'completed' },
+  { id: 'p4', iso: '2026-09-09', svc: 'x5', title: 'X5 Доставка', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 660, to: 1020, status: 'completed' },
+  { id: 'p5', iso: '2026-09-10', svc: 'samokat', title: 'Самокат', place: 'Даркстор Беговая, 7', from: 1080, to: 1320, status: 'completed' },
+  { id: 'p6', iso: '2026-09-11', svc: 'vkusvill', title: 'ВкусВилл', place: 'Магазин на Правды, 24', from: 600, to: 840, status: 'completed' },
+  { id: 'p7', iso: '2026-09-12', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Зона Беговой', from: 720, to: 1200, status: 'completed' },
+  { id: 'n1', iso: '2026-09-22', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Зона Беговой', from: 720, to: 960, status: 'confirmed' },
+  { id: 'n2', iso: '2026-09-24', svc: 'x5', title: 'X5 Доставка', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 660, to: 1020, status: 'requested' }
+];
+const RSS_EXTRA_SLOTS = [
+  { id: 'n3', iso: '2026-09-21', svc: 'yandex-eda', from: 1020, to: 1260, seats: 3, full: false },
+  { id: 'n4', iso: '2026-09-25', svc: 'x5', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 720, to: 1080, seats: 4, full: false }
+];
+// сколько заработано на прошлой неделе и какая была цель, это снимок, а не расчёт
+const RSS_PREV_WEEK = { earned: 31400, goal: 30000 };
 const RSS_SLOT_PICKS = { '2026-09-18': ['f9'] };
 // окна свободного выхода в Вариантах: утро, обед, день, вечер
 const RSS_FREE_BANDS = [[480, 660], [660, 900], [900, 1080], [1080, 1320]];
+// пояснения меток окна, открываются по тапу на метку
+const RSS_TERMS = {
+  'бронь': 'Сервис подтвердил смену. Выйти нужно вовремя, иначе по его правилам будет штраф',
+  'заявка': 'Вы откликнулись, но сервис ещё не подтвердил. Это не бронь, смену могут не дать',
+  'предварительная': 'Смена в черновике сервиса и может измениться',
+  'свободный выход': 'Бронь не нужна: выходите на линию когда удобно и на сколько удобно, это Яндекс Еда',
+  'нужен слот': 'Сервис даёт заказы только по брони. Слот берётся в приложении сервиса, мы покажем где',
+  'мест нет': 'Все слоты разобрали. Можно следить, мы напишем, когда место освободится',
+  'отработано': 'Смена прошла, это реальный заработок из приложения сервиса',
+  'по заявке': 'Отклик на слот это заявка, смену подтверждает сервис',
+  'слот': 'Смена по брони в приложении сервиса',
+  'выполнена': 'Смена прошла. Сколько вышло за день, смотрите в Результатах'
+};
+const rssTimeBand = (m) => (m < 660 ? 'Утро' : (m < 900 ? 'Обед' : (m < 1080 ? 'День' : 'Вечер')));
 
 class Component extends DCLogic {
   renderVals() {
@@ -273,15 +336,18 @@ class Component extends DCLogic {
     const findSlot = (iso, svc) => { if (typeof p.onFindSlot === 'function') p.onFindSlot({ iso, svc }); };
     const openShifts = typeof p.onOpenShifts === 'function' ? p.onOpenShifts : (() => {});
     // настройки плана живут в приложении, чтобы не сбрасываться при уходе с экрана
-    const build = st.build || p.build || 'auto', svcMode = st.svcs || p.svcs || 'all';
-    const saveSettings = (patch) => { set(patch); if (typeof p.onSettings === 'function') p.onSettings(Object.assign({ build, svcs: svcMode }, patch)); };
+    const build = st.build || p.build || 'auto';
+    const saveSettings = (patch) => { set(patch); if (typeof p.onSettings === 'function') p.onSettings(Object.assign({ build }, patch)); };
     const auto = build === 'auto';
-    const onlyMine = svcMode === 'mine';
-    const allowed = (svc) => !onlyMine || RSS_FAVORITES.indexOf(svc) !== -1;
+    // решение «остаться ещё на час» общее с Сегодня, поэтому живёт в приложении
+    const stay = typeof p.onStay === 'function' ? (p.stay || '') : (st.stay || '');
+    const setStay = (v) => { if (typeof p.onStay === 'function') p.onStay(v); else set({ stay: v }); };
+    // факт по сервисам за сегодня для прошедших броней
+    const fact = p.fact || { samokat: { earn: 1850, orders: 8 }, vkusvill: { earn: 2350, orders: 9 } };
     const workStart = (p.workStart != null ? p.workStart : 9) * 60, workEnd = (p.workEnd != null ? p.workEnd : 18) * 60;
     const isWorkDay = (d) => d.getDay() >= 1 && d.getDay() <= 5;
-    const booked = (p.booked || RSS_DEMO_BOOKED).filter((b) => b.status !== 'cancelled' && b.status !== 'missed');
-    const slots = p.slots || RSS_DEMO_SLOTS;
+    const booked = (p.booked || RSS_DEMO_BOOKED.concat(RSS_EXTRA_BOOKED)).filter((b) => b.status !== 'cancelled' && b.status !== 'missed');
+    const slots = p.slots || RSS_DEMO_SLOTS.concat(RSS_EXTRA_SLOTS);
     const added = st.added || {};
     const removed = st.removed || {};
     const swaps = st.swaps || {};
@@ -293,32 +359,40 @@ class Component extends DCLogic {
     // окно из Когда выгоднее: ближайший такой день недели, свободный выход в эти часы
     const bt = p.addWindow || null;
     const btIso = bt ? (() => { const d = RSS_DAYS.find((x) => (x.getDay() + 6) % 7 === bt.day); return d ? rssIso(d) : ''; })() : '';
-    const tab = st.tab || 'mine';
+    const weekOff = st.week || 0;
+    const weekDays = Array.from({ length: 7 }, (_, i) => new Date(2026, 8, 14 + weekOff * 7 + i));
+    const weekStartIso = rssIso(weekDays[0]), weekEndIso = rssIso(weekDays[6]);
+    const weekPast = weekEndIso < RSS_TODAY_ISO;
     const selIso = st.day || (p.focusAdded && btIso ? btIso : RSS_TODAY_ISO);
+    // при смене недели остаёмся на том же дне недели
+    const goWeek = (dlt) => { const nd = new Date(selIso + 'T00:00:00'); nd.setDate(nd.getDate() + dlt * 7); set({ week: weekOff + dlt, day: rssIso(nd) }); };
     const selDate = new Date(selIso + 'T00:00:00');
     const isToday = selIso === RSS_TODAY_ISO;
 
+    // последняя бронь сегодня, после которой можно остаться ещё на час
+    const stayBase = booked.filter((b) => b.iso === RSS_TODAY_ISO && b.to > RSS_NOW && b.to < 1320).sort((a, b) => b.to - a.to)[0] || null;
     const slotState = (sl) => (sl.full || sl.seats === 0 ? 'full' : (sl.apply ? 'apply' : 'open'));
     // все окна дня: брони из Смен, план в свободные часы графика, добавленное курьером
     const windowsOf = (iso) => {
       const d = new Date(iso + 'T00:00:00');
       const own = booked.filter((b) => b.iso === iso).map((b) => ({ key: 'b:' + b.id, iso, svc: b.svc, from: b.from, to: b.to, zone: '', place: b.place, source: 'booking', status: b.status }));
       const list = own.slice();
+      // прошедший день это только факт броней, план и свободные часы не показываем
+      if (iso < RSS_TODAY_ISO) return list.sort((a, b) => a.from - b.from);
       if (auto && isWorkDay(d)) {
-        // свободные промежутки графика между бронями
-        const busy = own.map((b) => [b.from, b.to]).sort((a, b) => a[0] - b[0]);
+        // свободные промежутки графика между бронями и тем, что курьер добавил сам
+        const busy = own.concat(added[iso] || []).map((b) => [b.from, b.to]).sort((a, b) => a[0] - b[0]);
         let cur = workStart; const gaps = [];
         busy.forEach(([f, t]) => { if (f > cur) gaps.push([cur, Math.min(f, workEnd)]); cur = Math.max(cur, t); });
         if (cur < workEnd) gaps.push([cur, workEnd]);
         gaps.filter(([f, t]) => t - f >= 60).forEach(([f, t]) => {
           // слот ставим, только если он заметно выгоднее свободного выхода, иначе не стоит возни с записью
           const pick = (RSS_SLOT_PICKS[iso] || []).map((id) => slots.find((sl) => sl.id === id))
-            .find((sl) => sl && sl.from >= f && sl.to <= t && allowed(sl.svc) && slotState(sl) !== 'full' && (!allowed('yandex-eda') || rssRate(sl.svc, sl.from, sl.to) - rssRate('yandex-eda', sl.from, sl.to) >= 40));
+            .find((sl) => sl && sl.from >= f && sl.to <= t && slotState(sl) !== 'full' && rssRate(sl.svc, sl.from, sl.to) - rssRate('yandex-eda', sl.from, sl.to) >= 40);
           const parts = pick ? [[f, pick.from, null], [pick.from, pick.to, pick], [pick.to, t, null]] : [[f, t, null]];
           parts.filter(([a, b]) => b - a >= 60).forEach(([a, b, sl]) => {
             if (sl) list.push({ key: 'p:' + iso + ':' + a, iso, svc: sl.svc, from: a, to: b, zone: 'Центр', source: 'plan', slot: sl });
-            else if (allowed('yandex-eda')) list.push({ key: 'p:' + iso + ':' + a, iso, svc: 'yandex-eda', from: a, to: b, zone: 'Центр', source: 'plan' });
-            else list.push({ key: 'g:' + iso + ':' + a, iso, from: a, to: b, source: 'gap' });
+            else list.push({ key: 'p:' + iso + ':' + a, iso, svc: 'yandex-eda', from: a, to: b, zone: 'Центр', source: 'plan' });
           });
         });
       } else if (!auto && isWorkDay(d)) {
@@ -328,6 +402,7 @@ class Component extends DCLogic {
         if (workEnd - cur >= 60) list.push({ key: 'g:' + iso + ':' + cur, iso, from: cur, to: workEnd, source: 'gap' });
       }
       if (bt && iso === btIso) list.push({ key: 'bt:' + iso, iso, svc: 'yandex-eda', from: bt.from * 60, to: bt.to * 60, zone: 'Центр', source: 'bt' });
+      if (iso === RSS_TODAY_ISO && stay === 'added' && stayBase) list.push({ key: 'a:stay', iso, svc: stayBase.svc, from: stayBase.to, to: stayBase.to + 60, zone: 'Центр', source: 'added' });
       (added[iso] || []).forEach((a) => list.push(Object.assign({ iso, zone: 'Центр' }, a)));
       return list.filter((w) => !removed[w.key])
         .map((w) => (w.source === 'booking' || w.source === 'gap' ? w : Object.assign({}, w, { svc: swaps[w.key] || w.svc, zone: zonesOf[w.key] || w.zone })))
@@ -344,7 +419,7 @@ class Component extends DCLogic {
     const earnOf = (w) => rateOf(w) * (w.to - w.from) / 60;
 
     // брони и сервисы по дням в ленте
-    const days = RSS_DAYS.map((d) => {
+    const days = weekDays.map((d) => {
       const iso = rssIso(d);
       const ws = windowsOf(iso).filter((w) => w.source !== 'gap');
       const svcs = Array.from(new Set(ws.map((w) => w.svc))).slice(0, 3);
@@ -352,16 +427,19 @@ class Component extends DCLogic {
         dow: RSS_WD[d.getDay()], date: String(d.getDate()),
         dots: svcs.map((s) => 'background:var(--raznos-svc-' + s + ')'),
         aria: RSS_WD_FULL[d.getDay()] + ' ' + d.getDate() + (ws.length ? ', окон ' + ws.length : ', пусто'),
-        cls: 'rss-day' + (iso === selIso ? ' raznos-is-active' : '') + (isWorkDay(d) ? '' : ' rss-day-off'),
+        done: iso < RSS_TODAY_ISO && ws.length > 0, show_dots: !(iso < RSS_TODAY_ISO && ws.length > 0),
+        cls: 'rss-day' + (iso === selIso ? ' raznos-is-active' : '') + (isWorkDay(d) ? '' : ' rss-day-off') + (iso < RSS_TODAY_ISO ? ' rss-day-past' : ''),
         tap: () => set({ day: iso })
       };
     });
 
     // неделя: заработано с понедельника и то, что осталось в плане до воскресенья
-    const weekGoal = p.weekGoal || 30000;
-    const weekEarned = p.weekEarned != null ? p.weekEarned : 8000;
+    const goals = st.goals || {};
+    const curGoal = st.goal || p.weekGoal || 30000;
+    const weekGoal = weekPast ? RSS_PREV_WEEK.goal : (weekOff === 0 ? curGoal : (goals[weekStartIso] || curGoal));
+    const weekEarned = weekPast ? RSS_PREV_WEEK.earned : (weekOff > 0 ? 0 : (p.weekEarned != null ? p.weekEarned : 8000));
     let weekLeft = 0;
-    RSS_DAYS.map(rssIso).filter((iso) => iso <= RSS_WEEK_END_ISO).forEach((iso) => {
+    weekDays.map(rssIso).filter((iso) => iso >= RSS_TODAY_ISO).forEach((iso) => {
       windowsOf(iso).filter((w) => w.source !== 'gap' && kindOf(w) !== 'full').forEach((w) => {
         const from = iso === RSS_TODAY_ISO ? Math.max(w.from, RSS_NOW) : w.from;
         if (w.to > from) weekLeft += rateOf(w) * (w.to - from) / 60;
@@ -369,6 +447,27 @@ class Component extends DCLogic {
     });
     const weekTotal = Math.round((weekEarned + weekLeft) / 100) * 100;
     const weekShort = weekTotal < weekGoal;
+    // брони отдельно от окон плана, чтобы в шторке цели было видно, откуда берётся сумма
+    let weekBooked = 0;
+    weekDays.map(rssIso).filter((iso) => iso >= RSS_TODAY_ISO).forEach((iso) => {
+      windowsOf(iso).filter((w) => w.source === 'booking').forEach((w) => {
+        const from = iso === RSS_TODAY_ISO ? Math.max(w.from, RSS_NOW) : w.from;
+        if (w.to > from) weekBooked += rateOf(w) * (w.to - from) / 60;
+      });
+    });
+    const setGoal = (v) => {
+      if (weekOff !== 0) { set({ goals: Object.assign({}, goals, { [weekStartIso]: v }) }); return; }
+      set({ goal: v }); if (typeof p.onGoalChange === 'function') p.onGoalChange(v);
+    };
+    // строка Смен: сколько смен на неделе и что требует внимания
+    const liveShifts = booked.filter((b) => b.iso >= weekStartIso && b.iso <= weekEndIso);
+    const clashPairs = new Set();
+    Array.from(new Set(liveShifts.map((b) => b.iso))).forEach((iso) => {
+      const list = liveShifts.filter((b) => b.iso === iso).sort((a, b) => a.from - b.from);
+      list.forEach((a, i) => { const b = list[i + 1]; if (b && (b.from < a.to || (a.svc !== b.svc && b.from - a.to < RSS_TRAVEL))) clashPairs.add(a.id + b.id); });
+    });
+    const requestedN = liveShifts.filter((b) => b.status === 'requested').length;
+    const shiftFlags = [clashPairs.size ? clashPairs.size + ' ' + (clashPairs.size === 1 ? 'пересечение' : 'пересечения') : '', requestedN ? requestedN + ' ' + (requestedN === 1 ? 'заявка ждёт ответа' : 'заявки ждут ответа') : ''].filter(Boolean).join(' · ');
 
     // окна выбранного дня
     const dayWins = windowsOf(selIso).filter((w) => !(selIso === RSS_TODAY_ISO && w.source !== 'booking' && w.to <= RSS_NOW));
@@ -376,19 +475,17 @@ class Component extends DCLogic {
     const rows = [];
     let nowPlaced = false;
     const nudgeFor = (w) => {
-      // конец последнего окна сегодня: остаться ещё на час, если спрос выше обычного
-      const lastToday = isToday && w === dayWins.filter((x) => x.source !== 'gap').slice(-1)[0] && w.to > RSS_NOW && w.to < 1320;
-      if (lastToday && !dismissed.stay) {
-        const extra = { svc: w.svc, from: w.to, to: w.to + 60 };
+      // конец последней брони сегодня: остаться ещё на час, если спрос выше обычного
+      if (isToday && stayBase && stay !== 'dismissed' && (stay === 'added' ? w.key === 'a:stay' : (w.source === 'booking' && w.to === stayBase.to && w.svc === stayBase.svc))) {
+        const extra = { svc: stayBase.svc, from: stayBase.to, to: stayBase.to + 60 };
         const gain = Math.round(rssRate(extra.svc, extra.from, extra.to) / 10) * 10;
-        if (done.stay) return { is_nudge: true, icon: 'done', title: 'Добавили ' + rssTime(extra.from) + '–' + rssTime(extra.to) + ' в ' + RSS_SVC[extra.svc].in, text: 'Если спрос упадёт раньше, напишем', meta: '', action: '', dismiss: '' };
+        if (stay === 'added') return { is_nudge: true, icon: 'done', title: 'Добавили ' + rssTime(extra.from) + '–' + rssTime(extra.to) + ' в ' + RSS_SVC[extra.svc].in, text: 'Если спрос упадёт раньше, напишем', meta: '', action: '', dismiss: '' };
         return {
-          is_nudge: true, icon: 'trend', title: 'В ' + rssTime(w.to) + ' закончится ' + (w.source === 'booking' ? 'бронь' : 'окно') + ' в ' + RSS_SVC[w.svc].in,
+          is_nudge: true, icon: 'trend', title: 'В ' + rssTime(extra.from) + ' закончится бронь в ' + RSS_SVC[extra.svc].in,
           text: 'Вечером спрос выше обычного на 12%. Если остаться до ' + rssTime(extra.to) + ', ≈ +' + rssFmt(gain) + ' ₽',
           meta: 'По курьерам Разноса рядом за последний час · обновлено 2 мин назад',
           action: 'Остаться до ' + rssTime(extra.to), dismiss: 'Не надо',
-          onAction: () => { const next = Object.assign({}, added); next[selIso] = (next[selIso] || []).concat([{ key: 'a:stay', svc: extra.svc, from: extra.from, to: extra.to, source: 'added' }]); set({ added: next, done: Object.assign({}, done, { stay: true }) }); },
-          onDismiss: () => set({ dismissed: Object.assign({}, dismissed, { stay: true }) })
+          onAction: () => setStay('added'), onDismiss: () => setStay('dismissed')
         };
       }
       // заявка без ответа: заранее говорим, что будет, если откажут
@@ -396,7 +493,7 @@ class Component extends DCLogic {
         const alt = rssRate('yandex-eda', w.from, w.to);
         return {
           is_nudge: true, icon: 'swap', title: 'Если ' + RSS_SVC[w.svc].title + ' откажет в заявке',
-          text: allowed('yandex-eda') ? 'Подставим на ' + rssTime(w.from) + '–' + rssTime(w.to) + ' Яндекс Еду, ≈ ' + rssFmt(alt) + ' ₽/ч, и пришлём пуш' : 'Пришлём пуш и покажем свободные слоты Самоката на это время',
+          text: 'Подставим на ' + rssTime(w.from) + '–' + rssTime(w.to) + ' Яндекс Еду, ≈ ' + rssFmt(alt) + ' ₽/ч, и пришлём пуш',
           meta: 'Ответ сервиса обычно приходит за сутки до смены', action: '', dismiss: 'Понятно',
           onDismiss: () => set({ dismissed: Object.assign({}, dismissed, { ['req:' + w.key]: true }) })
         };
@@ -404,38 +501,33 @@ class Component extends DCLogic {
       return null;
     };
     dayWins.forEach((w) => {
-      if (isToday && !nowPlaced && w.from > RSS_NOW) { rows.push({ is_now_line: true, label: 'Сейчас ' + rssTime(RSS_NOW) }); nowPlaced = true; }
-      if (w.source === 'gap') {
-        const canFree = allowed('yandex-eda');
-        rows.push({
-          is_gap: true, time: rssTime(w.from) + '–' + rssTime(w.to),
-          text: canFree ? 'Свободно по графику' : 'Свободно по графику, в Самокате и ВкусВилле без слота не выйти',
-          action: canFree ? 'Подобрать' : 'Найти слот',
-          onAction: canFree ? (() => set({ tab: 'options' })) : (() => findSlot(w.iso, 'samokat'))
-        });
-        return;
-      }
+      if (isToday && !nowPlaced && w.from > RSS_NOW) { rows.push({ is_now_line: true, label: 'Сейчас ' + rssTime(RSS_NOW), _t: w.from - 0.5 }); nowPlaced = true; }
+      // свободное время показываем ниже промежутком с вариантами
+      if (w.source === 'gap') return;
       const kind = kindOf(w);
       const rate = rateOf(w);
-      const past = isToday && w.to <= RSS_NOW;
+      const past = selIso < RSS_TODAY_ISO || (isToday && w.to <= RSS_NOW);
       const now = isToday && w.from <= RSS_NOW && w.to > RSS_NOW;
       const sl = kind === 'need' || kind === 'full' ? slotFor(w) : null;
-      let note = '', action = '', actionKind = 'secondary', onAction = () => {};
-      if (!past && kind === 'need' && sl) { note = sl.apply ? 'Отклик это заявка, смену подтверждает сервис' : 'Нужно взять слот в ' + RSS_SVC[w.svc].in + ', свободно мест: ' + sl.seats; action = sl.apply ? 'Откликнуться' : 'Взять'; actionKind = 'primary'; onAction = () => findSlot(w.iso, w.svc); }
+      let note = '', action = '', actionKind = 'secondary', onAction = () => {}, urgent = false;
+      if (!past && kind === 'need' && sl) { note = sl.apply ? 'Отклик это заявка, смену подтверждает сервис' : 'Нужно взять слот в ' + RSS_SVC[w.svc].in + ', свободно мест: ' + sl.seats; action = sl.apply ? 'Откликнуться' : 'Взять слот'; actionKind = 'primary'; urgent = true; onAction = () => findSlot(w.iso, w.svc); }
       if (!past && kind === 'full') { const on = !!watches[w.key]; note = 'Мест нет. ' + (on ? 'Следим и напишем, если появится' : 'Можно следить за местом'); action = on ? 'Следим' : 'Следить'; onAction = () => { const nx = Object.assign({}, watches); if (on) delete nx[w.key]; else nx[w.key] = true; set({ watches: nx }); flash(on ? 'Больше не следим' : 'Напишем, когда появится место'); }; }
       if (w.source === 'bt') note = 'Добавлено из Когда выгоднее';
       if (w.source === 'booking' && kind === 'pending') note = w.status === 'requested' ? 'Сервис ещё не подтвердил, это не бронь' : 'Смена в черновике сервиса, может измениться';
+      // прошедшая бронь сегодня показывает факт из интеграции, а не прогноз
+      const f = isToday && past && w.source === 'booking' ? fact[w.svc] : null;
       rows.push({
-        is_window: true, from: rssTime(w.from), to: rssTime(w.to), svc: w.svc, title: RSS_SVC[w.svc].title,
-        sub: w.place || w.zone,
-        pay: '≈ ' + rssFmt(rate) + ' ₽/ч', kind,
-        badge: w.source === 'booking' ? RSS_BOOK_STATUS[w.status][0] : ({ free: 'свободный выход', need: 'нужен слот', full: 'мест нет' })[kind],
-        state: past ? 'past' : (now ? 'now' : ''), note: past ? '' : note, action: past ? '' : action, actionKind, onAction,
-        tap: () => openWin(w)
+        is_window: true, _t: w.from, key: w.key, src: w.source, from: rssTime(w.from), to: rssTime(w.to), svc: w.svc, title: RSS_SVC[w.svc].title,
+        sub: f ? (w.place || w.zone) + ' · ' + f.orders + ' заказов, ' + rssFmt(Math.round(f.earn * 60 / (w.to - w.from) / 10) * 10) + ' ₽/ч' : (w.place || w.zone),
+        pay: f ? rssFmt(f.earn) + ' ₽' : (selIso < RSS_TODAY_ISO ? '' : '≈ ' + rssFmt(rate) + ' ₽/ч'), kind,
+        badge: f ? 'отработано' : (selIso < RSS_TODAY_ISO ? 'выполнена' : w.source === 'booking' ? RSS_BOOK_STATUS[w.status][0] : ({ free: 'свободный выход', need: 'нужен слот', full: 'мест нет' })[kind]),
+        state: past ? 'past' : (now ? 'now' : ''), note: past ? '' : note, action: past ? '' : action, actionKind, onAction, urgent: urgent && !past,
+        tap: () => openWin(w),
+        onBadge: () => set({ term: f ? 'отработано' : (w.source === 'booking' ? RSS_BOOK_STATUS[w.status][0] : ({ free: 'свободный выход', need: 'нужен слот', full: 'мест нет' })[kind]) })
       });
-      if (now && !nowPlaced) { rows.push({ is_now_line: true, label: 'Сейчас ' + rssTime(RSS_NOW) }); nowPlaced = true; }
+      if (now && !nowPlaced) { rows.push({ is_now_line: true, label: 'Сейчас ' + rssTime(RSS_NOW), _t: w.from + 0.2 }); nowPlaced = true; }
       const nudge = nudgeFor(w);
-      if (nudge) rows.push(nudge);
+      if (nudge) rows.push(Object.assign(nudge, { _t: w.from + 0.4 }));
     });
     const realWins = dayWins.filter((w) => w.source !== 'gap');
     const dayMin = realWins.filter((w) => kindOf(w) !== 'full').reduce((s, w) => s + w.to - w.from, 0);
@@ -447,51 +539,126 @@ class Component extends DCLogic {
     const bookedCount = realWins.filter((w) => w.source === 'booking').length;
 
     // напоминание про запись на следующую неделю в понедельник плана
-    const topNudge = selIso === '2026-09-21' && !dismissed.opening ? {
-      is_nudge: true, icon: 'clock', title: 'Слоты Самоката на эту неделю появятся в пт около 12:00',
-      text: done.opening ? 'Напомним за 5 минут, план подстроим под то, что возьмёте' : 'Пока в плане только свободный выход в Яндекс Еде',
+    const topNudge = selIso === '2026-09-18' && !dismissed.opening ? {
+      is_nudge: true, icon: 'clock', title: 'Около 12:00 откроются слоты Самоката на следующую неделю',
+      text: done.opening ? 'Напомним за 5 минут, план подстроим под то, что возьмёте' : 'Хорошие слоты разбирают за минуты',
       meta: 'По наблюдениям Разноса за 4 недели', action: done.opening ? '' : 'Напомнить', dismiss: done.opening ? '' : 'Не надо',
       onAction: () => set({ done: Object.assign({}, done, { opening: true }) }), onDismiss: () => set({ dismissed: Object.assign({}, dismissed, { opening: true }) })
     } : null;
 
     // Варианты: всё, куда можно выйти в выбранный день
-    const filter = st.filter || 'all';
     const planWins = realWins;
     const inPlan = (svc, from, to) => planWins.some((w) => w.svc === svc && w.from < to && w.to > from);
     const optList = [];
-    if (filter !== 'slots' && allowed('yandex-eda')) {
+    if (selIso >= RSS_TODAY_ISO) {
       RSS_FREE_BANDS.forEach(([f, t]) => {
         const from = isToday ? Math.max(f, Math.ceil(RSS_NOW / 60) * 60) : f;
         if (t - from >= 60) optList.push({ key: 'o:free:' + selIso + ':' + f, iso: selIso, svc: 'yandex-eda', from, to: t, zone: 'Центр', source: 'option', avail: 'free' });
       });
     }
-    if (filter !== 'free') {
-      slots.filter((sl) => sl.iso === selIso && allowed(sl.svc) && !RSS_SVC[sl.svc].free && (!isToday || sl.to > RSS_NOW) && !booked.some((b) => b.iso === selIso && b.svc === sl.svc && b.from === sl.from))
-        .forEach((sl) => optList.push({ key: 'o:slot:' + sl.id, iso: selIso, svc: sl.svc, from: sl.from, to: sl.to, zone: 'Центр', source: 'option', avail: slotState(sl), slot: sl }));
+    if (selIso >= RSS_TODAY_ISO) {
+      slots.filter((sl) => sl.iso === selIso && !RSS_SVC[sl.svc].free && (!isToday || sl.to > RSS_NOW) && !booked.some((b) => b.iso === selIso && b.svc === sl.svc && b.from === sl.from))
+        .forEach((sl) => optList.push({ key: 'o:slot:' + sl.id, iso: selIso, svc: sl.svc, from: sl.from, to: sl.to, zone: 'Центр', place: sl.place || RSS_SVC[sl.svc].title, source: 'option', avail: slotState(sl), slot: sl }));
     }
-    const options = optList
-      .map((o) => Object.assign(o, { rate: rateOf(o), clash: booked.find((b) => b.iso === o.iso && b.svc !== o.svc && b.from < o.to && b.to > o.from) || null }))
-      // сначала то, куда можно выйти, потом занятые, в конце пересекающиеся с вашими бронями
-      .sort((a, b) => ((a.clash ? 2 : (a.avail === 'full' ? 1 : 0)) - (b.clash ? 2 : (b.avail === 'full' ? 1 : 0))) || b.rate - a.rate)
-      .map((o) => {
-        const has = inPlan(o.svc, o.from, o.to);
-        const clash = o.clash;
-        const sl = o.slot;
-        const on = !!watches[o.key];
-        const base = {
-          from: rssTime(o.from), to: rssTime(o.to), svc: o.svc, title: RSS_SVC[o.svc].title,
-          sub: rssVsMine(o.rate), pay: '≈ ' + rssFmt(o.rate) + ' ₽/ч',
-          tap: () => openWin(o)
-        };
-        if (clash && !has) return Object.assign(base, { kind: 'option', badge: o.avail === 'free' ? 'свободный выход' : 'слот', note: 'Пересекается с вашей бронью в ' + RSS_SVC[clash.svc].in + ' ' + rssTime(clash.from) + '–' + rssTime(clash.to), action: '' });
-        if (o.avail === 'free') return Object.assign(base, { kind: 'free', badge: 'свободный выход', note: has ? 'Уже в вашем расписании' : '', action: has ? '' : 'В расписание',
-          onAction: () => { const nx = Object.assign({}, added); nx[selIso] = (nx[selIso] || []).concat([{ key: 'a:' + o.key, svc: o.svc, from: o.from, to: o.to, source: 'added' }]); set({ added: nx }); flash('Добавили ' + base.from + '–' + base.to + ' в расписание'); } });
-        if (o.avail === 'full') return Object.assign(base, { kind: 'full', badge: 'мест нет', note: on ? 'Следим, напишем, если появится место' : 'Можно следить за местом', action: on ? 'Следим' : 'Следить',
-          onAction: () => { const nx = Object.assign({}, watches); if (on) delete nx[o.key]; else nx[o.key] = true; set({ watches: nx }); flash(on ? 'Больше не следим' : 'Напишем, когда появится место'); } });
-        return Object.assign(base, { kind: 'need', badge: o.avail === 'apply' ? 'по заявке' : sl.seats + ' ' + (sl.seats === 1 ? 'место' : (sl.seats < 5 ? 'места' : 'мест')),
-          note: has ? 'Уже в вашем расписании, слот ещё нужно взять' : (o.avail === 'apply' ? 'Отклик это заявка, смену подтверждает сервис' : 'Слот берётся в приложении сервиса'),
-          action: o.avail === 'apply' ? 'Откликнуться' : 'Взять слот', actionKind: 'primary', onAction: () => findSlot(o.iso, o.svc) });
+    // Варианты строятся от дня курьера: свободное время, окна плана, которые выгоднее заменить, и остальное
+    const dayFrom = isToday ? Math.ceil(RSS_NOW / 60) * 60 : 480, dayTo = 1320;
+    const softWins = planWins.filter((w) => w.source === 'plan');
+    const hardWins = planWins.filter((w) => w.source !== 'plan');
+    const freeGaps = (() => {
+      const busy = planWins.map((w) => [Math.max(w.from, dayFrom), w.to]).filter(([f, t]) => t > f).sort((a, b) => a[0] - b[0]);
+      let cur = dayFrom; const out = [];
+      busy.forEach(([f, t]) => { if (f - cur >= 60) out.push([cur, Math.min(f, dayTo)]); cur = Math.max(cur, t); });
+      if (dayTo - cur >= 60) out.push([cur, dayTo]);
+      return out;
+    })();
+    const clip = (w, f, t) => Math.max(0, Math.min(w.to, t) - Math.max(w.from, f));
+    // что даёт вариант: в свободное время весь заработок новый, вместо плана только разница
+    const cands = [];
+    // свободный выход одним окном на весь промежуток или на всё окно плана, без нарезки по часам спроса
+    const freeOpt = optList.find((o) => o.avail === 'free');
+    if (freeOpt) {
+      const freeOf = (a, b, fit, over) => cands.push(Object.assign({}, freeOpt, { key: 'o:free:' + selIso + ':' + a, from: a, to: b, fit, over }));
+      freeGaps.forEach(([f, t]) => freeOf(f, t, 'free'));
+      softWins.filter((w) => w.svc !== freeOpt.svc && w.to - Math.max(w.from, dayFrom) >= 60).forEach((w) => freeOf(Math.max(w.from, dayFrom), w.to, 'swap', [w]));
+    }
+    optList.forEach((o) => {
+      if (o.avail === 'free') return;
+      const hard = hardWins.find((w) => w.from < o.to && w.to > o.from);
+      if (hard && hard.svc === o.svc) return;
+      const over = softWins.filter((w) => w.from < o.to && w.to > o.from);
+      cands.push(Object.assign({}, o, { fit: hard ? 'clash' : (over.length ? 'swap' : 'free'), over, hard }));
+    });
+    cands.forEach((o) => {
+      o.rate = rateOf(o);
+      const lost = (o.over || []).reduce((sum, w) => sum + rssRate(w.svc, Math.max(w.from, o.from), Math.min(w.to, o.to), rssZoneF(w.zone)) * clip(w, o.from, o.to) / 60, 0);
+      o.gain = Math.round((earnOf(o) - lost) / 10) * 10;
+      if (o.fit === 'swap' && o.gain < 40 * (o.to - o.from) / 60) o.fit = 'worse';
+      if (o.avail === 'full' && o.fit !== 'clash') o.fit = 'full';
+    });
+    const addWin = (o) => {
+      const nx = Object.assign({}, added);
+      nx[selIso] = (nx[selIso] || []).concat([{ key: 'a:' + o.key, svc: o.svc, from: o.from, to: o.to, zone: o.zone, source: 'added', slot: o.slot }]);
+      set({ added: nx });
+      flash('Добавили ' + rssTime(o.from) + '–' + rssTime(o.to) + ', +' + rssFmt(o.gain) + ' ₽ к неделе');
+    };
+    const placeOf = (o) => (o.avail === 'free' || RSS_SVC[o.svc].free ? o.zone : (o.place || RSS_SVC[o.svc].title));
+    const rowOf = (o) => {
+      const sl = o.slot;
+      const on = !!watches[o.key];
+      const badge = o.avail === 'free' ? 'свободный выход' : (o.avail === 'full' ? 'мест нет' : (o.avail === 'apply' ? 'по заявке' : sl.seats + ' ' + (sl.seats === 1 ? 'место' : (sl.seats < 5 ? 'места' : 'мест'))));
+      const row = {
+        from: rssTime(o.from), to: rssTime(o.to), svc: o.svc, title: RSS_SVC[o.svc].title,
+        sub: placeOf(o), pay: '≈ ' + rssFmt(o.rate) + ' ₽/ч', kind: o.avail === 'free' ? 'free' : (o.avail === 'full' ? 'full' : 'need'), badge,
+        tap: () => openWin(o), onBadge: () => set({ term: RSS_TERMS[badge] ? badge : (o.avail === 'free' ? 'свободный выход' : 'нужен слот') })
+      };
+      const slotTail = o.avail === 'free' ? '' : (o.avail === 'apply' ? ', нужна заявка' : ', слот нужно взять');
+      if (o.fit === 'free') return Object.assign(row, { gain: true, note: '+' + rssFmt(o.gain) + ' ₽ к неделе' + slotTail, action: 'В расписание', actionKind: 'primary', onAction: () => addWin(o) });
+      if (o.fit === 'swap') return Object.assign(row, { gain: true, note: '+' + rssFmt(o.gain) + ' ₽ к неделе вместо плана в ' + RSS_SVC[o.over[0].svc].in + slotTail, action: 'Заменить', actionKind: 'primary', onAction: () => addWin(o) });
+      if (o.fit === 'clash') return Object.assign(row, { note: 'Пересекается с ' + (o.hard.source === 'booking' ? 'бронью' : 'вашим окном') + ' в ' + RSS_SVC[o.hard.svc].in + ' ' + rssTime(o.hard.from) + '–' + rssTime(o.hard.to), action: '' });
+      if (o.fit === 'full') return Object.assign(row, { note: on ? 'Следим, напишем, если появится место' : 'Мест нет, можно следить', action: on ? 'Следим' : 'Следить',
+        onAction: () => { const nx = Object.assign({}, watches); if (on) delete nx[o.key]; else nx[o.key] = true; set({ watches: nx }); flash(on ? 'Больше не следим' : 'Напишем, когда появится место'); } });
+      return Object.assign(row, { note: 'Не выгоднее плана в ' + RSS_SVC[o.over[0].svc].in, action: '' });
+    };
+    const byGain = (a, b) => b.gain - a.gain;
+    // варианты прямо в расписании: свободный промежуток с лучшим вариантом и замена окна плана, если есть выгоднее
+    if (selIso >= RSS_TODAY_ISO) {
+      const opened = st.gapOpen || {};
+      // час после последней брони уже предлагает подсказка остаться, второй раз не показываем
+      const stayGap = isToday && stayBase && stay !== 'dismissed' ? stayBase.to : -1;
+      freeGaps.filter(([f]) => f !== stayGap).forEach(([f, t]) => {
+        const list = cands.filter((o) => o.fit === 'free' && o.from < t && o.to > f).sort(byGain);
+        const best = list[0] || null;
+        const k = selIso + ':' + f;
+        const open = !!opened[k] && list.length > 1;
+        const part = best && (best.from !== f || best.to !== t) ? ' ' + rssTime(best.from) + '–' + rssTime(best.to) : '';
+        const how = best ? (best.avail === 'free' ? 'свободный выход' : (best.avail === 'apply' ? 'по заявке' : 'нужен слот')) : '';
+        rows.push({
+          is_gap: true, _t: f - 0.1, from: rssTime(f), to: rssTime(t), open,
+          svc: best ? best.svc : '', title: best ? RSS_SVC[best.svc].title + part : '',
+          sub: best ? placeOf(best) + ' · ' + how + ' · ≈ ' + rssFmt(best.rate) + ' ₽/ч' : '',
+          gain: best ? '+' + rssFmt(best.gain) + ' ₽' : '', action: 'Добавить',
+          onAction: () => { if (best) addWin(best); }, onTap: () => { if (best) openWin(best); },
+          more: list.length > 1 ? (open ? 'Свернуть' : 'Ещё ' + (list.length - 1)) : '',
+          onMore: () => set({ gapOpen: Object.assign({}, opened, { [k]: !open }) }),
+          alts: list.slice(1).map(rowOf)
+        });
       });
+      rows.forEach((r) => {
+        if (!r.is_window || r.src !== 'plan' || r.action || r.state === 'past') return;
+        const sw = cands.filter((o) => o.fit === 'swap' && o.over.some((w) => w.key === r.key)).sort(byGain)[0];
+        if (sw) Object.assign(r, { gain: true, note: 'Есть выгоднее: ' + RSS_SVC[sw.svc].title + ' ' + rssTime(sw.from) + '–' + rssTime(sw.to) + ', +' + rssFmt(sw.gain) + ' ₽', action: 'Заменить', actionKind: 'secondary', onAction: () => addWin(sw) });
+      });
+      rows.sort((a, b) => a._t - b._t);
+    }
+    // где добрать до цели: будущий день недели, где больше всего свободного времени
+    const freeMinOf = (iso) => {
+      const from = iso === RSS_TODAY_ISO ? Math.ceil(RSS_NOW / 60) * 60 : 480;
+      const ws = windowsOf(iso).filter((w) => w.source !== 'gap').map((w) => [Math.max(w.from, from), w.to]).filter(([a, b]) => b > a).sort((a, b) => a[0] - b[0]);
+      let cur = from, sum = 0;
+      ws.forEach(([a, b]) => { if (a - cur >= 60) sum += a - cur; cur = Math.max(cur, b); });
+      if (1320 - cur >= 60) sum += 1320 - cur;
+      return sum;
+    };
 
     // пустой день: собрать из двух лучших непересекающихся вариантов
     const assembleDay = () => {
@@ -525,7 +692,7 @@ class Component extends DCLogic {
     };
     const cmpRates = RSS_ORDER.map((svc) => rssRate(svc, win ? win.from : 0, win ? win.to : 60, wZoneF));
     const cmpMax = Math.max.apply(null, cmpRates) || 1;
-    const w_cmp = RSS_ORDER.filter(allowed).map((svc) => {
+    const w_cmp = RSS_ORDER.map((svc) => {
       const rate = cmpRates[RSS_ORDER.indexOf(svc)];
       const av = availOf(svc);
       const selected = svc === wSvc;
@@ -547,7 +714,7 @@ class Component extends DCLogic {
     let wPrimary = '', wPrimaryTap = () => {}, wSecondary = '', wSecondaryTap = () => {};
     if (win && !wPast) {
       if (wIsBooking) { wPrimary = 'Открыть в Сменах'; wPrimaryTap = openShifts; }
-      else if (win.source === 'option' && !winInPlan && winKind === 'free') { wPrimary = 'Добавить в расписание'; wPrimaryTap = () => { const nx = Object.assign({}, added); nx[win.iso] = (nx[win.iso] || []).concat([{ key: 'a:' + win.key + ':' + wSvc, svc: wSvc, from: win.from, to: win.to, zone: win.zone, source: 'added' }]); set({ added: nx, view: 'list', tab: 'mine' }); flash('Добавили в расписание'); }; }
+      else if (win.source === 'option' && !winInPlan && winKind === 'free') { wPrimary = 'Добавить в расписание'; wPrimaryTap = () => { const nx = Object.assign({}, added); nx[win.iso] = (nx[win.iso] || []).concat([{ key: 'a:' + win.key + ':' + wSvc, svc: wSvc, from: win.from, to: win.to, zone: win.zone, source: 'added' }]); set({ added: nx, view: 'list' }); flash('Добавили в расписание'); }; }
       else if (winKind === 'need') { wPrimary = 'Взять слот в ' + RSS_SVC[wSvc].in; wPrimaryTap = () => findSlot(win.iso, wSvc); }
       if (win.source !== 'option' && !wIsBooking) { wSecondary = 'Убрать из расписания'; wSecondaryTap = () => { set({ removed: Object.assign({}, removed, { [win.key]: true }), view: 'list' }); flash('Убрали окно'); }; }
     }
@@ -555,24 +722,53 @@ class Component extends DCLogic {
     const winDate = win ? new Date(win.iso + 'T00:00:00') : RSS_TODAY;
 
     const intro = auto
-      ? 'Когда и где работать. Брони из Смен уже здесь, в свободные часы подставляем выгодное по спросу'
-      : 'Когда и где работать. Брони из Смен уже здесь, остальное вы добавляете из Вариантов';
+      ? 'Когда и где работать. Брони из Смен уже в плане, свободные часы заполняем по спросу'
+      : 'Когда и где работать. Брони из Смен уже в плане, остальное добавляете из Вариантов';
     return {
       on_back: typeof p.onBack === 'function' ? p.onBack : (() => {}),
       is_list: (st.view || 'list') === 'list', is_win: st.view === 'win',
-      intro,
-      tabs: [['mine', 'Моё расписание'], ['options', 'Варианты']].map(([k, label]) => ({ label, selected: tab === k, cls: 'raznos-segment' + (tab === k ? ' raznos-is-active' : ''), tap: () => set({ tab: k }) })),
-      days, is_mine: tab === 'mine', is_options: tab === 'options',
-      week_text: 'Неделя: ≈ ' + rssFmt(weekTotal) + ' ₽ из цели ' + rssFmt(weekGoal) + ' ₽' + (weekShort ? ', не хватает ≈ ' + rssFmt(weekGoal - weekTotal) + ' ₽' : ', план закрывает цель'),
-      week_short: weekShort, week_fix: () => set({ tab: 'options' }),
+      intro, has_back: !p.embedded, screen_title: p.embedded ? 'План' : 'Умное расписание',
+      goal_value: weekPast ? 'Заработано ' + rssFmt(weekEarned) + ' ₽' : weekOff > 0 ? '≈ ' + rssFmt(Math.round(weekLeft / 100) * 100) + ' ₽ в плане' : rssFmt(weekEarned) + ' + ≈ ' + rssFmt(Math.round(weekLeft / 100) * 100) + ' ₽',
+
+      goal_done_style: 'width:' + Math.min(100, Math.round(weekEarned * 100 / weekGoal)) + '%',
+      goal_plan_style: 'left:' + Math.min(100, Math.round(weekEarned * 100 / weekGoal)) + '%;width:' + Math.max(0, Math.min(100 - Math.round(weekEarned * 100 / weekGoal), Math.round(weekLeft * 100 / weekGoal))) + '%',
+      goal_state: weekShort ? 'не хватает ≈ ' + rssFmt(weekGoal - weekTotal) + ' ₽' : 'цель ' + rssFmt(weekGoal) + ' ₽ закрыта', goal_state_cls: weekShort ? 'rss-goal-short' : '',
+      goal_aria: 'Цель недели ' + rssFmt(weekGoal) + ' рублей, заработано ' + rssFmt(weekEarned) + ', в плане ещё ' + rssFmt(Math.round(weekLeft)),
+      open_goal: () => { if (!weekPast) set({ goalOpen: true }); }, close_goal: () => set({ goalOpen: false }), show_goal: !!st.goalOpen,
+      gs_goal: weekGoal, gs_days: weekDays.filter((x) => rssIso(x) >= RSS_TODAY_ISO).length, gs_earned_v: weekEarned, gs_booked_v: weekBooked, gs_plan_v: Math.max(0, weekLeft - weekBooked),
+      goal_set: setGoal,
+      goal_fix: () => { const best = weekDays.map(rssIso).filter((iso) => iso >= RSS_TODAY_ISO).map((iso) => ({ iso, free: freeMinOf(iso) })).sort((a, b) => b.free - a.free)[0]; set({ goalOpen: false, day: best && best.free ? best.iso : selIso }); },
+      shifts_title: 'Смены · ' + liveShifts.length + ' на неделе', shifts_flags: shiftFlags,
+      shifts_aria: 'Смены, ' + liveShifts.length + ' на неделе' + (shiftFlags ? ', ' + shiftFlags : ''),
+      open_shifts: () => openShifts({ week: weekOff }),
+      show_term: !!st.term, term_title: st.term ? st.term.charAt(0).toUpperCase() + st.term.slice(1) : '', term_text: st.term ? (RSS_TERMS[st.term] || '') : '',
+      close_term: () => set({ term: '' }),
+      // выбор можно открыть снова кнопкой в шапке
+      show_onboard: !!p.embedded && ((!p.onboarded && !st.onboarded) || !!st.onboardOpen),
+      open_onboard: () => set({ settings: false, onboardOpen: true }),
+      onboard_label: st.onboardChoice || 'Не выбрано',
+      onboard_skip_label: st.onboardOpen ? 'Закрыть' : 'Потом',
+      onboard_choices: [
+        ['Держусь своих смен', 'План соберём из ваших броней, свободные часы заполним сами', { build: 'auto' }],
+        ['Ищу выгодные смены', 'Покажем все варианты дня, выбираете вы', { build: 'manual' }],
+        ['Советуйте, я сделаю', 'Соберём день за вас, подсказки придут в Сегодня', { build: 'auto' }],
+        ['У меня своё окно', 'Укажите часы, и план будет только в них', { build: 'auto', graph: true }]
+      ].map(([title, text, v]) => ({ title, text, tap: () => {
+        set({ onboarded: true, onboardOpen: false, onboardChoice: title }); saveSettings({ build: v.build });
+        if (typeof p.onOnboard === 'function') p.onOnboard(v.build);
+        if (v.graph && typeof p.onEditGraph === 'function') p.onEditGraph();
+      } })),
+      onboard_skip: () => { const again = !!st.onboardOpen; set({ onboarded: true, onboardOpen: false }); if (again) return; if (typeof p.onOnboard === 'function') p.onOnboard(''); },
+      week_off: weekOff, week_change: (v) => goWeek(v - weekOff),
+      days, is_mine: true,
       day_title: (isToday ? 'Сегодня, ' : RSS_WD_FULL[selDate.getDay()] + ', ') + selDate.getDate() + ' ' + RSS_MONTHS[selDate.getMonth()],
-      day_sub: isToday ? rssFmt(todayEarned) + ' ₽ уже заработано · спрос обновлён 2 мин назад' : realWins.length ? rssHours(dayMin) + ' · ' + (bookedCount ? bookedCount + ' ' + (bookedCount === 1 ? 'бронь' : (bookedCount < 5 ? 'брони' : 'броней')) : 'без броней') : (isWorkDay(selDate) ? 'рабочий день по графику' : 'выходной по графику'),
-      has_total: realWins.length > 0, day_total: '≈ ' + rssFmt(Math.round(dayEarn / 100) * 100) + ' ₽',
+      day_sub: selIso < RSS_TODAY_ISO ? (realWins.length ? 'смены выполнены, итог дня в Результатах' : 'смен не было') : isToday ? rssFmt(todayEarned) + ' ₽ уже заработано · спрос обновлён 2 мин назад' : realWins.length ? rssHours(dayMin) + ' · ' + (bookedCount ? bookedCount + ' ' + (bookedCount === 1 ? 'бронь' : (bookedCount < 5 ? 'брони' : 'броней')) : 'без броней') : (isWorkDay(selDate) ? 'рабочий день по графику' : 'выходной по графику'),
+      has_total: realWins.length > 0 && selIso >= RSS_TODAY_ISO, day_total: '≈ ' + rssFmt(Math.round(dayEarn / 100) * 100) + ' ₽',
       rows: topNudge ? [topNudge].concat(rows) : rows, has_rows: rows.length > 0 || !!topNudge,
       show_empty: !realWins.length && !rows.some((r) => r.is_gap),
       empty_title: isWorkDay(selDate) ? 'Пока пусто' : 'Выходной по графику',
       empty_text: isWorkDay(selDate) ? 'Добавьте окна из Вариантов или соберём план за вас' : 'Если захотите поработать, соберём план из лучших вариантов этого дня',
-      can_assemble: true, assemble_label: 'Собрать план на ' + RSS_WD_FULL[selDate.getDay()].toLowerCase(), assemble: assembleDay,
+      can_assemble: selIso >= RSS_TODAY_ISO, assemble_label: 'Собрать план на ' + RSS_WD_FULL[selDate.getDay()].toLowerCase(), assemble: assembleDay,
       show_reset: dayChanged, reset_day: () => {
         const strip = (obj) => { const nx = {}; Object.keys(obj).forEach((k) => { if (k.indexOf(selIso) === -1) nx[k] = obj[k]; }); return nx; };
         const nxAdded = Object.assign({}, added); delete nxAdded[selIso];
@@ -580,16 +776,9 @@ class Component extends DCLogic {
         flash('Правки дня сброшены');
       },
       mine_note: auto ? 'Если сервис упадёт или бронь отменят, окно подменим и напишем пуш. Брони план не трогает' : 'План сам не меняется, подсказки приходят только по вашим окнам',
-      options_sub: 'Всё, куда можно выйти, сначала выгодное',
-      filters: [['all', 'Все'], ['free', 'Без брони'], ['slots', 'Слоты']].map(([k, label]) => ({ label, pressed: filter === k, cls: 'raznos-chip' + (filter === k ? ' raznos-is-active' : ''), tap: () => set({ filter: k }) })),
-      options, options_empty: options.length === 0,
-      options_empty_text: onlyMine ? 'В ваших привычных сервисах на этот день слотов нет. Можно включить все сервисы в настройках плана' : 'Сервисы не прислали слотов на этот день',
-      options_note: 'Цифры по курьерам Разноса за последний час и вашим сменам, для будущих дней это прогноз по прошлым неделям',
       show_settings: !!st.settings, open_settings: () => set({ settings: true }), close_settings: () => set({ settings: false }),
       set_build: [['auto', 'Разнос сам'], ['manual', 'Я из Вариантов']].map(([k, label]) => ({ label, cls: 'raznos-segment' + (build === k ? ' raznos-is-active' : ''), tap: () => saveSettings({ build: k }) })),
       set_build_note: auto ? 'Каждое утро собираем день по графику, в течение дня подменяем окна, если что-то сломалось' : 'Ничего не подставляем, показываем свободные часы и варианты',
-      set_svcs: [['all', 'Все'], ['mine', 'Только привычные']].map(([k, label]) => ({ label, cls: 'raznos-segment' + (svcMode === k ? ' raznos-is-active' : ''), tap: () => saveSettings({ svcs: k }) })),
-      set_svcs_note: onlyMine ? 'Только Самокат и ВкусВилл, другие сервисы не советуем' : 'Все подключённые: Яндекс Еда, Самокат, ВкусВилл, X5',
       graph_label: 'Пн–пт ' + rssTime(workStart) + '–' + rssTime(workEnd),
       edit_graph: () => { set({ settings: false }); if (typeof p.onEditGraph === 'function') p.onEditGraph(); },
       toast: st.toast || '',

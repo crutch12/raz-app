@@ -7,8 +7,10 @@
     .rpw.rpw-pending { border: 1px dashed var(--raznos-amber); }
     .rpw.rpw-need { border: 1px dashed var(--raznos-line-strong); }
     .rpw.rpw-past { opacity: 0.55; }
-    .rpw-main { display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 10px; width: 100%; padding: 0; border: 0; background: none; text-align: left; font: inherit; color: inherit; cursor: pointer; }
-    .rpw-main:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 3px; border-radius: 8px; }
+    .rpw-main { display: flex; align-items: center; gap: 10px; width: 100%; }
+    .rpw-hit { flex: 1; min-width: 0; display: grid; grid-template-columns: 48px 1fr; align-items: center; gap: 10px; padding: 0; border: 0; background: none; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+    .rpw-hit:focus-visible, .rpw-end > button:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 3px; border-radius: 8px; }
+    .rpw-pay-btn { padding: 0; border: 0; background: none; cursor: pointer; font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
     .rpw-time { display: flex; flex-direction: column; gap: 1px; font: 700 13px/1.2 var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
     .rpw-time > small { font: 600 12px/1.2 var(--raznos-mono); color: var(--raznos-ink-3); }
     .rpw-body { display: flex; align-items: center; gap: 10px; min-width: 0; }
@@ -17,27 +19,37 @@
     .rpw-sub { font: 500 12px/1.3 var(--raznos-font); color: var(--raznos-ink-3); overflow-wrap: anywhere; }
     .rpw-end { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
     .rpw-pay { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .rpw-badge { font: 600 11px var(--raznos-font); padding: 2px 8px; border-radius: 999px; white-space: nowrap; background: var(--raznos-surface-2); color: var(--raznos-ink-2); }
+    .rpw-badge { border: 0; cursor: pointer; font: 600 11px var(--raznos-font); padding: 2px 8px; border-radius: 999px; white-space: nowrap; background: var(--raznos-surface-2); color: var(--raznos-ink-2); }
     .rpw-badge.rpw-badge-ok { background: color-mix(in oklab, var(--raznos-green) 16%, var(--raznos-surface)); color: var(--raznos-green-deep); }
     .rpw-badge.rpw-badge-warn { background: var(--raznos-amber-tint); color: var(--raznos-ink); }
     .rpw-badge.rpw-badge-off { background: var(--raznos-surface-2); color: var(--raznos-ink-3); }
     .rpw-badge.rpw-badge-live { background: var(--raznos-dark); color: var(--raznos-on-dark); }
     .rpw-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 10px; border-top: 1px solid var(--raznos-line); }
     .rpw-note { font: 500 12.5px/1.35 var(--raznos-font); color: var(--raznos-ink-2); min-width: 0; }
+    .rpw.rpw-urgent { background: var(--raznos-amber-tint); border: 1.5px solid var(--raznos-amber); }
+    .rpw.rpw-urgent .rpw-badge { background: var(--raznos-surface); color: var(--raznos-ink); }
+    .rpw.rpw-urgent .rpw-foot { border-top-color: color-mix(in oklab, var(--raznos-amber) 45%, transparent); }
+    .rpw-note.rpw-note-urgent { display: flex; align-items: flex-start; gap: 6px; font-weight: 700; font-size: 13.5px; color: var(--raznos-ink); }
+    .rpw-urgent-icon { flex: none; margin-top: 1px; color: var(--raznos-amber); }
+    .rpw-note.rpw-note-added { font-weight: 700; font-size: 13.5px; color: var(--raznos-green-deep); }
+    .rpw-note.rpw-note-gain { font-weight: 700; font-size: 13.5px; color: var(--raznos-green-deep); font-variant-numeric: tabular-nums; }
+    .rpw-in-plan { flex: none; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--raznos-green); color: var(--raznos-on-dark); }
     .rpw-foot .raznos-btn { flex: none; white-space: nowrap; }
   </style>
 </helmet>
 <div class="{{ cls }}">
-  <button type="button" class="rpw-main" onClick="{{ on_tap }}" aria-label="{{ aria }}">
-    <span class="rpw-time">{{ from }}<small>{{ to }}</small></span>
-    <span class="rpw-body"><dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ title }}" size="sm"></dc-import><span class="rpw-copy"><span class="rpw-title">{{ title }}</span><span class="rpw-sub">{{ sub }}</span></span></span>
-    <span class="rpw-end"><span class="rpw-pay">{{ pay }}</span><span class="{{ badge_cls }}">{{ badge }}</span></span>
-  </button>
+  <div class="rpw-main">
+    <button type="button" class="rpw-hit" onClick="{{ on_tap }}" aria-label="{{ aria }}">
+      <span class="rpw-time">{{ from }}<small>{{ to }}</small></span>
+      <span class="rpw-body"><dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ title }}" size="sm"></dc-import><span class="rpw-copy"><span class="rpw-title">{{ title }}</span><span class="rpw-sub">{{ sub }}</span></span></span>
+    </button>
+    <span class="rpw-end"><button type="button" class="rpw-pay-btn" onClick="{{ on_tap }}" tabindex="-1" aria-hidden="true">{{ pay }}</button><button type="button" class="{{ badge_cls }}" onClick="{{ on_badge }}" aria-label="{{ badge_aria }}">{{ badge }}</button></span>
+  </div>
   <sc-if value="{{ has_foot }}" hint-placeholder-val="{{ false }}">
-    <div class="rpw-foot"><span class="rpw-note">{{ note }}</span><sc-if value="{{ has_action }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ action_cls }}" onClick="{{ on_action }}">{{ action }}</button></sc-if></div>
+    <div class="rpw-foot"><span class="{{ note_cls }}"><sc-if value="{{ urgent }}" hint-placeholder-val="{{ false }}"><svg class="rpw-urgent-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/><path d="M12 16.5h.01"/></svg></sc-if>{{ note }}</span><sc-if value="{{ has_action }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ action_cls }}" onClick="{{ on_action }}">{{ action }}</button></sc-if><sc-if value="{{ in_plan }}" hint-placeholder-val="{{ false }}"><span class="rpw-in-plan" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4.5 4.5L19 7"/></svg></span></sc-if></div>
   </sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"12:00"},"to":{"editor":"text","default":"14:00"},"svc":{"editor":"text","default":"yandex-eda"},"title":{"editor":"text","default":"Яндекс Еда"},"sub":{"editor":"text","default":"Центр"},"pay":{"editor":"text","default":"≈ 740 ₽/ч"},"kind":{"editor":"enum","options":["free","booked","pending","need","full","option"],"default":"free"},"badge":{"editor":"text","default":"свободный выход"},"state":{"editor":"enum","options":["","now","past"],"default":""},"note":{"editor":"text","default":""},"action":{"editor":"text","default":""},"actionKind":{"editor":"enum","options":["primary","secondary","ghost"],"default":"secondary"},"onTap":{"editor":null},"onAction":{"editor":null},"$preview":{"width":366,"height":130}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"12:00"},"to":{"editor":"text","default":"14:00"},"svc":{"editor":"text","default":"yandex-eda"},"title":{"editor":"text","default":"Яндекс Еда"},"sub":{"editor":"text","default":"Центр"},"pay":{"editor":"text","default":"≈ 740 ₽/ч"},"kind":{"editor":"enum","options":["free","booked","pending","need","full","option"],"default":"free"},"badge":{"editor":"text","default":"свободный выход"},"state":{"editor":"enum","options":["","now","past"],"default":""},"note":{"editor":"text","default":""},"action":{"editor":"text","default":""},"actionKind":{"editor":"enum","options":["primary","secondary","ghost"],"default":"secondary"},"onTap":{"editor":null},"onBadge":{"editor":null},"added":{"editor":null},"urgent":{"editor":null},"gain":{"editor":null},"onAction":{"editor":null},"$preview":{"width":366,"height":130}}'>
 // окно в умном расписании: бронь из Смен, окно плана или вариант, доступность бейджем, действие внизу
 class Component extends DCLogic {
   renderVals() {
@@ -53,11 +65,18 @@ class Component extends DCLogic {
       from, to, svc: p.svc || 'yandex-eda', title, sub: p.sub === undefined ? 'Центр' : p.sub,
       pay: p.pay || '≈ 740 ₽/ч', badge: state === 'now' ? 'идёт' : (p.badge || 'свободный выход'),
       badge_cls: 'rpw-badge' + (badgeTone ? ' rpw-badge-' + badgeTone : ''),
-      cls: 'rpw' + (({ booked: ' rpw-booked', pending: ' rpw-pending', need: ' rpw-need' })[kind] || '') +(state === 'past' ? ' rpw-past' : ''),
+      // срочно: окно уже в плане, но без брони сервис заказы не даст
+      cls: 'rpw' + (p.urgent ? ' rpw-urgent' : (({ booked: ' rpw-booked', pending: ' rpw-pending', need: ' rpw-need' })[kind] || '')) + (state === 'past' ? ' rpw-past' : ''),
+      urgent: !!p.urgent,
+      // окно уже в расписании: зелёная подпись и галочка в кружке на месте кнопки
+      in_plan: !!p.added && !action, note_cls: 'rpw-note' + (p.added ? ' rpw-note-added' : '') + (p.gain ? ' rpw-note-gain' : '') + (p.urgent ? ' rpw-note-urgent' : ''),
       has_foot: !!(note || action), note, has_action: !!action, action,
       action_cls: 'raznos-btn raznos-btn-small' + (p.actionKind === 'primary' ? ' raznos-btn-primary' : (p.actionKind === 'ghost' ? ' raznos-btn-ghost' : ' raznos-btn-secondary')),
       aria: from + '–' + to + ', ' + title + ', ' + (p.pay || '') + ', ' + (p.badge || ''),
       on_tap: typeof p.onTap === 'function' ? p.onTap : (() => {}),
+      // тап по метке объясняет, что она значит
+      on_badge: typeof p.onBadge === 'function' ? p.onBadge : (typeof p.onTap === 'function' ? p.onTap : (() => {})),
+      badge_aria: 'Что значит ' + (state === 'now' ? 'идёт' : (p.badge || 'свободный выход')),
       on_action: typeof p.onAction === 'function' ? p.onAction : (() => {})
     };
   }

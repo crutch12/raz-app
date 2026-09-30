@@ -14,17 +14,15 @@
     <dc-import name="RaznosShiftAlert" kind="{{ alert.kind }}" title="{{ alert.title }}" text="{{ alert.text }}" meta="{{ alert.meta }}" action="{{ alert.action }}" activeAction="{{ alert.activeAction }}" active="{{ alert.active }}" onAction="{{ alert.tap }}"></dc-import>
   </sc-for>
 
-  <div class="raznos-shifts-tabs" role="tablist" aria-label="Смены">
+  <sc-if value="{{ show_tabs }}" hint-placeholder-val="{{ true }}"><div class="raznos-shifts-tabs" role="tablist" aria-label="Смены">
     <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="3"><button type="button" role="tab" class="{{ tab.cls }}" aria-selected="{{ tab.selected }}" onClick="{{ tab.tap }}">{{ tab.label }}<sc-if value="{{ tab.count }}" hint-placeholder-val="{{ false }}"><b>{{ tab.count }}</b></sc-if></button></sc-for>
-  </div>
+  </div></sc-if>
 
   <sc-if value="{{ show_strip }}" hint-placeholder-val="{{ true }}">
     <dc-import name="RaznosWeekStrip" days="{{ strip }}"></dc-import>
   </sc-if>
 
   <sc-if value="{{ is_mine }}" hint-placeholder-val="{{ true }}">
-    <sc-if value="{{ day_filtered }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-shifts-all" onClick="{{ show_all }}">Показать всю неделю</button></sc-if>
-    <sc-if value="{{ has_past }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-shifts-past" onClick="{{ toggle_past }}">{{ past_label }}</button></sc-if>
     <sc-for list="{{ mine_days }}" as="day" hint-placeholder-count="2">
       <section class="raznos-shifts-day" aria-label="{{ day.title }}">
         <div class="raznos-shifts-day-head"><h3>{{ day.title }}<sc-if value="{{ day.today }}" hint-placeholder-val="{{ false }}"><span class="raznos-shifts-today">сегодня</span></sc-if></h3><span>{{ day.meta }}</span></div>
@@ -65,7 +63,7 @@
 
   <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div class="raznos-shifts-toast" role="status">{{ toast }}</div></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"days":{"editor":null},"shifts":{"editor":null},"slots":{"editor":null},"rules":{"editor":null},"openings":{"editor":null},"deficits":{"editor":null},"watches":{"editor":null},"today":{"editor":"text","default":"2026-09-15"},"nowMinutes":{"editor":null},"initialTab":{"editor":"text","default":"mine"},"initialDay":{"editor":"text","default":""},"initialSvc":{"editor":"text","default":""},"onBack":{"editor":null},"onOpenService":{"editor":null},"$preview":{"width":390,"height":1600}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"days":{"editor":null},"shifts":{"editor":null},"slots":{"editor":null},"rules":{"editor":null},"openings":{"editor":null},"deficits":{"editor":null},"watches":{"editor":null},"today":{"editor":"text","default":"2026-09-15"},"nowMinutes":{"editor":null},"initialTab":{"editor":"text","default":"mine"},"initialWeek":{"editor":null},"initialDay":{"editor":"text","default":""},"initialSvc":{"editor":"text","default":""},"onBack":{"editor":null},"onOpenService":{"editor":null},"$preview":{"width":390,"height":1600}}'>
 // смены всех сервисов на неделю: мои смены, свободные слоты, слежение за местами и открытием записи
 const RSH_FMT = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 // оценки по ставкам сервисов округляем до десятков, это не точные суммы
@@ -98,20 +96,27 @@ class Component extends DCLogic {
     const set = (patch) => this.setState(patch);
     const today = p.today || '2026-09-15';
     const now = p.nowMinutes == null ? 940 : p.nowMinutes;
-    const shifts = p.shifts || RSH_DEMO_SHIFTS;
-    const slots = p.slots || [];
+    // неделя приходит из Плана: прошлая только посмотреть, эта и следующая как обычно
+    const weekOf = (iso) => Math.floor((new Date(iso + 'T00:00:00') - new Date(2026, 8, 14)) / (7 * 86400000));
+    const weekOff = p.initialWeek != null ? p.initialWeek : (p.initialDay ? weekOf(p.initialDay) : 0);
+    const weekPast = weekOff < 0;
+    const weekIsos = Array.from({ length: 7 }, (_, i) => { const x = new Date(2026, 8, 14 + weekOff * 7 + i); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); });
+    const shifts = (p.shifts || RSH_DEMO_SHIFTS).filter((x) => weekIsos.indexOf(x.iso) !== -1);
+    const slots = (p.slots || []).filter((x) => weekIsos.indexOf(x.iso) !== -1);
     const rules = p.rules || {};
     const openService = typeof p.onOpenService === 'function' ? p.onOpenService : (() => {});
     const date = (iso) => new Date(iso + 'T00:00:00');
-    const days = p.days || Array.from({ length: 7 }, (_, i) => { const d = new Date(2026, 8, 14 + i); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); });
+    const days = p.days || weekIsos;
     const dayTitle = (iso) => RSH_DAY_FULL[date(iso).getDay()] + ', ' + date(iso).getDate() + ' ' + RSH_MONTH[date(iso).getMonth()];
     const shortDay = (iso) => RSH_DOW[date(iso).getDay()].toLowerCase() + ' ' + date(iso).getDate();
-    const tab = st.tab || p.initialTab || 'mine';
+    const tab = weekPast ? 'mine' : (st.tab || p.initialTab || 'mine');
     const watches = st.watches || p.watches || {};
     const reminders = st.reminders || {};
     // из умного расписания Смены открываются на Свободных нужного дня и сервиса
-    const selDay = st.day !== undefined ? st.day : (tab === 'free' ? (p.initialDay || today) : null);
-    const freeDay = selDay || today;
+    // экран показывает один день из ленты, по умолчанию ближайший со своей сменой
+    const nearest = days.find((iso) => iso >= today && shifts.some((s) => s.iso === iso && s.status !== 'cancelled' && (iso > today || s.to > now))) || (days.indexOf(today) !== -1 ? today : days.find((iso) => shifts.some((s) => s.iso === iso)) || days[0]);
+    const selDay = st.day && days.indexOf(st.day) !== -1 ? st.day : (tab === 'free' && p.initialDay && days.indexOf(p.initialDay) !== -1 ? p.initialDay : nearest);
+    const freeDay = selDay;
     const flash = (text) => { set({ toast: text }); clearTimeout(this._toastTimer); this._toastTimer = setTimeout(() => this.setState({ toast: '' }), 2600); };
 
     // правило отмены и неявки из правил сервиса, дедлайн считаем от начала смены
@@ -175,10 +180,7 @@ class Component extends DCLogic {
     // вкладка Мои: неделя по дням, лента дня 6–24 ч
     const pos = (from, to) => 'left:' + Math.max(0, (from - 360) / 1080 * 100).toFixed(1) + '%;width:' + Math.max(2, (Math.min(to, 1440) - Math.max(from, 360)) / 1080 * 100).toFixed(1) + '%';
     const freeCount = (iso) => iso < today ? 0 : slots.filter((sl) => sl.iso === iso && !sl.full).length;
-    // прошедшие дни недели по умолчанию свёрнуты, их можно открыть или выбрать в ленте
-    const showPast = !!st.showPast;
-    const pastDays = days.filter((iso) => iso < today);
-    const mineDays = days.filter((iso) => selDay ? iso === selDay : (showPast || iso >= today)).map((iso) => {
+    const mineDays = [selDay].map((iso) => {
       const list = shifts.filter((s) => s.iso === iso).sort((a, b) => a.from - b.from);
       const mins = list.filter((s) => s.status !== 'cancelled').reduce((sum, s) => sum + s.to - s.from, 0);
       const fc = freeCount(iso);
@@ -224,10 +226,11 @@ class Component extends DCLogic {
     // лента недели
     const strip = days.map((iso) => ({
       dow: RSH_DOW[date(iso).getDay()], date: String(date(iso).getDate()), today: iso === today, past: iso < today,
-      selected: tab === 'free' ? iso === freeDay : iso === selDay,
+      done: iso < today && live.some((s) => s.iso === iso),
+      selected: iso === selDay,
       svcs: live.filter((s) => s.iso === iso).map((s) => s.svc),
       free: freeCount(iso) ? freeCount(iso) + ' своб.' : '',
-      tap: () => set({ day: tab === 'free' ? iso : (selDay === iso ? null : iso) })
+      tap: () => set({ day: iso })
     }));
 
     // сводка недели, цель живёт в Работе
@@ -258,18 +261,16 @@ class Component extends DCLogic {
     const watchCount = Object.keys(watches).length;
     const tabs = [['mine', 'Мои', 0], ['free', 'Свободные', 0], ['watch', 'Слежу', watchCount]].map(([key, label, count]) => ({
       label, count: count || '', selected: tab === key, cls: 'raznos-shifts-tab' + (tab === key ? ' raznos-is-active' : ''),
-      tap: () => set({ tab: key, day: key === 'free' ? (selDay || today) : null })
+      tap: () => set({ tab: key, day: key === 'free' && selDay < today ? today : selDay })
     }));
     return {
       on_back: typeof p.onBack === 'function' ? p.onBack : (() => {}),
-      range_label: date(days[0]).getDate() + '–' + date(days[days.length - 1]).getDate() + ' ' + RSH_MONTH[date(days[days.length - 1]).getMonth()],
+      range_label: date(days[0]).getDate() + '–' + date(days[days.length - 1]).getDate() + ' ' + RSH_MONTH[date(days[days.length - 1]).getMonth()] + (weekOff < 0 ? ' · прошлая неделя' : (weekOff > 0 ? ' · следующая неделя' : '')),
       sum_count: weekShifts.length + ' ' + RSH_PLURAL(weekShifts.length, 'смена', 'смены', 'смен'), sum_tail: 'на неделе',
       sum_sub: RSH_DUR(weekMin) + ' в графике · ≈ ' + RSH_EST(weekPay) + ' ₽ по ставкам сервисов',
-      flags, has_flags: flags.length > 0, alerts, tabs,
+      flags, has_flags: flags.length > 0, alerts: weekPast ? [] : alerts, tabs, show_tabs: !weekPast,
       show_strip: tab !== 'watch', strip,
       is_mine: tab === 'mine', is_free: tab === 'free', is_watch: tab === 'watch',
-      day_filtered: tab === 'mine' && !!selDay, show_all: () => set({ day: null }),
-      has_past: tab === 'mine' && !selDay && pastDays.length > 0, past_label: showPast ? 'Скрыть прошедшие дни' : 'Показать прошедшие дни недели', toggle_past: () => set({ showPast: !showPast }),
       mine_days: mineDays,
       chips, free_title: dayTitle(freeDay), free_meta: daySlots.filter((sl) => !sl.full).length + ' с местами · ' + daySlots.filter((sl) => sl.full).length + ' заняты',
       free_slots: freeSlots, free_empty: !freeSlots.length,

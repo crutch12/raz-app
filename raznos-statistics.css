@@ -23,7 +23,6 @@
 }
 
 .raznos-stats-screen::selection { background: var(--raznos-green); color: var(--raznos-on-dark); }
-.raznos-stats-screen .raznos-app-bar { min-height: 48px; }
 
 .raznos-stats-periods {
  display: grid;
@@ -263,7 +262,6 @@
 .raznos-stats-compare-verdict.raznos-is-negative { color: var(--raznos-red); }
 .raznos-stats-trend-toolbar { position: sticky; bottom: 0; z-index: 12; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: auto; padding: 14px 0 4px; background: linear-gradient(to top, var(--stats-bg) 72%, transparent); }
 .raznos-stats-trend-control { min-width: 0; min-height: 52px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 0 13px; border: 0; border-radius: 14px; background: var(--stats-track); color: var(--stats-ink); font: 650 13px var(--raznos-font); text-align: left; cursor: pointer; }
-.raznos-stats-trend-control.raznos-is-primary { grid-column: 1 / -1; }
 .raznos-stats-trend-control:hover { background: var(--raznos-surface-2); }
 .raznos-stats-trend-control:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; }
 .raznos-stats-trend-control span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -396,3 +394,26 @@
 .raznos-stats-choice .raznos-stats-filter-option span { white-space: normal; }
 .raznos-stats-money-bar.raznos-is-fines .raznos-stats-money-bar-track i { background: color-mix(in oklab, var(--raznos-red) 70%, var(--raznos-amber)); }
 .raznos-stats-money-bar.raznos-is-fines strong { color: var(--raznos-red); }
+
+/* Мои тренды: список показателей, как у Gridwise */
+.raznos-stats-trend-list { display: flex; flex-direction: column; gap: 10px; }
+.raznos-stats-trend-card { display: flex; flex-direction: column; gap: 14px; width: 100%; padding: 14px 16px; border: 0; border-radius: 16px; background: var(--raznos-surface); color: var(--raznos-ink); text-align: left; font: inherit; cursor: pointer; }
+.raznos-stats-trend-card:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+.raznos-stats-trend-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--raznos-ink-3); }
+.raznos-stats-trend-card-title { font: 700 17px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-stats-trend-card-body { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.raznos-stats-trend-card-value { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.raznos-stats-trend-card-value > strong { font: 800 26px var(--raznos-font); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.raznos-stats-trend-card-value > b { font: 700 15px var(--raznos-font); color: var(--raznos-ink-3); font-variant-numeric: tabular-nums; }
+.raznos-stats-trend-card.raznos-is-up .raznos-stats-trend-card-value > b { color: var(--raznos-green-deep); }
+.raznos-stats-trend-card.raznos-is-down .raznos-stats-trend-card-value > b { color: var(--raznos-red); }
+.raznos-stats-trend-spark { flex: none; display: flex; align-items: flex-end; gap: 4px; height: 40px; }
+.raznos-stats-trend-spark-bar { position: relative; width: 7px; height: 100%; border-radius: 999px; background: var(--raznos-surface-2); overflow: hidden; }
+.raznos-stats-trend-spark-bar > em { position: absolute; left: 0; right: 0; bottom: 0; border-radius: 999px; background: color-mix(in oklab, var(--raznos-green) 45%, var(--raznos-surface-2)); }
+.raznos-stats-trend-spark-bar.raznos-is-current > em { background: var(--raznos-green-deep); }
+.raznos-stats-trend-card.raznos-is-down .raznos-stats-trend-spark-bar.raznos-is-current > em { background: var(--raznos-red); }
+.raznos-stats-trend-focus-title { margin: -4px 0 0; font: 750 20px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-stats-trend-scale { margin: -4px 0 0; font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-stats-compare-delta { display: block; margin-top: 2px; font: 700 13px var(--raznos-font); font-style: normal; color: var(--raznos-ink-3); font-variant-numeric: tabular-nums; }
+.raznos-stats-compare-delta.raznos-is-positive { color: var(--raznos-green-deep); }
+.raznos-stats-compare-delta.raznos-is-negative { color: var(--raznos-red); }
