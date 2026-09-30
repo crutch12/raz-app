@@ -621,7 +621,8 @@ class Component extends DCLogic {
     };
     const byGain = (a, b) => b.gain - a.gain;
     // варианты прямо в расписании: свободный промежуток с лучшим вариантом и замена окна плана, если есть выгоднее
-    if (selIso >= RSS_TODAY_ISO) {
+    // в пустом дне вместо одного большого промежутка карточка Собрать план
+    if (selIso >= RSS_TODAY_ISO && realWins.length) {
       const opened = st.gapOpen || {};
       // час после последней брони уже предлагает подсказка остаться, второй раз не показываем
       const stayGap = isToday && stayBase && stay !== 'dismissed' ? stayBase.to : -1;
@@ -765,9 +766,9 @@ class Component extends DCLogic {
       day_sub: selIso < RSS_TODAY_ISO ? (realWins.length ? 'смены выполнены, итог дня в Результатах' : 'смен не было') : isToday ? rssFmt(todayEarned) + ' ₽ уже заработано · спрос обновлён 2 мин назад' : realWins.length ? rssHours(dayMin) + ' · ' + (bookedCount ? bookedCount + ' ' + (bookedCount === 1 ? 'бронь' : (bookedCount < 5 ? 'брони' : 'броней')) : 'без броней') : (isWorkDay(selDate) ? 'рабочий день по графику' : 'выходной по графику'),
       has_total: realWins.length > 0 && selIso >= RSS_TODAY_ISO, day_total: '≈ ' + rssFmt(Math.round(dayEarn / 100) * 100) + ' ₽',
       rows: topNudge ? [topNudge].concat(rows) : rows, has_rows: rows.length > 0 || !!topNudge,
-      show_empty: !realWins.length && !rows.some((r) => r.is_gap),
+      show_empty: !realWins.length,
       empty_title: isWorkDay(selDate) ? 'Пока пусто' : 'Выходной по графику',
-      empty_text: isWorkDay(selDate) ? 'Добавьте окна из Вариантов или соберём план за вас' : 'Если захотите поработать, соберём план из лучших вариантов этого дня',
+      empty_text: isWorkDay(selDate) ? 'Соберём день из лучших вариантов, лишнее потом уберёте' : 'Если захотите поработать, соберём план из лучших вариантов этого дня',
       can_assemble: selIso >= RSS_TODAY_ISO, assemble_label: 'Собрать план на ' + RSS_WD_FULL[selDate.getDay()].toLowerCase(), assemble: assembleDay,
       show_reset: dayChanged, reset_day: () => {
         const strip = (obj) => { const nx = {}; Object.keys(obj).forEach((k) => { if (k.indexOf(selIso) === -1) nx[k] = obj[k]; }); return nx; };
