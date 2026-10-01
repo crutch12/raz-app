@@ -32,7 +32,13 @@
     .rss-toggle-copy > b { font: 650 14px var(--raznos-font); color: var(--raznos-ink); }
     .rss-toggle-copy > span { font: 500 12px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
     .rss-preset-link { align-self: flex-start; }
-    .rss-rebuild { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; margin-top: -6px; padding: 0 2px; border: 0; background: none; font: 650 13.5px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
+    .rss-rebuild { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: -4px; padding: 10px 12px; border: 1px solid var(--raznos-line); border-radius: 14px; background: var(--raznos-surface); text-align: left; font: inherit; color: inherit; cursor: pointer; }
+    .rss-rebuild-icon { width: 32px; height: 32px; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: color-mix(in oklab, var(--raznos-green) 12%, var(--raznos-surface)); color: var(--raznos-green-deep); }
+    .rss-rebuild-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+    .rss-rebuild-copy > b { font: 650 14px var(--raznos-font); color: var(--raznos-ink); }
+    .rss-rebuild-copy > span { font: 500 12px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rss-rebuild-gain { flex: none; padding: 3px 9px; border-radius: 999px; background: var(--raznos-green-deep); color: var(--raznos-on-dark); font: 700 12.5px var(--raznos-font); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rss-rebuild-chev { flex: none; color: var(--raznos-ink-3); }
     .rss-rebuild:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 6px; }
     .rss-head-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
     .rss-head-title { margin: 0; font: 700 17px var(--raznos-font); color: var(--raznos-ink); }
@@ -58,6 +64,9 @@
     .rss-goal-top > b { font: 700 15px var(--raznos-font); font-variant-numeric: tabular-nums; }
     .rss-goal-top > span { font: 600 12.5px var(--raznos-font); color: var(--raznos-green-deep); white-space: nowrap; }
     .rss-goal-top > span.rss-goal-short { color: var(--raznos-ink-2); }
+    .rss-goal-top > span { flex: 1; text-align: right; }
+    .rss-goal-chev { flex: none; align-self: center; margin-right: -4px; color: var(--raznos-ink-3); }
+    .rss-goal-sub { margin-top: -4px; font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); font-variant-numeric: tabular-nums; }
     .rss-goal-track { position: relative; height: 6px; border-radius: 999px; background: var(--raznos-surface-2); overflow: hidden; }
     .rss-goal-done { position: absolute; left: 0; top: 0; bottom: 0; background: var(--raznos-green); border-radius: 999px; }
     .rss-goal-plan { position: absolute; top: 0; bottom: 0; background: color-mix(in oklab, var(--raznos-green) 35%, var(--raznos-surface-2)); }
@@ -87,7 +96,8 @@
   <dc-import name="RaznosWeekNav" start="2026-09-14" offset="{{ week_off }}" onChange="{{ week_change }}" linkLabel="{{ week_link }}" onLink="{{ week_result }}"></dc-import>
 
   <button type="button" class="rss-goal rss-goal-sticky" onClick="{{ open_goal }}" aria-label="{{ goal_aria }}">
-    <span class="rss-goal-top"><b>{{ goal_value }}</b><span class="{{ goal_state_cls }}">{{ goal_state }}</span></span>
+    <span class="rss-goal-top"><b>{{ goal_title }}</b><span class="{{ goal_state_cls }}">{{ goal_state }}</span><svg class="rss-goal-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
+    <span class="rss-goal-sub">{{ goal_value }}</span>
     <span class="rss-goal-track"><span class="rss-goal-done" style="{{ goal_done_style }}"></span><span class="rss-goal-plan" style="{{ goal_plan_style }}"></span></span>
   </button>
 
@@ -108,7 +118,7 @@
       <span class="rss-head-copy"><h2 class="rss-head-title">{{ day_title }}</h2><span class="rss-head-sub">{{ day_sub }}<sc-if value="{{ has_result_link }}" hint-placeholder-val="{{ false }}">, <button type="button" class="rss-head-link" onClick="{{ open_result }}">итог дня в Результатах</button></sc-if></span></span>
       <sc-if value="{{ has_total }}" hint-placeholder-val="{{ true }}"><span class="rss-total">{{ day_total }}</span></sc-if>
     </div>
-    <sc-if value="{{ can_rebuild }}" hint-placeholder-val="{{ true }}"><button type="button" class="rss-rebuild" onClick="{{ open_rebuild }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Пересобрать день</button></sc-if>
+    <sc-if value="{{ can_rebuild }}" hint-placeholder-val="{{ true }}"><button type="button" class="rss-rebuild" onClick="{{ open_rebuild }}"><span class="rss-rebuild-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></span><span class="rss-rebuild-copy"><b>Пересобрать день</b><span>{{ rb_hint }}</span></span><sc-if value="{{ rb_has_gain }}" hint-placeholder-val="{{ true }}"><span class="rss-rebuild-gain">{{ rb_gain }}</span></sc-if><svg class="rss-rebuild-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></sc-if>
 
     <sc-if value="{{ has_rows }}" hint-placeholder-val="{{ true }}">
     <sc-if value="{{ show_edit_tip }}" hint-placeholder-val="{{ false }}"><div class="rss-tip"><span>Окна можно менять: нажмите на окно, чтобы выбрать другой сервис, время или убрать его</span><button type="button" class="rss-tip-close" onClick="{{ hide_edit_tip }}" aria-label="Понятно"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div></sc-if>
@@ -317,7 +327,7 @@ class Component extends DCLogic {
     const saveSettings = (patch) => { set(patch); if (typeof p.onSettings === 'function') p.onSettings(Object.assign({ build }, patch)); };
     const auto = build === 'auto';
     // настройки плана конкретными переключателями, вопрос Как вы работаете только заполняет их пресетом
-    const prefs = Object.assign({ swap: true, rebuildHint: false, rbDefault: 'money', onlyFree: false }, p.prefs || {}, st.prefs || {});
+    const prefs = Object.assign({ swap: true, rbDefault: 'money', onlyFree: false }, p.prefs || {}, st.prefs || {});
     const setPrefs = (patch) => { const next = Object.assign({}, prefs, patch); set({ prefs: next }); if (typeof p.onSettings === 'function') p.onSettings({ build: patch.build || build, prefs: next }); };
     // решение «остаться ещё на час» общее с Сегодня, поэтому живёт в приложении
     const stay = typeof p.onStay === 'function' ? (p.stay || '') : (st.stay || '');
@@ -731,15 +741,12 @@ class Component extends DCLogic {
         if (sw) { const w = planWins.find((x) => x.key === r.key); Object.assign(r, { gain: true, urgent: false, note: 'Есть выгоднее: ' + RSS_SVC[sw.o.svc].title + ' ' + rssTime(sw.o.from) + '–' + rssTime(sw.o.to) + ', +' + rssFmt(sw.d) + ' ₽', action: 'Посмотреть', actionKind: 'secondary', onAction: () => set({ gapSheet: { iso: selIso, from: w.from, to: w.to, winKey: w.key } }) }); }
       });
     }
-    if (prefs.rebuildHint && selIso >= RSS_TODAY_ISO && realWins.length && !dismissed['rb:' + selIso] && !st.rebuild) {
-      const fixed = liveWins.filter((w) => w.source !== 'plan' && w.source !== 'added');
-      const gain = Math.round((winsSum(fixed.concat(bestFill(fixed, spanFrom, spanTo, 'money', rbAllow))) - winsSum(liveWins)) / 100) * 100;
-      if (gain >= 300) rows.unshift({
-        is_nudge: true, _t: -1, icon: 'trend', title: 'День можно собрать выгоднее', text: 'Если пересобрать, ≈ +' + rssFmt(gain) + ' ₽, брони не трогаем', meta: '',
-        action: 'Посмотреть', dismiss: 'Не надо',
-        onAction: () => set({ rebuild: true, keepMine: false }), onDismiss: () => set({ dismissed: Object.assign({}, dismissed, { ['rb:' + selIso]: true }) })
-      });
-    }
+    // превью пересборки прямо в строке: сколько можно добрать, чтобы кнопку находили и не боялись нажать
+    const rbPreview = selIso >= RSS_TODAY_ISO && realWins.length ? (() => {
+      const fixed = liveWins.filter((w) => w.source !== 'plan');
+      const gain = Math.round((winsSum(fixed.concat(bestFill(fixed, spanFrom, spanTo, prefs.rbDefault, rbAllow))) - winsSum(liveWins)) / 100) * 100;
+      return gain >= 100 ? gain : 0;
+    })() : 0;
     const gapSheet = st.gapSheet && st.gapSheet.iso === selIso ? st.gapSheet : null;
     const sheetWin = gapSheet && gapSheet.winKey ? planWins.find((w) => w.key === gapSheet.winKey) : null;
     const winOptions = sheetWin ? (() => {
@@ -830,12 +837,14 @@ class Component extends DCLogic {
     return {
       on_back: typeof p.onBack === 'function' ? p.onBack : (() => {}),
       intro, has_back: !p.embedded, screen_title: p.embedded ? 'План' : 'Умное расписание',
-      goal_value: weekPast ? 'Заработано ' + rssFmt(weekEarned) + ' ₽' : weekOff > 0 ? '≈ ' + rssFmt(Math.round(weekLeft / 100) * 100) + ' ₽ в плане' : rssFmt(weekEarned) + ' + ≈ ' + rssFmt(Math.round(weekLeft / 100) * 100) + ' ₽',
+      // цель словами: сколько цель, сколько уже заработано и сколько стоит в плане
+      goal_title: 'Цель ' + rssFmt(weekGoal) + ' ₽',
+      goal_value: weekPast ? 'заработано ' + rssFmt(weekEarned) + ' ₽' : weekOff > 0 ? 'в плане ≈ ' + rssFmt(Math.round(weekLeft / 100) * 100) + ' ₽' : 'заработано ' + rssFmt(weekEarned) + ' · в плане ≈ ' + rssFmt(Math.round(weekLeft / 100) * 100) + ' ₽',
 
       goal_done_style: 'width:' + Math.min(100, Math.round(weekEarned * 100 / weekGoal)) + '%',
       goal_plan_style: 'left:' + Math.min(100, Math.round(weekEarned * 100 / weekGoal)) + '%;width:' + Math.max(0, Math.min(100 - Math.round(weekEarned * 100 / weekGoal), Math.round(weekLeft * 100 / weekGoal))) + '%',
       // выполнена только по заработанному, по плану пишем, что запланированного хватит
-      goal_state: weekEarned >= weekGoal ? 'цель ' + rssFmt(weekGoal) + ' ₽ выполнена' : (weekPast ? 'до цели не хватило ≈ ' + rssFmt(weekGoal - weekEarned) + ' ₽' : (weekShort ? 'до цели не хватает ≈ ' + rssFmt(weekGoal - weekTotal) + ' ₽' : 'плана хватит на ' + rssFmt(weekGoal) + ' ₽')),
+      goal_state: weekEarned >= weekGoal ? 'цель ' + rssFmt(weekGoal) + ' ₽ выполнена' : (weekPast ? 'до цели не хватило ≈ ' + rssFmt(weekGoal - weekEarned) + ' ₽' : (weekShort ? 'до цели не хватает ≈ ' + rssFmt(weekGoal - weekTotal) + ' ₽' : 'плана хватит')),
       goal_state_cls: weekShort && weekEarned < weekGoal ? 'rss-goal-short' : '',
       goal_aria: 'Цель недели ' + rssFmt(weekGoal) + ' рублей, заработано ' + rssFmt(weekEarned) + ', в плане ещё ' + rssFmt(Math.round(weekLeft)),
       open_goal: () => { if (!weekPast) set({ goalOpen: true }); }, close_goal: () => set({ goalOpen: false }), show_goal: !!st.goalOpen,
@@ -852,14 +861,14 @@ class Component extends DCLogic {
       open_onboard: () => set({ settings: false, onboardOpen: true }),
       onboard_skip_label: st.onboardOpen ? 'Закрыть' : 'Потом',
       onboard_choices: [
-        ['Держусь своих смен', 'Заполним только свободные часы, менять ваши окна не предлагаем', { build: 'auto', swap: false, rebuildHint: false, rbDefault: 'money', onlyFree: false }],
-        ['Ищу выгодные смены', 'Сами ничего не ставим, показываем всё, что выгоднее', { build: 'manual', swap: true, rebuildHint: false, rbDefault: 'money', onlyFree: false }],
-        ['Советуйте, я сделаю', 'Соберём день сами, только то, куда можно выйти без записи, и предложим пересобрать', { build: 'auto', swap: true, rebuildHint: true, rbDefault: 'money', onlyFree: true }],
-        ['У меня своё окно', 'Работаем в ваших часах, собираем дорогие часы', { build: 'auto', swap: true, rebuildHint: false, rbDefault: 'rate', onlyFree: false, graph: true }]
+        ['Держусь своих смен', 'Заполним только свободные часы, менять ваши окна не предлагаем', { build: 'auto', swap: false, rbDefault: 'money', onlyFree: false }],
+        ['Ищу выгодные смены', 'Сами ничего не ставим, показываем всё, что выгоднее', { build: 'manual', swap: true, rbDefault: 'money', onlyFree: false }],
+        ['Советуйте, я сделаю', 'Соберём день сами, только то, куда можно выйти без записи', { build: 'auto', swap: true, rbDefault: 'money', onlyFree: true }],
+        ['У меня своё окно', 'Работаем в ваших часах, собираем дорогие часы', { build: 'auto', swap: true, rbDefault: 'rate', onlyFree: false, graph: true }]
       ].map(([title, text, v]) => ({ title, text, tap: () => {
         // пресет только заполняет настройки и сразу говорит, что включили
-        const on = [v.build === 'auto' ? 'Разнос собирает сам' : 'план собираете вы', v.swap ? 'предлагаем замену' : 'замену не предлагаем', v.rebuildHint ? 'предложим пересобрать день' : '', v.onlyFree ? 'без слотов в автоплане' : '', v.rbDefault === 'rate' ? 'собираем дорогие часы' : ''].filter(Boolean).join(', ');
-        set({ onboarded: true, onboardOpen: false, rbMode: null, build: v.build }); setPrefs({ build: v.build, swap: v.swap, rebuildHint: v.rebuildHint, rbDefault: v.rbDefault, onlyFree: v.onlyFree });
+        const on = [v.build === 'auto' ? 'Разнос собирает сам' : 'план собираете вы', v.swap ? 'предлагаем замену' : 'замену не предлагаем', v.onlyFree ? 'без слотов в автоплане' : '', v.rbDefault === 'rate' ? 'собираем дорогие часы' : ''].filter(Boolean).join(', ');
+        set({ onboarded: true, onboardOpen: false, rbMode: null, build: v.build }); setPrefs({ build: v.build, swap: v.swap, rbDefault: v.rbDefault, onlyFree: v.onlyFree });
         flash('Настроили: ' + on + '. Поменять можно в настройках плана');
         if (typeof p.onOnboard === 'function') p.onOnboard(v.build);
         if (v.graph && typeof p.onEditGraph === 'function') p.onEditGraph();
@@ -880,6 +889,8 @@ class Component extends DCLogic {
       // итог прошедшего дня открывается в Результатах на этом же дне
       has_result_link: selIso < RSS_TODAY_ISO && realWins.length > 0, open_result: () => { if (typeof p.onOpenResult === 'function') p.onOpenResult(selIso); },
       can_rebuild: selIso >= RSS_TODAY_ISO && realWins.length > 0,
+      rb_has_gain: rbPreview > 0, rb_gain: 'до +' + rssFmt(rbPreview) + ' ₽',
+      rb_hint: rbPreview > 0 ? 'Сначала покажем, что поменяется, решите сами' : 'Сейчас собрано выгодно, можно поменять часы и сервисы',
       show_gap_sheet: !!gapSheet, gs_from: gapSheet ? rssTime(gapSheet.from) : '', gs_to: gapSheet ? rssTime(gapSheet.to) : '', gs_options: gapOptions, gs_close: () => set({ gapSheet: null }),
       gs_current: sheetCurrent, gs_remove: sheetWin ? removeWin : null,
       show_book_sheet: !!bookWin, bs: bookView, bs_close: () => set({ bookSheet: null }),
@@ -915,7 +926,6 @@ class Component extends DCLogic {
       mine_note: auto ? 'Если сервис упадёт или бронь отменят, окно подменим и напишем пуш. Брони план не трогает' : 'План сам не меняется, подсказки приходят только по вашим окнам',
       set_toggles: [
         ['swap', 'Предлагать замену окон', 'У окна строка Есть выгоднее, если нашли вариант дороже от 100 ₽'],
-        ['rebuildHint', 'Предлагать пересобрать день', 'Сверху дня подсказка, если пересборка даст от 300 ₽'],
         ['onlyFree', 'Без слотов в автоплане', 'Автоплан ставит только то, куда можно выйти без записи']
       ].map(([k, title, text]) => ({ title, text, on: !!prefs[k], sw: 'raznos-switch' + (prefs[k] ? ' raznos-is-on' : ''), tap: () => setPrefs({ [k]: !prefs[k] }) })),
       set_rb: [['money', 'Больше денег'], ['rate', 'Выше ₽/ч']].map(([k, label]) => ({ label, cls: 'raznos-segment' + (prefs.rbDefault === k ? ' raznos-is-active' : ''), tap: () => { set({ rbMode: null }); setPrefs({ rbDefault: k }); } })),
