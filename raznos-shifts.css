@@ -26,7 +26,8 @@
 
 .raznos-shifts-tabs { display: flex; gap: 2px; padding: 4px; border-radius: 14px; background: var(--sh-card); }
 .raznos-shifts-tab { flex: 1 1 auto; white-space: nowrap; padding: 0 10px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 10px; background: transparent; color: var(--sh-muted); font: 650 14px var(--raznos-font); cursor: pointer; }
-.raznos-shifts-tab b { min-width: 18px; height: 18px; padding: 0 5px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; background: var(--raznos-green); color: var(--raznos-on-dark); font: 700 11px var(--raznos-font); box-sizing: border-box; }
+.raznos-shifts-tab b { font: 600 13px var(--raznos-font); color: var(--sh-muted); font-variant-numeric: tabular-nums; }
+.raznos-shifts-tab.raznos-is-active b { color: color-mix(in oklab, var(--raznos-on-dark) 70%, transparent); }
 .raznos-shifts-tab.raznos-is-active { background: var(--raznos-dark); color: var(--raznos-on-dark); }
 .raznos-shifts-tab:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
 <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-shifts.css" /></helmet>
 <div class="raznos-shifts">
-  <div class="raznos-app-bar raznos-shifts-bar"><button type="button" class="raznos-icon-btn" onClick="{{ on_back }}" aria-label="Назад в План">‹</button><span class="raznos-shifts-head"><h1 class="raznos-text-h1" style="margin:0">Смены</h1><span class="raznos-shifts-range">{{ range_label }}</span></span></div>
+  <div class="raznos-app-bar raznos-shifts-bar"><button type="button" class="raznos-icon-btn" onClick="{{ on_back }}" aria-label="Назад в План">‹</button><span class="raznos-shifts-head"><h1 class="raznos-text-h1" style="margin:0">Брони и слоты</h1><span class="raznos-shifts-range">{{ range_label }}</span></span></div>
 
   <sc-if value="{{ has_attention }}" hint-placeholder-val="{{ true }}">
     <dc-import name="RaznosAttentionList" title="Требует внимания" items="{{ attention }}"></dc-import>
