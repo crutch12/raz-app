@@ -113,7 +113,7 @@ class Component extends DCLogic {
       bar_aria: 'Заработано ' + RGS_FMT(earned) + ', брони ' + RGS_FMT(booked) + ', окна плана ' + RGS_FMT(planned) + ' из цели ' + RGS_FMT(goal) + ' рублей',
       short, not_short: !short,
       verdict_cls: 'rgs-verdict' + (short ? ' rgs-short' : ''),
-      verdict: short ? 'Не хватает ≈ ' + RGS_FMT(RGS_R(gap)) + ' ₽, это ≈ ' + orders + ' ' + RGS_ORDERS(orders) + ', ' + perDay : 'Цель закрыта, запас ≈ ' + RGS_FMT(RGS_R(gap)) + ' ₽',
+      verdict: short ? 'Не хватает ≈ ' + RGS_FMT(RGS_R(gap)) + ' ₽, это ≈ ' + orders + ' ' + RGS_ORDERS(orders) + ', ' + perDay : (earned >= goal ? 'Цель уже выполнена, сверху ≈ ' + RGS_FMT(RGS_R(earned - goal)) + ' ₽' : 'Плана хватит на цель, запас ≈ ' + RGS_FMT(RGS_R(gap)) + ' ₽'),
       // окна плана это прогноз, поэтому отдельно говорим, если цель держится на них
       has_risk: !short && sure < goal,
       risk: 'Без окон плана не хватит ≈ ' + RGS_FMT(RGS_R(goal - sure)) + ' ₽',

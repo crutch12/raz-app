@@ -1,0 +1,137 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rdc-layer { align-items: flex-end; padding: 0; }
+    .rdc-sheet { box-sizing: border-box; width: 100%; max-height: 92%; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding: 8px 20px 18px; border-radius: 22px 22px 0 0; background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 -18px 48px rgba(20, 25, 40, 0.2); }
+    .rdc-handle { width: 38px; height: 4px; align-self: center; flex: none; border-radius: 999px; background: var(--raznos-line-strong); }
+    .rdc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: -6px; }
+    .rdc-head h2 { margin: 0; font: 700 20px/1.2 var(--raznos-font); letter-spacing: -0.02em; }
+    .rdc-close { width: 44px; height: 44px; flex: none; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 12px; background: var(--raznos-surface-2); color: var(--raznos-ink); cursor: pointer; }
+    .rdc-sub { margin: -8px 0 0; font: 500 13px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rdc-opt { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--raznos-line); }
+    .rdc-opt.rdc-opt-b { border: 1.5px solid var(--raznos-green); background: color-mix(in oklab, var(--raznos-green) 6%, var(--raznos-surface)); }
+    .rdc-opt-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .rdc-opt-head > span { display: inline-flex; align-items: center; gap: 8px; font: 600 13px var(--raznos-font); color: var(--raznos-ink-2); }
+    .rdc-hours { padding: 2px 8px; border-radius: 999px; background: var(--raznos-surface-2); font: 700 12px var(--raznos-font); font-style: normal; color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rdc-opt-head > b { font: 800 18px var(--raznos-font); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+    .rdc-deltas { display: flex; flex-wrap: wrap; gap: 6px; }
+    .rdc-rules { display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 14px; background: var(--raznos-surface-2); }
+    .rdc-rule-why { margin: 0; font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
+    .rdc-rule-row { display: flex; align-items: baseline; gap: 8px; font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rdc-rule-row > b { flex: 1; font: 700 13px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rdc-hours-row { align-items: center; }
+    .rdc-hours-row > span { min-width: 40px; }
+    .rdc-hours-row > i { font-style: normal; color: var(--raznos-ink-3); }
+    .rdc-time input { box-sizing: border-box; min-height: 40px; padding: 0 10px; border: 1px solid var(--raznos-line-strong); border-radius: 10px; background: var(--raznos-surface); font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rdc-time input:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 1px; }
+    .rdc-hours-note { margin-top: -4px; font-size: 12px; justify-content: space-between; }
+    .rdc-link { padding: 0; border: 0; background: none; font: 650 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
+    .rdc-rule-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .rdc-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border: 1px solid var(--raznos-line-strong); border-radius: 999px; background: var(--raznos-surface); font: 600 13px var(--raznos-font); color: var(--raznos-ink-3); cursor: pointer; }
+    .rdc-chip > i { width: 8px; height: 8px; border-radius: 50%; opacity: 0.35; }
+    .rdc-chip.raznos-is-active { border-color: var(--raznos-dark); color: var(--raznos-ink); }
+    .rdc-chip.raznos-is-active > i { opacity: 1; }
+    .rdc-chip:focus-visible, .rdc-link:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .rdc-delta { padding: 2px 8px; border-radius: 999px; background: var(--raznos-green-deep); color: var(--raznos-on-dark); font: 700 12px var(--raznos-font); font-variant-numeric: tabular-nums; }
+    /* хуже для курьера: меньше денег или больше часов */
+    .rdc-delta.rdc-delta-bad { background: var(--raznos-red); }
+    .rdc-rows { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+    .rdc-row { display: grid; grid-template-columns: 10px 92px 1fr auto; align-items: center; gap: 8px; font: 500 13.5px var(--raznos-font); color: var(--raznos-ink); }
+    .rdc-row > i { width: 10px; height: 10px; border-radius: 50%; }
+    .rdc-row > time { font: 600 12.5px var(--raznos-mono); color: var(--raznos-ink-2); font-variant-numeric: tabular-nums; }
+    .rdc-row > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rdc-row > small { font: 600 11.5px var(--raznos-font); color: var(--raznos-ink-3); white-space: nowrap; }
+    .rdc-row.rdc-out { color: var(--raznos-ink-3); }
+    .rdc-row.rdc-out > span { text-decoration: line-through; }
+    .rdc-row.rdc-in > small { color: var(--raznos-green-deep); }
+    .rdc-check { display: flex; align-items: center; gap: 10px; padding: 4px 0; border: 0; background: none; text-align: left; font: 500 14px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; }
+    .rdc-check:focus-visible, .rdc-close:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 8px; }
+    .rdc-same { margin: 0; font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
+    @media (prefers-reduced-motion: no-preference) {
+      .rdc-sheet { animation: rdc-in .28s cubic-bezier(.16, 1, .3, 1) both; }
+      @keyframes rdc-in { from { transform: translateY(18px); } to { transform: none; } }
+    }
+  </style>
+</helmet>
+<div class="raznos-dialog-layer rdc-layer" onClick="{{ close }}">
+  <section class="rdc-sheet" role="dialog" aria-modal="true" aria-label="{{ title }}" onClick="{{ stop }}">
+    <span class="rdc-handle" aria-hidden="true"></span>
+    <div class="rdc-head"><h2>{{ title }}</h2><button type="button" class="rdc-close" onClick="{{ close }}" aria-label="Закрыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <sc-if value="{{ has_sub }}" hint-placeholder-val="{{ true }}"><p class="rdc-sub">{{ sub }}</p></sc-if>
+    <sc-if value="{{ has_rules }}" hint-placeholder-val="{{ false }}">
+      <section class="rdc-rules" aria-label="Как собираем">
+        <div class="raznos-segmented"><sc-for list="{{ modes }}" as="m" hint-placeholder-count="2"><button type="button" class="{{ m.cls }}" aria-pressed="{{ m.on }}" onClick="{{ m.tap }}">{{ m.label }}</button></sc-for></div>
+        <p class="rdc-rule-why">{{ mode_why }}</p>
+        <div class="rdc-rule-row rdc-hours-row"><span>Часы</span><label class="rdc-time"><input type="time" step="1800" value="{{ hours_from }}" onChange="{{ set_from }}" aria-label="С какого времени" /></label><i aria-hidden="true">–</i><label class="rdc-time"><input type="time" step="1800" value="{{ hours_to }}" onChange="{{ set_to }}" aria-label="До какого времени" /></label></div>
+        <div class="rdc-rule-row rdc-hours-note"><span>{{ hours_note }}</span><sc-if value="{{ hours_custom }}" hint-placeholder-val="{{ false }}"><button type="button" class="rdc-link" onClick="{{ reset_hours }}">как в графике</button></sc-if></div>
+        <div class="rdc-rule-chips" role="group" aria-label="Сервисы"><sc-for list="{{ svcs }}" as="c" hint-placeholder-count="4"><button type="button" class="{{ c.cls }}" aria-pressed="{{ c.on }}" onClick="{{ c.tap }}"><i style="{{ c.dot }}" aria-hidden="true"></i>{{ c.label }}</button></sc-for></div>
+      </section>
+    </sc-if>
+    <sc-for list="{{ opts }}" as="o" hint-placeholder-count="2">
+      <div class="{{ o.cls }}">
+        <div class="rdc-opt-head"><span>{{ o.label }}<sc-if value="{{ o.has_hours }}" hint-placeholder-val="{{ true }}"><em class="rdc-hours">{{ o.hours }}</em></sc-if></span><b>{{ o.sum }}</b></div>
+        <sc-if value="{{ o.has_delta }}" hint-placeholder-val="{{ false }}"><span class="rdc-deltas"><sc-for list="{{ o.deltas }}" as="dl" hint-placeholder-count="2"><span class="{{ dl.cls }}">{{ dl.text }}</span></sc-for></span></sc-if>
+        <ul class="rdc-rows"><sc-for list="{{ o.rows }}" as="r" hint-placeholder-count="3"><li class="{{ r.cls }}"><i style="{{ r.dot }}" aria-hidden="true"></i><time>{{ r.time }}</time><span>{{ r.title }}</span><small>{{ r.tag }}</small></li></sc-for></ul>
+      </div>
+    </sc-for>
+    <sc-if value="{{ same }}" hint-placeholder-val="{{ false }}"><p class="rdc-same">{{ same_text }}</p></sc-if>
+    <sc-if value="{{ has_check }}" hint-placeholder-val="{{ true }}"><button type="button" class="rdc-check" role="checkbox" aria-checked="{{ check_on }}" onClick="{{ check }}"><span class="{{ check_box }}">{{ check_mark }}</span>{{ check_label }}</button></sc-if>
+    <sc-if value="{{ differs }}" hint-placeholder-val="{{ true }}">
+      <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ primary }}">{{ primary_label }}</button>
+      <button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ close }}">{{ secondary_label }}</button>
+    </sc-if>
+    <sc-if value="{{ same }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ close }}">Понятно</button></sc-if>
+  </section>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"title":{"editor":"text","default":"Собрать день заново"},"sub":{"editor":"text"},"a":{"editor":null},"b":{"editor":null},"checkLabel":{"editor":"text"},"checkOn":{"editor":"boolean"},"primaryLabel":{"editor":"text","default":"Применить"},"secondaryLabel":{"editor":"text","default":"Оставить как есть"},"sameText":{"editor":"text"},"same":{"editor":null},"modes":{"editor":null},"modeWhy":{"editor":"text"},"hoursFrom":{"editor":"text"},"hoursTo":{"editor":"text"},"hoursCustom":{"editor":null},"onHours":{"editor":null},"svcs":{"editor":null},"onCheck":{"editor":null},"onPrimary":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
+// два варианта дня рядом: как есть и как можно, чтобы решить конфликт или пересборку одним тапом
+const RDC_FMT = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const RDC_DEMO_A = { label: 'Сейчас', sum: 7600, mins: 540, rows: [{ time: '09:00–12:00', svc: 'samokat', title: 'Самокат', tag: 'слот', mark: 'out' }, { time: '12:00–18:00', svc: 'yandex-eda', title: 'Яндекс Еда', tag: 'план' }] };
+const RDC_DEMO_B = { label: 'Станет', sum: 8300, mins: 540, rows: [{ time: '09:00–10:00', svc: 'yandex-eda', title: 'Яндекс Еда', tag: 'новое', mark: 'in' }, { time: '10:00–13:00', svc: 'x5', title: 'X5 Доставка', tag: 'новое', mark: 'in' }, { time: '13:00–18:00', svc: 'yandex-eda', title: 'Яндекс Еда', tag: 'план' }] };
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const a = p.a || RDC_DEMO_A, b = p.b || RDC_DEMO_B;
+    const fn = (f) => (typeof f === 'function' ? f : () => {});
+    const diff = Math.round((b.sum - a.sum) / 10) * 10;
+    const rowsOf = (o) => (o.rows || []).map((r) => ({
+      cls: 'rdc-row' + (r.mark === 'out' ? ' rdc-out' : (r.mark === 'in' ? ' rdc-in' : '')),
+      dot: 'background:var(--raznos-svc-' + r.svc + ')', time: r.time, title: r.title, tag: r.tag || ''
+    }));
+    const same = p.same != null ? !!p.same : Math.abs(diff) < 10;
+    // часы рядом с суммой, в разнице и деньги, и часы
+    const dur = (m) => { const h = Math.floor(Math.abs(m) / 60), mm = Math.abs(m) % 60; return (h ? h + ' ч' : '') + (mm ? (h ? ' ' : '') + mm + ' мин' : '') || '0 ч'; };
+    const dMins = (b.mins || 0) - (a.mins || 0);
+    // деньги и часы отдельными плашками, хуже для курьера красным
+    const deltas = [{ cls: 'rdc-delta' + (diff < 0 ? ' rdc-delta-bad' : ''), text: (diff > 0 ? '+' : '−') + RDC_FMT(Math.abs(diff)) + ' ₽' }]
+      .concat(dMins ? [{ cls: 'rdc-delta' + (dMins > 0 ? ' rdc-delta-bad' : ''), text: (dMins > 0 ? '+' : '−') + dur(dMins) }] : []);
+    // сколько в среднем за час, когда меняются и деньги, и часы
+    const perH = (o) => (o.mins ? o.sum * 60 / o.mins : 0);
+    const dRate = Math.round((perH(b) - perH(a)) / 10) * 10;
+    if (dMins && Math.abs(dRate) >= 10) deltas.push({ cls: 'rdc-delta' + (dRate < 0 ? ' rdc-delta-bad' : ''), text: (dRate > 0 ? '+' : '−') + RDC_FMT(Math.abs(dRate)) + ' ₽/ч' });
+    return {
+      has_rules: !!p.modes,
+      modes: (p.modes || []).map((m) => ({ label: m.label, on: !!m.on, cls: 'raznos-segment' + (m.on ? ' raznos-is-active' : ''), tap: fn(m.tap) })),
+      mode_why: p.modeWhy || '',
+      hours_from: p.hoursFrom || '09:00', hours_to: p.hoursTo || '22:00', hours_custom: !!p.hoursCustom,
+      hours_note: p.hoursCustom ? 'Только на этот день, график не меняем' : 'Как в вашем графике',
+      set_from: (e) => { if (typeof p.onHours === 'function') p.onHours('from', e && e.target ? e.target.value : e); },
+      set_to: (e) => { if (typeof p.onHours === 'function') p.onHours('to', e && e.target ? e.target.value : e); },
+      reset_hours: () => { if (typeof p.onHours === 'function') p.onHours('reset'); },
+      svcs: (p.svcs || []).map((c) => ({ label: c.label, on: !!c.on, cls: 'rdc-chip' + (c.on ? ' raznos-is-active' : ''), dot: 'background:var(--raznos-svc-' + c.svc + ')', tap: fn(c.tap) })),
+      title: p.title || 'Собрать день заново', sub: p.sub || '', has_sub: !!p.sub,
+      // если лучше не собрать, второй одинаковый вариант не показываем
+      opts: [{ cls: 'rdc-opt', label: a.label, hours: dur(a.mins || 0), has_hours: a.mins != null, sum: '≈ ' + RDC_FMT(Math.round(a.sum / 100) * 100) + ' ₽', rows: rowsOf(a), has_delta: false, delta: '' }].concat(same ? [] : [
+        { cls: 'rdc-opt rdc-opt-b', label: b.label, hours: dur(b.mins || 0), has_hours: b.mins != null, sum: '≈ ' + RDC_FMT(Math.round(b.sum / 100) * 100) + ' ₽', rows: rowsOf(b), has_delta: true, deltas }
+      ]),
+      same, differs: !same, same_text: p.sameText || 'Лучше уже не собрать, день и так оптимальный',
+      has_check: !!p.checkLabel, check_label: p.checkLabel || '', check_on: !!p.checkOn,
+      check_box: p.checkOn ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', check_mark: p.checkOn ? '✓' : '',
+      check: fn(p.onCheck),
+      primary_label: p.primaryLabel || 'Применить', secondary_label: p.secondaryLabel || 'Оставить как есть',
+      primary: fn(p.onPrimary), close: fn(p.onClose), stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
+    };
+  }
+}
+</script></body></html>

@@ -13,6 +13,9 @@
     .rfc-opt-note { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
     .rfc-check { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--raznos-line); display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; }
     .rfc-check-on { background: var(--raznos-dark); border-color: var(--raznos-dark); color: var(--raznos-on-dark); }
+    /* мультивыбор: квадратные галки и кнопка Готово */
+    .rfc-check.rfc-check-sq { border-radius: 7px; }
+    .rfc-done { margin-top: 8px; }
   </style>
 </helmet>
 <div class="rfc-row">
@@ -29,16 +32,18 @@
           <button type="button" class="rfc-opt" onClick="{{ o.tap }}"><span class="rfc-opt-main"><span>{{ o.label }}</span><sc-if value="{{ o.has_note }}" hint-placeholder-val="{{ false }}"><span class="rfc-opt-note">{{ o.note }}</span></sc-if></span><span class="{{ o.checkClass }}">{{ o.mark }}</span></button>
         </sc-for>
       </div>
+      <sc-if value="{{ sheet_multi }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-primary rfc-done" onClick="{{ close }}">Готово</button></sc-if>
     </div>
   </div>
 </sc-if>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"filters":{"editor":null},"onChange":{"editor":null},"$preview":{"width":390,"height":120}}'>
 // чипы-фильтры, каждый открывает шторку с выбором одного варианта
 // filters: [{ key, title, value, def?, options: [{ k, label, note? }] }], onChange(key, k)
+// multi: true, value это массив ключей, пустой значит все, шторка не закрывается, галки квадратные, allLabel подпись чипа без выбора
 // чип темнеет, когда значение отличается от def (по умолчанию первый вариант)
 const RFC_PREVIEW = [
   { key: 'metric', title: 'Показатель', value: 'pay', options: [{ k: 'pay', label: '₽ в час' }, { k: 'ord', label: 'Заказов в час' }] },
-  { key: 'cat', title: 'Сервис', value: 'all', options: [{ k: 'all', label: 'Все сервисы' }, { k: 'vkusvill', label: 'ВкусВилл' }, { k: 'samokat', label: 'Самокат' }] },
+  { key: 'cat', title: 'Сервисы', multi: true, allLabel: 'Все сервисы', value: ['samokat'], options: [{ k: 'vkusvill', label: 'ВкусВилл' }, { k: 'samokat', label: 'Самокат' }, { k: 'x5', label: 'X5 Доставка' }] },
   { key: 'tod', title: 'Время суток', value: 'all', options: [{ k: 'all', label: 'Весь день', note: '8–24' }, { k: 'evening', label: 'Вечер', note: '17–22' }] }
 ];
 class Component extends DCLogic {
@@ -51,13 +56,21 @@ class Component extends DCLogic {
     const local = st.local || {};
     const valueOf = (f) => (typeof p.onChange === 'function' ? f.value : (local[f.key] != null ? local[f.key] : f.value));
     const pick = (f, k) => {
-      if (typeof p.onChange === 'function') p.onChange(f.key, k);
-      else set({ local: Object.assign({}, local, { [f.key]: k }) });
-      set({ open: '' });
+      // в мультивыборе галка переключается, шторка остаётся открытой
+      const next = f.multi ? (() => { const arr = (valueOf(f) || []).slice(); const i = arr.indexOf(k); if (i === -1) arr.push(k); else arr.splice(i, 1); return arr; })() : k;
+      if (typeof p.onChange === 'function') p.onChange(f.key, next);
+      else set({ local: Object.assign({}, local, { [f.key]: next }) });
+      if (!f.multi) set({ open: '' });
     };
     const cur = filters.find((f) => f.key === st.open);
     const chips = filters.map((f) => {
       const v = valueOf(f);
+      if (f.multi) {
+        const arr = v || [];
+        const first = f.options.find((x) => x.k === arr[0]);
+        const label = !arr.length ? (f.allLabel || f.title) : (first ? first.label : f.title) + (arr.length > 1 ? ' +' + (arr.length - 1) : '');
+        return { label, aria: f.title + ': ' + label, cls: 'rfc-chip' + (arr.length ? ' rfc-chip-on' : ''), open: () => set({ open: f.key }) };
+      }
       const o = f.options.find((x) => x.k === v) || f.options[0];
       const def = f.def != null ? f.def : f.options[0].k;
       return { label: o.label, aria: f.title + ': ' + o.label, cls: 'rfc-chip' + (o.k !== def ? ' rfc-chip-on' : ''), open: () => set({ open: f.key }) };
@@ -66,9 +79,10 @@ class Component extends DCLogic {
       chips,
       sheet_open: !!cur,
       sheet_title: cur ? cur.title : '',
+      sheet_multi: !!(cur && cur.multi),
       sheet_opts: cur ? cur.options.map((o) => {
-        const on = o.k === valueOf(cur);
-        return { label: o.label, note: o.note || '', has_note: !!o.note, checkClass: 'rfc-check' + (on ? ' rfc-check-on' : ''), mark: on ? '✓' : '', tap: () => pick(cur, o.k) };
+        const on = cur.multi ? (valueOf(cur) || []).indexOf(o.k) !== -1 : o.k === valueOf(cur);
+        return { label: o.label, note: o.note || '', has_note: !!o.note, checkClass: 'rfc-check' + (cur.multi ? ' rfc-check-sq' : '') + (on ? ' rfc-check-on' : ''), mark: on ? '✓' : '', tap: () => pick(cur, o.k) };
       }) : [],
       close: () => set({ open: '' }),
       stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }

@@ -37,7 +37,7 @@
 .raznos-route-line { width: 2px; height: 18px; background: var(--raznos-line-strong); margin-left: 13px; }
 
 /* Стопка тостов новых предложений: оверлей без сдвига контента */
-.raznos-toast-layer { position: relative; height: 0; overflow: visible; z-index: 30; }
+.raznos-toast-layer { position: relative; height: 0; overflow: visible; z-index: 70; }
 .raznos-toast-stack { position: absolute; top: 0; left: 0; right: 0; display: flex; flex-direction: column; gap: 8px; padding: 8px 12px; max-height: 260px; overflow-y: auto; pointer-events: none; }
 .raznos-toast-stack > * { pointer-events: auto; }
 .raznos-toast-layer-reserved { height: auto; flex-shrink: 0; }

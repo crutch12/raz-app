@@ -1,0 +1,75 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rsh-layer { align-items: flex-end; padding: 0; }
+    .rsh-sheet { box-sizing: border-box; width: 100%; max-height: 92%; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 8px 20px 18px; border-radius: 22px 22px 0 0; background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 -18px 48px rgba(20, 25, 40, 0.2); }
+    .rsh-handle { width: 38px; height: 4px; align-self: center; flex: none; border-radius: 999px; background: var(--raznos-line-strong); }
+    .rsh-head { display: flex; align-items: center; gap: 12px; margin-top: -6px; }
+    .rsh-head-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .rsh-head-copy h2 { margin: 0; font: 700 19px/1.2 var(--raznos-font); letter-spacing: -0.01em; }
+    .rsh-head-copy > span { font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rsh-close { width: 44px; height: 44px; flex: none; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 12px; background: var(--raznos-surface-2); color: var(--raznos-ink); cursor: pointer; }
+    .rsh-close:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .rsh-when { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .rsh-when > b { font: 800 24px var(--raznos-mono); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+    .rsh-status { padding: 3px 10px; border-radius: 999px; font: 700 12px var(--raznos-font); background: var(--raznos-surface-2); color: var(--raznos-ink-2); white-space: nowrap; }
+    .rsh-status.rsh-ok { background: color-mix(in oklab, var(--raznos-green) 16%, var(--raznos-surface)); color: var(--raznos-green-deep); }
+    .rsh-status.rsh-live { background: var(--raznos-dark); color: var(--raznos-on-dark); }
+    .rsh-status.rsh-warn { background: var(--raznos-amber-tint); color: var(--raznos-ink); }
+    .rsh-status.rsh-danger { background: color-mix(in oklab, var(--raznos-red) 14%, var(--raznos-surface)); color: var(--raznos-red); }
+    .rsh-money { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 14px; background: var(--raznos-surface-2); }
+    .rsh-money > b { font: 750 20px var(--raznos-font); font-variant-numeric: tabular-nums; }
+    .rsh-money > span { font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rsh-note { margin: 0; padding: 10px 12px; border-radius: 12px; font: 500 13px/1.4 var(--raznos-font); background: var(--raznos-surface-2); color: var(--raznos-ink-2); }
+    .rsh-note.rsh-note-warn { background: var(--raznos-amber-tint); color: var(--raznos-ink); }
+    .rsh-note.rsh-note-danger { background: color-mix(in oklab, var(--raznos-red) 10%, var(--raznos-surface)); color: var(--raznos-red); }
+    @media (prefers-reduced-motion: no-preference) {
+      .rsh-sheet { animation: rsh-in .28s cubic-bezier(.16, 1, .3, 1) both; }
+      @keyframes rsh-in { from { transform: translateY(18px); } to { transform: none; } }
+    }
+  </style>
+</helmet>
+<div class="raznos-dialog-layer rsh-layer" onClick="{{ close }}">
+  <section class="rsh-sheet" role="dialog" aria-modal="true" aria-label="{{ aria }}" onClick="{{ stop }}">
+    <span class="rsh-handle" aria-hidden="true"></span>
+    <div class="rsh-head">
+      <dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ title }}" size="md"></dc-import>
+      <span class="rsh-head-copy"><h2>{{ title }}</h2><span>{{ place }}</span></span>
+      <button type="button" class="rsh-close" onClick="{{ close }}" aria-label="Закрыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="rsh-when"><b>{{ time }}</b><span class="{{ status_cls }}">{{ status }}</span></div>
+    <sc-if value="{{ has_when_note }}" hint-placeholder-val="{{ true }}"><p class="rsh-note">{{ when_note }}</p></sc-if>
+    <div class="rsh-money"><b>{{ money }}</b><span>{{ money_note }}</span></div>
+    <sc-if value="{{ has_conflict }}" hint-placeholder-val="{{ false }}"><p class="rsh-note rsh-note-danger">{{ conflict }}</p></sc-if>
+    <sc-if value="{{ has_rule }}" hint-placeholder-val="{{ true }}"><p class="{{ rule_cls }}">{{ rule }}</p></sc-if>
+    <sc-if value="{{ has_action }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ act }}">{{ action }}</button></sc-if>
+    <button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ close }}">Закрыть</button>
+  </section>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"svc":{"editor":"text","default":"yandex-eda"},"title":{"editor":"text","default":"Яндекс Еда"},"place":{"editor":"text","default":"Зона Беговой"},"time":{"editor":"text","default":"17:00–21:00"},"status":{"editor":"text","default":"бронь"},"tone":{"editor":"text","default":"ok"},"whenNote":{"editor":"text","default":"Вторник, 15 сентября, через 1 ч 20 мин"},"money":{"editor":"text","default":"≈ 3 160 ₽ за смену"},"moneyNote":{"editor":"text","default":"≈ 790 ₽/ч, оценка по заказам курьеров Разноса, как в Плане. Ставка сервиса 390 ₽/ч уже внутри"},"conflict":{"editor":"text"},"rule":{"editor":"text","default":"Бесплатная отмена закончилась пн 12:00. Позже: ≈ 300 ₽ и минус приоритет"},"ruleTone":{"editor":"text","default":"warn"},"action":{"editor":"text","default":"Открыть в приложении Яндекс Еда"},"onAction":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
+// подробности брони: когда, статус, деньги той же моделью, что в Плане, правила отмены и переход в приложение сервиса
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const fn = (f) => (typeof f === 'function' ? f : () => {});
+    const v = (k, d) => (p[k] == null ? d : p[k]);
+    const tone = v('tone', 'ok');
+    const rule = v('rule', 'Бесплатная отмена закончилась пн 12:00. Позже: ≈ 300 ₽ и минус приоритет');
+    const conflict = v('conflict', '');
+    const action = v('action', 'Открыть в приложении Яндекс Еда');
+    const whenNote = v('whenNote', 'Вторник, 15 сентября, через 1 ч 20 мин');
+    return {
+      svc: v('svc', 'yandex-eda'), title: v('title', 'Яндекс Еда'), place: v('place', 'Зона Беговой'), time: v('time', '17:00–21:00'),
+      aria: v('title', 'Яндекс Еда') + ' ' + v('time', '17:00–21:00'),
+      status: v('status', 'бронь'), status_cls: 'rsh-status rsh-' + tone,
+      when_note: whenNote, has_when_note: !!whenNote,
+      money: v('money', '≈ 3 160 ₽ за смену'), money_note: v('moneyNote', ''),
+      conflict, has_conflict: !!conflict,
+      rule, has_rule: !!rule, rule_cls: 'rsh-note' + (v('ruleTone', 'warn') === 'warn' ? ' rsh-note-warn' : ''),
+      action, has_action: !!action, act: fn(p.onAction),
+      close: fn(p.onClose), stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
+    };
+  }
+}
+</script></body></html>

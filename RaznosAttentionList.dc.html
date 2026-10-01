@@ -1,0 +1,46 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .ral { display: flex; flex-direction: column; gap: 8px; }
+    .ral-title { margin: 0; font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
+    .ral-list { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; border-radius: 14px; background: var(--raznos-surface); }
+    .ral-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-top: 1px solid var(--raznos-line); }
+    .ral-row:first-child { border-top: 0; }
+    .ral-dot { width: 8px; height: 8px; flex: none; align-self: flex-start; margin-top: 6px; border-radius: 50%; background: var(--raznos-ink-3); }
+    .ral-row.ral-danger .ral-dot { background: var(--raznos-red); }
+    .ral-row.ral-warn .ral-dot { background: var(--raznos-amber); }
+    .ral-row.ral-info .ral-dot { background: var(--raznos-green); }
+    .ral-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .ral-copy > b { font: 650 14px var(--raznos-font); color: var(--raznos-ink); }
+    .ral-copy > span { font: 500 12.5px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
+    .ral-act { flex: none; min-height: 36px; padding: 0 12px; border: 1px solid var(--raznos-line-strong); border-radius: 10px; background: var(--raznos-surface); font: 650 13px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; }
+    .ral-act.ral-act-on { border-color: transparent; background: color-mix(in oklab, var(--raznos-green) 14%, var(--raznos-surface)); color: var(--raznos-green-deep); }
+    .ral-act:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+  </style>
+</helmet>
+<section class="ral" aria-label="{{ title }}">
+  <h2 class="ral-title">{{ title }}</h2>
+  <ul class="ral-list">
+    <sc-for list="{{ items }}" as="it" hint-placeholder-count="3"><li class="{{ it.cls }}"><i class="ral-dot" aria-hidden="true"></i><span class="ral-copy"><b>{{ it.title }}</b><span>{{ it.text }}</span></span><sc-if value="{{ it.has_action }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ it.act_cls }}" onClick="{{ it.tap }}">{{ it.action }}</button></sc-if></li></sc-for>
+  </ul>
+</section>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"title":{"editor":"text","default":"Требует внимания"},"items":{"editor":null},"$preview":{"width":366,"height":220}}'>
+// что требует действия по сменам, одной строкой на пункт: пересечения, заявки, отмена, открытие записи
+const RAL_DEMO = [
+  { tone: 'danger', title: 'Пересечение в среду', text: 'ВкусВилл 14:00–18:00 и Самокат 18:00–22:00, дорога ≈ 20 мин', action: 'Открыть' },
+  { tone: 'warn', title: 'Заявка ждёт ответа', text: 'ВкусВилл, ср 16, 14:00–18:00', action: '' },
+  { tone: 'info', title: 'Запись в Яндекс на 21–27 сентября', text: 'Откроется в чт 17 сентября в 10:00', action: 'Напомнить' }
+];
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const items = (p.items || RAL_DEMO).map((it) => ({
+      cls: 'ral-row ral-' + (it.tone || 'info'), title: it.title, text: it.text || '',
+      has_action: !!it.action, action: it.action || '', act_cls: 'ral-act' + (it.on ? ' ral-act-on' : ''),
+      tap: typeof it.tap === 'function' ? it.tap : (() => {})
+    }));
+    return { title: p.title || 'Требует внимания', items };
+  }
+}
+</script></body></html>

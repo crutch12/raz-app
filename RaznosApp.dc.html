@@ -255,7 +255,7 @@
           </sc-if>
 
           <sc-if value="{{ is_work_filters }}"><dc-import name="RaznosWorkFilters" value="{{ work_filters }}" onChange="{{ save_work_filters }}" activeValue="{{ active_filter }}" onActiveChange="{{ set_active_filter }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
-          <sc-if value="{{ is_slots }}"><div class="raznos-phone-body" data-screen-label="Shifts"><dc-import name="RaznosShifts" shifts="{{ shifts_week }}" slots="{{ shifts_slots }}" rules="{{ shifts_rules }}" openings="{{ shifts_openings }}" deficits="{{ shifts_deficits }}" watches="{{ shifts_watches }}" today="2026-09-15" nowMinutes="{{ 940 }}" initialTab="{{ slots_tab }}" initialWeek="{{ slots_week }}" initialDay="{{ slots_day }}" initialSvc="{{ slots_svc }}" onBack="{{ slots_back }}" onOpenService="{{ slots_open_service }}"></dc-import></div></sc-if>
+          <sc-if value="{{ is_slots }}"><div class="raznos-phone-body" data-screen-label="Shifts"><dc-import name="RaznosShifts" facts="{{ smart_fact }}" onTake="{{ shifts_take }}" shifts="{{ shifts_week }}" slots="{{ shifts_slots }}" rules="{{ shifts_rules }}" openings="{{ shifts_openings }}" deficits="{{ shifts_deficits }}" watches="{{ shifts_watches }}" today="2026-09-15" nowMinutes="{{ 940 }}" initialTab="{{ slots_tab }}" initialWeek="{{ slots_week }}" initialDay="{{ slots_day }}" initialSvc="{{ slots_svc }}" onBack="{{ slots_back }}" onOpenService="{{ slots_open_service }}"></dc-import></div></sc-if>
           <sc-if value="{{ is_work_schedule }}"><dc-import name="RaznosWorkSchedule" onBack="{{ work_schedule_back }}" onSave="{{ save_work_graph }}"></dc-import></sc-if>
 
           <sc-if value="{{ is_work_hub }}">
@@ -269,7 +269,7 @@
                 </div>
             </div>
             </sc-if>
-            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" embedded="{{ true }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ go_work_schedule }}" build="{{ smart_build }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
+            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" embedded="{{ true }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ go_work_schedule }}" build="{{ smart_build }}" workStyle="{{ smart_style }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
           </sc-if>
 
           <sc-if value="{{ is_active_order }}">
@@ -2167,7 +2167,36 @@
         slotRow('n3', '2026-09-21', 'yandex-eda', 17, 21, 3), slotRow('n4', '2026-09-25', 'x5', 12, 18, 4),
         slotRow('n8', '2026-09-22', 'samokat', 18, 22, 4, { rate: 410, bonus: '+50 ₽/ч вечером' }), slotRow('n9', '2026-09-23', 'x5', 9, 13, 2),
         slotRow('n10', '2026-09-24', 'vkusvill', 18, 22, 1, { apply: true }), slotRow('n11', '2026-09-26', 'yandex-eda', 18, 22, 0),
-        slotRow('n12', '2026-09-27', 'samokat', 11, 15, 5)
+        slotRow('n12', '2026-09-27', 'samokat', 11, 15, 5),
+        // ещё слоты разных дарксторов и магазинов, утро, день и вечер, с надбавками, по заявке и без мест
+        slotRow('m1', '2026-09-15', 'samokat', 21, 23, 2, { place: 'Даркстор Ходынский бульвар, 4' }),
+        slotRow('m2', '2026-09-16', 'vkusvill', 8, 10, 2, { place: 'ВкусВилл, Нижняя Масловка, 8' }),
+        slotRow('m3', '2026-09-16', 'samokat', 19, 22, 4, { place: 'Даркстор Ходынский бульвар, 4', bonus: '+60 ₽/ч вечером' }),
+        slotRow('m4', '2026-09-16', 'x5', 18, 22, 3, { place: 'Пятёрочка, Нижняя Масловка, 3' }),
+        slotRow('m5', '2026-09-17', 'samokat', 18, 22, 2),
+        slotRow('m6', '2026-09-17', 'vkusvill', 7, 10, 1, { apply: true }),
+        slotRow('m7', '2026-09-17', 'yandex-eda', 18, 22, 5, { bonus: '+15% за пиковые часы' }),
+        slotRow('m8', '2026-09-18', 'x5', 8, 12, 2, { place: 'Пятёрочка, Нижняя Масловка, 3' }),
+        slotRow('m9', '2026-09-18', 'vkusvill', 12, 16, 3),
+        slotRow('m10', '2026-09-18', 'samokat', 13, 17, 0, { place: 'Даркстор Ходынский бульвар, 4' }),
+        slotRow('m11', '2026-09-19', 'x5', 9, 12, 4),
+        slotRow('m12', '2026-09-19', 'samokat', 17, 21, 3, { place: 'Даркстор Ходынский бульвар, 4' }),
+        slotRow('m13', '2026-09-20', 'vkusvill', 9, 13, 2, { place: 'ВкусВилл, Нижняя Масловка, 8' }),
+        slotRow('m14', '2026-09-20', 'x5', 16, 22, 3, { bonus: '+40 ₽/ч в выходные' }),
+        slotRow('m15', '2026-09-20', 'yandex-eda', 10, 14, 6),
+        slotRow('k1', '2026-09-21', 'vkusvill', 14, 18, 3),
+        slotRow('k2', '2026-09-21', 'x5', 18, 22, 2, { place: 'Пятёрочка, Нижняя Масловка, 3' }),
+        slotRow('k3', '2026-09-22', 'samokat', 9, 12, 5, { place: 'Даркстор Ходынский бульвар, 4' }),
+        slotRow('k4', '2026-09-22', 'x5', 17, 21, 4, { bonus: '+50 ₽/ч вечером' }),
+        slotRow('k5', '2026-09-23', 'yandex-eda', 9, 13, 6),
+        slotRow('k6', '2026-09-23', 'samokat', 19, 22, 2),
+        slotRow('k7', '2026-09-24', 'samokat', 7, 10, 3, { place: 'Даркстор Ходынский бульвар, 4' }),
+        slotRow('k8', '2026-09-25', 'vkusvill', 9, 13, 4, { place: 'ВкусВилл, Нижняя Масловка, 8' }),
+        slotRow('k9', '2026-09-25', 'samokat', 14, 18, 2, { bonus: '+30 ₽/ч днём' }),
+        slotRow('k10', '2026-09-26', 'x5', 9, 12, 3),
+        slotRow('k11', '2026-09-26', 'vkusvill', 17, 21, 2, { apply: true }),
+        slotRow('k12', '2026-09-27', 'yandex-eda', 18, 22, 4),
+        slotRow('k13', '2026-09-27', 'x5', 12, 16, 0, { place: 'Пятёрочка, Нижняя Масловка, 3' })
       ];
       // правила отмены и неявки из открытых правил и отзывов, это справка, а не данные аккаунта
       const SHIFT_RULES = {
@@ -4417,12 +4446,16 @@
             ].filter(Boolean).join(' · '),
             today_target: formatMoney(todayTarget), today_delta_pct: todayDeltaPct,
             work_week_goal: st.workGoal || WORK_WEEK_GOAL, set_work_goal: (v) => set({ workGoal: v }), work_week_earned: STATS_CALENDAR_WEEK.earn,
-            shifts_week: SHIFTS_WEEK, shifts_slots: SHIFT_SLOTS, shifts_rules: SHIFT_RULES, shifts_openings: SHIFT_OPENINGS, shifts_deficits: SHIFT_DEFICITS,
+            // взятые в прототипе слоты становятся бронями (по заявке заявками) и уходят из свободных
+            shifts_week: SHIFTS_WEEK.concat(SHIFT_SLOTS.filter((sl) => (st.takenSlots || {})[sl.id]).map((sl) => Object.assign({}, sl, { id: 't' + sl.id, status: sl.apply ? 'requested' : 'confirmed' }))),
+            shifts_slots: SHIFT_SLOTS.filter((sl) => !(st.takenSlots || {})[sl.id]),
+            shifts_take: (sl) => set({ takenSlots: Object.assign({}, st.takenSlots || {}, { [sl.id]: true }) }), shifts_rules: SHIFT_RULES, shifts_openings: SHIFT_OPENINGS, shifts_deficits: SHIFT_DEFICITS,
             shifts_watches: { f4: true },
             smart_add_window: st.smartAddWindow || null, smart_focus_added: !!st.smartFocusAdded,
             smart_build: st.smartBuild || 'auto',
             plan_onboarded: !!st.planOnboarded, set_plan_onboarded: () => set({ planOnboarded: true }),
-            smart_settings: (v) => set({ smartBuild: v.build }),
+            smart_style: st.smartStyle || '',
+            smart_settings: (v) => set(Object.assign({ smartBuild: v.build }, v.style ? { smartStyle: v.style } : {})),
             // решение остаться ещё на час после последней брони, общее для Сегодня и расписания
             plan_stay: st.planStay || '', set_plan_stay: (v) => set({ planStay: v }),
             smart_fact: { samokat: { earn: samokatEarn, orders: today.samokatOrders }, vkusvill: { earn: vvEarn, orders: today.vvOrders } },
@@ -4880,6 +4913,9 @@
           home_now_state: (st.homeShiftOn === false) ? 'idle' : 'on',
           start_home_shift: () => set({ homeShiftOn: true, homeShiftEnded: false }),
           end_home_shift: () => set({ homeShiftOn: false, homeShiftEnded: true }),
+          // итог прошедшего дня из Плана: Результаты за день, шаг назад от сегодня
+          go_plan_week_result: (off) => set({ s: 'stats', statsPeriod: 'week', statsStep: off, statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' }),
+          go_plan_day_result: (iso) => set({ s: 'stats', statsPeriod: 'today', statsStep: -Math.round((new Date(TODAY_ISO + 'T00:00:00') - new Date(iso + 'T00:00:00')) / 86400000), statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' }),
           go_day_recap: () => set({ s: 'stats', statsPeriod: 'today', statsStep: 0, statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' }),
           earn_services: [{ svc: 'vkusvill', sum: vvEarn, count: today.vvOrders }, { svc: 'samokat', sum: samokatEarn, count: today.samokatOrders }].filter((r) => activeDataSvcs.indexOf(r.svc) !== -1), earn_expenses: todayExpenses,
           sub_back: () => set({ s: (this.state && this.state.subFrom) || 'profile' }),
