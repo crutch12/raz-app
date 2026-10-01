@@ -1,6 +1,6 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
 <helmet data-dc-atomics>
-  <link rel="stylesheet" href="./raznos-v3.css" />
+  <link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-work.css" />
   <style>
     /* диалоги и шторки считаются от рамки телефона, а не от длинного тела экрана */
     .rss-screen { position: static; }
@@ -26,6 +26,12 @@
     .rss-tip { display: flex; align-items: flex-start; gap: 10px; padding: 10px 8px 10px 12px; border-radius: 12px; background: var(--raznos-surface-2); font: 500 13px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
     .rss-tip > span { flex: 1; }
     .rss-tip-close { flex: none; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; margin: -6px 0; padding: 0; border: 0; border-radius: 8px; background: none; color: var(--raznos-ink-3); cursor: pointer; }
+    .rss-toggle { display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 0; border: 0; background: none; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+    .rss-toggle:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 8px; }
+    .rss-toggle-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .rss-toggle-copy > b { font: 650 14px var(--raznos-font); color: var(--raznos-ink); }
+    .rss-toggle-copy > span { font: 500 12px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rss-preset-link { align-self: flex-start; }
     .rss-rebuild { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; margin-top: -6px; padding: 0 2px; border: 0; background: none; font: 650 13.5px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
     .rss-rebuild:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 6px; }
     .rss-head-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -145,14 +151,18 @@
           <span class="rss-note">{{ set_build_note }}</span>
         </div>
         <div class="rss-settings-group">
-          <span class="rss-settings-label">Как вы работаете</span>
-          <div class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="raznos-text-small">{{ onboard_label }}</span><button type="button" class="rss-link" onClick="{{ open_onboard }}">Изменить</button></div>
-          <sc-if value="{{ onboard_effect }}" hint-placeholder-val="{{ true }}"><span class="rss-note">{{ onboard_effect }}</span></sc-if>
+          <span class="rss-settings-label">Подсказки и автоплан</span>
+          <sc-for list="{{ set_toggles }}" as="t" hint-placeholder-count="3"><button type="button" class="rss-toggle" role="switch" aria-checked="{{ t.on }}" onClick="{{ t.tap }}"><span class="rss-toggle-copy"><b>{{ t.title }}</b><span>{{ t.text }}</span></span><span class="{{ t.sw }}"><span class="raznos-switch-knob"></span></span></button></sc-for>
+        </div>
+        <div class="rss-settings-group">
+          <span class="rss-settings-label">Пересобирать по умолчанию</span>
+          <div class="raznos-segmented"><sc-for list="{{ set_rb }}" as="o" hint-placeholder-count="2"><button type="button" class="{{ o.cls }}" onClick="{{ o.tap }}">{{ o.label }}</button></sc-for></div>
         </div>
         <div class="rss-settings-group">
           <span class="rss-settings-label">График</span>
           <div class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="raznos-text-small">{{ graph_label }}</span><button type="button" class="rss-link" onClick="{{ edit_graph }}">Изменить</button></div>
         </div>
+        <button type="button" class="rss-link rss-preset-link" onClick="{{ open_onboard }}">Настроить по вопросу Как вы работаете</button>
         <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ close_settings }}">Готово</button>
       </div>
     </div>
@@ -166,9 +176,6 @@
   </sc-if>
   <sc-if value="{{ show_rebuild }}" hint-placeholder-val="{{ false }}">
     <dc-import name="RaznosDayCompareSheet" title="Собрать день заново" sub="{{ rb_sub }}" a="{{ rb_a }}" b="{{ rb_b }}" same="{{ rb_same }}" modes="{{ rb_modes }}" modeWhy="{{ rb_why }}" hoursFrom="{{ rb_from }}" hoursTo="{{ rb_to }}" hoursCustom="{{ rb_custom }}" onHours="{{ rb_set_hours }}" svcs="{{ rb_svcs }}" checkLabel="{{ rb_check_label }}" checkOn="{{ rb_keep }}" onCheck="{{ rb_toggle_keep }}" primaryLabel="Применить" secondaryLabel="Отмена" onPrimary="{{ rb_apply }}" onClose="{{ rb_close }}"></dc-import>
-  </sc-if>
-  <sc-if value="{{ show_cmp }}" hint-placeholder-val="{{ false }}">
-    <dc-import name="RaznosDayCompareSheet" title="Что выгоднее" sub="{{ cmp_sub }}" a="{{ cmp_a }}" b="{{ cmp_b }}" primaryLabel="Заменить" secondaryLabel="Оставить как есть" sameText="Разницы почти нет, можно оставить как есть" onPrimary="{{ cmp_apply }}" onClose="{{ cmp_close }}"></dc-import>
   </sc-if>
   <sc-if value="{{ show_goal }}" hint-placeholder-val="{{ false }}">
     <dc-import name="RaznosGoalSheet" goal="{{ gs_goal }}" daysLeft="{{ gs_days }}" earned="{{ gs_earned_v }}" booked="{{ gs_booked_v }}" planned="{{ gs_plan_v }}" onGoal="{{ goal_set }}" onFix="{{ goal_fix }}" onClose="{{ close_goal }}"></dc-import>
@@ -196,7 +203,7 @@
 
   <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><span class="rss-toast" role="status">{{ toast }}</span></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"weekGoal":{"editor":null},"weekEarned":{"editor":null},"booked":{"editor":null},"slots":{"editor":null},"workStart":{"editor":null},"todayEarned":{"editor":null},"workStyle":{"editor":null},"build":{"editor":null},"onSettings":{"editor":null},"stay":{"editor":null},"onStay":{"editor":null},"fact":{"editor":null},"embedded":{"editor":null},"onGoalChange":{"editor":null},"onboarded":{"editor":null},"onOnboard":{"editor":null},"workEnd":{"editor":null},"onFindSlot":{"editor":null},"onTakeSlot":{"editor":null},"onOpenShifts":{"editor":null},"onOpenResult":{"editor":null},"onOpenWeekResult":{"editor":null},"onEditGraph":{"editor":null},"addWindow":{"editor":null},"focusAdded":{"editor":null},"$preview":{"width":390,"height":1100}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"weekGoal":{"editor":null},"weekEarned":{"editor":null},"booked":{"editor":null},"slots":{"editor":null},"workStart":{"editor":null},"todayEarned":{"editor":null},"prefs":{"editor":null},"build":{"editor":null},"onSettings":{"editor":null},"stay":{"editor":null},"onStay":{"editor":null},"fact":{"editor":null},"embedded":{"editor":null},"onGoalChange":{"editor":null},"onboarded":{"editor":null},"onOnboard":{"editor":null},"workEnd":{"editor":null},"onFindSlot":{"editor":null},"onTakeSlot":{"editor":null},"onOpenShifts":{"editor":null},"onOpenResult":{"editor":null},"onOpenWeekResult":{"editor":null},"onEditGraph":{"editor":null},"addWindow":{"editor":null},"focusAdded":{"editor":null},"$preview":{"width":390,"height":1100}}'>
 // демо-дата прототипа, как у Смен и Статистики: вторник 15 сентября, 15:40
 const RSS_TODAY = new Date(2026, 8, 15);
 const RSS_NOW = 15 * 60 + 40;
@@ -309,9 +316,9 @@ class Component extends DCLogic {
     const build = st.build || p.build || 'auto';
     const saveSettings = (patch) => { set(patch); if (typeof p.onSettings === 'function') p.onSettings(Object.assign({ build }, patch)); };
     const auto = build === 'auto';
-    // ответ на Как вы работаете: own держусь своих смен, hunt ищу выгодные, advise советуйте, window своё окно
-    const workStyle = st.workStyle || p.workStyle || '';
-    const showBetter = workStyle !== 'own';
+    // настройки плана конкретными переключателями, вопрос Как вы работаете только заполняет их пресетом
+    const prefs = Object.assign({ swap: true, rebuildHint: false, rbDefault: 'money', onlyFree: false }, p.prefs || {}, st.prefs || {});
+    const setPrefs = (patch) => { const next = Object.assign({}, prefs, patch); set({ prefs: next }); if (typeof p.onSettings === 'function') p.onSettings({ build: patch.build || build, prefs: next }); };
     // решение «остаться ещё на час» общее с Сегодня, поэтому живёт в приложении
     const stay = typeof p.onStay === 'function' ? (p.stay || '') : (st.stay || '');
     const setStay = (v) => { if (typeof p.onStay === 'function') p.onStay(v); else set({ stay: v }); };
@@ -360,7 +367,7 @@ class Component extends DCLogic {
         if (cur < workEnd) gaps.push([cur, workEnd]);
         gaps.filter(([f, t]) => t - f >= 60).forEach(([f, t]) => {
           // слот ставим, только если он заметно выгоднее свободного выхода, иначе не стоит возни с записью
-          const pick = (RSS_SLOT_PICKS[iso] || []).map((id) => slots.find((sl) => sl.id === id))
+          const pick = (prefs.onlyFree ? [] : (RSS_SLOT_PICKS[iso] || [])).map((id) => slots.find((sl) => sl.id === id))
             .find((sl) => sl && sl.from >= f && sl.to <= t && slotState(sl) !== 'full' && rssRate(sl.svc, sl.from, sl.to) - rssRate('yandex-eda', sl.from, sl.to) >= 40);
           const parts = pick ? [[f, pick.from, null], [pick.from, pick.to, pick], [pick.to, t, null]] : [[f, t, null]];
           parts.filter(([a, b]) => b - a >= 60).forEach(([a, b, sl]) => {
@@ -544,11 +551,14 @@ class Component extends DCLogic {
     // брони и закреплённое двигать нельзя, ваши добавленные окна это намерение, их можно сравнить с более выгодным
     const fixedWins = planWins.filter((w) => w.source !== 'plan' && w.source !== 'added');
     const mineWins = planWins.filter((w) => w.source === 'added');
+    // свободное время показываем только в ваших часах: график и то, что уже стоит в дне, а не весь день 08–22
+    const gapFrom = Math.max(dayFrom, Math.min.apply(null, [workStart].concat(planWins.map((w) => w.from))));
+    const gapTo = Math.min(dayTo, Math.max.apply(null, [workEnd].concat(planWins.map((w) => w.to))));
     const freeGaps = (() => {
-      const busy = planWins.map((w) => [Math.max(w.from, dayFrom), w.to]).filter(([f, t]) => t > f).sort((a, b) => a[0] - b[0]);
-      let cur = dayFrom; const out = [];
-      busy.forEach(([f, t]) => { if (f - cur >= 60) out.push([cur, Math.min(f, dayTo)]); cur = Math.max(cur, t); });
-      if (dayTo - cur >= 60) out.push([cur, dayTo]);
+      const busy = planWins.map((w) => [Math.max(w.from, gapFrom), Math.min(w.to, gapTo)]).filter(([f, t]) => t > f).sort((a, b) => a[0] - b[0]);
+      let cur = gapFrom; const out = [];
+      busy.forEach(([f, t]) => { if (f - cur >= 60) out.push([cur, f]); cur = Math.max(cur, t); });
+      if (gapTo - cur >= 60) out.push([cur, gapTo]);
       return out;
     })();
     const clip = (w, f, t) => Math.max(0, Math.min(w.to, t) - Math.max(w.from, f));
@@ -618,11 +628,6 @@ class Component extends DCLogic {
           onOpen: () => set({ gapSheet: { iso: selIso, from: f, to: t } })
         });
       });
-      rows.forEach((r) => {
-        if (!showBetter || !r.is_window || r.src !== 'plan' || r.action || r.state === 'past') return;
-        const sw = cands.filter((o) => o.fit === 'swap' && o.over.some((w) => w.key === r.key)).sort(byGain)[0];
-        if (sw) Object.assign(r, { gain: true, note: 'Есть выгоднее: ' + RSS_SVC[sw.svc].title + ' ' + rssTime(sw.from) + '–' + rssTime(sw.to) + ', +' + rssFmt(sw.gain) + ' ₽', action: 'Заменить', actionKind: 'secondary', onAction: () => addWin(sw) });
-      });
       rows.sort((a, b) => a._t - b._t);
     }
     // лучшая сборка дня: закреплённое стоит, слоты целиком, щели добивает свободный выход по часу
@@ -634,7 +639,8 @@ class Component extends DCLogic {
       const busy = (a, b) => fixed.some((w) => w.from < b && w.to > a);
       const ok = (svc) => !allow || allow[svc] !== false;
       const valueOf = (earn, mins) => (mode === 'rate' ? earn - RSS_MY_RATE * mins / 60 : earn);
-      const slotOpts = optList.filter((o) => (o.avail === 'open' || o.avail === 'apply') && ok(o.svc) && o.from >= from && o.to <= to && !busy(o.from, o.to));
+      // без слотов в автоплане значит и пересборка их не ставит
+      const slotOpts = prefs.onlyFree ? [] : optList.filter((o) => (o.avail === 'open' || o.avail === 'apply') && ok(o.svc) && o.from >= from && o.to <= to && !busy(o.from, o.to));
       const best = new Array(n + 1).fill(0), pick = new Array(n + 1).fill(null);
       for (let i = n - 1; i >= 0; i--) {
         const t = from + i * step;
@@ -687,7 +693,7 @@ class Component extends DCLogic {
     });
     const keepMine = st.keepMine !== false;
     const rbAllow = st.rbAllow || {};
-    const rbMode = st.rbMode || (workStyle === 'window' ? 'rate' : 'money');
+    const rbMode = st.rbMode || prefs.rbDefault;
     const rb = st.rebuild ? (() => {
       const fixed = liveWins.filter((w) => w.source !== 'plan' && (keepMine || w.source !== 'added'));
       const fill = bestFill(fixed, spanFrom, spanTo, rbMode, rbAllow).map((w) => Object.assign({}, w, { source: 'new' }));
@@ -708,43 +714,6 @@ class Component extends DCLogic {
       set({ added: nx, removed: strip(removed), swaps: strip(swaps), zones: strip(zonesOf), rebuild: false });
       flash('Собрали день заново' + (delta > 0 ? ', +' + rssFmt(delta) + ' ₽' : ''));
     };
-    // сравнение при конфликте с вашим окном: как есть или с новым окном, освободившиеся часы добиваем свободным выходом
-    const cmpPlan = (opt) => {
-      const out = opt.mine;
-      const pieces = [];
-      out.forEach((w) => [[w.from, opt.from], [opt.to, w.to]].forEach(([a, b]) => { if (b - a >= 60) pieces.push({ svc: 'yandex-eda', from: a, to: b, zone: 'Центр', source: 'new' }); }));
-      const after = liveWins.filter((w) => out.indexOf(w) === -1 && !(w.source === 'plan' && w.from < opt.to && w.to > opt.from)).concat([Object.assign({}, opt, { source: 'new' })], pieces);
-      return { out, pieces, after, delta: Math.round((winsSum(after) - winsSum(liveWins)) / 10) * 10 };
-    };
-    // у вашего окна, которое ещё не бронь, одна строка, если есть выгоднее, сравнение по тапу, цифра та же, что в сравнении
-    if (selIso >= RSS_TODAY_ISO && realWins.length) {
-      const cmpOff = st.cmpOff || {};
-      rows.forEach((r) => {
-        if (!showBetter || !r.is_window || r.src !== 'added' || r.state === 'past' || cmpOff[r.key]) return;
-        const sw = cands.filter((o) => o.fit === 'swapMine' && o.mine.some((w) => w.key === r.key)).map((o) => ({ o, d: cmpPlan(o).delta })).filter((x) => x.d >= 100).sort((a, b) => b.d - a.d)[0];
-        if (sw) Object.assign(r, { gain: true, urgent: false, note: 'Есть выгоднее: ' + RSS_SVC[sw.o.svc].title + ' ' + rssTime(sw.o.from) + '–' + rssTime(sw.o.to) + ', +' + rssFmt(sw.d) + ' ₽', action: 'Сравнить', actionKind: 'secondary', onAction: () => set({ cmp: { iso: selIso, key: sw.o.key, mineKey: r.key } }) });
-      });
-    }
-    if (workStyle === 'advise' && selIso >= RSS_TODAY_ISO && realWins.length && !dismissed['rb:' + selIso] && !st.rebuild) {
-      const fixed = liveWins.filter((w) => w.source !== 'plan' && w.source !== 'added');
-      const gain = Math.round((winsSum(fixed.concat(bestFill(fixed, spanFrom, spanTo, 'money', rbAllow))) - winsSum(liveWins)) / 100) * 100;
-      if (gain >= 300) rows.unshift({
-        is_nudge: true, _t: -1, icon: 'trend', title: 'День можно собрать выгоднее', text: 'Если пересобрать, ≈ +' + rssFmt(gain) + ' ₽, брони не трогаем', meta: '',
-        action: 'Посмотреть', dismiss: 'Не надо',
-        onAction: () => set({ rebuild: true, keepMine: false }), onDismiss: () => set({ dismissed: Object.assign({}, dismissed, { ['rb:' + selIso]: true }) })
-      });
-    }
-    const cmpOpt = st.cmp && st.cmp.iso === selIso ? cands.find((c) => c.key === st.cmp.key) : null;
-    const cmp = cmpOpt ? cmpPlan(cmpOpt) : null;
-    const closeCmp = () => set({ cmp: null, cmpOff: Object.assign({}, st.cmpOff || {}, st.cmp ? { [st.cmp.mineKey]: true } : {}) });
-    const applyCmp = () => {
-      const nx = Object.assign({}, added);
-      nx[selIso] = (added[selIso] || []).filter((a) => !cmp.out.some((w) => w.key === a.key)).concat([cmpOpt].concat(cmp.pieces).map((w) => ({ key: 'a:' + (w.key || 'f:' + selIso + ':' + w.from), svc: w.svc, from: w.from, to: w.to, zone: 'Центр', source: 'added', slot: w.slot })));
-      set({ added: nx, cmp: null });
-      flash('Заменили, +' + rssFmt(cmp.delta) + ' ₽');
-    };
-    const gapSheet = st.gapSheet && st.gapSheet.iso === selIso ? st.gapSheet : null;
-    const sheetWin = gapSheet && gapSheet.winKey ? planWins.find((w) => w.key === gapSheet.winKey) : null;
     // замена окна: то, что пересекается из плана и ваших окон, уходит, остаток часов добиваем свободным выходом
     const replacePlan = (o) => {
       const out = liveWins.filter((x) => (x.source === 'plan' || x.source === 'added') && x.from < o.to && x.to > o.from);
@@ -753,6 +722,26 @@ class Component extends DCLogic {
       const after = liveWins.filter((x) => out.indexOf(x) === -1).concat([Object.assign({}, o, { source: 'new' })], pieces);
       return { out, pieces, delta: Math.round((winsSum(after) - winsSum(liveWins)) / 10) * 10 };
     };
+    // у окна плана и вашего окна одна строка, если есть выгоднее, тап открывает шторку окна, цифра та же, что в шторке
+    if (selIso >= RSS_TODAY_ISO && realWins.length) {
+      rows.forEach((r) => {
+        if (!prefs.swap || !r.is_window || (r.src !== 'added' && r.src !== 'plan') || r.state === 'past' || (r.src === 'plan' && r.action)) return;
+        const fits = r.src === 'added' ? ['swapMine'] : ['swap'];
+        const sw = cands.filter((o) => fits.indexOf(o.fit) !== -1 && o.over.some((w) => w.key === r.key)).map((o) => ({ o, d: replacePlan(o).delta })).filter((x) => x.d >= 100).sort((a, b) => b.d - a.d)[0];
+        if (sw) { const w = planWins.find((x) => x.key === r.key); Object.assign(r, { gain: true, urgent: false, note: 'Есть выгоднее: ' + RSS_SVC[sw.o.svc].title + ' ' + rssTime(sw.o.from) + '–' + rssTime(sw.o.to) + ', +' + rssFmt(sw.d) + ' ₽', action: 'Посмотреть', actionKind: 'secondary', onAction: () => set({ gapSheet: { iso: selIso, from: w.from, to: w.to, winKey: w.key } }) }); }
+      });
+    }
+    if (prefs.rebuildHint && selIso >= RSS_TODAY_ISO && realWins.length && !dismissed['rb:' + selIso] && !st.rebuild) {
+      const fixed = liveWins.filter((w) => w.source !== 'plan' && w.source !== 'added');
+      const gain = Math.round((winsSum(fixed.concat(bestFill(fixed, spanFrom, spanTo, 'money', rbAllow))) - winsSum(liveWins)) / 100) * 100;
+      if (gain >= 300) rows.unshift({
+        is_nudge: true, _t: -1, icon: 'trend', title: 'День можно собрать выгоднее', text: 'Если пересобрать, ≈ +' + rssFmt(gain) + ' ₽, брони не трогаем', meta: '',
+        action: 'Посмотреть', dismiss: 'Не надо',
+        onAction: () => set({ rebuild: true, keepMine: false }), onDismiss: () => set({ dismissed: Object.assign({}, dismissed, { ['rb:' + selIso]: true }) })
+      });
+    }
+    const gapSheet = st.gapSheet && st.gapSheet.iso === selIso ? st.gapSheet : null;
+    const sheetWin = gapSheet && gapSheet.winKey ? planWins.find((w) => w.key === gapSheet.winKey) : null;
     const winOptions = sheetWin ? (() => {
       const w = sheetWin;
       const from = Math.max(w.from, dayFrom);
@@ -861,16 +850,17 @@ class Component extends DCLogic {
       // выбор можно открыть снова кнопкой в шапке
       show_onboard: !!p.embedded && ((!p.onboarded && !st.onboarded) || !!st.onboardOpen),
       open_onboard: () => set({ settings: false, onboardOpen: true }),
-      onboard_label: ({ own: 'Держусь своих смен', hunt: 'Ищу выгодные смены', advise: 'Советуйте, я сделаю', window: 'У меня своё окно' })[workStyle] || 'Не выбрано',
-      onboard_effect: ({ own: 'Заполняем свободные часы, менять ваши окна не предлагаем', hunt: 'Сами не ставим, показываем всё, что выгоднее', advise: 'Собираем день и предлагаем пересобрать, когда станет выгоднее', window: 'Собираем по умолчанию дорогие часы' })[workStyle] || '',
       onboard_skip_label: st.onboardOpen ? 'Закрыть' : 'Потом',
       onboard_choices: [
-        ['Держусь своих смен', 'Заполним только свободные часы, менять ваши окна не предлагаем', { build: 'auto', style: 'own' }],
-        ['Ищу выгодные смены', 'Сами ничего не ставим, показываем всё, что выгоднее', { build: 'manual', style: 'hunt' }],
-        ['Советуйте, я сделаю', 'Соберём день за вас и предложим пересобрать, если станет выгоднее', { build: 'auto', style: 'advise' }],
-        ['У меня своё окно', 'Работаем в ваших часах, собираем дорогие часы', { build: 'auto', style: 'window', graph: true }]
+        ['Держусь своих смен', 'Заполним только свободные часы, менять ваши окна не предлагаем', { build: 'auto', swap: false, rebuildHint: false, rbDefault: 'money', onlyFree: false }],
+        ['Ищу выгодные смены', 'Сами ничего не ставим, показываем всё, что выгоднее', { build: 'manual', swap: true, rebuildHint: false, rbDefault: 'money', onlyFree: false }],
+        ['Советуйте, я сделаю', 'Соберём день сами, только то, куда можно выйти без записи, и предложим пересобрать', { build: 'auto', swap: true, rebuildHint: true, rbDefault: 'money', onlyFree: true }],
+        ['У меня своё окно', 'Работаем в ваших часах, собираем дорогие часы', { build: 'auto', swap: true, rebuildHint: false, rbDefault: 'rate', onlyFree: false, graph: true }]
       ].map(([title, text, v]) => ({ title, text, tap: () => {
-        set({ onboarded: true, onboardOpen: false, onboardChoice: title, workStyle: v.style, rbMode: v.style === 'window' ? 'rate' : 'money' }); saveSettings({ build: v.build, style: v.style });
+        // пресет только заполняет настройки и сразу говорит, что включили
+        const on = [v.build === 'auto' ? 'Разнос собирает сам' : 'план собираете вы', v.swap ? 'предлагаем замену' : 'замену не предлагаем', v.rebuildHint ? 'предложим пересобрать день' : '', v.onlyFree ? 'без слотов в автоплане' : '', v.rbDefault === 'rate' ? 'собираем дорогие часы' : ''].filter(Boolean).join(', ');
+        set({ onboarded: true, onboardOpen: false, rbMode: null, build: v.build }); setPrefs({ build: v.build, swap: v.swap, rebuildHint: v.rebuildHint, rbDefault: v.rbDefault, onlyFree: v.onlyFree });
+        flash('Настроили: ' + on + '. Поменять можно в настройках плана');
         if (typeof p.onOnboard === 'function') p.onOnboard(v.build);
         if (v.graph && typeof p.onEditGraph === 'function') p.onEditGraph();
       } })),
@@ -916,9 +906,6 @@ class Component extends DCLogic {
       },
       rb_svcs: ['yandex-eda', 'samokat', 'vkusvill', 'x5'].map((k) => ({ svc: k, label: RSS_SVC[k].title, on: rbAllow[k] !== false, tap: () => set({ rbAllow: Object.assign({}, rbAllow, { [k]: rbAllow[k] === false }) }) })),
       rb_a: rb ? optionOf('Сейчас', liveWins, rb.after, 'out') : null, rb_b: rb ? optionOf('Станет', rb.after, liveWins, 'in') : null,
-      show_cmp: !!cmp, cmp_close: closeCmp, cmp_apply: () => { if (cmp) applyCmp(); },
-      cmp_sub: cmp ? 'Ваше окно ещё не бронь, его можно поменять без штрафа' : '',
-      cmp_a: cmp ? optionOf('Как есть', liveWins, cmp.after, 'out') : null, cmp_b: cmp ? optionOf('Если взять ' + RSS_SVC[cmpOpt.svc].title + ' ' + rssTime(cmpOpt.from) + '–' + rssTime(cmpOpt.to), cmp.after, liveWins, 'in') : null,
       show_reset: dayChanged, reset_day: () => {
         const strip = (obj) => { const nx = {}; Object.keys(obj).forEach((k) => { if (k.indexOf(selIso) === -1) nx[k] = obj[k]; }); return nx; };
         const nxAdded = Object.assign({}, added); delete nxAdded[selIso];
@@ -926,6 +913,12 @@ class Component extends DCLogic {
         flash('Правки дня сброшены');
       },
       mine_note: auto ? 'Если сервис упадёт или бронь отменят, окно подменим и напишем пуш. Брони план не трогает' : 'План сам не меняется, подсказки приходят только по вашим окнам',
+      set_toggles: [
+        ['swap', 'Предлагать замену окон', 'У окна строка Есть выгоднее, если нашли вариант дороже от 100 ₽'],
+        ['rebuildHint', 'Предлагать пересобрать день', 'Сверху дня подсказка, если пересборка даст от 300 ₽'],
+        ['onlyFree', 'Без слотов в автоплане', 'Автоплан ставит только то, куда можно выйти без записи']
+      ].map(([k, title, text]) => ({ title, text, on: !!prefs[k], sw: 'raznos-switch' + (prefs[k] ? ' raznos-is-on' : ''), tap: () => setPrefs({ [k]: !prefs[k] }) })),
+      set_rb: [['money', 'Больше денег'], ['rate', 'Выше ₽/ч']].map(([k, label]) => ({ label, cls: 'raznos-segment' + (prefs.rbDefault === k ? ' raznos-is-active' : ''), tap: () => { set({ rbMode: null }); setPrefs({ rbDefault: k }); } })),
       show_settings: !!st.settings, open_settings: () => set({ settings: true }), close_settings: () => set({ settings: false }),
       // смена режима не трогает уже собранный план: при переходе на Сам окна автоплана становятся вашими
       set_build: [['auto', 'Разнос сам'], ['manual', 'Сам']].map(([k, label]) => ({ label, cls: 'raznos-segment' + (build === k ? ' raznos-is-active' : ''), tap: () => {

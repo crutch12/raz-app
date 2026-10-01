@@ -269,7 +269,7 @@
                 </div>
             </div>
             </sc-if>
-            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" embedded="{{ true }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ go_work_schedule }}" build="{{ smart_build }}" workStyle="{{ smart_style }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
+            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" embedded="{{ true }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ go_work_schedule }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
           </sc-if>
 
           <sc-if value="{{ is_active_order }}">
@@ -4454,8 +4454,8 @@
             smart_add_window: st.smartAddWindow || null, smart_focus_added: !!st.smartFocusAdded,
             smart_build: st.smartBuild || 'auto',
             plan_onboarded: !!st.planOnboarded, set_plan_onboarded: () => set({ planOnboarded: true }),
-            smart_style: st.smartStyle || '',
-            smart_settings: (v) => set(Object.assign({ smartBuild: v.build }, v.style ? { smartStyle: v.style } : {})),
+            smart_prefs: st.smartPrefs || null,
+            smart_settings: (v) => set(Object.assign({ smartBuild: v.build }, v.prefs ? { smartPrefs: v.prefs } : {})),
             // решение остаться ещё на час после последней брони, общее для Сегодня и расписания
             plan_stay: st.planStay || '', set_plan_stay: (v) => set({ planStay: v }),
             smart_fact: { samokat: { earn: samokatEarn, orders: today.samokatOrders }, vkusvill: { earn: vvEarn, orders: today.vvOrders } },
