@@ -13,7 +13,6 @@
     .rss-week-step:disabled { color: var(--raznos-line-strong); cursor: default; }
     .rss-title { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
     .rss-week-sub { white-space: nowrap; font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
-    .rss-week-link { padding: 0; border: 0; background: none; font: 600 12.5px var(--raznos-font); color: var(--raznos-green-deep); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
     .rss-bar-actions { display: flex; align-items: center; gap: 8px; }
     .rss-shifts-btn { position: relative; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 14px; border: 1px solid var(--raznos-line); border-radius: 12px; background: var(--raznos-surface); font: 650 14px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; }
     .rss-shifts-dot { position: absolute; top: 7px; right: 7px; width: 8px; height: 8px; border-radius: 50%; background: var(--raznos-red); box-shadow: 0 0 0 2px var(--raznos-surface); }
@@ -65,7 +64,7 @@
     .rss-settings-group { display: flex; flex-direction: column; gap: 6px; }
     .rss-settings-label { font: 650 13px var(--raznos-font); color: var(--raznos-ink); }
     .rss-goal { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 10px 14px; border: 0; border-radius: 14px; background: var(--raznos-surface); text-align: left; font: inherit; color: var(--raznos-ink); cursor: pointer; }
-    .rss-goal:focus-visible, .rss-shifts-btn:focus-visible, .rss-week-step:focus-visible, .rss-week-link:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .rss-goal:focus-visible, .rss-shifts-btn:focus-visible, .rss-week-step:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
     .rss-goal-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
     .rss-goal-top > b { font: 700 15px var(--raznos-font); font-variant-numeric: tabular-nums; }
     .rss-goal-top > span { font: 600 12.5px var(--raznos-font); color: var(--raznos-green-deep); white-space: nowrap; }
@@ -89,7 +88,7 @@
 
 <div class="raznos-phone-body rss-screen" data-screen-label="Smart schedule">
   <div class="raznos-app-bar rss-bar">
-    <span class="rss-bar-left"><sc-if value="{{ has_back }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-icon-btn" onClick="{{ on_back }}" aria-label="Назад">‹</button></sc-if><span class="rss-title"><h1 class="raznos-text-h1" style="margin:0">{{ screen_title }}</h1><sc-if value="{{ has_week_sub }}" hint-placeholder-val="{{ false }}"><span class="rss-week-sub">{{ week_sub }}<sc-if value="{{ has_week_link }}" hint-placeholder-val="{{ false }}"> · <button type="button" class="rss-week-link" onClick="{{ week_result }}">{{ week_link }}</button></sc-if></span></sc-if></span></span>
+    <span class="rss-bar-left"><sc-if value="{{ has_back }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-icon-btn" onClick="{{ on_back }}" aria-label="Назад">‹</button></sc-if><span class="rss-title"><h1 class="raznos-text-h1" style="margin:0">{{ screen_title }}</h1><sc-if value="{{ has_week_sub }}" hint-placeholder-val="{{ false }}"><span class="rss-week-sub">{{ week_sub }}</span></sc-if></span></span>
     <span class="rss-bar-actions"><button type="button" class="rss-shifts-btn" onClick="{{ open_shifts }}" aria-label="{{ shifts_aria }}">Брони и слоты<sc-if value="{{ shifts_alert }}" hint-placeholder-val="{{ true }}"><i class="rss-shifts-dot" aria-hidden="true"></i></sc-if></button>
     <button type="button" class="raznos-icon-btn" onClick="{{ open_settings }}" aria-label="Настройки плана"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button></span>
   </div>
@@ -146,7 +145,7 @@
     </sc-if>
 
     <sc-if value="{{ show_reset }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" style="align-self:flex-start" onClick="{{ reset_day }}">Сбросить мои правки дня</button></sc-if>
-    <p class="rss-note">{{ mine_note }}</p>
+    <sc-if value="{{ has_mine_note }}" hint-placeholder-val="{{ true }}"><p class="rss-note">{{ mine_note }}</p></sc-if>
   </sc-if>
 
 
@@ -847,8 +846,8 @@ class Component extends DCLogic {
       // выполнена только по заработанному, по плану пишем, что запланированного хватит
       goal_state: weekEarned >= weekGoal ? 'цель ' + rssFmt(weekGoal) + ' ₽ выполнена' : (weekPast ? 'до цели не хватило ≈ ' + rssFmt(weekGoal - weekEarned) + ' ₽' : (weekShort ? 'до цели не хватает ≈ ' + rssFmt(weekGoal - weekTotal) + ' ₽' : 'плана хватит')),
       goal_state_cls: weekShort && weekEarned < weekGoal ? 'rss-goal-short' : '',
-      goal_aria: 'Цель недели ' + rssFmt(weekGoal) + ' рублей, заработано ' + rssFmt(weekEarned) + ', в плане ещё ' + rssFmt(Math.round(weekLeft)),
-      open_goal: () => { if (!weekPast) set({ goalOpen: true }); }, close_goal: () => set({ goalOpen: false }), show_goal: !!st.goalOpen,
+      goal_aria: 'Цель недели ' + rssFmt(weekGoal) + ' рублей, заработано ' + rssFmt(weekEarned) + (weekPast ? ', открыть результаты недели' : ', в плане ещё ' + rssFmt(Math.round(weekLeft))),
+      open_goal: () => { if (!weekPast) set({ goalOpen: true }); else if (typeof p.onOpenWeekResult === 'function') p.onOpenWeekResult(weekOff); }, close_goal: () => set({ goalOpen: false }), show_goal: !!st.goalOpen,
       gs_goal: weekGoal, gs_days: weekDays.filter((x) => rssIso(x) >= RSS_TODAY_ISO).length, gs_earned_v: weekEarned, gs_booked_v: weekBooked, gs_plan_v: Math.max(0, weekLeft - weekBooked),
       goal_set: setGoal,
       goal_fix: () => { const best = weekDays.map(rssIso).filter((iso) => iso >= RSS_TODAY_ISO).map((iso) => ({ iso, free: freeMinOf(iso) })).sort((a, b) => b.free - a.free)[0]; set({ goalOpen: false, day: best && best.free ? best.iso : selIso }); },
@@ -878,7 +877,6 @@ class Component extends DCLogic {
       has_week_sub: weekOff !== 0, week_sub: weekOff < 0 ? 'прошлая неделя' : 'следующая неделя',
       week_prev: () => goWeek(-1), week_next: () => goWeek(1), week_prev_off: weekOff <= -1, week_next_off: weekOff >= 1,
       // у прошедшей недели ссылка на её итог в Результатах
-      week_link: weekPast ? 'Результаты недели' : '', has_week_link: weekPast, week_result: () => { if (typeof p.onOpenWeekResult === 'function') p.onOpenWeekResult(weekOff); },
       days, is_mine: true,
       day_title: (isToday ? 'Сегодня, ' : RSS_WD_FULL[selDate.getDay()] + ', ') + selDate.getDate() + ' ' + RSS_MONTHS[selDate.getMonth()],
       day_sub: selIso < RSS_TODAY_ISO ? (realWins.length ? 'смены выполнены' : 'смен не было') : isToday ? rssFmt(todayEarned) + ' ₽ уже заработано' : realWins.length ? rssHours(dayMin) + ' · ' + (bookedCount ? bookedCount + ' ' + (bookedCount === 1 ? 'бронь' : (bookedCount < 5 ? 'брони' : 'броней')) : 'без броней') : (isWorkDay(selDate) ? 'рабочий день по графику' : 'выходной по графику'),
@@ -925,7 +923,7 @@ class Component extends DCLogic {
         set({ added: nxAdded, removed: strip(removed), swaps: strip(swaps), zones: strip(zonesOf) });
         flash('Правки дня сброшены');
       },
-      mine_note: auto ? 'Если сервис упадёт или бронь отменят, окно подменим и напишем пуш. Брони план не трогает' : 'План сам не меняется, подсказки приходят только по вашим окнам',
+      has_mine_note: selIso >= RSS_TODAY_ISO, mine_note: auto ? 'Если сервис упадёт или бронь отменят, окно подменим и напишем пуш. Брони план не трогает' : 'План сам не меняется, подсказки приходят только по вашим окнам',
       set_toggles: [
         ['swap', 'Предлагать замену окон', 'У окна строка Есть выгоднее, если нашли вариант дороже от 100 ₽'],
         ['onlyFree', 'Без слотов в автоплане', 'Автоплан ставит только то, куда можно выйти без записи']
