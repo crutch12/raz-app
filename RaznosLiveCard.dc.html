@@ -8,7 +8,7 @@
   <body>
     <x-dc>
       <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-live.css" /></helmet>
-      <div class="{{ cardClass }}" style="{{ cardStyle }}">
+      <div class="{{ cardClass }}" style="{{ cardStyle }}" data-live-id="{{ cardId }}">
         <sc-if value="{{ isPost }}" hint-placeholder-val="{{ true }}">
           <div class="raznos-live-card-head">
             <span class="raznos-live-svc" role="group" aria-label="{{ svcsLabel }}"><sc-for list="{{ svcs }}" as="s" hint-placeholder-count="2"><dc-import name="RaznosIcon" svc="{{ s.key }}" alt="{{ s.title }}" size="sm"></dc-import></sc-for></span>
@@ -24,10 +24,9 @@
           <sc-if value="{{ canOpen }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-live-open" onClick="{{ onOpen }}">{{ text }}</button></sc-if>
           <sc-if value="{{ staticText }}" hint-placeholder-val="{{ false }}"><p class="raznos-live-text">{{ text }}</p></sc-if>
         </sc-if>
-        <sc-if value="{{ hasAttach }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ true }}">
           <div class="raznos-live-attach">
-            <sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-live-photo-btn" onClick="{{ onPhoto }}" aria-label="Открыть фото"><img src="{{ photoSrc }}" alt="{{ photoAlt }}" /></button></sc-if>
-            <sc-if value="{{ hasPlace }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-live-place-btn" onClick="{{ onPlace }}"><span class="raznos-live-pin-glyph"></span>{{ placeLabel }}</button></sc-if>
+            <button type="button" class="raznos-live-photo-btn" onClick="{{ onPhoto }}" aria-label="Открыть фото"><img src="{{ photoSrc }}" alt="{{ photoAlt }}" /></button>
           </div>
         </sc-if>
         <sc-if value="{{ showText }}" hint-placeholder-val="{{ true }}">
@@ -40,6 +39,9 @@
               <sc-if value="{{ showDelete }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-live-mini" onClick="{{ onDelete }}">Удалить</button></sc-if>
             </span>
           </div>
+        </sc-if>
+        <sc-if value="{{ hasPlace }}" hint-placeholder-val="{{ true }}">
+          <div class="raznos-live-place-cap"><span class="raznos-live-pin-glyph" aria-hidden="true"></span><span class="raznos-live-place-name">{{ placeLabel }}</span><button type="button" class="raznos-live-map-link" onClick="{{ onPlace }}">На карте</button></div>
         </sc-if>
         <sc-if value="{{ hasNote }}" hint-placeholder-val="{{ false }}"><p class="raznos-live-note">{{ note }}</p></sc-if>
       </div>
@@ -63,6 +65,8 @@
       "placeLabel": { "editor": "text", "default": "" },
       "note": { "editor": "text", "default": "" },
       "canOpen": { "editor": "boolean", "default": true },
+      "cardId": { "editor": "text", "default": "" },
+      "flash": { "editor": "boolean", "default": false },
       "onOpen": { "editor": null },
       "onLike": { "editor": null },
       "onDislike": { "editor": null },
@@ -104,7 +108,8 @@
           const selfNote = mine && status === 'active' ? 'Свои сообщения оценивать нельзя' : '';
           return {
             isPost,
-            cardClass: 'raznos-live-card' + (isPost ? '' : ' raznos-live-is-reply') + (readOnly ? ' raznos-live-is-archived' : ''),
+            cardClass: 'raznos-live-card' + (isPost ? '' : ' raznos-live-is-reply') + (readOnly ? ' raznos-live-is-archived' : '') + (p.flash ? ' raznos-live-is-flash' : ''),
+            cardId: p.cardId || '',
             cardStyle: isPost && !isMultiSvc ? 'border-left-color:var(--raznos-svc-' + svcKey + ')' : (isPost ? 'border-left-color:var(--raznos-line-strong)' : ''),
             isMulti: isMultiSvc, isSingle: !isMultiSvc,
             svcs, svcsLabel: svcs.map((s) => s.title).join(', '),
@@ -119,7 +124,6 @@
             staticText: showText && !(p.canOpen !== false && !!p.onOpen),
             text: p.text || '',
             onOpen: p.onOpen || noop,
-            hasAttach: hasPhoto || hasPlace,
             hasPhoto, photoSrc: p.photoSrc || '', photoAlt: 'Фото к сообщению, метаданные удалены',
             hasPlace, placeLabel: p.placeLabel || '',
             onPhoto: p.onPhoto || noop, onPlace: p.onPlace || noop,

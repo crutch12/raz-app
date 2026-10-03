@@ -16,10 +16,12 @@
     .rnn-row-now .rnn-row-lab { color: var(--raznos-green-deep); }
     .rnn-row-name { font: 700 15px var(--raznos-font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .rnn-row-sub { font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+    .rnn-row-place { font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); overflow-wrap: anywhere; }
     .rnn-row-hint { flex: none; font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); font-variant-numeric: tabular-nums; }
     .rnn-row-now .rnn-row-hint { color: var(--raznos-green-deep); }
-    .rnn-warning { padding: 8px 10px; border-radius: 10px; background: color-mix(in oklab, var(--raznos-red) 10%, var(--raznos-surface)); color: var(--raznos-red); font: 600 12.5px/1.35 var(--raznos-font); }
-    .rnn-open { align-self: flex-start; background: none; border: 0; padding: 0; cursor: pointer; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); display: inline-flex; align-items: center; gap: 4px; }
+    .rnn-warning { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; min-height: 44px; border: 0; text-align: left; cursor: pointer; padding: 8px 10px; border-radius: 10px; background: color-mix(in oklab, var(--raznos-red) 10%, var(--raznos-surface)); color: var(--raznos-red); font: 600 12.5px/1.35 var(--raznos-font); }
+    .rnn-open { align-self: flex-start; box-sizing: border-box; min-height: 44px; margin: -12px 0; padding: 0 12px 0 0; background: none; border: 0; cursor: pointer; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); display: inline-flex; align-items: center; gap: 4px; }
+    .rnn-warning-act { font: 700 12.5px var(--raznos-font); color: var(--raznos-red); text-decoration: underline; text-underline-offset: 2px; }
   </style>
 </helmet>
 <div class="rnn">
@@ -31,13 +33,13 @@
   <sc-for list="{{ rows }}" as="row" hint-placeholder-count="2">
     <button type="button" class="{{ row.cls }}" onClick="{{ row.tap }}" aria-label="{{ row.aria }}">
       <dc-import name="RaznosIcon" svc="{{ row.svc }}" alt="{{ row.title }}" size="md"></dc-import>
-      <span class="rnn-row-body"><span class="rnn-row-top"><span class="rnn-row-lab">{{ row.label }}</span><span class="rnn-row-hint">{{ row.hint }}</span></span><span class="rnn-row-name">{{ row.title }}</span><span class="rnn-row-sub">{{ row.sub }}</span></span>
+      <span class="rnn-row-body"><span class="rnn-row-top"><span class="rnn-row-lab">{{ row.label }}</span><span class="rnn-row-hint">{{ row.hint }}</span></span><span class="rnn-row-name">{{ row.title }}</span><span class="rnn-row-sub">{{ row.subTime }}</span><sc-if value="{{ row.place }}" hint-placeholder-val="{{ true }}"><span class="rnn-row-place">{{ row.place }}</span></sc-if></span>
     </button>
   </sc-for>
-  <sc-if value="{{ warning }}" hint-placeholder-val="{{ true }}"><span class="rnn-warning">{{ warning }}</span></sc-if>
+  <sc-if value="{{ warning }}" hint-placeholder-val="{{ true }}"><button type="button" class="rnn-warning" onClick="{{ on_warning }}"><span>{{ warning }}</span><span class="rnn-warning-act">Решить в плане ›</span></button></sc-if>
   <button type="button" class="rnn-open" onClick="{{ open_plan }}">План дня<span class="raznos-row-chevron">›</span></button>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"text","default":"on"},"dayLine":{"editor":"text","default":"09:00–20:00 · осталось 4 ч 20 мин"},"rows":{"editor":null},"warning":{"editor":"text","default":"Не успеете доехать: между сменами 0 мин, дорога ≈ 20 мин"},"onEnd":{"editor":null},"onStart":{"editor":null},"onOpenPlan":{"editor":null},"onOpenShift":{"editor":null},"$preview":{"width":390,"height":260}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"text","default":"on"},"dayLine":{"editor":"text","default":"09:00–20:00 · осталось 4 ч 20 мин"},"rows":{"editor":null},"onWarning":{"editor":null},"warning":{"editor":"text","default":"Не успеете доехать: между сменами 0 мин, дорога ≈ 20 мин"},"onEnd":{"editor":null},"onStart":{"editor":null},"onOpenPlan":{"editor":null},"onOpenShift":{"editor":null},"$preview":{"width":390,"height":260}}'>
 // Сейчас и дальше в Сегодня: бронь из Смен важнее плана, план подставляется только в свободные часы
 class Component extends DCLogic {
   renderVals() {
@@ -53,11 +55,12 @@ class Component extends DCLogic {
       const now = row.kind === 'now';
       const label = (now ? 'Сейчас' : 'Дальше') + (row.source === 'booking' ? ' · бронь' : ' · по плану');
       const sub = [row.time, row.source === 'booking' ? row.place : (row.pay ? row.pay + ' ₽/ч' : '')].filter(Boolean).join(' · ');
+      const subTime = [row.time, row.source === 'booking' ? '' : (row.pay ? row.pay + ' ₽/ч' : '')].filter(Boolean).join(' · ');
       return Object.assign({}, row, {
-        label, sub,
+        label, sub, subTime, place: row.source === 'booking' ? row.place : '',
         cls: 'rnn-row' + (now ? ' rnn-row-now' : ''),
         aria: label + ', ' + row.title + ', ' + sub + (row.hint ? ', ' + row.hint : ''),
-        // бронь открывает Смены, час из плана открывает план дня
+        // бронь открывает свою шторку в плане, час из плана открывает план дня
         tap: row.source === 'booking' ? () => openShift(row) : openPlan
       });
     });
@@ -68,6 +71,7 @@ class Component extends DCLogic {
       is_on: state === 'on', is_idle: state === 'idle',
       rows, warning,
       on_end: typeof p.onEnd === 'function' ? p.onEnd : noop,
+      on_warning: typeof p.onWarning === 'function' ? p.onWarning : openPlan,
       on_start: typeof p.onStart === 'function' ? p.onStart : noop,
       open_plan: openPlan
     };

@@ -22,7 +22,7 @@
       "svcName": { "editor": "text", "default": "vkusvill" },
       "title": { "editor": "text", "default": "ВкусВилл" },
       "note": { "editor": "text", "default": "" },
-      "status": { "editor": "enum", "default": "none", "options": ["connected", "disabled", "unsupported", "limited", "exited", "none"] },
+      "status": { "editor": "enum", "default": "none", "options": ["connected", "disabled", "unsupported", "limited", "exited", "soon", "none"] },
       "statusLabel": { "editor": "text", "default": "" },
       "showChevron": { "editor": "boolean", "default": false },
       "onTap": { "editor": null }
@@ -37,6 +37,7 @@
             unsupported: 'raznos-status-pill raznos-pill-concept',
             limited: 'raznos-status-pill raznos-pill-warn',
             exited: 'raznos-status-pill raznos-pill-muted',
+            soon: 'raznos-status-pill raznos-pill-muted',
             relogin: 'raznos-status-pill raznos-pill-error',
             rate: 'raznos-status-pill raznos-pill-warn'
           };
@@ -44,8 +45,9 @@
             connected: 'Подключено',
             disabled: 'Отключено',
             unsupported: 'Недоступно',
-            limited: 'Временно',
-            exited: 'Вы вышли'
+            limited: 'Бета',
+            exited: 'Вы вышли',
+            soon: 'Скоро'
           };
           return {
             svcName: p.svcName || 'vkusvill',

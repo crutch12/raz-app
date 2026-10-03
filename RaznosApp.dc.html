@@ -140,7 +140,17 @@
             <div class="raznos-phone-body" data-screen-label="6 Courier home">
               <div class="raznos-app-bar" style="justify-content:space-between;gap:10px"><h1 class="raznos-text-h1" style="margin:0">Сегодня</h1><span class="raznos-text-small" style="text-align:right">{{ city_title }} · {{ transport_title }} · 15.09</span></div>
               <dc-import name="RaznosConnHealth" items="{{ conn_health_items }}" okNote="{{ conn_health_ok_note }}" netOffline="{{ net_offline }}" onAction="{{ conn_health_action }}"></dc-import>
-              <sc-if value="{{ home_now_visible }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosNowNext" state="{{ home_now_state }}" dayLine="{{ home_now_day }}" rows="{{ home_now_rows }}" warning="{{ home_now_warning }}" onEnd="{{ end_home_shift }}" onStart="{{ start_home_shift }}" onOpenPlan="{{ go_smart }}" onOpenShift="{{ go_slots }}"></dc-import></sc-if>
+              <sc-if value="{{ home_now_visible }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosNowNext" state="{{ home_now_state }}" dayLine="{{ home_now_day }}" rows="{{ home_now_rows }}" warning="{{ home_now_warning }}" onEnd="{{ end_home_shift }}" onStart="{{ start_home_shift }}" onOpenPlan="{{ go_smart }}" onOpenShift="{{ home_open_shift }}" onWarning="{{ home_open_warning }}"></dc-import></sc-if>
+              <sc-if value="{{ home_end_ask }}" hint-placeholder-val="{{ false }}">
+                <div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="Завершить рабочий день">
+                  <div class="raznos-dialog">
+                    <span class="raznos-text-h3">Завершить рабочий день?</span>
+                    <span class="raznos-text-small">Разнос перестанет вести день и подсказывать. В сервисах ничего не отменится</span>
+                    <sc-for list="{{ home_end_items }}" as="it" hint-placeholder-count="2"><div class="{{ it.cls }}"><span class="raznos-notice-title">{{ it.title }}</span><span class="raznos-text-small">{{ it.text }}</span></div></sc-for>
+                    <div class="raznos-fx raznos-col raznos-gap8"><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ home_end_cancel }}">Продолжить работу</button><button type="button" class="raznos-btn raznos-btn-danger" onClick="{{ home_end_confirm }}">Всё равно завершить</button></div>
+                  </div>
+                </div>
+              </sc-if>
               <sc-if value="{{ home_nudge_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosPlanNudge" icon="{{ home_nudge_icon }}" title="{{ home_nudge_title }}" text="{{ home_nudge_text }}" meta="{{ home_nudge_meta }}" action="{{ home_nudge_action }}" dismiss="{{ home_nudge_dismiss }}" onAction="{{ home_nudge_accept }}" onDismiss="{{ home_nudge_close }}"></dc-import></sc-if>
 
               <h2 class="raznos-home-group">Доход и заказы</h2>
@@ -148,42 +158,50 @@
                 <dc-import name="RaznosDayResult" earn="{{ today_earn }}" orders="{{ today_orders }}" hourly="{{ today_hourly }}" hours="{{ today_hours }}" deltaPct="{{ today_delta_pct }}" open="{{ go_day_recap }}"></dc-import>
                 <button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" style="align-self:flex-start" onClick="{{ start_home_shift }}">Выйти на смену снова</button>
               </sc-if>
+              <sc-if value="{{ home_shift_not_ended }}" hint-placeholder-val="{{ true }}">
               <div class="raznos-hero-dark">
                 <span class="raznos-hero-label">Заработано сегодня</span>
-                <div class="raznos-fx raznos-ac raznos-gap8"><span class="raznos-hero-value">{{ today_earn }}</span><span class="raznos-hero-unit">₽</span></div>
+                <div class="raznos-fx raznos-ac raznos-gap8"><span class="raznos-hero-value">{{ today_earn_label }}</span><span class="raznos-hero-unit">₽</span></div>
                 <span style="color:var(--raznos-on-dark);opacity:0.88;font:600 13px var(--raznos-mono);margin-top:2px">{{ today_hero_stats }}</span>
                 <sc-if value="{{ today_hero_note_show }}" hint-placeholder-val="{{ true }}"><span class="raznos-hero-formula">{{ today_hero_note }}</span></sc-if>
-                <div class="raznos-hero-pace"><div class="raznos-hero-pace-track"><span class="raznos-hero-pace-fill" style="{{ today_pace_style }}"></span></div><span class="raznos-hero-pace-note">{{ today_earn_label }} из {{ today_target }} ₽ · {{ today_pace_note }}</span></div>
+                <div class="raznos-hero-pace"><div class="raznos-hero-pace-track"><span class="raznos-hero-pace-fill" style="{{ today_pace_style }}"></span></div><span class="raznos-hero-pace-note">{{ today_earn_label }} из {{ today_target }} ₽, дневная часть цели недели · {{ today_pace_note }}</span></div>
               </div>
-              <dc-import name="RaznosEarnBreakdown" services="{{ earn_services }}" expenses="{{ earn_expenses }}" onOpenService="{{ go_history }}" onOpenExpenses="{{ go_expenses_from_home }}" onAddExpense="{{ go_expenses_from_home }}"></dc-import>
-              <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}"></dc-import>
+              </sc-if>
+              <dc-import name="RaznosEarnBreakdown" services="{{ earn_services }}" expenses="{{ earn_expenses }}" onOpenService="{{ go_history }}" onOpenExpenses="{{ go_expenses_from_home }}" onAddExpense="{{ go_expense_form_from_home }}"></dc-import>
+              <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onAddExpense="{{ go_expense_form_from_home }}"></dc-import>
 
               <h2 class="raznos-home-group">Вокруг</h2>
-              <dc-import name="RaznosCourierMapCard" count="{{ cmap_count }}" locked="{{ cmap_locked }}" onOpen="{{ go_courier_map }}"></dc-import>
               <dc-import name="RaznosLiveToday" items="{{ live_today_items }}" cityTitle="{{ city_title }}" onAll="{{ live_go_feed_home }}" onWrite="{{ live_go_compose_home }}"></dc-import>
+              <dc-import name="RaznosCourierMapCard" count="{{ cmap_count }}" locked="{{ cmap_locked }}" onOpen="{{ go_courier_map }}"></dc-import>
               <div class="raznos-card"><button type="button" class="raznos-list-row" style="border-bottom:0" onClick="{{ go_zones }}"><div class="raznos-list-main"><span class="raznos-list-title">Где сейчас выгоднее</span><span class="raznos-text-small">Районы, время и источник данных</span></div><span class="raznos-row-chevron">›</span></button></div>
             </div>
           </sc-if>
 
           <sc-if value="{{ is_courier_map }}">
             <div class="raznos-phone-body raznos-cmap-screen" data-screen-label="Courier map">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_home_any }}" aria-label="Назад">‹</button><h1 class="raznos-text-h1" style="margin:0">Карта курьеров</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ cmap_back }}" aria-label="Назад">‹</button><h1 class="raznos-text-h1" style="margin:0">Карта курьеров</h1></div>
+              <div class="raznos-cmap-filters" role="group" aria-label="Фильтры карты">
+                <dc-import name="RaznosFilterChips" filters="{{ cmap_filters }}" onChange="{{ cmap_set_filter }}"></dc-import>
+                <sc-for list="{{ cmap_toggles }}" as="t" hint-placeholder-count="1"><button type="button" class="{{ t.cls }}" aria-pressed="{{ t.on }}" onClick="{{ t.tap }}"><span class="raznos-live-pin-glyph" aria-hidden="true"></span>{{ t.label }}</button></sc-for>
+              </div>
               <div class="raznos-cmap-stage">
-                <dc-import name="RaznosCourierMap" fill="{{ true }}" svc="{{ cmap_svc }}" locked="{{ cmap_locked }}" me="{{ cmap_me }}"></dc-import>
-                <sc-if value="{{ cmap_open }}" hint-placeholder-val="{{ true }}">
-                  <div class="raznos-cmap-chips" role="group" aria-label="Сервисы"><sc-for list="{{ cmap_chips }}" as="c" hint-placeholder-count="5"><button type="button" class="{{ c.cls }}" aria-pressed="{{ c.on }}" onClick="{{ c.tap }}"><i style="{{ c.dot }}" aria-hidden="true"></i>{{ c.label }}</button></sc-for></div>
-                  <div class="raznos-cmap-panel">
-                    <div class="raznos-cmap-count"><b>{{ cmap_count_title }}</b><span>{{ cmap_count_sub }}</span></div>
-                    <button type="button" class="raznos-cmap-me" onClick="{{ cmap_toggle }}" role="switch" aria-checked="{{ cmap_share }}"><span class="raznos-cmap-me-copy"><b>Показывать меня</b><span>{{ cmap_me_note }}</span></span><span class="{{ cmap_switch_cls }}"><span class="raznos-switch-knob"></span></span></button>
+                <dc-import name="RaznosCourierMap" fill="{{ true }}" svcs="{{ cmap_svcs }}" couriers="{{ cmap_share }}" hideCouriers="{{ cmap_locked }}" me="{{ true }}" pins="{{ cmap_pins }}" focus="{{ cmap_focus_pt }}" activeId="{{ cmap_active_id }}"></dc-import>
+                <sc-if value="{{ cmap_panel }}" hint-placeholder-val="{{ true }}">
+                  <div class="raznos-cmap-dock">
+                    <button type="button" class="{{ cmap_locate_cls }}" onClick="{{ cmap_locate }}" aria-label="{{ cmap_locate_label }}" aria-pressed="{{ cmap_focus_me }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8z"/></svg></button>
+                    <div class="raznos-cmap-panel">
+                      <div class="raznos-cmap-count"><b>{{ cmap_count_title }}</b><span>{{ cmap_count_sub }}</span></div>
+                      <button type="button" class="raznos-cmap-me" onClick="{{ cmap_toggle }}" role="switch" aria-checked="{{ cmap_share }}"><span class="raznos-cmap-me-copy"><b>Показать себя</b><span>{{ cmap_me_note }}</span></span><span class="{{ cmap_switch_cls }}"><span class="raznos-switch-knob"></span></span></button>
+                    </div>
                   </div>
                 </sc-if>
-                <sc-if value="{{ cmap_locked }}" hint-placeholder-val="{{ false }}">
+                <sc-if value="{{ cmap_intro }}" hint-placeholder-val="{{ false }}">
                   <div class="raznos-cmap-gate" role="dialog" aria-label="Показать себя на карте">
                     <h2>Покажите себя, чтобы видеть других</h2>
                     <p>Карта взаимная: вы видите курьеров на смене, они видят вас. Точка примерная, без имени и маршрута, и видна только пока вы на смене</p>
-                    <p class="raznos-cmap-gate-note">Выключить можно в любой момент здесь или в Приватности</p>
-                    <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ cmap_enable }}">Показывать меня на смене</button>
-                    <button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ go_home_any }}">Не сейчас</button>
+                    <p class="raznos-cmap-gate-note">Выключить можно в любой момент здесь или в Приватности. Без этого карту всё равно можно смотреть, только курьеров на ней не будет</p>
+                    <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ cmap_enable }}">Показать меня на смене</button>
+                    <button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ cmap_intro_skip }}">Не сейчас</button>
                   </div>
                 </sc-if>
               </div>
@@ -227,9 +245,9 @@
               <sc-if value="{{ stats_detail_closed }}" hint-placeholder-val="{{ true }}">
                 <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Результаты</h1></div>
                 <dc-import name="RaznosStatsRange" chips="{{ stats_period_chips }}" title="{{ stats_range_human }}" hint="{{ stats_range_hint }}" stepVisible="{{ stats_step_visible }}" backDisabled="{{ stats_step_back_disabled }}" nextDisabled="{{ stats_step_next_disabled }}" onBack="{{ stats_step_back }}" onNext="{{ stats_step_next }}" filterLabel="{{ stats_filter_names }}" onFilters="{{ stats_detail_go_filters }}" onReset="{{ stats_filters_reset }}"></dc-import>
-                <sc-if value="{{ stats_period_is_custom }}"><div class="raznos-stats-section"><div class="raznos-stats-fields raznos-stats-fields-row"><label class="raznos-stats-field">С даты<input type="date" max="{{ stats_max_day }}" value="{{ stats_from_day }}" onChange="{{ stats_from_day_change }}" /></label><label class="raznos-stats-field">По дату<input type="date" max="{{ stats_max_day }}" value="{{ stats_to_day }}" onChange="{{ stats_to_day_change }}" /></label></div></div></sc-if>
+                <sc-if value="{{ stats_period_is_custom }}"><div class="raznos-stats-section"><div class="raznos-stats-fields raznos-stats-fields-row"><label class="raznos-stats-field">С даты<input type="date" max="{{ stats_max_day }}" value="{{ stats_from_day }}" onChange="{{ stats_from_day_change }}" /></label><label class="raznos-stats-field">По дату<input type="date" max="{{ stats_max_day }}" value="{{ stats_to_day }}" onChange="{{ stats_to_day_change }}" /></label></div><p class="raznos-text-tiny">{{ stats_custom_note }}</p></div></sc-if>
                 <sc-if value="{{ stats_has_data }}" hint-placeholder-val="{{ true }}">
-                  <dc-import name="RaznosStatsSummary" mainLabel="{{ stats_main_label }}" mainValue="{{ stats_main_value }}" netKnown="{{ stats_net_known }}" statusLabel="{{ stats_status_label }}" delta="{{ stats_delta }}" prevWord="{{ stats_prev_word }}" earnLabel="{{ stats_earn_label }}" expensesLabel="{{ stats_expenses_label }}" hoursLabel="{{ stats_hours_label }}" ordersLabel="{{ stats_orders_label }}" goalTitle="{{ stats_goal_title }}" goalFact="{{ stats_goal_fact }}" goalTotal="{{ stats_goal_total }}" goalPace="{{ stats_goal_pace }}" goalNote="{{ stats_goal_note }}" chart="{{ stats_chart }}" chartMode="{{ stats_chart_mode }}"></dc-import>
+                  <dc-import name="RaznosStatsSummary" mainLabel="{{ stats_main_label }}" mainValue="{{ stats_main_value }}" netKnown="{{ stats_net_known }}" statusLabel="{{ stats_status_label }}" delta="{{ stats_delta }}" prevWord="{{ stats_prev_word }}" earnLabel="{{ stats_earn_label }}" finesLabel="{{ stats_fines_card_label }}" expensesLabel="{{ stats_expenses_label }}" hoursLabel="{{ stats_hours_label }}" ordersLabel="{{ stats_orders_label }}" goalTitle="{{ stats_goal_title }}" goalFact="{{ stats_goal_fact }}" goalTotal="{{ stats_goal_total }}" goalPace="{{ stats_goal_pace }}" goalNote="{{ stats_goal_note }}" chart="{{ stats_chart }}" chartMode="{{ stats_chart_mode }}"></dc-import>
                   <sc-if value="{{ stats_has_missing }}"><p class="raznos-stats-note raznos-stats-missing">{{ stats_missing_note }}</p></sc-if>
                   <div class="raznos-stats-section raznos-stats-trends-card"><button type="button" class="raznos-stats-head-link" onClick="{{ stats_detail_go_trends }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">Мои тренды</h2><small>{{ stats_trend_caption }}</small></span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><dc-import name="RaznosMyTrends" current="{{ stats_recap }}" previous="{{ stats_trend_previous }}"></dc-import></div>
                   <dc-import name="RaznosStatsMoney" title="{{ stats_money_title }}" accent="{{ stats_money_accent }}" sub="{{ stats_money_sub }}" rows="{{ stats_money_rows }}" finesLabel="{{ stats_fines_link }}" onFines="{{ stats_detail_go_fines }}" onOpen="{{ stats_detail_go_money }}" onExpenses="{{ go_expenses_from_stats }}"></dc-import>
@@ -255,8 +273,8 @@
           </sc-if>
 
           <sc-if value="{{ is_work_filters }}"><dc-import name="RaznosWorkFilters" value="{{ work_filters }}" onChange="{{ save_work_filters }}" activeValue="{{ active_filter }}" onActiveChange="{{ set_active_filter }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
-          <sc-if value="{{ is_slots }}"><div class="raznos-phone-body" data-screen-label="Shifts"><dc-import name="RaznosShifts" facts="{{ smart_fact }}" onTake="{{ shifts_take }}" shifts="{{ shifts_week }}" slots="{{ shifts_slots }}" rules="{{ shifts_rules }}" openings="{{ shifts_openings }}" deficits="{{ shifts_deficits }}" watches="{{ shifts_watches }}" today="2026-09-15" nowMinutes="{{ 940 }}" initialTab="{{ slots_tab }}" initialWeek="{{ slots_week }}" initialDay="{{ slots_day }}" initialSvc="{{ slots_svc }}" onBack="{{ slots_back }}" onOpenService="{{ slots_open_service }}"></dc-import></div></sc-if>
-          <sc-if value="{{ is_work_schedule }}"><dc-import name="RaznosWorkSchedule" onBack="{{ work_schedule_back }}" onSave="{{ save_work_graph }}"></dc-import></sc-if>
+          <sc-if value="{{ is_slots }}"><div class="raznos-phone-body" data-screen-label="Shifts"><dc-import name="RaznosShifts" facts="{{ smart_fact }}" onTake="{{ shifts_take }}" onShowInPlan="{{ shifts_show_plan }}" shifts="{{ shifts_week }}" slots="{{ shifts_slots }}" rules="{{ shifts_rules }}" openings="{{ shifts_openings }}" deficits="{{ shifts_deficits }}" watches="{{ shifts_watches }}" today="2026-09-15" nowMinutes="{{ 940 }}" initialTab="{{ slots_tab }}" initialWeek="{{ slots_week }}" initialDay="{{ slots_day }}" initialSvc="{{ slots_svc }}" onBack="{{ slots_back }}" onOpenService="{{ slots_open_service }}"></dc-import></div></sc-if>
+          <sc-if value="{{ is_work_schedule }}"><dc-import name="RaznosWorkSchedule" onBack="{{ work_schedule_back }}" onSave="{{ save_work_graph }}" value="{{ work_graph }}"></dc-import></sc-if>
 
           <sc-if value="{{ is_work_hub }}">
             <sc-if value="{{ work_setup_needed }}" hint-placeholder-val="{{ false }}">
@@ -269,7 +287,7 @@
                 </div>
             </div>
             </sc-if>
-            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" embedded="{{ true }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ go_work_schedule }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
+            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ go_work_schedule }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
           </sc-if>
 
           <sc-if value="{{ is_active_order }}">
@@ -316,7 +334,8 @@
           <sc-if value="{{ is_integrations }}">
             <div class="raznos-phone-body" data-screen-label="18 Integrations">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_home_any }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Сервисы доставки</h1></div>
-              <p class="raznos-text-tiny">Временное подключение: официальный доступ только к статистике пока не подтверждён ни для одного сервиса</p>
+              <p class="raznos-text-tiny">Разнос входит в сервис под вашим аккаунтом, как приложение курьера: отдельного доступа только на чтение сервисы пока не дают</p>
+              <sc-if value="{{ conn_done_show }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-ok"><span class="raznos-notice-title">{{ conn_done_title }}</span><span class="raznos-text-small">{{ conn_done_text }}</span></div></sc-if>
               <dc-import name="RaznosConnHealth" items="{{ conn_health_problems }}" netOffline="{{ net_offline }}" onAction="{{ conn_health_action }}"></dc-import>
               <sc-if value="{{ sync_has_targets }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSyncPanel" running="{{ sync_running }}" done="{{ sync_done }}" total="{{ sync_total }}" joined="{{ sync_joined }}" summary="{{ sync_summary }}" onRequest="{{ request_sync }}"></dc-import></sc-if>
               <div class="raznos-card">
@@ -362,10 +381,12 @@
                 <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ go_worker_data }}">Посмотреть данные работника</button>
               </sc-if>
 
-              <sc-if value="{{ conn_show_temp_notice }}" hint-placeholder-val="{{ true }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Временный доступ</span><span class="raznos-text-small">Мы читаем вашу статистику через тот же вход, что и в приложении курьера {{ conn_title }}: отдельного входа только для чтения статистики сервис пока не даёт. Доступ шифруется и его можно отключить в любой момент. Разрешение принимать заказы отдельное, оно есть только в режиме Работа</span></div></sc-if>
+              <sc-if value="{{ conn_show_temp_notice }}" hint-placeholder-val="{{ true }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Нужен курьерский аккаунт</span><span class="raznos-text-small">Подключить сервис получится, только если в нём уже есть активированный курьерский аккаунт. Сначала пройдите регистрацию и активацию в приложении сервиса</span></div></sc-if>
+
+              <sc-if value="{{ conn_show_temp_notice }}" hint-placeholder-val="{{ true }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Что получит Разнос</span><span class="raznos-text-small">Разнос входит в {{ conn_title }} под вашим аккаунтом, как приложение курьера, и читает заработок, заказы и смены. Заказы мы не принимаем и не меняем. Сервис не даёт доступ только на чтение, поэтому вход технически шире, чем нужно нам. Отозвать доступ можно в любой момент здесь же, кнопкой Отключить сервис</span></div></sc-if>
 
               <sc-if value="{{ conn_show_agree }}" hint-placeholder-val="{{ true }}">
-                <button type="button" class="raznos-consent-row" onClick="{{ toggle_conn_agree }}"><span class="{{ conn_agree_class }}">{{ conn_agree_mark }}</span><span class="raznos-text-body">Понимаю, что доступ временный и его права шире, чем только чтение статистики</span></button>
+                <button type="button" class="raznos-consent-row" onClick="{{ toggle_conn_agree }}"><span class="{{ conn_agree_class }}">{{ conn_agree_mark }}</span><span class="raznos-text-body">Понимаю, что Разнос входит под моим аккаунтом, а не по отдельному доступу только на чтение</span></button>
               </sc-if>
 
               <sc-if value="{{ conn_is_unsupported }}" hint-placeholder-val="{{ false }}">
@@ -373,13 +394,17 @@
                 <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ conn_open_courier_app }}">Открыть рабочее приложение {{ conn_title }}</button>
               </sc-if>
 
+              <sc-if value="{{ conn_is_soon }}" hint-placeholder-val="{{ false }}">
+                <div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Подключение этого сервиса в планах, пока оно недоступно</span></div>
+              </sc-if>
+
               <sc-if value="{{ conn_is_delivery_linked }}" hint-placeholder-val="{{ false }}">
-                <div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Деливери использует общий вход с Яндекс Еда / Про, вход уже есть, вторая сессия не создаётся и доход не задваивается</span></div>
-                <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ conn_finish }}">Подтвердить использование общего входа</button>
+                <div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">{{ conn_title }} работает через тот же аккаунт Яндекс Про, что и {{ conn_shared_title }}. Вход уже есть, заново входить не нужно. Заказы подтянем оттуда, доход не задвоится</span></div>
+                <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ conn_finish }}">Подключить {{ conn_title }}</button>
               </sc-if>
               <sc-if value="{{ conn_is_delivery_unlinked }}">
-                <div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">У Деливери нет отдельного входа, сначала подключите Яндекс Еда / Про</span></div>
-                <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ conn_goto_yandex }}">Перейти к Яндекс Еда / Про</button>
+                <div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">У {{ conn_title }} нет отдельного входа, он общий с {{ conn_shared_title }}: это один аккаунт Яндекс Про. Сначала подключите {{ conn_shared_title }}</span></div>
+                <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ conn_goto_yandex }}">Открыть подключение: {{ conn_shared_title }}</button>
               </sc-if>
 
               <sc-if value="{{ conn_show_method_choice }}" hint-placeholder-val="{{ false }}">
@@ -410,7 +435,7 @@
               </div></sc-if>
 
               <sc-if value="{{ conn_form_external }}"><div class="raznos-fx raznos-col raznos-gap12">
-                <div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Это неподтверждённый внешний вход: мы ещё не проверили права и совместимость сессии {{ conn_title }}, поэтому не показываем его как готовую интеграцию</span></div>
+                <div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">{{ conn_title }} подключаем в тестовом режиме: вы войдёте в приложении сервиса как обычно, а данные первое время могут приходить с задержкой или не все</span></div>
                 <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ conn_finish }}">Демо: открыть вход {{ conn_title }}</button>
               </div></sc-if>
             </div>
@@ -603,9 +628,9 @@
             <div class="raznos-phone-body" data-screen-label="22 Market">
               <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Рынок сервисов</h1></div>
               <button type="button" class="raznos-card" style="padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;cursor:pointer" onClick="{{ go_job_guide }}"><span class="raznos-fx raznos-col raznos-gap4"><span style="font:700 16px var(--raznos-font);color:var(--raznos-ink)">Как и где начать работать</span><span class="raznos-text-small">Гайды по сервисам: вложения на старте, оформление, требования</span></span><span style="flex:none;line-height:0"><svg width="58" height="48" viewBox="0 0 58 48" fill="none"><rect x="27" y="5" width="4" height="39" rx="2" fill="var(--raznos-ink-3)"/><path d="M6 11 H37 l7 6 -7 6 H6 z" fill="var(--raznos-green)"/><path d="M52 25 H21 l-7 5 7 5 H52 z" fill="var(--raznos-ink-2)"/></svg></span></button>
-              <dc-import name="RaznosBestTimes" open="{{ go_best_times }}" cityTitle="{{ city_title }}" transportTitle="{{ transport_title }}"></dc-import>
-              <dc-import name="RaznosHotspots" open="{{ go_best_places }}" cityTitle="{{ city_title }}" transportTitle="{{ transport_title }}"></dc-import>
-              <dc-import name="RaznosServiceRank" open="{{ go_services_compare }}" connected="{{ svc_connected }}" cityTitle="{{ city_title }}" transportTitle="{{ transport_title }}"></dc-import>
+              <dc-import name="RaznosBestTimes" open="{{ go_best_times }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}" transportTitle="{{ transport_title }}"></dc-import>
+              <dc-import name="RaznosHotspots" open="{{ go_best_places }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}" transportTitle="{{ transport_title }}"></dc-import>
+              <dc-import name="RaznosServiceRank" open="{{ go_services_compare }}" connected="{{ svc_connected }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}" transportTitle="{{ transport_title }}"></dc-import>
               <button type="button" class="raznos-card raznos-card-pad" style="width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit" onClick="{{ go_market_services }}" aria-label="Все сервисы, {{ mk_count }}">
                 <span class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="raznos-text-h3">Все сервисы</span><span class="raznos-row-chevron">›</span></span>
                 <span class="raznos-text-small">Карточки сервисов, доход, ожидание и отзывы курьеров</span>
@@ -832,7 +857,7 @@
             <div class="raznos-phone-body" data-screen-label="23i Anonymous courier">
               <sc-if value="{{ pv_preview_off }}" hint-placeholder-val="{{ true }}"><div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ go_back_from_anon }}">×</button><span></span></div></sc-if>
               <sc-if value="{{ pv_preview_on }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosProfilePreviewBar" mode="anon" canNamed="{{ pv_preview_can_named }}" onMode="{{ pv_preview_mode }}" onBack="{{ pv_preview_back }}"></dc-import></sc-if>
-              <div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Обезличенный профиль</span><span class="raznos-text-small">Личные данные скрыты для защиты автора публикации</span></div>
+              <div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Обезличенный профиль</span><span class="raznos-text-small">{{ ac_notice_text }}</span></div>
               <div class="raznos-profile-head">
                 <span class="raznos-anon-avatar" style="{{ ac_nick_style }}" aria-hidden="true">{{ ac_nick_letter }}</span>
                 <div class="raznos-fx raznos-col raznos-gap4"><span class="raznos-text-h2">{{ ac_nick }}</span><span class="raznos-text-small">{{ ac_city }}</span></div>
@@ -881,7 +906,7 @@
               </sc-if>
               <div class="raznos-fx raznos-col raznos-gap8">
                 <sc-for list="{{ live_list }}" as="m" hint-placeholder-count="3">
-                  <dc-import name="RaznosLiveCard" svcs="{{ m.svcs }}" svcsLabel="{{ m.svcsLabel }}" cityLabel="{{ m.cityLabel }}" timeLabel="{{ m.timeLabel }}" text="{{ m.text }}" repliesCount="{{ m.repliesCount }}" likes="{{ m.likes }}" dislikes="{{ m.dislikes }}" myVote="{{ m.myVote }}" mine="{{ m.mine }}" status="{{ m.status }}" photoSrc="{{ m.photoSrc }}" placeLabel="{{ m.placeLabel }}" note="{{ m.note }}" onOpen="{{ m.onOpen }}" onLike="{{ m.onLike }}" onDislike="{{ m.onDislike }}" onPhoto="{{ m.onPhoto }}" onPlace="{{ m.onPlace }}" onAuthor="{{ m.onAuthor }}" onReport="{{ m.onReport }}" onDelete="{{ m.onDelete }}"></dc-import>
+                  <dc-import name="RaznosLiveCard" cardId="{{ m.id }}" flash="{{ m.flash }}" svcs="{{ m.svcs }}" svcsLabel="{{ m.svcsLabel }}" cityLabel="{{ m.cityLabel }}" timeLabel="{{ m.timeLabel }}" text="{{ m.text }}" repliesCount="{{ m.repliesCount }}" likes="{{ m.likes }}" dislikes="{{ m.dislikes }}" myVote="{{ m.myVote }}" mine="{{ m.mine }}" status="{{ m.status }}" photoSrc="{{ m.photoSrc }}" placeLabel="{{ m.placeLabel }}" note="{{ m.note }}" onOpen="{{ m.onOpen }}" onLike="{{ m.onLike }}" onDislike="{{ m.onDislike }}" onPhoto="{{ m.onPhoto }}" onPlace="{{ m.onPlace }}" onAuthor="{{ m.onAuthor }}" onReport="{{ m.onReport }}" onDelete="{{ m.onDelete }}"></dc-import>
                 </sc-for>
               </div>
               <p class="raznos-text-tiny">Пишут курьеры, это не официальные уведомления сервисов. Авторы всегда обезличены</p>
@@ -924,7 +949,7 @@
               <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ lc_back }}">×</button><span></span></div>
               <h1 class="raznos-text-h1">Новое сообщение</h1>
               <sc-if value="{{ lc_no_services }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Нужен подключённый сервис</span><span class="raznos-text-small">Писать можно от сервиса с действующей авторизацией, читать и отвечать можно и без неё</span></div></sc-if>
-              <dc-import name="RaznosLiveComposer" services="{{ lc_services }}" svc="{{ lc_svc }}" scope="{{ lc_scope }}" text="{{ lc_text }}" photoSrc="{{ lc_photo_src }}" placeLabel="{{ lc_place_label }}" usedToday="{{ lc_used_today }}" nextLabel="{{ lc_next_label }}" onSvc="{{ lc_set_svc }}" onScope="{{ lc_set_scope }}" onText="{{ lc_set_text }}" onAddPhoto="{{ lc_add_photo }}" onRemovePhoto="{{ lc_remove_photo }}" onPickPlace="{{ lc_pick_place }}" onRemovePlace="{{ lc_remove_place }}" onPublish="{{ lc_publish }}"></dc-import>
+              <dc-import name="RaznosLiveComposer" services="{{ lc_services }}" svc="{{ lc_svc }}" scope="{{ lc_scope }}" text="{{ lc_text }}" photoSrc="{{ lc_photo_src }}" placeLabel="{{ lc_place_label }}" usedToday="{{ lc_used_today }}" nextLabel="{{ lc_next_label }}" onSvc="{{ lc_set_svc }}" onScope="{{ lc_set_scope }}" onText="{{ lc_set_text }}" onAddPhoto="{{ lc_add_photo }}" onRemovePhoto="{{ lc_remove_photo }}" onTogglePlace="{{ lc_toggle_place }}" onPublish="{{ lc_publish }}"></dc-import>
             </div>
           </sc-if>
 
@@ -1014,12 +1039,13 @@
 
           <sc-if value="{{ is_profile }}">
             <div class="raznos-phone-body" data-screen-label="24 Profile">
-              <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Профиль</h1></div>
+              <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Профиль</h1><button type="button" class="raznos-icon-btn" onClick="{{ go_settings }}" aria-label="Настройки"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
               <sc-if value="{{ is_role_courier }}" hint-placeholder-val="{{ true }}">
                 <div class="raznos-profile-hero">
                   <dc-import name="RaznosAvatar" kind="{{ pf_photo_kind }}" uploadedSrc="{{ pf_uploaded_src }}" alt="{{ pf_my_name }}, демо-профиль"></dc-import>
                   <div class="raznos-fx raznos-col raznos-ac raznos-gap4"><span class="raznos-text-h2">{{ pf_my_name }}</span><span class="raznos-profile-hero-meta">{{ city_title }} · {{ transport_title }} · аккаунт alexey.sokolov</span></div>
                   <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}">
+                    <span class="raznos-profile-stat-label">{{ pf_week_caption }}</span>
                     <div class="raznos-profile-stats">
                       <div class="raznos-profile-stat"><span class="raznos-profile-stat-value">{{ pf_week_earn }} ₽</span><span class="raznos-profile-stat-label">Доход за нед.</span></div>
                       <div class="raznos-profile-stat"><span class="raznos-profile-stat-value">{{ pf_week_tips }} ₽</span><span class="raznos-profile-stat-label">Чаевые за нед.</span></div>
@@ -1028,7 +1054,7 @@
                   </sc-if>
                 </div>
                 <dc-import name="RaznosConnHealth" items="{{ conn_health_items }}" okNote="{{ conn_health_ok_note }}" netOffline="{{ net_offline }}" onAction="{{ conn_health_action }}"></dc-import>
-                <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-col raznos-gap16">
+                <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-col raznos-gap12">
                   <span class="raznos-text-h3">Как вас оценили покупатели</span>
                   <p class="raznos-text-tiny">Клиент оценивает доставку в сервисе, это не отзывы курьера о сервисе</p>
                   <div class="raznos-fx raznos-col raznos-gap8">
@@ -1037,7 +1063,7 @@
                     </sc-for>
                   </div>
                   <div class="raznos-badge-row"><span class="raznos-badge">50 заказов в ВкусВилле</span><span class="raznos-badge">Без опозданий · сентябрь</span></div>
-                  <dc-import name="RaznosImportedReviews" courierId="c1" onAll="{{ go_imported_reviews }}"></dc-import>
+                  <dc-import name="RaznosImportedReviews" courierId="c1" compact="{{ true }}" onAll="{{ go_imported_reviews }}"></dc-import>
                 </div></sc-if>
                 <sc-if value="{{ has_no_data }}"><p class="raznos-text-small">Подключите сервис или посмотрите демо, чтобы увидеть стаж, метрики и достижения</p></sc-if>
                 <sc-if value="{{ pf_restricted }}" hint-placeholder-val="{{ false }}">
@@ -1056,6 +1082,8 @@
                 <span class="raznos-text-h3">Данные и история</span>
                 <div class="raznos-card">
                   <button type="button" class="raznos-list-row" onClick="{{ go_history }}"><div class="raznos-list-main"><span class="raznos-list-title">История заказов</span></div><span class="raznos-row-chevron">›</span></button>
+                  <button type="button" class="raznos-list-row" onClick="{{ go_slots_from_profile }}"><div class="raznos-list-main"><span class="raznos-list-title">Смены и слоты</span><span class="raznos-text-small">История броней по сервисам</span></div><span class="raznos-row-chevron">›</span></button>
+                  <button type="button" class="raznos-list-row" onClick="{{ go_expenses_from_profile }}"><div class="raznos-list-main"><span class="raznos-list-title">Расходы</span><span class="raznos-text-small">Журнал расходов и шаблоны</span></div><span class="raznos-row-chevron">›</span></button>
                   <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-list-row" onClick="{{ go_imported_reviews }}"><div class="raznos-list-main"><span class="raznos-list-title">История отзывов из сервисов</span><span class="raznos-text-small">ВкусВилл и Самокат, по периодам</span></div><span class="raznos-row-chevron">›</span></button></sc-if>
                   <button type="button" class="raznos-list-row" onClick="{{ go_my_activity }}"><div class="raznos-list-main"><span class="raznos-list-title">Мои отзывы, вопросы и ответы</span><span class="raznos-text-small">{{ my_activity_count_label }}</span></div><span class="raznos-row-chevron">›</span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ live_go_mine }}" style="border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">Мои оперативные сообщения</span><span class="raznos-text-small">{{ live_profile_label }}</span></div><span class="raznos-row-chevron">›</span></button>
@@ -1069,9 +1097,6 @@
                 <div class="raznos-card">
                   <button type="button" class="raznos-list-row" onClick="{{ go_contest }}"><div class="raznos-list-main"><span class="raznos-list-title">Городской конкурс</span></div><span class="raznos-row-chevron">›</span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ go_share }}" style="border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">Поделиться профилем</span></div><span class="raznos-row-chevron">›</span></button>
-                </div>
-                <div class="raznos-card">
-                  <button type="button" class="raznos-list-row" onClick="{{ go_settings }}" style="border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">Настройки</span><span class="raznos-text-small">Профиль, тема, город, язык, уведомления, приватность</span></div><span class="raznos-row-chevron">›</span></button>
                 </div>
                 <span class="raznos-text-h3">Помощь</span>
                 <div class="raznos-card">
@@ -1091,9 +1116,6 @@
                   <button type="button" class="raznos-list-row" onClick="{{ go_tips_sent }}"><div class="raznos-list-main"><span class="raznos-list-title">Отправленные чаевые</span></div><span class="raznos-row-chevron">›</span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ go_my_activity }}"><div class="raznos-list-main"><span class="raznos-list-title">Мои отзывы, вопросы и ответы</span><span class="raznos-text-small">{{ my_activity_count_label }}</span></div><span class="raznos-row-chevron">›</span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ go_privacy }}"><div class="raznos-list-main"><span class="raznos-list-title">Приватность и данные</span></div><span class="raznos-row-chevron">›</span></button>
-                </div>
-                <div class="raznos-card">
-                  <button type="button" class="raznos-list-row" onClick="{{ go_settings }}" style="border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">Настройки</span><span class="raznos-text-small">Профиль, тема, город, язык, приватность</span></div><span class="raznos-row-chevron">›</span></button>
                 </div>
                 <span class="raznos-text-h3">Помощь</span>
                 <div class="raznos-card">
@@ -1141,7 +1163,7 @@
             <div class="raznos-phone-body" data-screen-label="Services compare">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ services_compare_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Сравнение сервисов</h1></div>
               <span class="raznos-text-small" style="margin-top:-4px">{{ city_title }}</span>
-              <dc-import name="RaznosServiceRank" mode="full" connected="{{ svc_connected }}" onConnect="{{ svc_compare_connect }}" cityTitle="{{ city_title }}" transportTitle="{{ transport_title }}"></dc-import>
+              <dc-import name="RaznosServiceRank" mode="full" connected="{{ svc_connected }}" onConnect="{{ svc_compare_connect }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}" transportTitle="{{ transport_title }}"></dc-import>
             </div>
           </sc-if>
 
@@ -1149,7 +1171,7 @@
             <div class="raznos-phone-body" data-screen-label="Best places">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ best_places_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Где выгоднее</h1></div>
               <span class="raznos-text-small" style="margin-top:-4px">{{ city_title }}</span>
-              <dc-import name="RaznosHotspots" mode="full" cityTitle="{{ city_title }}" transportTitle="{{ transport_title }}"></dc-import>
+              <dc-import name="RaznosHotspots" mode="full" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}" transportTitle="{{ transport_title }}"></dc-import>
             </div>
           </sc-if>
 
@@ -1157,7 +1179,7 @@
             <div class="raznos-phone-body" data-screen-label="Best times">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ best_times_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Когда выгоднее</h1></div>
               <span class="raznos-text-small" style="margin-top:-4px">{{ city_title }}</span>
-              <dc-import name="RaznosBestTimes" mode="full" initialView="{{ bt_view }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" cityTitle="{{ city_title }}" transportTitle="{{ transport_title }}"></dc-import>
+              <dc-import name="RaznosBestTimes" mode="full" initialView="{{ bt_view }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}" transportTitle="{{ transport_title }}"></dc-import>
             </div>
           </sc-if>
 
@@ -1272,14 +1294,13 @@
                 <span class="raznos-hero-formula">из них регулярные {{ exp_recurring_total }} ₽, остальное внесено вручную</span>
               </div>
               <button type="button" class="raznos-list-row raznos-card" onClick="{{ go_recurring_from_expenses }}"><div class="raznos-list-main"><span class="raznos-text-h3">Регулярные</span><span class="raznos-text-small">{{ exp_recurring_summary }}</span></div><span class="raznos-row-chevron">›</span></button>
-              <sc-if value="{{ exp_has_templates }}" hint-placeholder-val="{{ false }}">
-                <span class="raznos-text-h3">Быстро добавить</span>
-                <div class="raznos-chip-row">
-                  <sc-for list="{{ exp_template_chips }}" as="t" hint-placeholder-count="3">
-                    <button type="button" class="raznos-chip" onClick="{{ t.onTap }}">{{ t.label }}</button>
-                  </sc-for>
-                </div>
-              </sc-if>
+              <span class="raznos-text-h3">Быстро добавить</span>
+              <div class="raznos-chip-row">
+                <sc-for list="{{ exp_template_chips }}" as="t" hint-placeholder-count="3">
+                  <button type="button" class="raznos-chip" onClick="{{ t.onTap }}">{{ t.label }}</button>
+                </sc-for>
+                <button type="button" class="raznos-chip" onClick="{{ go_expense_form_new }}">＋ Другой расход</button>
+              </div>
               <sc-if value="{{ exp_is_empty }}" hint-placeholder-val="{{ false }}">
                 <div class="raznos-empty-state"><span class="raznos-empty-glyph">₽</span><span class="raznos-text-h3">Расходов пока нет</span></div>
               </sc-if>
@@ -1444,10 +1465,10 @@
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ sub_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Приватность и данные</h1></div>
               <sc-if value="{{ is_role_courier }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-col raznos-gap16">
                 <div class="raznos-card">
-                  <button type="button" class="raznos-list-row" onClick="{{ pv_toggle_public }}"><span class="{{ pv_public_check }}">{{ pv_public_mark }}</span><div class="raznos-list-main"><span class="raznos-list-title">Сделать профиль публичным</span><span class="raznos-text-small">{{ pv_public_note }}</span></div></button>
-                  <button type="button" class="raznos-list-row" onClick="{{ pv_toggle_aggregate }}"><span class="{{ pv_aggregate_check }}">{{ pv_aggregate_mark }}</span><div class="raznos-list-main"><span class="raznos-list-title">Участвовать в агрегированной статистике</span></div></button>
-                  <button type="button" class="raznos-list-row" onClick="{{ cmap_toggle }}"><span class="{{ pv_cmap_check }}">{{ pv_cmap_mark }}</span><div class="raznos-list-main"><span class="raznos-list-title">Показывать меня на карте курьеров</span><span class="raznos-text-small">Только пока вы на смене, точка примерная, без имени. Без этого карта других скрыта</span></div></button>
-                  <button type="button" class="raznos-list-row" style="border-bottom:0" onClick="{{ pv_toggle_hide_history }}"><span class="{{ pv_hide_check }}">{{ pv_hide_mark }}</span><div class="raznos-list-main"><span class="raznos-list-title">Скрыть историю заказов из своих списков</span></div></button>
+                  <button type="button" class="raznos-list-row" onClick="{{ pv_toggle_public }}" role="checkbox" aria-checked="{{ pv_public_on }}"><span class="{{ pv_public_check }}">{{ pv_public_mark }}</span><div class="raznos-list-main"><span class="raznos-list-title">Сделать профиль публичным</span><span class="raznos-text-small">{{ pv_public_note }}</span></div></button>
+                  <button type="button" class="raznos-list-row" onClick="{{ pv_toggle_aggregate }}" role="checkbox" aria-checked="{{ pv_aggregate_on }}"><span class="{{ pv_aggregate_check }}">{{ pv_aggregate_mark }}</span><div class="raznos-list-main"><span class="raznos-list-title">Участвовать в агрегированной статистике</span></div></button>
+                  <button type="button" class="raznos-list-row" onClick="{{ cmap_toggle }}" role="checkbox" aria-checked="{{ pv_cmap_on }}"><span class="{{ pv_cmap_check }}">{{ pv_cmap_mark }}</span><div class="raznos-list-main"><span class="raznos-list-title">Показывать меня на карте курьеров</span><span class="raznos-text-small">Только пока вы на смене, точка примерная, без имени. Без этого карта других скрыта</span></div></button>
+                  <button type="button" class="raznos-list-row" style="border-bottom:0" onClick="{{ pv_toggle_hide_history }}" role="checkbox" aria-checked="{{ pv_hide_on }}"><span class="{{ pv_hide_check }}">{{ pv_hide_mark }}</span><div class="raznos-list-main"><span class="raznos-list-title">Скрыть историю заказов из своих списков</span></div></button>
                 </div>
                 <sc-if value="{{ pv_public_confirming }}" hint-placeholder-val="{{ false }}">
                   <div class="raznos-notice raznos-notice-warn">
@@ -1460,7 +1481,7 @@
                 </sc-if>
                 <span class="raznos-text-h3">Что видно в публичном профиле</span>
                 <div class="raznos-chip-row">
-                  <sc-for list="{{ pv_field_chips }}" as="fc" hint-placeholder-count="6"><button type="button" class="{{ fc.cls }}" onClick="{{ fc.tap }}">{{ fc.label }}</button></sc-for>
+                  <sc-for list="{{ pv_field_chips }}" as="fc" hint-placeholder-count="6"><button type="button" class="{{ fc.cls }}" onClick="{{ fc.tap }}" aria-pressed="{{ fc.on }}">{{ fc.label }}</button></sc-for>
                 </div>
                 <p class="raznos-text-tiny">{{ pv_fields_note }}</p>
                 <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ pv_open_preview }}">Как ваш профиль видят другие</button>
@@ -1802,30 +1823,36 @@
         const found = COUR_CITIES.find((c) => c.key === key);
         return found ? found.title : key;
       }
+      // порядок ключей задаёт порядок на экране сервисов, заблокированные (soon) идут в конце
       const SERVICES = {
+        'yandex-eda': { title: 'Яндекс Еда', method: 'external' },
+        'yandex-lavka': { title: 'Яндекс Лавка', method: 'external', sharedWith: 'yandex-eda' },
         vkusvill: { title: 'ВкусВилл', method: 'code' },
         samokat: { title: 'Самокат', method: 'code', altMethod: 'password' },
-        x5: { title: 'X5 Доставка', method: 'code' },
-        'yandex-eda': { title: 'Яндекс Еда / Про', method: 'external' },
-        magnit: { title: 'Магнит Доставка', method: 'external' },
-        lenta: { title: 'Лента', method: 'password', loginLabel: 'КПП или номер телефона', loginExample: '12345678' },
         'ozon-fresh': { title: 'Ozon fresh', method: 'unsupported', catalogNote: 'Вход через Ozon ID · подключение ещё не проверено', unsupportedLabel: 'Подключение не проверено', unsupportedNote: 'Вход идёт через Ozon ID в окне сервиса. Мы ещё не проверяли, что после входа получится читать статистику курьера: формат сессии, её срок и продление пока не известны. Поэтому форму и подключение в макете не показываем' },
-        delivery: { title: 'Деливери', method: 'external', sharedWith: 'yandex-eda' },
-        dostavista: { title: 'Достависта', method: 'code' },
         kuper: { title: 'Купер', method: 'code' },
-        dostaevsky: { title: 'Достаевский', method: 'code' }
+        x5: { title: 'X5 Доставка', method: 'code' },
+        magnit: { title: 'Магнит Доставка', method: 'external' },
+        dodo: { title: 'Додо', method: 'external', catalogNote: 'MyDodo, Додо курьер · вход через Dodo IS' },
+        dostaevsky: { title: 'Достаевский', method: 'code' },
+        delivery: { title: 'Деливери', method: 'external', sharedWith: 'yandex-eda' },
+        'wb-courier': { title: 'WB курьер', method: 'soon' },
+        'ozon-courier': { title: 'Ozon курьер', method: 'soon' },
+        'yandex-delivery': { title: 'Яндекс Доставка', method: 'soon' },
+        dostavista: { title: 'Достависта', method: 'soon' },
+        flowwow: { title: 'Flowwow', method: 'soon' }
       };
       const SERVICE_CASES = {
         vkusvill: { dat: 'ВкусВиллу', prep: 'ВкусВилле' },
         samokat: { dat: 'Самокату', prep: 'Самокате' },
         x5: { dat: 'X5 Доставке', prep: 'X5 Доставке' },
-        'yandex-eda': { dat: 'Яндекс Еде / Про', prep: 'Яндекс Еде / Про' },
+        'yandex-eda': { dat: 'Яндекс Еде', prep: 'Яндекс Еде' },
+        'yandex-lavka': { dat: 'Яндекс Лавке', prep: 'Яндекс Лавке' },
         magnit: { dat: 'Магнит Доставке', prep: 'Магнит Доставке' },
-        lenta: { dat: 'Ленте', prep: 'Ленте' },
         'ozon-fresh': { dat: 'Ozon fresh', prep: 'Ozon fresh' },
         delivery: { dat: 'Деливери', prep: 'Деливери' },
-        dostavista: { dat: 'Достависте', prep: 'Достависте' },
         kuper: { dat: 'Куперу', prep: 'Купере' },
+        dodo: { dat: 'Додо', prep: 'Додо' },
         dostaevsky: { dat: 'Достаевскому', prep: 'Достаевском' }
       };
       function svcDat(key) { return (SERVICE_CASES[key] || {}).dat || SERVICES[key].title; }
@@ -1969,7 +1996,7 @@
         'conn-offline-work': { s: 'offers', svcHealth: { vkusvill: 'offline' }, syncAgo: { vkusvill: 10, samokat: 2 } },
         'active-offline': { s: 'active-order', activeAccepted: true, activeOfferId: 'o1', selectedOfferId: 'o1', orderStage: 'picked_up', svcHealth: { vkusvill: 'offline' }, syncAgo: { vkusvill: 10, samokat: 2 } },
         'net-offline': { s: 'courier-home', netOffline: true, syncAgo: { vkusvill: 12, samokat: 12 } },
-        'sync': { s: 'integrations', integrationStatus: { vkusvill: 'connected', samokat: 'connected', kuper: 'connected', lenta: 'connected', x5: 'disabled', dostavista: 'connected' }, svcHealth: { kuper: 'rate', dostavista: 'relogin' }, syncAgo: { vkusvill: 3, samokat: 26, kuper: 95, dostavista: 1500 } },
+        'sync': { s: 'integrations', integrationStatus: { vkusvill: 'connected', samokat: 'connected', kuper: 'connected', dostaevsky: 'connected', x5: 'disabled' }, svcHealth: { kuper: 'rate', dostaevsky: 'relogin' }, syncAgo: { vkusvill: 3, samokat: 26, kuper: 95, dostaevsky: 1500 } },
         // тосты новых предложений: несколько сразу, поверх контента, каждый со своим таймером
         'toast-today': { s: 'courier-home', workOn: true, workAgree: true, workPreset: 'demo', workX5: true, toastDemo: 'multi' },
         'toast-stats': { s: 'stats', workOn: true, workAgree: true, workPreset: 'demo', toastDemo: 'multi' },
@@ -2646,18 +2673,19 @@
         return list;
       }
       const HISTORY = buildHistory().concat(buildWeekHistory()).concat(buildMonthEarlyHistory());
+      // те же ₽/ч, что в сравнении сервисов Рынка (RaznosServiceRank), одна выборка за 4 недели
       const MARKET_BASE = {
-        vkusvill: { hourly: 590, orderPay: 300, duration: 15, wait: 5, orders: 640, couriers: 62 },
-        samokat: { hourly: 560, orderPay: 270, duration: 14, wait: 6, orders: 810, couriers: 74 },
-        x5: { hourly: 610, orderPay: 340, duration: 17, wait: 7, orders: 210, couriers: 34 },
-        'yandex-eda': { hourly: 520, orderPay: 260, duration: 16, wait: 8, orders: 150, couriers: 25 },
-        magnit: { hourly: 540, orderPay: 280, duration: 15, wait: 7, orders: 90, couriers: 18 },
-        lenta: { hourly: 0, orderPay: 0, duration: 0, wait: 0, orders: 20, couriers: 6 },
-        'ozon-fresh': { hourly: 0, orderPay: 0, duration: 0, wait: 0, orders: 35, couriers: 9 },
-        delivery: { hourly: 0, orderPay: 0, duration: 0, wait: 0, orders: 40, couriers: 11 },
-        dostavista: { hourly: 0, orderPay: 0, duration: 0, wait: 0, orders: 60, couriers: 15 },
-        kuper: { hourly: 0, orderPay: 0, duration: 0, wait: 0, orders: 55, couriers: 13 },
-        dostaevsky: { hourly: 0, orderPay: 0, duration: 0, wait: 0, orders: 0, couriers: 0 }
+        'yandex-eda': { hourly: 760, orderPay: 290, duration: 16, wait: 8, orders: 1240, couriers: 96 },
+        vkusvill: { hourly: 720, orderPay: 260, duration: 15, wait: 5, orders: 980, couriers: 81 },
+        'yandex-lavka': { hourly: 700, orderPay: 250, duration: 14, wait: 5, orders: 610, couriers: 47 },
+        samokat: { hourly: 690, orderPay: 230, duration: 14, wait: 6, orders: 1120, couriers: 88 },
+        kuper: { hourly: 650, orderPay: 340, duration: 18, wait: 7, orders: 420, couriers: 38 },
+        dostaevsky: { hourly: 640, orderPay: 270, duration: 17, wait: 9, orders: 310, couriers: 31 },
+        delivery: { hourly: 620, orderPay: 280, duration: 17, wait: 9, orders: 280, couriers: 33 },
+        x5: { hourly: 610, orderPay: 240, duration: 17, wait: 7, orders: 390, couriers: 36 },
+        magnit: { hourly: 580, orderPay: 220, duration: 15, wait: 7, orders: 260, couriers: 30 },
+        dodo: { hourly: 570, orderPay: 210, duration: 15, wait: 6, orders: 90, couriers: 14 },
+        'ozon-fresh': { hourly: 540, orderPay: 250, duration: 16, wait: 6, orders: 70, couriers: 12 }
       };
       // author — внутренний идентификатор для своих отзывов и модерации, наружу отзыв всегда подписан «Курьер сервиса»
       const REVIEWS = {
@@ -2677,7 +2705,7 @@
           { author: 'СпбЭкспресс', city: 'Санкт-Петербург', rating: 3, confirmed: false, date: '20 авг', text: 'Поддержка отвечает долго', orders: { count: null, coverage: 'unknown' }, reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 0, userDislikes: 0 } }
         ],
         x5: [{ author: 'Курьер_Юг', city: 'Москва', rating: 5, confirmed: true, date: '10 сент', text: 'Хорошая оплата за длинные заказы', orders: { count: 20, coverage: 'partial' }, reactions: { courierLikes: 2, courierDislikes: 0, userLikes: 0, userDislikes: 0 } }],
-        'yandex-eda': [], magnit: [], lenta: [], 'ozon-fresh': [], delivery: [], dostavista: [], kuper: [], dostaevsky: []
+        'yandex-eda': [], 'yandex-lavka': [], magnit: [], 'ozon-fresh': [], delivery: [], kuper: [], dostaevsky: [], dodo: []
       };
       const USER_REVIEWS = {
         vkusvill: [
@@ -2687,7 +2715,7 @@
         samokat: [
           { author: 'Клиент_Игорь', city: 'Москва', rating: 4, text: 'Заказ приехал быстрее, чем показывало приложение', date: '24 авг', reactions: { courierLikes: 2, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }
         ],
-        x5: [], 'yandex-eda': [], magnit: [], lenta: [], 'ozon-fresh': [], delivery: [], dostavista: [], kuper: [], dostaevsky: []
+        x5: [], 'yandex-eda': [], 'yandex-lavka': [], magnit: [], 'ozon-fresh': [], delivery: [], kuper: [], dostaevsky: [], dodo: []
       };
       // одинаковые непересекающиеся границы для всех чужих просмотров
       const RATING_RANGE_BUCKETS = [[4.8, 5.0], [4.5, 4.7], [4.0, 4.4], [3.0, 3.9], [1.0, 2.9]];
@@ -2778,8 +2806,7 @@
       function buildSeedOwnReviews(now) {
         return {
           vkusvill: { id: 'vkusvill-own-seed', rating: 4, text: 'Сборку на Пресне ускорили, днём ждать почти не приходится', category: 'courier', confirmed: true, date: shortDateOf(now - 3 * HOUR_MS), createdAt: now - 3 * HOUR_MS, editedAt: null, deletedAt: null, city: 'Москва', orders: ownOrdersSnapshot('vkusvill'), reactions: { courierLikes: 4, courierDislikes: 0, userLikes: 1, userDislikes: 0 } },
-          samokat: { id: 'samokat-own-seed', rating: 3, text: 'Вечером на дарксторе очередь, зато выплаты приходят вовремя', category: 'courier', confirmed: true, date: shortDateOf(now - 6 * DAY_MS), createdAt: now - 6 * DAY_MS, editedAt: null, deletedAt: null, city: 'Москва', orders: ownOrdersSnapshot('samokat'), reactions: { courierLikes: 6, courierDislikes: 1, userLikes: 0, userDislikes: 0 } },
-          lenta: { id: 'lenta-own-seed', rating: 4, text: 'Заказывал домой: привезли вовремя, пакеты целые', category: 'user', confirmed: false, date: shortDateOf(now - 2 * DAY_MS), createdAt: now - 2 * DAY_MS, editedAt: null, deletedAt: null, city: 'Москва', orders: null, reactions: { courierLikes: 0, courierDislikes: 0, userLikes: 2, userDislikes: 0 } }
+          samokat: { id: 'samokat-own-seed', rating: 3, text: 'Вечером на дарксторе очередь, зато выплаты приходят вовремя', category: 'courier', confirmed: true, date: shortDateOf(now - 6 * DAY_MS), createdAt: now - 6 * DAY_MS, editedAt: null, deletedAt: null, city: 'Москва', orders: ownOrdersSnapshot('samokat'), reactions: { courierLikes: 6, courierDislikes: 1, userLikes: 0, userDislikes: 0 } }
         };
       }
       function buildSeedQuestions(now) {
@@ -2798,9 +2825,6 @@
             { id: 'q-sk-1', text: 'Можно ли работать на своём электровелосипеде?', createdAt: now - 7 * DAY_MS, deletedAt: null, mine: false, reactions: rx(5, 0, 3, 0), answers: [
               { id: 'a-sk-own', text: 'Можно, но на складе попросят показать транспорт перед первой сменой', createdAt: now - 6 * DAY_MS, deletedAt: null, mine: true, orders: ownOrdersSnapshot('samokat').count, reactions: rx(7, 0, 2, 0) }
             ] }
-          ],
-          lenta: [
-            { id: 'q-lenta-own', text: 'Нужна ли медкнижка, чтобы начать возить заказы?', createdAt: now - 1 * DAY_MS, deletedAt: null, mine: true, reactions: rx(0, 0, 2, 0), answers: [] }
           ]
         };
       }
@@ -2818,6 +2842,8 @@
         { id: 'tverskaya', label: 'Тверская ул.', x: 68, y: 30 },
         { id: 'sokol', label: 'Склад на Соколе', x: 84, y: 60 }
       ];
+      // курьер делится точкой, на карте курьеров это его же положение
+      const LIVE_MY_SPOT = 'begovaya';
       const LIVE_DAY_LIMIT = 5;
       const LIVE_REPORT_REASONS = [['spam', 'Спам или реклама'], ['personal', 'Личные данные'], ['rules', 'Нарушает правила']];
       function liveSpotLabel(id) { const sp = LIVE_SPOTS.find((x) => x.id === id); return sp ? sp.label : ''; }
@@ -2872,7 +2898,7 @@
           ],
           courierReviews: buildSeedOwnReviews(now),
           svcQuestions: buildSeedQuestions(now),
-          questionAskCounts: { vkusvill: 1, lenta: 1 },
+          questionAskCounts: { vkusvill: 1 },
           anonSvcKey: 'vkusvill', anonAuthor: 'Алексей Соколов', pfPhotoKind: 'portrait1',
           shLinks: buildSeedShareLinks(now),
           favCouriers: ['c2'],
@@ -2922,7 +2948,7 @@
         const seed = anonSeed(String(author) + '|' + String(ctx || ''));
         return { seed: seed, nick: ANON_NICKS[seed % ANON_NICKS.length], hue: ANON_HUES[(seed >>> 3) % ANON_HUES.length] };
       }
-      const ANON_SAFE_POOL = ['vkusvill', 'samokat', 'x5', 'lenta', 'yandex-eda', 'kuper'];
+      const ANON_SAFE_POOL = ['vkusvill', 'samokat', 'x5', 'yandex-eda', 'kuper'];
       const ANON_ORDER_SAMPLES = [null, 8, 18, 40, 90, 160, 320, 700];
       const ANON_TENURE_SAMPLES = ['1–3 месяца', '3–6 месяцев', '6–12 месяцев', 'больше года', 'Нет данных'];
       // состав безопасно показываемых сервисов не зависит от того, из какого отзыва или сообщения пришли
@@ -3040,7 +3066,7 @@
             contestJoined: false, contestDisputeStage: 'none', activeFilter: '',
             restrictedAuthors: [], restrictionArchive: [], acctRestrictionAppealPending: false, acctRestrictionAppealText: '',
             expManual: null, expRecurring: null, expTemplates: null,
-            expFormId: '', expFormDraft: null, expFormInit: null, expBack: 'courier-home',
+            expFormId: '', expFormDraft: null, expFormInit: null, expFormDirect: false, expBack: 'courier-home',
             leavePatch: null, recFormInit: null, rvInit: null,
             recFormId: '', recFormDraft: null, recBack: 'profile',
             liveMsgs: [], liveVotes: {}, liveReports: {}, liveSvc: 'mine', liveCity: 'current', liveSort: 'likes', liveBack: 'courier-home',
@@ -3202,6 +3228,18 @@
             this.startScenarioTimers();
           }
           this._syncToastSound();
+          this._focusLiveMessage();
+        }
+        _focusLiveMessage() {
+          const cur = this.state || {};
+          const fid = cur.liveFocusId;
+          if (!fid || cur.s !== 'live-feed' || this._liveFocusDone === fid || typeof document === 'undefined') return;
+          this._liveFocusDone = fid;
+          setTimeout(() => {
+            const el = document.querySelector('[data-live-id="' + fid + '"]');
+            if (el && el.scrollIntoView) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            setTimeout(() => { if ((this.state || {}).liveFocusId === fid) this.setState({ liveFocusId: '' }); }, 2600);
+          }, 80);
         }
         renderVals() {
           const st = this.state || {};
@@ -3383,6 +3421,8 @@
           const expRecurring = st.expRecurring != null ? st.expRecurring : (demoOn ? buildSeedRecurringExpenses() : []);
           const expTemplates = st.expTemplates != null ? st.expTemplates : (demoOn ? [{ id: 'tpl-seed-metro', cat: 'metro', note: 'Проезд' }] : []);
           const expBack = st.expBack || 'courier-home';
+          // форма расхода, открытая с Сегодня, после сохранения и назад возвращает на Сегодня
+          const efExit = { s: st.expFormDirect ? 'courier-home' : 'expenses', expFormId: '', expFormDraft: null, expFormInit: null, expFormDirect: false };
           const recBack = st.recBack || 'profile';
           const expFormId = st.expFormId || '';
           const expFormDraft = st.expFormDraft || null;
@@ -3523,7 +3563,7 @@
           const statDayBars = dayBarsSource.map((d) => ({ label: (d.label || '').split(' ')[0], val: d.pay, style: 'height:' + Math.max(6, Math.round((d.pay / dayBarsMax) * 100)) + '%' }));
           const statsPeriod = ['today', 'week', 'month', 'year', 'custom'].indexOf(st.statsPeriod) !== -1 ? st.statsPeriod : 'week';
           const statsStep = statsPeriod === 'custom' ? 0 : Math.min(0, st.statsStep || 0);
-          const statsRange = statsCalendarRange(statsPeriod, st.statsFrom, st.statsTo, statsStep);
+          const statsRange = statsCalendarRange(statsPeriod, statsFrom, statsTo, statsStep);
           const statsBaseSource = statsRecapSource(statsPeriod, statsRange, statsMonths, statsStep);
           const statsPrevRange = statsPeriod === 'custom' ? null : statsCalendarRange(statsPeriod, '', '', statsStep - 1);
           const statsCanStepBack = !!statsPrevRange && (statsPeriod === 'year' ? statsPrevRange[0] >= '2025-01-01' :
@@ -3798,7 +3838,9 @@
           // для прошлых периодов сравнение берём из соседней точки ряда
           const statsTrendPrev = statsPrevValues;
           const statsPrevWord = ({ today: 'чем вчера', week: 'чем на прошлой неделе', month: 'чем в прошлом месяце', year: 'чем в прошлом году' })[statsPeriod] || 'чем за прошлый период';
-          const statsPayoutShare = statsPayout != null && statsGross > 0 ? Math.max(0, Math.min(100, Math.round(statsPayout * 100 / statsGross))) : null;
+          // процент от суммы к выплате, то есть после удержаний
+          const statsPayableBase = statsGross != null ? statsGross - (statsFines || 0) : null;
+          const statsPayoutShare = statsPayout != null && statsPayableBase > 0 ? Math.max(0, Math.min(100, Math.round(statsPayout * 100 / statsPayableBase))) : null;
           const statsActiveShare = statsHours > 0 && statsWithOrderHours != null ? Math.round(statsWithOrderHours * 100 / statsHours) : null;
           const statsWaitShare = statsActiveShare == null ? null : Math.max(0, 100 - statsActiveShare);
           const statsPeriodDefs = [['today', 'День'], ['week', 'Неделя'], ['month', 'Месяц'], ['year', 'Год'], ['custom', 'Даты']];
@@ -3851,8 +3893,11 @@
 
           const integrationList = Object.keys(SERVICES).map((key, i) => {
             const svc = SERVICES[key];
+            if (svc.method === 'soon') {
+              return { key, title: svc.title, note: 'Подключение в планах', status: 'soon', statusLabel: 'Скоро', showChevron: false, onTap: () => {}, last: i === Object.keys(SERVICES).length - 1 };
+            }
             const status = integrationStatus[key] || (svc.method === 'unsupported' && !svc.catalogNote ? 'unsupported' : 'none');
-            const methodNote = { code: 'вход по телефону и коду', password: 'вход по логину и паролю', external: 'неподтверждённый внешний вход', unsupported: 'способ входа не найден' };
+            const methodNote = { code: 'вход по телефону и коду', password: 'вход по логину и паролю', external: 'вход через приложение сервиса, бета', unsupported: 'способ входа не найден' };
             const passwordNote = svc.catalogNote || (svc.method === 'password' && svc.loginLabel ? 'вход по ' + svc.loginLabel.replace('номер телефона', 'телефону') + ' и паролю' : methodNote[svc.method]);
             const isLinked = status === 'connected' || status === 'limited';
             const health = isLinked ? healthOf(key) : '';
@@ -3861,7 +3906,7 @@
             const isCurrent = inQueue && syncRun.keys[syncRun.done] === key;
             const resultNote = res === 'relogin' ? ', не запрашивали без входа' : (res === 'offline' ? ', прежние данные сохранены' : '');
             const note = isLinked
-              ? (HEALTH_PILL[health] ? healthNoteOf(key, health) : syncLabelOf(key)) + resultNote + (status === 'limited' ? ' · демо-вход, не подтверждено' : '')
+              ? (HEALTH_PILL[health] ? healthNoteOf(key, health) : syncLabelOf(key)) + resultNote + (status === 'limited' ? ' · данные могут быть неполными' : '')
               : (status === 'exited'
                 ? ('Вы вышли ' + (((st.connExitedAt || {})[key]) || '15 сентября, 15:40') + ', история и последнее обновление сохранены')
                 : (status === 'disabled' ? 'Выключено вами, не обновляем' : passwordNote));
@@ -3933,18 +3978,17 @@
           const connCodeError = !!st.connCodeError;
           const connLogin = st.connLogin != null ? st.connLogin : (conn.loginExample || 'courier_916');
           const connPassword = st.connPassword != null ? st.connPassword : '';
-          const isDeliveryConn = connKey === 'delivery';
-          const yandexConnected = !!integrationStatus['yandex-eda'];
+          const isDeliveryConn = !!conn.sharedWith;
+          const yandexConnected = !!integrationStatus[conn.sharedWith];
           const connReady = effectiveMethod === 'unsupported' ? true : connAgree;
           const finalizeConnection = () => {
             if (!connReady) return;
             const statusValue = effectiveMethod === 'external' ? 'limited' : 'connected';
             const patch = { [connKey]: statusValue };
-            if (isDeliveryConn) patch['yandex-eda'] = statusValue;
             if (conn.sharedWith) patch[conn.sharedWith] = statusValue;
             const restoredHealth = Object.assign({}, svcHealth);
             Object.keys(patch).forEach((k) => { delete restoredHealth[k]; });
-            set({ s: 'integrations', integrationStatus: Object.assign({}, integrationStatus, patch), svcHealth: restoredHealth, syncAgo: Object.assign({}, syncAgo, Object.keys(patch).reduce((acc, k) => { acc[k] = 0; return acc; }, {})), connStage: 'form', connCodeInput: '', connCodeError: false });
+            set({ connDone: connKey, s: 'integrations', integrationStatus: Object.assign({}, integrationStatus, patch), svcHealth: restoredHealth, syncAgo: Object.assign({}, syncAgo, Object.keys(patch).reduce((acc, k) => { acc[k] = 0; return acc; }, {})), connStage: 'form', connCodeInput: '', connCodeError: false });
           };
 
           // История заказов
@@ -4330,12 +4374,12 @@
               cityLabel: m.scope === 'all' ? 'Все города' : m.city, timeLabel: liveAgo(m.createdAt), text: m.text,
               repliesCount: liveVisibleReplies(m).length, likes: liveCount(m.likes, m.id, 'like'), dislikes: liveCount(m.dislikes, m.id, 'dislike'),
               myVote: liveVotes[m.id] || '', mine: !!m.mine, status,
-              photoSrc: m.photo ? LIVE_PHOTOS[m.photo] : '', placeLabel: m.place ? liveSpotLabel(m.place) + (m.scope === 'all' ? ', ' + m.city : '') : '',
+              flash: m.id === st.liveFocusId, photoSrc: m.photo ? LIVE_PHOTOS[m.photo] : '', placeLabel: m.place ? liveSpotLabel(m.place) + (m.scope === 'all' ? ', ' + m.city : '') : '',
               note: status === 'reported' ? 'Вы пожаловались на это сообщение, оно скрыто из вашей ленты до решения модератора' : '',
               onOpen: liveOpenThread(m.id, back),
               onLike: liveVote(m.id, 'like', m.mine, status !== 'active'), onDislike: liveVote(m.id, 'dislike', m.mine, status !== 'active'),
               onPhoto: () => set({ s: 'live-photo', livePhoto: m.photo, liveViewBack: this.state.s }),
-              onPlace: () => set({ s: 'live-place', livePlaceId: m.place, liveViewBack: this.state.s }),
+              onPlace: () => set({ s: 'courier-map', cmapBack: this.state.s, cmapMsgs: true, cmapSvcs: [], cmapFocus: 'pin:' + m.id }),
               onAuthor: () => {
                 const firstSvc = m.svcs.filter((k) => SERVICES[k])[0] || '';
                 set({
@@ -4360,6 +4404,27 @@
             .sort((a, b) => (liveCount(b.likes, b.id, 'like') - liveCount(a.likes, a.id, 'like')) || (b.createdAt - a.createdAt)).slice(0, 3).map((m) => liveCardProps(m, 'courier-home'));
           const liveTodayAllItems = liveMsgs.filter((m) => !m.deletedAt && !m.hiddenAt && !liveArchived(m) && !liveReports[m.id] && (m.scope === 'all' || m.city === liveViewCity))
             .sort((a, b) => (liveCount(b.likes, b.id, 'like') - liveCount(a.likes, a.id, 'like')) || (b.createdAt - a.createdAt)).slice(0, 3).map((m) => liveCardProps(m, 'courier-home'));
+          // Карта курьеров: сообщения с местом рисуем каплями, фильтр сервисов действует и на них
+          const CMAP_COUNTS = { 'yandex-eda': 12, samokat: 9, vkusvill: 5, x5: 4 };
+          const cmapShare = !!st.cmapShare;
+          const cmapSvcs = st.cmapSvcs || [];
+          const cmapMsgsOn = st.cmapMsgs !== false;
+          // открыли карту по ссылке из сообщения: вступление не закрывает его, предложим показать себя в другой раз
+          const cmapIntro = !cmapShare && !st.cmapIntroSeen && !(st.cmapFocus || '').startsWith('pin:');
+          const cmapN = cmapSvcs.length ? cmapSvcs.reduce((sum, k) => sum + (CMAP_COUNTS[k] || 0), 0) : 30;
+          const cmapSeen = {};
+          const cmapAllPins = liveMsgs.filter((m) => m.place && !m.deletedAt && !m.hiddenAt && !liveArchived(m) && !liveReports[m.id] && (m.scope === 'all' || m.city === liveViewCity))
+            .map((m) => {
+              const sp = LIVE_SPOTS.find((x) => x.id === m.place);
+              if (!sp) return null;
+              const n = cmapSeen[sp.id] = (cmapSeen[sp.id] || 0) + 1;
+              return { id: m.id, x: sp.x * 3.6 + (n - 1) * 9, y: sp.y * 4.4, svc: m.svcs[0], svcs: m.svcs, tap: liveOpenThread(m.id, 'courier-map') };
+            }).filter(Boolean);
+          const cmapPins = cmapAllPins.filter((pn) => !cmapSvcs.length || pn.svcs.some((k) => cmapSvcs.indexOf(k) !== -1));
+          const cmapFocusKey = st.cmapFocus || '';
+          const cmapFocusPin = cmapFocusKey.indexOf('pin:') === 0 ? cmapAllPins.find((pn) => pn.id === cmapFocusKey.slice(4)) : null;
+          const cmapFocusPt = cmapFocusKey === 'me' ? { x: 108, y: 158 } : (cmapFocusPin ? { x: cmapFocusPin.x, y: cmapFocusPin.y - 8 } : null);
+          const cmapActivePin = cmapFocusPin ? cmapFocusPin.id : '';
           const liveUsedToday = liveMsgs.filter((m) => m.mine && m.createdAt >= liveDayStart).length;
           const liveAuthServices = connectedKeys.filter((k) => SERVICES[k]).map((k) => ({ key: k, title: SERVICES[k].title, city: cityShort }));
           const liveThread = liveMsgs.find((m) => m.id === st.liveThreadId) || null;
@@ -4448,7 +4513,13 @@
             work_week_goal: st.workGoal || WORK_WEEK_GOAL, set_work_goal: (v) => set({ workGoal: v }), work_week_earned: STATS_CALENDAR_WEEK.earn,
             // взятые в прототипе слоты становятся бронями (по заявке заявками) и уходят из свободных
             shifts_week: SHIFTS_WEEK.concat(SHIFT_SLOTS.filter((sl) => (st.takenSlots || {})[sl.id]).map((sl) => Object.assign({}, sl, { id: 't' + sl.id, status: sl.apply ? 'requested' : 'confirmed' }))),
-            shifts_slots: SHIFT_SLOTS.filter((sl) => !(st.takenSlots || {})[sl.id]),
+            // взятый слот остаётся в списке с отметкой, чтобы было видно, куда он делся
+            shifts_slots: SHIFT_SLOTS.map((sl) => ((st.takenSlots || {})[sl.id] ? Object.assign({}, sl, { taken: sl.apply ? 'requested' : 'confirmed' }) : sl)),
+            shifts_show_plan: (t) => set({ s: 'work-hub', smartFocusAdded: false, smartFocusIso: t.iso, smartFocusKey: 'b:t' + t.id }),
+            plan_open_service: (svc) => set({ s: 'service-open-demo', openDemoLabel: (SERVICES[svc] ? SERVICES[svc].title : svc), openDemoFrom: 'work-hub' }),
+            smart_focus_iso: st.smartFocusIso || '', smart_focus_key: st.smartFocusKey || '', smart_open_key: s === 'work-hub' ? (st.smartOpenKey || '') : '',
+            home_open_shift: (row) => set({ s: 'work-hub', smartFocusIso: TODAY_ISO, smartFocusKey: 'b:' + row.id, smartOpenKey: 'b:' + row.id }),
+            home_open_warning: () => set({ s: 'work-hub', smartFocusIso: TODAY_ISO, smartFocusKey: '', smartOpenKey: '' }),
             shifts_take: (sl) => set({ takenSlots: Object.assign({}, st.takenSlots || {}, { [sl.id]: true }) }), shifts_rules: SHIFT_RULES, shifts_openings: SHIFT_OPENINGS, shifts_deficits: SHIFT_DEFICITS,
             shifts_watches: { f4: true },
             smart_add_window: st.smartAddWindow || null, smart_focus_added: !!st.smartFocusAdded,
@@ -4494,6 +4565,14 @@
                 home_nudge_action: stayAdded ? '' : (lastBooking ? 'Остаться до ' + fmt(lastBooking.to + 60) : ''),
                 home_nudge_dismiss: stayAdded ? '' : 'Не надо',
                 home_nudge_accept: () => set({ planStay: 'added' }), home_nudge_close: () => set({ planStay: 'dismissed' }),
+                home_end_items: (() => {
+                  const svcIn = { 'yandex-eda': 'Яндекс Еде', samokat: 'Самокате', vkusvill: 'ВкусВилле', x5: 'X5 Доставке' };
+                  const out = [];
+                  if (demoOn && !(st.homeShiftOn === false)) out.push({ cls: 'raznos-notice raznos-notice-warn', title: 'Вы ведёте заказ ВкусВилла', text: 'Сначала доставьте его, иначе сервис посчитает заказ сорванным' });
+                  if (current) out.push({ cls: 'raznos-notice raznos-notice-warn', title: 'Идёт смена в ' + (svcIn[current.svc] || current.title) + ' до ' + fmt(current.to), text: 'Если уходите раньше, закройте смену в приложении сервиса, иначе оплату могут срезать' });
+                  todayRows.filter((r) => r.from > nowMin).forEach((r) => out.push({ cls: 'raznos-notice raznos-notice-info', title: 'Бронь в ' + (svcIn[r.svc] || r.title) + ' ' + fmt(r.from) + '–' + fmt(r.to) + ' останется', text: 'Если не выйдете, отмените её в приложении сервиса. ' + ((SHIFT_RULES[r.svc] && SHIFT_RULES[r.svc].late) || '') }));
+                  return out;
+                })(),
                 home_now_warning: gap != null && current.svc !== next.svc && gap < 20 ? 'Не успеете доехать: между сменами ' + gap + ' мин, дорога ≈ 20 мин' : ''
               };
             })(),
@@ -4501,12 +4580,12 @@
               // профиль и топ берут последнюю полную календарную неделю из той же истории, что и Статистика
               const week = statsDaysSource('week', ['2026-09-07', '2026-09-13'], false);
               const tips = HISTORY.filter((o) => o.dateISO >= '2026-09-07' && o.dateISO <= '2026-09-13').reduce((sum, o) => sum + (o.tipDigital || 0) + (o.cashTip || 0), 0);
-              return { pf_week_earn: formatMoney(week.earn || 0), pf_week_orders: week.orders || 0, pf_week_tips: formatMoney(tips) };
+              return { pf_week_caption: '7–13 сентября · начислено', pf_week_earn: formatMoney(week.earn || 0), pf_week_orders: week.orders || 0, pf_week_tips: formatMoney(tips) };
             })(),
             today_pace_style: 'width:' + todayPacePct + '%',
             today_pace_note: todayEarn >= todayTarget
-              ? 'цель дня выполнена'
-              : ('до цели дня ≈ ' + Math.max(1, todayOrdersLeft) + ' ' + ruPlural(Math.max(1, todayOrdersLeft), 'заказ', 'заказа', 'заказов')),
+              ? 'на сегодня выполнено'
+              : ('осталось ≈ ' + Math.max(1, todayOrdersLeft) + ' ' + ruPlural(Math.max(1, todayOrdersLeft), 'заказ', 'заказа', 'заказов')),
             today_earn_label: formatMoney(todayEarn),
             svc_hourly_rows: svcHourlyRows, svc_hourly_note: svcHourlyNote,
             services_note: connectedKeys.length ? connectedKeys.map((k) => SERVICES[k].title).join(', ') + ' подключены' : 'ни один сервис не подключён',
@@ -4568,7 +4647,7 @@
             uh_city_title: cityShort,
             uh_market_rates: (() => {
               const uhCityFactor = city === 'spb' ? 0.93 : 1;
-              return ['vkusvill', 'samokat', 'x5', 'yandex-eda'].map((key) => {
+              return ['yandex-eda', 'vkusvill', 'samokat', 'x5'].map((key) => {
                 const b = MARKET_BASE[key];
                 const sufficient = b.couriers >= 30 && b.orders >= 100;
                 return { key, hourly: sufficient ? Math.round(b.hourly * uhCityFactor) : 0, sufficient };
@@ -4638,6 +4717,7 @@
             stats_range: statsRange, stats_range_label: statsSource.title, stats_recap: statsRecap,
             stats_has_data: demoOn || statsSavedServices.length > 0, stats_no_data: !demoOn && statsSavedServices.length === 0,
             stats_main_label: statsRecap.mainLabel, stats_main_value: statsRecap.mainValue == null ? 'Нет данных' : formatMoney(statsRecap.mainValue) + ' ₽',
+            stats_fines_card_label: statsFines ? formatMoney(statsFines) + ' ₽' : '',
             stats_earn_label: statsGross == null ? 'Нет данных' : formatMoney(statsGross) + ' ₽',
             stats_hours_label: statsHours == null ? 'Нет данных' : String(statsHours).replace('.', ',') + ' ч',
             stats_orders_label: statsOrdersCount == null ? 'Нет данных' : String(statsOrdersCount),
@@ -4662,7 +4742,7 @@
             stats_trend_caption: statsTrendPrev.earn == null ? 'Сравнения с прошлым периодом пока нет' : 'К прошлому периоду такой же длины',
             stats_money_title: statsPayout == null ? 'Деньги за период' : 'Выплачено',
             stats_money_accent: statsPayoutShare == null ? '' : statsPayoutShare + '%',
-            stats_money_sub: statsPayout == null ? 'Выплаты по выбранным данным неизвестны' : (statsPending > 0 ? formatMoney(statsPending) + ' ₽ ещё ждёт выплаты' : 'Всё начисленное уже выплачено'),
+            stats_money_sub: statsPayout == null ? 'Выплаты по выбранным данным неизвестны' : (statsPending > 0 ? formatMoney(statsPending) + ' ₽ ещё ждёт выплаты' : 'Всё, что причиталось после удержаний, уже выплачено') + (statsPayableBase != null && statsFines ? ' · процент от ' + formatMoney(statsPayableBase) + ' ₽ после удержаний' : ''),
             stats_money_rows: [
               ['Начислено', statsGross, 'earn'], ['Удержано', statsFines, 'fines'], ['Выплачено', statsPayout, 'payout'], ['Ждёт выплаты', statsPending, 'pending'],
               ['Расходы', statsExpensesKnown ? statsExpensesValue : null, 'expenses']
@@ -4721,12 +4801,12 @@
                   tap: () => set(Object.assign({ s: 'history', histBack: 'stats', histPeriod: 'period', histFrom: row.date, histTo: row.date, histSvc: row.svc, histDistrict: 'all', histStatus: 'all', histPage: 0 }, resetHistDays()))
                 })),
                 stats_tax_card_value: statsTax == null ? 'Нет данных' : '≈ ' + formatMoney(statsTax) + ' ₽',
-                stats_tax_card_sub: statsTax == null ? 'Налог считается по всем начислениям без фильтров' : (statsBonusLeftNow > 0 ? '4% с учётом налогового бонуса' : '6% с дохода от сервисов') + ' · за ' + taxMonthName + (taxPaid ? ' оплачен' : ' до ' + dueLabel),
+                stats_tax_card_sub: statsTax == null ? 'Налог считается по всем начислениям без фильтров' : 'за период ' + statsRangeHuman.replace(/^Неделя · /, '') + ', ' + (statsBonusLeftNow > 0 ? '4% с учётом налогового бонуса' : '6% с дохода от сервисов') + (statsTaxMonth == null ? '' : '. ' + (taxPaid ? 'Налог за ' + taxMonthName + ' ' + formatMoney(statsTaxMonth) + ' ₽ оплачен' : 'К уплате за ' + taxMonthName + ' ' + formatMoney(statsTaxMonth) + ' ₽ до ' + dueLabel)),
                 stats_tax_month_title: taxPaid ? 'Налог за ' + taxMonthName : 'К уплате за ' + taxMonthName,
                 stats_tax_month_value: statsTaxMonth == null ? 'Нет данных' : formatMoney(statsTaxMonth) + ' ₽',
                 stats_tax_month_sub: taxPaid ? 'Оплачен до ' + dueLabel : 'Заплатить до ' + dueLabel + ', до конца месяца сумма ещё вырастет',
                 stats_tax_rows: [
-                  { label: 'Налог за выбранный период', value: statsTax == null ? 'Нет данных' : '≈ ' + formatMoney(statsTax) + ' ₽', strong: true },
+                  { label: 'Налог за период ' + statsRangeHuman.replace(/^Неделя · /, ''), value: statsTax == null ? 'Нет данных' : '≈ ' + formatMoney(statsTax) + ' ₽', strong: true },
                   { label: 'Доход за период', value: money(statsGross), note: 'Налог считается со всех начислений, расходы его не уменьшают' },
                   { label: 'Ставка', value: statsBonusLeftNow > 0 ? '4%' : '6%', note: 'Сервисы платят как компании, базовая ставка 6%, налоговый бонус снижает её до 4%' },
                   { label: 'Налоговый бонус', value: formatMoney(Math.round(statsBonusLeftNow)) + ' из ' + formatMoney(NPD_BONUS) + ' ₽', note: statsBonusLeftNow > 0 ? 'Когда закончится, ставка станет 6%' : 'Бонус израсходован' }
@@ -4779,8 +4859,11 @@
             stats_has_missing: statsRecap.missing.length > 0 || statsNoGranularData,
             stats_missing_note: statsNoGranularData ? 'По способу доставки и смене данных для расчёта пока нет' :
               (statsRecap.missing.length ? 'Пропуски: ' + statsRecap.missing.join(', ') : ''),
-            stats_period_is_custom: statsPeriod === 'custom', stats_from_day: st.statsFrom && st.statsFrom < TODAY_ISO ? st.statsFrom : TODAY_ISO, stats_to_day: st.statsTo && st.statsTo < TODAY_ISO ? st.statsTo : TODAY_ISO, stats_max_day: TODAY_ISO,
-            stats_from_day_change: (e) => set({ statsFrom: e.target.value > TODAY_ISO ? TODAY_ISO : e.target.value }), stats_to_day_change: (e) => set({ statsTo: e.target.value > TODAY_ISO ? TODAY_ISO : e.target.value }),
+            stats_period_is_custom: statsPeriod === 'custom', stats_from_day: st.statsFromRaw != null ? st.statsFromRaw : statsRange[0], stats_to_day: st.statsToRaw != null ? st.statsToRaw : statsRange[1], stats_max_day: TODAY_ISO,
+            // в состояние уходит только полная дата, пока человек вводит, поле показывает сырое значение
+            stats_from_day_change: (e) => { const v = e.target.value; set(/^\d{4}-\d\d-\d\d$/.test(v) && v >= '2020-01-01' ? { statsFromRaw: v, statsFrom: v > TODAY_ISO ? TODAY_ISO : v } : { statsFromRaw: v }); },
+            stats_to_day_change: (e) => { const v = e.target.value; set(/^\d{4}-\d\d-\d\d$/.test(v) && v >= '2020-01-01' ? { statsToRaw: v, statsTo: v > TODAY_ISO ? TODAY_ISO : v } : { statsToRaw: v }); },
+            stats_custom_note: statsPeriod !== 'custom' ? '' : (statsFrom > statsTo ? 'Даты были наоборот, показываем ' + statsRangeHuman : (statsRange[0] < STATS_DEMO_FROM ? 'Данные есть с 1 октября 2025, за более ранние даты отчёта нет' : 'Все блоки ниже считаются за ' + statsRangeHuman)),
             stats_service_selected: statsSvcFilterNow, stats_district_selected: statsDistrictNow,
             stats_transport_selected: statsTransportNow, stats_shift_selected: statsShiftNow,
             stats_filter_summary: statsFilterSummary,
@@ -4833,21 +4916,37 @@
             zones_city: city, zones_transport: transport,
             go_zones: () => set({ s: 'zones' }),
             // карта курьеров взаимная: видите других, только если показываете себя, и только пока идёт смена
-            go_courier_map: () => set({ s: 'courier-map' }),
-            cmap_locked: !st.cmapShare, cmap_open: !!st.cmapShare, cmap_share: !!st.cmapShare, cmap_me: !!st.cmapShare,
-            cmap_svc: st.cmapSvc || 'all',
+            go_courier_map: () => set({ s: 'courier-map', cmapBack: '', cmapFocus: '' }),
+            cmap_back: () => {
+              if (st.cmapBack) set({ s: st.cmapBack, cmapBack: '' });
+              else set({ s: role === 'courier' ? (readyHome ? 'courier-home' : 'courier-empty') : 'user-home' });
+            },
+            cmap_locked: !st.cmapShare, cmap_share: cmapShare,
             cmap_count: 30,
-            cmap_chips: [['all', 'Все', 30], ['yandex-eda', 'Яндекс Еда', 12], ['samokat', 'Самокат', 9], ['vkusvill', 'ВкусВилл', 5], ['x5', 'X5', 4]].map(([k, label, n]) => ({
-              label: label + ' ' + n, on: (st.cmapSvc || 'all') === k, cls: 'raznos-cmap-chip' + ((st.cmapSvc || 'all') === k ? ' raznos-is-active' : ''),
-              dot: k === 'all' ? 'background:conic-gradient(var(--raznos-svc-yandex-eda) 0 25%, var(--raznos-svc-samokat) 0 50%, var(--raznos-svc-vkusvill) 0 75%, var(--raznos-svc-x5) 0)' : 'background:var(--raznos-svc-' + k + ')',
-              tap: () => set({ cmapSvc: k })
-            })),
-            cmap_count_title: (() => { const n = ({ all: 30, 'yandex-eda': 12, samokat: 9, vkusvill: 5, x5: 4 })[st.cmapSvc || 'all']; const m10 = n % 10, m100 = n % 100; return n + ' ' + (m10 === 1 && m100 !== 11 ? 'курьер' : (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? 'курьера' : 'курьеров')) + ' на смене рядом'; })(),
-            cmap_count_sub: (st.cmapSvc || 'all') === 'all' ? 'Больше всего в Яндекс Еде · обновлено только что' : 'В радиусе 3 км · обновлено только что',
-            cmap_me_note: 'Вас видно, пока идёт смена во ВкусВилле, до 17:00',
-            cmap_switch_cls: 'raznos-switch' + (st.cmapShare ? ' raznos-is-on' : ''),
-            cmap_enable: () => set({ cmapShare: true }),
+            cmap_svcs: cmapSvcs,
+            cmap_pins: cmapMsgsOn ? cmapPins : [],
+            cmap_focus_pt: cmapFocusPt, cmap_active_id: cmapActivePin,
+            cmap_filters: [{
+              key: 'svcs', title: 'Сервисы', multi: true, allLabel: 'Все сервисы', value: cmapSvcs,
+              options: [['yandex-eda', 'Яндекс Еда'], ['samokat', 'Самокат'], ['vkusvill', 'ВкусВилл'], ['x5', 'X5']].map(([k, label]) => ({ k, label, note: cmapShare ? CMAP_COUNTS[k] + ' на смене' : '' }))
+            }],
+            cmap_set_filter: (key, v) => set({ cmapSvcs: v, cmapFocus: '' }),
+            cmap_toggles: [{ label: 'Сообщения', on: cmapMsgsOn, cls: 'raznos-cmap-toggle' + (cmapMsgsOn ? ' raznos-is-active' : ''), tap: () => set({ cmapMsgs: !cmapMsgsOn }) }],
+            cmap_panel: !cmapIntro, cmap_intro: cmapIntro,
+            cmap_count_title: cmapShare ? cmapN + ' ' + ruPlural(cmapN, 'курьер', 'курьера', 'курьеров') + ' на смене рядом' : 'Курьеров не видно',
+            cmap_count_sub: [
+              cmapShare ? (cmapSvcs.length ? 'В радиусе 3 км · обновлено только что' : 'Больше всего в Яндекс Еде · обновлено только что') : 'Они появятся, когда вы покажете себя',
+              cmapMsgsOn ? cmapPins.length + ' ' + ruPlural(cmapPins.length, 'сообщение', 'сообщения', 'сообщений') + ' с местом' : ''
+            ].filter(Boolean).join(' · '),
+            cmap_me_note: cmapShare ? 'Вас видно, пока идёт смена во ВкусВилле, до 17:00' : 'Вас не видно, и других курьеров тоже',
+            cmap_switch_cls: 'raznos-switch' + (cmapShare ? ' raznos-is-on' : ''),
+            cmap_enable: () => set({ cmapShare: true, cmapIntroSeen: true }),
+            cmap_intro_skip: () => set({ cmapIntroSeen: true }),
             cmap_toggle: () => set({ cmapShare: !st.cmapShare }),
+            cmap_focus_me: cmapFocusKey === 'me',
+            cmap_locate_cls: 'raznos-cmap-locate' + (cmapFocusKey === 'me' ? ' raznos-is-active' : ''),
+            cmap_locate_label: cmapFocusKey === 'me' ? 'Показать всю карту' : 'Показать, где я сейчас',
+            cmap_locate: () => set({ cmapFocus: this.state.cmapFocus === 'me' ? '' : 'me' }),
 
             work_vv_check: workVv ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', work_vv_mark: workVv ? '✓' : '',
             work_samokat_check: workSamokat ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', work_samokat_mark: workSamokat ? '✓' : '',
@@ -4889,7 +4988,7 @@
             // Найти слот из умного расписания: Свободные на этот день и сервис
             go_slots_find: (w) => set({ s: 'slots', slotsTab: 'free', slotsDay: (w && w.iso) || '', slotsSvc: (w && w.svc) || '', slotsWeek: null, slotsFrom: 'work-hub' }),
             slots_week: st.slotsWeek != null ? st.slotsWeek : null, slots_tab: st.slotsTab || 'mine', slots_day: st.slotsDay || '', slots_svc: st.slotsSvc || '',
-            slots_back: () => set({ s: st.slotsFrom === 'courier-home' ? 'courier-home' : 'work-hub' }), go_smart: () => set({ s: 'work-hub', smartFocusAdded: false }), go_work_schedule: () => set({ s: 'work-schedule', wsFrom: s }), work_schedule_back: () => set({ s: (this.state && this.state.wsFrom) || 'profile' }),
+            slots_back: () => set({ s: st.slotsFrom === 'courier-home' ? 'courier-home' : (st.slotsFrom === 'profile' ? 'profile' : 'work-hub'), smartFocusIso: '', smartFocusKey: '' }), go_slots_from_profile: () => set({ s: 'slots', slotsTab: '', slotsDay: '', slotsSvc: '', slotsWeek: null, slotsFrom: 'profile' }), go_smart: () => set({ s: 'work-hub', smartFocusAdded: false, smartFocusIso: '', smartFocusKey: '', smartOpenKey: '' }), go_work_schedule: () => set({ s: 'work-schedule', wsFrom: s }), work_schedule_back: () => set({ s: (this.state && this.state.wsFrom) || 'profile' }),
             work_setup_needed: !demoOn && !graphSaved,
             work_ready: demoOn || graphSaved,
             go_best_times: (v) => set({ s: 'best-times', btFrom: s, btView: v === 'day' ? 'day' : 'week' }),
@@ -4903,16 +5002,20 @@
             best_places_back: () => set({ s: (this.state && this.state.bpFrom) || 'work-hub' }),
           go_active_order: () => set({ s: 'active-order' }), active_order_hub_visible: activeAccepted,
           go_settings: () => set({ s: 'settings' }),
-          save_work_graph: (g) => set({ graphSaved: true, graphStart: g && g.start != null ? g.start : 9, graphEnd: g && g.end != null ? g.end : 18 }),
+          save_work_graph: (g) => set({ graphSaved: true, graphStart: g && g.start != null ? g.start : 9, graphEnd: g && g.end != null ? g.end : 18, graphDays: g && g.days ? g.days : null, graphPerDay: !!(g && g.perDay), graphWeek: g && g.perDay ? g.week : null }),
+          work_graph: { start: st.graphStart != null ? st.graphStart : 9, end: st.graphEnd != null ? st.graphEnd : 18, days: st.graphDays || undefined, perDay: !!st.graphPerDay, week: st.graphWeek || undefined },
+          work_week: st.graphPerDay ? st.graphWeek : (st.graphDays ? st.graphDays.map((on) => ({ on, from: (st.graphStart != null ? st.graphStart : 9) * 60, to: (st.graphEnd != null ? st.graphEnd : 18) * 60 })) : null),
           work_start: st.graphStart != null ? st.graphStart : 9,
           work_end: st.graphEnd != null ? st.graphEnd : 18,
           home_shift_on: (st.homeShiftOn !== false) && !st.homeShiftEnded,
-          home_shift_ended: !!st.homeShiftEnded,
+          home_shift_ended: !!st.homeShiftEnded, home_shift_not_ended: !st.homeShiftEnded,
           home_shift_idle: (st.homeShiftOn === false) && !st.homeShiftEnded,
           home_now_visible: role === 'courier' && !st.homeShiftEnded,
           home_now_state: (st.homeShiftOn === false) ? 'idle' : 'on',
           start_home_shift: () => set({ homeShiftOn: true, homeShiftEnded: false }),
-          end_home_shift: () => set({ homeShiftOn: false, homeShiftEnded: true }),
+          end_home_shift: () => set({ homeEndAsk: true }),
+          home_end_ask: !!st.homeEndAsk, home_end_cancel: () => set({ homeEndAsk: false }),
+          home_end_confirm: () => set({ homeEndAsk: false, homeShiftOn: false, homeShiftEnded: true }),
           // итог прошедшего дня из Плана: Результаты за день, шаг назад от сегодня
           go_plan_week_result: (off) => set({ s: 'stats', statsPeriod: 'week', statsStep: off, statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' }),
           go_plan_day_result: (iso) => set({ s: 'stats', statsPeriod: 'today', statsStep: -Math.round((new Date(TODAY_ISO + 'T00:00:00') - new Date(iso + 'T00:00:00')) / 86400000), statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' }),
@@ -5075,8 +5178,8 @@
 
             conn_key: connKey, conn_title: conn.title, conn_login_label: conn.loginLabel || 'Логин',
             conn_is_connected: connIsConnected,
-            conn_show_temp_notice: !connIsConnected && connStatusValue !== 'exited' && conn.method !== 'unsupported',
-            conn_connected_note: connIsConnected ? (syncLabelOf(connKey) + (connStatusValue === 'limited' ? ' · демо-вход, не подтверждено' : '')) : '',
+            conn_show_temp_notice: !connIsConnected && connStatusValue !== 'exited' && conn.method !== 'unsupported' && conn.method !== 'soon',
+            conn_connected_note: connIsConnected ? (syncLabelOf(connKey) + (connStatusValue === 'limited' ? ' · данные могут быть неполными' : '')) : '',
             conn_disconnect: connDisconnect,
             conn_is_exited: connStatusValue === 'exited',
             conn_exited_at: ((st.connExitedAt || {})[connKey]) || '15 сентября, 15:40',
@@ -5266,10 +5369,12 @@
               };
             })(),
             conn_is_unsupported: !connIsConnected && conn.method === 'unsupported',
+            conn_is_soon: conn.method === 'soon',
+            conn_shared_title: conn.sharedWith ? SERVICES[conn.sharedWith].title : '',
             conn_unsupported_note: conn.unsupportedNote || ('У сервиса ' + conn.title + ' пока нет найденного способа входа курьера, форму ввода не показываем'),
             conn_is_delivery_linked: !connIsConnected && isDeliveryConn && yandexConnected,
             conn_is_delivery_unlinked: !connIsConnected && isDeliveryConn && !yandexConnected,
-            conn_goto_yandex: () => set({ connKey: 'yandex-eda', connStage: 'form', connAgree: false, connCodeInput: '', connCodeError: false, connLogin: null, connPassword: '' }),
+            conn_goto_yandex: () => set({ connKey: conn.sharedWith, connStage: 'form', connAgree: false, connCodeInput: '', connCodeError: false, connLogin: null, connPassword: '' }),
             conn_show_method_choice: !connIsConnected && connStatusValue !== 'exited' && !!conn.altMethod && !isDeliveryConn,
             conn_method_code_class: connMethodChoice === 'code' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
             conn_method_password_class: connMethodChoice === 'password' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
@@ -5287,10 +5392,12 @@
             conn_confirm_code: () => { if (connCodeInput === '123456') finalizeConnection(); else set({ connCodeError: true }); },
             conn_login_value: connLogin, conn_login_change: (e) => set({ connLogin: e && e.target ? e.target.value : connLogin }),
             conn_password_value: connPassword, conn_password_change: (e) => set({ connPassword: e && e.target ? e.target.value : connPassword }),
-            conn_show_agree: !connIsConnected && connStatusValue !== 'exited' && effectiveMethod !== 'unsupported' && !(isDeliveryConn && !yandexConnected),
+            conn_show_agree: !connIsConnected && connStatusValue !== 'exited' && effectiveMethod !== 'unsupported' && effectiveMethod !== 'soon' && !(isDeliveryConn && !yandexConnected),
             conn_agree_class: connAgree ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', conn_agree_mark: connAgree ? '✓' : '',
             toggle_conn_agree: () => set({ connAgree: !connAgree }),
             conn_finish: finalizeConnection,
+            conn_done_show: !!st.connDone && s === 'integrations', conn_done_title: st.connDone && SERVICES[st.connDone] ? SERVICES[st.connDone].title + ' подключён' : '',
+            conn_done_text: st.connDone && integrationStatus[st.connDone] === 'limited' ? 'Это бета: первые данные появятся в течение 30 минут, часть может прийти позже' : 'Первые данные появятся в течение 30 минут',
             conn_open_courier_app: () => set({ s: 'service-open-demo', openDemoLabel: conn.title }),
 
             // История
@@ -5480,7 +5587,15 @@
             ac_svc_key: anonSvcKey, ac_svc_title: SERVICES[anonSvcKey || svKey].title,
             ...(() => {
               const ident = anonIdentity(anonAuthor, st.anonCtx || anonBack || 'service');
-              const services = anonSafeServices(ident.seed, anonSvcKey);
+              const ownPreview = anonAuthor === myName;
+              // свой предпросмотр берёт те же сервисы, что и именной (ppOrders для c1)
+              const ownServices = ownPreview ? ['vkusvill', 'samokat'].map((key) => {
+                const own = courierReviews[key];
+                const cnt = own && own.orders ? own.orders.count : (HISTORY.filter((o) => o.svc === key).length || null);
+                const rating = CLIENT_RATINGS[key];
+                return { key: key, title: SERVICES[key].title, orders: cnt == null ? 'Нет данных' : orderRangeLabel(cnt).replace(' заказов', ''), tenure: TENURE_RANGE_BY_SVC[key] || 'Нет данных', rating: rating ? ratingRangeLabel(rating.rating) : 'Нет данных' };
+              }) : [];
+              const services = ownServices.length ? ownServices : anonSafeServices(ident.seed, anonSvcKey);
               // по сервису публикации берём реальные демо-данные, остальные показываем такими же диапазонами
               const knownOrders = (() => {
                 if (st.anonOrders != null) return st.anonOrders;
@@ -5488,7 +5603,7 @@
                 const rec = (REVIEWS[anonSvcKey] || []).find((r) => r.author === anonAuthor);
                 return rec && rec.orders ? rec.orders.count : null;
               })();
-              if (knownOrders != null && services.length && services[0].key === anonSvcKey) {
+              if (!ownServices.length && knownOrders != null && services.length && services[0].key === anonSvcKey) {
                 services[0] = Object.assign({}, services[0], { orders: orderRangeLabel(knownOrders).replace(' заказов', ''), tenure: TENURE_RANGE_BY_SVC[anonSvcKey] || services[0].tenure });
               }
               return {
@@ -5496,7 +5611,8 @@
                 ac_nick_letter: ident.nick.slice(0, 1),
                 ac_nick_style: 'background:oklch(0.93 0.05 ' + ident.hue + ');color:oklch(0.38 0.11 ' + ident.hue + ')',
                 ac_services: services,
-                ac_scope_note: 'Показываем все сервисы, которые можно раскрыть безопасно, а не только тот, где оставлена публикация'
+                ac_notice_text: ownPreview ? 'Курьер скрыл личные данные' : 'Личные данные скрыты для защиты автора публикации',
+                ac_scope_note: ownPreview ? 'Показаны сервисы вашего аккаунта, как в именном профиле' : 'Показываем все сервисы, которые можно раскрыть безопасно, а не только тот, где оставлена публикация'
               };
             })(),
             ac_courier_id: anonAuthor === myName ? 'c1' : 'svc-author',
@@ -5706,8 +5822,7 @@
             lc_set_text: (e) => set({ lcText: e && e.target ? e.target.value : '' }),
             lc_add_photo: () => set({ lcPhoto: st.lcPhoto === 'queue' ? 'entrance' : 'queue' }),
             lc_remove_photo: () => set({ lcPhoto: '' }),
-            lc_pick_place: () => set({ s: 'live-place-pick' }),
-            lc_remove_place: () => set({ lcPlace: '' }),
+            lc_toggle_place: () => set({ lcPlace: this.state.lcPlace ? '' : LIVE_MY_SPOT }),
             lc_publish: () => {
               const cur = this.state;
               const text = (cur.lcText || '').trim();
@@ -5717,7 +5832,7 @@
               const svcs = multi ? connectedKeys.slice() : [connectedKeys.indexOf(cur.lcSvc) !== -1 ? cur.lcSvc : connectedKeys[0]];
               const id = 'lm-own-' + Date.now();
               const rec = { id, svcs, multi: multi && svcs.length > 1, scope: cur.lcScope === 'all' ? 'all' : 'city', city: cityShort, text, createdAt: appNow(), likes: 0, dislikes: 0, photo: cur.lcPhoto || '', place: cur.lcPlace || '', mine: true, deletedAt: null, hiddenAt: null, hiddenReason: '', replies: [] };
-              set({ liveMsgs: [rec].concat(cur.liveMsgs || []), s: 'live-thread', liveThreadId: id, liveThreadBack: 'live-feed', lcText: '', lcPhoto: '', lcPlace: '' });
+              set({ liveMsgs: [rec].concat(cur.liveMsgs || []), s: 'live-feed', liveSort: 'date', liveSvc: 'mine', liveCity: 'current', liveFocusId: id, liveBack: cur.lcBack === 'live-feed' ? (cur.liveBack || 'courier-home') : (cur.lcBack || 'courier-home'), lcText: '', lcPhoto: '', lcPlace: '' });
             },
             lp_spots: LIVE_SPOTS,
             lp_selected: st.lcPlace || '',
@@ -5837,6 +5952,7 @@
             shv_revoke: () => { if (shViewLink && !shViewLink.expired) set({ shLinks: shLinks.map((x) => x.id === shViewLink.id ? Object.assign({}, x, { revoked: true }) : x) }); },
 
             // Приватность
+            pv_public_on: String(!!pvPublic), pv_aggregate_on: String(!!pvAggregate), pv_cmap_on: String(!!st.cmapShare), pv_hide_on: String(!!pvHideHistory),
             pv_public_check: pvPublic ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', pv_public_mark: pvPublic ? '✓' : '',
             pv_aggregate_check: pvAggregate ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', pv_aggregate_mark: pvAggregate ? '✓' : '',
             pv_cmap_check: st.cmapShare ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', pv_cmap_mark: st.cmapShare ? '✓' : '',
@@ -5880,7 +5996,7 @@
             // Предпросмотр своего профиля глазами посетителя, ничего не публикует и не меняет
             pv_preview_on: !!pvPreview, pv_preview_off: !pvPreview,
             pv_preview_can_named: pvPublic && pvCloseStage !== 'closed',
-            pv_field_chips: PV_FIELDS.map((f) => ({ label: f[1], cls: pvFields[f[0]] ? 'raznos-chip raznos-is-active' : 'raznos-chip', tap: () => set({ pvFields: Object.assign({}, pvFields, { [f[0]]: !pvFields[f[0]] }) }) })),
+            pv_field_chips: PV_FIELDS.map((f) => ({ label: f[1], on: String(!!pvFields[f[0]]), cls: pvFields[f[0]] ? 'raznos-chip raznos-is-active' : 'raznos-chip', tap: () => set({ pvFields: Object.assign({}, pvFields, { [f[0]]: !pvFields[f[0]] }) }) })),
             pv_fields_note: pvPublic ? 'Имя видно всегда. Выбранные оценки посетители видят точными, как у вас' : 'Сохранится и применится, когда опубликуете профиль',
             pv_open_preview: () => {
               const named = pvPublic && pvCloseStage !== 'closed';
@@ -6003,7 +6119,7 @@
                 return;
               }
               if (key === 'home') return set({ s: readyHome ? 'courier-home' : 'courier-empty' });
-              if (key === 'work') return set({ s: activeAccepted ? 'active-order' : 'work-hub' });
+              if (key === 'work') return set({ s: activeAccepted ? 'active-order' : 'work-hub', smartOpenKey: '', smartFocusKey: '', smartFocusIso: '' });
               if (key === 'stats') return set({ s: 'stats', statsPeriod: 'week', statsStep: 0, statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' });
               if (key === 'market') return set({ s: 'market' });
               if (key === 'profile') return set({ s: 'profile' });
@@ -6057,9 +6173,10 @@
 
           Object.assign(vals, {
             demo_on: demoOn, demo_off: !demoOn,
-            go_expenses_from_home: () => set({ s: 'expenses', expBack: 'courier-home', period: 'today' }),
+            go_expenses_from_profile: () => set({ s: 'expenses', expBack: 'profile', period: 'month', expFormDirect: false }),
+            go_expenses_from_home: () => set({ s: 'expenses', expBack: 'courier-home', period: 'today', expFormDirect: false }),
             // расходы открываются на том же периоде, что выбран в статистике, если такой период там есть
-            go_expenses_from_stats: () => set({ s: 'expenses', expBack: 'stats', period: !st.statsStep && ['today', 'week', 'month'].indexOf(st.statsPeriod || 'week') !== -1 ? (st.statsPeriod || 'week') : 'month' }),
+            go_expenses_from_stats: () => set({ s: 'expenses', expBack: 'stats', expFormDirect: false, period: !st.statsStep && ['today', 'week', 'month'].indexOf(st.statsPeriod || 'week') !== -1 ? (st.statsPeriod || 'week') : 'month' }),
             go_history_stats_vv: () => set(Object.assign({ s: 'history', histPeriod: period, histSvc: 'vkusvill', histStatus: 'all', histPage: 0 }, resetHistDays())),
             go_history_stats_sk: () => set(Object.assign({ s: 'history', histPeriod: period, histSvc: 'samokat', histStatus: 'all', histPage: 0 }, resetHistDays())),
             go_recurring_from_profile: () => set({ s: 'recurring', recBack: 'profile' }),
@@ -6071,6 +6188,7 @@
             exp_has_templates: expTemplates.length > 0,
             exp_template_chips: expTemplates.map((t) => ({ id: t.id, label: EXPENSE_CATS[t.cat] + (t.note ? ' · ' + t.note : ''), onTap: () => { const d = { day: TODAY_ISO, cat: t.cat, amount: '', note: t.note, saveTemplate: false }; set({ s: 'expense-form', expFormId: '', expFormDraft: d, expFormInit: d }); } })),
             exp_is_empty: !expHasDays, exp_has_days: expHasDays, exp_day_groups: expDayGroups,
+            go_expense_form_from_home: () => { const d = { day: TODAY_ISO, cat: 'other', amount: '', note: '', saveTemplate: false }; set({ s: 'expense-form', expBack: 'courier-home', period: 'today', expFormId: '', expFormDraft: d, expFormInit: d, expFormDirect: true }); },
             go_expense_form_new: () => { const d = { day: TODAY_ISO, cat: 'other', amount: '', note: '', saveTemplate: false }; set({ s: 'expense-form', expFormId: '', expFormDraft: d, expFormInit: d }); },
 
             ef_title: expFormId ? 'Расход' : 'Новый расход', ef_is_edit: !!expFormId,
@@ -6095,10 +6213,10 @@
               else nextManual.push({ id: 'exp-' + Date.now(), day: efDraft.day, cat: efDraft.cat, amount: efAmountRounded, note: efDraft.note, deletedAt: null });
               let nextTemplates = expTemplates.slice();
               if (efDraft.saveTemplate && !nextTemplates.some((t) => t.cat === efDraft.cat && t.note === efDraft.note)) nextTemplates.push({ id: 'tpl-' + Date.now(), cat: efDraft.cat, note: efDraft.note });
-              set({ expManual: nextManual, expTemplates: nextTemplates, s: 'expenses', expFormId: '', expFormDraft: null, expFormInit: null });
+              set(Object.assign({ expManual: nextManual, expTemplates: nextTemplates }, efExit));
             },
-            ef_delete: () => { set({ expManual: expManual.map((e) => e.id === expFormId ? Object.assign({}, e, { deletedAt: TODAY_ISO }) : e), s: 'expenses', expFormId: '', expFormDraft: null, expFormInit: null }); },
-            ef_back: () => guardLeave(efDirty, { s: 'expenses', expFormId: '', expFormDraft: null, expFormInit: null }),
+            ef_delete: () => { set(Object.assign({ expManual: expManual.map((e) => e.id === expFormId ? Object.assign({}, e, { deletedAt: TODAY_ISO }) : e) }, efExit)); },
+            ef_back: () => guardLeave(efDirty, efExit),
             leave_guard_visible: !!st.leavePatch,
             leave_guard_text: 'Введённые данные не сохранятся, черновик мы не храним',
             leave_stay: () => set({ leavePatch: null }),

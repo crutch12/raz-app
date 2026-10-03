@@ -8,12 +8,20 @@
     .rsr-list { display: flex; flex-direction: column; }
     .rsr-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .rsr-more-note { font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); }
-    .rsr-more { flex: none; display: inline-flex; align-items: center; gap: 2px; border: 0; background: none; padding: 0; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
+    .rsr-more { flex: none; display: inline-flex; align-items: center; gap: 2px; min-height: 44px; border: 0; background: none; padding: 0 0 0 8px; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
     .rsr-full { display: flex; flex-direction: column; gap: 12px; }
     .rsr-full .rsr-list { background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 4px 16px; }
     .rsr-empty { margin: 0; padding: 20px 0; font: 500 14px/1.4 var(--raznos-font); color: var(--raznos-ink-2); text-align: center; }
   </style>
 </helmet>
+
+<sc-if value="{{ no_data }}" hint-placeholder-val="{{ false }}">
+  <div class="rsr">
+    <span class="rsr-title">Сравнение сервисов</span>
+    <span class="raznos-list-title">{{ no_data_title }}</span>
+    <span class="raznos-text-small">Сравнения для этого города пока нет, цифры других городов не показываем</span>
+  </div>
+</sc-if>
 
 <sc-if value="{{ is_card }}" hint-placeholder-val="{{ true }}">
   <div class="rsr">
@@ -43,7 +51,7 @@
     <p class="raznos-text-tiny">{{ source_note }}</p>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"open":{"editor":null},"connected":{"editor":null},"onConnect":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"transportTitle":{"editor":"text","default":"велосипед"},"$preview":{"width":390,"height":340}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"open":{"editor":null},"connected":{"editor":null},"onConnect":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"transportTitle":{"editor":"text","default":"велосипед"},"$preview":{"width":390,"height":340}}'>
 // сравнение сервисов по мотивам Gridwise Compare Companies и Solo Jobs: доход по сервисам города, тренд, горячие дни
 // hot: индексы дней Пн=0, tod: утро, день, вечер, ночь, демо
 const RSR_SERVICES = [
@@ -53,17 +61,17 @@ const RSR_SERVICES = [
   { k: 'kuper', name: 'Купер', cat: 'grocery', pay: 650, per: 340, trend: 13, hot: [5, 6, 0], wk: 1.04, tod: [0.96, 1.04, 1.02, 0.7] },
   { k: 'dostaevsky', name: 'Достаевский', cat: 'food', pay: 640, per: 270, trend: 8, hot: [3, 4, 5], wk: 1.12, tod: [0.7, 0.96, 1.1, 1.14] },
   { k: 'x5', name: 'X5 Доставка', cat: 'grocery', pay: 610, per: 240, trend: -2, hot: [0, 1, 4], wk: 0.98, tod: [0.98, 1.02, 1.04, 0.8] },
-  { k: 'dostavista', name: 'Достависта', cat: 'parcels', pay: 600, per: 380, trend: 5, hot: [0, 1, 2], wk: 0.84, tod: [1.02, 1.12, 0.94, 0.6] },
+  { k: 'yandex-lavka', name: 'Яндекс Лавка', cat: 'grocery', pay: 700, per: 250, trend: 4, hot: [4, 5, 6], wk: 1.05, tod: [0.92, 1.02, 1.08, 0.86] },
+  { k: 'delivery', name: 'Деливери', cat: 'food', pay: 620, per: 280, trend: 2, hot: [4, 5, 6], wk: 1.1, tod: [0.72, 1.06, 1.12, 1.04] },
   { k: 'magnit', name: 'Магнит', cat: 'grocery', pay: 580, per: 220, trend: -14, hot: [4, 5, 6], wk: 1.02, tod: [0.94, 1, 1.06, 0.82] },
-  { k: 'lenta', name: 'Лента', cat: 'grocery', pay: 560, per: 300, trend: 1, hot: [5, 6, 0], wk: 1.06, tod: [0.96, 1.02, 1.02, 0.78] },
+  { k: 'dodo', name: 'Додо', cat: 'food', pay: 570, per: 210, trend: 1, hot: [4, 5, 6], wk: 1.08, tod: [0.7, 1.04, 1.12, 0.9] },
   { k: 'ozon-fresh', name: 'Ozon fresh', cat: 'grocery', pay: 540, per: 250, trend: 11, hot: [1, 2, 3], wk: 0.96, tod: [1, 1.04, 1, 0.82] }
 ];
 const RSR_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 const RSR_CATS = [
   { k: 'all', label: 'Все заказы' },
   { k: 'grocery', label: 'Продукты' },
-  { k: 'food', label: 'Еда из ресторанов' },
-  { k: 'parcels', label: 'Посылки' }
+  { k: 'food', label: 'Еда из ресторанов' }
 ];
 const RSR_METRICS = [{ k: 'pay', label: '₽ в час' }, { k: 'per', label: '₽ за заказ' }, { k: 'ord', label: 'Заказов в час' }];
 const RSR_WHEN = [{ k: 'week', label: 'Вся неделя' }, { k: 'weekdays', label: 'Будни', note: 'Пн–Пт' }, { k: 'weekend', label: 'Выходные', note: 'Сб–Вс' }];
@@ -103,6 +111,9 @@ class Component extends DCLogic {
     const trDefault = byKey(RSR_TRANSPORTS, rsrTransportKey(p.transportTitle));
     const tr = byKey(RSR_TRANSPORTS, st.transport || trDefault.k);
     const city = p.cityTitle || 'Москва';
+    const cityKey = p.cityKey || 'moscow';
+    const hasData = p.hasData !== false && (cityKey === 'moscow' || cityKey === 'spb');
+    const cityMul = cityKey === 'spb' ? 0.93 : 1;
     const connected = Array.isArray(p.connected) ? p.connected : ['vkusvill', 'samokat'];
     const isMine = (k) => connected.indexOf(k) !== -1;
 
@@ -110,7 +121,7 @@ class Component extends DCLogic {
     const payOf = (x) => {
       const wk = when.k === 'weekend' ? x.wk : (when.k === 'weekdays' ? (1 - (x.wk - 1) * 0.4) : 1);
       const td = tod.i == null ? 1 : x.tod[tod.i];
-      return Math.round(x.pay * wk * td * tr.mul / trDefault.mul / 10) * 10;
+      return Math.round(x.pay * wk * td * tr.mul / trDefault.mul * cityMul / 10) * 10;
     };
     const metricOf = (x) => {
       const pay = payOf(x);
@@ -126,7 +137,7 @@ class Component extends DCLogic {
     const max = byValue.length ? byValue[0].v : 1;
     const min = byValue.length ? byValue[byValue.length - 1].v : 0;
     const fillOf = (v) => Math.round(18 + 82 * (max === min ? 1 : (v - min) / (max - min)));
-    const tail = metric.k === 'per' ? 'за заказ за 4 недели' : (metric.k === 'ord' ? 'заказов в час за 4 недели' : 'дохода в час за 4 недели');
+    const tail = metric.k === 'per' ? 'выплаты за заказ у участников за 4 недели' : (metric.k === 'ord' ? 'заказов в час у участников за 4 недели' : 'дохода участников в час за 4 недели');
     const rowOf = (r) => ({
       rank: r.rank, svc: r.x.k, name: r.x.name, mine: isMine(r.x.k), val: shown(r.v), fill: fillOf(r.v),
       meta: '', hot: false, action: '', actionLabel: '', connect: () => {}, trend: 0, trendTail: tail, divider: false
@@ -158,7 +169,7 @@ class Component extends DCLogic {
     const top = byValue.slice(0, 3);
     const risingR = byValue.slice(3).filter((r) => r.x.trend >= 10).sort((a, b) => b.x.trend - a.x.trend)[0];
     const cardRows = top.map((r, i) => Object.assign(rowOf(r), { divider: !!risingR && i === top.length - 1 }));
-    if (risingR) cardRows.push(Object.assign(rowOf(risingR), { trend: risingR.x.trend, trendTail: 'дохода в час за 4 недели, платят всё больше' }));
+    if (risingR) cardRows.push(Object.assign(rowOf(risingR), { trend: risingR.x.trend, trendTail: 'дохода участников в час за 4 недели' }));
     const rest = Math.max(0, byValue.length - cardRows.length);
 
     const optsOf = (l) => l.map((o) => ({ k: o.k, label: o.label, note: o.note }));
@@ -173,8 +184,9 @@ class Component extends DCLogic {
     const mineCount = RSR_SERVICES.filter((x) => isMine(x.k)).length;
 
     return {
-      is_card: !full, is_full: full,
-      card_sub: city + ' · ₽ в час · вся неделя',
+      no_data: !hasData, no_data_title: 'Нет данных по городу ' + city,
+      is_card: !full && hasData, is_full: full && hasData,
+      card_sub: city + ' · ₽ в час · вся неделя · ' + tr.label.toLowerCase(),
       card_rows: cardRows,
       more_label: 'Ещё ' + rest + ' ' + rsrPlural(rest, 'сервис', 'сервиса', 'сервисов'),
       open_more: () => open(),
@@ -186,7 +198,7 @@ class Component extends DCLogic {
       filters, on_filter: (key, k) => set({ [key]: k }),
       rows, is_empty: rows.length === 0,
       empty_text: onlyMine ? 'Среди этих сервисов нет подключённых. Нажмите + у сервиса, чтобы подключить' : 'Нет сервисов с такими заказами',
-      source_note: 'По заказам курьеров Разноса: ' + city + ', последние 4 недели. Горячие дни это дни с самым высоким доходом'
+      source_note: 'По заказам курьеров Разноса: ' + city + ', ' + tr.label.toLowerCase() + ', 18 авг – 14 сент (4 недели), ' + (cityKey === 'spb' ? '63 курьера, 1 870 заказов' : '184 курьера, 6 240 заказов') + '. Горячие дни это дни с самым высоким доходом'
     };
   }
 }

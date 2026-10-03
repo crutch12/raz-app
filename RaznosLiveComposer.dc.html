@@ -33,15 +33,14 @@
           <label class="raznos-field"><span class="raznos-field-label">Что происходит</span><textarea class="raznos-textarea" placeholder="Например: очередь на выдаче, сбой приложения, перекрыта улица" value="{{ text }}" onChange="{{ onText }}"></textarea></label>
           <div class="raznos-btn-row">
             <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ onAddPhoto }}">{{ photoBtnLabel }}</button>
-            <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ onPickPlace }}">{{ placeBtnLabel }}</button>
           </div>
           <sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ false }}">
             <div class="raznos-live-preview"><img src="{{ photoSrc }}" alt="Выбранное фото" /><span class="raznos-list-main"><span class="raznos-list-title">Фото</span><span class="raznos-text-small">Метаданные и координаты удалим перед публикацией</span></span><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ onRemovePhoto }}">Убрать</button></div>
           </sc-if>
-          <sc-if value="{{ hasPlace }}" hint-placeholder-val="{{ false }}">
-            <div class="raznos-live-preview"><span class="raznos-live-pin-glyph"></span><span class="raznos-list-main"><span class="raznos-list-title">{{ placeLabel }}</span><span class="raznos-text-small">Точка события, не ваше местоположение</span></span><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ onRemovePlace }}">Убрать</button></div>
-          </sc-if>
-          <p class="raznos-text-tiny">Фото и место необязательны. Имя, фото профиля и заказы к сообщению не прикрепляются, автор виден обезличенно</p>
+          <div class="raznos-card">
+            <button type="button" class="raznos-list-row" style="border-bottom:0" role="checkbox" aria-checked="{{ hasPlace }}" onClick="{{ onTogglePlace }}"><span class="{{ placeCheckCls }}">{{ placeMark }}</span><span class="raznos-list-main"><span class="raznos-list-title">Показать вашу точку на карте</span><span class="raznos-text-small">{{ placeNote }}</span></span></button>
+          </div>
+          <p class="raznos-text-tiny">Фото и точка необязательны. Имя, фото профиля и заказы к сообщению не прикрепляются, автор виден обезличенно</p>
           <button type="button" class="{{ publishCls }}" disabled="{{ publishDisabled }}" onClick="{{ onPublish }}">Опубликовать</button>
         </sc-if>
       </div>
@@ -60,8 +59,7 @@
       "onText": { "editor": null },
       "onAddPhoto": { "editor": null },
       "onRemovePhoto": { "editor": null },
-      "onPickPlace": { "editor": null },
-      "onRemovePlace": { "editor": null },
+      "onTogglePlace": { "editor": null },
       "onPublish": { "editor": null },
       "$preview": { "width": 360, "height": 720 }
     }'>
@@ -99,9 +97,11 @@
             scopeNote,
             text, onText: p.onText || noop,
             hasPhoto: !!p.photoSrc, photoSrc: p.photoSrc || '', photoBtnLabel: p.photoSrc ? 'Заменить фото' : 'Добавить фото',
-            hasPlace: !!p.placeLabel, placeLabel: p.placeLabel || '', placeBtnLabel: p.placeLabel ? 'Изменить место' : 'Указать место',
+            hasPlace: !!p.placeLabel, placeLabel: p.placeLabel || '',
+            placeCheckCls: 'raznos-check-box' + (p.placeLabel ? ' raznos-is-on' : ''), placeMark: p.placeLabel ? '✓' : '',
+            placeNote: p.placeLabel ? 'Другие увидят место (' + p.placeLabel + ') в подписи сообщения и на Карте курьеров, точка примерная' : 'По умолчанию выключено. Геолокация сама не публикуется',
             onAddPhoto: p.onAddPhoto || noop, onRemovePhoto: p.onRemovePhoto || noop,
-            onPickPlace: p.onPickPlace || noop, onRemovePlace: p.onRemovePlace || noop,
+            onTogglePlace: p.onTogglePlace || noop,
             publishCls: text.trim() ? 'raznos-btn raznos-btn-primary' : 'raznos-btn-disabled',
             publishDisabled: !text.trim(),
             onPublish: p.onPublish || noop

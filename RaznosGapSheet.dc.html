@@ -13,11 +13,12 @@
     .rgp-sub { margin: -6px 0 0; font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
     .rgp-label { margin: 6px 0 0; font: 600 13px var(--raznos-font); color: var(--raznos-ink-2); }
     .rgp-list { display: flex; flex-direction: column; gap: 8px; }
+    .rgp-hint { margin: -4px 0 0; font: 500 12px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
     .rgp-none { margin: 0; padding: 12px; border-radius: 12px; background: var(--raznos-surface-2); font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
     .rgp-remove { color: var(--raznos-red); }
     @media (prefers-reduced-motion: no-preference) {
-      .rgp-sheet { animation: rgp-in .28s cubic-bezier(.16, 1, .3, 1) both; }
-      @keyframes rgp-in { from { transform: translateY(18px); } to { transform: none; } }
+      .rgp-sheet { animation: rgp-in .32s cubic-bezier(.16, 1, .3, 1) both; }
+      @keyframes rgp-in { from { transform: translateY(100%); } to { transform: none; } }
     }
   </style>
 </helmet>
@@ -32,18 +33,24 @@
     </sc-if>
     <sc-if value="{{ has_best }}" hint-placeholder-val="{{ true }}">
       <p class="rgp-label">{{ best_label }}</p>
-      <dc-import name="RaznosPlanWindow" from="{{ best.from }}" to="{{ best.to }}" svc="{{ best.svc }}" title="{{ best.title }}" sub="{{ best.sub }}" pay="{{ best.pay }}" kind="{{ best.kind }}" badge="{{ best.badge }}" note="{{ best.note }}" action="{{ best.action }}" actionKind="{{ best.actionKind }}" onAction="{{ best.onAction }}" onBadge="{{ best.onBadge }}" gain="{{ best.gain }}" plain="{{ true }}"></dc-import>
+      <dc-import name="RaznosPlanWindow" from="{{ best.from }}" to="{{ best.to }}" svc="{{ best.svc }}" title="{{ best.title }}" sub="{{ best.sub }}" pay="{{ best.pay }}" kind="{{ best.kind }}" badge="{{ best.badge }}" note="{{ best.note }}" action="{{ best.action }}" actionKind="{{ best.actionKind }}" onAction="{{ best.onAction }}" onBadge="{{ best.onBadge }}" gain="{{ best.gain }}" added="{{ best.added }}" plain="{{ true }}"></dc-import>
     </sc-if>
     <sc-if value="{{ has_more }}" hint-placeholder-val="{{ true }}">
       <p class="rgp-label">{{ more_label }}</p>
-      <div class="rgp-list"><sc-for list="{{ more }}" as="o" hint-placeholder-count="2"><dc-import name="RaznosPlanWindow" from="{{ o.from }}" to="{{ o.to }}" svc="{{ o.svc }}" title="{{ o.title }}" sub="{{ o.sub }}" pay="{{ o.pay }}" kind="{{ o.kind }}" badge="{{ o.badge }}" note="{{ o.note }}" action="{{ o.action }}" actionKind="{{ o.actionKind }}" onAction="{{ o.onAction }}" onBadge="{{ o.onBadge }}" gain="{{ o.gain }}" plain="{{ true }}"></dc-import></sc-for></div>
+      <div class="rgp-list"><sc-for list="{{ more }}" as="o" hint-placeholder-count="2"><dc-import name="RaznosPlanWindow" from="{{ o.from }}" to="{{ o.to }}" svc="{{ o.svc }}" title="{{ o.title }}" sub="{{ o.sub }}" pay="{{ o.pay }}" kind="{{ o.kind }}" badge="{{ o.badge }}" note="{{ o.note }}" action="{{ o.action }}" actionKind="{{ o.actionKind }}" onAction="{{ o.onAction }}" onBadge="{{ o.onBadge }}" gain="{{ o.gain }}" added="{{ o.added }}" plain="{{ true }}"></dc-import></sc-for></div>
     </sc-if>
+    <sc-if value="{{ has_extra }}" hint-placeholder-val="{{ false }}">
+      <p class="rgp-label">Выходят за свободное время</p>
+      <p class="rgp-hint">Придётся работать дольше, чем стоит в плане. Перед добавлением спросим отдельно</p>
+      <div class="rgp-list"><sc-for list="{{ extra }}" as="x" hint-placeholder-count="1"><dc-import name="RaznosPlanWindow" from="{{ x.from }}" to="{{ x.to }}" svc="{{ x.svc }}" title="{{ x.title }}" sub="{{ x.sub }}" pay="{{ x.pay }}" kind="{{ x.kind }}" badge="{{ x.badge }}" note="{{ x.note }}" action="{{ x.action }}" actionKind="{{ x.actionKind }}" onAction="{{ x.onAction }}" onBadge="{{ x.onBadge }}" gain="{{ x.gain }}" added="{{ x.added }}" plain="{{ true }}"></dc-import></sc-for></div>
+    </sc-if>
+    <sc-if value="{{ has_rely }}" hint-placeholder-val="{{ true }}"><p class="rgp-hint">{{ rely }}</p></sc-if>
     <sc-if value="{{ no_options }}" hint-placeholder-val="{{ false }}"><p class="rgp-none">Других вариантов на это время нет</p></sc-if>
     <sc-if value="{{ has_remove }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost rgp-remove" onClick="{{ remove }}">Убрать из плана</button></sc-if>
-    <sc-if value="{{ no_remove }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ close }}">Оставить свободным</button></sc-if>
+    <sc-if value="{{ no_remove }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ close }}">{{ close_label }}</button></sc-if>
   </section>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"18:00"},"to":{"editor":"text","default":"22:00"},"current":{"editor":null},"options":{"editor":null},"onRemove":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"18:00"},"to":{"editor":"text","default":"22:00"},"current":{"editor":null},"options":{"editor":null},"extra":{"editor":null},"rely":{"editor":"text"},"doneNote":{"editor":"text"},"closeLabel":{"editor":"text"},"onRemove":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
 // один выбор на любой отрезок времени: свободное время или окно плана, что стоит сейчас и чем можно заменить
 const RGP_DEMO = [
   { from: '18:00', to: '22:00', svc: 'yandex-eda', title: 'Яндекс Еда', sub: 'Центр', pay: '≈ 800 ₽/ч', kind: 'free', badge: 'свободный выход', note: '+3 200 ₽ к неделе', action: 'В план', actionKind: 'primary', gain: true },
@@ -58,6 +65,7 @@ class Component extends DCLogic {
     const fn = (f) => (typeof f === 'function' ? f : () => {});
     const norm = (o) => Object.assign({}, o, { onAction: fn(o.onAction), onBadge: fn(o.onBadge) });
     const n = list.length;
+    const extra = (p.extra || []).map(norm);
     return {
       head: cur ? 'Окно' : 'Чем занять', from: p.from || '18:00', to: p.to || '22:00',
       aria: (cur ? 'Окно ' : 'Чем занять ') + (p.from || '18:00') + '–' + (p.to || '22:00'),
@@ -66,10 +74,12 @@ class Component extends DCLogic {
       best_label: cur ? 'Можно вместо' : 'Лучше всего',
       has_more: n > 1, more: list.slice(1).map(norm),
       // сколько всего вариантов видно сразу, иначе кажется, что есть только один
-      sub: cur
+      sub: p.doneNote ? p.doneNote : cur
         ? (n ? n + ' ' + RGP_PLURAL(n) + ' вместо него' + (n > 1 ? ', выгоднее сверху' : '') + '. Ваше окно ещё не бронь, его можно поменять' : 'Ваше окно ещё не бронь, его можно поменять или убрать')
         : (n > 1 ? n + ' ' + RGP_PLURAL(n) + ' на это время, лучший сверху. Пока ничего не поставлено' : 'Пока это свободное время. Поставьте в план или оставьте свободным'),
       more_label: 'Ещё ' + (n - 1) + ' ' + RGP_PLURAL(n - 1),
+      close_label: p.closeLabel || 'Оставить свободным',
+      has_extra: extra.length > 0, extra, has_rely: !!p.rely && (n > 0 || !!cur), rely: p.rely || '',
       no_options: !!cur && !n,
       has_remove: !!cur && typeof p.onRemove === 'function', no_remove: !cur, remove: fn(p.onRemove),
       close: fn(p.onClose), stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }

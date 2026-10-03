@@ -15,6 +15,7 @@
         </div>
         <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">{{ emptyLabel }}</p></sc-if>
         <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
+          <div class="raznos-live-today-item">
           <button type="button" class="raznos-live-today-row" onClick="{{ r.onOpen }}">
             <span class="raznos-live-today-meta">
               <span class="raznos-live-svc" role="group" aria-label="{{ r.svcsLabel }}"><sc-for list="{{ r.svcs }}" as="s" hint-placeholder-count="2"><dc-import name="RaznosIcon" svc="{{ s.key }}" alt="{{ s.title }}" size="sm"></dc-import></sc-for></span>
@@ -23,6 +24,8 @@
             <span class="raznos-live-today-text">{{ r.text }}</span>
             <span class="raznos-live-today-meta"><svg class="raznos-reaction-glyph" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 18.2H3.7a1.7 1.7 0 0 1-1.7-1.7v-6.3c0-.9.8-1.7 1.7-1.7H6v9.7Z" /><path d="M7.4 8.2 11.1 2.2a1.35 1.35 0 0 1 2.5.8l-.7 4.2h3.5c1.2 0 2.1 1.1 1.85 2.25l-1.1 5.4a2.25 2.25 0 0 1-2.2 1.8H7.4V8.2Z" /></svg> {{ r.likes }} · <svg class="raznos-reaction-glyph" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 1.8H3.7A1.7 1.7 0 0 0 2 3.5v6.3c0 .9.8 1.7 1.7 1.7H6V1.8Z" /><path d="M7.4 11.8 11.1 17.8a1.35 1.35 0 0 0 2.5-.8l-.7-4.2h3.5c1.2 0 2.1-1.1 1.85-2.25l-1.1-5.4A2.25 2.25 0 0 0 14.85 1.35H7.4v10.45Z" /></svg> {{ r.dislikes }} · {{ r.repliesLabel }}</span>
           </button>
+          <sc-if value="{{ r.hasPlace }}" hint-placeholder-val="{{ false }}"><div class="raznos-live-place-cap raznos-live-today-cap"><span class="raznos-live-pin-glyph" aria-hidden="true"></span><span class="raznos-live-place-name">{{ r.placeLabel }}</span><button type="button" class="raznos-live-map-link" onClick="{{ r.onPlace }}">На карте</button></div></sc-if>
+          </div>
         </sc-for>
         <div class="raznos-btn-row">
           <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ onAll }}">Все сообщения</button>
@@ -57,6 +60,7 @@
               cityLabel: m.cityLabel || '', timeLabel: m.timeLabel || '', text: m.text || '',
               likes: m.likes || 0, dislikes: m.dislikes || 0,
               repliesLabel: m.repliesCount ? m.repliesCount + ' ' + plural(m.repliesCount, 'ответ', 'ответа', 'ответов') : 'без ответов',
+              hasPlace: !!m.placeLabel, placeLabel: m.placeLabel || '', onPlace: m.onPlace || noop,
               onOpen: m.onOpen || noop
             })),
             onAll: p.onAll || noop,

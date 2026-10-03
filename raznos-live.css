@@ -2,6 +2,9 @@
 .raznos-live-card { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 16px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-left-width: 4px; min-width: 0; }
 .raznos-live-card.raznos-live-is-reply { background: var(--raznos-surface-2); border-left-width: 1px; }
 .raznos-live-card.raznos-live-is-archived { background: var(--raznos-surface-2); }
+/* только что опубликованное сообщение подсвечиваем и через пару секунд плавно возвращаем */
+.raznos-live-card { transition: background-color 0.6s ease, border-color 0.6s ease; }
+.raznos-live-card.raznos-live-is-flash { background: var(--raznos-green-tint); border-color: var(--raznos-green); }
 .raznos-live-card-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-width: 0; }
 .raznos-live-svc { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; min-width: 0; padding: 0; border: 0; background: transparent; border-radius: 0; }
 .raznos-live-city { font: 500 13px/1.3 var(--raznos-font); color: var(--raznos-ink-2); }
@@ -14,6 +17,13 @@
 .raznos-live-photo-btn { flex: none; width: 96px; height: 72px; padding: 0; border-radius: 10px; border: 1px solid var(--raznos-line); overflow: hidden; background: var(--raznos-surface-2); cursor: pointer; }
 .raznos-live-photo-btn img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .raznos-live-place-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; max-width: 100%; padding: 0 10px; border-radius: 10px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); font: 600 13px/1.3 var(--raznos-font); color: var(--raznos-ink); cursor: pointer; text-align: left; }
+.raznos-live-place-cap { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-width: 0; font: 500 13px/1.3 var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-live-place-name { min-width: 0; overflow-wrap: anywhere; }
+.raznos-live-map-link { display: inline-flex; align-items: center; min-height: 36px; padding: 0 8px; border: 0; background: transparent; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.raznos-live-map-link:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 6px; }
+.raznos-live-today-item { border-top: 1px solid var(--raznos-line); }
+.raznos-live-today-item > .raznos-live-today-row { border-top: 0; }
+.raznos-live-today-cap { padding-bottom: 6px; }
 .raznos-live-pin-glyph { flex: none; width: 10px; height: 10px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--raznos-red); }
 .raznos-live-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .raznos-live-vote { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; min-width: 56px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); font: 600 14px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; }

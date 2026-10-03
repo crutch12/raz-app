@@ -11,13 +11,21 @@
     .rhs-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .rhs-best { font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); }
     .rhs-best b { color: var(--raznos-ink); font-weight: 700; }
-    .rhs-more { flex: none; display: inline-flex; align-items: center; gap: 2px; border: 0; background: none; padding: 0; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
+    .rhs-more { flex: none; display: inline-flex; align-items: center; gap: 2px; min-height: 44px; border: 0; background: none; padding: 0 0 0 8px; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
 
     .rhs-full { display: flex; flex-direction: column; gap: 12px; }
     .rhs-full .rhs-list { background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 4px 16px; }
     .rhs-empty { padding: 20px 0; font: 500 14px var(--raznos-font); color: var(--raznos-ink-2); text-align: center; }
   </style>
 </helmet>
+
+<sc-if value="{{ no_data }}" hint-placeholder-val="{{ false }}">
+  <div class="rhs">
+    <span class="rhs-title">Где выгоднее</span>
+    <span class="raznos-list-title">{{ no_data_title }}</span>
+    <span class="raznos-text-small">Рейтинга районов для этого города пока нет, районы других городов не показываем</span>
+  </div>
+</sc-if>
 
 <sc-if value="{{ is_card }}" hint-placeholder-val="{{ true }}">
   <div class="rhs">
@@ -47,7 +55,7 @@
     <p class="raznos-text-tiny">{{ source_note }}</p>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"open":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"transportTitle":{"editor":"text","default":"велосипед"},"$preview":{"width":390,"height":330}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"open":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"transportTitle":{"editor":"text","default":"велосипед"},"$preview":{"width":390,"height":330}}'>
 // где выгоднее по мотивам Gridwise Where to Work: районы по доходу, полоса от лучшего, тренд за 4 недели
 // один компонент на карточку хаба Работа и экран, чтобы цифры совпадали
 // районы те же, что в фильтре Когда выгоднее, демо
@@ -106,6 +114,8 @@ class Component extends DCLogic {
     const trDefault = byKey(RHS_TRANSPORTS, rhsTransportKey(p.transportTitle));
     const tr = byKey(RHS_TRANSPORTS, st.transport || trDefault.k);
     const city = p.cityTitle || 'Москва';
+    // районы посчитаны только для Москвы
+    const hasData = p.hasData !== false && (p.cityKey || 'moscow') === 'moscow';
 
     // доход в час по району с учётом фильтров, 0 если сервиса в районе нет
     const valueOf = (z) => {
@@ -144,14 +154,14 @@ class Component extends DCLogic {
         routeAria: 'Маршрут в район ' + x.z.name,
         action: 'route', divider: x !== list[list.length - 1],
         trend: big ? x.z.trend : 0,
-        trendTail: 'дохода в час за 4 недели' + (x.z.trend > 0 ? ', платят всё больше' : ', заказов стало меньше')
+        trendTail: 'дохода участников в час за 4 недели'
       });
     });
 
     // карточка: топ-3 и район, который растёт быстрее всех вне топа
     const top = byValue.slice(0, 3);
     const risingX = byValue.slice(3).filter((x) => x.z.trend >= 10).sort((a, b) => b.z.trend - a.z.trend)[0];
-    const rising = risingX ? Object.assign(rowOf(risingX), { trend: risingX.z.trend, trendTail: 'дохода в час за 4 недели, платят всё больше' }) : null;
+    const rising = risingX ? Object.assign(rowOf(risingX), { trend: risingX.z.trend, trendTail: 'дохода участников в час за 4 недели' }) : null;
 
     const optsOf = (l) => l.map((o) => ({ k: o.k, label: o.label, note: o.note }));
     const filters = [
@@ -164,8 +174,9 @@ class Component extends DCLogic {
     const open = typeof p.open === 'function' ? p.open : (() => {});
 
     return {
-      is_card: !full, is_full: full,
-      card_sub: city + ' · ₽ в час · вся неделя',
+      no_data: !hasData, no_data_title: 'Нет данных по городу ' + city,
+      is_card: !full && hasData, is_full: full && hasData,
+      card_sub: city + ' · ₽ в час · вся неделя · ' + tr.label.toLowerCase(),
       // растущий район отделяем чертой от топа
       card_rows: top.map((x, i) => Object.assign(rowOf(x), { divider: !!rising && i === top.length - 1 })).concat(rising ? [rising] : []),
       more_label: (() => { const n = Math.max(0, byValue.length - 3 - (rising ? 1 : 0)); const w = (n % 10 === 1 && n % 100 !== 11) ? 'район' : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'района' : 'районов'); return 'Ещё ' + n + ' ' + w; })(),
@@ -176,7 +187,7 @@ class Component extends DCLogic {
       sort_rank: () => set({ sort: 'rank' }), sort_near: () => set({ sort: 'near' }),
       filters, on_filter: (key, k) => set({ [key]: k }),
       rows, is_empty: rows.length === 0,
-      source_note: 'По заказам курьеров Разноса: ' + city + ', последние 4 недели. Расстояние считаем от вашего района'
+      source_note: 'По заказам курьеров Разноса: ' + city + ', ' + tr.label.toLowerCase() + ', 18 авг – 14 сент (4 недели), 184 курьера, 6 240 заказов. Расстояние считаем от вашего района'
     };
   }
 }

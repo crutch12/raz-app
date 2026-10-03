@@ -5,7 +5,7 @@
     .rro { box-sizing: border-box; width: 100%; max-width: 100%; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .rro-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .rro-title { font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
-    .rro-all { background: none; border: 0; padding: 0; cursor: pointer; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); }
+    .rro-all { box-sizing: border-box; min-height: 44px; margin: -14px -4px -14px 0; padding: 0 4px 0 12px; background: none; border: 0; cursor: pointer; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); }
     .rro-row { display: flex; align-items: center; gap: 8px; }
     .rro-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; background: none; border: 0; margin: -4px -6px; padding: 4px 6px; border-radius: 10px; font: inherit; color: inherit; text-align: left; cursor: pointer; transition: background 0.12s ease; }
     .rro-open:hover, .rro-open:active { background: var(--raznos-surface-2); }
@@ -14,14 +14,19 @@
     .rro-route { font: 600 14px var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .rro-meta { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
     .rro-pay { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); flex: none; font-variant-numeric: tabular-nums; }
-    .rro-add { flex: none; width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--raznos-line); background: var(--raznos-surface-2); color: var(--raznos-ink); font: 600 18px var(--raznos-font); line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .rro-add:hover { border-color: var(--raznos-ink-3); }
+    .rro-add-wrap { position: relative; flex: none; width: 32px; height: 32px; }
+    .rro-add { position: absolute; left: -6px; top: -6px; width: 44px; height: 44px; padding: 0; border: 0; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .rro-add-ico { width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--raznos-line); background: var(--raznos-surface-2); color: var(--raznos-ink); font: 600 18px var(--raznos-font); line-height: 1; display: flex; align-items: center; justify-content: center; }
+    .rro-add:hover .rro-add-ico { border-color: var(--raznos-ink-3); }
+    .rro-add:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: -2px; border-radius: 12px; }
     .rro-sheet { display: flex; flex-direction: column; gap: 12px; }
     .rro-sheet-seg { display: flex; gap: 6px; background: var(--raznos-surface-2); padding: 4px; border-radius: 10px; }
     .rro-seg-btn { flex: 1; padding: 8px; border: 0; background: transparent; border-radius: 8px; font: 600 13px var(--raznos-font); color: var(--raznos-ink-3); cursor: pointer; }
     .rro-seg-btn.raznos-is-active { background: var(--raznos-surface); color: var(--raznos-ink); }
     .rro-amt { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .rro-amt-val { font: 800 22px var(--raznos-font); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rro-rate-row { display: flex; flex-direction: column; gap: 2px; }
+      .rro-sheet-sub { font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
   </style>
 </helmet>
 <div class="rro">
@@ -34,32 +39,91 @@
         <span class="rro-pay">{{ o.pay }} ₽</span>
         <span class="rro-chev">›</span>
       </button>
-      <button type="button" class="rro-add" onClick="{{ o.add }}" aria-label="Добавить чаевые или расход к заказу">＋</button>
+      <div class="rro-add-wrap">
+        <button type="button" class="rro-add" onClick="{{ o.add }}" aria-label="Действия с заказом" aria-haspopup="menu"><span class="rro-add-ico">＋</span></button>
+        <sc-if value="{{ o.menuOpen }}" hint-placeholder-val="{{ false }}">
+          <dc-import name="RaznosActionMenu" items="{{ menu_items }}" onPick="{{ menu_pick }}" onClose="{{ menu_close }}"></dc-import>
+        </sc-if>
+      </div>
     </div>
   </sc-for>
 
-  <sc-if value="{{ sheet_open }}" hint-placeholder-val="{{ false }}">
-    <div class="raznos-dialog-layer" role="dialog" aria-modal="true" aria-label="Добавить к заказу">
+  <sc-if value="{{ tip_open }}" hint-placeholder-val="{{ false }}">
+    <div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="Чаевые">
       <div class="raznos-dialog rro-sheet">
-        <span class="raznos-text-h3">К заказу {{ sheet_order }}</span>
-        <div class="rro-sheet-seg">
-          <button type="button" class="{{ tip_cls }}" onClick="{{ pick_tip }}">Чаевые</button>
-          <button type="button" class="{{ exp_cls }}" onClick="{{ pick_exp }}">Расход</button>
-        </div>
+        <span class="raznos-text-h3">Чаевые к заказу<br><small class="rro-sheet-sub">{{ sheet_order }}</small></span>
         <div class="rro-amt">
           <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ amt_dec }}">−50</button>
           <span class="rro-amt-val">{{ amt }} ₽</span>
           <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ amt_inc }}">+50</button>
         </div>
-        <sc-if value="{{ is_tip }}" hint-placeholder-val="{{ true }}">
-          <span class="raznos-text-small">Тип чаевых</span>
-          <div class="rro-sheet-seg">
-            <button type="button" class="{{ tt_cash_cls }}" onClick="{{ tt_cash }}">Наличные</button>
-            <button type="button" class="{{ tt_card_cls }}" onClick="{{ tt_card }}">Картой</button>
-            <button type="button" class="{{ tt_qr_cls }}" onClick="{{ tt_qr }}">QR</button>
+        <span class="raznos-text-small">Тип чаевых</span>
+        <div class="rro-sheet-seg">
+          <button type="button" class="{{ tt_cash_cls }}" onClick="{{ tt_cash }}">Наличные</button>
+          <button type="button" class="{{ tt_card_cls }}" onClick="{{ tt_card }}">Картой</button>
+          <button type="button" class="{{ tt_qr_cls }}" onClick="{{ tt_qr }}">QR</button>
+        </div>
+        <div class="raznos-field"><span class="raznos-field-label">Комментарий</span><input class="raznos-input" placeholder="Например, спасибо за скорость" value="{{ comment_val }}" onInput="{{ comment_change }}" /></div>
+        <div class="raznos-btn-row">
+          <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ sheet_cancel }}">Отмена</button>
+          <button type="button" class="raznos-btn" onClick="{{ sheet_save }}">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ exp_open }}" hint-placeholder-val="{{ false }}">
+    <div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="Расход">
+      <div class="raznos-dialog rro-sheet">
+        <span class="raznos-text-h3">Расход по заказу {{ sheet_order }}</span>
+        <div class="rro-amt">
+          <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ amt_dec }}">−50</button>
+          <span class="rro-amt-val">{{ amt }} ₽</span>
+          <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ amt_inc }}">+50</button>
+        </div>
+        <div class="raznos-field"><span class="raznos-field-label">Комментарий</span><input class="raznos-input" placeholder="Например, бензин или мойка" value="{{ comment_val }}" onInput="{{ comment_change }}" /></div>
+        <div class="raznos-btn-row">
+          <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ sheet_cancel }}">Отмена</button>
+          <button type="button" class="raznos-btn" onClick="{{ sheet_save }}">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ review_open }}" hint-placeholder-val="{{ false }}">
+    <div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="Отзыв о заказе">
+      <div class="raznos-dialog rro-sheet">
+        <span class="raznos-text-h3">Отзыв о заказе<br><small class="rro-sheet-sub">{{ sheet_order }}</small></span>
+        <div class="rro-rate-row">
+          <span class="raznos-text-small">Место доставки</span>
+          <div class="raznos-rate" role="group" aria-label="Оценка места доставки">
+            <sc-for list="{{ place_stars }}" as="st" hint-placeholder-count="5">
+              <button type="button" class="{{ st.cls }}" onClick="{{ st.tap }}" aria-label="{{ st.aria }}"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
+            </sc-for>
           </div>
-        </sc-if>
-        <div class="raznos-field"><span class="raznos-field-label">Комментарий</span><input class="raznos-input" placeholder="{{ comment_ph }}" value="{{ comment_val }}" onInput="{{ comment_change }}" /></div>
+        </div>
+        <div class="rro-rate-row">
+          <span class="raznos-text-small">Получатель</span>
+          <div class="raznos-rate" role="group" aria-label="Оценка получателя">
+            <sc-for list="{{ rec_stars }}" as="st" hint-placeholder-count="5">
+              <button type="button" class="{{ st.cls }}" onClick="{{ st.tap }}" aria-label="{{ st.aria }}"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
+            </sc-for>
+          </div>
+        </div>
+        <div class="raznos-field"><span class="raznos-field-label">Комментарий</span><input class="raznos-input" placeholder="Про подъезд, домофон, доступ" value="{{ comment_val }}" onInput="{{ comment_change }}" /></div>
+        <div class="raznos-btn-row">
+          <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ sheet_cancel }}">Отмена</button>
+          <button type="button" class="raznos-btn" onClick="{{ sheet_save }}">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ note_open }}" hint-placeholder-val="{{ false }}">
+    <div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="Заметка">
+      <div class="raznos-dialog rro-sheet">
+        <span class="raznos-text-h3">Заметка к заказу<br><small class="rro-sheet-sub">{{ sheet_order }}</small></span>
+        <textarea class="raznos-textarea" placeholder="Видно только вам" value="{{ note_val }}" onInput="{{ note_change }}"></textarea>
         <div class="raznos-btn-row">
           <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ sheet_cancel }}">Отмена</button>
           <button type="button" class="raznos-btn" onClick="{{ sheet_save }}">Сохранить</button>
@@ -68,8 +132,8 @@
     </div>
   </sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"onAll":{"editor":null},"$preview":{"width":390,"height":260}}'>
-// последние заказы для раздела Сегодня с быстрым добавлением чаевых или расхода к конкретному заказу
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"onAll":{"editor":null},"onOpenOrder":{"editor":null},"onAddExpense":{"editor":null},"$preview":{"width":390,"height":260}}'>
+// последние заказы для раздела Сегодня, плюс у заказа открывает меню: чаевые, расход, отзыв, заметка
 const RRO_SVC = { samokat: 'Самокат', vkusvill: 'ВкусВилл', 'yandex-eda': 'Яндекс Еда' };
 const RRO_DEMO = [
   { id: 'V-9021', svc: 'vkusvill', route: 'Садовая 3 → Клин 8', meta: 'сейчас · в пути', pay: 320 },
@@ -83,41 +147,72 @@ class Component extends DCLogic {
     const set = (patch) => this.setState(patch);
     const onAll = typeof p.onAll === 'function' ? p.onAll : (() => {});
     const onOpenOrder = typeof p.onOpenOrder === 'function' ? p.onOpenOrder : (() => {});
+    const onAddExpense = typeof p.onAddExpense === 'function' ? p.onAddExpense : null;
     const src = (p.orders && p.orders.length) ? p.orders : RRO_DEMO;
-    const kind = st.kind || 'tip';
     const amt = st.amt == null ? 100 : st.amt;
+    const menuId = st.menuId || null;
     const openId = st.openId || null;
+    const sheet = st.sheet || '';
     const tipType = st.tipType || 'cash';
     const comment = st.comment || '';
+    const notes = st.notes || {};
+    const placeRate = st.placeRate || 0;
+    const recRate = st.recRate || 0;
+    const close = () => set({ openId: null, sheet: '' });
 
     const rows = src.map((o) => ({
       svc: o.svc, svcTitle: RRO_SVC[o.svc] || o.svc, route: o.route, meta: o.meta, pay: o.pay,
       openOrder: () => onOpenOrder(o.id),
-      add: () => set({ openId: o.id, kind: 'tip', amt: 100, tipType: 'cash', comment: '' })
+      add: () => set({ menuId: menuId === o.id ? null : o.id }),
+      menuOpen: menuId === o.id
     }));
 
+    // расход открывает общую форму расхода, если её передали, иначе простая шторка
+    const menuPick = (key) => {
+      const id = menuId;
+      if (key === 'expense' && onAddExpense) { set({ menuId: null }); onAddExpense(id); return; }
+      set({ menuId: null, openId: id, sheet: key, amt: 100, tipType: 'cash', comment: '', placeRate: 0, recRate: 0, noteDraft: notes[id] || '' });
+    };
+
     const ttCls = (v) => 'rro-seg-btn' + (tipType === v ? ' raznos-is-active' : '');
+    const stars = (cur, key) => [1, 2, 3, 4, 5].map((n) => ({
+      cls: n <= cur ? 'raznos-is-on' : '',
+      aria: n + (n === 1 ? ' звезда' : (n < 5 ? ' звезды' : ' звёзд')),
+      tap: () => set({ [key]: n })
+    }));
 
     return {
       on_all: onAll,
       rows,
-      sheet_open: !!openId,
-      sheet_order: openId || '',
-      is_tip: kind === 'tip',
-      tip_cls: 'rro-seg-btn' + (kind === 'tip' ? ' raznos-is-active' : ''),
-      exp_cls: 'rro-seg-btn' + (kind === 'exp' ? ' raznos-is-active' : ''),
-      pick_tip: () => set({ kind: 'tip' }),
-      pick_exp: () => set({ kind: 'exp' }),
+      menu_items: [
+        { key: 'tip', label: 'Чаевые' },
+        { key: 'expense', label: 'Расходы' },
+        { key: 'review', label: 'Отзыв о заказе' },
+        { key: 'note', label: 'Заметка' }
+      ],
+      menu_pick: menuPick,
+      menu_close: () => set({ menuId: null }),
+      sheet_order: (() => { const o = src.find((x) => x.id === openId); return o ? o.meta.split(' ')[0] + ', ' + o.route.split(' → ')[0] : ''; })(),
+      tip_open: !!openId && sheet === 'tip',
+      exp_open: !!openId && sheet === 'expense',
+      review_open: !!openId && sheet === 'review',
+      note_open: !!openId && sheet === 'note',
       amt: amt,
       amt_dec: () => set({ amt: Math.max(0, amt - 50) }),
       amt_inc: () => set({ amt: amt + 50 }),
       tt_cash_cls: ttCls('cash'), tt_card_cls: ttCls('card'), tt_qr_cls: ttCls('qr'),
       tt_cash: () => set({ tipType: 'cash' }), tt_card: () => set({ tipType: 'card' }), tt_qr: () => set({ tipType: 'qr' }),
       comment_val: comment,
-      comment_ph: kind === 'tip' ? 'Например, спасибо за скорость' : 'Например, бензин или мойка',
       comment_change: (e) => set({ comment: (e && e.target && e.target.value) || '' }),
-      sheet_cancel: () => set({ openId: null }),
-      sheet_save: () => set({ openId: null })
+      place_stars: stars(placeRate, 'placeRate'),
+      rec_stars: stars(recRate, 'recRate'),
+      note_val: st.noteDraft || '',
+      note_change: (e) => set({ noteDraft: (e && e.target && e.target.value) || '' }),
+      sheet_cancel: close,
+      sheet_save: () => {
+        if (sheet === 'note') set({ notes: Object.assign({}, notes, { [openId]: st.noteDraft || '' }), openId: null, sheet: '' });
+        else close();
+      }
     };
   }
 }

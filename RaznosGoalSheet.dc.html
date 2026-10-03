@@ -16,6 +16,12 @@
     .rgs-presets { display: flex; flex-wrap: wrap; gap: 8px; }
     .rgs-preset { min-height: 36px; padding: 0 12px; border: 1px solid var(--raznos-line-strong); border-radius: 999px; background: var(--raznos-surface); color: var(--raznos-ink-2); font: 600 13px var(--raznos-font); font-variant-numeric: tabular-nums; cursor: pointer; }
     .rgs-preset.raznos-is-active { border-color: var(--raznos-dark); background: var(--raznos-dark); color: var(--raznos-on-dark); }
+    .rgs-total { display: flex; flex-direction: column; gap: 2px; }
+    .rgs-total > b { font: 750 18px/1.25 var(--raznos-font); color: var(--raznos-green-deep); font-variant-numeric: tabular-nums; }
+    .rgs-total.rgs-short > b { color: var(--raznos-ink); }
+    .rgs-total > span { font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); font-variant-numeric: tabular-nums; }
+    .rgs-rely { margin: -8px 0 0; font: 500 12px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rgs-req { background: repeating-linear-gradient(-45deg, color-mix(in oklab, var(--raznos-amber) 70%, var(--raznos-surface-2)) 0 4px, color-mix(in oklab, var(--raznos-amber) 35%, var(--raznos-surface-2)) 4px 8px); }
     .rgs-bar { position: relative; height: 12px; border-radius: 999px; background: var(--raznos-surface-2); }
     .rgs-bar-fill { position: absolute; inset: 0; display: flex; border-radius: 999px; overflow: hidden; }
     .rgs-bar-fill > i { display: block; height: 100%; }
@@ -34,8 +40,8 @@
     .rgs-verdict > span { font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); }
     .rgs-close:focus-visible, .rgs-preset:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
     @media (prefers-reduced-motion: no-preference) {
-      .rgs-sheet { animation: rgs-in .28s cubic-bezier(.16, 1, .3, 1) both; }
-      @keyframes rgs-in { from { transform: translateY(18px); } to { transform: none; } }
+      .rgs-sheet { animation: rgs-in .32s cubic-bezier(.16, 1, .3, 1) both; }
+      @keyframes rgs-in { from { transform: translateY(100%); } to { transform: none; } }
     }
   </style>
 </helmet>
@@ -52,15 +58,19 @@
       <div class="rgs-presets"><sc-for list="{{ presets }}" as="pr" hint-placeholder-count="2"><button type="button" class="{{ pr.cls }}" onClick="{{ pr.tap }}">{{ pr.label }}</button></sc-for></div>
     </div>
 
+    <div class="{{ total_cls }}"><b>{{ total_line }}</b><sc-if value="{{ has_earned_line }}" hint-placeholder-val="{{ true }}"><span>{{ earned_line }}</span></sc-if></div>
     <div class="rgs-bar" role="img" aria-label="{{ bar_aria }}">
-      <span class="rgs-bar-fill"><i class="rgs-earned" style="{{ earned_style }}"></i><i class="rgs-booked" style="{{ booked_style }}"></i><i class="rgs-plan" style="{{ plan_style }}"></i></span>
+      <span class="rgs-bar-fill"><i class="rgs-earned" style="{{ earned_style }}"></i><i class="rgs-booked" style="{{ booked_style }}"></i><i class="rgs-req" style="{{ req_style }}"></i><i class="rgs-plan" style="{{ plan_style }}"></i></span>
       <span class="rgs-mark" style="{{ mark_style }}"></span>
     </div>
     <ul class="rgs-legend">
       <li><i class="rgs-earned"></i><span>Заработано</span><b>{{ earned }}</b></li>
       <li><i class="rgs-booked"></i><span>Брони из Смен</span><b>{{ booked }}</b></li>
+      <sc-if value="{{ has_req }}" hint-placeholder-val="{{ false }}"><li><i class="rgs-req"></i><span>Заявки, ждут ответа</span><b>{{ requested }}</b></li></sc-if>
       <li><i class="rgs-plan"></i><span>Окна плана</span><b>{{ planned }}</b></li>
     </ul>
+
+    <sc-if value="{{ has_rely }}" hint-placeholder-val="{{ true }}"><p class="rgs-rely">{{ rely }}</p></sc-if>
 
     <div class="{{ verdict_cls }}">
       <b>{{ verdict }}</b>
@@ -71,7 +81,7 @@
     <sc-if value="{{ not_short }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ close }}">Готово</button></sc-if>
   </section>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"goal":{"editor":"number"},"earned":{"editor":"number"},"booked":{"editor":"number"},"planned":{"editor":"number"},"usual":{"editor":"number"},"best":{"editor":"number"},"rate":{"editor":"number"},"orderPay":{"editor":"number"},"daysLeft":{"editor":"number"},"onGoal":{"editor":null},"onFix":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"goal":{"editor":"number"},"earned":{"editor":"number"},"booked":{"editor":"number"},"requested":{"editor":"number"},"rely":{"editor":"text"},"planned":{"editor":"number"},"usual":{"editor":"number"},"best":{"editor":"number"},"rate":{"editor":"number"},"orderPay":{"editor":"number"},"daysLeft":{"editor":"number"},"onGoal":{"editor":null},"onFix":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
 // шторка цели недели: цель, чем она закрывается и что сделать
 const RGS_FMT = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const RGS_R = (n) => Math.round(n / 100) * 100;
@@ -83,12 +93,15 @@ class Component extends DCLogic {
     const earned = p.earned != null ? p.earned : 8000;
     const booked = RGS_R(p.booked != null ? p.booked : 19600);
     const planned = RGS_R(p.planned != null ? p.planned : 9500);
+    // заявка не бронь: сервис её ещё не подтвердил, поэтому отдельной строкой
+    const requested = RGS_R(p.requested || 0);
     const rate = p.rate || 700;
     // средняя оплата заказа по своим сменам, чтобы разрыв был понятен и в заказах
     const orderPay = p.orderPay || 240;
-    const total = earned + booked + planned;
+    const total = earned + booked + requested + planned;
     const short = total < goal;
     const sure = earned + booked;
+    const rely = p.rely == null ? 'Брони, заявки и окна плана это оценка по заказам курьеров Разноса рядом за 4 недели, обычно ±10%. Заработанное считаем по факту' : p.rely;
     // шкала до большего из цели и суммы, чтобы черта цели всегда была на полосе
     const scale = Math.max(goal, total) || 1;
     const pct = (v) => Math.max(0, v * 100 / scale).toFixed(1) + '%';
@@ -107,10 +120,13 @@ class Component extends DCLogic {
       goal_text: RGS_FMT(goal),
       goal_change: (e) => setGoal(parseInt(String((e && e.target ? e.target.value : e) || '').replace(/\D/g, ''), 10) || 0),
       presets,
-      earned: RGS_FMT(earned) + ' ₽', booked: '≈ ' + RGS_FMT(booked) + ' ₽', planned: '≈ ' + RGS_FMT(planned) + ' ₽',
-      earned_style: 'width:' + pct(earned), booked_style: 'width:' + pct(booked), plan_style: 'width:' + pct(planned),
+      earned: RGS_FMT(earned) + ' ₽', booked: '≈ ' + RGS_FMT(booked) + ' ₽', requested: '≈ ' + RGS_FMT(requested) + ' ₽', has_req: requested > 0, planned: '≈ ' + RGS_FMT(planned) + ' ₽',
+      earned_style: 'width:' + pct(earned), booked_style: 'width:' + pct(booked), req_style: 'width:' + pct(requested), plan_style: 'width:' + pct(planned),
       mark_style: 'left:' + pct(goal),
-      bar_aria: 'Заработано ' + RGS_FMT(earned) + ', брони ' + RGS_FMT(booked) + ', окна плана ' + RGS_FMT(planned) + ' из цели ' + RGS_FMT(goal) + ' рублей',
+      bar_aria: 'Заработано ' + RGS_FMT(earned) + ', брони ' + RGS_FMT(booked) + (requested ? ', заявки ' + RGS_FMT(requested) : '') + ', окна плана ' + RGS_FMT(planned) + ' из цели ' + RGS_FMT(goal) + ' рублей',
+      total_cls: 'rgs-total' + (short ? ' rgs-short' : ''), total_line: 'По плану к воскресенью ≈ ' + RGS_FMT(total) + ' ₽',
+      has_earned_line: earned > 0, earned_line: 'из них уже заработано ' + RGS_FMT(earned) + ' ₽',
+      has_rely: !!rely, rely,
       short, not_short: !short,
       verdict_cls: 'rgs-verdict' + (short ? ' rgs-short' : ''),
       verdict: short ? 'Не хватает ≈ ' + RGS_FMT(RGS_R(gap)) + ' ₽, это ≈ ' + orders + ' ' + RGS_ORDERS(orders) + ', ' + perDay : (earned >= goal ? 'Цель уже выполнена, сверху ≈ ' + RGS_FMT(RGS_R(earned - goal)) + ' ₽' : 'Плана хватит на цель, запас ≈ ' + RGS_FMT(RGS_R(gap)) + ' ₽'),

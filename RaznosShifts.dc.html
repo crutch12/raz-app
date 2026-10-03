@@ -1,7 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
 <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-shifts.css" /></helmet>
 <div class="raznos-shifts">
-  <div class="raznos-app-bar raznos-shifts-bar"><button type="button" class="raznos-icon-btn" onClick="{{ on_back }}" aria-label="Назад в План">‹</button><span class="raznos-shifts-head"><h1 class="raznos-text-h1" style="margin:0">Брони и слоты</h1><span class="raznos-shifts-range">{{ range_label }}</span></span></div>
+  <div class="raznos-app-bar raznos-shifts-bar"><button type="button" class="raznos-icon-btn" onClick="{{ on_back }}" aria-label="Назад">‹</button><span class="raznos-shifts-head"><h1 class="raznos-text-h1" style="margin:0">Слоты</h1><span class="raznos-shifts-range">{{ range_label }}</span></span></div>
 
   <sc-if value="{{ has_attention }}" hint-placeholder-val="{{ true }}">
     <dc-import name="RaznosAttentionList" title="Требует внимания" items="{{ attention }}"></dc-import>
@@ -32,7 +32,7 @@
         <div class="raznos-shifts-day-head"><h3>{{ day.title }}</h3><span>{{ day.meta }}</span></div>
         <sc-if value="{{ day.has_deficit }}" hint-placeholder-val="{{ false }}"><p class="raznos-shifts-deficit">{{ day.deficit }}</p></sc-if>
         <sc-for list="{{ day.rows }}" as="r" hint-placeholder-count="2">
-          <dc-import name="RaznosPlanWindow" from="{{ r.from }}" to="{{ r.to }}" svc="{{ r.svc }}" title="{{ r.title }}" sub="{{ r.sub }}" pay="{{ r.pay }}" kind="{{ r.kind }}" badge="{{ r.badge }}" note="{{ r.note }}" action="{{ r.action }}" actionKind="{{ r.actionKind }}" onTap="{{ r.tap }}" onAction="{{ r.onAction }}" onBadge="{{ r.tap }}" gain="{{ r.gain }}"></dc-import>
+          <dc-import name="RaznosPlanWindow" from="{{ r.from }}" to="{{ r.to }}" svc="{{ r.svc }}" title="{{ r.title }}" sub="{{ r.sub }}" pay="{{ r.pay }}" kind="{{ r.kind }}" badge="{{ r.badge }}" note="{{ r.note }}" action="{{ r.action }}" actionKind="{{ r.actionKind }}" onTap="{{ r.tap }}" onAction="{{ r.onAction }}" onBadge="{{ r.tap }}" gain="{{ r.gain }}" added="{{ r.added }}"></dc-import>
         </sc-for>
       </section>
     </sc-for>
@@ -57,15 +57,21 @@
     <dc-import name="RaznosShiftSheet" svc="{{ sh.svc }}" title="{{ sh.title }}" place="{{ sh.place }}" time="{{ sh.time }}" status="{{ sh.status }}" tone="{{ sh.tone }}" whenNote="{{ sh.whenNote }}" money="{{ sh.money }}" moneyNote="{{ sh.moneyNote }}" conflict="{{ sh.conflict }}" rule="{{ sh.rule }}" ruleTone="{{ sh.ruleTone }}" action="{{ sh.action }}" onAction="{{ sh.act }}" onClose="{{ close_sheet }}"></dc-import>
   </sc-if>
 
-  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div class="raznos-shifts-toast" role="status">{{ toast }}</div></sc-if>
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div class="raznos-shifts-toast" role="status"><span>{{ toast }}</span><sc-if value="{{ toast_has_act }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-shifts-toast-act" onClick="{{ toast_show }}">Показать</button></sc-if></div></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"days":{"editor":null},"shifts":{"editor":null},"slots":{"editor":null},"rules":{"editor":null},"openings":{"editor":null},"deficits":{"editor":null},"watches":{"editor":null},"facts":{"editor":null},"today":{"editor":"text","default":"2026-09-15"},"nowMinutes":{"editor":null},"initialTab":{"editor":"text","default":"mine"},"initialWeek":{"editor":null},"onTake":{"editor":null},"initialDay":{"editor":"text","default":""},"initialSvc":{"editor":"text","default":""},"onBack":{"editor":null},"onOpenService":{"editor":null},"$preview":{"width":390,"height":1600}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"days":{"editor":null},"shifts":{"editor":null},"slots":{"editor":null},"rules":{"editor":null},"openings":{"editor":null},"deficits":{"editor":null},"watches":{"editor":null},"facts":{"editor":null},"today":{"editor":"text","default":"2026-09-15"},"nowMinutes":{"editor":null},"initialTab":{"editor":"text","default":"mine"},"initialWeek":{"editor":null},"onTake":{"editor":null},"onShowInPlan":{"editor":null},"initialDay":{"editor":"text","default":""},"initialSvc":{"editor":"text","default":""},"onBack":{"editor":null},"onOpenService":{"editor":null},"$preview":{"width":390,"height":1600}}'>
 // Смены: что уже взято в сервисах и что требует действия, плюс слоты, которые можно взять, и слежение
 // решения когда и где работать живут в Плане, здесь журнал броней недели
 const RSH_FMT = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const RSH_TIME = (m) => String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
 const RSH_DUR = (m) => { const h = Math.floor(m / 60), r = m % 60; return h + (r ? ',' + Math.round(r / 6) : '') + ' ч'; };
 const RSH_PLURAL = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; };
+// заявка и предварительная смена не бронь, считаем отдельно
+const RSH_UNCONF = ['requested', 'tentative'];
+const RSH_COUNT = (list) => { const act = list.filter((s) => s.status !== 'cancelled' && s.status !== 'missed'); const req = act.filter((s) => RSH_UNCONF.indexOf(s.status) !== -1).length, b = act.length - req; return [b ? b + ' ' + RSH_PLURAL(b, 'бронь', 'брони', 'броней') : '', req ? req + ' ' + RSH_PLURAL(req, 'заявка', 'заявки', 'заявок') : ''].filter(Boolean).join(' · '); };
+// надёжность оценки: по скольким заказам и на сколько обычно ошибаемся
+const RSH_CONF = (from, to) => { let d = 0, n = 0; for (let h = Math.floor(from / 60); h < Math.ceil(to / 60); h++) { d += RSH_DEMAND[h % 24]; n++; } const orders = Math.round(18 + (n ? d / n : 0) * 90); return { orders, pct: orders >= 70 ? 8 : (orders >= 45 ? 12 : 18) }; };
+const RSH_CONF_TEXT = (from, to) => { const c = RSH_CONF(from, to); return 'по ' + c.orders + ' ' + (c.orders % 10 === 1 && c.orders % 100 !== 11 ? 'заказу' : 'заказам') + ' курьеров Разноса рядом за 4 недели, обычно ±' + c.pct + '%'; };
 const RSH_LEFT = (m) => (m >= 60 ? Math.floor(m / 60) + ' ч ' : '') + (m % 60 ? (m % 60) + ' мин' : '');
 const RSH_TRAVEL = 20;
 // средний доход в час курьера до расходов, как в Плане и Результатах
@@ -120,7 +126,7 @@ class Component extends DCLogic {
     const tab = weekPast ? 'mine' : (st.tab || p.initialTab || 'mine');
     const watches = st.watches || p.watches || {};
     const reminders = st.reminders || {};
-    const flash = (text) => { set({ toast: text }); clearTimeout(this._toastTimer); this._toastTimer = setTimeout(() => this.setState({ toast: '' }), 2600); };
+    const flash = (text, show) => { set({ toast: text, toastSlot: show || null }); clearTimeout(this._toastTimer); this._toastTimer = setTimeout(() => this.setState({ toast: '', toastSlot: null }), show ? 5000 : 2600); };
 
     // правило отмены: для брони только когда до дедлайна меньше суток или он прошёл, для слота в общем виде
     const deadlineOf = (svc, iso, from) => {
@@ -149,7 +155,7 @@ class Component extends DCLogic {
       const f = s.iso === today && s.status === 'completed' ? facts[s.svc] : null;
       const rate = RSH_RATE(s.svc, s.from, s.to);
       if (f) return { sum: f.earn, pay: RSH_FMT(f.earn) + ' ₽', text: RSH_FMT(f.earn) + ' ₽ за смену', note: f.orders + ' заказов, это факт из приложения сервиса' };
-      return { sum: rate * (s.to - s.from) / 60, rate, pay: '≈ ' + RSH_FMT(Math.round(rate * (s.to - s.from) / 60 / 10) * 10) + ' ₽', text: '≈ ' + RSH_FMT(Math.round(rate * (s.to - s.from) / 60 / 10) * 10) + ' ₽ за смену', note: '≈ ' + RSH_FMT(rate) + ' ₽/ч, оценка по заказам курьеров Разноса, как в Плане' + (s.rate ? '. Ставка сервиса ' + s.rate + ' ₽/ч уже внутри' : '') };
+      return { sum: rate * (s.to - s.from) / 60, rate, pay: '≈ ' + RSH_FMT(Math.round(rate * (s.to - s.from) / 60 / 10) * 10) + ' ₽', text: '≈ ' + RSH_FMT(Math.round(rate * (s.to - s.from) / 60 / 10) * 10) + ' ₽ за смену', note: '≈ ' + RSH_FMT(rate) + ' ₽/ч, оценка ' + RSH_CONF_TEXT(s.from, s.to) + (s.rate ? '. Ставка сервиса ' + s.rate + ' ₽/ч уже внутри' : '') };
     };
     const live = shifts.filter((s) => s.status !== 'cancelled');
     // пересечения и дорога между сменами разных сервисов в один день
@@ -203,8 +209,8 @@ class Component extends DCLogic {
     const pastCount = shifts.filter((s) => dayIsPast(s.iso)).length;
     const mineDays = days.filter((iso) => shifts.some((s) => s.iso === iso) && (pastOpen || !dayIsPast(iso))).map((iso) => {
       const list = shifts.filter((s) => s.iso === iso).sort((a, b) => a.from - b.from);
-      const mins = list.filter((s) => s.status !== 'cancelled' && s.status !== 'missed').reduce((sum, s) => sum + s.to - s.from, 0);
-      return { title: dayTitle(iso), today: iso === today, meta: list.length + ' ' + RSH_PLURAL(list.length, 'смена', 'смены', 'смен') + ' · ' + RSH_DUR(mins), rows: list.map(rowOf) };
+      const mins = list.filter((s) => s.status !== 'cancelled' && s.status !== 'missed' && RSH_UNCONF.indexOf(s.status) === -1).reduce((sum, s) => sum + s.to - s.from, 0);
+      return { title: dayTitle(iso), today: iso === today, meta: [RSH_COUNT(list), mins ? RSH_DUR(mins) : ''].filter(Boolean).join(' · '), rows: list.map(rowOf) };
     });
 
     // вкладка Можно взять: свободные слоты недели по дням, лучшие по деньгам сверху
@@ -225,24 +231,32 @@ class Component extends DCLogic {
       const m = moneyOf(sl);
       const on = !!watches[sl.id];
       const toggleWatch = () => { const next = Object.assign({}, watches); if (next[sl.id]) delete next[sl.id]; else next[sl.id] = true; set({ watches: next }); flash(next[sl.id] ? 'Пришлём пуш, когда в слоте появится место' : 'Больше не следим за слотом'); };
-      const take = () => { if (typeof p.onTake === 'function') { p.onTake(sl); flash((sl.apply ? 'Отклик отправлен: ' : 'Слот взят: ') + (sl.appName || sl.title) + ' ' + RSH_TIME(sl.from) + '–' + RSH_TIME(sl.to)); } else { openService(sl.svc); flash('Открываем ' + (sl.appName || sl.title) + ' на этом слоте'); } };
+      const take = () => { if (typeof p.onTake === 'function') { p.onTake(sl); flash((sl.apply ? 'Заявка отправлена, ' : 'Слот ваш, он в плане: ') + shortDay(sl.iso) + ', ' + RSH_TIME(sl.from) + '–' + RSH_TIME(sl.to), { iso: sl.iso, id: sl.id }); } else { openService(sl.svc); flash('Открываем ' + (sl.appName || sl.title) + ' на этом слоте'); } };
       const row = {
         from: RSH_TIME(sl.from), to: RSH_TIME(sl.to), svc: sl.svc, title: sl.title, sub: sl.place + (sl.bonus ? ' · ' + sl.bonus : ''), pay: m.pay,
         kind: sl.full ? 'full' : 'need', badge: sl.full ? 'мест нет' : (sl.apply ? 'по заявке' : sl.seats + ' ' + RSH_PLURAL(sl.seats, 'место', 'места', 'мест')),
         tap: () => set({ slotSheet: sl.id })
       };
+      // взятый слот не пропадает: остаётся в списке с отметкой, похожие на это время уходят вниз
+      if (sl.taken) {
+        const folded = clashSlots.filter((c) => c.iso === sl.iso).length;
+        const tail = folded ? ' · похожие слоты свёрнуты внизу' : '';
+        return sl.taken === 'requested'
+          ? Object.assign(row, { kind: 'pending', badge: 'заявка', note: 'Заявка в плане, ждёт ответа сервиса' + tail, action: '' })
+          : Object.assign(row, { kind: 'booked', badge: 'бронь', note: 'Слот ваш, он уже в плане' + tail, action: '', added: true });
+      }
       if (sl.full) return Object.assign(row, { note: on ? 'Напишем, если появится место' : 'Мест нет, можно следить', action: on ? 'Слежу' : 'Следить', actionKind: on ? 'watch-on' : 'watch', onAction: toggleWatch });
       if (clash) return Object.assign(row, { note: 'Пересекается с вашей сменой ' + clash.title + ' ' + RSH_TIME(clash.from) + '–' + RSH_TIME(clash.to), action: '' });
       return Object.assign(row, { gain: true, note: '≈ ' + RSH_FMT(m.rate) + ' ₽/ч' + (sl.apply ? ', смену подтвердит сервис' : ''), action: sl.apply ? 'Откликнуться' : 'Взять слот', actionKind: 'primary', onAction: take });
     };
     // слоты, которые пересекаются с вашими сменами, взять нельзя, уносим их в свёрнутый блок внизу
     const clashOf = (sl) => live.find((s) => s.iso === sl.iso && sl.from < s.to + (s.svc === sl.svc ? 0 : RSH_TRAVEL) && s.from < sl.to + (s.svc === sl.svc ? 0 : RSH_TRAVEL));
-    const clashSlots = freeList.filter((sl) => !sl.full && clashOf(sl));
+    const clashSlots = freeList.filter((sl) => !sl.full && !sl.taken && clashOf(sl));
     const okSlots = freeList.filter((sl) => clashSlots.indexOf(sl) === -1);
     const freeDays = days.filter((iso) => okSlots.some((sl) => sl.iso === iso)).map((iso) => {
       const list = okSlots.filter((sl) => sl.iso === iso).sort((a, b) => (a.full === b.full ? RSH_RATE(b.svc, b.from, b.to) * (b.to - b.from) - RSH_RATE(a.svc, a.from, a.to) * (a.to - a.from) : (a.full ? 1 : -1)));
       const deficit = (p.deficits || []).find((d) => d.iso === iso && (!d.svc || okSvc(d.svc)));
-      const open = list.filter((sl) => !sl.full).length;
+      const open = list.filter((sl) => !sl.full && !sl.taken).length;
       return { title: dayTitle(iso), meta: open ? open + ' ' + RSH_PLURAL(open, 'слот', 'слота', 'слотов') + ' с местами' : 'мест нет', has_deficit: !!deficit, deficit: deficit ? deficit.title + '. ' + deficit.text : '', rows: list.map(slotRow) };
     });
     const svcList = Array.from(new Set(slots.map((sl) => sl.svc))).map((svc) => [svc, (slots.find((sl) => sl.svc === svc) || {}).title || svc]);
@@ -265,15 +279,15 @@ class Component extends DCLogic {
       const sl = sheetSlot;
       const r = slotRow(sl);
       const m = moneyOf(sl);
-      const clash = clashOf(sl);
+      const clash = sl.taken ? null : clashOf(sl);
       return {
         svc: sl.svc, title: sl.title, place: sl.place, time: RSH_TIME(sl.from) + '–' + RSH_TIME(sl.to),
-        status: r.badge, tone: sl.full ? 'muted' : (sl.apply ? 'warn' : 'ok'),
+        status: r.badge, tone: sl.full ? 'muted' : (sl.apply || sl.taken === 'requested' ? 'warn' : 'ok'),
         whenNote: dayTitle(sl.iso) + ', ' + RSH_DUR(sl.to - sl.from) + (sl.bonus ? '. ' + sl.bonus : '') + (sl.apply ? '. Отклик это заявка, смену подтвердит сервис' : ''),
         money: m.text, moneyNote: m.note,
         conflict: clash ? 'Пересекается с вашей сменой ' + clash.title + ' ' + RSH_TIME(clash.from) + '–' + RSH_TIME(clash.to) : '',
-        rule: sl.apply ? '' : offerRule(sl.svc), ruleTone: '',
-        action: clash ? '' : r.action, act: () => { set({ slotSheet: null }); if (r.onAction) r.onAction(); }
+        rule: sl.taken ? ruleFor(sl.svc, sl.iso, sl.from).text : (sl.apply ? '' : offerRule(sl.svc)), ruleTone: '',
+        action: clash || sl.taken ? '' : r.action, act: () => { set({ slotSheet: null }); if (r.onAction) r.onAction(); }
       };
     })() : null;
     // слежение и открытие записи
@@ -309,14 +323,14 @@ class Component extends DCLogic {
     }
 
     const watchCount = Object.keys(watches).length;
-    const freeOpen = okSlots.filter((sl) => !sl.full).length;
-    const tabs = [['mine', 'Мои', live.filter((s) => s.status !== 'missed').length], ['free', 'Можно взять', freeOpen], ['watch', 'Слежу', watchCount]].map(([key, label, count]) => ({
+    const freeOpen = okSlots.filter((sl) => !sl.full && !sl.taken).length;
+    const tabs = [['mine', 'Мои', live.filter((s) => s.status !== 'missed' && RSH_UNCONF.indexOf(s.status) === -1).length], ['free', 'Можно взять', freeOpen], ['watch', 'Слежу', watchCount]].map(([key, label, count]) => ({
       label, count: count || '', selected: tab === key, cls: 'raznos-shifts-tab' + (tab === key ? ' raznos-is-active' : ''),
       tap: () => set({ tab: key })
     }));
     return {
       on_back: typeof p.onBack === 'function' ? p.onBack : (() => {}),
-      range_label: date(days[0]).getDate() + '–' + date(days[days.length - 1]).getDate() + ' ' + RSH_MONTH[date(days[days.length - 1]).getMonth()] + (weekOff < 0 ? ' · прошлая неделя' : (weekOff > 0 ? ' · следующая неделя' : ' · эта неделя')),
+      range_label: date(days[0]).getDate() + '–' + date(days[days.length - 1]).getDate() + ' ' + RSH_MONTH[date(days[days.length - 1]).getMonth()] + (weekOff < 0 ? ' · прошлая неделя' : (weekOff > 0 ? ' · следующая неделя' : ' · текущая неделя')),
       attention, has_attention: attention.length > 0,
       tabs, show_tabs: !weekPast,
       tab_hint: ({ mine: 'Что вы уже взяли в сервисах. Нажмите на смену, чтобы увидеть правила отмены и открыть приложение', free: 'Свободные слоты в сервисах на эту неделю, лучшие по деньгам сверху. Взятый слот попадёт в Мои и в План', watch: 'Слоты без мест, за которыми следим, и напоминания об открытии записи' })[tab],
@@ -332,7 +346,7 @@ class Component extends DCLogic {
       watch_meta: watchCount ? watchCount + ' ' + RSH_PLURAL(watchCount, 'слот', 'слота', 'слотов') : '',
       watch_list: watchList, watch_empty: !watchList.length, opening_list: openingList,
       show_sheet: !!sheetShift || !!slotSheetView, sh: slotSheetView || sheetView, close_sheet: () => set({ sheet: null, slotSheet: null }),
-      toast: st.toast || ''
+      toast: st.toast || '', toast_has_act: !!st.toastSlot && typeof p.onShowInPlan === 'function', toast_show: () => { if (st.toastSlot && typeof p.onShowInPlan === 'function') p.onShowInPlan(st.toastSlot); }
     };
   }
 }

@@ -8,8 +8,9 @@
       <p class="raznos-stats-summary-sub">{{ sub_label }}</p>
       <sc-if value="{{ delta_visible }}" hint-placeholder-val="{{ true }}"><div class="{{ delta_class }}"><span class="raznos-stats-delta-mark" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><span>{{ delta_label }}</span></div></sc-if>
     </div>
-    <div class="raznos-stats-summary-grid">
+    <div class="{{ grid_class }}">
       <div><span class="raznos-stats-summary-number">{{ earn_label }}</span><span class="raznos-stats-summary-note">Начислено</span></div>
+      <sc-if value="{{ fines_visible }}" hint-placeholder-val="{{ false }}"><div><span class="raznos-stats-summary-number">{{ fines_label }}</span><span class="raznos-stats-summary-note">Удержано</span></div></sc-if>
       <div><span class="{{ expenses_class }}">{{ expenses_label }}</span><span class="raznos-stats-summary-note">Расходы</span></div>
       <div><span class="{{ hours_class }}">{{ hours_label }}</span><span class="raznos-stats-summary-note">На линии</span></div>
     </div>
@@ -32,7 +33,7 @@
     </sc-if>
   </div>
 </section>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mainLabel":{"editor":"text","default":"Осталось после расходов"},"mainValue":{"editor":"text","default":"7 400 ₽"},"netKnown":{"editor":"boolean","default":true},"statusLabel":{"editor":"text","default":"Период идёт"},"delta":{"editor":null},"prevWord":{"editor":"text","default":"чем на прошлой неделе"},"earnLabel":{"editor":"text","default":"8 000 ₽"},"expensesLabel":{"editor":"text","default":"600 ₽"},"hoursLabel":{"editor":"text","default":"11,5 ч"},"ordersLabel":{"editor":"text","default":"30"},"goalTitle":{"editor":"text","default":"Цель недели"},"goalFact":{"editor":null},"goalTotal":{"editor":null},"goalPace":{"editor":null},"goalNote":{"editor":"text","default":""},"chart":{"editor":null},"chartMode":{"editor":"text","default":"week"},"$preview":{"width":360,"height":620}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mainLabel":{"editor":"text","default":"Осталось после расходов"},"mainValue":{"editor":"text","default":"7 400 ₽"},"netKnown":{"editor":"boolean","default":true},"statusLabel":{"editor":"text","default":"Период идёт"},"delta":{"editor":null},"prevWord":{"editor":"text","default":"чем на прошлой неделе"},"earnLabel":{"editor":"text","default":"8 000 ₽"},"finesLabel":{"editor":"text","default":""},"expensesLabel":{"editor":"text","default":"600 ₽"},"hoursLabel":{"editor":"text","default":"11,5 ч"},"ordersLabel":{"editor":"text","default":"30"},"goalTitle":{"editor":"text","default":"Цель недели"},"goalFact":{"editor":null},"goalTotal":{"editor":null},"goalPace":{"editor":null},"goalNote":{"editor":"text","default":""},"chart":{"editor":null},"chartMode":{"editor":"text","default":"week"},"$preview":{"width":360,"height":620}}'>
 const RSS_FMT = (value) => String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const RSS_PLURAL = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; };
 const RSS_DAY = { 'Пн': 'в понедельник', 'Вт': 'во вторник', 'Ср': 'в среду', 'Чт': 'в четверг', 'Пт': 'в пятницу', 'Сб': 'в субботу', 'Вс': 'в воскресенье' };
@@ -62,6 +63,7 @@ class Component extends DCLogic {
     const bestPrefix = 'Больше всего заработали';
     const bestName = !best ? '' : (chartMode === 'month' ? 'на ' + best.label.replace(' нед', '-й неделе') : (chartMode === 'year' ? (RSS_MONTH[best.label] || best.label) : (chartMode === 'long' ? 'с ' + best.label.replace('–', ' по ') + ' число' : (RSS_DAY[best.label] || best.label))));
     const expensesKnown = /\d/.test(String(p.expensesLabel || ''));
+    const finesShown = /[1-9]/.test(String(p.finesLabel || ''));
     return {
       status_visible: !!p.statusLabel, status_label: p.statusLabel || '',
       status_class: 'raznos-stats-recap-status' + (/идёт/.test(p.statusLabel || '') ? ' raznos-is-live' : ''),
@@ -73,6 +75,8 @@ class Component extends DCLogic {
       delta_label: delta == null ? '' : (delta === 0 ? 'Начислено столько же, ' + prevWord.replace(/^чем /, 'как ') : 'Начислено на ' + Math.abs(delta) + '% ' + (delta > 0 ? 'больше, ' : 'меньше, ') + prevWord),
       delta_class: 'raznos-stats-summary-delta' + (delta > 0 ? ' raznos-is-positive' : (delta < 0 ? ' raznos-is-negative' : '')),
       earn_label: p.earnLabel || 'Нет данных',
+      fines_visible: finesShown, fines_label: finesShown ? '−' + p.finesLabel : '',
+      grid_class: 'raznos-stats-summary-grid' + (finesShown ? ' raznos-has-fines' : ''),
       expenses_label: expensesKnown ? '−' + p.expensesLabel : 'Неполные',
       expenses_class: 'raznos-stats-summary-number' + (expensesKnown ? '' : ' raznos-is-unknown'),
       hours_label: hasHours ? p.hoursLabel : 'Нет данных',

@@ -9,11 +9,24 @@
     <x-dc>
       <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
       <div class="raznos-imp-reviews">
+        <sc-if value="{{ isRegular }}" hint-placeholder-val="{{ true }}">
         <div class="raznos-imp-reviews__head">
           <span class="raznos-text-h3">{{ headTitle }}</span>
           <span class="raznos-status-pill raznos-pill-concept">Демо-примеры</span>
         </div>
         <p class="raznos-text-tiny">{{ headNote }}</p>
+        </sc-if>
+        <sc-if value="{{ isCompact }}" hint-placeholder-val="{{ false }}">
+          <sc-for list="{{ compactRows }}" as="cr" hint-placeholder-count="2">
+            <div class="raznos-imp-reviews__card">
+              <div class="raznos-head-row">
+                <span class="raznos-fx raznos-ac raznos-gap8"><dc-import name="RaznosIcon" svc="{{ cr.svc }}" alt="{{ cr.title }}" size="sm"></dc-import><span class="raznos-text-small">{{ cr.ratingLabel }}</span></span>
+                <span class="raznos-text-tiny raznos-head-side">{{ cr.date }}</span>
+              </div>
+              <p class="raznos-text-small" style="margin:0">{{ cr.text }}</p>
+            </div>
+          </sc-for>
+        </sc-if>
         <sc-if value="{{ isFull }}" hint-placeholder-val="{{ false }}">
           <div class="raznos-chip-row">
             <sc-for list="{{ svcChips }}" as="ch" hint-placeholder-count="3"><button type="button" class="{{ ch.cls }}" onClick="{{ ch.tap }}">{{ ch.label }}</button></sc-for>
@@ -26,7 +39,7 @@
         <sc-if value="{{ isEmpty }}">
           <div class="raznos-imp-reviews__empty raznos-text-small">{{ emptyText }}</div>
         </sc-if>
-        <sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
+        <sc-if value="{{ isRegular }}" hint-placeholder-val="{{ true }}"><sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
           <div class="raznos-imp-reviews__group">
             <div class="raznos-imp-reviews__group-head">
               <dc-import name="RaznosIcon" svc="{{ g.svc }}" alt="{{ g.title }}" size="sm"></dc-import>
@@ -48,7 +61,7 @@
               </div>
             </sc-if>
           </div>
-        </sc-for>
+        </sc-for></sc-if>
         <sc-if value="{{ showAllBtn }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ onAll }}">{{ allLabel }}</button></sc-if>
       </div>
     </x-dc>
@@ -60,6 +73,7 @@
       "hideRatings": { "editor": "boolean", "default": false },
       "hideReviews": { "editor": "boolean", "default": false },
       "full": { "editor": "boolean", "default": false },
+      "compact": { "editor": "boolean", "default": false },
       "onAll": { "editor": null },
       "$preview": { "width": 360, "height": 320 }
     }'>
@@ -147,17 +161,23 @@
               }))
             };
           }).filter((g) => g.hasRating || g.hasCards);
+          const compact = !anon && !visitor && !full && !!p.compact;
+          // компактный вид: два самых свежих отзыва с текстом из всех сервисов
+          const compactRows = compact && !p.hideReviews ? allGroups.reduce((acc, g) => acc.concat(g.reviews.filter((r) => r.text).map((r) => ({ svc: g.svc, title: g.title, iso: r.iso, date: r.date, ratingLabel: r.rating == null ? "" : "Оценка " + r.rating, text: r.text }))), []).sort((a, b) => (a.iso < b.iso ? 1 : -1)).slice(0, 2) : [];
           const shownCount = groups.reduce((sum, g) => sum + g.cards.length, 0);
           const hasMore = allGroups.some((g) => g.reviews.length > 1);
           return {
             headTitle: full ? "История отзывов из сервисов" : (p.hideReviews ? "Оценки покупателей" : "Последние отзывы"),
             headNote: anon ? "Пересказы отзывов покупателей из сервиса, без исходного текста и точной даты. Средняя оценка показана диапазоном" : (visitor ? "Оценки и отзывы из сервисов доставки, которые курьер разрешил показывать. Средние точные, число оценок за всю историю в сервисе. Покупатели не могут писать отзывы о курьерах в Разносе" : "Ваши точные данные из сервисов доставки. В именном профиле посетители видят только разрешённые поля, средние там тоже точные, в обезличенном профиле диапазоны. Покупатели не могут писать отзывы о курьерах в Разносе"),
             isFull: full,
+            isRegular: !compact,
+            isCompact: compact && compactRows.length > 0,
+            compactRows,
             svcChips: [{ key: "all", label: "Все сервисы" }].concat(allGroups.map((g) => ({ key: g.svc, label: g.title }))).map((c) => ({ label: c.label, cls: fSvc === c.key ? "raznos-chip raznos-is-active" : "raznos-chip", tap: () => this.setState({ fSvc: c.key }) })),
             periodChips: PERIODS.map((x) => ({ label: x[1], cls: fPeriod === x[0] ? "raznos-chip raznos-is-active" : "raznos-chip", tap: () => this.setState({ fPeriod: x[0] }) })),
             fullSummary: shownCount + " " + plural(shownCount, "отзыв", "отзыва", "отзывов") + " за период, средняя и число оценок за всю историю в сервисе",
             groups,
-            isEmpty: groups.length === 0,
+            isEmpty: !compact && groups.length === 0,
             emptyText: full && allGroups.length ? "За этот период отзывов нет, выберите период длиннее" : "Отзывов из сервисов пока нет",
             showAllBtn: !full && !anon && !visitor && !!p.onAll && hasMore,
             allLabel: "Все отзывы",

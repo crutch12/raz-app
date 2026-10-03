@@ -22,6 +22,12 @@
     .rcm-me { fill: var(--raznos-dark); stroke: #fff; stroke-width: 3; }
     .rcm-me-label { font: 800 11px var(--raznos-font); fill: var(--raznos-dark); paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
     .rcm-compact .rcm-label { display: none; }
+    /* сообщения Что происходит с местом: капля в цвет сервиса, отличается от круглых точек курьеров */
+    .rcm-pin { cursor: pointer; }
+    .rcm-pin-hit { fill: transparent; }
+    .rcm-pin-body { fill: currentColor; stroke: #fff; stroke-width: 1.8; stroke-linejoin: round; }
+    .rcm-pin-core { fill: #fff; }
+    .rcm-pin-active .rcm-pin-body { stroke: var(--raznos-dark); stroke-width: 2.4; }
     @media (prefers-reduced-motion: no-preference) {
       .rcm-me-halo { transform-box: fill-box; transform-origin: center; animation: rcm-pulse 2.4s cubic-bezier(.16, 1, .3, 1) infinite; }
       @keyframes rcm-pulse { from { transform: scale(0.6); opacity: 1; } to { transform: scale(1.8); opacity: 0; } }
@@ -29,8 +35,8 @@
   </style>
 </helmet>
 <div class="{{ cls }}" role="img" aria-label="{{ aria }}">
-  <svg viewBox="0 0 360 440" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-    <rect class="rcm-land" x="0" y="0" width="360" height="440" />
+  <svg viewBox="{{ vb }}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <rect class="rcm-land" x="-400" y="-400" width="1160" height="1240" />
     <path class="rcm-block" d="M20 40h70v50H20zM110 30h60v45h-60zM200 36h70v40h-70zM290 50h60v60h-60zM24 300h60v60H24zM250 360h80v50h-80zM110 380h70v44h-70z" />
     <path class="rcm-park" d="M40 110c22-14 52-8 60 12s-10 40-34 42-44-12-42-28 4-18 16-26z" />
     <path class="rcm-park" d="M104 300c18-10 44-4 52 12s-4 30-26 32-38-8-38-22 2-14 12-22z" />
@@ -52,6 +58,7 @@
     <text class="rcm-label" x="252" y="262">ЗАМОСКВОРЕЧЬЕ</text>
     <text class="rcm-label" x="286" y="190">БАСМАННЫЙ</text>
     <sc-for list="{{ dots }}" as="d" hint-placeholder-count="12"><circle class="rcm-dot" cx="{{ d.x }}" cy="{{ d.y }}" r="{{ d.r }}" style="{{ d.style }}" /></sc-for>
+    <sc-for list="{{ pins }}" as="pn" hint-placeholder-count="3"><g class="{{ pn.cls }}" transform="{{ pn.tf }}" style="{{ pn.style }}" onClick="{{ pn.tap }}"><circle class="rcm-pin-hit" cx="0" cy="-13" r="15" /><path class="rcm-pin-body" d="M0 0C-1.5-2.5-8-7.5-8-13a8 8 0 1 1 16 0C8-7.5 1.5-2.5 0 0z" /><circle class="rcm-pin-core" cx="0" cy="-13" r="3" /></g></sc-for>
     <sc-if value="{{ show_me }}" hint-placeholder-val="{{ true }}">
       <circle class="rcm-me-halo" cx="{{ me_x }}" cy="{{ me_y }}" r="16" />
       <circle class="rcm-me" cx="{{ me_x }}" cy="{{ me_y }}" r="{{ me_r }}" />
@@ -59,7 +66,7 @@
     </sc-if>
   </svg>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"dots":{"editor":null},"svc":{"editor":"text","default":"all"},"me":{"editor":"boolean","default":true},"locked":{"editor":"boolean"},"compact":{"editor":"boolean"},"fill":{"editor":"boolean"},"$preview":{"width":360,"height":440}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"dots":{"editor":null},"svc":{"editor":"text","default":"all"},"svcs":{"editor":null},"couriers":{"editor":"boolean","default":true},"pins":{"editor":null},"focus":{"editor":null},"activeId":{"editor":"text","default":""},"me":{"editor":"boolean","default":true},"locked":{"editor":"boolean"},"compact":{"editor":"boolean"},"fill":{"editor":"boolean"},"$preview":{"width":360,"height":440}}'>
 // условная схема центра Москвы: курьеры на смене точками в цвет сервиса, вы тёмной точкой
 // это не настоящая карта, точки примерные, с точностью до квартала
 const RCM_DEMO = [
@@ -76,13 +83,28 @@ class Component extends DCLogic {
     const svc = p.svc || 'all';
     const locked = !!p.locked;
     const compact = !!p.compact;
+    const sel = Array.isArray(p.svcs) ? p.svcs : (svc === 'all' ? [] : [svc]);
     const all = (p.dots || RCM_DEMO.map(([x, y, s]) => ({ x, y, svc: s })));
-    const dots = all.filter((d) => svc === 'all' || d.svc === svc).map((d) => ({ x: d.x, y: d.y, r: compact ? 7 : 6.5, style: 'fill:var(--raznos-svc-' + d.svc + ')' }));
+    // couriers=false: курьеров не рисуем, остаются карта, ваша точка и сообщения
+    const dots = (p.couriers === false || p.hideCouriers ? [] : all).filter((d) => !sel.length || sel.indexOf(d.svc) !== -1).map((d) => ({ x: d.x, y: d.y, r: compact ? 7 : 6.5, style: 'fill:var(--raznos-svc-' + d.svc + ')' }));
     const showMe = p.me !== false;
+    const pins = (Array.isArray(p.pins) ? p.pins : []).map((pn) => ({
+      tf: 'translate(' + pn.x + ' ' + pn.y + ')', style: 'color:var(--raznos-svc-' + pn.svc + ')',
+      cls: 'rcm-pin' + (pn.id === p.activeId ? ' rcm-pin-active' : ''), tap: pn.tap || (() => {})
+    }));
+    // focus: {x, y} приближает карту к точке, края не выходят за схему
+    const f = p.focus;
+    let vb = '0 0 360 440';
+    if (f && typeof f.x === 'number') {
+      const w = 225, h = 275;
+      const x = Math.min(360 - w, Math.max(0, f.x - w / 2)), y = Math.min(440 - h, Math.max(0, f.y - h / 2));
+      vb = x + ' ' + y + ' ' + w + ' ' + h;
+    }
     return {
+      vb, pins,
       cls: 'rcm' + (p.fill ? ' rcm-fill' : '') + (locked ? ' rcm-locked' : '') + (compact ? ' rcm-compact' : ''),
       aria: locked ? 'Карта курьеров скрыта, пока вы не показываете себя' : 'Условная карта центра, курьеров на смене: ' + dots.length,
-      dots: locked ? dots.filter((d, i) => i % 2 === 0) : dots, show_me: showMe && !locked, me_x: 118, me_y: 150, me_lx: 130, me_ly: 154, me_r: compact ? 7 : 7.5
+      dots: locked ? dots.filter((d, i) => i % 2 === 0) : dots, show_me: showMe && !locked, me_x: 108, me_y: 158, me_lx: 120, me_ly: 162, me_r: compact ? 7 : 7.5
     };
   }
 }

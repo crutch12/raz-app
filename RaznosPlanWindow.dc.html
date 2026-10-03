@@ -4,7 +4,14 @@
   <style>
     .rpw { box-sizing: border-box; width: 100%; display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 14px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); }
     .rpw.rpw-booked { background: var(--raznos-green-tint); border-color: color-mix(in oklab, var(--raznos-green) 40%, var(--raznos-line)); }
-    .rpw.rpw-pending { border: 1px dashed var(--raznos-amber); }
+    .rpw.rpw-pending { border: 1.5px dashed var(--raznos-amber); background: color-mix(in oklab, var(--raznos-amber) 9%, var(--raznos-surface)); }
+    .rpw.rpw-pending .rpw-pay { color: var(--raznos-ink-2); }
+    /* окно, на которое привёл тост Показать */
+    .rpw.rpw-hl { box-shadow: 0 0 0 3px color-mix(in oklab, var(--raznos-green) 55%, transparent); }
+    @media (prefers-reduced-motion: no-preference) {
+      .rpw.rpw-hl { animation: rpw-hl 2.6s ease-out both; }
+      @keyframes rpw-hl { 0%, 55% { box-shadow: 0 0 0 4px color-mix(in oklab, var(--raznos-green) 60%, transparent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+    }
     .rpw.rpw-need { border: 1px dashed var(--raznos-line-strong); }
     .rpw.rpw-past { opacity: 0.55; }
     .rpw-main { display: flex; align-items: center; gap: 10px; width: 100%; }
@@ -57,7 +64,7 @@
     <div class="rpw-foot"><span class="{{ note_cls }}"><sc-if value="{{ urgent }}" hint-placeholder-val="{{ false }}"><svg class="rpw-urgent-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/><path d="M12 16.5h.01"/></svg></sc-if>{{ note }}</span><sc-if value="{{ has_action }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ action_cls }}" onClick="{{ on_action }}" aria-pressed="{{ watch_on }}"><sc-if value="{{ is_watch }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></sc-if>{{ action }}</button></sc-if><sc-if value="{{ in_plan }}" hint-placeholder-val="{{ false }}"><span class="rpw-in-plan" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4.5 4.5L19 7"/></svg></span></sc-if></div>
   </sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"12:00"},"to":{"editor":"text","default":"14:00"},"svc":{"editor":"text","default":"yandex-eda"},"title":{"editor":"text","default":"Яндекс Еда"},"sub":{"editor":"text","default":"Центр"},"pay":{"editor":"text","default":"≈ 740 ₽/ч"},"kind":{"editor":"enum","options":["free","booked","pending","need","full","option"],"default":"free"},"badge":{"editor":"text","default":"свободный выход"},"state":{"editor":"enum","options":["","now","past"],"default":""},"note":{"editor":"text","default":""},"action":{"editor":"text","default":""},"actionKind":{"editor":"enum","options":["primary","secondary","ghost"],"default":"secondary"},"onTap":{"editor":null},"onBadge":{"editor":null},"added":{"editor":null},"urgent":{"editor":null},"gain":{"editor":null},"plain":{"editor":null},"onAction":{"editor":null},"$preview":{"width":366,"height":130}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"12:00"},"to":{"editor":"text","default":"14:00"},"svc":{"editor":"text","default":"yandex-eda"},"title":{"editor":"text","default":"Яндекс Еда"},"sub":{"editor":"text","default":"Центр"},"pay":{"editor":"text","default":"≈ 740 ₽/ч"},"kind":{"editor":"enum","options":["free","booked","pending","need","full","option"],"default":"free"},"badge":{"editor":"text","default":"свободный выход"},"state":{"editor":"enum","options":["","now","past"],"default":""},"note":{"editor":"text","default":""},"action":{"editor":"text","default":""},"actionKind":{"editor":"enum","options":["primary","secondary","ghost"],"default":"secondary"},"onTap":{"editor":null},"onBadge":{"editor":null},"added":{"editor":null},"highlight":{"editor":null},"urgent":{"editor":null},"gain":{"editor":null},"plain":{"editor":null},"onAction":{"editor":null},"$preview":{"width":366,"height":130}}'>
 // окно в умном расписании: бронь из Смен, окно плана или вариант, доступность бейджем, действие внизу
 class Component extends DCLogic {
   renderVals() {
@@ -71,10 +78,10 @@ class Component extends DCLogic {
     const from = p.from || '12:00', to = p.to || '14:00';
     return {
       from, to, svc: p.svc || 'yandex-eda', title, sub: p.sub === undefined ? 'Центр' : p.sub,
-      pay: p.pay || '≈ 740 ₽/ч', badge: state === 'now' ? 'идёт' : (p.badge || 'свободный выход'),
+      pay: p.pay == null ? '≈ 740 ₽/ч' : p.pay, badge: state === 'now' ? 'идёт' : (p.badge || 'свободный выход'),
       badge_cls: 'rpw-badge' + (badgeTone ? ' rpw-badge-' + badgeTone : ''),
       // срочно: окно уже в плане, но без брони сервис заказы не даст
-      cls: 'rpw' + (p.urgent ? ' rpw-urgent' : (({ booked: ' rpw-booked', pending: ' rpw-pending', need: ' rpw-need' })[kind] || '')) + (state === 'past' ? ' rpw-past' : '') + (p.plain ? ' rpw-plain' : ''),
+      cls: 'rpw' + (p.urgent ? ' rpw-urgent' : (({ booked: ' rpw-booked', pending: ' rpw-pending', need: ' rpw-need' })[kind] || '')) + (state === 'past' ? ' rpw-past' : '') + (p.plain ? ' rpw-plain' : '') + (p.highlight ? ' rpw-hl' : ''),
       urgent: !!p.urgent,
       // окно уже в расписании: зелёная подпись и галочка в кружке на месте кнопки
       in_plan: !!p.added && !action, note_cls: 'rpw-note' + (p.added ? ' rpw-note-added' : '') + (p.gain ? ' rpw-note-gain' : '') + (p.urgent ? ' rpw-note-urgent' : ''),

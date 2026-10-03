@@ -1,6 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
 <helmet data-dc-atomics>
   <link rel="stylesheet" href="./raznos-v3.css" />
+  <link rel="stylesheet" href="./raznos-work.css" />
   <style>
     .rws-days { display: flex; gap: 8px; }
     .rws-days .raznos-chip { flex: 1; text-align: center; padding-left: 0; padding-right: 0; }
@@ -11,6 +12,21 @@
     .rws-step-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); color: var(--raznos-ink); font: 600 18px var(--raznos-font); line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; }
     .rws-step-btn:disabled { opacity: 0.35; cursor: default; }
     .rws-step-val { font: 700 17px var(--raznos-mono); color: var(--raznos-ink); min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; }
+    .rws-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 56px; padding: 10px 14px; border-radius: 14px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); text-align: left; font: inherit; color: inherit; cursor: pointer; }
+    .rws-toggle-copy { display: flex; flex-direction: column; gap: 2px; }
+    .rws-toggle-copy > b { font: 600 15px var(--raznos-font); color: var(--raznos-ink); }
+    .rws-toggle-copy > span { font: 500 12.5px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rws-toggle:focus-visible, .rws-wd-day:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .rws-week { display: flex; flex-direction: column; border-radius: 14px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
+    .rws-wd { display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 6px 12px 6px 6px; border-top: 1px solid var(--raznos-line); }
+    .rws-wd:first-child { border-top: 0; }
+    .rws-wd-day { display: flex; align-items: center; gap: 10px; min-width: 76px; min-height: 44px; padding: 0 8px; border: 0; border-radius: 10px; background: none; font: 650 15px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; }
+    .rws-wd-box { width: 22px; height: 22px; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; border: 1.5px solid var(--raznos-line-strong); color: var(--raznos-on-dark); }
+    .rws-wd-box.raznos-is-on { background: var(--raznos-green); border-color: var(--raznos-green); }
+    .rws-wd-hours { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+    .rws-wd-hours > i { font-style: normal; color: var(--raznos-ink-3); }
+    .rws-wd-time { min-width: 0; height: 40px; padding: 0 8px; border: 1px solid var(--raznos-line-strong); border-radius: 10px; background: var(--raznos-surface); font: 600 15px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rws-wd-off { flex: 1; text-align: right; font: 500 14px var(--raznos-font); color: var(--raznos-ink-3); }
     .rws-recap { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 14px; background: var(--raznos-green-tint); border: 1px solid var(--raznos-green); }
     .rws-recap-label { font: 500 12px var(--raznos-font); color: var(--raznos-green-deep); }
     .rws-recap-value { font: 700 16px var(--raznos-font); color: var(--raznos-ink); }
@@ -22,6 +38,17 @@
 
   <div class="rws-recap"><span class="rws-recap-label">Сейчас в графике</span><span class="rws-recap-value">{{ summary }}</span></div>
 
+  <button type="button" class="rws-toggle" onClick="{{ toggle_per_day }}" role="switch" aria-checked="{{ per_day_aria }}"><span class="rws-toggle-copy"><b>Разные часы по дням</b><span>Например, в понедельник 10–16, а в пятницу 14–22</span></span><span class="{{ per_day_switch }}"><span class="raznos-switch-knob"></span></span></button>
+
+  <sc-if value="{{ per_day }}" hint-placeholder-val="{{ false }}">
+  <div class="raznos-field"><span class="raznos-field-label">Дни и часы</span>
+    <div class="rws-week">
+      <sc-for list="{{ week }}" as="w" hint-placeholder-count="7"><div class="rws-wd"><button type="button" class="rws-wd-day" onClick="{{ w.toggle }}" role="checkbox" aria-checked="{{ w.aria }}"><span class="{{ w.box }}" aria-hidden="true">{{ w.mark }}</span>{{ w.label }}</button><sc-if value="{{ w.on }}" hint-placeholder-val="{{ true }}"><span class="rws-wd-hours"><input class="rws-wd-time" type="time" step="1800" value="{{ w.from }}" onChange="{{ w.set_from }}" aria-label="{{ w.from_aria }}" /><i aria-hidden="true">–</i><input class="rws-wd-time" type="time" step="1800" value="{{ w.to }}" onChange="{{ w.set_to }}" aria-label="{{ w.to_aria }}" /></span></sc-if><sc-if value="{{ w.off }}" hint-placeholder-val="{{ false }}"><span class="rws-wd-off">выходной</span></sc-if></div></sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ same_hours }}" hint-placeholder-val="{{ true }}">
   <div class="raznos-field"><span class="raznos-field-label">Рабочие дни</span>
     <div class="rws-days">
       <sc-for list="{{ days }}" as="d" hint-placeholder-count="7"><button type="button" class="{{ d.cls }}" onClick="{{ d.tap }}">{{ d.label }}</button></sc-for>
@@ -34,6 +61,7 @@
       <div class="rws-step"><span class="rws-step-label">Конец смены</span><div class="rws-step-ctl"><button type="button" class="rws-step-btn" onClick="{{ end_dec }}" disabled="{{ end_dec_off }}">−</button><span class="rws-step-val">{{ end_label }}</span><button type="button" class="rws-step-btn" onClick="{{ end_inc }}" disabled="{{ end_inc_off }}">+</button></div></div>
     </div>
   </div>
+  </sc-if>
 
   <div class="raznos-field"><span class="raznos-field-label">Районы города</span>
     <sc-if value="{{ has_districts }}" hint-placeholder-val="{{ true }}">
@@ -50,8 +78,11 @@
     <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ do_save }}">Сохранить график</button>
   </div>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"hasDistricts":{"editor":"boolean"},"$preview":{"width":390,"height":720}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"hasDistricts":{"editor":"boolean"},"value":{"editor":null},"$preview":{"width":390,"height":720}}'>
 const RWS_DAYS = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
+const RWS_DAYS_FULL = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+const rwsTime = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+const rwsMin = (v) => { const m = /^(\d\d):(\d\d)$/.exec(v || ''); return m ? +m[1] * 60 + +m[2] : null; };
 const RWS_ZONES = ['Центр', 'Север', 'Юг', 'Запад'];
 const rwsHour = (h) => String(h).padStart(2, '0') + ':00';
 class Component extends DCLogic {
@@ -59,9 +90,20 @@ class Component extends DCLogic {
     const p = this.props || {};
     const st = this.state || {};
     const set = (patch) => this.setState(patch);
-    const active = st.active || [true, true, true, true, true, false, false];
-    const start = st.start == null ? 9 : st.start;
-    const end = st.end == null ? 18 : st.end;
+    const init = p.value || {};
+    const active = st.active || init.days || [true, true, true, true, true, false, false];
+    const start = st.start == null ? (init.start != null ? init.start : 9) : st.start;
+    const end = st.end == null ? (init.end != null ? init.end : 18) : st.end;
+    // разные часы по дням: при включении копируем общий график в каждый день, дальше правится отдельно
+    const perDay = st.perDay != null ? st.perDay : !!init.perDay;
+    const week = st.week || init.week || active.map((on) => ({ on, from: start * 60, to: end * 60 }));
+    const setDay = (i, patch) => { const next = week.map((w, k) => (k === i ? Object.assign({}, w, patch) : w)); set({ week: next }); };
+    const setTime = (i, key, v) => {
+      const m = rwsMin(v); if (m == null) return;
+      const w = week[i];
+      if (key === 'from') setDay(i, { from: m, to: Math.max(w.to, m + 60) });
+      else setDay(i, { to: m, from: Math.min(w.from, m - 60) });
+    };
     const toggle = (i) => { const next = active.slice(); next[i] = !next[i]; set({ active: next }); };
     const cnt = active.filter(Boolean).length;
     const hasDistricts = p.hasDistricts !== false; // город без районов передаёт hasDistricts=false
@@ -70,9 +112,23 @@ class Component extends DCLogic {
     const zoneChips = [{ label: 'Весь город', cls: 'raznos-chip' + (selZones.length === 0 ? ' raznos-is-active' : ''), tap: () => set({ zones: [] }) }]
       .concat(RWS_ZONES.map((name) => ({ label: name, cls: 'raznos-chip' + (selZones.indexOf(name) >= 0 ? ' raznos-is-active' : ''), tap: () => toggleZone(name) })));
     const zonesNote = !hasDistricts ? '' : (selZones.length === 0 ? 'весь город' : (selZones.length + ' ' + (selZones.length === 1 ? 'район' : (selZones.length < 5 ? 'района' : 'районов'))));
-    const daysPart = cnt ? (cnt + ' ' + (cnt === 1 ? 'день' : (cnt < 5 ? 'дня' : 'дней')) + ' в неделю, ' + rwsHour(start) + '–' + rwsHour(end)) : 'Рабочие дни не выбраны, счёт с 09:00';
+    const onDays = week.filter((w) => w.on);
+    const sameAll = onDays.every((w) => w.from === onDays[0].from && w.to === onDays[0].to);
+    const weekPart = !onDays.length ? 'Рабочие дни не выбраны, счёт с 09:00' : onDays.length + ' ' + (onDays.length === 1 ? 'день' : (onDays.length < 5 ? 'дня' : 'дней')) + ' в неделю' + (sameAll ? ', ' + rwsTime(onDays[0].from) + '–' + rwsTime(onDays[0].to) : ', часы по дням') ;
+    const daysPart = perDay ? weekPart : cnt ? (cnt + ' ' + (cnt === 1 ? 'день' : (cnt < 5 ? 'дня' : 'дней')) + ' в неделю, ' + rwsHour(start) + '–' + rwsHour(end)) : 'Рабочие дни не выбраны, счёт с 09:00';
     return {
       onBack: p.onBack || (() => {}),
+      per_day: perDay, same_hours: !perDay, per_day_aria: String(perDay),
+      per_day_switch: 'raznos-switch' + (perDay ? ' raznos-is-on' : ''),
+      toggle_per_day: () => set(perDay ? { perDay: false } : { perDay: true, week: active.map((on, i) => (st.week || init.week ? Object.assign({}, week[i], { on }) : { on, from: start * 60, to: end * 60 })) }),
+      week: week.map((w, i) => ({
+        label: RWS_DAYS_FULL[i], on: w.on, off: !w.on, aria: String(w.on),
+        box: 'rws-wd-box' + (w.on ? ' raznos-is-on' : ''), mark: w.on ? '✓' : '',
+        toggle: () => setDay(i, { on: !w.on }),
+        from: rwsTime(w.from), to: rwsTime(w.to),
+        from_aria: RWS_DAYS_FULL[i] + ', начало', to_aria: RWS_DAYS_FULL[i] + ', конец',
+        set_from: (e) => setTime(i, 'from', e.target.value), set_to: (e) => setTime(i, 'to', e.target.value)
+      })),
       days: RWS_DAYS.map((label, i) => ({ label, cls: 'raznos-chip' + (active[i] ? ' raznos-is-active' : ''), tap: () => toggle(i) })),
       start_label: rwsHour(start), end_label: rwsHour(end),
       start_dec: () => set({ start: Math.max(0, start - 1) }), start_inc: () => set({ start: Math.min(end - 1, start + 1) }),
@@ -81,7 +137,7 @@ class Component extends DCLogic {
       has_districts: hasDistricts, no_districts: !hasDistricts, zones: zoneChips,
       summary: daysPart + (hasDistricts && zonesNote ? (', ' + zonesNote) : ''),
       saved: !!st.saved,
-      do_save: () => { set({ saved: true }); if (typeof p.onSave === 'function') p.onSave({ start, end, days: active }); }
+      do_save: () => { set({ saved: true }); if (typeof p.onSave === 'function') p.onSave(perDay ? { perDay: true, week, days: week.map((w) => w.on), start: Math.floor(Math.min.apply(null, onDays.map((w) => w.from).concat([start * 60])) / 60), end: Math.ceil(Math.max.apply(null, onDays.map((w) => w.to).concat([end * 60])) / 60) } : { perDay: false, start, end, days: active }); }
     };
   }
 }

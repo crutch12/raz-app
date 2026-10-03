@@ -7,7 +7,7 @@
     .rbt-title { display: inline-flex; align-items: center; gap: 8px; font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
     .rbt-sub { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); margin-top: 2px; }
     .rbt-seg { flex: none; display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--raznos-surface-2); }
-    .rbt-seg-btn { padding: 5px 10px; border: 0; border-radius: 8px; background: transparent; font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); cursor: pointer; }
+    .rbt-seg-btn { min-height: 44px; padding: 5px 12px; border: 0; border-radius: 8px; background: transparent; font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); cursor: pointer; }
     .rbt-seg-btn.raznos-is-active { background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 1px 2px color-mix(in oklab, var(--raznos-ink) 10%, transparent); }
     .rbt-seg-wide { display: flex; }
     .rbt-seg-wide .rbt-seg-btn { flex: 1; padding: 8px; font-size: 13px; }
@@ -38,12 +38,12 @@
     .rbt-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .rbt-best { font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); }
     .rbt-best b { color: var(--raznos-ink); font-weight: 700; }
-    .rbt-more { flex: none; display: inline-flex; align-items: center; gap: 2px; border: 0; background: none; padding: 0; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
+    .rbt-more { flex: none; display: inline-flex; align-items: center; gap: 2px; min-height: 44px; border: 0; background: none; padding: 0 0 0 8px; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
 
     /* экран */
     .rbt-full { display: flex; flex-direction: column; gap: 12px; }
     .rbt-daypick { display: flex; gap: 6px; }
-    .rbt-dp { flex: 1; padding: 7px 0; border-radius: 10px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); font: 600 13px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; }
+    .rbt-dp { flex: 1; min-height: 44px; padding: 7px 0; border-radius: 10px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); font: 600 13px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; }
     .rbt-dp-today { color: var(--raznos-green-deep); }
     .rbt-dp.raznos-is-active { background: var(--raznos-dark); border-color: var(--raznos-dark); color: var(--raznos-on-dark); }
     .rbt-readout { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
@@ -56,6 +56,14 @@
     .rbt-full { flex: 1; }
   </style>
 </helmet>
+
+<sc-if value="{{ no_data }}" hint-placeholder-val="{{ false }}">
+  <div class="rbt">
+    <span class="rbt-title">Когда выгоднее</span>
+    <span class="raznos-list-title">{{ no_data_title }}</span>
+    <span class="raznos-text-small">Советов по времени для этого города пока нет, их не переносим из других городов</span>
+  </div>
+</sc-if>
 
 <sc-if value="{{ is_card }}" hint-placeholder-val="{{ true }}">
   <div class="rbt">
@@ -72,6 +80,7 @@
       <div class="rbt-axis"><sc-for list="{{ bars }}" as="b" hint-placeholder-count="7"><span class="{{ b.axCls }}">{{ b.ax }}</span></sc-for></div>
     </div></div>
     <div class="rbt-foot"><span class="rbt-best">{{ best_prefix }} <b>{{ best_label }}</b> · ≈ {{ best_val }}</span><button type="button" class="rbt-more" onClick="{{ open_more }}">Подробнее<span class="raznos-row-chevron">›</span></button></div>
+    <span class="rbt-sub">{{ basis }}</span>
   </div>
 </sc-if>
 
@@ -103,7 +112,7 @@
     <p class="raznos-text-tiny">{{ source_note }}</p>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"initialView":{"editor":"text","default":"week"},"open":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"transportTitle":{"editor":"text","default":"велосипед"},"workStart":{"editor":"number","default":9},"workEnd":{"editor":"number","default":18},"$preview":{"width":390,"height":250}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"initialView":{"editor":"text","default":"week"},"open":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"transportTitle":{"editor":"text","default":"велосипед"},"workStart":{"editor":"number","default":9},"workEnd":{"editor":"number","default":18},"$preview":{"width":390,"height":250}}'>
 // когда выгоднее по мотивам Gridwise When to Work, два представления: день по часам и неделя по дням
 // один компонент на карточку хаба Работа и экран, чтобы цифры совпадали
 const RBT_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -141,6 +150,10 @@ const rbtTransportKey = (t) => {
   if (s.includes('авто') || s.includes('машин')) return 'car';
   return 'bike';
 };
+// выборка и период советов, демо: у Москвы и Петербурга своя выборка, 4 недели до демо-даты 15 сентября
+const RBT_SAMPLE = { moscow: { couriers: 184, orders: 6240 }, spb: { couriers: 63, orders: 1870 } };
+const RBT_CITY_MUL = { moscow: 1, spb: 0.93 };
+const RBT_PERIOD = '18 авг – 14 сент';
 const RBT_FMT = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const rbtOrd = (pay) => Math.round(pay / 260 * 10) / 10;
 const rbtHour = (h) => String(h).padStart(2, '0');
@@ -160,7 +173,15 @@ class Component extends DCLogic {
     // транспорт по умолчанию из профиля, множитель считаем от него, чтобы цифры карточки и экрана совпадали
     const trDefault = byKey(RBT_TRANSPORTS, rbtTransportKey(p.transportTitle));
     const tr = byKey(RBT_TRANSPORTS, st.transport || trDefault.k);
-    const k = cat.mul * dist.mul * tr.mul / trDefault.mul;
+    const cityKey = p.cityKey || 'moscow';
+    const hasData = p.hasData !== false && !!RBT_SAMPLE[cityKey];
+    const k = cat.mul * dist.mul * tr.mul / trDefault.mul * (RBT_CITY_MUL[cityKey] || 1);
+    // выборка под выбранные район и сервис, при малой выборке вывод только предварительный
+    const sampleBase = RBT_SAMPLE[cityKey] || RBT_SAMPLE.moscow;
+    const sampleShare = (dist.k === 'all' ? 1 : 0.18) * (cat.k === 'all' ? 1 : 0.4);
+    const sCouriers = Math.max(1, Math.round(sampleBase.couriers * sampleShare)), sOrders = Math.round(sampleBase.orders * sampleShare / 10) * 10;
+    const lowSample = sCouriers < 30 || sOrders < 100;
+    const basisText = tr.label + ' · ' + sCouriers + ' ' + (sCouriers % 10 === 1 && sCouriers % 100 !== 11 ? 'курьер' : (sCouriers % 10 >= 2 && sCouriers % 10 <= 4 && (sCouriers % 100 < 10 || sCouriers % 100 >= 20) ? 'курьера' : 'курьеров')) + ', ' + RBT_FMT(sOrders) + ' заказов · ' + RBT_PERIOD + ', 4 недели' + (lowSample ? '. Данных мало, вывод предварительный' : '');
     const pay = (d, i) => Math.round(RBT_BASE[i] * (RBT_DAY_MUL[d] + dist.tilt[d]) * k / 10) * 10;
     const toVal = (v) => metric.k === 'pay' ? v : rbtOrd(v);
     const fmt = (v) => metric.k === 'pay' ? RBT_FMT(v) + ' ₽/ч' : String(v).replace('.', ',') + ' зак/ч';
@@ -224,7 +245,7 @@ class Component extends DCLogic {
       roPill = inWin(selHour) ? 'лучшее окно' : demandOf(hp[selHour]);
       roMuted = !inWin(selHour);
       roNote = 'Лучшее окно ' + winLabel + ' · ≈ ' + fmt(toVal(winAvg)) + '. Серые черты отмечают начало и конец вашей смены ' + rbtHour(ws) + '–' + rbtHour(we);
-      trend = winLabel + ' на 12% выше, чем 4 недели назад';
+      trend = 'Доход участников в час в окне ' + winLabel + ' на 12% выше, чем 4 недели назад';
     } else {
       roLabel = cap(RBT_DAYS_FULL[selDay]);
       roVal = fmt(toVal(dayPay[selDay]));
@@ -232,13 +253,14 @@ class Component extends DCLogic {
       roPill = selDay === bestDay ? 'лучший день' : ('на ' + diff + '% ниже лучшего');
       roMuted = selDay !== bestDay;
       roNote = 'Средний доход в час по дням недели. Тапните день, чтобы сравнить';
-      trend = cap(RBT_DAYS_FULL[bestDay]) + ' на 12% выше, чем 4 недели назад';
+      trend = cap(RBT_DAYS_FULL[bestDay]) + ': доход участников в час на 12% выше, чем 4 недели назад';
     }
 
     // фильтры чипами, район и транспорт первыми
     const optsOf = (list) => list.map((o) => ({ k: o.k, label: o.label, note: o.note }));
+    // районы есть только у Москвы
     const filters = [
-      { key: 'district', title: 'Район', value: dist.k, def: 'all', options: optsOf(RBT_DISTRICTS) },
+      ...(cityKey === 'moscow' ? [{ key: 'district', title: 'Район', value: dist.k, def: 'all', options: optsOf(RBT_DISTRICTS) }] : []),
       { key: 'transport', title: 'Транспорт', value: tr.k, def: trDefault.k, options: optsOf(RBT_TRANSPORTS) },
       { key: 'metric', title: 'Показатель', value: metric.k, def: 'pay', options: optsOf(RBT_METRICS) },
       { key: 'cat', title: 'Сервис', value: cat.k, def: 'all', options: optsOf(RBT_CATS) }
@@ -254,7 +276,8 @@ class Component extends DCLogic {
     if (this._scrollKey && this._scrollKey !== this._scrolledKey) setTimeout(() => this.syncScroll(), 0);
 
     return {
-      is_card: !full, is_full: full, is_day: isDay,
+      no_data: !hasData, no_data_title: 'Нет данных по городу ' + (p.cityTitle || ''), basis: basisText,
+      is_card: !full && hasData, is_full: full && hasData, is_day: isDay,
       seg_day_cls: 'rbt-seg-btn' + (isDay ? ' raznos-is-active' : ''),
       seg_week_cls: 'rbt-seg-btn' + (!isDay ? ' raznos-is-active' : ''),
       view_day: () => set({ view: 'day', day: null, hour: null }),
@@ -265,7 +288,7 @@ class Component extends DCLogic {
       scroll_style: isDay ? 'width:' + (24 * colW) + 'px' : '',
       bars,
       card_sub: isDay ? ('сегодня, ' + RBT_DAYS_FULL[RBT_TODAY] + ' · ₽ в час') : ((p.cityTitle || 'Москва') + ' · ₽ в час · вся неделя'),
-      best_prefix: isDay ? 'Лучшее окно' : 'Лучше всего',
+      best_prefix: lowSample ? (isDay ? 'Предварительно: лучшее окно' : 'Предварительно: лучше всего') : (isDay ? 'Лучшее окно' : 'Лучше всего'),
       best_label: isDay ? winLabel : RBT_DAYS_FULL[bestDay],
       best_val: isDay ? fmt(toVal(winAvg)) : fmt(toVal(dayPay[bestDay])),
       open_more: () => open(view),
@@ -274,7 +297,7 @@ class Component extends DCLogic {
       filters,
       on_filter: (key, k) => set({ [key]: k, hour: null }),
       // в план уходит лучшее окно выбранного дня, умное расписание добавляет его как намерение, а не бронь
-      source_note: 'По заказам курьеров Разноса: ' + (p.cityTitle || 'Москва') + ', ' + (dist.k === 'all' ? 'все районы' : dist.label) + ', ' + tr.label.toLowerCase() + ', последние 4 недели'
+      source_note: 'По заказам курьеров Разноса: ' + (p.cityTitle || 'Москва') + ', ' + (dist.k === 'all' ? 'все районы' : dist.label) + ', ' + tr.label.toLowerCase() + ', ' + RBT_PERIOD + ' (4 недели), ' + sCouriers + ' курьеров, ' + RBT_FMT(sOrders) + ' заказов' + (lowSample ? '. Данных мало, вывод предварительный' : '')
     };
   }
 
