@@ -34,7 +34,8 @@
         <sc-if value="{{ ordersLabel }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ ordersLabel }}</span></sc-if>
         <sc-if value="{{ ownNote }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ ownNote }}</span></sc-if>
         <dc-import name="RaznosReactionRows" courierLikes="{{ courierLikes }}" courierDislikes="{{ courierDislikes }}" userLikes="{{ userLikes }}" userDislikes="{{ userDislikes }}" myCategory="{{ myCategory }}" myVote="{{ myVote }}" canVote="{{ canVote }}" showLabels="{{ showLabels }}" onLike="{{ onLike }}" onDislike="{{ onDislike }}"></dc-import>
-        <sc-if value="{{ showComplain }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" style="align-self:flex-end" onClick="{{ onComplain }}">Пожаловаться</button></sc-if>
+        <sc-if value="{{ complained }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-small raznos-text-muted" style="align-self:flex-end">Жалоба отправлена</span></sc-if>
+        <sc-if value="{{ canComplain }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" style="align-self:flex-end" onClick="{{ onComplain }}">Пожаловаться</button></sc-if>
       </div>
     </x-dc>
     <script type="text/x-dc" data-dc-script data-props='{
@@ -62,6 +63,7 @@
       "mine": { "editor": "boolean", "default": false },
       "ownNote": { "editor": "text", "default": "" },
       "showComplain": { "editor": "boolean", "default": false },
+      "complained": { "editor": "boolean", "default": false },
       "onComplain": { "editor": null },
       "$preview": { "width": 360, "height": 260 }
     }'>
@@ -98,6 +100,8 @@
             myCategory: p.myCategory || '', myVote: p.myVote || '', canVote: p.canVote !== false,
             onLike: p.onLike || (() => {}), onDislike: p.onDislike || (() => {}),
             showComplain: !!p.showComplain,
+            complained: !!p.showComplain && !!p.complained,
+            canComplain: !!p.showComplain && !p.complained,
             onComplain: p.onComplain || (() => {})
           };
         }

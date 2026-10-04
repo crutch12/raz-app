@@ -22,6 +22,25 @@
     .rcm-me { fill: var(--raznos-dark); stroke: #fff; stroke-width: 3; }
     .rcm-me-label { font: 800 11px var(--raznos-font); fill: var(--raznos-dark); paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
     .rcm-compact .rcm-label { display: none; }
+    /* районы: заливка темнее у выгодных, подписи района и ставки вместо общих подписей схемы */
+    .rcm-zones-on .rcm-label { display: none; }
+    .rcm-zone { stroke: #fff; stroke-width: 2; stroke-linejoin: round; fill-opacity: 0.78; cursor: pointer; }
+    /* ступени как у зон спроса DoorDash и Яндекс Про: чем темнее, тем выгоднее */
+    .rcm-zone-l0 { fill: oklch(0.93 0.03 145); }
+    .rcm-zone-l1 { fill: oklch(0.85 0.08 145); }
+    .rcm-zone-l2 { fill: oklch(0.72 0.12 145); }
+    .rcm-zone-l3 { fill: oklch(0.58 0.14 148); }
+    .rcm-zone-empty { fill: oklch(0.9 0.005 250 / 0.55); }
+    .rcm-zone-sel { stroke: var(--raznos-dark); stroke-width: 3; }
+    /* подписи районов HTML-слоем поверх схемы: в svg text значения шаблона не рисуются */
+    .rcm-zone-labels { position: absolute; inset: 0; pointer-events: none; }
+    .rcm-zone-lab { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 1px; text-align: center; white-space: nowrap; }
+    .rcm-zone-lab > b { font: 700 8.5px var(--raznos-font); letter-spacing: 0.06em; color: var(--raznos-ink-2); text-shadow: 0 0 3px #fff, 0 0 3px #fff; }
+    .rcm-zone-lab > em { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 999px; background: var(--raznos-surface); box-shadow: 0 1px 3px rgba(20, 25, 40, .18); font: 800 11.5px var(--raznos-font); font-style: normal; color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rcm-zone-lab.rcm-lab-top > em { background: var(--raznos-dark); color: var(--raznos-on-dark); }
+    .rcm-zone-lab > em > i { font-style: normal; color: var(--raznos-green-deep); font-weight: 800; }
+    .rcm-zone-lab.rcm-lab-top > em > i { color: oklch(0.86 0.12 145); }
+    .rcm-zone-lab.rcm-lab-empty > em { background: transparent; box-shadow: none; color: var(--raznos-ink-3); font-weight: 600; }
     /* сообщения Что происходит с местом: капля в цвет сервиса, отличается от круглых точек курьеров */
     .rcm-pin { cursor: pointer; }
     .rcm-pin-hit { fill: transparent; }
@@ -49,6 +68,7 @@
     <path class="rcm-road" d="M180 215L40 10M180 215L0 170M180 215L10 380M180 215L150 440M180 215L360 300M180 215L330 0M180 215L230 0" />
     <path class="rcm-river" d="M-10 150C40 140 60 190 96 214s70 20 90 10 34-24 56-8 18 60 40 86 56 34 90 30" />
     <ellipse class="rcm-ring" cx="180" cy="215" rx="82" ry="86" />
+    <sc-for list="{{ zones }}" as="z" hint-placeholder-count="0"><path class="{{ z.cls }}" d="{{ z.d }}" style="{{ z.style }}" onClick="{{ z.tap }}"><title>{{ z.title }}</title></path></sc-for>
     <text class="rcm-label" x="92" y="86">БЕГОВОЙ</text>
     <text class="rcm-label" x="186" y="150">ТВЕРСКОЙ</text>
     <text class="rcm-label" x="96" y="184">ПРЕСНЕНСКИЙ</text>
@@ -65,8 +85,9 @@
       <text class="rcm-me-label" x="{{ me_lx }}" y="{{ me_ly }}">вы</text>
     </sc-if>
   </svg>
+  <sc-if value="{{ has_zones }}" hint-placeholder-val="{{ false }}"><div class="rcm-zone-labels" aria-hidden="true"><sc-for list="{{ zones }}" as="z" hint-placeholder-count="0"><span class="{{ z.lab_cls }}" style="{{ z.pos }}"><b>{{ z.name }}</b><em>{{ z.val }}<sc-if value="{{ z.up }}" hint-placeholder-val="{{ false }}"><i>↑</i></sc-if></em></span></sc-for></div></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"dots":{"editor":null},"svc":{"editor":"text","default":"all"},"svcs":{"editor":null},"couriers":{"editor":"boolean","default":true},"pins":{"editor":null},"focus":{"editor":null},"activeId":{"editor":"text","default":""},"me":{"editor":"boolean","default":true},"locked":{"editor":"boolean"},"compact":{"editor":"boolean"},"fill":{"editor":"boolean"},"$preview":{"width":360,"height":440}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"dots":{"editor":null},"svc":{"editor":"text","default":"all"},"svcs":{"editor":null},"couriers":{"editor":"boolean","default":true},"pins":{"editor":null},"zones":{"editor":null},"focus":{"editor":null},"activeId":{"editor":"text","default":""},"me":{"editor":"boolean","default":true},"locked":{"editor":"boolean"},"compact":{"editor":"boolean"},"fill":{"editor":"boolean"},"$preview":{"width":360,"height":440}}'>
 // условная схема центра Москвы: курьеры на смене точками в цвет сервиса, вы тёмной точкой
 // это не настоящая карта, точки примерные, с точностью до квартала
 const RCM_DEMO = [
@@ -77,6 +98,19 @@ const RCM_DEMO = [
   [300, 250, 'samokat'], [130, 318, 'yandex-eda'], [190, 330, 'samokat'], [240, 350, 'yandex-eda'], [70, 350, 'x5'],
   [320, 330, 'yandex-eda'], [150, 400, 'vkusvill'], [36, 190, 'yandex-eda'], [330, 90, 'samokat'], [226, 60, 'yandex-eda']
 ];
+// районы схемы: контур и место подписи, ключи как в рейтинге Где выгоднее
+const RCM_ZONES = {
+  begovoy: { d: 'M20 30L150 30L140 120L40 130Z', x: 88, y: 80 },
+  meshchansky: { d: 'M150 30L265 30L250 110L140 120Z', x: 202, y: 70 },
+  krasnoselsky: { d: 'M265 30L350 40L345 150L250 110Z', x: 302, y: 86 },
+  presnya: { d: 'M40 130L140 120L150 205L60 215Z', x: 98, y: 168 },
+  tverskoy: { d: 'M140 120L250 110L235 190L150 205Z', x: 194, y: 156 },
+  basmanny: { d: 'M250 110L345 150L335 235L235 190Z', x: 292, y: 178 },
+  dorogomilovo: { d: 'M10 215L60 215L150 205L120 300L15 310Z', x: 62, y: 258 },
+  arbat: { d: 'M150 205L235 190L215 290L120 300Z', x: 178, y: 246 },
+  zamoskvorechye: { d: 'M235 190L335 235L320 330L215 290Z', x: 274, y: 262 },
+  khamovniki: { d: 'M15 310L120 300L215 290L320 330L260 420L80 420Z', x: 168, y: 362 }
+};
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
@@ -87,11 +121,22 @@ class Component extends DCLogic {
     const all = (p.dots || RCM_DEMO.map(([x, y, s]) => ({ x, y, svc: s })));
     // couriers=false: курьеров не рисуем, остаются карта, ваша точка и сообщения
     const dots = (p.couriers === false || p.hideCouriers ? [] : all).filter((d) => !sel.length || sel.indexOf(d.svc) !== -1).map((d) => ({ x: d.x, y: d.y, r: compact ? 7 : 6.5, style: 'fill:var(--raznos-svc-' + d.svc + ')' }));
-    const showMe = p.me !== false;
+    const showMe = p.me !== false && !p.hideMe;
     const pins = (Array.isArray(p.pins) ? p.pins : []).map((pn) => ({
       tf: 'translate(' + pn.x + ' ' + pn.y + ')', style: 'color:var(--raznos-svc-' + pn.svc + ')',
       cls: 'rcm-pin' + (pn.id === p.activeId ? ' rcm-pin-active' : ''), tap: pn.tap || (() => {})
     }));
+    // zones: [{ k, name, val, t (0..1 выгода), up (растёт), top (лучший), sel, tap }], пустой t значит сервиса в районе нет
+    const zones = (Array.isArray(p.zones) ? p.zones : []).filter((z) => RCM_ZONES[z.k]).map((z) => {
+      const g = RCM_ZONES[z.k];
+      const empty = z.t == null;
+      return {
+        d: g.d, pos: 'left:' + (g.x / 3.6) + '%;top:' + (g.y / 4.4) + '%', name: String(z.name || '').toUpperCase(), val: z.val || '', title: z.name + (z.val ? ', ' + z.val : ''),
+        cls: 'rcm-zone' + (empty ? ' rcm-zone-empty' : ' rcm-zone-l' + Math.min(3, Math.floor(z.t * 4))) + (z.sel ? ' rcm-zone-sel' : ''), style: '',
+        lab_cls: 'rcm-zone-lab' + (empty ? ' rcm-lab-empty' : '') + (z.top ? ' rcm-lab-top' : ''), up: !!z.up,
+        tap: z.tap || (() => {})
+      };
+    });
     // focus: {x, y} приближает карту к точке, края не выходят за схему
     const f = p.focus;
     let vb = '0 0 360 440';
@@ -101,8 +146,8 @@ class Component extends DCLogic {
       vb = x + ' ' + y + ' ' + w + ' ' + h;
     }
     return {
-      vb, pins,
-      cls: 'rcm' + (p.fill ? ' rcm-fill' : '') + (locked ? ' rcm-locked' : '') + (compact ? ' rcm-compact' : ''),
+      vb, pins, zones, has_zones: zones.length > 0,
+      cls: 'rcm' + (p.fill ? ' rcm-fill' : '') + (locked ? ' rcm-locked' : '') + (compact ? ' rcm-compact' : '') + (zones.length ? ' rcm-zones-on' : ''),
       aria: locked ? 'Карта курьеров скрыта, пока вы не показываете себя' : 'Условная карта центра, курьеров на смене: ' + dots.length,
       dots: locked ? dots.filter((d, i) => i % 2 === 0) : dots, show_me: showMe && !locked, me_x: 108, me_y: 158, me_lx: 120, me_ly: 162, me_r: compact ? 7 : 7.5
     };

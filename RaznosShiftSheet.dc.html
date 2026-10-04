@@ -23,6 +23,7 @@
     .rsh-money > span { font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
     .rsh-note { margin: 0; padding: 10px 12px; border-radius: 12px; font: 500 13px/1.4 var(--raznos-font); background: var(--raznos-surface-2); color: var(--raznos-ink-2); }
     .rsh-note.rsh-note-warn { background: var(--raznos-amber-tint); color: var(--raznos-ink); }
+    .rsh-action-note { margin: -4px 0 0; text-align: center; font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
     .rsh-note.rsh-note-danger { background: color-mix(in oklab, var(--raznos-red) 10%, var(--raznos-surface)); color: var(--raznos-red); }
     @media (prefers-reduced-motion: no-preference) {
       .rsh-sheet { animation: rsh-in .32s cubic-bezier(.16, 1, .3, 1) both; }
@@ -44,10 +45,11 @@
     <sc-if value="{{ has_conflict }}" hint-placeholder-val="{{ false }}"><p class="rsh-note rsh-note-danger">{{ conflict }}</p></sc-if>
     <sc-if value="{{ has_rule }}" hint-placeholder-val="{{ true }}"><p class="{{ rule_cls }}">{{ rule }}</p></sc-if>
     <sc-if value="{{ has_action }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ act }}">{{ action }}</button></sc-if>
+    <sc-if value="{{ has_action_note }}" hint-placeholder-val="{{ false }}"><p class="rsh-action-note">{{ action_note }}</p></sc-if>
     <button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ close }}">Закрыть</button>
   </section>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"svc":{"editor":"text","default":"yandex-eda"},"title":{"editor":"text","default":"Яндекс Еда"},"place":{"editor":"text","default":"Зона Беговой"},"time":{"editor":"text","default":"17:00–21:00"},"status":{"editor":"text","default":"бронь"},"tone":{"editor":"text","default":"ok"},"whenNote":{"editor":"text","default":"Вторник, 15 сентября, через 1 ч 20 мин"},"money":{"editor":"text","default":"≈ 3 160 ₽ за смену"},"moneyNote":{"editor":"text","default":"≈ 790 ₽/ч, оценка по заказам курьеров Разноса, как в Плане. Ставка сервиса 390 ₽/ч уже внутри"},"conflict":{"editor":"text"},"rule":{"editor":"text","default":"Бесплатная отмена закончилась пн 12:00. Позже: ≈ 300 ₽ и минус приоритет"},"ruleTone":{"editor":"text","default":"warn"},"action":{"editor":"text","default":"Открыть в приложении Яндекс Еда"},"onAction":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"svc":{"editor":"text","default":"yandex-eda"},"title":{"editor":"text","default":"Яндекс Еда"},"place":{"editor":"text","default":"Зона Беговой"},"time":{"editor":"text","default":"17:00–21:00"},"status":{"editor":"text","default":"бронь"},"tone":{"editor":"text","default":"ok"},"whenNote":{"editor":"text","default":"Вторник, 15 сентября, через 1 ч 20 мин"},"money":{"editor":"text","default":"≈ 3 160 ₽ за смену"},"moneyNote":{"editor":"text","default":"≈ 790 ₽/ч, оценка по заказам курьеров Разноса, как в Плане. Ставка сервиса 390 ₽/ч уже внутри"},"conflict":{"editor":"text"},"rule":{"editor":"text","default":"Бесплатная отмена закончилась пн 12:00. Позже: ≈ 300 ₽ и минус приоритет"},"ruleTone":{"editor":"text","default":"warn"},"action":{"editor":"text","default":"Открыть в приложении Яндекс Еда"},"actionNote":{"editor":"text","default":"Бронь можно отменить только в приложении Яндекс Еда, бесплатно до пн 12:00"},"onAction":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
 // подробности брони: когда, статус, деньги той же моделью, что в Плане, правила отмены и переход в приложение сервиса
 class Component extends DCLogic {
   renderVals() {
@@ -58,6 +60,7 @@ class Component extends DCLogic {
     const rule = v('rule', 'Бесплатная отмена закончилась пн 12:00. Позже: ≈ 300 ₽ и минус приоритет');
     const conflict = v('conflict', '');
     const action = v('action', 'Открыть в приложении Яндекс Еда');
+    const actionNote = v('actionNote', 'Бронь можно отменить только в приложении Яндекс Еда, бесплатно до пн 12:00');
     const whenNote = v('whenNote', 'Вторник, 15 сентября, через 1 ч 20 мин');
     return {
       svc: v('svc', 'yandex-eda'), title: v('title', 'Яндекс Еда'), place: v('place', 'Зона Беговой'), time: v('time', '17:00–21:00'),
@@ -67,7 +70,7 @@ class Component extends DCLogic {
       money: v('money', '≈ 3 160 ₽ за смену'), money_note: v('moneyNote', ''),
       conflict, has_conflict: !!conflict,
       rule, has_rule: !!rule, rule_cls: 'rsh-note' + (v('ruleTone', 'warn') === 'warn' ? ' rsh-note-warn' : ''),
-      action, has_action: !!action, act: fn(p.onAction),
+      action, has_action: !!action, act: fn(p.onAction), action_note: actionNote, has_action_note: !!action && !!actionNote,
       close: fn(p.onClose), stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
     };
   }

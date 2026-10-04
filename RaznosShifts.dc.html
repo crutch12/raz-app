@@ -54,7 +54,7 @@
   </sc-if>
 
   <sc-if value="{{ show_sheet }}" hint-placeholder-val="{{ false }}">
-    <dc-import name="RaznosShiftSheet" svc="{{ sh.svc }}" title="{{ sh.title }}" place="{{ sh.place }}" time="{{ sh.time }}" status="{{ sh.status }}" tone="{{ sh.tone }}" whenNote="{{ sh.whenNote }}" money="{{ sh.money }}" moneyNote="{{ sh.moneyNote }}" conflict="{{ sh.conflict }}" rule="{{ sh.rule }}" ruleTone="{{ sh.ruleTone }}" action="{{ sh.action }}" onAction="{{ sh.act }}" onClose="{{ close_sheet }}"></dc-import>
+    <dc-import name="RaznosShiftSheet" svc="{{ sh.svc }}" title="{{ sh.title }}" place="{{ sh.place }}" time="{{ sh.time }}" status="{{ sh.status }}" tone="{{ sh.tone }}" whenNote="{{ sh.whenNote }}" money="{{ sh.money }}" moneyNote="{{ sh.moneyNote }}" conflict="{{ sh.conflict }}" rule="{{ sh.rule }}" ruleTone="{{ sh.ruleTone }}" action="{{ sh.action }}" actionNote="{{ sh.actionNote }}" onAction="{{ sh.act }}" onClose="{{ close_sheet }}"></dc-import>
   </sc-if>
 
   <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div class="raznos-shifts-toast" role="status"><span>{{ toast }}</span><sc-if value="{{ toast_has_act }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-shifts-toast-act" onClick="{{ toast_show }}">Показать</button></sc-if></div></sc-if>
@@ -74,6 +74,8 @@ const RSH_CONF = (from, to) => { let d = 0, n = 0; for (let h = Math.floor(from 
 const RSH_CONF_TEXT = (from, to) => { const c = RSH_CONF(from, to); return 'по ' + c.orders + ' ' + (c.orders % 10 === 1 && c.orders % 100 !== 11 ? 'заказу' : 'заказам') + ' курьеров Разноса рядом за 4 недели, обычно ±' + c.pct + '%'; };
 const RSH_LEFT = (m) => (m >= 60 ? Math.floor(m / 60) + ' ч ' : '') + (m % 60 ? (m % 60) + ' мин' : '');
 const RSH_TRAVEL = 20;
+// кнопка по сути: куда идём брать слот
+const RSH_AT = { samokat: 'в Самокате', vkusvill: 'во ВкусВилле', 'yandex-eda': 'в Яндекс Еде', x5: 'в X5' };
 // средний доход в час курьера до расходов, как в Плане и Результатах
 const RSH_MY_RATE = 700;
 // деньги той же моделью, что в Плане: спрос по часам и поправки сервисов, иначе экраны спорят
@@ -121,6 +123,8 @@ class Component extends DCLogic {
     const openService = typeof p.onOpenService === 'function' ? p.onOpenService : (() => {});
     const date = (iso) => new Date(iso + 'T00:00:00');
     const days = p.days || weekIsos;
+    // смена словами для экрана перехода в сервис: ср 16 сентября 19:00–22:00
+    const whenOf = (x) => RSH_DOW[date(x.iso).getDay()].toLowerCase() + ' ' + date(x.iso).getDate() + ' ' + RSH_MONTH[date(x.iso).getMonth()] + ' ' + RSH_TIME(x.from) + '–' + RSH_TIME(x.to);
     const dayTitle = (iso) => RSH_DAY_FULL[date(iso).getDay()] + ', ' + date(iso).getDate() + ' ' + RSH_MONTH[date(iso).getMonth()];
     const shortDay = (iso) => RSH_DOW[date(iso).getDay()].toLowerCase() + ' ' + date(iso).getDate();
     const tab = weekPast ? 'mine' : (st.tab || p.initialTab || 'mine');
@@ -182,11 +186,14 @@ class Component extends DCLogic {
       const isToday = s.iso === today;
       const when = dayTitle(s.iso) + (s.status === 'active' ? ', осталось ' + RSH_LEFT(s.to - now) : (isToday && s.from > now ? ', через ' + RSH_LEFT(s.from - now) : ''));
       const rule = past || s.status === 'active' ? { text: '', tone: '' } : ruleFor(s.svc, s.iso, s.from);
+      const dl = past ? null : deadlineOf(s.svc, s.iso, s.from);
+      const freeUntil = dl && dl > nowDate ? deadlineLabel(dl) : '';
       return {
         svc: s.svc, title: s.title, place: s.place, time: RSH_TIME(s.from) + '–' + RSH_TIME(s.to), status: stt[0], tone: stt[2],
         whenNote: when + (stt[3] ? '. ' + stt[3] : '') + (s.transfer ? '. Смену передали вам' : ''),
         money: m.text, moneyNote: m.note, conflict: past ? '' : (conflictOf[s.id] || ''), rule: rule.text, ruleTone: rule.tone,
-        action: past ? '' : 'Открыть в приложении ' + s.title, act: () => { openService(s.svc); flash('Открываем приложение ' + s.title); }
+        action: past ? '' : 'Открыть в приложении ' + s.title, act: () => openService(s.svc, whenOf(s)),
+        actionNote: past || s.status === 'active' ? '' : (s.status === 'requested' ? 'Заявку можно отозвать' : 'Бронь можно отменить') + ' только в приложении ' + s.title + (freeUntil ? ', бесплатно до ' + freeUntil : '')
       };
     })() : {};
 
@@ -231,7 +238,8 @@ class Component extends DCLogic {
       const m = moneyOf(sl);
       const on = !!watches[sl.id];
       const toggleWatch = () => { const next = Object.assign({}, watches); if (next[sl.id]) delete next[sl.id]; else next[sl.id] = true; set({ watches: next }); flash(next[sl.id] ? 'Пришлём пуш, когда в слоте появится место' : 'Больше не следим за слотом'); };
-      const take = () => { if (typeof p.onTake === 'function') { p.onTake(sl); flash((sl.apply ? 'Заявка отправлена, ' : 'Слот ваш, он в плане: ') + shortDay(sl.iso) + ', ' + RSH_TIME(sl.from) + '–' + RSH_TIME(sl.to), { iso: sl.iso, id: sl.id }); } else { openService(sl.svc); flash('Открываем ' + (sl.appName || sl.title) + ' на этом слоте'); } };
+      // Разнос сам не бронирует: ведём в приложение сервиса на эту смену
+      const take = () => { if (typeof p.onTake === 'function') p.onTake(sl, whenOf(sl)); else openService(sl.svc, whenOf(sl)); };
       const row = {
         from: RSH_TIME(sl.from), to: RSH_TIME(sl.to), svc: sl.svc, title: sl.title, sub: sl.place + (sl.bonus ? ' · ' + sl.bonus : ''), pay: m.pay,
         kind: sl.full ? 'full' : 'need', badge: sl.full ? 'мест нет' : (sl.apply ? 'по заявке' : sl.seats + ' ' + RSH_PLURAL(sl.seats, 'место', 'места', 'мест')),
@@ -247,7 +255,7 @@ class Component extends DCLogic {
       }
       if (sl.full) return Object.assign(row, { note: on ? 'Напишем, если появится место' : 'Мест нет, можно следить', action: on ? 'Слежу' : 'Следить', actionKind: on ? 'watch-on' : 'watch', onAction: toggleWatch });
       if (clash) return Object.assign(row, { note: 'Пересекается с вашей сменой ' + clash.title + ' ' + RSH_TIME(clash.from) + '–' + RSH_TIME(clash.to), action: '' });
-      return Object.assign(row, { gain: true, note: '≈ ' + RSH_FMT(m.rate) + ' ₽/ч' + (sl.apply ? ', смену подтвердит сервис' : ''), action: sl.apply ? 'Откликнуться' : 'Взять слот', actionKind: 'primary', onAction: take });
+      return Object.assign(row, { gain: true, note: '≈ ' + RSH_FMT(m.rate) + ' ₽/ч' + (sl.apply ? ', смену подтвердит сервис' : ''), action: (sl.apply ? 'Откликнуться ' : 'Взять ') + (RSH_AT[sl.svc] || 'в сервисе'), actionKind: 'primary', onAction: take });
     };
     // слоты, которые пересекаются с вашими сменами, взять нельзя, уносим их в свёрнутый блок внизу
     const clashOf = (sl) => live.find((s) => s.iso === sl.iso && sl.from < s.to + (s.svc === sl.svc ? 0 : RSH_TRAVEL) && s.from < sl.to + (s.svc === sl.svc ? 0 : RSH_TRAVEL));
@@ -287,7 +295,9 @@ class Component extends DCLogic {
         money: m.text, moneyNote: m.note,
         conflict: clash ? 'Пересекается с вашей сменой ' + clash.title + ' ' + RSH_TIME(clash.from) + '–' + RSH_TIME(clash.to) : '',
         rule: sl.taken ? ruleFor(sl.svc, sl.iso, sl.from).text : (sl.apply ? '' : offerRule(sl.svc)), ruleTone: '',
-        action: clash || sl.taken ? '' : r.action, act: () => { set({ slotSheet: null }); if (r.onAction) r.onAction(); }
+        action: sl.taken ? 'Открыть в приложении ' + sl.title : (clash ? '' : r.action),
+        actionNote: sl.taken ? (sl.taken === 'requested' ? 'Заявку можно отозвать' : 'Бронь можно отменить') + ' только в приложении ' + sl.title : '',
+        act: () => { set({ slotSheet: null }); if (sl.taken) openService(sl.svc, whenOf(sl)); else if (r.onAction) r.onAction(); }
       };
     })() : null;
     // слежение и открытие записи
@@ -333,7 +343,7 @@ class Component extends DCLogic {
       range_label: date(days[0]).getDate() + '–' + date(days[days.length - 1]).getDate() + ' ' + RSH_MONTH[date(days[days.length - 1]).getMonth()] + (weekOff < 0 ? ' · прошлая неделя' : (weekOff > 0 ? ' · следующая неделя' : ' · текущая неделя')),
       attention, has_attention: attention.length > 0,
       tabs, show_tabs: !weekPast,
-      tab_hint: ({ mine: 'Что вы уже взяли в сервисах. Нажмите на смену, чтобы увидеть правила отмены и открыть приложение', free: 'Свободные слоты в сервисах на эту неделю, лучшие по деньгам сверху. Взятый слот попадёт в Мои и в План', watch: 'Слоты без мест, за которыми следим, и напоминания об открытии записи' })[tab],
+      tab_hint: ({ mine: 'Что вы уже взяли в сервисах. Нажмите на смену, чтобы увидеть правила отмены и открыть приложение', free: 'Свободные слоты в сервисах на эту неделю, лучшие по деньгам сверху. Слот берёте в приложении сервиса, после синхронизации он появится в Мои и в Плане', watch: 'Слоты без мест, за которыми следим, и напоминания об открытии записи' })[tab],
       is_mine: tab === 'mine', is_free: tab === 'free', is_watch: tab === 'watch',
       mine_days: mineDays, mine_empty: !mineDays.length && !pastCount,
       has_past: !weekPast && pastDays.length > 0, past_open: pastOpen,

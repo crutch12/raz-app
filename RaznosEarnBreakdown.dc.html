@@ -45,7 +45,10 @@ const REB_DEMO = [
   { svc: 'vkusvill', count: 5, sum: 2400 },
   { svc: 'yandex-eda', count: 3, sum: 1500 }
 ];
-const REB_FMT = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const REB_FMT = (n) => {
+  const v = Math.round((Number(n) || 0) * 100) / 100;
+  return v.toLocaleString('ru-RU', { minimumFractionDigits: Number.isInteger(v) ? 0 : 2, maximumFractionDigits: 2 }).replace(/\s/g, ' ');
+};
 const REB_COLOR = (k) => 'var(--raznos-svc-' + k + ')';
 class Component extends DCLogic {
   renderVals() {

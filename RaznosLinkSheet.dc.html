@@ -1,0 +1,36 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+<div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="{{ title }}" style="align-items:flex-end;padding:0" onClick="{{ onClose }}">
+  <div class="raznos-dialog" style="max-width:none;border-radius:18px 18px 0 0;padding:16px 16px 20px" onClick="{{ stop }}">
+    <span class="raznos-text-h3">{{ title }}</span>
+    <span class="raznos-text-body" style="font-family:var(--raznos-mono);word-break:break-all">{{ url }}</span>
+    <sc-if value="{{ note }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-small">{{ note }}</span></sc-if>
+    <div class="raznos-btn-row">
+      <button type="button" class="raznos-btn raznos-btn-primary" style="min-height:48px" onClick="{{ onCopy }}">Скопировать</button>
+      <button type="button" class="raznos-btn raznos-btn-secondary" style="min-height:48px" onClick="{{ onShare }}">Поделиться</button>
+    </div>
+    <button type="button" class="raznos-btn raznos-btn-ghost" style="min-height:48px" onClick="{{ onClose }}">Закрыть</button>
+  </div>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "title": { "editor": "text", "default": "Ссылка для ООО Ромашка" },
+  "url": { "editor": "text", "default": "raznos.app/v/ab12cd" },
+  "note": { "editor": "text", "default": "Действует 7 дней" },
+  "onCopy": { "editor": null },
+  "onShare": { "editor": null },
+  "onClose": { "editor": null },
+  "$preview": { "width": 360, "height": 360 }
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    return {
+      title: p.title || '', url: p.url || '', note: p.note || '',
+      onCopy: p.onCopy || (() => {}),
+      onShare: p.onShare || (() => {}),
+      onClose: p.onClose || (() => {}),
+      stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
+    };
+  }
+}
+</script></body></html>
