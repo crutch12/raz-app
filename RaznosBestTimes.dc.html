@@ -112,7 +112,7 @@
     <p class="raznos-text-tiny">{{ source_note }}</p>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"initialView":{"editor":"text","default":"week"},"open":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"transportTitle":{"editor":"text","default":"велосипед"},"workStart":{"editor":"number","default":9},"workEnd":{"editor":"number","default":18},"$preview":{"width":390,"height":250}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"initialView":{"editor":"text","default":"week"},"open":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"workStart":{"editor":"number","default":9},"workEnd":{"editor":"number","default":18},"$preview":{"width":390,"height":250}}'>
 // когда выгоднее по мотивам Gridwise When to Work, два представления: день по часам и неделя по дням
 // один компонент на карточку хаба Работа и экран, чтобы цифры совпадали
 const RBT_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -137,19 +137,6 @@ const RBT_DISTRICTS = [
   { k: 'basmanny', label: 'Басманный', mul: 0.98, tilt: [0, 0.01, 0, 0.01, 0.03, 0.02, -0.02] },
   { k: 'begovoy', label: 'Беговой', mul: 0.94, tilt: [-0.02, -0.02, -0.02, -0.01, 0.02, 0.06, 0.08] }
 ];
-const RBT_TRANSPORTS = [
-  { k: 'foot', label: 'Пешком', mul: 0.78 },
-  { k: 'bike', label: 'Велосипед', mul: 1 },
-  { k: 'ebike', label: 'Электровелосипед', mul: 1.12 },
-  { k: 'car', label: 'Авто', mul: 1.22 }
-];
-const rbtTransportKey = (t) => {
-  const s = String(t || '').toLowerCase();
-  if (s.includes('пеш')) return 'foot';
-  if (s.includes('электро')) return 'ebike';
-  if (s.includes('авто') || s.includes('машин')) return 'car';
-  return 'bike';
-};
 // выборка и период советов, демо: у Москвы и Петербурга своя выборка, 4 недели до демо-даты 15 сентября
 const RBT_SAMPLE = { moscow: { couriers: 184, orders: 6240 }, spb: { couriers: 63, orders: 1870 } };
 const RBT_CITY_MUL = { moscow: 1, spb: 0.93 };
@@ -171,17 +158,15 @@ class Component extends DCLogic {
     const cat = byKey(RBT_CATS, st.cat);
     const dist = byKey(RBT_DISTRICTS, st.district);
     // транспорт по умолчанию из профиля, множитель считаем от него, чтобы цифры карточки и экрана совпадали
-    const trDefault = byKey(RBT_TRANSPORTS, rbtTransportKey(p.transportTitle));
-    const tr = byKey(RBT_TRANSPORTS, st.transport || trDefault.k);
     const cityKey = p.cityKey || 'moscow';
     const hasData = p.hasData !== false && !!RBT_SAMPLE[cityKey];
-    const k = cat.mul * dist.mul * tr.mul / trDefault.mul * (RBT_CITY_MUL[cityKey] || 1);
+    const k = cat.mul * dist.mul *(RBT_CITY_MUL[cityKey] || 1);
     // выборка под выбранные район и сервис, при малой выборке вывод только предварительный
     const sampleBase = RBT_SAMPLE[cityKey] || RBT_SAMPLE.moscow;
     const sampleShare = (dist.k === 'all' ? 1 : 0.18) * (cat.k === 'all' ? 1 : 0.4);
     const sCouriers = Math.max(1, Math.round(sampleBase.couriers * sampleShare)), sOrders = Math.round(sampleBase.orders * sampleShare / 10) * 10;
     const lowSample = sCouriers < 30 || sOrders < 100;
-    const basisText = tr.label + ' · ' + sCouriers + ' ' + (sCouriers % 10 === 1 && sCouriers % 100 !== 11 ? 'курьер' : (sCouriers % 10 >= 2 && sCouriers % 10 <= 4 && (sCouriers % 100 < 10 || sCouriers % 100 >= 20) ? 'курьера' : 'курьеров')) + ', ' + RBT_FMT(sOrders) + ' заказов · ' + RBT_PERIOD + ', 4 недели' + (lowSample ? '. Данных мало, вывод предварительный' : '');
+    const basisText = sCouriers + ' ' + (sCouriers % 10 === 1 && sCouriers % 100 !== 11 ? 'курьер' : (sCouriers % 10 >= 2 && sCouriers % 10 <= 4 && (sCouriers % 100 < 10 || sCouriers % 100 >= 20) ? 'курьера' : 'курьеров')) + ', ' + RBT_FMT(sOrders) + ' заказов · ' + RBT_PERIOD + ', 4 недели' + (lowSample ? '. Данных мало, вывод предварительный' : '');
     const pay = (d, i) => Math.round(RBT_BASE[i] * (RBT_DAY_MUL[d] + dist.tilt[d]) * k / 10) * 10;
     const toVal = (v) => metric.k === 'pay' ? v : rbtOrd(v);
     const fmt = (v) => metric.k === 'pay' ? RBT_FMT(v) + ' ₽/ч' : String(v).replace('.', ',') + ' зак/ч';
@@ -261,7 +246,6 @@ class Component extends DCLogic {
     // районы есть только у Москвы
     const filters = [
       ...(cityKey === 'moscow' ? [{ key: 'district', title: 'Район', value: dist.k, def: 'all', options: optsOf(RBT_DISTRICTS) }] : []),
-      { key: 'transport', title: 'Транспорт', value: tr.k, def: trDefault.k, options: optsOf(RBT_TRANSPORTS) },
       { key: 'metric', title: 'Показатель', value: metric.k, def: 'pay', options: optsOf(RBT_METRICS) },
       { key: 'cat', title: 'Сервис', value: cat.k, def: 'all', options: optsOf(RBT_CATS) }
     ];
@@ -297,7 +281,7 @@ class Component extends DCLogic {
       filters,
       on_filter: (key, k) => set({ [key]: k, hour: null }),
       // в план уходит лучшее окно выбранного дня, умное расписание добавляет его как намерение, а не бронь
-      source_note: 'По заказам курьеров Разноса: ' + (p.cityTitle || 'Москва') + ', ' + (dist.k === 'all' ? 'все районы' : dist.label) + ', ' + tr.label.toLowerCase() + ', ' + RBT_PERIOD + ' (4 недели), ' + sCouriers + ' курьеров, ' + RBT_FMT(sOrders) + ' заказов' + (lowSample ? '. Данных мало, вывод предварительный' : '')
+      source_note: 'По заказам курьеров Разноса: ' + (p.cityTitle || 'Москва') + ', ' + (dist.k === 'all' ? 'все районы' : dist.label) + ', ' + RBT_PERIOD + ' (4 недели), ' + sCouriers + ' курьеров, ' + RBT_FMT(sOrders) + ' заказов' + (lowSample ? '. Данных мало, вывод предварительный' : '')
     };
   }
 

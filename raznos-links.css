@@ -29,3 +29,7 @@
 .raznos-offer-voice-toggle { display: flex; align-items: center; gap: 12px; width: 100%; padding: 0; border: 0; background: transparent; text-align: left; cursor: pointer; }
 .raznos-offer-voice-toggle:disabled { cursor: default; opacity: 0.55; }
 .raznos-offer-voice-sample { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--raznos-surface-2); font: 500 14px/1.45 var(--raznos-font); color: var(--raznos-ink); }
+
+/* Переход в раздел приложения сервиса */
+.raznos-app-section-link { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 14px; border-radius: 16px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-left-width: 4px; text-align: left; cursor: pointer; font-family: var(--raznos-font); color: var(--raznos-ink); }
+.raznos-app-section-link-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }

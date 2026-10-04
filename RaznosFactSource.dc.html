@@ -1,0 +1,27 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rfs { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); color: var(--raznos-ink-2); font: 600 11px/1.5 var(--raznos-font); white-space: nowrap; vertical-align: baseline; }
+  </style>
+</helmet>
+<sc-if value="{{ has_label }}" hint-placeholder-val="{{ true }}"><span class="rfs" title="{{ hint }}">{{ label }}</span></sc-if>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"src":{"editor":"text","default":""},"$preview":{"width":220,"height":40}}'>
+// метка источника неофициального факта: правило, срок или условие не из страницы сервиса, у официального факта метки нет
+const RFS_LABELS = {
+  'отзывы': ['по отзывам', 'Так пишут курьеры, сервис этого не публиковал'],
+  'APK': ['по APK', 'Нашли в приложении сервиса, на живом аккаунте не проверяли'],
+  'вторичный': ['вторичный источник', 'Не со страницы сервиса, а из пересказа'],
+  'не подтверждено': ['не проверено', 'Источник не подтвердил, показываем с оговоркой'],
+  'партнёрские материалы': ['по материалам партнёров', 'Из материалов партнёров сервиса, не из правил для курьеров']
+};
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const src = p.src || '';
+    const found = RFS_LABELS[src];
+    const label = found ? found[0] : src;
+    return { has_label: !!label, label, hint: found ? found[1] : '' };
+  }
+}
+</script></body></html>

@@ -10,7 +10,7 @@
   <sc-if value="{{ has_action }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ action_cls }}" aria-pressed="{{ active }}" onClick="{{ on_action }}">{{ action }}</button></sc-if>
 </div>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"kind":{"editor":"enum","default":"opening","options":["opening","deficit","watch"]},"title":{"editor":"text","default":"Запись в Яндекс на 21–27 сентября"},"text":{"editor":"text","default":"Откроется в чт 17 сентября в 10:00 для уровня Золото"},"meta":{"editor":"text","default":"Платина видит слоты на 2 часа раньше · правила Яндекс Про"},"action":{"editor":"text","default":"Напомнить"},"activeAction":{"editor":"text","default":"Напомним за 5 мин"},"active":{"editor":"boolean","default":false},"onAction":{"editor":null},"$preview":{"width":366,"height":120}}'>
-// напоминание об открытии записи, предупреждение о нехватке мест или слежение за слотом
+// напоминание об открытии записи, предупреждение о дефиците слотов или слежение за слотом
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};

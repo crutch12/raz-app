@@ -47,9 +47,9 @@
   </sc-for>
 </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"city":{"editor":"text","default":"moscow"},"mineCity":{"editor":"text","default":"moscow"},"transport":{"editor":"enum","default":"bike","options":["bike","foot","car","electric","public"]},"period":{"editor":"enum","default":"month","options":["today","week","month","year","12m","custom"]},"svc":{"editor":"text","default":"all"},"medianHint":{"editor":null},"district":{"editor":"text","default":"all"},"mineAmount":{"editor":null},"recapMode":{"editor":"boolean","default":false},"verdictMode":{"editor":"boolean","default":false},"onSettings":{"editor":null},"mine":{"editor":null},"onlyMine":{"editor":"boolean","default":false},"title":{"editor":"text","default":"Я и другие курьеры"},"$preview":{"width":360,"height":420}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"city":{"editor":"text","default":"moscow"},"mineCity":{"editor":"text","default":"moscow"},"transport":{"editor":"enum","default":"bike","options":["bike","foot","car","electric","moto"]},"period":{"editor":"enum","default":"month","options":["today","week","month","year","12m","custom"]},"svc":{"editor":"text","default":"all"},"medianHint":{"editor":null},"district":{"editor":"text","default":"all"},"mineAmount":{"editor":null},"recapMode":{"editor":"boolean","default":false},"verdictMode":{"editor":"boolean","default":false},"onSettings":{"editor":null},"mine":{"editor":null},"onlyMine":{"editor":"boolean","default":false},"title":{"editor":"text","default":"Я и другие курьеры"},"$preview":{"width":360,"height":420}}'>
 const CC_TITLES = { vkusvill: 'ВкусВилл', samokat: 'Самокат', x5: 'X5 Доставка', 'yandex-eda': 'Яндекс Еда' };
-const CC_TRANSPORT = { bike: 'велосипед', foot: 'пешком', car: 'авто', electric: 'электро', public: 'общественный транспорт' };
+const CC_TRANSPORT = { bike: 'велосипед', foot: 'пешком', car: 'авто', electric: 'электро', moto: 'мото' };
 // медиана за месяц, остальные периоды получают небольшой сдвиг и свою выборку
 const CC_BASE = {
   moscow: {

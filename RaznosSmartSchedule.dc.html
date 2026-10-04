@@ -185,7 +185,7 @@
     <dc-import name="RaznosGapSheet" from="{{ gs_from }}" to="{{ gs_to }}" current="{{ gs_current }}" options="{{ gs_options }}" extra="{{ gs_extra }}" rely="{{ gs_rely }}" doneNote="{{ gs_done_note }}" closeLabel="{{ gs_close_label }}" onRemove="{{ gs_remove }}" onClose="{{ gs_close }}"></dc-import>
   </sc-if>
   <sc-if value="{{ show_book_sheet }}" hint-placeholder-val="{{ false }}">
-    <dc-import name="RaznosShiftSheet" svc="{{ bs.svc }}" title="{{ bs.title }}" place="{{ bs.place }}" time="{{ bs.time }}" status="{{ bs.status }}" tone="{{ bs.tone }}" whenNote="{{ bs.whenNote }}" money="{{ bs.money }}" moneyNote="{{ bs.moneyNote }}" conflict="{{ bs.conflict }}" rule="{{ bs.rule }}" ruleTone="{{ bs.ruleTone }}" action="{{ bs.action }}" actionNote="{{ bs.actionNote }}" onAction="{{ bs.act }}" onClose="{{ bs_close }}"></dc-import>
+    <dc-import name="RaznosShiftSheet" svc="{{ bs.svc }}" title="{{ bs.title }}" place="{{ bs.place }}" time="{{ bs.time }}" status="{{ bs.status }}" tone="{{ bs.tone }}" whenNote="{{ bs.whenNote }}" money="{{ bs.money }}" moneyNote="{{ bs.moneyNote }}" conflict="{{ bs.conflict }}" rule="{{ bs.rule }}" ruleTone="{{ bs.ruleTone }}" ruleSrc="{{ bs.ruleSrc }}" action="{{ bs.action }}" actionNote="{{ bs.actionNote }}" onAction="{{ bs.act }}" onClose="{{ bs_close }}"></dc-import>
   </sc-if>
   <sc-if value="{{ show_rebuild }}" hint-placeholder-val="{{ false }}">
     <dc-import name="RaznosDayCompareSheet" title="Собрать день заново" sub="{{ rb_sub }}" a="{{ rb_a }}" b="{{ rb_b }}" same="{{ rb_same }}" modes="{{ rb_modes }}" modeWhy="{{ rb_why }}" hoursFrom="{{ rb_from }}" hoursTo="{{ rb_to }}" hoursCustom="{{ rb_custom }}" onHours="{{ rb_set_hours }}" svcs="{{ rb_svcs }}" checkLabel="{{ rb_check_label }}" checkOn="{{ rb_keep }}" onCheck="{{ rb_toggle_keep }}" primaryLabel="Применить" secondaryLabel="Отмена" onPrimary="{{ rb_apply }}" onClose="{{ rb_close }}"></dc-import>
@@ -239,7 +239,7 @@
 
   <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><span class="rss-toast" role="status"><span>{{ toast }}</span><sc-if value="{{ toast_has_act }}" hint-placeholder-val="{{ false }}"><button type="button" class="rss-toast-act" onClick="{{ toast_show }}">Показать</button></sc-if><sc-if value="{{ toast_has_undo }}" hint-placeholder-val="{{ false }}"><button type="button" class="rss-toast-act" onClick="{{ toast_undo }}">Вернуть</button></sc-if></span></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"weekGoal":{"editor":null},"weekEarned":{"editor":null},"booked":{"editor":null},"slots":{"editor":null},"workStart":{"editor":null},"workWeek":{"editor":null},"openKey":{"editor":null},"todayEarned":{"editor":null},"prefs":{"editor":null},"build":{"editor":null},"onSettings":{"editor":null},"stay":{"editor":null},"onStay":{"editor":null},"fact":{"editor":null},"embedded":{"editor":null},"onGoalChange":{"editor":null},"onboarded":{"editor":null},"onOnboard":{"editor":null},"workEnd":{"editor":null},"onFindSlot":{"editor":null},"onTakeSlot":{"editor":null},"onOpenShifts":{"editor":null},"onOpenResult":{"editor":null},"onOpenWeekResult":{"editor":null},"onEditGraph":{"editor":null},"addWindow":{"editor":null},"focusAdded":{"editor":null},"focusIso":{"editor":null},"focusKey":{"editor":null},"rules":{"editor":null},"onOpenService":{"editor":null},"$preview":{"width":390,"height":1100}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"caps":{"editor":null},"onBack":{"editor":null},"weekGoal":{"editor":null},"weekEarned":{"editor":null},"booked":{"editor":null},"slots":{"editor":null},"workStart":{"editor":null},"workWeek":{"editor":null},"openKey":{"editor":null},"todayEarned":{"editor":null},"prefs":{"editor":null},"build":{"editor":null},"onSettings":{"editor":null},"stay":{"editor":null},"onStay":{"editor":null},"fact":{"editor":null},"embedded":{"editor":null},"onGoalChange":{"editor":null},"onboarded":{"editor":null},"onOnboard":{"editor":null},"workEnd":{"editor":null},"onFindSlot":{"editor":null},"onTakeSlot":{"editor":null},"onOpenShifts":{"editor":null},"onOpenResult":{"editor":null},"onOpenWeekResult":{"editor":null},"onEditGraph":{"editor":null},"addWindow":{"editor":null},"focusAdded":{"editor":null},"focusIso":{"editor":null},"focusKey":{"editor":null},"rules":{"editor":null},"onOpenService":{"editor":null},"$preview":{"width":390,"height":1100}}'>
 // демо-дата прототипа, как у Смен и Статистики: вторник 15 сентября, 15:40
 const RSS_TODAY = new Date(2026, 8, 15);
 const RSS_NOW = 15 * 60 + 40;
@@ -251,27 +251,25 @@ const RSS_TODAY_ISO = rssIso(RSS_TODAY);
 // неделя плана: сегодня и 6 дней вперёд, прошедшие дни смотрят в Статистике
 // текущая неделя пн–вс, соседние недели листаются в Плане
 const RSS_DAYS = Array.from({ length: 7 }, (_, i) => new Date(2026, 8, 14 + i));
-const RSS_SVC = {
+// запасной набор только для показа экрана отдельно от приложения, в приложении названия, предложный падеж и свободный выход идут из профиля сервисов (пропс caps)
+const RSS_SVC_FALLBACK = {
   'yandex-eda': { title: 'Яндекс Еда', in: 'Яндекс Еде', free: true },
   samokat: { title: 'Самокат', in: 'Самокате', free: false },
   vkusvill: { title: 'ВкусВилл', in: 'ВкусВилле', free: false },
-  x5: { title: 'X5 Доставка', in: 'X5 Доставке', free: false }
+  x5: { title: 'X5 Доставка', in: 'X5 Доставке', free: false },
+  dodo: { title: 'Додо', in: 'Додо', free: false }
 };
-// кнопка по сути: куда идём брать слот
-const RSS_AT = { samokat: 'в Самокате', vkusvill: 'во ВкусВилле', 'yandex-eda': 'в Яндекс Еде', x5: 'в X5' };
-// слежение там, где оно грозит блокировкой аккаунта, не предлагаем
-const RSS_NO_WATCH = ['magnit', 'yandex-lavka'];
-const RSS_NO_WATCH_NOTE = 'Мест нет, слежение в сервисе недоступно: риск блокировки аккаунта';
+const RSS_NO_WATCH_NOTE = 'Слота нет в списке сервиса, слежение для него недоступно';
 const RSS_VV_NOTE = 'Часы обычно согласуют с куратором, выбор слота не подтверждён';
 const RSS_ZONES = [{ name: 'Центр', f: 1 }, { name: 'Север', f: 0.95 }, { name: 'Юг', f: 0.92 }, { name: 'Запад', f: 0.9 }];
 const rssZoneF = (name) => (RSS_ZONES.find((z) => z.name === name) || RSS_ZONES[0]).f;
 // спрос по часам и поправки сервисов по времени суток, демо на основе заказов курьеров Разноса
 // демо: курьер сам поставил Яндекс Еду на пятницу, а слот X5 в эти часы платит больше, пересборка это покажет
-const RSS_DEMO_ADDED = { '2026-09-18': [{ key: 'a:demo:ye', svc: 'yandex-eda', from: 780, to: 1080, source: 'added' }] };
+const RSS_DEMO_ADDED = { '2026-09-18': [{ key: 'a:demo:ye', svc: 'yandex-eda', from: 960, to: 1080, source: 'added' }] };
 const RSS_DEMAND = [0.12, 0.09, 0.07, 0.06, 0.06, 0.1, 0.18, 0.32, 0.46, 0.56, 0.62, 0.72, 0.92, 0.86, 0.62, 0.52, 0.58, 0.78, 1.0, 0.96, 0.82, 0.62, 0.4, 0.22];
-const RSS_SVC_F = { samokat: [0.97, 1, 0.96, 1.06, 0.9], vkusvill: [1.04, 1.07, 1, 0.95, 0.85], 'yandex-eda': [0.95, 1.04, 1, 1.08, 1.02], x5: [1.02, 1.07, 1.12, 1, 0.88] };
+const RSS_SVC_F = { samokat: [0.97, 1, 0.96, 1.06, 0.9], vkusvill: [1.04, 1.07, 1, 0.95, 0.85], 'yandex-eda': [0.95, 1.04, 1, 1.08, 1.02], x5: [1.02, 1.07, 1.12, 1, 0.88], dodo: [0.9, 1.02, 0.98, 1.05, 0.95] };
 const rssBand = (h) => (h < 11 ? 0 : (h < 15 ? 1 : (h < 18 ? 2 : (h < 22 ? 3 : 4))));
-const rssHourRate = (svc, h, zoneF) => (500 + RSS_DEMAND[h % 24] * 280) * RSS_SVC_F[svc][rssBand(h % 24)] * (zoneF || 1);
+const rssHourRate = (svc, h, zoneF) => (500 + RSS_DEMAND[h % 24] * 280) * (RSS_SVC_F[svc] || [1, 1, 1, 1, 1])[rssBand(h % 24)] * (zoneF || 1);
 // средняя ставка окна по часам, минуты окна округляются до целых часов
 const rssRate = (svc, from, to, zoneF) => {
   let sum = 0, n = 0;
@@ -290,39 +288,39 @@ const RSS_BOOK_STATUS = { requested: ['заявка', 'pending'], tentative: ['�
 // демо на случай, когда экран открыт отдельно от приложения
 const RSS_DEMO_BOOKED = [
   { id: 's3', iso: '2026-09-15', svc: 'samokat', title: 'Самокат', place: 'Даркстор Беговая, 7', from: 540, to: 720, status: 'completed' },
-  { id: 's4', iso: '2026-09-15', svc: 'vkusvill', title: 'ВкусВилл', place: 'Магазин на Правды, 24', from: 840, to: 1020, status: 'active' },
-  { id: 's5', iso: '2026-09-15', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Зона Беговой', from: 1020, to: 1260, status: 'confirmed' },
+  { id: 's4', iso: '2026-09-15', svc: 'vkusvill', title: 'ВкусВилл', place: 'Даркстор на Правды, 24', from: 840, to: 1020, status: 'active' },
+  { id: 's5', iso: '2026-09-15', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Локация Беговая', from: 1020, to: 1260, status: 'confirmed' },
   { id: 's6', iso: '2026-09-16', svc: 'samokat', title: 'Самокат', place: 'Даркстор Беговая, 7', from: 630, to: 810, status: 'confirmed' },
-  { id: 's7', iso: '2026-09-16', svc: 'vkusvill', title: 'ВкусВилл', place: 'Магазин на Правды, 24', from: 840, to: 1080, status: 'requested' },
+  { id: 's7', iso: '2026-09-16', svc: 'vkusvill', title: 'ВкусВилл', place: 'Даркстор на Правды, 24', from: 840, to: 1080, status: 'requested' },
   { id: 's8', iso: '2026-09-17', svc: 'x5', title: 'X5 Доставка', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 660, to: 1020, status: 'confirmed' },
   { id: 's9', iso: '2026-09-18', svc: 'samokat', title: 'Самокат', place: 'Даркстор Беговая, 7', from: 1080, to: 1320, status: 'confirmed' },
-  { id: 's10', iso: '2026-09-19', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Зона Беговой', from: 720, to: 960, status: 'tentative' }
+  { id: 's10', iso: '2026-09-19', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Локация Беговая', from: 720, to: 960, status: 'confirmed' }
 ];
 const RSS_DEMO_SLOTS = [
-  { id: 'f1', iso: '2026-09-15', svc: 'samokat', place: 'Даркстор Беговая, 7', from: 1080, to: 1320, seats: 3, full: false },
-  { id: 'f3', iso: '2026-09-16', svc: 'samokat', place: 'Даркстор Беговая, 7', from: 1080, to: 1320, seats: 5, full: false },
-  { id: 'f5', iso: '2026-09-16', svc: 'x5', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 540, to: 900, seats: 2, full: false },
-  { id: 'f6', iso: '2026-09-16', svc: 'vkusvill', place: 'Магазин на Правды, 24', from: 1140, to: 1320, seats: 1, full: false, apply: true },
-  { id: 'f9', iso: '2026-09-18', svc: 'x5', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 720, to: 1080, seats: 3, full: false },
-  { id: 'f12', iso: '2026-09-20', svc: 'samokat', place: 'Даркстор Беговая, 7', from: 720, to: 960, seats: 6, full: false },
-  { id: 'f13', iso: '2026-09-20', svc: 'yandex-eda', from: 840, to: 1080, seats: 0, full: true }
+  { id: 'f1', iso: '2026-09-15', svc: 'samokat', place: 'Даркстор Беговая, 7', from: 1080, to: 1320, apply: true },
+  { id: 'f3', iso: '2026-09-16', svc: 'samokat', place: 'Даркстор Беговая, 7', from: 1080, to: 1320, apply: true },
+  { id: 'f5', iso: '2026-09-16', svc: 'x5', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 540, to: 900 },
+  { id: 'f6', iso: '2026-09-16', svc: 'vkusvill', place: 'Даркстор на Правды, 24', from: 1140, to: 1320, apply: true },
+  { id: 'f9', iso: '2026-09-18', svc: 'x5', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 720, to: 1080 },
+  { id: 'f12', iso: '2026-09-20', svc: 'samokat', place: 'Даркстор Беговая, 7', from: 720, to: 960, apply: true },
+  { id: 'f13', iso: '2026-09-20', svc: 'yandex-eda', from: 840, to: 1080, gone: true }
 ];
 // слоты, которые план сам ставит в свободные часы, остальное закрывает свободный выход
 // соседние недели для демо: прошлая выполнена, на следующей часть записи уже открылась
 const RSS_EXTRA_BOOKED = [
   { id: 'p1', iso: '2026-09-07', svc: 'samokat', title: 'Самокат', place: 'Даркстор Беговая, 7', from: 540, to: 780, status: 'completed' },
-  { id: 'p2', iso: '2026-09-07', svc: 'vkusvill', title: 'ВкусВилл', place: 'Магазин на Правды, 24', from: 840, to: 1080, status: 'completed' },
-  { id: 'p3', iso: '2026-09-08', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Зона Беговой', from: 720, to: 1080, status: 'completed' },
+  { id: 'p2', iso: '2026-09-07', svc: 'vkusvill', title: 'ВкусВилл', place: 'Даркстор на Правды, 24', from: 840, to: 1080, status: 'completed' },
+  { id: 'p3', iso: '2026-09-08', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Локация Беговая', from: 720, to: 1080, status: 'completed' },
   { id: 'p4', iso: '2026-09-09', svc: 'x5', title: 'X5 Доставка', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 660, to: 1020, status: 'completed' },
   { id: 'p5', iso: '2026-09-10', svc: 'samokat', title: 'Самокат', place: 'Даркстор Беговая, 7', from: 1080, to: 1320, status: 'completed' },
-  { id: 'p6', iso: '2026-09-11', svc: 'vkusvill', title: 'ВкусВилл', place: 'Магазин на Правды, 24', from: 600, to: 840, status: 'completed' },
-  { id: 'p7', iso: '2026-09-12', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Зона Беговой', from: 720, to: 1200, status: 'completed' },
-  { id: 'n1', iso: '2026-09-22', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Зона Беговой', from: 720, to: 960, status: 'confirmed' },
-  { id: 'n2', iso: '2026-09-24', svc: 'x5', title: 'X5 Доставка', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 660, to: 1020, status: 'requested' }
+  { id: 'p6', iso: '2026-09-11', svc: 'vkusvill', title: 'ВкусВилл', place: 'Даркстор на Правды, 24', from: 600, to: 840, status: 'completed' },
+  { id: 'p7', iso: '2026-09-12', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Локация Беговая', from: 720, to: 1200, status: 'completed' },
+  { id: 'n1', iso: '2026-09-22', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Локация Беговая', from: 720, to: 960, status: 'confirmed' },
+  { id: 'n2', iso: '2026-09-24', svc: 'x5', title: 'X5 Доставка', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 660, to: 1020, status: 'confirmed' }
 ];
 const RSS_EXTRA_SLOTS = [
-  { id: 'n3', iso: '2026-09-21', svc: 'yandex-eda', from: 1020, to: 1260, seats: 3, full: false },
-  { id: 'n4', iso: '2026-09-25', svc: 'x5', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 720, to: 1080, seats: 4, full: false }
+  { id: 'n3', iso: '2026-09-21', svc: 'yandex-eda', from: 1020, to: 1260 },
+  { id: 'n4', iso: '2026-09-25', svc: 'x5', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 720, to: 1080 }
 ];
 // сколько начислено на прошлой неделе и какая была цель, те же цифры, что в Результатах за 7–13 сентября
 const RSS_PREV_WEEK = { earned: 27240, goal: 30000 };
@@ -331,12 +329,19 @@ const RSS_SLOT_PICKS = { '2026-09-18': ['f9'] };
 const RSS_FREE_BANDS = [[480, 660], [660, 900], [900, 1080], [1080, 1320]];
 // пояснения меток окна, открываются по тапу на метку
 const RSS_TERMS = {
-  'бронь': 'Сервис подтвердил смену. Выйти нужно вовремя, иначе по его правилам будет штраф',
+  'бронь': 'Сервис подтвердил смену. Выйти нужно вовремя, последствия за невыход смотрите в правилах сервиса',
   'заявка': 'Вы откликнулись, но сервис ещё не подтвердил. Это не бронь, смену могут не дать',
+  'подтверждена': 'Сервис подтвердил вашу заявку на смену. Выйти нужно вовремя, последствия за невыход смотрите в правилах сервиса',
+  'пожелание': 'Вы отправили пожелание в график, сервис ещё не одобрил. Смену могут изменить',
+  'одобрена': 'График на эту смену одобрен в сервисе. Заказы внутри смены назначает сервис',
+  'черновик': 'Смена в черновике графика, сервис ещё не утвердил',
+  'утверждена': 'График на эту смену утверждён в сервисе',
+  'автоназначение': 'Брони нет: пока вы на линии, заказы назначает сервис. Заранее взять слот не нужно',
+  'смена в ресторане': 'Смена в ресторане или пиццерии по графику, заказы внутри смены назначает сервис',
   'предварительная': 'Смена в черновике сервиса и может измениться',
   'свободный выход': 'Бронь не нужна: выходите на линию когда удобно и на сколько удобно, это Яндекс Еда',
   'нужен слот': 'Сервис даёт заказы только по брони. Слот берётся в приложении сервиса, мы покажем где',
-  'мест нет': 'Все слоты разобрали. Где слежение доступно, мы напишем, когда место освободится',
+  'нет в списке': 'Слот пропал из списка сервиса. Где слежение разрешено, напишем, когда он вернётся',
   'отработано': 'Смена прошла, это реальный заработок из приложения сервиса',
   'по заявке': 'Отклик на слот это заявка, смену подтверждает сервис',
   'слот': 'Смена по брони в приложении сервиса',
@@ -362,12 +367,6 @@ const RSS_DEMO_FACT = {
   p1: { earn: 2300, orders: 10 }, p2: { earn: 2150, orders: 9 }, p3: { earn: 3700, orders: 16 }, p8: { earn: 1900, orders: 8 },
   p4: { earn: 3300, orders: 14 }, p9: { earn: 1950, orders: 8 }, p5: { earn: 2550, orders: 11 }, p6: { earn: 2400, orders: 10 },
   p11: { earn: 2900, orders: 12 }, p7: { earn: 4090, orders: 17 }
-};
-const RSS_DEMO_RULES = {
-  samokat: { freeCancel: 'hours', hoursBefore: 24, late: 'Позже: жёлтая карточка, за неявку по отзывам курьеров до 10 000 ₽' },
-  'yandex-eda': { freeCancel: 'noonBefore', late: 'Позже: ≈ 300 ₽ и минус приоритет, за неявку блокировка на сутки' },
-  vkusvill: { freeCancel: 'none', note: 'Штрафа за неявку у ВкусВилла нет, опоздание уменьшает оплату смены' },
-  x5: { freeCancel: 'hours', hoursBefore: 12, late: 'Правила штрафов X5 не нашли, уточните у куратора' }
 };
 
 class Component extends DCLogic {
@@ -425,7 +424,29 @@ class Component extends DCLogic {
     const isWorkDay = (d) => hoursOf(d).on;
     const booked = (p.booked || RSS_DEMO_BOOKED.concat(RSS_EXTRA_BOOKED)).filter((b) => b.status !== 'cancelled' && b.status !== 'missed');
     const slots = (p.slots || RSS_DEMO_SLOTS.concat(RSS_EXTRA_SLOTS)).filter((sl) => !sl.taken);
-    const rules = p.rules || RSS_DEMO_RULES;
+    const rules = p.rules || {};
+    // профиль возможностей сервисов из приложения: названия, свободный выход, слова статусов, слежение, подпись кнопки
+    const caps = p.caps || {};
+    const RSS_SVC = Object.keys(caps).length ? {} : RSS_SVC_FALLBACK;
+    Object.keys(caps).forEach((k) => { RSS_SVC[k] = { title: caps[k].title, in: caps[k].prep, free: caps[k].modes.indexOf('free') !== -1 && !(caps[k].unverified || []).length }; });
+    const capOf = (svc) => caps[svc] || {};
+    const watchOk = (svc) => capOf(svc).watch === true;
+    const takeLabel = (svc) => capOf(svc).take || 'Открыть в сервисе';
+    // статус брони словами сервиса: бронь, заявка, подтверждена, пожелание, одобрена, у Додо кинд shift
+    const bookStat = (status, svc) => {
+      const b = RSS_BOOK_STATUS[status] || ['бронь', 'booked'], words = capOf(svc).words;
+      const label = words ? (status === 'requested' ? words.requested : (status === 'tentative' ? b[0] : words.confirmed)) : b[0];
+      return [label, b[1] === 'booked' ? (modeKind(svc) || b[1]) : b[1]];
+    };
+    // режим работы подтверждённой смены: смена в ресторане или автоназначение, по профилю сервиса
+    const modeKind = (svc) => {
+      const m = capOf(svc).modes || [];
+      return m[0] === 'restaurant' ? 'shift' : (m.indexOf('auto') !== -1 && capOf(svc).orders === 'auto' ? 'auto' : '');
+    };
+    const modeBadge = (svc, status) => {
+      const k = RSS_BOOK_STATUS[status] && RSS_BOOK_STATUS[status][1] === 'booked' ? modeKind(svc) : '';
+      return k === 'shift' ? 'смена в ресторане' : (k === 'auto' ? 'автоназначение' : '');
+    };
     const openService = typeof p.onOpenService === 'function' ? p.onOpenService : (() => {});
     const added = st.added || RSS_DEMO_ADDED;
     const removed = st.removed || {};
@@ -454,7 +475,7 @@ class Component extends DCLogic {
 
     // последняя бронь сегодня, после которой можно остаться ещё на час
     const stayBase = booked.filter((b) => b.iso === RSS_TODAY_ISO && b.to > RSS_NOW && b.to < 1320).sort((a, b) => b.to - a.to)[0] || null;
-    const slotState = (sl) => (sl.full || sl.seats === 0 ? 'full' : (sl.apply ? 'apply' : 'open'));
+    const slotState = (sl) => (sl.gone ? 'full' : (sl.apply ? 'apply' : 'open'));
     // все окна дня: брони из Смен, план в свободные часы графика, добавленное курьером
     const windowsOf = (iso) => {
       const d = new Date(iso + 'T00:00:00');
@@ -495,7 +516,7 @@ class Component extends DCLogic {
     };
     const rateOf = (w) => rssRate(w.svc, w.from, w.to, rssZoneF(w.zone));
     const kindOf = (w) => {
-      if (w.source === 'booking') return RSS_BOOK_STATUS[w.status] ? RSS_BOOK_STATUS[w.status][1] : 'booked';
+      if (w.source === 'booking') return bookStat(w.status, w.svc)[1];
       if (RSS_SVC[w.svc].free) return 'free';
       const sl = w.slot || slots.find((s) => s.iso === w.iso && s.svc === w.svc && s.from <= w.from && s.to >= w.to);
       return sl && slotState(sl) !== 'full' ? 'need' : 'full';
@@ -593,9 +614,9 @@ class Component extends DCLogic {
       if (w.source === 'booking' && w.status === 'requested' && !dismissed['req:' + w.key]) {
         const alt = rssRate('yandex-eda', w.from, w.to);
         return {
-          is_nudge: true, icon: 'swap', title: 'Если ' + RSS_SVC[w.svc].title + ' откажет в заявке',
+          is_nudge: true, icon: 'swap', title: capOf(w.svc).status === 'wish' ? 'Если ' + RSS_SVC[w.svc].title + ' не одобрит пожелание' : 'Если ' + RSS_SVC[w.svc].title + ' откажет в заявке',
           text: 'Подставим на ' + rssTime(w.from) + '–' + rssTime(w.to) + ' Яндекс Еду, ≈ ' + rssFmt(alt) + ' ₽/ч, и пришлём пуш',
-          meta: 'Ответ сервиса обычно приходит за сутки до смены', action: '', dismiss: 'Понятно',
+          meta: 'Срок ответа сервис не сообщает', action: '', dismiss: 'Понятно',
           onDismiss: () => set({ dismissed: Object.assign({}, dismissed, { ['req:' + w.key]: true }) })
         };
       }
@@ -611,10 +632,12 @@ class Component extends DCLogic {
       const now = isToday && w.from <= RSS_NOW && w.to > RSS_NOW;
       const sl = kind === 'need' || kind === 'full' ? slotFor(w) : null;
       let note = '', action = '', actionKind = 'secondary', onAction = () => {}, urgent = false;
-      if (!past && kind === 'need' && sl) { note = w.svc === 'vkusvill' ? RSS_VV_NOTE : (sl.apply ? 'Отклик это заявка, смену подтверждает сервис' : 'Нужно взять слот в ' + RSS_SVC[w.svc].in + ', места есть'); action = (sl.apply ? 'Откликнуться ' : 'Взять ') + RSS_AT[w.svc]; actionKind = 'primary'; urgent = true; onAction = () => takeSlot(sl, w.iso, w.svc); }
-      if (!past && kind === 'full') { const on = !!watches[w.key]; note = 'Мест нет. ' + (on ? 'Напишем, если появится' : 'Можно следить за местом'); action = on ? 'Слежу' : 'Следить'; actionKind = on ? 'watch-on' : 'watch'; onAction = () => { const nx = Object.assign({}, watches); if (on) delete nx[w.key]; else nx[w.key] = true; set({ watches: nx }); flash(on ? 'Больше не следим' : 'Напишем, когда появится место'); }; if (RSS_NO_WATCH.indexOf(w.svc) !== -1) { note = RSS_NO_WATCH_NOTE; action = ''; actionKind = 'secondary'; onAction = () => {}; } }
+      if (!past && kind === 'need' && sl) { note = w.svc === 'vkusvill' ? RSS_VV_NOTE : (sl.apply ? 'Отклик это заявка, смену подтверждает сервис' : 'Нужно взять слот в ' + RSS_SVC[w.svc].in); action = takeLabel(w.svc); actionKind = 'primary'; urgent = true; onAction = () => takeSlot(sl, w.iso, w.svc); }
+      if (!past && kind === 'full') { const on = !!watches[w.key]; note = 'Слота нет в списке сервиса. ' + (on ? 'Напишем, если он вернётся' : 'Можно следить'); action = on ? 'Слежу' : 'Следить'; actionKind = on ? 'watch-on' : 'watch'; onAction = () => { const nx = Object.assign({}, watches); if (on) delete nx[w.key]; else nx[w.key] = true; set({ watches: nx }); flash(on ? 'Больше не следим' : 'Напишем, если слот вернётся'); }; if (!watchOk(w.svc)) { note = RSS_NO_WATCH_NOTE; action = ''; actionKind = 'secondary'; onAction = () => {}; } }
       if (w.source === 'bt') note = 'Добавлено из Когда выгоднее';
-      if (w.source === 'booking' && kind === 'pending') note = w.status === 'requested' ? 'Сервис ещё не подтвердил, это не бронь' : 'Смена в черновике сервиса, может измениться';
+      if (w.source === 'booking' && kind === 'pending') note = w.status === 'requested' ? (capOf(w.svc).status === 'wish' ? 'Пожелание в график, сервис ещё не одобрил' : 'Сервис ещё не подтвердил, это не бронь') : 'Смена в черновике сервиса, может измениться';
+      // там, где заказы назначает сервис, окно без своего примечания подписываем этим
+      if (!note && !past && w.source === 'booking' && capOf(w.svc).orders === 'auto') note = 'Заказы в смене назначает сервис';
       // переезд между бронями разных сервисов: то же предупреждение, что на Сегодня и в Слотах
       const prevB = w.source === 'booking' ? dayWins.filter((x) => x.source === 'booking' && x.key !== w.key && x.svc !== w.svc && x.from < w.from && x.to > w.from - 20).sort((a, b) => b.to - a.to)[0] : null;
       if (!past && prevB) { const gapM = Math.max(0, w.from - prevB.to); note = prevB.to > w.from ? 'Пересекается: ' + RSS_SVC[prevB.svc].title + ' до ' + rssTime(prevB.to) : 'Не успеете доехать: ' + RSS_SVC[prevB.svc].title + ' до ' + rssTime(prevB.to) + ', между сменами ' + gapM + ' мин, дорога ≈ 20 мин'; action = 'Что делать'; actionKind = 'secondary'; onAction = () => set({ bookSheet: w.key }); urgent = true; }
@@ -625,10 +648,10 @@ class Component extends DCLogic {
         is_window: true, _t: w.from, key: w.key, src: w.source, from: rssTime(w.from), to: rssTime(w.to), svc: w.svc, title: RSS_SVC[w.svc].title,
         sub: f ? (w.place || w.zone) + ' · ' + f.orders + ' заказов, ' + rssFmt(Math.round(f.earn * 60 / (w.to - w.from) / 10) * 10) + ' ₽/ч' : (noFact ? (w.place || w.zone) + ' · данные ещё не пришли' : (w.source === 'booking' && w.status === 'requested' ? (w.place || w.zone) + ' · ждёт подтверждения' : (w.place || w.zone))),
         pay: f ? rssFmt(f.earn) + ' ₽' : (selIso < RSS_TODAY_ISO ? '—' : '≈ ' + rssFmt(rate) + ' ₽/ч'), kind,
-        badge: f ? 'отработано' : (selIso < RSS_TODAY_ISO ? 'выполнена' : w.source === 'booking' ? RSS_BOOK_STATUS[w.status][0] : ({ free: 'свободный выход', need: 'нужен слот', full: 'мест нет' })[kind]),
+        badge: f ? 'отработано' : (selIso < RSS_TODAY_ISO ? 'выполнена' : w.source === 'booking' ? (modeBadge(w.svc, w.status) || bookStat(w.status, w.svc)[0]) : ({ free: 'свободный выход', need: 'нужен слот', full: 'нет в списке' })[kind]),
         state: past ? 'past' : (now ? 'now' : ''), note: past ? '' : note, action: past ? '' : action, actionKind, onAction, urgent: urgent && !past,
         tap: () => openWin(w), highlight: hlKey === w.key,
-        onBadge: () => set({ term: f ? 'отработано' : (w.source === 'booking' ? RSS_BOOK_STATUS[w.status][0] : ({ free: 'свободный выход', need: 'нужен слот', full: 'мест нет' })[kind]) })
+        onBadge: () => set({ term: f ? 'отработано' : (w.source === 'booking' ? (modeBadge(w.svc, w.status) || bookStat(w.status, w.svc)[0]) : ({ free: 'свободный выход', need: 'нужен слот', full: 'нет в списке' })[kind]) })
       });
       if (now && !nowPlaced) { rows.push({ is_now_line: true, label: 'Сейчас ' + rssTime(RSS_NOW), _t: w.from + 0.2 }); nowPlaced = true; }
       const nudge = nudgeFor(w);
@@ -647,14 +670,18 @@ class Component extends DCLogic {
     // прирост итога дня от окон: ровно то, что покажет итог до и после
     const dayDelta = (extra, dropKey) => r10(dayEarnOf(realWins.filter((w) => w.key !== dropKey).concat(extra))) - r10(dayEarnOf(realWins.filter((w) => w.key !== dropKey)));
     const confN = realWins.filter((w) => w.source === 'booking' && !rssUnconf(w)).length, reqN = realWins.filter(rssUnconf).length;
-    const bookInfo = [confN ? confN + ' ' + (confN === 1 ? 'бронь' : (confN < 5 ? 'брони' : 'броней')) : '', reqN ? reqN + ' ' + (reqN === 1 ? 'заявка' : (reqN < 5 ? 'заявки' : 'заявок')) : ''].filter(Boolean).join(' · ') || 'без броней';
+    // слова по профилю сервиса: бронь только у сервисов с бронью, иначе смена, заявка только где она есть
+    const allBron = realWins.filter((w) => w.source === 'booking' && !rssUnconf(w)).every((w) => bookStat('confirmed', w.svc)[0] === 'бронь');
+    const allZay = realWins.filter(rssUnconf).every((w) => bookStat('requested', w.svc)[0] === 'заявка');
+    const bookInfo = [confN ? confN + ' ' + (allBron ? (confN === 1 ? 'бронь' : (confN < 5 ? 'брони' : 'броней')) : (confN === 1 ? 'смена' : (confN < 5 ? 'смены' : 'смен'))) : '', reqN ? reqN + ' ' + (allZay ? (reqN === 1 ? 'заявка' : (reqN < 5 ? 'заявки' : 'заявок')) : (reqN === 1 ? 'ждёт ответа' : 'ждут ответа')) : ''].filter(Boolean).join(' · ') || 'без броней';
     const dayPct = (() => { const ws = realWins.filter((w) => kindOf(w) !== 'full'); const mins = ws.reduce((s, w) => s + w.to - w.from, 0); return mins ? Math.round(ws.reduce((s, w) => s + rssConf(w.from, w.to).pct * (w.to - w.from), 0) / mins) : 10; })();
 
     // напоминание про запись на следующую неделю в понедельник плана
-    const topNudge = selIso === '2026-09-18' && !dismissed.opening ? {
-      is_nudge: true, icon: 'clock', title: 'Около 12:00 откроются слоты Самоката на следующую неделю',
-      text: done.opening ? 'Напомним за 5 минут, план подстроим под то, что возьмёте' : 'Хорошие слоты разбирают за минуты',
-      meta: 'По наблюдениям Разноса за 4 недели', action: done.opening ? '' : 'Напомнить', dismiss: done.opening ? '' : 'Не надо',
+    // время открытия известно только там, где оно связано с уровнем по профилю сервиса, сейчас это Яндекс Еда
+    const topNudge = selIso === '2026-09-18' && !dismissed.opening && capOf('yandex-eda').opening ? {
+      is_nudge: true, icon: 'clock', title: (selIso === RSS_TODAY_ISO ? 'Сегодня откроется' : 'В этот день откроется') + ' запись в Яндекс на следующую неделю',
+      text: done.opening ? 'Напомним за 5 минут, план подстроим под то, что возьмёте' : capOf('yandex-eda').opening.text,
+      meta: 'Москва, в других городах время другое · правила Яндекс Про', action: done.opening ? '' : 'Напомнить', dismiss: done.opening ? '' : 'Не надо',
       onAction: () => set({ done: Object.assign({}, done, { opening: true }) }), onDismiss: () => set({ dismissed: Object.assign({}, dismissed, { opening: true }) })
     } : null;
 
@@ -731,7 +758,7 @@ class Component extends DCLogic {
     const rowOf = (o) => {
       const sl = o.slot;
       const on = !!watches[o.key];
-      const badge = o.avail === 'free' ? 'свободный выход' : (o.avail === 'full' ? 'мест нет' : (o.avail === 'apply' ? 'по заявке' : 'есть места'));
+      const badge = o.avail === 'free' ? 'свободный выход' : (o.avail === 'full' ? 'нет в списке' : (o.avail === 'apply' ? 'по заявке' : 'слот'));
       const row = {
         from: rssTime(o.from), to: rssTime(o.to), svc: o.svc, title: RSS_SVC[o.svc].title,
         sub: placeOf(o), pay: '≈ ' + rssFmt(o.rate) + ' ₽/ч', kind: o.avail === 'free' ? 'free' : (o.avail === 'full' ? 'full' : 'need'), badge,
@@ -741,9 +768,9 @@ class Component extends DCLogic {
       if (o.fit === 'free') return Object.assign(row, { gain: true, note: '+' + rssFmt(o.gain) + ' ₽ к неделе' + slotTail, action: 'В расписание', actionKind: 'primary', onAction: () => addWin(o) });
       if (o.fit === 'swap') return Object.assign(row, { gain: true, note: '+' + rssFmt(o.gain) + ' ₽ к неделе вместо плана в ' + RSS_SVC[o.over[0].svc].in + slotTail, action: 'Заменить', actionKind: 'primary', onAction: () => addWin(o) });
       if (o.fit === 'clash') return Object.assign(row, { note: 'Пересекается с ' + (o.hard.source === 'booking' ? 'бронью' : 'вашим окном') + ' в ' + RSS_SVC[o.hard.svc].in + ' ' + rssTime(o.hard.from) + '–' + rssTime(o.hard.to), action: '' });
-      if (o.fit === 'full' && RSS_NO_WATCH.indexOf(o.svc) !== -1) return Object.assign(row, { note: RSS_NO_WATCH_NOTE, action: '' });
-      if (o.fit === 'full') return Object.assign(row, { note: on ? 'Напишем, если появится место' : 'Мест нет, можно следить', action: on ? 'Слежу' : 'Следить', actionKind: on ? 'watch-on' : 'watch',
-        onAction: () => { const nx = Object.assign({}, watches); if (on) delete nx[o.key]; else nx[o.key] = true; set({ watches: nx }); flash(on ? 'Больше не следим' : 'Напишем, когда появится место'); } });
+      if (o.fit === 'full' && !watchOk(o.svc)) return Object.assign(row, { note: RSS_NO_WATCH_NOTE, action: '' });
+      if (o.fit === 'full') return Object.assign(row, { note: on ? 'Напишем, если слот вернётся' : 'Слота нет в списке сервиса, можно следить', action: on ? 'Слежу' : 'Следить', actionKind: on ? 'watch-on' : 'watch',
+        onAction: () => { const nx = Object.assign({}, watches); if (on) delete nx[o.key]; else nx[o.key] = true; set({ watches: nx }); flash(on ? 'Больше не следим' : 'Напишем, если слот вернётся'); } });
       return Object.assign(row, { note: 'Не выгоднее плана в ' + RSS_SVC[o.over[0].svc].in, action: '' });
     };
     const byGain = (a, b) => b.gain - a.gain;
@@ -933,28 +960,28 @@ class Component extends DCLogic {
       const f = factOf(w, past);
       const rate = rateOf(w);
       const d = new Date(w.iso + 'T00:00:00');
-      const stt = RSS_BOOK_STATUS[w.status] || ['бронь', 'booked'];
+      const stt = bookStat(w.status, w.svc);
       // правило отмены: до какого времени бесплатно и что будет позже
       const ruleView = (() => {
-        if (w.status === 'requested') return { text: 'Это пока заявка. Отозвать её можно в приложении сервиса, ответ обычно приходит за сутки до смены', tone: '' };
+        if (w.status === 'requested') return { text: capOf(w.svc).status === 'wish' ? 'Это пока пожелание в график. Отозвать его можно в приложении сервиса' : 'Это пока заявка. Отозвать её можно в приложении сервиса, срок ответа сервис не сообщает', tone: '' };
         const r = rules[w.svc];
         if (!r) return { text: 'Правила отмены этого сервиса не нашли, уточните в приложении', tone: '' };
         if (r.freeCancel === 'none') return { text: r.note || '', tone: '' };
         const dl = r.freeCancel === 'noonBefore' ? (() => { const x = new Date(w.iso + 'T00:00:00'); x.setDate(x.getDate() - 1); x.setHours(12); return x; })() : (() => { const x = new Date(w.iso + 'T00:00:00'); x.setMinutes(w.from - (r.hoursBefore || 24) * 60); return x; })();
         const lbl = RSS_WD[dl.getDay()].toLowerCase() + ' ' + rssTime(dl.getHours() * 60 + dl.getMinutes());
         const open = dl > new Date(2026, 8, 15, 0, RSS_NOW);
-        return { text: (open ? 'Отменить без штрафа до ' + lbl : 'Бесплатная отмена закончилась ' + lbl) + '. ' + r.late, tone: open ? '' : 'warn', free: open ? lbl : '' };
+        return { text: (open ? 'Отменить без последствий до ' + lbl : 'Отмена без последствий закончилась ' + lbl) + '. ' + r.late, tone: open ? '' : 'warn', free: open ? lbl : '', src: r.src || '' };
       })();
       return {
         svc: w.svc, title: RSS_SVC[w.svc].title, place: w.place || w.zone || '', time: rssTime(w.from) + '–' + rssTime(w.to),
         status: f ? 'отработано' : (live ? 'идёт' : (past ? 'выполнена' : stt[0])), tone: live ? 'live' : (stt[1] === 'pending' ? 'warn' : 'ok'),
-        whenNote: RSS_WD_FULL[d.getDay()] + ', ' + d.getDate() + ' ' + RSS_MONTHS[d.getMonth()] + (live ? ', осталось ' + rssLeft(w.to - RSS_NOW) : (w.iso === RSS_TODAY_ISO && !past ? ', через ' + rssLeft(w.from - RSS_NOW) : '')),
+        whenNote: RSS_WD_FULL[d.getDay()] + ', ' + d.getDate() + ' ' + RSS_MONTHS[d.getMonth()] + (live ? ', осталось ' + rssLeft(w.to - RSS_NOW) : (w.iso === RSS_TODAY_ISO && !past ? ', через ' + rssLeft(w.from - RSS_NOW) : '')) + (!past && capOf(w.svc).orders === 'auto' ? '. Заказы в смене назначает сервис' : ''),
         conflict: past ? '' : ((rows.find((r) => r.is_window && r.key === w.key && r.urgent) || {}).note || ''),
         money: f ? rssFmt(f.earn) + ' ₽ за смену' : (past ? 'Данные ещё не пришли' : '≈ ' + rssFmt(Math.round(rate * (w.to - w.from) / 600) * 10) + ' ₽ за смену'),
         moneyNote: f ? f.orders + ' заказов, это факт из приложения сервиса' : (past ? 'Сервис ещё не прислал итог смены, обычно он приходит в течение суток' : '≈ ' + rssFmt(rate) + ' ₽/ч, оценка ' + rssConfText(w.from, w.to)),
-        rule: past ? '' : ruleView.text, ruleTone: past ? '' : ruleView.tone,
+        rule: past ? '' : ruleView.text, ruleTone: past ? '' : ruleView.tone, ruleSrc: past ? '' : (ruleView.src || ''),
         action: past ? '' : 'Открыть в приложении ' + RSS_SVC[w.svc].title, act: () => { set({ bookSheet: null }); openService(w.svc, whenOf(w), w.iso); },
-        actionNote: past || live ? '' : (w.status === 'requested' ? 'Заявку можно отозвать' : 'Бронь можно отменить') + ' только в приложении ' + RSS_SVC[w.svc].title + (ruleView.free ? ', бесплатно до ' + ruleView.free : '')
+        actionNote: past || live ? '' : (w.status === 'requested' ? (capOf(w.svc).status === 'wish' ? 'Пожелание можно отозвать' : 'Заявку можно отозвать') : (capOf(w.svc).status === 'bron' || !capOf(w.svc).status ? 'Бронь можно отменить' : 'Смену можно отменить')) + ' только в приложении ' + RSS_SVC[w.svc].title + (ruleView.free ? ', бесплатно до ' + ruleView.free : '')
       };
     })() : {};
     // в свободное время идут только варианты внутри него, выходящие за границы показываем отдельно и добавляем после подтверждения

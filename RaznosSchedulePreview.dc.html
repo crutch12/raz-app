@@ -30,12 +30,12 @@
   </div>
   <div class="rsp-foot"><span class="rsp-goal">{{ foot_note }}</span><span class="rsp-open">План дня<span class="raznos-row-chevron">›</span></span></div>
 </button>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"open":{"editor":null},"blocks":{"editor":null},"bookings":{"editor":null},"today":{"editor":"text","default":"2026-09-15"},"nowMinutes":{"editor":null},"dayLabel":{"editor":"text","default":"Сегодня"},"$preview":{"width":390,"height":330}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"caps":{"editor":null},"open":{"editor":null},"blocks":{"editor":null},"bookings":{"editor":null},"today":{"editor":"text","default":"2026-09-15"},"nowMinutes":{"editor":null},"dayLabel":{"editor":"text","default":"Сегодня"},"$preview":{"width":390,"height":330}}'>
 // превью плана на сегодня для хаба Работа: брони из Смен важнее плана, план закрывает свободные часы
-const RSP_SVC = { samokat: 'Самокат', vkusvill: 'ВкусВилл', 'yandex-eda': 'Яндекс Еда', x5: 'X5 Доставка' };
+// названия и свободный выход идут из профиля сервисов (пропс caps), запасной набор только для показа без приложения
+const RSP_CAPS_FALLBACK = { 'yandex-eda': { title: 'Яндекс Еда', modes: ['plan', 'free'] }, samokat: { title: 'Самокат', modes: ['plan'] }, vkusvill: { title: 'ВкусВилл', modes: ['plan'] }, x5: { title: 'X5 Доставка', modes: ['plan'] } };
 // план закрывает свободные часы графика свободным выходом, брони из Смен важнее
 const RSP_DEMO = [{ from: 9, to: 18, svc: 'yandex-eda' }];
-const RSP_FREE = ['yandex-eda'];
 const RSP_DEMO_BOOKED = [
   { iso: '2026-09-15', svc: 'samokat', from: 540, to: 720, status: 'completed' },
   { iso: '2026-09-15', svc: 'vkusvill', from: 840, to: 1020, status: 'active' },
@@ -48,6 +48,9 @@ class Component extends DCLogic {
     const open = typeof p.open === 'function' ? p.open : (() => {});
     const today = p.today || '2026-09-15';
     const now = p.nowMinutes == null ? 940 : p.nowMinutes;
+    const caps = p.caps || RSP_CAPS_FALLBACK;
+    const RSP_SVC = {}, RSP_FREE = [];
+    Object.keys(caps).forEach((k) => { RSP_SVC[k] = caps[k].title; if (caps[k].modes.indexOf('free') !== -1 && !(caps[k].unverified || []).length) RSP_FREE.push(k); });
     const plan = ((p.blocks && p.blocks.length) ? p.blocks : RSP_DEMO).map((b) => ({ svc: b.svc, from: b.from * 60, to: b.to * 60 }));
     const booked = (p.bookings || RSP_DEMO_BOOKED).filter((b) => b.iso === today && b.status !== 'cancelled' && b.status !== 'missed');
     const edges = plan.concat(booked);
@@ -71,7 +74,7 @@ class Component extends DCLogic {
       const pending = r.status === 'requested' || r.status === 'tentative';
       return {
         svc: r.svc, name: RSP_SVC[r.svc] || r.svc, time: RSP_TIME(r.from) + '–' + RSP_TIME(r.to),
-        tag: r.source === 'booking' ? (pending ? 'заявка' : 'бронь') : (RSP_FREE.indexOf(r.svc) !== -1 ? 'свободный выход' : 'нужен слот'), need: r.source === 'plan' && RSP_FREE.indexOf(r.svc) === -1, hours,
+        tag: r.source === 'booking' ? ((caps[r.svc] && caps[r.svc].words) || { confirmed: 'бронь', requested: 'заявка' })[pending ? 'requested' : 'confirmed'] : (RSP_FREE.indexOf(r.svc) !== -1 ? 'свободный выход' : 'нужен слот'), need: r.source === 'plan' && RSP_FREE.indexOf(r.svc) === -1, hours,
         tag_cls: 'rsp-tag' + (r.source === 'booking' ? (pending ? ' rsp-tag-pending' : ' rsp-tag-book') : (RSP_FREE.indexOf(r.svc) !== -1 ? ' rsp-tag-book' : ' rsp-tag-pending')),
         cls: 'rsp-slot' + (r.source === 'plan' ? ' rsp-slot-plan' : '') + (r.to <= now ? ' rsp-slot-past' : '')
       };

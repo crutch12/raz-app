@@ -107,8 +107,7 @@
 .raznos-shift-action:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
 .raznos-slot-actions { display: flex; gap: 8px; }
 .raznos-slot-actions .raznos-shift-action { flex: 1; }
-.raznos-slot-seats { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 999px; background: color-mix(in oklab, var(--raznos-green) 14%, var(--sh-card)); color: var(--sh-ok); font: 700 12px/1 var(--raznos-font); white-space: nowrap; }
-.raznos-slot-seats.raznos-is-full { background: var(--sh-track); color: var(--sh-muted); }
+.raznos-shift-tag.raznos-is-full { flex: none; white-space: nowrap; background: var(--sh-track); color: var(--sh-muted); }
 .raznos-shift-card.raznos-is-offer.raznos-is-full .raznos-shift-time strong { color: var(--sh-muted); }
 
 .raznos-shift-alert { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; padding: 12px 14px; border-radius: 18px; background: var(--sh-card); color: var(--sh-ink); }

@@ -14,7 +14,11 @@ const RWMB_MODEL = {
   plan: { label: 'плановый слот', tone: 'stable' },
   slot: { label: 'слот', tone: 'stable' },
   free: { label: 'свободный выход', tone: 'flex' },
-  birzha: { label: 'биржа', tone: 'flex' }
+  birzha: { label: 'биржа', tone: 'flex' },
+  // сервис сам назначает заказы, брони и слота нет
+  auto: { label: 'автоназначение', tone: 'flex' },
+  // смена в ресторане или пиццерии по графику, заказы внутри смены назначает сервис
+  restaurant: { label: 'смена в ресторане', tone: 'stable' }
 };
 class Component extends DCLogic {
   renderVals() {

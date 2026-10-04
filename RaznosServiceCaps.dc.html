@@ -1,0 +1,66 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rsc-root { display: flex; flex-direction: column; gap: 8px; }
+    .rsc-list { display: flex; flex-direction: column; }
+    .rsc-row { display: flex; align-items: baseline; gap: 12px; padding: 8px 0; border-top: 1px solid var(--raznos-line); }
+    .rsc-row:first-child { border-top: 0; padding-top: 0; }
+    .rsc-row:last-child { padding-bottom: 0; }
+    .rsc-head { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rsc-head .rfs { margin-left: 0; }
+    .rsc-label { flex: 0 0 92px; font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rsc-value { flex: 1 1 auto; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font: 500 14px/1.35 var(--raznos-font); color: var(--raznos-ink); }
+  </style>
+</helmet>
+<div class="rsc-root">
+  <div class="raznos-card raznos-card-pad">
+    <sc-if value="{{ has_shared_src }}" hint-placeholder-val="{{ false }}"><div class="rsc-head"><span class="rsc-head-text">Все факты</span><dc-import name="RaznosFactSource" src="{{ shared_src }}"></dc-import></div></sc-if>
+    <div class="rsc-list">
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
+        <div class="rsc-row"><span class="rsc-label">{{ r.label }}</span><span class="rsc-value">{{ r.value }}<dc-import name="RaznosFactSource" src="{{ r.src }}"></dc-import></span></div>
+      </sc-for>
+    </div>
+  </div>
+  <sc-if value="{{ unverified_note }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ unverified_note }}</span></sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"caps":{"editor":null},"compact":{"editor":"boolean","default":false},"$preview":{"width":360,"height":260}}'>
+// Сводка профиля возможностей сервиса: режим, зона, заказы, транспорт, запись на смены
+const RSC_MODES = { plan: 'плановый слот', free: 'свободный слот', birzha: 'биржа заказов', auto: 'автоназначение', restaurant: 'смена в ресторане' };
+const RSC_ORDERS = { offers: 'входящие предложения', auto: 'автоназначение', feed: 'лента или карта', route: 'маршрут целиком' };
+const RSC_TRANSPORT = { foot: 'пешком', bike: 'велосипед', ebike: 'электро', moto: 'мото', car: 'авто' };
+const RSC_STATUS = { bron: 'бронь слота', zayavka: 'заявка и подтверждение', wish: 'пожелания', draft: 'черновик и утверждение' };
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const c = p.caps;
+    if (!c) return { rows: [], has_shared_src: false, shared_src: '', unverified_note: '' };
+    const src = c.src || {};
+    const modes = (c.modes || []).filter((m) => m !== 'auto').map((m) => RSC_MODES[m]).filter(Boolean).join(', ') || ((c.modes || []).includes('auto') ? RSC_MODES.auto : '');
+    let transport = 'нет данных';
+    if (c.transport && c.transport.length) {
+      transport = c.transport.length === 5 ? 'любой' : c.transport.map((t) => RSC_TRANSPORT[t]).join(', ');
+      if (c.transportNote) transport += ', ' + c.transportNote;
+    } else if (c.transportNote) {
+      transport = c.transportNote;
+    }
+    const sign = (key) => src[key] || '';
+    // слоты у сервиса сами не подтверждены, режим и запись не обещаем
+    const noSlots = (c.unverified || []).some((u) => /^слоты/.test(u));
+    const rows = [
+      { label: 'Режим', value: noSlots ? 'нет данных' : (modes || 'нет данных'), src: sign('modes') },
+      { label: 'Зона', value: c.zone || 'нет данных', src: sign('zone') }
+    ];
+    if (!p.compact) {
+      rows.push({ label: 'Заказы', value: RSC_ORDERS[c.orders] || 'нет данных', src: sign('orders') });
+      rows.push({ label: 'Транспорт', value: transport, src: sign('transport') });
+      rows.push({ label: 'Запись на смены', value: noSlots ? 'нет данных' : (RSC_STATUS[c.status] || 'без записи на смены'), src: sign('status') });
+    }
+    // один источник у всех строк показываем один раз в шапке
+    const first = rows[0].src;
+    const shared = !!first && rows.length > 1 && rows.every((r) => r.src === first);
+    if (shared) rows.forEach((r) => { r.src = ''; });
+    return { rows, has_shared_src: shared, shared_src: shared ? first : '', unverified_note: (c.unverified && c.unverified.length) ? 'Не подтверждено: ' + c.unverified.join(', ') : '' };
+  }
+}
+</script></body></html>

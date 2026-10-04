@@ -33,7 +33,7 @@
   <sc-for list="{{ rows }}" as="row" hint-placeholder-count="2">
     <button type="button" class="{{ row.cls }}" onClick="{{ row.tap }}" aria-label="{{ row.aria }}">
       <dc-import name="RaznosIcon" svc="{{ row.svc }}" alt="{{ row.title }}" size="md"></dc-import>
-      <span class="rnn-row-body"><span class="rnn-row-top"><span class="rnn-row-lab">{{ row.label }}</span><span class="rnn-row-hint">{{ row.hint }}</span></span><span class="rnn-row-name">{{ row.title }}</span><span class="rnn-row-sub">{{ row.subTime }}</span><sc-if value="{{ row.place }}" hint-placeholder-val="{{ true }}"><span class="rnn-row-place">{{ row.place }}</span></sc-if></span>
+      <span class="rnn-row-body"><span class="rnn-row-top"><span class="rnn-row-lab">{{ row.label }}</span><span class="rnn-row-hint">{{ row.hint }}</span></span><span class="rnn-row-name">{{ row.title }}</span><span class="rnn-row-sub">{{ row.subTime }}</span><sc-if value="{{ row.place }}" hint-placeholder-val="{{ true }}"><span class="rnn-row-place">{{ row.place }}</span></sc-if><sc-if value="{{ row.deadline }}" hint-placeholder-val="{{ false }}"><span class="rnn-row-place">{{ row.deadline }}</span></sc-if></span>
     </button>
   </sc-for>
   <sc-if value="{{ warning }}" hint-placeholder-val="{{ true }}"><button type="button" class="rnn-warning" onClick="{{ on_warning }}"><span>{{ warning }}</span><span class="rnn-warning-act">Решить в плане ›</span></button></sc-if>
@@ -49,11 +49,12 @@ class Component extends DCLogic {
     const openPlan = typeof p.onOpenPlan === 'function' ? p.onOpenPlan : noop;
     const state = p.state || 'on';
     const rows = (p.rows || [
-      { svc: 'vkusvill', kind: 'now', source: 'booking', title: 'ВкусВилл', time: '14:00–17:00', place: 'Магазин на Правды, 24', hint: 'ещё 1 ч 20 мин' },
-      { svc: 'yandex-eda', kind: 'next', source: 'booking', title: 'Яндекс Еда', time: '17:00–20:00', place: 'Зона Беговой', hint: 'через 1 ч 20 мин' }
+      { svc: 'vkusvill', kind: 'now', source: 'booking', title: 'ВкусВилл', time: '14:00–17:00', place: 'Даркстор на Правды, 24', word: 'смена', hint: 'ещё 1 ч 20 мин' },
+      { svc: 'yandex-eda', kind: 'next', source: 'booking', title: 'Яндекс Еда', time: '17:00–20:00', place: 'Локация Беговая', word: 'бронь', hint: 'через 1 ч 20 мин' }
     ]).map((row) => {
       const now = row.kind === 'now';
-      const label = (now ? 'Сейчас' : 'Дальше') + (row.source === 'booking' ? ' · бронь' : ' · по плану');
+      // слово статуса по профилю сервиса: бронь, заявка, подтверждена
+      const label = (now ? 'Сейчас' : 'Дальше') + (row.source === 'booking' ? ' · ' + (row.word || 'бронь') : ' · по плану');
       const sub = [row.time, row.source === 'booking' ? row.place : (row.pay ? row.pay + ' ₽/ч' : '')].filter(Boolean).join(' · ');
       const subTime = [row.time, row.source === 'booking' ? '' : (row.pay ? row.pay + ' ₽/ч' : '')].filter(Boolean).join(' · ');
       return Object.assign({}, row, {

@@ -1,0 +1,28 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-links.css" /></helmet>
+<button type="button" class="raznos-app-section-link" style="{{ box_style }}" onClick="{{ on_open }}" aria-label="{{ aria }}">
+  <dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ svc_title }}" size="sm"></dc-import>
+  <span class="raznos-app-section-link-copy"><span class="raznos-list-title">{{ title }}</span><span class="raznos-text-small">{{ hint }}</span></span>
+  <span class="raznos-row-chevron">›</span>
+</button>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"svc":{"editor":"text","default":"samokat"},"svcTitle":{"editor":"text","default":"Самокат"},"section":{"editor":"enum","default":"income","options":["income","rating","fines","schedule","support"]},"onOpen":{"editor":null},"$preview":{"width":340,"height":80}}'>
+// переход в раздел приложения сервиса, подтверждённого deeplink на раздел нет, поэтому открываем приложение и подписываем, что искать
+const RASL_SECTIONS = { income: 'Доход', rating: 'Рейтинг', fines: 'Удержания', schedule: 'Расписание', support: 'Поддержка' };
+const RASL_NOOP = () => {};
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const svc = p.svc || 'samokat';
+    const svcTitle = p.svcTitle || 'сервиса';
+    const name = RASL_SECTIONS[p.section] || RASL_SECTIONS.income;
+    return {
+      svc, svc_title: svcTitle,
+      box_style: 'border-left-color:var(--raznos-svc-' + svc + ')',
+      title: name + ' в приложении ' + svcTitle,
+      hint: 'Откроется приложение, найдите раздел ' + name,
+      aria: 'Открыть приложение ' + svcTitle + ', раздел ' + name,
+      on_open: typeof p.onOpen === 'function' ? p.onOpen : RASL_NOOP
+    };
+  }
+}
+</script></body></html>

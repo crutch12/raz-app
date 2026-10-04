@@ -68,14 +68,15 @@
   </sc-if>
   <sc-if value="{{ has_more }}" hint-placeholder-val="{{ false }}"><button type="button" class="rpw-more" onClick="{{ on_more }}">{{ more }}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"12:00"},"to":{"editor":"text","default":"14:00"},"svc":{"editor":"text","default":"yandex-eda"},"title":{"editor":"text","default":"Яндекс Еда"},"sub":{"editor":"text","default":"Центр"},"pay":{"editor":"text","default":"≈ 740 ₽/ч"},"kind":{"editor":"enum","options":["free","booked","pending","need","full","option"],"default":"free"},"badge":{"editor":"text","default":"свободный выход"},"state":{"editor":"enum","options":["","now","past"],"default":""},"note":{"editor":"text","default":""},"action":{"editor":"text","default":""},"actionKind":{"editor":"enum","options":["primary","secondary","ghost"],"default":"secondary"},"onTap":{"editor":null},"onBadge":{"editor":null},"added":{"editor":null},"highlight":{"editor":null},"urgent":{"editor":null},"gain":{"editor":null},"plain":{"editor":null},"more":{"editor":"text","default":""},"onMore":{"editor":null},"onAction":{"editor":null},"$preview":{"width":366,"height":130}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"12:00"},"to":{"editor":"text","default":"14:00"},"svc":{"editor":"text","default":"yandex-eda"},"title":{"editor":"text","default":"Яндекс Еда"},"sub":{"editor":"text","default":"Центр"},"pay":{"editor":"text","default":"≈ 740 ₽/ч"},"kind":{"editor":"enum","options":["free","booked","pending","need","full","option","auto","shift"],"default":"free"},"badge":{"editor":"text","default":"свободный выход"},"state":{"editor":"enum","options":["","now","past"],"default":""},"note":{"editor":"text","default":""},"action":{"editor":"text","default":""},"actionKind":{"editor":"enum","options":["primary","secondary","ghost"],"default":"secondary"},"onTap":{"editor":null},"onBadge":{"editor":null},"added":{"editor":null},"highlight":{"editor":null},"urgent":{"editor":null},"gain":{"editor":null},"plain":{"editor":null},"more":{"editor":"text","default":""},"onMore":{"editor":null},"onAction":{"editor":null},"$preview":{"width":366,"height":130}}'>
 // окно в умном расписании: бронь из Смен, окно плана или вариант, доступность бейджем, действие внизу
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
     const kind = p.kind || 'free';
     const state = p.state || '';
-    const badgeTone = state === 'now' ? 'live' : ({ booked: 'ok', free: 'ok', pending: 'warn', need: 'warn', full: 'off', option: '' })[kind] || '';
+    // auto: автоназначение без брони, заказы приходят сами, shift: смена в ресторане или пиццерии, график утверждает сервис
+    const badgeTone = state === 'now' ? 'live' : ({ booked: 'ok', free: 'ok', pending: 'warn', need: 'warn', full: 'off', option: '', auto: 'ok', shift: 'ok' })[kind] || '';
     const note = p.note || '';
     const action = p.action || '';
     const title = p.title || 'Яндекс Еда';
@@ -85,7 +86,7 @@ class Component extends DCLogic {
       pay: p.pay == null ? '≈ 740 ₽/ч' : p.pay, badge: state === 'now' ? 'идёт' : (p.badge || 'свободный выход'),
       badge_cls: 'rpw-badge' + (badgeTone ? ' rpw-badge-' + badgeTone : ''),
       // срочно: окно уже в плане, но без брони сервис заказы не даст
-      cls: 'rpw' + (p.urgent ? ' rpw-urgent' : (({ booked: ' rpw-booked', pending: ' rpw-pending', need: ' rpw-need' })[kind] || '')) + (state === 'past' ? ' rpw-past' : '') + (p.plain ? ' rpw-plain' : '') + (p.highlight ? ' rpw-hl' : ''),
+      cls: 'rpw' + (p.urgent ? ' rpw-urgent' : (({ booked: ' rpw-booked', shift: ' rpw-booked', auto: ' rpw-booked', pending: ' rpw-pending', need: ' rpw-need' })[kind] || '')) + (state === 'past' ? ' rpw-past' : '') + (p.plain ? ' rpw-plain' : '') + (p.highlight ? ' rpw-hl' : ''),
       urgent: !!p.urgent,
       // окно уже в расписании: зелёная подпись и галочка в кружке на месте кнопки
       in_plan: !!p.added && !action, note_cls: 'rpw-note' + (p.added ? ' rpw-note-added' : '') + (p.gain ? ' rpw-note-gain' : '') + (p.urgent ? ' rpw-note-urgent' : ''),
