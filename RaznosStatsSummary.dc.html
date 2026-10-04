@@ -33,7 +33,7 @@
     </sc-if>
   </div>
 </section>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mainLabel":{"editor":"text","default":"Осталось после расходов"},"mainValue":{"editor":"text","default":"7 400 ₽"},"netKnown":{"editor":"boolean","default":true},"statusLabel":{"editor":"text","default":"Период идёт"},"delta":{"editor":null},"prevWord":{"editor":"text","default":"чем на прошлой неделе"},"earnLabel":{"editor":"text","default":"8 000 ₽"},"finesLabel":{"editor":"text","default":""},"expensesLabel":{"editor":"text","default":"600 ₽"},"hoursLabel":{"editor":"text","default":"11,5 ч"},"ordersLabel":{"editor":"text","default":"30"},"goalTitle":{"editor":"text","default":"Цель недели"},"goalFact":{"editor":null},"goalTotal":{"editor":null},"goalPace":{"editor":null},"goalNote":{"editor":"text","default":""},"chart":{"editor":null},"chartMode":{"editor":"text","default":"week"},"$preview":{"width":360,"height":620}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mainLabel":{"editor":"text","default":"Осталось после расходов"},"mainValue":{"editor":"text","default":"7 400 ₽"},"netKnown":{"editor":"boolean","default":true},"statusLabel":{"editor":"text","default":"Период идёт"},"delta":{"editor":null},"prevWord":{"editor":"text","default":"чем на прошлой неделе"},"earnLabel":{"editor":"text","default":"8 000 ₽"},"finesLabel":{"editor":"text","default":""},"expensesLabel":{"editor":"text","default":"600 ₽"},"hoursLabel":{"editor":"text","default":"11,5 ч"},"ordersLabel":{"editor":"text","default":"30"},"routesLabel":{"editor":"text","default":""},"shiftsLabel":{"editor":"text","default":""},"goalTitle":{"editor":"text","default":"Цель недели"},"goalFact":{"editor":null},"goalTotal":{"editor":null},"goalPace":{"editor":null},"goalNote":{"editor":"text","default":""},"chart":{"editor":null},"chartMode":{"editor":"text","default":"week"},"$preview":{"width":360,"height":620}}'>
 const RSS_FMT = (value) => String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const RSS_PLURAL = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; };
 const RSS_DAY = { 'Пн': 'в понедельник', 'Вт': 'во вторник', 'Ср': 'в среду', 'Чт': 'в четверг', 'Пт': 'в пятницу', 'Сб': 'в субботу', 'Вс': 'в воскресенье' };
@@ -53,6 +53,8 @@ class Component extends DCLogic {
     const netKnown = p.netKnown !== false;
     const orders = Number(String(p.ordersLabel == null ? '' : p.ordersLabel).replace(/\s/g, ''));
     const hasOrders = /\d/.test(String(p.ordersLabel || '')) && orders > 0;
+    const routes = Number(String(p.routesLabel || '').replace(/\s/g, ''));
+    const shifts = Number(String(p.shiftsLabel || '').replace(/\s/g, ''));
     const hasHours = /\d/.test(String(p.hoursLabel || ''));
     const delta = p.delta == null ? null : Number(p.delta);
     const prevWord = p.prevWord || 'чем в прошлый период';
@@ -70,7 +72,9 @@ class Component extends DCLogic {
       lead_label: netKnown ? 'Заработали' : (p.mainLabel || 'Начислено'),
       main_value: p.mainValue || 'Нет данных', net_known: netKnown,
       sub_label: (hasOrders ? 'за ' + RSS_FMT(orders) + ' ' + RSS_PLURAL(orders, 'заказ', 'заказа', 'заказов') : (String(p.ordersLabel) === '0' ? 'Заказов не было' : 'Число заказов неизвестно')) +
-        (hasHours ? ' и ' + p.hoursLabel + ' на линии' : '') + (netKnown ? '' : ' · расходы внесены не полностью'),
+        (hasOrders && routes > 0 && routes !== orders ? ' · ' + RSS_FMT(routes) + ' ' + RSS_PLURAL(routes, 'маршрут', 'маршрута', 'маршрутов') : '') +
+        (shifts > 0 ? ' · ' + shifts + ' ' + RSS_PLURAL(shifts, 'смена', 'смены', 'смен') : '') +
+        (hasHours ? (hasOrders && (shifts > 0 || routes > 0 && routes !== orders) ? ' · ' : ' и ') + p.hoursLabel + ' на линии' : '') + (netKnown ? '' : ' · расходы внесены не полностью'),
       delta_visible: delta != null,
       delta_label: delta == null ? '' : (delta === 0 ? 'Начислено столько же, ' + prevWord.replace(/^чем /, 'как ') : 'Начислено на ' + Math.abs(delta) + '% ' + (delta > 0 ? 'больше, ' : 'меньше, ') + prevWord),
       delta_class: 'raznos-stats-summary-delta' + (delta > 0 ? ' raznos-is-positive' : (delta < 0 ? ' raznos-is-negative' : '')),

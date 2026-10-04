@@ -201,7 +201,7 @@
               </sc-if>
               </sc-if>
               <dc-import name="RaznosEarnBreakdown" services="{{ earn_services }}" expenses="{{ earn_expenses }}" onOpenService="{{ go_history }}" onOpenExpenses="{{ go_expenses_from_home }}" onAddExpense="{{ go_expense_form_from_home }}"></dc-import>
-              <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onAddExpense="{{ go_expense_form_from_home }}" onSaveTip="{{ save_recent_tip }}"></dc-import>
+              <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onOpenTrip="{{ open_recent_trip }}"onAddExpense="{{ go_expense_form_from_home }}" onSaveTip="{{ save_recent_tip }}"></dc-import>
 
               <h2 class="raznos-home-group">Вокруг</h2>
               <dc-import name="RaznosLiveToday" items="{{ live_today_items }}" cityTitle="{{ city_title }}" onAll="{{ live_go_feed_home }}" onWrite="{{ live_go_compose_home }}"></dc-import>
@@ -280,8 +280,9 @@
                 <dc-import name="RaznosStatsRange" chips="{{ stats_period_chips }}" title="{{ stats_range_human }}" hint="{{ stats_range_hint }}" stepVisible="{{ stats_step_visible }}" backDisabled="{{ stats_step_back_disabled }}" nextDisabled="{{ stats_step_next_disabled }}" onBack="{{ stats_step_back }}" onNext="{{ stats_step_next }}" filterLabel="{{ stats_filter_names }}" onFilters="{{ stats_detail_go_filters }}" onReset="{{ stats_filters_reset }}"></dc-import>
                 <sc-if value="{{ stats_period_is_custom }}"><div class="raznos-stats-section"><div class="raznos-stats-fields raznos-stats-fields-row"><label class="raznos-stats-field">С даты<input type="date" max="{{ stats_max_day }}" value="{{ stats_from_day }}" onChange="{{ stats_from_day_change }}" /></label><label class="raznos-stats-field">По дату<input type="date" max="{{ stats_max_day }}" value="{{ stats_to_day }}" onChange="{{ stats_to_day_change }}" /></label></div><p class="raznos-text-tiny">{{ stats_custom_note }}</p></div></sc-if>
                 <sc-if value="{{ stats_has_data }}" hint-placeholder-val="{{ true }}">
-                  <dc-import name="RaznosStatsSummary" mainLabel="{{ stats_main_label }}" mainValue="{{ stats_main_value }}" netKnown="{{ stats_net_known }}" statusLabel="{{ stats_status_label }}" delta="{{ stats_delta }}" prevWord="{{ stats_prev_word }}" earnLabel="{{ stats_earn_label }}" finesLabel="{{ stats_fines_card_label }}" expensesLabel="{{ stats_expenses_label }}" hoursLabel="{{ stats_hours_label }}" ordersLabel="{{ stats_orders_label }}" goalTitle="{{ stats_goal_title }}" goalFact="{{ stats_goal_fact }}" goalTotal="{{ stats_goal_total }}" goalPace="{{ stats_goal_pace }}" goalNote="{{ stats_goal_note }}" chart="{{ stats_chart }}" chartMode="{{ stats_chart_mode }}"></dc-import>
+                  <dc-import name="RaznosStatsSummary" mainLabel="{{ stats_main_label }}" mainValue="{{ stats_main_value }}" netKnown="{{ stats_net_known }}" statusLabel="{{ stats_status_label }}" delta="{{ stats_delta }}" prevWord="{{ stats_prev_word }}" earnLabel="{{ stats_earn_label }}" finesLabel="{{ stats_fines_card_label }}" expensesLabel="{{ stats_expenses_label }}" hoursLabel="{{ stats_hours_label }}" ordersLabel="{{ stats_orders_label }}" routesLabel="{{ stats_routes_label }}" shiftsLabel="{{ stats_shifts_label }}" goalTitle="{{ stats_goal_title }}" goalFact="{{ stats_goal_fact }}" goalTotal="{{ stats_goal_total }}" goalPace="{{ stats_goal_pace }}" goalNote="{{ stats_goal_note }}" chart="{{ stats_chart }}" chartMode="{{ stats_chart_mode }}"></dc-import>
                   <sc-if value="{{ stats_has_missing }}"><p class="raznos-stats-note raznos-stats-missing">{{ stats_missing_note }}</p></sc-if>
+                  <sc-if value="{{ stats_work_visible }}"><dc-import name="RaznosStatsWork" rows="{{ stats_work_rows }}"></dc-import></sc-if>
                   <div class="raznos-stats-section raznos-stats-trends-card"><button type="button" class="raznos-stats-head-link" onClick="{{ stats_detail_go_trends }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">Мои тренды</h2><small>{{ stats_trend_caption }}</small></span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><dc-import name="RaznosMyTrends" current="{{ stats_trend_current }}" previous="{{ stats_trend_previous }}"></dc-import></div>
                   <dc-import name="RaznosStatsMoney" title="{{ stats_money_title }}" accent="{{ stats_money_accent }}" sub="{{ stats_money_sub }}" rows="{{ stats_money_rows }}" finesLabel="{{ stats_fines_link }}" onFines="{{ stats_detail_go_fines }}" onOpen="{{ stats_detail_go_money }}" onExpenses="{{ go_expenses_from_stats }}"></dc-import>
                   <dc-import name="RaznosStatsTaxCard" value="{{ stats_tax_card_value }}" sub="{{ stats_tax_card_sub }}" onOpen="{{ stats_detail_go_taxes }}"></dc-import>
@@ -557,7 +558,7 @@
                 <sc-if value="{{ hist_partial_data }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">По датам раньше 1 сентября подробная история ещё не загружена, показаны только доступные заказы</p></sc-if>
                 <sc-if value="{{ hist_range_empty }}" hint-placeholder-val="{{ false }}"><div class="raznos-empty-state"><span class="raznos-empty-glyph">₽</span><span class="raznos-text-h3">Нет заказов за выбранные даты</span></div></sc-if>
                 <sc-if value="{{ hist_range_has_rows }}" hint-placeholder-val="{{ true }}">
-                  <p class="raznos-text-tiny">Показано {{ hist_shown_count }} из {{ hist_total_count }} заказов · сумма показанных {{ hist_shown_sum }} ₽</p>
+                  <p class="raznos-text-tiny">Показано {{ hist_shown_count }} из {{ hist_total_count }} заказов, поездок {{ hist_trip_count }} · сумма показанных {{ hist_shown_sum }} ₽</p>
                   <sc-if value="{{ hist_multi_day }}" hint-placeholder-val="{{ false }}">
                     <div class="raznos-fx raznos-col raznos-gap8">
                       <sc-for list="{{ hist_days }}" as="day" hint-placeholder-count="3">
@@ -570,7 +571,8 @@
                           <sc-if value="{{ day.expanded }}" hint-placeholder-val="{{ false }}">
                             <div class="raznos-fx raznos-col raznos-gap8">
                               <sc-for list="{{ day.rows }}" as="row" hint-placeholder-count="2">
-                                <dc-import name="RaznosOrderCard" svc="{{ row.svc }}" svcTitle="{{ row.svcTitle }}" orderNo="{{ row.orderNo }}" dateLabel="{{ row.date }}" deliveryStatus="{{ row.delivery }}" moneyStatus="{{ row.money }}" payout="{{ row.pay }}" tipLabel="{{ row.tipLabel }}" routeLabel="{{ row.routeLabel }}" onTap="{{ row.onTap }}"></dc-import>
+                                <sc-if value="{{ row.isOrder }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosOrderCard" svc="{{ row.svc }}" svcTitle="{{ row.svcTitle }}" orderNo="{{ row.orderNo }}" dateLabel="{{ row.date }}" deliveryStatus="{{ row.delivery }}" moneyStatus="{{ row.money }}" payout="{{ row.pay }}" tipLabel="{{ row.tipLabel }}" routeLabel="{{ row.routeLabel }}" onTap="{{ row.onTap }}"></dc-import></sc-if>
+                                <sc-if value="{{ row.isTrip }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosTripCard" svc="{{ row.svc }}" svcTitle="{{ row.svcTitle }}" title="{{ row.tripTitle }}" timeLabel="{{ row.tripTime }}" total="{{ row.tripTotal }}" moneyLabel="{{ row.tripMoney }}" statusLabel="{{ row.tripStatus }}" statusTone="{{ row.tripTone }}" orders="{{ row.tripOrders }}" onOpenTrip="{{ row.openTrip }}" expanded="{{ row.tripOpen }}" onToggle="{{ row.tripToggle }}"></dc-import></sc-if>
                               </sc-for>
                             </div>
                           </sc-if>
@@ -581,7 +583,8 @@
                   <sc-if value="{{ hist_single_day }}" hint-placeholder-val="{{ true }}">
                     <div class="raznos-fx raznos-col raznos-gap8">
                       <sc-for list="{{ hist_list }}" as="row" hint-placeholder-count="5">
-                        <dc-import name="RaznosOrderCard" svc="{{ row.svc }}" svcTitle="{{ row.svcTitle }}" orderNo="{{ row.orderNo }}" dateLabel="{{ row.date }}" deliveryStatus="{{ row.delivery }}" moneyStatus="{{ row.money }}" payout="{{ row.pay }}" tipLabel="{{ row.tipLabel }}" routeLabel="{{ row.routeLabel }}" onTap="{{ row.onTap }}"></dc-import>
+                        <sc-if value="{{ row.isOrder }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosOrderCard" svc="{{ row.svc }}" svcTitle="{{ row.svcTitle }}" orderNo="{{ row.orderNo }}" dateLabel="{{ row.date }}" deliveryStatus="{{ row.delivery }}" moneyStatus="{{ row.money }}" payout="{{ row.pay }}" tipLabel="{{ row.tipLabel }}" routeLabel="{{ row.routeLabel }}" onTap="{{ row.onTap }}"></dc-import></sc-if>
+                        <sc-if value="{{ row.isTrip }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosTripCard" svc="{{ row.svc }}" svcTitle="{{ row.svcTitle }}" title="{{ row.tripTitle }}" timeLabel="{{ row.tripTime }}" total="{{ row.tripTotal }}" moneyLabel="{{ row.tripMoney }}" statusLabel="{{ row.tripStatus }}" statusTone="{{ row.tripTone }}" orders="{{ row.tripOrders }}" onOpenTrip="{{ row.openTrip }}" expanded="{{ row.tripOpen }}" onToggle="{{ row.tripToggle }}"></dc-import></sc-if>
                       </sc-for>
                     </div>
                   </sc-if>
@@ -599,19 +602,21 @@
 
           <sc-if value="{{ is_order }}">
             <div class="raznos-phone-body" data-screen-label="21 Order">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_history }}">‹</button><dc-import name="RaznosIcon" svc="{{ ord_svc }}" alt="{{ ord_svc_title }}" size="sm"></dc-import><h1 class="raznos-text-h1" style="margin:0">{{ ord_svc_title }} · {{ ord_no }}</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ ord_back }}">‹</button><dc-import name="RaznosIcon" svc="{{ ord_svc }}" alt="{{ ord_svc_title }}" size="sm"></dc-import><h1 class="raznos-text-h1" style="margin:0">{{ ord_svc_title }} · {{ ord_no }}</h1></div>
               <p class="raznos-text-small" style="margin-top:-4px">{{ ord_account }} · {{ ord_date }}</p>
+              <sc-if value="{{ ord_in_trip }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-trip-plate" onClick="{{ ord_trip_open }}"><span>{{ ord_trip_label }} · {{ ord_trip_of }}</span><span aria-hidden="true">›</span></button></sc-if>
               <div class="raznos-metric-grid">
                 <div class="raznos-metric-card"><span class="raznos-text-small">Статус доставки</span><span class="{{ ord_delivery_pill_class }}">{{ ord_delivery }}</span></div>
                 <div class="raznos-metric-card"><span class="raznos-text-small">Статус денег</span><span class="{{ ord_money_pill_class }}">{{ ord_money }}</span></div>
               </div>
               <dc-import name="RaznosOrderLink" svc="{{ ord_svc }}" svcTitle="{{ ord_svc_title }}" orderNo="{{ ord_no }}" orderRef="{{ ord_link_ref }}" orderState="done" app="{{ order_link_app }}" launch="{{ order_link_launch }}" resetKey="{{ state_gen }}"></dc-import>
               <dc-import name="RaznosRouteMap" pickupAddr="{{ ord_pickup }}" dropAddr="{{ ord_drop }}" distance="{{ ord_distance }}"></dc-import>
-              <sc-if value="{{ ord_promised_known }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosOfferVsFact" promised="{{ ord_promised }}" accrued="{{ ord_pay }}" payout="{{ ord_money }}"></dc-import></sc-if>
+              <sc-if value="{{ ord_promised_shown }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosOfferVsFact" promised="{{ ord_promised }}" accrued="{{ ord_pay }}" payout="{{ ord_money }}"></dc-import></sc-if>
               <div class="raznos-card raznos-card-pad">
                 <span class="raznos-text-h3">Начисление</span>
 
-                <div class="raznos-breakdown-row"><span>Оплата доставки</span><span class="raznos-num">{{ ord_pay }} ₽</span></div>
+                <sc-if value="{{ ord_pay_known }}" hint-placeholder-val="{{ true }}"><div class="raznos-breakdown-row"><span>Оплата доставки</span><span class="raznos-num">{{ ord_pay }} ₽</span></div></sc-if>
+                <sc-if value="{{ ord_pay_unknown }}" hint-placeholder-val="{{ false }}"><div class="raznos-breakdown-row"><span>Оплата доставки</span><span class="raznos-text-small">в оплате маршрута</span></div></sc-if>
                 <div class="raznos-breakdown-row"><span>Безналичные чаевые</span><span class="raznos-num">{{ ord_tip_digital }} ₽</span></div>
               </div>
               <div class="raznos-card raznos-card-pad">
@@ -688,6 +693,31 @@
                   </div>
                 </sc-if>
                 <p class="raznos-text-tiny">Ручные суммы не меняют рынок и конкурс, источник: внесено вручную</p>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ is_trip }}">
+            <div class="raznos-phone-body" data-screen-label="21a Trip">
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ trip_back }}" aria-label="Назад">‹</button><dc-import name="RaznosIcon" svc="{{ trip_svc }}" alt="{{ trip_svc_title }}" size="sm"></dc-import><h1 class="raznos-text-h1" style="margin:0">{{ trip_svc_title }} · маршрут</h1></div>
+              <p class="raznos-text-small" style="margin-top:-4px">{{ trip_when }} · {{ trip_title }}</p>
+              <div class="raznos-card raznos-card-pad">
+                <span class="raznos-text-small">Итого за маршрут</span>
+                <span class="raznos-metric-value">{{ trip_total }} ₽</span>
+                <div class="raznos-fx raznos-ac raznos-gap8 raznos-wrap"><span class="{{ trip_status_pill_class }}">{{ trip_status }}</span><span class="raznos-text-tiny">{{ trip_money }}</span></div>
+                <p class="raznos-text-tiny">{{ trip_pay_note }}</p>
+                <sc-if value="{{ trip_distance_known }}" hint-placeholder-val="{{ false }}"><div class="raznos-breakdown-row"><span>Расстояние маршрута</span><span class="raznos-num">{{ trip_distance }}</span></div></sc-if>
+              </div>
+              <div class="raznos-card">
+                <span class="raznos-card-heading raznos-text-h3">Заказы в маршруте</span>
+                <sc-for list="{{ trip_stops }}" as="stop" hint-placeholder-count="3">
+                  <button type="button" class="raznos-list-row" onClick="{{ stop.onTap }}">
+                    <sc-if value="{{ stop.hasNum }}" hint-placeholder-val="{{ false }}"><span class="raznos-trip-stop-num">{{ stop.num }}</span></sc-if>
+                    <span class="raznos-list-main"><span class="raznos-list-title">{{ stop.addr }}</span><span class="{{ stop.statusClass }}">{{ stop.title }} · {{ stop.status }} · <span class="raznos-trip-of">{{ stop.of }}</span></span></span>
+                    <sc-if value="{{ stop.hasPay }}" hint-placeholder-val="{{ false }}"><span class="raznos-num">{{ stop.pay }} ₽</span></sc-if>
+                    <span class="raznos-row-chevron">›</span>
+                  </button>
+                </sc-for>
               </div>
             </div>
           </sc-if>
@@ -2066,6 +2096,9 @@
         'work-device': { s: 'work-tasks', wtKind: 'device' },
         'work-cache': { s: 'work-tasks', wtKind: 'cache' },
         'link-samokat-history': { s: 'order', histSelectedId: 'samokat-0' },
+        'trip-samokat': { s: 'trip', tripSelectedId: 'trip-sk-1' },
+        'trip-vkusvill': { s: 'trip', tripSelectedId: 'trip-vv-1' },
+        'trip-partial': { s: 'trip', tripSelectedId: 'trip-sk-w1' },
         'link-missing-app': { s: 'order', histSelectedId: 'vkusvill-0', orderLinkDemo: { app: 'missing' } },
         'link-unresolved': { s: 'order', histSelectedId: 'vkusvill-0', orderLinkDemo: { app: 'unresolved' } },
         'link-no-id': { s: 'order', histSelectedId: 'vkusvill-0', orderLinkDemo: { noRef: true } },
@@ -2793,6 +2826,56 @@
         return list;
       }
       const HISTORY = buildHistory().concat(buildWeekHistory()).concat(buildMonthEarlyHistory());
+      // мультизаказы: группировку берём только у сервисов, которые её отдают, tripId проставляем в заказах, остальное считаем из них
+      // breakdown: сервис отдаёт оплату по заказам, иначе показываем только сумму за маршрут целиком
+      // ordered: сервис отдаёт порядок точек, distance: расстояние маршрута, не сумма расстояний заказов
+      const TRIP_DEFS = [
+        { id: 'trip-vv-1', ids: ['vkusvill-2', 'vkusvill-3'], breakdown: true, ordered: true, distance: '4,2 км' },
+        { id: 'trip-sk-1', ids: ['samokat-3', 'samokat-4', 'samokat-5'], breakdown: false, ordered: false, distance: '' },
+        { id: 'trip-sk-w1', ids: ['samokat-w1-1', 'samokat-w1-2', 'samokat-w1-3'], breakdown: false, ordered: false, distance: '', cancelId: 'samokat-w1-2' }
+      ];
+      TRIP_DEFS.forEach((def) => {
+        def.ids.forEach((id, i) => {
+          const o = HISTORY.find((x) => x.id === id);
+          o.tripId = def.id;
+          o.tripSeq = def.ordered ? i + 1 : 0;
+        });
+        if (def.cancelId) {
+          // отменённый заказ не оплачивается, его начисление переходит соседнему, сумма дня не меняется
+          const c = HISTORY.find((x) => x.id === def.cancelId);
+          const keep = HISTORY.find((x) => x.id === def.ids[0]);
+          keep.pay += c.pay;
+          c.pay = 0; c.tipDigital = 0;
+          c.delivery = 'Отменён'; c.money = 'Не оплачивается';
+        }
+      });
+      const TRIPS = {};
+      HISTORY.forEach((o) => {
+        if (!o.tripId) return;
+        if (!TRIPS[o.tripId]) TRIPS[o.tripId] = Object.assign({ id: o.tripId, svc: o.svc, svcTitle: o.svcTitle, orders: [] }, TRIP_DEFS.find((d) => d.id === o.tripId));
+        TRIPS[o.tripId].orders.push(o);
+      });
+      function tripInfo(tripId) {
+        const t = TRIPS[tripId];
+        const orders = t.orders;
+        const pad2 = (n) => String(n).padStart(2, '0');
+        const last = orders[orders.length - 1];
+        const lastStart = last.date.slice(-5).split(':').map(Number);
+        const endMin = lastStart[0] * 60 + lastStart[1] + (parseInt(last.duration, 10) || 0);
+        const bad = orders.filter((o) => o.delivery !== 'Доставлен');
+        const closed = orders.filter((o) => o.delivery !== 'Отменён');
+        return {
+          t, orders,
+          count: orders.length,
+          title: 'Маршрут · ' + orders.length + ' ' + ruPlural(orders.length, 'заказ', 'заказа', 'заказов'),
+          time: orders[0].date.slice(-5) + '–' + pad2(Math.floor(endMin / 60) % 24) + ':' + pad2(endMin % 60),
+          day: orders[0].date.slice(0, orders[0].date.length - 7),
+          total: orders.reduce((sum, o) => sum + o.pay, 0),
+          money: closed.some((o) => o.money === 'Ожидает выплаты') ? 'Ожидает выплаты' : 'Выплачено',
+          status: bad.length ? 'Частично: ' + bad.length + ' из ' + orders.length + ' ' + (bad[0].delivery === 'Возврат' ? 'возврат' : (bad.length === 1 ? 'отменён' : 'отменены')) : 'Доставлен',
+          partial: bad.length > 0
+        };
+      }
       // те же ₽/ч, что в сравнении сервисов Рынка (RaznosServiceRank), одна выборка за 4 недели
       const MARKET_BASE = {
         'yandex-eda': { hourly: 760, orderPay: 290, duration: 16, wait: 8, orders: 1240, couriers: 96 },
@@ -3181,6 +3264,7 @@
             connMethodChoice: 'code', connStage: 'form', connCodeInput: '', connCodeError: false, connLogin: null, connPassword: '', openDemoLabel: '',
             integrationStatus: {},
             histSvc: 'all', histDistrict: 'all', histBack: 'courier-home', histStatus: 'all', histPage: 0, histSelectedId: '', histPeriod: 'today', histFrom: '', histTo: '',
+            tripSelectedId: '', tripBack: 'history', ordBack: 'history',
             histExpandedDays: {}, histLoadingDays: {}, histLoadedDays: {},
             orderComments: {}, orderCommentEditing: false, orderCommentDraft: '', cashTips: {}, cashDrafts: {},
             orderReviews: {}, reviewTextEditing: '', reviewTextDraft: '',
@@ -3618,7 +3702,7 @@
             'market-map', 'courier-map', 'work-filters', 'offer-history', 'welcome', 'auth', 'code', 'name', 'city', 'courier-empty', 'courier-home', 'stats', 'zones',
             'work-setup', 'offers', 'offer-detail', 'active-order', 'confirm-decline',
             'offer-result', 'service-open-demo', 'work-summary', 'user-home', 'integrations', 'integration-connect',
-            'history', 'order', 'market', 'market-services', 'service', 'form-review', 'review-complaint', 'review-complaint-sent',
+            'history', 'order', 'trip', 'market', 'market-services', 'service', 'form-review', 'review-complaint', 'review-complaint-sent',
             'review-restricted', 'review-appeal', 'review-appeal-sent', 'questions', 'anon-courier', 'top', 'profile', 'profile-edit', 'photo', 'share', 'share-link-view', 'privacy',
             'favorites', 'couriers', 'public-profile', 'tips', 'tips-sent', 'contest',
             'expenses', 'expense-form', 'recurring', 'recurring-form', 'my-activity', 'imported-reviews', 'live-feed', 'live-thread', 'live-compose', 'live-place-pick', 'live-photo', 'live-place', 'live-report', 'live-mine',
@@ -3945,6 +4029,39 @@
             perOrder: statsGross != null && statsOrdersCount > 0 ? Math.round(statsGross / statsOrdersCount) : null,
             ordersPerHour: statsHours > 0 && statsOrdersCount != null ? Math.round(statsOrdersCount / statsHours * 10) / 10 : null
           };
+          // маршрут = поездка, одиночный заказ тоже поездка, заказы с общим tripId сливаются в один маршрут
+          const statsTripGroups = statsVisibleOrders.reduce((rows, o) => { if (o.tripId) rows[o.tripId] = (rows[o.tripId] || 0) + 1; return rows; }, {});
+          const statsTripCounts = Object.keys(statsTripGroups).map((id) => statsTripGroups[id]).filter((n) => n > 1);
+          const statsTripsMerged = statsTripCounts.reduce((sum, n) => sum + n - 1, 0);
+          const statsAvgPerRoute = statsOrdersCount ? Math.round(statsOrdersCount / Math.max(1, statsOrdersCount - statsTripsMerged) * 10) / 10 : 0;
+          const statsRoutesCount = statsOrdersCount == null ? null : Math.max(statsOrdersCount > 0 ? 1 : 0, statsOrdersCount - statsTripsMerged);
+          // брони есть в демо только на 7-26 сентября, за другие даты тип смены неизвестен и строку не показываем
+          const statsShiftsCovered = statsRange[0] >= '2026-09-07' && statsRange[0] <= '2026-09-26';
+          const statsShiftRows = !statsShiftsCovered || statsNoGranularData || statsByDistrict ? [] : SHIFTS_WEEK
+            .concat(SHIFT_SLOTS.filter((sl) => (st.takenSlots || {})[sl.id]).map((sl) => Object.assign({}, sl, { id: 't' + sl.id, status: sl.apply ? 'requested' : 'confirmed' })))
+            .filter((row) => row.iso >= statsRange[0] && row.iso <= statsRange[1] && (statsSvcFilterNow === 'all' || row.svc === statsSvcFilterNow) &&
+              (demoOn || statsSavedServices.indexOf(row.svc) !== -1));
+          const statsNowMin = 15 * 60 + 40;
+          // Результаты про факт: только смены, которые уже начались, будущие брони это план
+          const statsStarted = (row) => row.iso < TODAY_ISO || (row.iso === TODAY_ISO && row.from < statsNowMin);
+          const statsShiftBooked = statsShiftRows.filter((row) => ['completed', 'active', 'confirmed'].indexOf(row.status) !== -1 && statsStarted(row));
+          const statsShiftAsked = statsShiftRows.filter((row) => (row.status === 'requested' || row.status === 'tentative') && statsStarted(row)).length;
+          const statsShiftLost = statsShiftRows.filter((row) => (row.status === 'cancelled' || row.status === 'missed') && statsStarted(row)).length;
+          const statsShiftHours = (rows, fact) => rows.reduce((sum, row) => sum + Math.max(0, (fact && row.iso === TODAY_ISO ? Math.min(row.to, statsNowMin) : row.to) - row.from) / 60, 0);
+          const statsHoursText = (value) => String(Math.round(value * 10) / 10).replace('.', ',') + ' ч';
+          const statsBookedHours = statsShiftHours(statsShiftBooked, true);
+          // свободный выход: часы на линии сверх отработанных броней, считаем только по фактически прошедшему времени
+          const statsFreeHours = statsHours == null || !statsShiftsCovered ? 0 : statsHours - statsBookedHours;
+          const statsShiftsLabel = statsShiftBooked.length ? statsShiftBooked.length + ' ' + ruPlural(statsShiftBooked.length, 'смена', 'смены', 'смен') : '';
+          const statsWorkRows = statsOrdersCount == null || statsOrdersCount === 0 ? [] : [].concat(
+            [{ name: 'Заказы', value: String(statsOrdersCount) }],
+            [{ name: 'Маршруты', value: String(statsRoutesCount), note: statsTripCounts.length ? 'из них с несколькими заказами ' + statsTripCounts.length : '' }],
+            statsShiftRows.length === 0 ? [] : [{ name: 'Смены', value: '' }],
+            statsShiftBooked.length ? [{ name: 'По брони', value: statsShiftBooked.length + ' ' + ruPlural(statsShiftBooked.length, 'смена', 'смены', 'смен'), sub: true }] : [],
+            statsFreeHours >= 0.5 ? [{ name: 'Свободный выход', value: statsHoursText(statsFreeHours), sub: true }] : [],
+            statsShiftAsked ? [{ name: 'Заявки не подтверждены', value: String(statsShiftAsked), sub: true }] : [],
+            statsShiftLost ? [{ name: 'Отменены или пропущены', value: String(statsShiftLost), sub: true }] : []
+          );
           // тренды считают часы как сумму по сервисам и для итога, и для срезов
           const statsTrendCurrent = statsNoGranularData || statsByDistrict ? statsRecap : Object.assign({}, statsRecap, statsTrendValuesFor(statsSource, statsSvcFilterNow));
           const statsTrendPrevious = statsPrevValues.trend || statsPrevValues;
@@ -4262,6 +4379,41 @@
             const g = histDayGroups[o.dateISO];
             g.count += 1; g.sum += o.pay; g.orders.push(o);
           });
+          // единица списка поездка: одиночный заказ как раньше, заказы с tripId собираем в карточку маршрута
+          const histOrderRow = (o) => ({
+            isOrder: true, isTrip: false,
+            svc: o.svc, svcTitle: o.svcTitle, orderNo: o.orderNo, date: o.date, delivery: o.delivery, money: o.money, pay: o.pay,
+            tipLabel: (o.tipDigital > 0 ? 'Чаевые ' + o.tipDigital + ' ₽' : '') + (o.hasCashTip ? (o.tipDigital > 0 ? ' · ' : '') + 'наличные не подтверждены' : ''),
+            routeLabel: o.pickupAddr ? (o.pickupAddr + ' → ' + o.dropAddr) : '',
+            onTap: () => set({ s: 'order', histSelectedId: o.id, orderCommentEditing: false, ordBack: 'history' })
+          });
+          const histTripRow = (tripId, shown) => {
+            const ti = tripInfo(tripId);
+            return {
+              isOrder: false, isTrip: true,
+              svc: ti.t.svc, svcTitle: ti.t.svcTitle, tripTitle: ti.title, tripTime: ti.time, tripTotal: formatMoney(ti.total),
+              tripMoney: ti.money, tripStatus: ti.status, tripTone: ti.partial ? 'warn' : 'ok',
+              tripOrders: shown.map((o) => ({
+                title: (ti.t.ordered ? o.tripSeq + '. ' : '') + o.orderNo + ' · ' + o.dropAddr,
+                of: (ti.orders.indexOf(o) + 1) + ' из ' + ti.count,
+                status: o.delivery, tone: o.delivery === 'Доставлен' ? 'ok' : 'warn',
+                pay: ti.t.breakdown && o.pay > 0 ? String(o.pay) : '',
+                onTap: () => set({ s: 'order', histSelectedId: o.id, orderCommentEditing: false, ordBack: 'history' })
+              })),
+              // раскрытие хранится в приложении, чтобы карточка не сворачивалась при смене фильтра
+              tripOpen: !!(st.histOpenTrips || {})[tripId], tripToggle: () => set({ histOpenTrips: Object.assign({}, st.histOpenTrips || {}, { [tripId]: !(st.histOpenTrips || {})[tripId] }) }),
+              openTrip: () => set({ s: 'trip', tripSelectedId: tripId, tripBack: 'history' })
+            };
+          };
+          const histItems = (orders) => {
+            const out = [];
+            const at = {};
+            orders.forEach((o) => {
+              if (!o.tripId) { out.push(histOrderRow(o)); return; }
+              if (at[o.tripId] == null) { at[o.tripId] = out.length; out.push({ tripId: o.tripId, shown: [o] }); } else out[at[o.tripId]].shown.push(o);
+            });
+            return out.map((x) => (x.shown ? histTripRow(x.tripId, x.shown) : x));
+          };
           const histDays = histDayOrder.map((dateISO) => {
             const g = histDayGroups[dateISO];
             const expanded = !!histExpandedDays[dateISO];
@@ -4270,22 +4422,24 @@
               expanded, loading: !!histLoadingDays[dateISO],
               chevron: expanded ? '▾' : '▸',
               toggle: () => toggleHistDay(dateISO),
-              rows: g.orders.map((o) => ({
-                svc: o.svc, svcTitle: o.svcTitle, orderNo: o.orderNo, date: o.date, delivery: o.delivery, money: o.money, pay: o.pay,
-                tipLabel: (o.tipDigital > 0 ? 'Чаевые ' + o.tipDigital + ' ₽' : '') + (o.hasCashTip ? (o.tipDigital > 0 ? ' · ' : '') + 'наличные не подтверждены' : ''),
-                routeLabel: o.pickupAddr ? (o.pickupAddr + ' → ' + o.dropAddr) : '',
-                onTap: () => set({ s: 'order', histSelectedId: o.id, orderCommentEditing: false })
-              }))
+              rows: histItems(g.orders)
             };
           });
-          const histList = histShown.map((o) => ({
-            svc: o.svc, svcTitle: o.svcTitle, orderNo: o.orderNo, date: o.date, delivery: o.delivery, money: o.money, pay: o.pay,
-            tipLabel: (o.tipDigital > 0 ? 'Чаевые ' + o.tipDigital + ' ₽' : '') + (o.hasCashTip ? (o.tipDigital > 0 ? ' · ' : '') + 'наличные не подтверждены' : ''),
-            routeLabel: o.pickupAddr ? (o.pickupAddr + ' → ' + o.dropAddr) : '',
-            onTap: () => set({ s: 'order', histSelectedId: o.id, orderCommentEditing: false })
-          }));
+          const histList = histItems(histShown);
+          const histTripCount = histList.length;
           const ordSource = HISTORY.find((o) => o.id === histSelectedId) || HISTORY[0];
-          const ordCommentSaved = orderComments[ordSource.id] != null ? orderComments[ordSource.id] : ordSource.comment;
+          const ordTrip = ordSource.tripId ? tripInfo(ordSource.tripId) : null;
+          const ordPayKnown = !ordTrip || ordTrip.t.breakdown;
+          const tripSel = tripInfo(TRIPS[st.tripSelectedId] ? st.tripSelectedId : 'trip-sk-1');
+          const tripStops = tripSel.orders.map((o, i) => ({
+            of: (i + 1) + ' из ' + tripSel.count,
+            hasNum: !!tripSel.t.ordered, num: o.tripSeq,
+            title: o.orderNo, addr: o.dropAddr,
+            status: o.delivery, statusClass: o.delivery === 'Доставлен' ? 'raznos-text-small' : 'raznos-text-small raznos-trip-warn',
+            hasPay: tripSel.t.breakdown && o.pay > 0, pay: o.pay,
+            onTap: () => set({ s: 'order', histSelectedId: o.id, orderCommentEditing: false, ordBack: 'trip' })
+          }));
+          const ordCommentSaved =orderComments[ordSource.id] != null ? orderComments[ordSource.id] : ordSource.comment;
           const ordCash = cashTips[ordSource.id] || { amount: ordSource.cashTip || 0, hidden: false };
           const ordCashDraftAmount = cashDrafts[ordSource.id] != null ? cashDrafts[ordSource.id] : ordCash.amount;
           const ordReview = orderReviews[ordSource.id] || { placeRating: 0, placeText: '', recRating: 0, recText: '' };
@@ -4859,7 +5013,10 @@
             go_market_services: () => set({ s: 'market-services' }),
             service_back: () => set({ s: st.svFrom === 'market-services' ? 'market-services' : 'market' }),
             go_history: () => { if (role === 'courier') set({ s: 'history', histBack: '', histSvc: 'all', histDistrict: 'all' }); },
-            recent_orders: HISTORY.filter((o) => o.dateISO === TODAY_ISO && (demoOn || activeDataSvcs.indexOf(o.svc) !== -1)).slice().sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 3).map((o) => ({
+            recent_orders: HISTORY.filter((o) => o.dateISO === TODAY_ISO && (demoOn || activeDataSvcs.indexOf(o.svc) !== -1)).slice().sort((a, b) => (a.date < b.date ? 1 : -1)).filter((o, i, arr) => !o.tripId || arr.findIndex((x) => x.tripId === o.tripId) === i).slice(0, 3).map((o) => o.tripId ? (() => {
+              const ti = tripInfo(o.tripId);
+              return { id: o.tripId, isTrip: true, svc: ti.t.svc, route: ti.t.svcTitle, badge: ti.title, meta: ti.time + ' · ' + ti.status.toLowerCase(), pay: formatMoney(ti.total), tip: 0, tipDigital: 0 };
+            })() : ({
               id: o.id, svc: o.svc,
               route: o.pickupAddr + ' → ' + o.dropAddr,
               meta: o.date.replace(/^\d+ \S+, /, '') + ' · ' + o.delivery.toLowerCase() + (o.tipDigital ? ' · чаевые ' + o.tipDigital + ' ₽' : '') + (recentTipOf(o) ? ' · вне сервиса ' + formatMoney(recentTipOf(o)) + ' ₽' : ''),
@@ -4876,7 +5033,8 @@
                 set({ cashTips: now });
               });
             },
-            open_recent_order: (id) => { if (role === 'courier') set({ s: 'order', histSelectedId: id, orderCommentEditing: false }); },
+            open_recent_order: (id) => { if (role === 'courier') set({ s: 'order', histSelectedId: id, orderCommentEditing: false, ordBack: 'home' }); },
+            open_recent_trip: (id) => { if (role === 'courier') set({ s: 'trip', tripSelectedId: id, tripBack: 'home' }); },
             go_history_vv: () => { if (role === 'courier') set(Object.assign({ s: 'history', histPeriod: 'today', histSvc: 'vkusvill', histStatus: 'all', histPage: 0 }, resetHistDays())); },
             go_history_samokat: () => { if (role === 'courier') set(Object.assign({ s: 'history', histPeriod: 'today', histSvc: 'samokat', histStatus: 'all', histPage: 0 }, resetHistDays())); },
             go_profile: () => set({ s: 'profile' }),
@@ -4997,6 +5155,8 @@
             stats_earn_label: statsGross == null ? 'Нет данных' : formatMoney(statsGross) + ' ₽',
             stats_hours_label: statsHours == null ? 'Нет данных' : String(statsHours).replace('.', ',') + ' ч',
             stats_orders_label: statsOrdersCount == null ? 'Нет данных' : String(statsOrdersCount),
+            stats_routes_label: statsRoutesCount == null ? '' : String(statsRoutesCount), stats_shifts_label: statsShiftBooked.length ? String(statsShiftBooked.length) : '',
+            stats_work_visible: statsWorkRows.length > 0, stats_work_rows: statsWorkRows,
             stats_delta_label: statsDelta == null ? 'Нет сравнения' : (statsDelta >= 0 ? '+' : '') + statsDelta + '% к прошлому периоду',
             stats_goal_label: statsGoal == null ? 'Цель для периода не сохранена' : (statsGross == null ? 'Нет данных' : formatMoney(statsGross) + ' ₽') + ' из ' + formatMoney(statsGoal) + ' ₽ · ' + (statsCurrentPeriod ? 'норма на сегодня' : 'цель периода'),
             stats_goal_has_data: statsGoal != null && statsGross != null,
@@ -5718,7 +5878,7 @@
             set_hist_status_all: () => set(Object.assign({ histStatus: 'all', histPage: 0 }, resetHistDays())),
             set_hist_status_done: () => set(Object.assign({ histStatus: 'done', histPage: 0 }, resetHistDays())),
             set_hist_status_return: () => set(Object.assign({ histStatus: 'return', histPage: 0 }, resetHistDays())),
-            hist_list: histList, hist_shown_count: histShown.length, hist_total_count: histFiltered.length, hist_shown_sum: histShownSum,
+            hist_list: histList, hist_shown_count: histShown.length, hist_total_count: histFiltered.length, hist_shown_sum: histShownSum, hist_trip_count: histTripCount,
             hist_multi_day: histMultiDay, hist_single_day: !histMultiDay, hist_days: histDays,
             hist_page_label: 'Страница ' + (histPageClamped + 1) + ' из ' + histTotalPages,
             hist_page_prev_class: histPageClamped <= 0 ? 'raznos-btn raznos-btn-disabled raznos-btn-small' : 'raznos-btn raznos-btn-secondary raznos-btn-small',
@@ -5730,11 +5890,22 @@
 
             // Заказ
             ord_svc: ordSource.svc, ord_svc_title: ordSource.svcTitle, ord_no: ordSource.orderNo, ord_account: 'аккаунт ' + ordSource.svcTitle + ': ' + ordSource.account, ord_date: ordSource.date,
-            ord_delivery: ordSource.delivery, ord_delivery_pill_class: ordSource.delivery === 'Возврат' ? 'raznos-status-pill raznos-pill-warn' : 'raznos-status-pill raznos-pill-ok',
+            ord_delivery: ordSource.delivery, ord_delivery_pill_class: ordSource.delivery === 'Возврат' ? 'raznos-status-pill raznos-pill-warn' : (ordSource.delivery === 'Отменён' ? 'raznos-status-pill raznos-pill-error' : 'raznos-status-pill raznos-pill-ok'),
+            trip_svc: tripSel.t.svc, trip_svc_title: tripSel.t.svcTitle, trip_title: tripSel.title, trip_when: tripSel.day + ', ' + tripSel.time,
+            trip_total: formatMoney(tripSel.total), trip_status: tripSel.status, trip_status_pill_class: tripSel.partial ? 'raznos-status-pill raznos-pill-warn' : 'raznos-status-pill raznos-pill-ok',
+            trip_money: tripSel.money, trip_pay_note: tripSel.t.breakdown ? 'Сервис отдаёт разбивку по заказам' : 'Оплата за маршрут целиком, по заказам сервис её не делит',
+            trip_distance_known: !!tripSel.t.distance, trip_distance: tripSel.t.distance, trip_stops: tripStops,
+            trip_back: () => set(st.tripBack === 'home' ? { s: readyHome ? 'courier-home' : 'courier-empty' } : { s: 'history', histBack: '', histSvc: 'all', histDistrict: 'all' }),
+            ord_in_trip:!!ordTrip, ord_trip_label: ordTrip ? 'Часть маршрута из ' + ordTrip.count + ' ' + ruPlural(ordTrip.count, 'заказа', 'заказов', 'заказов') : '',
+            ord_trip_of: ordTrip ? (ordTrip.orders.indexOf(ordSource) + 1) + ' из ' + ordTrip.count : '',
+            ord_trip_open: () => { if (ordTrip) set({ s: 'trip', tripSelectedId: ordSource.tripId, tripBack: st.ordBack === 'trip' ? (st.tripBack || 'history') : (st.ordBack || 'history') }); },
+            ord_pay_known: ordPayKnown, ord_pay_unknown: !ordPayKnown,
+            ord_back: () => set(st.ordBack === 'trip' && ordTrip ? { s: 'trip', tripSelectedId: ordSource.tripId } : (st.ordBack === 'home' ? { s: readyHome ? 'courier-home' : 'courier-empty' } : { s: 'history', histBack: '', histSvc: 'all', histDistrict: 'all' })),
             ord_money: ordSource.money, ord_money_pill_class: ordSource.money === 'Скорректировано' ? 'raznos-status-pill raznos-pill-warn' : (ordSource.money === 'Выплачено' ? 'raznos-status-pill raznos-pill-ok' : 'raznos-status-pill raznos-pill-muted'),
             ord_pay: ordSource.pay, ord_tip_digital: ordSource.tipDigital,
             ord_offer_snapshot: OFFER_SNAPSHOTS[ordSource.id] || null, ord_total_min: parseInt(ordSource.wait, 10) + parseInt(ordSource.duration, 10),
             ord_promised_known: PROMISED_SVCS.indexOf(ordSource.svc) !== -1,
+            ord_promised_shown: ordPayKnown && PROMISED_SVCS.indexOf(ordSource.svc) !== -1,
             ord_promised: ordSource.money === 'Скорректировано' ? ordSource.pay + 60 : (ordSource.id === 'samokat-0' ? ordSource.pay - 50 : ordSource.pay),
             ord_items: ordSource.items, ord_weight: ordSource.weight, ord_wait: ordSource.wait, ord_duration: ordSource.duration, ord_distance: ordSource.distance,
             ord_pickup: ordSource.pickupAddr, ord_drop: ordSource.dropAddr,

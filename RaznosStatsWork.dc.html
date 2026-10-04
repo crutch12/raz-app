@@ -1,0 +1,28 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
+<section class="raznos-stats-work-card" aria-label="Как работали">
+  <h2 class="raznos-stats-section-title">Как работали</h2>
+  <ul class="raznos-stats-work-list">
+    <sc-for list="{{ rows }}" as="row" hint-placeholder-count="3">
+      <li class="{{ row.cls }}"><span class="raznos-stats-work-name">{{ row.name }}</span><span class="raznos-stats-work-value">{{ row.value }}</span><sc-if value="{{ row.note }}"><span class="raznos-stats-work-note">{{ row.note }}</span></sc-if></li>
+    </sc-for>
+  </ul>
+</section>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"rows":{"editor":null},"$preview":{"width":360,"height":300}}'>
+// строки считает экран: Заказы, Маршруты, Смены и их типы (sub: true), пустые строки сюда не передаются
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const rows = Array.isArray(p.rows) ? p.rows : [
+      { name: 'Заказы', value: '17' },
+      { name: 'Маршруты', value: '15', note: 'с несколькими заказами 2, в среднем 1,1 заказа в маршруте' },
+      { name: 'Смены', value: '2' },
+      { name: 'По брони', value: '2 (4,7 ч)', sub: true },
+      { name: 'Свободный выход', value: '1,3 ч', sub: true }
+    ];
+    return {
+      rows: rows.map((row) => ({ name: row.name, value: row.value, note: row.note || '', cls: 'raznos-stats-work-row' + (row.sub ? ' raznos-is-sub' : '') }))
+    };
+  }
+}
+</script></body></html>

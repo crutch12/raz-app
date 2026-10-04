@@ -12,6 +12,8 @@
     .rro-chev { flex: none; color: var(--raznos-ink-3); font: 600 16px var(--raznos-font); line-height: 1; }
     .rro-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
     .rro-route { font: 600 14px var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rro-badge { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; margin: 2px 0; padding: 2px 8px; border-radius: 999px; background: var(--raznos-green-tint); color: var(--raznos-green-deep); font: 700 12px var(--raznos-font); vertical-align: middle; }
+    .rro-open.rro-open-trip { margin-bottom: 8px; box-shadow: 0 6px 0 -3px var(--raznos-surface), 0 7px 0 -3px var(--raznos-line-strong); }
     .rro-meta { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
     .rro-pay { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); flex: none; font-variant-numeric: tabular-nums; }
     .rro-add-wrap { position: relative; flex: none; width: 32px; height: 32px; }
@@ -36,14 +38,16 @@
   <div class="rro-head"><span class="rro-title">Последние заказы</span><button type="button" class="rro-all" onClick="{{ on_all }}">Показать все</button></div>
   <sc-for list="{{ rows }}" as="o" hint-placeholder-count="3">
     <div class="rro-row">
-      <button type="button" class="rro-open" onClick="{{ o.openOrder }}">
+      <button type="button" class="{{ o.openClass }}" onClick="{{ o.openOrder }}">
         <dc-import name="RaznosIcon" svc="{{ o.svc }}" alt="{{ o.svcTitle }}" size="sm"></dc-import>
-        <span class="rro-main"><span class="rro-route">{{ o.route }}</span><span class="rro-meta">{{ o.meta }}</span></span>
+        <span class="rro-main"><span class="rro-route">{{ o.route }}</span><sc-if value="{{ o.isTrip }}" hint-placeholder-val="{{ false }}"><span class="rro-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.5 6H14a4 4 0 0 1 0 8H10a4 4 0 0 0 0 8h5.5"/></svg>{{ o.badge }}</span></sc-if><span class="rro-meta">{{ o.meta }}</span></span>
         <span class="rro-pay">{{ o.pay }} ₽</span>
         <span class="rro-chev">›</span>
       </button>
       <div class="rro-add-wrap">
-        <button type="button" class="rro-add" onClick="{{ o.add }}" aria-label="Действия с заказом" aria-haspopup="menu"><span class="rro-add-ico">＋</span></button>
+        <sc-if value="{{ o.canAdd }}" hint-placeholder-val="{{ true }}">
+          <button type="button" class="rro-add" onClick="{{ o.add }}" aria-label="Действия с заказом" aria-haspopup="menu"><span class="rro-add-ico">＋</span></button>
+        </sc-if>
         <sc-if value="{{ o.menuOpen }}" hint-placeholder-val="{{ false }}">
           <dc-import name="RaznosActionMenu" items="{{ menu_items }}" onPick="{{ menu_pick }}" onClose="{{ menu_close }}"></dc-import>
         </sc-if>
@@ -136,7 +140,7 @@
     </div>
   </sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"onAll":{"editor":null},"onOpenOrder":{"editor":null},"onAddExpense":{"editor":null},"onSaveTip":{"editor":null},"$preview":{"width":390,"height":260}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"onAll":{"editor":null},"onOpenOrder":{"editor":null},"onOpenTrip":{"editor":null},"onAddExpense":{"editor":null},"onSaveTip":{"editor":null},"$preview":{"width":390,"height":260}}'>
 // последние заказы для раздела Сегодня, плюс у заказа открывает меню: чаевые, расход, отзыв, заметка
 const RRO_SVC = { samokat: 'Самокат', vkusvill: 'ВкусВилл', 'yandex-eda': 'Яндекс Еда' };
 const RRO_DEMO = [
@@ -151,7 +155,8 @@ class Component extends DCLogic {
     const set = (patch) => this.setState(patch);
     const onAll = typeof p.onAll === 'function' ? p.onAll : (() => {});
     const onOpenOrder = typeof p.onOpenOrder === 'function' ? p.onOpenOrder : (() => {});
-    const onAddExpense = typeof p.onAddExpense === 'function' ? p.onAddExpense : null;
+    const onOpenTrip = typeof p.onOpenTrip === 'function' ? p.onOpenTrip : (() => {});
+    const onAddExpense =typeof p.onAddExpense === 'function' ? p.onAddExpense : null;
     const onSaveTip = typeof p.onSaveTip === 'function' ? p.onSaveTip : (() => {});
     const src = (p.orders && p.orders.length) ? p.orders : RRO_DEMO;
     const amt = st.amt == null ? 100 : st.amt;
@@ -170,8 +175,11 @@ class Component extends DCLogic {
 
     const rows = src.map((o) => ({
       svc: o.svc, svcTitle: RRO_SVC[o.svc] || o.svc, route: o.route, meta: o.meta, pay: o.pay,
-      openOrder: () => onOpenOrder(o.id),
-      add: () => set({ menuId: menuId === o.id ? null : o.id }),
+      openOrder: () => (o.isTrip ? onOpenTrip(o.id) : onOpenOrder(o.id)),
+      canAdd: !o.isTrip,
+      isTrip: !!o.isTrip, badge: o.badge || '',
+      openClass: o.isTrip ? 'rro-open rro-open-trip' : 'rro-open',
+      add:() => set({ menuId: menuId === o.id ? null : o.id }),
       menuOpen: menuId === o.id
     }));
 

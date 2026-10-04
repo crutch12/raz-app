@@ -3,6 +3,7 @@
 .raznos-stats-summary,
 .raznos-stats-section,
 .raznos-stats-money-card,
+.raznos-stats-work-card,
 .raznos-stats-time-card,
 .raznos-stats-services-card,
 .raznos-stats-trend-tiles,
@@ -53,6 +54,7 @@
 .raznos-stats-overview-card,
 .raznos-stats-section,
 .raznos-stats-money-card,
+.raznos-stats-work-card,
 .raznos-stats-time-card,
 .raznos-stats-services-card {
  display: flex;
@@ -335,6 +337,7 @@
 @media (max-width: 370px) {
  .raznos-stats-overview-card,
  .raznos-stats-section,
+ .raznos-stats-work-card,
  .raznos-stats-money-card,
  .raznos-stats-time-card,
  .raznos-stats-services-card { padding: 16px 16px 18px; }
@@ -419,3 +422,13 @@
 .raznos-stats-compare-delta { display: block; margin-top: 2px; font: 700 13px var(--raznos-font); font-style: normal; color: var(--raznos-ink-3); font-variant-numeric: tabular-nums; }
 .raznos-stats-compare-delta.raznos-is-positive { color: var(--raznos-green-deep); }
 .raznos-stats-compare-delta.raznos-is-negative { color: var(--raznos-red); }
+
+/* как работали: заказы, маршруты и смены за период */
+.raznos-stats-work-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.raznos-stats-work-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 2px 12px; }
+.raznos-stats-work-name { color: var(--stats-ink); font: 650 15px/1.3 var(--raznos-font); }
+.raznos-stats-work-value { color: var(--stats-ink); font: 750 17px/1.2 var(--raznos-font); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; text-align: right; }
+.raznos-stats-work-note { grid-column: 1 / -1; color: var(--stats-muted); font: 500 13px/1.4 var(--raznos-font); }
+.raznos-stats-work-row.raznos-is-sub { margin: -6px 0 0 12px; padding-left: 12px; border-left: 2px solid var(--stats-track); }
+.raznos-stats-work-row.raznos-is-sub .raznos-stats-work-name { color: var(--stats-muted); font-weight: 500; font-size: 14px; }
+.raznos-stats-work-row.raznos-is-sub .raznos-stats-work-value { font-size: 14px; font-weight: 650; }

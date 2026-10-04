@@ -563,6 +563,11 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-order-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
 .raznos-order-foot-lines { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .raznos-order-quality { flex: none; }
+/* экран маршрута и плашка заказа в маршруте */
+.raznos-trip-warn { color: var(--raznos-amber); }
+.raznos-trip-stop-num { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--raznos-green-tint); color: var(--raznos-green-deep); font: 700 14px var(--raznos-font); display: flex; align-items: center; justify-content: center; }
+.raznos-trip-of { font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); white-space: nowrap; }
+.raznos-trip-plate { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; padding: 8px 14px; border: 1px solid var(--raznos-line); border-radius: 12px; background: var(--raznos-green-tint); color: var(--raznos-green-deep); font: 600 14px var(--raznos-font); text-align: left; cursor: pointer; width: 100%; box-sizing: border-box; }
 /* группы раздела Сегодня: сейчас, деньги, вокруг */
 .raznos-home-group { margin: 12px 2px -2px; font: 750 18px var(--raznos-font); letter-spacing: -0.01em; color: var(--raznos-ink); }
 

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics>
+        <link rel="stylesheet" href="./raznos-v3.css" />
+        <style>
+          .rtc { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; margin-bottom: 18px; box-shadow: 0 6px 0 -3px var(--raznos-surface), 0 7px 0 -3px var(--raznos-line-strong), 0 12px 0 -6px var(--raznos-surface), 0 13px 0 -6px var(--raznos-line-strong); }
+          .rtc-badge { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; padding: 1px 7px; border-radius: 999px; background: var(--raznos-green-tint); color: var(--raznos-green-deep); font: 700 12px var(--raznos-font); vertical-align: middle; }
+          .rtc-list { position: relative; }
+          .rtc-list::before { content: ''; position: absolute; left: 5px; top: 22px; bottom: 22px; width: 2px; background: var(--raznos-line-strong); }
+          .rtc-dot { flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--raznos-surface); border: 2px solid var(--raznos-green-deep); box-sizing: border-box; position: relative; }
+          .rtc-of { font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); white-space: nowrap; }
+          .rtc-head { box-sizing: border-box; width: 100%; margin: 0; padding: 0; background: none; border: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; }
+          .rtc-head:focus-visible, .rtc-order:focus-visible, .rtc-all:focus-visible { outline: 2px solid var(--raznos-green-deep); outline-offset: 2px; border-radius: 8px; }
+          .rtc-chev { flex: none; display: inline-flex; color: var(--raznos-ink-3); transition: transform .2s; }
+          .rtc-chev.rtc-chev-open { transform: rotate(180deg); }
+          .rtc-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin-top: 2px; }
+          .rtc-warn { color: var(--raznos-amber); }
+          .rtc-list { display: flex; flex-direction: column; border-top: 1px solid var(--raznos-line); }
+          .rtc-order { box-sizing: border-box; width: 100%; min-height: 44px; margin: 0; padding: 8px 0; background: none; border: 0; border-bottom: 1px solid var(--raznos-line); font: inherit; color: inherit; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+          .rtc-order-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+          .rtc-order-title { font: 600 14px var(--raznos-font); color: var(--raznos-ink); overflow-wrap: anywhere; }
+          .rtc-order-pay { flex: none; font: 700 14px var(--raznos-mono); font-variant-numeric: tabular-nums; color: var(--raznos-ink); }
+          .rtc-all { box-sizing: border-box; align-self: flex-start; min-height: 44px; margin: -6px 0 -10px; padding: 0; background: none; border: 0; cursor: pointer; font: 600 14px var(--raznos-font); color: var(--raznos-green-deep); }
+        </style>
+      </helmet>
+      <div class="{{ cardClass }}">
+        <button type="button" class="rtc-head" onClick="{{ toggle }}" aria-expanded="{{ expanded }}">
+          <dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ svcTitle }}" size="sm"></dc-import>
+          <div class="raznos-list-main">
+            <span class="raznos-list-title">{{ svcTitle }}</span>
+            <span class="rtc-sub"><span class="rtc-badge" title="{{ title }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.5 6H14a4 4 0 0 1 0 8H10a4 4 0 0 0 0 8h5.5"/></svg>{{ shortTitle }}</span><span class="raznos-text-small">{{ timeLabel }}<sc-if value="{{ showStatus }}" hint-placeholder-val="{{ false }}"> · <span class="{{ statusClass }}">{{ statusLabel }}</span></sc-if></span></span>
+          </div>
+          <div class="raznos-list-end">
+            <span class="raznos-num">{{ total }} ₽</span>
+            <span class="raznos-text-tiny">{{ moneyLabel }}</span>
+          </div>
+          <span class="{{ chevCls }}" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+        </button>
+        <sc-if value="{{ expanded }}" hint-placeholder-val="{{ false }}">
+          <div class="rtc-list">
+            <sc-for list="{{ orders }}" as="o" hint-placeholder-count="3">
+              <button type="button" class="rtc-order" onClick="{{ o.onTap }}">
+                <span class="rtc-dot" aria-hidden="true"></span>
+                <span class="rtc-order-main"><span class="rtc-order-title">{{ o.title }}</span><span class="{{ o.statusClass }}">{{ o.status }} · <span class="rtc-of">{{ o.of }}</span></span></span>
+                <sc-if value="{{ o.hasPay }}" hint-placeholder-val="{{ false }}"><span class="rtc-order-pay">{{ o.pay }} ₽</span></sc-if>
+              </button>
+            </sc-for>
+          </div>
+          <button type="button" class="rtc-all" onClick="{{ onOpenTrip }}">Весь маршрут ›</button>
+        </sc-if>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "svc": { "editor": "text", "default": "samokat" },
+      "svcTitle": { "editor": "text", "default": "Самокат" },
+      "title": { "editor": "text", "default": "Маршрут · 3 заказа" },
+      "timeLabel": { "editor": "text", "default": "11:20–12:05" },
+      "total": { "editor": "text", "default": "690" },
+      "moneyLabel": { "editor": "text", "default": "Выплачено" },
+      "statusLabel": { "editor": "text", "default": "Доставлен" },
+      "statusTone": { "editor": "enum", "default": "ok", "options": ["ok", "warn"] },
+      "orders": { "editor": null },
+      "onOpenTrip": { "editor": null },
+      "expanded": { "editor": null },
+      "onToggle": { "editor": null },
+      "$preview": { "width": 340, "height": 110 }
+    }'>
+      // карточка поездки из нескольких заказов, тап раскрывает заказы внутри
+      const RTC_DEMO = [
+        { title: '№77421 · Тверская ул., 12', status: 'Доставлен', tone: 'ok' },
+        { title: '№77428 · Баррикадная ул., 8', status: 'Доставлен', tone: 'ok' },
+        { title: '№77435 · Профсоюзная ул., 45', status: 'Доставлен', tone: 'ok' }
+      ];
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const st = this.state || {};
+          const expanded = typeof p.onToggle === 'function' ? !!p.expanded : !!st.open;
+          const src = (p.orders && p.orders.length) ? p.orders : RTC_DEMO;
+          const warnCls = (tone) => 'raznos-text-small' + (tone === 'warn' ? ' rtc-warn' : '');
+          return {
+            cardClass: 'raznos-card raznos-card-pad raznos-order-card rtc raznos-svc-border-' + (p.svc || 'samokat'),
+            svc: p.svc || 'samokat',
+            svcTitle: p.svcTitle || 'Самокат',
+            title: p.title || 'Маршрут · 3 заказа',
+            timeLabel: p.timeLabel || '11:20–12:05',
+            total: p.total != null ? p.total : '690',
+            moneyLabel: p.moneyLabel || 'Выплачено',
+            statusLabel: p.statusLabel || 'Доставлен',
+            statusClass: p.statusTone === 'warn' ? 'rtc-warn' : '',
+            expanded,
+            // обычный Доставлен не показываем, статус нужен только когда что-то не так
+            showStatus: (p.statusTone || 'ok') !== 'ok',
+            shortTitle: String(p.title || 'Маршрут · 3 заказа').replace(/^Маршрут · /, ''),
+            chevron: expanded ? '▾' : '▸', chevCls: 'rtc-chev' + (expanded ? ' rtc-chev-open' : ''),
+            toggle: () => (typeof p.onToggle === 'function' ? p.onToggle() : this.setState({ open: !expanded })),
+            orders: src.map((o, i) => ({
+              title: o.title, of: o.of || ((i + 1) + ' из ' + src.length), status: o.status, statusClass: warnCls(o.tone),
+              hasPay: o.pay != null && o.pay !== '', pay: o.pay,
+              onTap: typeof o.onTap === 'function' ? o.onTap : (() => {})
+            })),
+            onOpenTrip: typeof p.onOpenTrip === 'function' ? p.onOpenTrip : (() => {})
+          };
+        }
+      }
+    </script>
+  </body>
+</html>
