@@ -176,13 +176,13 @@
                 <button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" style="align-self:flex-start" onClick="{{ start_home_shift }}">Выйти на смену снова</button>
               </sc-if>
               <sc-if value="{{ home_shift_not_ended }}" hint-placeholder-val="{{ true }}">
-              <div class="raznos-hero-dark raznos-hero-today">
-                <button type="button" class="raznos-hero-open" onClick="{{ today_sheet_open }}" aria-label="Подробнее о заработке за сегодня"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+              <div class="raznos-hero-dark raznos-hero-today" role="button" tabindex="0" onClick="{{ today_sheet_open }}" aria-label="Заработано сегодня, подробнее">
+                <button type="button" class="raznos-hero-open" tabindex="-1" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
                 <span class="raznos-hero-label">Заработано сегодня</span>
                 <div class="raznos-fx raznos-ac raznos-gap8"><span class="raznos-hero-value">{{ today_earn_label }}</span><span class="raznos-hero-unit">₽</span></div>
                 <span style="color:var(--raznos-on-dark);opacity:0.88;font:600 13px var(--raznos-mono);margin-top:2px">{{ today_hero_stats }}</span>
-                <sc-if value="{{ today_hero_note_show }}" hint-placeholder-val="{{ true }}"><div class="raznos-hero-chips"><sc-if value="{{ today_tips_show }}" hint-placeholder-val="{{ true }}"><span class="raznos-hero-chip">Чаевые <b>{{ today_tips_label }}</b></span></sc-if><sc-if value="{{ today_exp_show }}" hint-placeholder-val="{{ true }}"><span class="raznos-hero-chip">Расходы <b>{{ today_exp_label }}</b></span></sc-if></div></sc-if>
-                <div class="raznos-hero-pace"><div class="raznos-hero-pace-track"><span class="raznos-hero-pace-fill" style="{{ today_pace_style }}"></span></div><span class="raznos-hero-pace-note">{{ today_pace_note }}</span></div>
+                <div class="raznos-hero-chips"><sc-if value="{{ today_tips_show }}" hint-placeholder-val="{{ true }}"><span class="raznos-hero-chip">Чаевые <b>{{ today_tips_label }}</b></span></sc-if><button type="button" class="raznos-hero-chip raznos-hero-chip-add" onClick="{{ go_expense_form_from_home }}" aria-label="Добавить расход"><sc-if value="{{ today_exp_show }}" hint-placeholder-val="{{ true }}"><span>Расходы <b>{{ today_exp_label }}</b></span></sc-if><sc-if value="{{ today_add_label }}" hint-placeholder-val="{{ false }}"><span>Расход</span></sc-if><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
+                <div class="{{ today_pace_cls }}"><div class="raznos-hero-pace-track"><span class="raznos-hero-pace-fill" style="{{ today_plan_style }}"></span><sc-if value="{{ today_goal_mark_show }}" hint-placeholder-val="{{ true }}"><i class="{{ today_goal_mark_cls }}" style="{{ today_goal_mark_style }}" title="Цель дня {{ today_target }} ₽" aria-hidden="true"></i></sc-if></div><span class="raznos-hero-pace-note">{{ today_plan_note }}</span></div>
               </div>
               <sc-if value="{{ today_sheet }}" hint-placeholder-val="{{ false }}">
                 <div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="Заработок за сегодня" onClick="{{ today_sheet_close }}">
@@ -190,9 +190,15 @@
                     <span class="raznos-text-h3">Заработок за сегодня</span>
                     <div class="raznos-day-rows">
                       <div class="raznos-day-row"><span>Начислено в сервисах<small>{{ today_hero_stats }}</small></span><b>{{ today_earn_label }} ₽</b></div>
+                      <sc-for list="{{ today_sheet_svcs }}" as="sv" hint-placeholder-count="2"><button type="button" class="raznos-day-svc" onClick="{{ sv.tap }}"><dc-import name="RaznosIcon" svc="{{ sv.key }}" alt="{{ sv.title }}" size="sm"></dc-import><span class="raznos-day-svc-name">{{ sv.title }}<small>{{ sv.count }}</small></span><b>{{ sv.sum }} ₽</b><span class="raznos-row-chevron" aria-hidden="true">›</span></button></sc-for>
                       <sc-if value="{{ today_fines_show }}" hint-placeholder-val="{{ true }}"><div class="raznos-day-row"><span>Удержано сервисами</span><b class="raznos-day-minus">{{ today_fines_label }}</b></div></sc-if>
-                      <sc-if value="{{ today_exp_show }}" hint-placeholder-val="{{ true }}"><div class="raznos-day-row"><span>Расходы</span><b class="raznos-day-minus">{{ today_exp_label }}</b></div></sc-if>
+                      <sc-if value="{{ today_exp_show }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-day-row raznos-day-row-link" onClick="{{ today_sheet_expenses }}"><span>Расходы</span><b class="raznos-day-minus">{{ today_exp_label }}</b></button></sc-if>
                       <div class="raznos-day-row raznos-day-total"><span>Чистыми<small>≈ {{ today_net_hourly }} ₽/ч</small></span><b>{{ today_remain_label }} ₽</b></div>
+                    </div>
+                    <div class="raznos-day-goal">
+                      <div class="raznos-day-goal-head"><span>Цель на сегодня</span><b>{{ today_earn_label }} из {{ today_target }} ₽</b></div>
+                      <div class="raznos-hero-pace-track raznos-day-goal-track"><span class="raznos-hero-pace-fill" style="{{ today_pace_style }}"></span></div>
+                      <span class="raznos-day-goal-note">{{ today_goal_short }}</span>
                     </div>
                     <sc-if value="{{ today_tips_show }}" hint-placeholder-val="{{ true }}"><div class="raznos-day-tips"><div class="raznos-day-row"><span>Чаевые</span><b>{{ today_tips_label }}</b></div><sc-for list="{{ today_tips_note }}" as="tn" hint-placeholder-count="2"><span class="raznos-day-tips-note">{{ tn }}</span></sc-for></div></sc-if>
                     <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ today_sheet_recap }}">Итог дня в Результатах</button>
@@ -200,7 +206,6 @@
                 </div>
               </sc-if>
               </sc-if>
-              <dc-import name="RaznosEarnBreakdown" services="{{ earn_services }}" expenses="{{ earn_expenses }}" onOpenService="{{ go_history }}" onOpenExpenses="{{ go_expenses_from_home }}" onAddExpense="{{ go_expense_form_from_home }}"></dc-import>
               <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onOpenTrip="{{ open_recent_trip }}"onAddExpense="{{ go_expense_form_from_home }}" onSaveTip="{{ save_recent_tip }}"></dc-import>
 
               <h2 class="raznos-home-group">Вокруг</h2>
@@ -280,17 +285,13 @@
                 <dc-import name="RaznosStatsRange" chips="{{ stats_period_chips }}" title="{{ stats_range_human }}" hint="{{ stats_range_hint }}" stepVisible="{{ stats_step_visible }}" backDisabled="{{ stats_step_back_disabled }}" nextDisabled="{{ stats_step_next_disabled }}" onBack="{{ stats_step_back }}" onNext="{{ stats_step_next }}" filterLabel="{{ stats_filter_names }}" onFilters="{{ stats_detail_go_filters }}" onReset="{{ stats_filters_reset }}"></dc-import>
                 <sc-if value="{{ stats_period_is_custom }}"><div class="raznos-stats-section"><div class="raznos-stats-fields raznos-stats-fields-row"><label class="raznos-stats-field">С даты<input type="date" max="{{ stats_max_day }}" value="{{ stats_from_day }}" onChange="{{ stats_from_day_change }}" /></label><label class="raznos-stats-field">По дату<input type="date" max="{{ stats_max_day }}" value="{{ stats_to_day }}" onChange="{{ stats_to_day_change }}" /></label></div><p class="raznos-text-tiny">{{ stats_custom_note }}</p></div></sc-if>
                 <sc-if value="{{ stats_has_data }}" hint-placeholder-val="{{ true }}">
-                  <dc-import name="RaznosStatsSummary" mainLabel="{{ stats_main_label }}" mainValue="{{ stats_main_value }}" netKnown="{{ stats_net_known }}" statusLabel="{{ stats_status_label }}" delta="{{ stats_delta }}" prevWord="{{ stats_prev_word }}" earnLabel="{{ stats_earn_label }}" finesLabel="{{ stats_fines_card_label }}" expensesLabel="{{ stats_expenses_label }}" hoursLabel="{{ stats_hours_label }}" ordersLabel="{{ stats_orders_label }}" routesLabel="{{ stats_routes_label }}" shiftsLabel="{{ stats_shifts_label }}" goalTitle="{{ stats_goal_title }}" goalFact="{{ stats_goal_fact }}" goalTotal="{{ stats_goal_total }}" goalPace="{{ stats_goal_pace }}" goalNote="{{ stats_goal_note }}" chart="{{ stats_chart }}" chartMode="{{ stats_chart_mode }}"></dc-import>
+                  <dc-import name="RaznosStatsSummary" headline="{{ stats_headline }}" mainLabel="{{ stats_main_label }}" mainValue="{{ stats_main_value }}" netKnown="{{ stats_net_known }}" statusLabel="{{ stats_status_label }}" earnLabel="{{ stats_earn_label }}" finesLabel="{{ stats_fines_card_label }}" expensesLabel="{{ stats_expenses_label }}" hoursLabel="{{ stats_hours_label }}" ordersLabel="{{ stats_orders_label }}" goalTitle="{{ stats_goal_title }}" goalFact="{{ stats_goal_fact }}" goalTotal="{{ stats_goal_total }}" goalPace="{{ stats_goal_pace }}" goalNote="{{ stats_goal_note }}" chart="{{ stats_chart }}" chartMode="{{ stats_chart_mode }}"></dc-import>
                   <sc-if value="{{ stats_has_missing }}"><p class="raznos-stats-note raznos-stats-missing">{{ stats_missing_note }}</p></sc-if>
-                  <sc-if value="{{ stats_work_visible }}"><dc-import name="RaznosStatsWork" rows="{{ stats_work_rows }}"></dc-import></sc-if>
-                  <div class="raznos-stats-section raznos-stats-trends-card"><button type="button" class="raznos-stats-head-link" onClick="{{ stats_detail_go_trends }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">Мои тренды</h2><small>{{ stats_trend_caption }}</small></span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><dc-import name="RaznosMyTrends" current="{{ stats_trend_current }}" previous="{{ stats_trend_previous }}"></dc-import></div>
-                  <dc-import name="RaznosStatsMoney" title="{{ stats_money_title }}" accent="{{ stats_money_accent }}" sub="{{ stats_money_sub }}" rows="{{ stats_money_rows }}" finesLabel="{{ stats_fines_link }}" onFines="{{ stats_detail_go_fines }}" onOpen="{{ stats_detail_go_money }}" onExpenses="{{ go_expenses_from_stats }}"></dc-import>
-                  <dc-import name="RaznosStatsTaxCard" value="{{ stats_tax_card_value }}" sub="{{ stats_tax_card_sub }}" onOpen="{{ stats_detail_go_taxes }}"></dc-import>
-                  <dc-import name="RaznosStatsTime" share="{{ stats_time_share }}" caption="{{ stats_time_caption }}" withOrder="{{ stats_with_order_label }}" waitOrder="{{ stats_wait_order_label }}" pickup="{{ stats_wait_pickup_label }}" onOpen="{{ stats_detail_go_time }}"></dc-import>
+                  <dc-import name="RaznosStatsCompare" delta="{{ stats_delta }}" prevWord="{{ stats_prev_word }}" caption="{{ stats_compare_caption }}" current="{{ stats_trend_current }}" previous="{{ stats_trend_previous }}" city="{{ city }}" mineCity="moscow" transport="{{ transport }}" period="{{ stats_cohort_period }}" svc="{{ stats_cohort_service }}" district="{{ stats_cohort_district }}" mineAmount="{{ stats_cohort_mine }}" medianHint="{{ stats_cohort_median_hint }}" onOpen="{{ stats_detail_go_trends }}" onSettings="{{ stats_detail_go_compare }}"></dc-import>
                   <dc-import name="RaznosStatsServices" rows="{{ stats_services }}" title="{{ stats_services_title }}" accent="{{ stats_services_accent }}" accentClass="{{ stats_services_accent_class }}" onOpen="{{ stats_detail_go_services }}"></dc-import>
                   <dc-import name="RaznosStatsDistricts" rows="{{ stats_districts }}" onAll="{{ stats_detail_go_services }}"></dc-import>
-                  <dc-import name="RaznosCohortCompare" recapMode="{{ true }}" city="{{ city }}" mineCity="moscow" transport="{{ transport }}" period="{{ stats_cohort_period }}" svc="{{ stats_cohort_service }}" district="{{ stats_cohort_district }}" mineAmount="{{ stats_cohort_mine }}" medianHint="{{ stats_cohort_median_hint }}" onSettings="{{ stats_detail_go_compare }}"></dc-import>
-                  <dc-import name="RaznosStatsTopLink" place="{{ 28 }}" scope="{{ stats_top_scope }}" onOpen="{{ go_top }}"></dc-import>
+                  <sc-if value="{{ stats_work_visible }}"><dc-import name="RaznosStatsWork" work="{{ stats_work }}" onOpenTime="{{ stats_detail_go_time }}"></dc-import></sc-if>
+                  <dc-import name="RaznosStatsMoney" title="{{ stats_money_title }}" accent="{{ stats_money_accent }}" sub="{{ stats_payout_sub }}" rows="{{ stats_money_rows }}" only="{{ stats_payout_kinds }}" finesLabel="{{ stats_fines_link_plain }}" onFines="{{ stats_detail_go_fines }}" onOpen="{{ stats_detail_go_money }}" onExpenses="{{ go_expenses_from_stats }}" taxValue="{{ stats_tax_card_value }}" taxSub="{{ stats_tax_card_sub }}" onTax="{{ stats_detail_go_taxes }}"></dc-import>
                   <dc-import name="RaznosStatsOrdersLink" caption="{{ stats_orders_caption }}" onOpen="{{ stats_history_open }}"></dc-import>
                 </sc-if>
                 <sc-if value="{{ stats_no_data }}"><div class="raznos-empty-state"><span class="raznos-text-h3">Пока нет данных</span><p class="raznos-text-small">Подключите сервис или посмотрите демо</p><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ go_integrations }}">Подключить сервис</button><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ stats_start_demo }}">Посмотреть демо</button></div></sc-if>
@@ -1154,6 +1155,7 @@
                     </div>
                   </sc-if>
                 </div>
+                <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosStatsTopLink" place="{{ 28 }}" scope="{{ stats_top_scope }}" onOpen="{{ go_top }}"></dc-import></sc-if>
                 <dc-import name="RaznosConnHealth" items="{{ conn_health_items }}" okNote="{{ conn_health_ok_note }}" netOffline="{{ net_offline }}" onAction="{{ conn_health_action }}"></dc-import>
                 <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-col raznos-gap12">
                   <span class="raznos-text-h3">Оценки из сервиса</span>
@@ -2534,6 +2536,7 @@
       const TODAY_ISO = '2026-09-15';
       // цель владеет раздел Работа: недельная сумма, день, месяц и год выводятся из неё пропорционально дням
       const WORK_WEEK_GOAL = 30000;
+      const TODAY_PLAN_END = 8270;
       const workGoalFor = (days, goal) => Math.round((goal || WORK_WEEK_GOAL) / 7 * days / 100) * 100;
       const EXP_MIN_DAY = '2026-09-01';
       const EXPENSE_CATS = { metro: 'Метро', carsharing: 'Каршеринг', fuel: 'Заправка', phone: 'Связь', rent: 'Аренда', other: 'Другое' };
@@ -4777,9 +4780,9 @@
           // при равенстве выше более новая публикация
           const liveSorted = liveFiltered.slice().sort((a, b) => (liveSortKey(b) - liveSortKey(a)) || (b.createdAt - a.createdAt));
           const liveTodayItems = liveMsgs.filter((m) => !m.deletedAt && !m.hiddenAt && !liveArchived(m) && !liveReports[m.id] && m.svcs.some((k) => connectedKeys.indexOf(k) !== -1) && (m.scope === 'all' || m.city === liveViewCity))
-            .sort((a, b) => (liveCount(b.likes, b.id, 'like') - liveCount(a.likes, a.id, 'like')) || (b.createdAt - a.createdAt)).slice(0, 3).map((m) => liveCardProps(m, 'courier-home'));
+            .sort((a, b) => b.createdAt - a.createdAt).map((m) => liveCardProps(m, 'courier-home'));
           const liveTodayAllItems = liveMsgs.filter((m) => !m.deletedAt && !m.hiddenAt && !liveArchived(m) && !liveReports[m.id] && (m.scope === 'all' || m.city === liveViewCity))
-            .sort((a, b) => (liveCount(b.likes, b.id, 'like') - liveCount(a.likes, a.id, 'like')) || (b.createdAt - a.createdAt)).slice(0, 3).map((m) => liveCardProps(m, 'courier-home'));
+            .sort((a, b) => b.createdAt - a.createdAt).map((m) => liveCardProps(m, 'courier-home'));
           // Карта курьеров: сообщения с местом рисуем каплями, фильтр сервисов действует и на них
           const CMAP_COUNTS = { 'yandex-eda': 12, samokat: 9, vkusvill: 5, x5: 4 };
           const cmapShare = !!st.cmapShare;
@@ -4815,7 +4818,7 @@
           liveMineReplies.sort((a, b) => b.r.createdAt - a.r.createdAt);
 
           const navRole = role;
-          const tabOf = { 'courier-home': 'home', 'courier-empty': 'home', 'work-hub': 'work', 'work-setup': 'work', offers: 'work', 'offer-detail': 'work', 'active-order': 'work', 'confirm-decline': 'work', 'offer-result': 'work', 'service-open-demo': 'work', 'work-summary': 'work', slots: 'work', 'job-guide': 'home', 'tax-forms': 'profile', stats: 'stats', market: 'market', 'market-services': 'market', profile: 'profile', history: 'home', order: 'home', integrations: 'home', 'integration-connect': 'home', zones: 'home', service: 'market', 'form-review': 'market', questions: 'market', 'anon-courier': 'market', photo: 'profile', share: 'profile', privacy: 'profile', contest: 'profile', 'my-activity': 'profile', 'imported-reviews': 'profile', 'live-feed': 'home', 'live-mine': 'profile', 'user-home': 'home', favorites: 'favorites', couriers: 'couriers', 'public-profile': 'couriers', tips: 'market', 'tips-sent': 'profile', expenses: 'home', 'expense-form': 'home', recurring: 'profile', 'recurring-form': 'profile', wallet: 'profile', 'wallet-income': 'profile', 'wallet-withdraw': 'profile', 'wallet-withdraw-history': 'profile', notifications: 'profile', support: 'profile', 'worker-data': 'home', 'common-states': 'home', 'work-tasks': 'work' };
+          const tabOf = { 'courier-home': 'home', 'courier-empty': 'home', 'work-hub': 'work', 'work-setup': 'work', offers: 'work', 'offer-detail': 'work', 'active-order': 'work', 'confirm-decline': 'work', 'offer-result': 'work', 'service-open-demo': 'work', 'work-summary': 'work', slots: 'work', 'job-guide': 'home', 'tax-forms': 'profile', stats: 'stats', market: 'market', 'market-services': 'market', profile: 'profile', history: 'home', order: 'home', integrations: 'home', 'integration-connect': 'home', zones: 'home', service: 'market', 'form-review': 'market', questions: 'market', 'anon-courier': 'market', top: 'profile', photo: 'profile', share: 'profile', privacy: 'profile', contest: 'profile', 'my-activity': 'profile', 'imported-reviews': 'profile', 'live-feed': 'home', 'live-mine': 'profile', 'user-home': 'home', favorites: 'favorites', couriers: 'couriers', 'public-profile': 'couriers', tips: 'market', 'tips-sent': 'profile', expenses: 'home', 'expense-form': 'home', recurring: 'profile', 'recurring-form': 'profile', wallet: 'profile', 'wallet-income': 'profile', 'wallet-withdraw': 'profile', 'wallet-withdraw-history': 'profile', notifications: 'profile', support: 'profile', 'worker-data': 'home', 'common-states': 'home', 'work-tasks': 'work' };
           const activeTab = tabOf[s];
           const showNav = (role === 'courier' && !!activeTab && s !== 'history' && s !== 'order' && s !== 'integrations' && s !== 'integration-connect' && s !== 'zones' && s !== 'courier-map' && s !== 'photo' && s !== 'share' && s !== 'privacy' && s !== 'contest' && s !== 'service' && s !== 'form-review' && s !== 'questions' && s !== 'anon-courier' && s !== 'expenses' && s !== 'expense-form' && s !== 'recurring' && s !== 'recurring-form' && s !== 'wallet' && s !== 'wallet-income' && s !== 'wallet-withdraw' && s !== 'wallet-withdraw-history' && s !== 'notifications' && s !== 'support' && s !== 'worker-data' && s !== 'common-states') || (role === 'user' && !!activeTab && s !== 'privacy' && s !== 'notifications' && s !== 'support');
           const showNavFinal = showNav && !st.pvPreview && (s.indexOf('live-') !== 0 || s === 'live-feed' || s === 'live-mine');
@@ -4882,16 +4885,24 @@
             vv_hours: today.vvHours, samokat_hours: today.samokatHours, overlap_hours: today.overlapHours,
             today_remain: formatMoney(todayRemain), today_avg_wait: today.avgWait,
             today_hero_stats: todayOrders + ' ' + ruPlural(todayOrders, 'заказ', 'заказа', 'заказов') + ' · ' + todayHourly + ' ₽/ч · ' + todayHours + ' ч на линии',
-            today_hero_note_show: todayTipsDigital > 0 || todayTipsCash > 0 || todayExpenses > 0,
             // на главной только чаевые и расходы, разбор удержаний и чистыми по стрелке в Результатах
             // шторка дня: те же переменные, что и карточка, чтобы цифры не спорили
             today_sheet: !!st.todaySheet, today_sheet_open: () => set({ todaySheet: true }), today_sheet_close: () => set({ todaySheet: false }), today_sheet_stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
             today_sheet_recap: () => set(Object.assign({ todaySheet: false }, { s: 'stats', statsPeriod: 'today', statsStep: 0, statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' })),
+            // прогноз к концу дня тот же, что К концу дня в Плане (в демо число из Плана)
+            today_plan_note: todayEarn >= TODAY_PLAN_END ? 'План дня выполнен' : (todayEarn < todayTarget ? 'Цель ' + formatMoney(todayTarget) + ' ₽ · к концу дня ≈ ' : 'Цель взята · к концу дня ≈ ') + formatMoney(TODAY_PLAN_END) + ' ₽',
+            today_pace_cls: 'raznos-hero-pace' + (todayEarn >= TODAY_PLAN_END ? ' raznos-hero-pace-done' : ''),
+            today_goal_mark_show: todayTarget > 0 && todayTarget < TODAY_PLAN_END,
+            today_goal_mark_cls: 'raznos-hero-pace-goal' + (todayEarn >= todayTarget ? ' raznos-is-reached' : ''),
+            today_goal_mark_style: 'left:' + Math.round(todayTarget / TODAY_PLAN_END * 100) + '%',
+            today_plan_style: 'width:' + Math.max(4, Math.min(100, Math.round(todayEarn / TODAY_PLAN_END * 100))) + '%',
+            today_goal_short: (todayEarn >= todayTarget ? 'Цель выполнена' : '≈ ' + Math.max(1, todayOrdersLeft) + ' ' + ruPlural(Math.max(1, todayOrdersLeft), 'заказ', 'заказа', 'заказов') + ' до цели') + ' · по плану ≈ ' + formatMoney(TODAY_PLAN_END) + ' ₽',
             today_fines_show: todayFines > 0, today_fines_label: '−' + formatMoney(todayFines) + ' ₽',
             today_remain_label: formatMoney(todayRemain), today_net_hourly: formatMoney(todayNetHourly),
             today_tips_note: [todayTipsDigital > 0 ? formatMoney(todayTipsDigital) + ' ₽ через сервис, уже в начисленном' : '', todayTipsCash > 0 ? formatMoney(todayTipsCash) + ' ₽ вне сервиса, в сумму не входят' : ''].filter(Boolean),
             today_tips_show: todayTipsDigital + todayTipsCash > 0, today_tips_label: formatMoney(todayTipsDigital + todayTipsCash) + ' ₽',
-            today_exp_show: todayExpenses > 0, today_exp_label: '−' + formatMoney(todayExpenses) + ' ₽',
+            // подпись у кнопки добавления нужна, пока плашки расходов нет
+            today_add_label: todayExpenses <= 0, today_exp_show: todayExpenses > 0, today_exp_label: '−' + formatMoney(todayExpenses) + ' ₽',
             today_hero_note: [
               todayTipsDigital > 0 ? ('чаевые ' + formatMoney(todayTipsDigital) + ' ₽ уже в сумме') : '',
               todayTipsCash > 0 ? ('чаевые вне сервиса ' + formatMoney(todayTipsCash) + ' ₽ не входят в сумму') : '',
@@ -5015,7 +5026,7 @@
             go_history: () => { if (role === 'courier') set({ s: 'history', histBack: '', histSvc: 'all', histDistrict: 'all' }); },
             recent_orders: HISTORY.filter((o) => o.dateISO === TODAY_ISO && (demoOn || activeDataSvcs.indexOf(o.svc) !== -1)).slice().sort((a, b) => (a.date < b.date ? 1 : -1)).filter((o, i, arr) => !o.tripId || arr.findIndex((x) => x.tripId === o.tripId) === i).slice(0, 3).map((o) => o.tripId ? (() => {
               const ti = tripInfo(o.tripId);
-              return { id: o.tripId, isTrip: true, svc: ti.t.svc, route: ti.t.svcTitle, badge: ti.title, meta: ti.time + ' · ' + ti.status.toLowerCase(), pay: formatMoney(ti.total), tip: 0, tipDigital: 0 };
+              return { id: o.tripId, isTrip: true, svc: ti.t.svc, route: ti.title, count: ti.count, meta: ti.time + (ti.status === 'Доставлен' ? '' : ' · ' + ti.status.toLowerCase()) + ' · ' + ti.orders.map((x) => x.dropAddr.split(',')[0].replace(/ (ул\.|пер\.|пр-т)$/, '')).join(', '), pay: formatMoney(ti.total), tip: 0, tipDigital: 0 };
             })() : ({
               id: o.id, svc: o.svc,
               route: o.pickupAddr + ' → ' + o.dropAddr,
@@ -5157,6 +5168,7 @@
             stats_orders_label: statsOrdersCount == null ? 'Нет данных' : String(statsOrdersCount),
             stats_routes_label: statsRoutesCount == null ? '' : String(statsRoutesCount), stats_shifts_label: statsShiftBooked.length ? String(statsShiftBooked.length) : '',
             stats_work_visible: statsWorkRows.length > 0, stats_work_rows: statsWorkRows,
+            stats_work: { orders: statsOrdersCount || 0, routes: statsRoutesCount, routesMulti: statsTripCounts.length, shifts: statsShiftBooked.length, lineHours: statsHours || 0, withOrderHours: statsWithOrderHours, bookedHours: statsBookedHours, freeHours: statsFreeHours, asked: statsShiftAsked, lost: statsShiftLost },
             stats_delta_label: statsDelta == null ? 'Нет сравнения' : (statsDelta >= 0 ? '+' : '') + statsDelta + '% к прошлому периоду',
             stats_goal_label: statsGoal == null ? 'Цель для периода не сохранена' : (statsGross == null ? 'Нет данных' : formatMoney(statsGross) + ' ₽') + ' из ' + formatMoney(statsGoal) + ' ₽ · ' + (statsCurrentPeriod ? 'норма на сегодня' : 'цель периода'),
             stats_goal_has_data: statsGoal != null && statsGross != null,
@@ -5164,6 +5176,21 @@
             stats_goal_total: statsGross == null ? null : statsGoalTotal, stats_goal_fact: statsGross, stats_goal_pace: statsGoalPace,
             stats_goal_title: statsGoalTitle, stats_goal_note: statsGoalNote,
             stats_net_known: statsNet != null, stats_delta: statsDelta, stats_prev_word: statsPrevWord,
+            // главная мысль периода: район с заметной долей, рост дохода или ставки, иначе ничего
+            stats_headline: (() => {
+              const sum = statsDistrictRows.reduce((a, r) => a + r.earn, 0), top = statsDistrictRows[0];
+              const share = top && statsDistrictRows.length > 1 && sum > 0 ? Math.round(top.earn * 100 / sum) : 0;
+              if (share >= 35) return top.name + ' дал ' + (share >= 48 && share <= 52 ? 'половину' : share + '%') + ' дохода';
+              const vs = ({ today: 'ко вчера', week: 'к прошлой неделе', month: 'к прошлому месяцу', year: 'к прошлому году' })[statsPeriod] || 'к прошлому периоду';
+              if (statsDelta != null && statsDelta >= 10) return 'Доход +' + statsDelta + '% ' + vs;
+              // иначе самый заметный рост ставки из сравнения
+              const rates = [['rate', 'Доход в час'], ['ordersPerHour', 'Заказов в час'], ['perOrder', 'Доход за заказ']].map(([k, label]) => {
+                const cur = statsTrendCurrent[k], prev = statsTrendPrev[k];
+                return { label, pct: cur != null && prev > 0 ? Math.round((cur - prev) * 100 / prev) : null };
+              }).filter((r) => r.pct != null && r.pct >= 10).sort((x, y) => y.pct - x.pct);
+              if (rates.length) return rates[0].label + ' +' + rates[0].pct + '% ' + vs;
+              return '';
+            })(),
             stats_range_human: statsRangeHuman,
             stats_range_hint: statsCurrentPeriod && statsPeriod !== 'today' ? 'данные по 15 сентября' : '',
             stats_filter_count: statsFilterCount, stats_filter_names: statsFilterNames,
@@ -5171,19 +5198,22 @@
               { label: 'Сервис', options: [['all', 'Все сервисы'], ['vkusvill', 'ВкусВилл'], ['samokat', 'Самокат']].map(([value, label]) => ({ label, selected: statsCohortService === value, tap: () => set({ statsCohortService: value }) })) },
               { label: 'Район получения', options: [['all', 'Все районы']].concat(STATS_DISTRICTS.map((name) => [name, name])).map(([value, label]) => ({ label, selected: statsCohortDistrict === value, tap: () => set({ statsCohortDistrict: value }) })) }
             ],
-            stats_top_scope: (city === 'spb' ? 'Санкт-Петербург' : 'Москва') + ' · заработок за 7–13 сентября',
+            stats_top_scope: (city === 'spb' ? 'Санкт-Петербург' : 'Москва') + ', 7–13 сентября',
             stats_cohort_median_hint: statsStep && statsCohortService === 'all' && statsCohortDistrict === 'all' && statsTrendSeries.some((pt) => pt.k === statsStep) ? statsTrendSeries.find((pt) => pt.k === statsStep).medians.earn : null,
             stats_time_caption: statsHours == null ? 'Часы на линии неизвестны' : String(statsHours).replace('.', ',') + ' ч на линии',
             stats_orders_caption: statsOrdersCount == null ? 'Выплаты и детали по каждому заказу' : statsOrdersCount + ' ' + ruPlural(statsOrdersCount, 'заказ', 'заказа', 'заказов') + ', выплаты и детали',
-            stats_trend_caption: statsTrendPrev.earn == null ? 'Сравнения с прошлым периодом пока нет' : 'К прошлому периоду такой же длины',
+            stats_compare_caption: statsTrendPrev.earn == null ? 'Сравнения с прошлым периодом пока нет' : 'С прошлым периодом и курьерами города',
             stats_money_title: statsPayout == null ? 'Деньги за период' : 'Выплачено',
             stats_money_accent: statsPayoutShare == null ? '' : statsPayoutShare + '%',
             stats_money_sub: statsPayout == null ? 'Выплаты по выбранным данным неизвестны' : (statsPending > 0 ? formatMoney(statsPending) + ' ₽ ещё ждёт выплаты' : 'Всё, что причиталось после удержаний, уже выплачено') + (statsPayableBase != null && statsFines ? ' · процент от ' + formatMoney(statsPayableBase) + ' ₽ после удержаний' : ''),
+            // в карточке выплат только выплачено и ждёт выплаты, начислено и удержано уже в сводке
+            stats_payout_kinds: ['payout', 'pending'],
+            stats_payout_sub: statsPayout == null ? 'Выплаты по выбранным данным неизвестны' : [statsPending > 0 ? '' : 'Всё, что причиталось после удержаний, уже выплачено', statsPayableBase != null && statsFines ? 'процент от ' + formatMoney(statsPayableBase) + ' ₽ после удержаний' : ''].filter(Boolean).join(' · ').replace(/^./, (c) => c.toUpperCase()),
             stats_money_rows: [
               ['Начислено', statsGross, 'earn'], ['Удержано', statsFines, 'fines'], ['Выплачено', statsPayout, 'payout'], ['Ждёт выплаты', statsPending, 'pending'],
               ['Расходы', statsExpensesKnown ? statsExpensesValue : null, 'expenses']
             ].filter(([, amount, kind]) => kind !== 'fines' || amount > 0).map(([label, amount, kind]) => ({
-              label, cls: 'raznos-stats-money-bar raznos-is-' + kind + (amount == null ? ' raznos-is-unknown' : ''),
+              label, kind, cls: 'raznos-stats-money-bar raznos-is-' + kind + (amount == null ? ' raznos-is-unknown' : ''),
               value: amount == null ? (kind === 'expenses' ? 'Неполные' : 'Нет данных') : (kind === 'expenses' || kind === 'fines' ? '−' : '') + formatMoney(amount) + ' ₽',
               style: 'width:' + (amount == null || !statsGross ? 0 : Math.max(amount > 0 ? 3 : 0, Math.min(100, Math.round(amount * 100 / statsGross)))) + '%'
             })),
@@ -5225,6 +5255,7 @@
                   { label: 'Возвраты', value: statsFullOrderCoverage ? String(statsVisibleOrders.filter((o) => o.delivery === 'Возврат').length) : 'Нет данных' }
                 ],
                 stats_fines_link: statsFines ? 'Штрафы и удержания · −' + formatMoney(statsFines) + ' ₽' : '',
+                stats_fines_link_plain: statsFines ? 'Штрафы и удержания' : '',
                 stats_fines_title: statsFines == null ? 'Удержания неизвестны' : (statsFines ? 'Удержано' : 'Удержаний не было'),
                 stats_fines_accent: statsFines ? formatMoney(statsFines) + ' ₽' : '',
                 stats_fines_sub: statsFines == null ? 'По выбранному срезу данных нет' : (statsCasesKnown ? statsFineRows.length + ' ' + ruPlural(statsFineRows.length, 'случай', 'случая', 'случаев') + ' за период' : 'Оценка по доле от начислений, разбор по случаям есть с 1 сентября'),
@@ -5237,7 +5268,7 @@
                   tap: () => set(Object.assign({ s: 'history', histBack: 'stats', histPeriod: 'period', histFrom: row.date, histTo: row.date, histSvc: row.svc, histDistrict: 'all', histStatus: 'all', histPage: 0 }, resetHistDays()))
                 })),
                 stats_tax_card_value: taxShare === 0 ? 'Не считаем' : statsTax == null ? 'Нет данных' : '≈ ' + formatMoney(statsTax) + ' ₽',
-                stats_tax_card_sub: taxShare === 0 ? 'Налог по вашему оформлению в сервисах здесь не считаем, подробности внутри' : (statsTax == null ? 'Налог считается по всем начислениям без фильтров' : 'за период ' + statsRangeHuman.replace(/^Неделя · /, '') + ', ' + (statsBonusLeftNow > 0 ? '4% с учётом налогового бонуса' : '6% с дохода от сервисов') + (statsTaxMonth == null ? '' : '. ' + (taxPaid ? 'Налог за ' + taxMonthName + ' ' + formatMoney(statsTaxMonth) + ' ₽ оплачен' : 'К уплате за ' + taxMonthName + ' ' + formatMoney(statsTaxMonth) + ' ₽ до ' + dueLabel))) + (taxShare > 0 && connectedKeys.some((k) => taxFormOf(k) === 'unknown') ? '. Предварительно: где оформление не задано, считаем как у самозанятого' : ''),
+                stats_tax_card_sub: taxShare === 0 ? 'Налог по вашему оформлению в сервисах здесь не считаем, подробности внутри' : (statsTax == null ? 'Налог считается по всем начислениям без фильтров' : (statsBonusLeftNow > 0 ? '4% с учётом бонуса' : '6% с дохода от сервисов') + (statsTaxMonth == null ? '' : ' · ' + (taxPaid ? 'Налог за ' + taxMonthName + ' ' + formatMoney(statsTaxMonth) + ' ₽ оплачен' : 'к уплате за ' + taxMonthName + ' ' + formatMoney(statsTaxMonth) + ' ₽ до ' + dueLabel))) + (taxShare > 0 && connectedKeys.some((k) => taxFormOf(k) === 'unknown') ? '. Предварительно: где оформление не задано, считаем как у самозанятого' : ''),
                 stats_tax_month_title: taxPaid ? 'Налог за ' + taxMonthName : 'К уплате за ' + taxMonthName,
                 stats_tax_month_value: taxShare === 0 ? 'Не считаем' : statsTaxMonth == null ? 'Нет данных' : formatMoney(statsTaxMonth) + ' ₽',
                 stats_tax_month_sub: taxPaid ? 'Оплачен до ' + dueLabel : 'Заплатить до ' + dueLabel + ', до конца месяца сумма ещё вырастет',
@@ -5457,7 +5488,12 @@
           go_plan_week_result: (off) => set({ s: 'stats', statsPeriod: 'week', statsStep: off, statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' }),
           go_plan_day_result: (iso) => set({ s: 'stats', statsPeriod: 'today', statsStep: -Math.round((new Date(TODAY_ISO + 'T00:00:00') - new Date(iso + 'T00:00:00')) / 86400000), statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' }),
           go_day_recap: () => set({ s: 'stats', statsPeriod: 'today', statsStep: 0, statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' }),
-          earn_services: [{ svc: 'vkusvill', sum: vvEarn, count: today.vvOrders }, { svc: 'samokat', sum: samokatEarn, count: today.samokatOrders }].filter((r) => activeDataSvcs.indexOf(r.svc) !== -1), earn_expenses: todayExpenses,
+          // сервисы в шторке заработка, по нажатию история заказов этого сервиса
+          today_sheet_svcs: [{ svc: 'vkusvill', title: 'ВкусВилл', sum: vvEarn, count: today.vvOrders }, { svc: 'samokat', title: 'Самокат', sum: samokatEarn, count: today.samokatOrders }].filter((r) => activeDataSvcs.indexOf(r.svc) !== -1).sort((a, b) => b.sum - a.sum).map((r) => ({
+            key: r.svc, title: r.title, sum: formatMoney(r.sum), count: r.count + ' ' + ruPlural(r.count, 'заказ', 'заказа', 'заказов'),
+            tap: () => set({ s: 'history', histBack: '', histSvc: r.svc, histDistrict: 'all', todaySheet: false })
+          })),
+          today_sheet_expenses: () => set({ s: 'expenses', expBack: 'courier-home', period: 'today', expFormDirect: false, todaySheet: false }),
           sub_back: () => set({ s: (this.state && this.state.subFrom) || 'profile' }),
           slots_open_service: (svc, when) => set({ s: 'service-open-demo', openDemoLabel: (SERVICES[svc] ? SERVICES[svc].title : svc), openDemoFrom: 'slots', openDemoShift: when || '', openDemoSlot: '' }),
           open_demo_back: () => set({ s: (this.state && this.state.openDemoFrom) || 'offers', openDemoShift: '', openDemoSlot: '' }),
@@ -5469,7 +5505,7 @@
           open_demo_note: demoSlot ? 'Когда вернётесь, бронь появится в Разносе после синхронизации с сервисом, до этого слот остаётся свободным. В прототипе переход не выполняется, выберите, чем всё закончилось' : 'В прототипе переход не выполняется',
           open_demo_took_label: demoSlot && demoSlot.apply ? 'Я откликнулся' : 'Я взял смену',
           open_demo_took: () => set({ takenSlots: Object.assign({}, st.takenSlots || {}, st.openDemoSlot ? { [st.openDemoSlot]: true } : {}), s: st.openDemoFrom || 'slots', openDemoShift: '', openDemoSlot: '' }),
-          open_demo_failed: () => set({ s: st.openDemoFrom || 'slots', openDemoShift: '', openDemoSlot: '' }), work_hub_goal: 60000, work_hub_planned: 54800, work_hub_nudge: 'Добавьте пару вечерних часов в Центре, там платят больше', go_top: () => set({ s: 'top' }), top_back: () => set({ s: 'stats' }), top_open_anon: () => set({ s: 'anon-courier', anonSvcKey: 'samokat', anonAuthor: 'Курьер', anonBack: 'top', pvPreview: '' }),
+          open_demo_failed: () => set({ s: st.openDemoFrom || 'slots', openDemoShift: '', openDemoSlot: '' }), work_hub_goal: 60000, work_hub_planned: 54800, work_hub_nudge: 'Добавьте пару вечерних часов в Центре, там платят больше', go_top: () => set({ s: 'top' }), top_back: () => set({ s: 'profile' }), top_open_anon: () => set({ s: 'anon-courier', anonSvcKey: 'samokat', anonAuthor: 'Курьер', anonBack: 'top', pvPreview: '' }),
             active_filter: st.activeFilter || '', set_active_filter: (name) => set({ activeFilter: name || '' }),
             active_filter_label: (st.activeFilter ? 'Фильтр: ' + st.activeFilter : 'Без фильтра'),
             active_filter_pill_class: 'raznos-status-pill ' + (st.activeFilter ? 'raznos-pill-ok' : 'raznos-pill-muted'),
@@ -6690,7 +6726,7 @@
             exp_has_templates: expTemplates.length > 0,
             exp_template_chips: expTemplates.map((t) => ({ id: t.id, label: EXPENSE_CATS[t.cat] + (t.note ? ' · ' + t.note : ''), onTap: () => { const d = { day: TODAY_ISO, cat: t.cat, amount: '', note: t.note, saveTemplate: false }; set({ s: 'expense-form', expFormId: '', expFormDraft: d, expFormInit: d }); } })),
             exp_is_empty: !expHasDays, exp_has_days: expHasDays, exp_day_groups: expDayGroups,
-            go_expense_form_from_home: () => { const d = { day: TODAY_ISO, cat: 'other', amount: '', note: '', saveTemplate: false }; set({ s: 'expense-form', expBack: 'courier-home', period: 'today', expFormId: '', expFormDraft: d, expFormInit: d, expFormDirect: true }); },
+            go_expense_form_from_home: (e) => { if (e && e.stopPropagation) e.stopPropagation(); const d = { day: TODAY_ISO, cat: 'other', amount: '', note: '', saveTemplate: false }; set({ s: 'expense-form', expBack: 'courier-home', period: 'today', expFormId: '', expFormDraft: d, expFormInit: d, expFormDirect: true }); },
             go_expense_form_new: () => { const d = { day: TODAY_ISO, cat: 'other', amount: '', note: '', saveTemplate: false }; set({ s: 'expense-form', expFormId: '', expFormDraft: d, expFormInit: d }); },
 
             ef_title: expFormId ? 'Расход' : 'Новый расход', ef_is_edit: !!expFormId,

@@ -13,6 +13,12 @@
     .rtc-me-val { font: 800 22px var(--raznos-mono); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .rtc-me-metric { font: 500 12px var(--raznos-font); color: color-mix(in oklab, var(--raznos-on-dark) 70%, transparent); }
     .rtc-list { display: flex; flex-direction: column; gap: 6px; }
+    .rtc-near { display: flex; flex-direction: column; padding: 12px 14px 6px; border-radius: 16px; background: var(--raznos-surface); }
+    .rtc-near-gap { display: flex; align-items: center; gap: 8px; padding-bottom: 8px; font: 650 14px var(--raznos-font); color: var(--raznos-ink); }
+    .rtc-near-row { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; margin: 0 -10px; border-radius: 10px; }
+    .rtc-near-row.rtc-is-me { background: color-mix(in oklab, var(--raznos-green) 16%, var(--raznos-surface)); }
+    .rtc-near-row.rtc-is-me .rtc-near-name, .rtc-near-row.rtc-is-me .rtc-rank { font-weight: 800; color: var(--raznos-green-deep); }
+    .rtc-near-name { font: 500 14px var(--raznos-font); color: var(--raznos-ink-2); }
     .rtc-row { display: grid; grid-template-columns: 26px 40px 1fr auto; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); width: 100%; text-align: left; cursor: pointer; }
     .rtc-rank { font: 700 14px var(--raznos-mono); color: var(--raznos-ink-2); text-align: center; }
     .rtc-face { width: 40px; height: 40px; border-radius: 50%; background: var(--raznos-surface-2); border: 1px solid var(--raznos-line); display: flex; align-items: center; justify-content: center; font: 700 16px var(--raznos-font); color: var(--raznos-ink-3); }
@@ -42,6 +48,13 @@
       <div class="rtc-me-col"><span class="rtc-me-place">{{ my_place }}</span><span class="rtc-me-sub">{{ my_sub }}</span></div>
     </div>
     <div class="rtc-me-end"><span class="rtc-me-val">{{ my_val }}</span><span class="rtc-me-metric">{{ my_metric }}</span></div>
+  </div>
+
+  <div class="rtc-near">
+    <span class="rtc-near-gap"><i class="raznos-hex-mark" aria-hidden="true"></i>{{ gap_label }}</span>
+    <sc-for list="{{ near }}" as="n" hint-placeholder-count="3">
+      <div class="{{ n.cls }}"><span class="rtc-rank">{{ n.rank }}</span><span class="rtc-near-name">{{ n.name }}</span><span class="rtc-val">{{ n.val }}</span></div>
+    </sc-for>
   </div>
 
   <span class="raznos-text-h3">Лидеры {{ scope_label }}</span>
@@ -99,6 +112,13 @@ class Component extends DCLogic {
         tap: () => set({ metric: m.key })
       })),
       my_place: RTC_MY_RANK[metric] + ' место',
+      // соседи по месту в демо на 4% выше и 3% ниже вас
+      gap_label: (() => { const up = Math.max(1, Math.round(RTC_ME[metric] * 0.043)); return 'До ' + (RTC_MY_RANK[metric] - 1) + ' места ещё ' + rtcVal(up, md.unit); })(),
+      near: [
+        { rank: RTC_MY_RANK[metric] - 1, name: 'Курьер', val: rtcVal(RTC_ME[metric] + Math.max(1, Math.round(RTC_ME[metric] * 0.043)), md.unit), cls: 'rtc-near-row' },
+        { rank: RTC_MY_RANK[metric], name: 'Вы', val: rtcVal(RTC_ME[metric], md.unit), cls: 'rtc-near-row rtc-is-me' },
+        { rank: RTC_MY_RANK[metric] + 1, name: 'Курьер', val: rtcVal(Math.round(RTC_ME[metric] * 0.97), md.unit), cls: 'rtc-near-row' }
+      ].map((n) => Object.assign(n, { rank: String(n.rank) })),
       my_sub: 'Вы · Москва · велосипед',
       my_val: rtcVal(RTC_ME[metric], md.unit),
       my_metric: md.label,

@@ -1,5 +1,11 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
 <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-final.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
+<sc-if value="{{ verdict_mode }}" hint-placeholder-val="{{ false }}">
+  <div class="raznos-stats-verdict-row">
+    <div class="{{ verdict_class }}"><span class="raznos-stats-delta-mark" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><span class="raznos-stats-verdict-copy"><b>{{ verdict_title }}</b><small>{{ verdict_note }}</small></span></div>
+    <sc-if value="{{ has_settings }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-stats-cohort-settings raznos-stats-verdict-settings" onClick="{{ on_settings }}" aria-label="Настроить сравнение"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button></sc-if>
+  </div>
+</sc-if>
 <sc-if value="{{ recap_mode }}" hint-placeholder-val="{{ false }}">
   <div class="raznos-stats-section raznos-stats-cohort-card">
     <div class="raznos-stats-cohort-head">
@@ -41,7 +47,7 @@
   </sc-for>
 </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"city":{"editor":"text","default":"moscow"},"mineCity":{"editor":"text","default":"moscow"},"transport":{"editor":"enum","default":"bike","options":["bike","foot","car","electric","public"]},"period":{"editor":"enum","default":"month","options":["today","week","month","year","12m","custom"]},"svc":{"editor":"text","default":"all"},"medianHint":{"editor":null},"district":{"editor":"text","default":"all"},"mineAmount":{"editor":null},"recapMode":{"editor":"boolean","default":false},"onSettings":{"editor":null},"mine":{"editor":null},"onlyMine":{"editor":"boolean","default":false},"title":{"editor":"text","default":"Я и другие курьеры"},"$preview":{"width":360,"height":420}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"city":{"editor":"text","default":"moscow"},"mineCity":{"editor":"text","default":"moscow"},"transport":{"editor":"enum","default":"bike","options":["bike","foot","car","electric","public"]},"period":{"editor":"enum","default":"month","options":["today","week","month","year","12m","custom"]},"svc":{"editor":"text","default":"all"},"medianHint":{"editor":null},"district":{"editor":"text","default":"all"},"mineAmount":{"editor":null},"recapMode":{"editor":"boolean","default":false},"verdictMode":{"editor":"boolean","default":false},"onSettings":{"editor":null},"mine":{"editor":null},"onlyMine":{"editor":"boolean","default":false},"title":{"editor":"text","default":"Я и другие курьеры"},"$preview":{"width":360,"height":420}}'>
 const CC_TITLES = { vkusvill: 'ВкусВилл', samokat: 'Самокат', x5: 'X5 Доставка', 'yandex-eda': 'Яндекс Еда' };
 const CC_TRANSPORT = { bike: 'велосипед', foot: 'пешком', car: 'авто', electric: 'электро', public: 'общественный транспорт' };
 // медиана за месяц, остальные периоды получают небольшой сдвиг и свою выборку
@@ -93,7 +99,10 @@ class Component extends DCLogic {
       const position = (value) => Math.max(0, Math.min(100, Math.round((value - domainMin) * 100 / Math.max(1, domainMax - domainMin))));
       const cityTitle = city === 'moscow' ? 'Москва' : (city === 'spb' ? 'Санкт-Петербург' : 'Ваш город');
       return {
-        recap_mode: true, legacy_mode: false, recap_enough: enough, recap_not_enough: !enough,
+        recap_mode: !p.verdictMode, verdict_mode: !!p.verdictMode, legacy_mode: false, recap_enough: enough, recap_not_enough: !enough,
+        verdict_class: 'raznos-stats-summary-delta raznos-stats-verdict' + (enough ? (diff >= 0 ? ' raznos-is-positive' : ' raznos-is-negative') : ''),
+        verdict_title: enough ? (diff >= 0 ? 'Выше медианы города на ' : 'Ниже медианы города на ') + amount(Math.abs(diff)) : 'Сравнение с курьерами',
+        verdict_note: enough ? cityTitle + ' · ' + (mine >= adjusted[2] ? 'выше 80% курьеров' : (mine >= adjusted[0] ? 'выше 50% курьеров' : 'выше 25% курьеров')) + ' · ' + n + ' ' + ccPlural(n, 'курьер', 'курьера', 'курьеров') : (crossCity ? 'Ваши заказы относятся к другому городу, личное сравнение недоступно' : (period === 'custom' ? 'Для выбранных дат сопоставимой выборки пока нет' : 'Для этой группы данных пока нет')),
         cohort_label: cityTitle + ' · ' + (CC_TRANSPORT[transport] || transport) + ' · ' + (CC_TITLES[service] || 'все сервисы') + (district === 'all' ? ' · все районы' : ' · ' + district),
         basis_label: 'начислено за тот же период', recap_mine: enough ? amount(mine) : 'Нет данных',
         recap_median: enough ? amount(adjusted[0]) : 'Нет данных',
@@ -141,7 +150,7 @@ class Component extends DCLogic {
       };
     });
     return {
-      recap_mode: false, legacy_mode: true,
+      recap_mode: false, verdict_mode: false, legacy_mode: true,
       title: p.title || 'Я и другие курьеры',
       basis_note: 'Медиана курьеров Разноса: ' + ((cityData && city === 'spb') ? 'Санкт-Петербург' : (city === 'moscow' ? 'Москва' : 'выбранный город')) + ', ' + (CC_TRANSPORT[transport] || transport) + ', тот же сервис и период. Доход до расходов, начисления за час на линии',
       show_no_city: !cityData, show_cross_city: crossCity && !!cityData,

@@ -70,6 +70,7 @@
 .raznos-stats-overview-card { gap: 20px; padding: 20px 20px 22px; border-radius: 20px; }
 .raznos-stats-summary-lead { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
 .raznos-stats-recap-top { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.raznos-stats-headline { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 8px; padding: 6px 11px 6px 8px; border-radius: 999px; background: color-mix(in oklab, var(--raznos-green) 14%, var(--stats-card)); font: 700 13px/1.25 var(--raznos-font); color: var(--raznos-green-deep); }
 .raznos-stats-summary-title { margin: 0; color: var(--stats-ink); font: 650 16px/1.25 var(--raznos-font); }
 .raznos-stats-recap-status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: var(--stats-track); color: var(--stats-muted); font: 600 12px/1 var(--raznos-font); white-space: nowrap; }
 .raznos-stats-recap-status i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
@@ -170,6 +171,10 @@
 .raznos-stats-money-bar.raznos-is-unknown strong { color: var(--stats-muted); font-weight: 600; }
 .raznos-stats-inline-link { width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: -4px 0 -8px; padding: 12px 0 0; border: 0; border-top: 1px solid var(--stats-track); background: transparent; color: var(--stats-ink); font: 600 14px var(--raznos-font); text-align: left; cursor: pointer; }
 .raznos-stats-inline-link .raznos-stats-head-chevron { margin: 0; }
+.raznos-stats-tax-link { align-items: flex-start; padding-top: 14px; }
+.raznos-stats-tax-link .raznos-stats-head-chevron { margin-top: 2px; }
+.raznos-stats-tax-link-copy { min-width: 0; display: flex; flex-direction: column; gap: 3px; text-align: left; }
+.raznos-stats-tax-link-copy small { color: var(--stats-muted); font: 500 12.5px/1.35 var(--raznos-font); }
 .raznos-stats-inline-link:hover .raznos-stats-head-chevron { color: var(--stats-ink); }
 
 .raznos-stats-time-track { height: 14px; display: flex; gap: 3px; overflow: hidden; border-radius: 999px; background: var(--stats-track); }
@@ -354,9 +359,9 @@
 .raznos-stats-range-bar { display: flex; flex-direction: column; gap: 10px; }
 
 .raznos-stats-top-card { --stats-card: var(--raznos-surface); --stats-ink: var(--raznos-ink); --stats-muted: var(--raznos-ink-3); width: 100%; min-height: 76px; display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 0; border-radius: 18px; background: var(--stats-card); color: var(--stats-ink); text-align: left; font: inherit; cursor: pointer; box-sizing: border-box; }
-.raznos-stats-top-medal { width: 44px; height: 44px; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 14px; background: color-mix(in oklab, var(--raznos-amber) 18%, var(--stats-card)); color: var(--raznos-amber); }
+.raznos-stats-top-medal { width: 44px; height: 48px; flex: none; display: inline-flex; align-items: center; justify-content: center; clip-path: var(--raznos-hex); background: color-mix(in oklab, var(--raznos-amber) 22%, var(--stats-card)); color: var(--raznos-amber); }
 .raznos-stats-top-copy { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px; }
-.raznos-stats-top-copy strong { font: 700 16px/1.2 var(--raznos-font); }
+.raznos-stats-top-copy strong { font: 700 16px/1.2 var(--raznos-font); white-space: nowrap; }
 .raznos-stats-top-copy small { color: var(--stats-muted); font: 500 12.5px/1.3 var(--raznos-font); }
 .raznos-stats-top-place { flex: none; padding: 6px 11px; border-radius: 999px; background: color-mix(in oklab, var(--raznos-green) 14%, var(--stats-card)); color: var(--raznos-green-deep); font: 750 14px/1 var(--raznos-font); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .raznos-stats-top-card:hover .raznos-stats-head-chevron { color: var(--stats-ink); transform: translateX(2px); }
@@ -424,11 +429,38 @@
 .raznos-stats-compare-delta.raznos-is-negative { color: var(--raznos-red); }
 
 /* как работали: заказы, маршруты и смены за период */
-.raznos-stats-work-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
-.raznos-stats-work-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 2px 12px; }
-.raznos-stats-work-name { color: var(--stats-ink); font: 650 15px/1.3 var(--raznos-font); }
-.raznos-stats-work-value { color: var(--stats-ink); font: 750 17px/1.2 var(--raznos-font); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; text-align: right; }
-.raznos-stats-work-note { grid-column: 1 / -1; color: var(--stats-muted); font: 500 13px/1.4 var(--raznos-font); }
-.raznos-stats-work-row.raznos-is-sub { margin: -6px 0 0 12px; padding-left: 12px; border-left: 2px solid var(--stats-track); }
-.raznos-stats-work-row.raznos-is-sub .raznos-stats-work-name { color: var(--stats-muted); font-weight: 500; font-size: 14px; }
-.raznos-stats-work-row.raznos-is-sub .raznos-stats-work-value { font-size: 14px; font-weight: 650; }
+.raznos-stats-work-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; }
+.raznos-stats-work-tile { display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: 14px; background: var(--stats-track); }
+.raznos-stats-work-tile > b { color: var(--stats-ink); font: 800 26px/1 var(--raznos-font); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.raznos-stats-work-tile > span { color: var(--stats-ink); font: 600 13px var(--raznos-font); }
+.raznos-stats-work-tile > small { color: var(--stats-muted); font: 500 12px/1.3 var(--raznos-font); }
+.raznos-stats-work-time { display: flex; flex-direction: column; gap: 8px; }
+.raznos-stats-work-time-head { width: 100%; min-height: 44px; display: flex; align-items: center; gap: 8px; margin: -8px 0 -4px; padding: 0; border: 0; background: transparent; color: var(--stats-muted); font: 500 13px var(--raznos-font); text-align: left; cursor: pointer; }
+.raznos-stats-work-time-head > b { margin-left: auto; }
+.raznos-stats-work-time-head .raznos-stats-head-chevron { margin: 0; }
+.raznos-stats-work-booked { margin: 0; color: var(--stats-muted); font: 500 12.5px/1.35 var(--raznos-font); }
+.raznos-stats-work-time-head > b { color: var(--stats-ink); font: 750 15px var(--raznos-font); font-variant-numeric: tabular-nums; }
+.raznos-stats-work-bar { display: flex; gap: 3px; height: 10px; }
+.raznos-stats-work-bar > i { display: block; border-radius: 999px; min-width: 6px; }
+.raznos-stats-work-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--stats-muted); font: 500 12.5px var(--raznos-font); }
+.raznos-stats-work-legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.raznos-stats-work-legend b { color: var(--stats-ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+.raznos-stats-work-legend i { width: 10px; height: 10px; border-radius: 3px; }
+.raznos-stats-work-bar > .raznos-is-with-order, .raznos-stats-work-legend > span > .raznos-is-with-order { background: var(--raznos-green); }
+.raznos-stats-work-bar > .raznos-is-waiting, .raznos-stats-work-legend > span > .raznos-is-waiting { background: var(--raznos-amber); }
+.raznos-is-booked { background: var(--raznos-green-deep); }
+.raznos-is-free { background: var(--raznos-green); opacity: 0.55; }
+.raznos-is-other { background: var(--stats-track); outline: 1px solid var(--raznos-line-strong); }
+.raznos-stats-work-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.raznos-stats-work-chip { padding: 4px 10px; border-radius: 999px; background: color-mix(in oklab, var(--raznos-amber) 16%, transparent); color: var(--stats-ink); font: 600 12.5px var(--raznos-font); }
+
+/* сравнение: вывод к прошлому периоду и к медиане города, ниже тренды */
+.raznos-stats-compare-card { gap: 16px; }
+.raznos-stats-verdicts { display: flex; flex-direction: column; gap: 12px; }
+.raznos-stats-verdicts > .raznos-stats-summary-delta { margin-top: 0; }
+.raznos-stats-verdict-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.raznos-stats-verdict { margin-top: 0; align-items: flex-start; }
+.raznos-stats-verdict-copy { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.raznos-stats-verdict-copy > b { font: 700 14px/1.3 var(--raznos-font); }
+.raznos-stats-verdict-copy > small { color: var(--stats-muted); font: 500 12.5px/1.35 var(--raznos-font); }
+.raznos-stats-verdict-settings { margin: -11px -6px -11px 0; }

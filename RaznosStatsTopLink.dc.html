@@ -14,7 +14,7 @@ class Component extends DCLogic {
     const place = p.place === undefined ? 28 : p.place;
     const scope = p.scope || 'Москва · заработок за неделю';
     return {
-      scope, place_label: place == null ? 'Нет места' : place + ' место',
+      scope, place_label: place == null ? 'Нет места' : '№ ' + place,
       aria: 'Топ курьеров, ' + (place == null ? 'место пока не определено' : 'ваше место ' + place) + ', ' + scope,
       on_open: typeof p.onOpen === 'function' ? p.onOpen : (() => {})
     };

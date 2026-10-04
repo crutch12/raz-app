@@ -27,6 +27,7 @@
           <sc-if value="{{ r.hasPlace }}" hint-placeholder-val="{{ false }}"><div class="raznos-live-place-cap raznos-live-today-cap"><span class="raznos-live-pin-glyph" aria-hidden="true"></span><span class="raznos-live-place-name">{{ r.placeLabel }}</span><button type="button" class="raznos-live-map-link" onClick="{{ r.onPlace }}">На карте</button></div></sc-if>
           </div>
         </sc-for>
+        <sc-if value="{{ hasMore }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-live-today-more" onClick="{{ onAll }}"><span>{{ moreLabel }}</span><span class="raznos-row-chevron" aria-hidden="true">›</span></button></sc-if>
         <div class="raznos-btn-row">
           <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ onAll }}">Все сообщения</button>
           <button type="button" class="raznos-btn raznos-btn-primary raznos-btn-small" onClick="{{ onWrite }}">Написать</button>
@@ -43,15 +44,18 @@
     }'>
       function plural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
       const noop = () => {};
-      // пункты уже отфильтрованы и отсортированы в RaznosApp так же, как основная лента
+      // пункты уже отфильтрованы и отсортированы в RaznosApp, первый самый свежий
       class Component extends DCLogic {
         renderVals() {
           const p = this.props || {};
-          const items = (Array.isArray(p.items) ? p.items : []).slice(0, 3);
+          const all = Array.isArray(p.items) ? p.items : [];
+          const items = all.slice(0, 1);
+          const more = all.length - items.length;
           const allScope = p.scope === 'all';
           return {
             scopeLabel: (allScope ? 'Все сервисы · ' : 'Мои сервисы · ') + (p.cityTitle || ''),
             isEmpty: items.length === 0,
+            hasMore: more > 0, moreLabel: 'ещё ' + more + ' ' + plural(more, 'сообщение', 'сообщения', 'сообщений'),
             emptyLabel: allScope ? 'Сейчас сообщений по сервисам и городу нет' : 'Сейчас сообщений по вашим сервисам и городу нет',
             rows: items.map((m) => ({
               multi: !!m.multi, single: !m.multi, svcKey: m.svcKey || 'vkusvill', svcTitle: m.svcTitle || '',

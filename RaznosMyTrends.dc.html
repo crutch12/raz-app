@@ -68,7 +68,7 @@
     </sc-if>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"current":{"editor":null},"previous":{"editor":null},"detailMode":{"editor":"boolean","default":false},"focusKey":{"editor":null},"scaleLabel":{"editor":"text","default":"Столбики: 6 последних месяцев, текущий справа"},"onFocus":{"editor":null},"scopeLabel":{"editor":"text","default":"Все данные"},"onFilters":{"editor":null},"$preview":{"width":340,"height":520}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"current":{"editor":null},"previous":{"editor":null},"detailMode":{"editor":"boolean","default":false},"keys":{"editor":null},"focusKey":{"editor":null},"scaleLabel":{"editor":"text","default":"Столбики: 6 последних месяцев, текущий справа"},"onFocus":{"editor":null},"scopeLabel":{"editor":"text","default":"Все данные"},"onFilters":{"editor":null},"$preview":{"width":340,"height":520}}'>
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
@@ -120,7 +120,7 @@ class Component extends DCLogic {
       tile(rows[0], true), tile(rows[1], true),
       tile(rows[2], true), tile(rows[3], true),
       tile(rows[4], true), tile(rows[5], false)
-    ];
+    ].filter((item) => !Array.isArray(p.keys) || p.keys.indexOf(item.key) !== -1);
     const detail = !!p.detailMode;
     // открытый показатель хранит приложение, чтобы стрелка назад в шапке вела сначала в список
     const focusKey = typeof p.onFocus === 'function' ? (p.focusKey || '') : (st.focus || '');
