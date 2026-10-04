@@ -355,11 +355,11 @@
           <sc-if value="{{ is_tax_forms }}">
             <div class="raznos-phone-body" data-screen-label="Tax forms">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Налоги по сервисам</h1></div>
-              <p class="raznos-text-small">Как вы оформлены в каждом сервисе, от этого зависит, считаем ли мы налог</p>
+              <p class="raznos-text-small">От оформления зависит, считаем ли мы налог. Где сервис отдаёт его сам, берём оттуда</p>
               <sc-for list="{{ tax_forms_rows }}" as="tf" hint-placeholder-count="2">
                 <div class="raznos-card raznos-card-pad raznos-fx raznos-col raznos-gap8">
                   <span class="raznos-fx raznos-ac raznos-gap8"><dc-import name="RaznosIcon" svc="{{ tf.key }}" alt="{{ tf.title }}" size="sm"></dc-import><span class="raznos-text-h3">{{ tf.title }}</span></span>
-                  <span class="raznos-text-small">Как вы оформлены в сервисе</span>
+                  <span class="{{ tf.src_cls }}">{{ tf.src }}</span>
                   <div class="raznos-chip-row"><sc-for list="{{ tf.chips }}" as="ch" hint-placeholder-count="4"><button type="button" class="{{ ch.cls }}" onClick="{{ ch.tap }}">{{ ch.label }}</button></sc-for></div>
                   <span class="raznos-text-tiny">{{ tf.note }}</span>
                 </div>
@@ -423,11 +423,12 @@
               <sc-if value="{{ conn_show_temp_notice }}" hint-placeholder-val="{{ true }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Что получит Разнос</span><span class="raznos-text-small">Разнос входит в {{ conn_title }} под вашим аккаунтом, как приложение курьера, и читает заработок, заказы и смены. Заказы мы не принимаем и не меняем. Сервис не даёт доступ только на чтение, поэтому вход технически шире, чем нужно нам. Отозвать доступ можно в любой момент здесь же, кнопкой Отключить сервис</span></div></sc-if>
 
               <sc-if value="{{ conn_show_agree }}" hint-placeholder-val="{{ true }}">
-                <div class="raznos-fx raznos-col raznos-gap8">
+                <sc-if value="{{ conn_tax_ask }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-col raznos-gap8">
                   <span class="raznos-text-h3">Как вы оформлены в сервисе</span>
                   <div class="raznos-chip-row"><sc-for list="{{ tax_chips }}" as="ch" hint-placeholder-count="4"><button type="button" class="{{ ch.cls }}" onClick="{{ ch.tap }}">{{ ch.label }}</button></sc-for></div>
-                  <span class="raznos-text-tiny">Нужно, чтобы считать налог, потом можно поменять в профиле</span>
-                </div>
+                  <span class="raznos-text-tiny">Сервис это не отдаёт, а нам нужно, чтобы считать налог. Потом можно поменять в профиле</span>
+                </div></sc-if>
+                <sc-if value="{{ conn_tax_auto }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">Форму оформления для налога возьмём из сервиса, поправить можно в профиле, в Налогах по сервисам</span></sc-if>
                 <button type="button" class="raznos-consent-row" onClick="{{ toggle_conn_agree }}"><span class="{{ conn_agree_class }}">{{ conn_agree_mark }}</span><span class="raznos-text-body">Понимаю, что Разнос входит под моим аккаунтом, а не по отдельному доступу только на чтение</span></button>
               </sc-if>
 
@@ -1100,13 +1101,17 @@
                 <dc-import name="RaznosConnHealth" items="{{ conn_health_items }}" okNote="{{ conn_health_ok_note }}" netOffline="{{ net_offline }}" onAction="{{ conn_health_action }}"></dc-import>
                 <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-col raznos-gap12">
                   <span class="raznos-text-h3">Оценки из сервиса</span>
-                  <p class="raznos-text-tiny">Показываем то, что сервис сам отдаёт о вас, со шкалой и источником</p>
-                  <div class="raznos-fx raznos-col raznos-gap8">
-                    <sc-for list="{{ pf_client_ratings }}" as="cr" hint-placeholder-count="2">
-                      <div class="raznos-imp-reviews__group-head"><dc-import name="RaznosIcon" svc="{{ cr.key }}" alt="{{ cr.title }}" size="sm"></dc-import><span class="raznos-imp-reviews__name"><span class="raznos-list-title">{{ cr.title }}</span><sc-if value="{{ cr.source }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-tiny">{{ cr.source }}</span></sc-if></span><span class="{{ cr.value_cls }}">{{ cr.value }}</span></div>
+                  <div class="raznos-card raznos-scores">
+                    <sc-for list="{{ pf_scores }}" as="sc" hint-placeholder-count="2">
+                      <div class="raznos-score-row">
+                        <dc-import name="RaznosIcon" svc="{{ sc.key }}" alt="{{ sc.title }}" size="md"></dc-import>
+                        <span class="raznos-score-name"><b>{{ sc.title }}</b><span>{{ sc.source }}</span></span>
+                        <span class="raznos-score-val"><span class="raznos-score-num"><b>{{ sc.big }}</b><small>{{ sc.unit }}</small></span><sc-if value="{{ sc.has_bar }}" hint-placeholder-val="{{ true }}"><i class="raznos-score-bar" aria-hidden="true"><i style="{{ sc.bar }}"></i></i></sc-if></span>
+                      </div>
                     </sc-for>
+                    <sc-if value="{{ pf_scores_none_show }}" hint-placeholder-val="{{ true }}"><div class="raznos-score-none"><span class="raznos-score-none-icons"><sc-for list="{{ pf_scores_none }}" as="nd" hint-placeholder-count="2"><dc-import name="RaznosIcon" svc="{{ nd.key }}" alt="{{ nd.title }}" size="sm"></dc-import></sc-for></span><span>{{ pf_scores_none_text }}</span></div></sc-if>
+                    <p class="raznos-score-foot">Показываем то, что сервис сам отдаёт о вас. Тексты отзывов покупателей сервисы не отдают, оценку заказа пока видим только у Достаевского</p>
                   </div>
-                  <p class="raznos-text-small">Отзывы покупателей сервисы пока не отдают, как только отдадут, они появятся здесь</p>
                 </div></sc-if>
                 <sc-if value="{{ has_no_data }}"><p class="raznos-text-small">Подключите сервис или посмотрите демо, чтобы увидеть стаж, метрики и достижения</p></sc-if>
                 <sc-if value="{{ pf_restricted }}" hint-placeholder-val="{{ false }}">
@@ -1128,7 +1133,7 @@
                   <button type="button" class="raznos-list-row" onClick="{{ go_slots_from_profile }}"><div class="raznos-list-main"><span class="raznos-list-title">Смены и слоты</span><span class="raznos-text-small">История броней по сервисам</span></div><span class="raznos-row-chevron">›</span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ go_tax_forms }}"><div class="raznos-list-main"><span class="raznos-list-title">Налоги по сервисам</span><span class="raznos-text-small">{{ tax_forms_summary }}</span></div><span class="raznos-row-chevron">›</span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ go_expenses_from_profile }}"><div class="raznos-list-main"><span class="raznos-list-title">Расходы</span><span class="raznos-text-small">Журнал расходов и шаблоны</span></div><span class="raznos-row-chevron">›</span></button>
-                  <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-list-row" onClick="{{ go_imported_reviews }}"><div class="raznos-list-main"><span class="raznos-list-title">История отзывов из сервисов</span><span class="raznos-text-small">Сервисы пока не отдают отзывы</span></div><span class="raznos-row-chevron">›</span></button></sc-if>
+                  <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-list-row" onClick="{{ go_imported_reviews }}"><div class="raznos-list-main"><span class="raznos-list-title">История отзывов из сервисов</span><span class="raznos-text-small">Тексты отзывов сервисы не отдают</span></div><span class="raznos-row-chevron">›</span></button></sc-if>
                   <button type="button" class="raznos-list-row" onClick="{{ go_my_activity }}"><div class="raznos-list-main"><span class="raznos-list-title">Мои отзывы, вопросы и ответы</span><span class="raznos-text-small">{{ my_activity_count_label }}</span></div><span class="raznos-row-chevron">›</span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ live_go_mine }}" style="border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">Мои оперативные сообщения</span><span class="raznos-text-small">{{ live_profile_label }}</span></div><span class="raznos-row-chevron">›</span></button>
                 </div>
@@ -2235,7 +2240,10 @@
       // НПД: доход от юрлиц 6%, налоговый бонус 10 000 ₽ снижает ставку до 4% пока не израсходован, лимит 2,4 млн в год
       // форма оформления курьера по сервисам, от неё зависит налог
       const TAX_FORMS = [['self', 'Самозанятый'], ['ip', 'ИП'], ['employee', 'Трудовой договор или ГПХ'], ['unknown', 'Не знаю']];
-      const TAX_FORMS_DEMO = { vkusvill: 'self', samokat: 'self', x5: 'unknown', 'yandex-eda': 'self' };
+      // форма оформления, которую сервис отдаёт сам (по разбору API, на рабочих аккаунтах ещё не подтверждено), в демо значения примерные
+      const TAX_FORM_FROM_SVC = { vkusvill: 'self', x5: 'self', 'ozon-fresh': 'self', kuper: 'self', dostavista: 'self', 'yandex-eda': 'self', 'yandex-lavka': 'self', delivery: 'self' };
+      // где сервис форму не отдаёт, курьер выбирает сам, в демо уже ответил
+      const TAX_FORMS_DEMO = { samokat: 'self' };
       const TAX_FORM_NOTE = { ip: 'Налог зависит от вашего режима', employee: 'Налог удерживает работодатель', unknown: 'Считаем как у самозанятого, предварительно, уточните оформление' };
       // платформа сама удерживает НПД по условиям сервиса
       const NPD_WITHHELD_SVCS = ['dostavista', 'ozon-fresh'];
@@ -2812,8 +2820,8 @@
       }
       // что сервис сам отдаёт о курьере: у остальных подключённых данных нет
       const SERVICE_SCORES = {
-        x5: { num: 4.6, label: '4,6 из 5', source: 'Рейтинг X5, шкала от 0 до 5' },
-        'yandex-eda': { num: null, label: '84 балла', source: 'Баллы Про, шкала как в сервисе' }
+        x5: { num: 4.6, max: 5, big: '4,6', unit: 'из 5', label: '4,6 из 5', source: 'Рейтинг X5, шкала от 0 до 5' },
+        'yandex-eda': { num: null, max: null, big: '84', unit: 'балла', label: '84 балла', source: 'Баллы Про, шкала как в сервисе' }
       };
       const scoreAnonLabel = (k) => { const sc = SERVICE_SCORES[k]; return !sc ? 'Нет данных из сервиса' : (sc.num != null ? ratingRangeLabel(sc.num) : 'Есть, ' + sc.source.split(',')[0].toLowerCase()); };
       // системная тема в макете зафиксирована, чтобы Системная давала предсказуемый результат
@@ -3602,7 +3610,8 @@
           const integrationStatus = st.integrationStatus || (demoOn ? { vkusvill: 'connected', samokat: 'connected', 'yandex-eda': 'limited', x5: 'connected' } : {});
           const connectedKeys = Object.keys(integrationStatus).filter((k) => integrationStatus[k] === 'connected' || integrationStatus[k] === 'limited');
           const taxForms = Object.assign({}, demoOn ? TAX_FORMS_DEMO : {}, st.taxForms);
-          const taxFormOf = (k) => taxForms[k] || 'unknown';
+          const taxFromSvc = (k) => !!TAX_FORM_FROM_SVC[k] && !(st.taxForms && st.taxForms[k]);
+          const taxFormOf = (k) => taxForms[k] || TAX_FORM_FROM_SVC[k] || 'unknown';
           const taxFormTitle = (k) => (TAX_FORMS.find((f) => f[0] === taxFormOf(k)) || TAX_FORMS[3])[1];
           const taxChips = (k) => TAX_FORMS.map((f) => ({ label: f[1], cls: taxFormOf(k) === f[0] ? 'raznos-chip raznos-is-active' : 'raznos-chip', tap: () => set({ taxForms: Object.assign({}, taxForms, { [k]: f[0] }) }) }));
           // данные по заказам есть по ВкусВиллу и Самокату, показываем их для этих реально подключённых сервисов
@@ -4837,8 +4846,8 @@
             go_history_samokat: () => { if (role === 'courier') set(Object.assign({ s: 'history', histPeriod: 'today', histSvc: 'samokat', histStatus: 'all', histPage: 0 }, resetHistDays())); },
             go_profile: () => set({ s: 'profile' }),
             go_tax_forms: () => set({ s: 'tax-forms' }),
-            tax_chips: taxChips(connKey),
-            tax_forms_rows: connectedKeys.map((k) => ({ key: k, title: SERVICES[k].title, chips: taxChips(k), note: TAX_FORM_NOTE[taxFormOf(k)] || (NPD_WITHHELD_SVCS.indexOf(k) !== -1 ? 'Сервис сам удерживает НПД, в налог Разноса это не входит' : 'Налог считаем как у самозанятого') })),
+            tax_chips: taxChips(connKey), conn_tax_ask: !TAX_FORM_FROM_SVC[connKey], conn_tax_auto: !!TAX_FORM_FROM_SVC[connKey],
+            tax_forms_rows: connectedKeys.map((k) => ({ key: k, title: SERVICES[k].title, chips: taxChips(k), src: taxFromSvc(k) ? 'Взяли из сервиса, поправьте, если не так' : (TAX_FORM_FROM_SVC[k] ? 'Вы поправили вручную, сервис отдаёт другое' : 'Сервис это не отдаёт, выберите сами'), src_cls: 'raznos-text-small' + (taxFromSvc(k) ? ' raznos-tax-src-auto' : ''), note: TAX_FORM_NOTE[taxFormOf(k)] || (NPD_WITHHELD_SVCS.indexOf(k) !== -1 ? 'Сервис сам удерживает НПД, в налог Разноса это не входит' : 'Налог считаем как у самозанятого') })),
             tax_forms_summary: connectedKeys.length ? connectedKeys.map((k) => SERVICES[k].title + ' · ' + taxFormTitle(k).toLowerCase()).join(', ') : 'Появится после подключения сервиса',
             go_profile_any: () => set({ s: 'profile' }),
             pf_switch_to_user: () => set({ role: 'user', s: 'user-home' }),
@@ -5953,6 +5962,14 @@
             hist_show_empty: !histHasData && !pvHideHistory,
             hist_show_list: histHasData && !pvHideHistory,
             hist_unhide: () => set({ pvHideHistory: false }),
+            // оценки из сервиса: крупное значение со шкалой, сервисы без данных одной строкой
+            pf_scores: connectedKeys.filter((k) => SERVICE_SCORES[k]).map((k) => {
+              const sc = SERVICE_SCORES[k];
+              return { key: k, title: SERVICES[k].title, source: sc.source.split(',')[0], big: sc.big, unit: sc.unit, has_bar: sc.max != null, bar: sc.max != null ? 'width:' + Math.round(sc.num / sc.max * 100) + '%' : '' };
+            }),
+            pf_scores_none: connectedKeys.filter((k) => !SERVICE_SCORES[k]).map((k) => ({ key: k, title: SERVICES[k].title })),
+            pf_scores_none_show: connectedKeys.some((k) => !SERVICE_SCORES[k]),
+            pf_scores_none_text: 'Нет данных: ' + connectedKeys.filter((k) => !SERVICE_SCORES[k]).map((k) => SERVICES[k].title).join(', '),
             pf_client_ratings: connectedKeys.map((k) => { const cr = SERVICE_SCORES[k]; return { key: k, title: SERVICES[k].title, value: cr ? cr.label : 'Нет данных из сервиса', source: cr ? cr.source : '', value_cls: 'raznos-imp-reviews__value' + (cr ? '' : ' raznos-imp-reviews__value--none') }; }),
             pf_restricted: myAccountRestricted,
             pf_restriction_reason: (() => {

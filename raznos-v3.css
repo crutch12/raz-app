@@ -336,6 +336,23 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-imp-reviews__group { display: flex; flex-direction: column; gap: 8px; }
 .raznos-imp-reviews__group-head { display: flex; align-items: center; gap: 8px; }
 .raznos-imp-reviews__group-head .raznos-list-title { flex: 1; }
+.raznos-scores { padding: 4px 16px 14px; }
+.raznos-score-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--raznos-line); }
+.raznos-score-name { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.raznos-score-name > b { font: 650 15px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-score-name > span { font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-score-val { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.raznos-score-num { display: inline-flex; align-items: baseline; gap: 4px; white-space: nowrap; }
+.raznos-score-num > b { font: 800 22px var(--raznos-font); letter-spacing: -0.02em; color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+.raznos-score-num > small { font: 600 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-score-bar { display: block; width: 64px; height: 4px; border-radius: 999px; background: var(--raznos-surface-2); overflow: hidden; }
+.raznos-score-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--raznos-green); }
+.raznos-score-none { display: flex; align-items: center; gap: 10px; padding: 12px 0 0; font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-score-none-icons { display: inline-flex; flex: none; }
+.raznos-score-none-icons > * + * { margin-left: -6px; }
+.raznos-score-none-icons img, .raznos-score-none-icons > * { opacity: 0.75; }
+.raznos-tax-src-auto { color: var(--raznos-green-deep); font-weight: 600; }
+.raznos-score-foot { margin: 10px 0 0; font: 500 12px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
 .raznos-imp-reviews__name { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
 .raznos-imp-reviews__value { flex: none; font: 700 15px var(--raznos-font); color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .raznos-imp-reviews__value--none { font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
