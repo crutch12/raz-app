@@ -76,6 +76,11 @@ const RSH_LEFT = (m) => (m >= 60 ? Math.floor(m / 60) + ' ч ' : '') + (m % 60 ?
 const RSH_TRAVEL = 20;
 // кнопка по сути: куда идём брать слот
 const RSH_AT = { samokat: 'в Самокате', vkusvill: 'во ВкусВилле', 'yandex-eda': 'в Яндекс Еде', x5: 'в X5' };
+// слежение там, где оно грозит блокировкой аккаунта, не предлагаем
+const RSH_NO_WATCH = ['magnit', 'yandex-lavka'];
+// ставка слота известна заранее только у этих сервисов, у остальных ₽/ч это оценка Разноса
+const RSH_PROMISE = ['samokat', 'ozon-fresh', 'ozon-courier'];
+const RSH_VV_NOTE = 'Часы обычно согласуют с куратором даркстора, выбор слота в приложении не подтверждён';
 // средний доход в час курьера до расходов, как в Плане и Результатах
 const RSH_MY_RATE = 700;
 // деньги той же моделью, что в Плане: спрос по часам и поправки сервисов, иначе экраны спорят
@@ -159,7 +164,7 @@ class Component extends DCLogic {
       const f = s.iso === today && s.status === 'completed' ? facts[s.svc] : null;
       const rate = RSH_RATE(s.svc, s.from, s.to);
       if (f) return { sum: f.earn, pay: RSH_FMT(f.earn) + ' ₽', text: RSH_FMT(f.earn) + ' ₽ за смену', note: f.orders + ' заказов, это факт из приложения сервиса' };
-      return { sum: rate * (s.to - s.from) / 60, rate, pay: '≈ ' + RSH_FMT(Math.round(rate * (s.to - s.from) / 60 / 10) * 10) + ' ₽', text: '≈ ' + RSH_FMT(Math.round(rate * (s.to - s.from) / 60 / 10) * 10) + ' ₽ за смену', note: '≈ ' + RSH_FMT(rate) + ' ₽/ч, оценка ' + RSH_CONF_TEXT(s.from, s.to) + (s.rate ? '. Ставка сервиса ' + s.rate + ' ₽/ч уже внутри' : '') };
+      return { sum: rate * (s.to - s.from) / 60, rate, pay: '≈ ' + RSH_FMT(Math.round(rate * (s.to - s.from) / 60 / 10) * 10) + ' ₽', text: '≈ ' + RSH_FMT(Math.round(rate * (s.to - s.from) / 60 / 10) * 10) + ' ₽ за смену', note: '≈ ' + RSH_FMT(rate) + ' ₽/ч, оценка ' + RSH_CONF_TEXT(s.from, s.to) + (s.rate && RSH_PROMISE.indexOf(s.svc) !== -1 ? '. Ставка сервиса ' + s.rate + ' ₽/ч уже внутри' : '') };
     };
     const live = shifts.filter((s) => s.status !== 'cancelled');
     // пересечения и дорога между сменами разных сервисов в один день
@@ -242,7 +247,7 @@ class Component extends DCLogic {
       const take = () => { if (typeof p.onTake === 'function') p.onTake(sl, whenOf(sl)); else openService(sl.svc, whenOf(sl)); };
       const row = {
         from: RSH_TIME(sl.from), to: RSH_TIME(sl.to), svc: sl.svc, title: sl.title, sub: sl.place + (sl.bonus ? ' · ' + sl.bonus : ''), pay: m.pay,
-        kind: sl.full ? 'full' : 'need', badge: sl.full ? 'мест нет' : (sl.apply ? 'по заявке' : sl.seats + ' ' + RSH_PLURAL(sl.seats, 'место', 'места', 'мест')),
+        kind: sl.full ? 'full' : 'need', badge: sl.full ? 'мест нет' : (sl.apply ? 'по заявке' : 'есть места'),
         tap: () => set({ slotSheet: sl.id })
       };
       // взятый слот не пропадает: остаётся в списке с отметкой, похожие на это время уходят вниз
@@ -253,9 +258,10 @@ class Component extends DCLogic {
           ? Object.assign(row, { kind: 'pending', badge: 'заявка', note: 'Заявка в плане, ждёт ответа сервиса' + tail, action: '' })
           : Object.assign(row, { kind: 'booked', badge: 'бронь', note: 'Слот ваш, он уже в плане' + tail, action: '', added: true });
       }
+      if (sl.full && RSH_NO_WATCH.indexOf(sl.svc) !== -1) return Object.assign(row, { note: 'Мест нет, слежение в сервисе недоступно: риск блокировки аккаунта', action: '' });
       if (sl.full) return Object.assign(row, { note: on ? 'Напишем, если появится место' : 'Мест нет, можно следить', action: on ? 'Слежу' : 'Следить', actionKind: on ? 'watch-on' : 'watch', onAction: toggleWatch });
       if (clash) return Object.assign(row, { note: 'Пересекается с вашей сменой ' + clash.title + ' ' + RSH_TIME(clash.from) + '–' + RSH_TIME(clash.to), action: '' });
-      return Object.assign(row, { gain: true, note: '≈ ' + RSH_FMT(m.rate) + ' ₽/ч' + (sl.apply ? ', смену подтвердит сервис' : ''), action: (sl.apply ? 'Откликнуться ' : 'Взять ') + (RSH_AT[sl.svc] || 'в сервисе'), actionKind: 'primary', onAction: take });
+      return Object.assign(row, { gain: true, note: '≈ ' + RSH_FMT(m.rate) + ' ₽/ч' + (sl.svc === 'vkusvill' ? ', часы обычно согласуют с куратором' : (sl.apply ? ', смену подтвердит сервис' : '')), action: (sl.apply ? 'Откликнуться ' : 'Взять ') + (RSH_AT[sl.svc] || 'в сервисе'), actionKind: 'primary', onAction: take });
     };
     // слоты, которые пересекаются с вашими сменами, взять нельзя, уносим их в свёрнутый блок внизу
     const clashOf = (sl) => live.find((s) => s.iso === sl.iso && sl.from < s.to + (s.svc === sl.svc ? 0 : RSH_TRAVEL) && s.from < sl.to + (s.svc === sl.svc ? 0 : RSH_TRAVEL));
@@ -265,7 +271,7 @@ class Component extends DCLogic {
       const list = okSlots.filter((sl) => sl.iso === iso).sort((a, b) => (a.full === b.full ? RSH_RATE(b.svc, b.from, b.to) * (b.to - b.from) - RSH_RATE(a.svc, a.from, a.to) * (a.to - a.from) : (a.full ? 1 : -1)));
       const deficit = (p.deficits || []).find((d) => d.iso === iso && (!d.svc || okSvc(d.svc)));
       const open = list.filter((sl) => !sl.full && !sl.taken).length;
-      return { title: dayTitle(iso), meta: open ? open + ' ' + RSH_PLURAL(open, 'слот', 'слота', 'слотов') + ' с местами' : 'мест нет', has_deficit: !!deficit, deficit: deficit ? deficit.title + '. ' + deficit.text : '', rows: list.map(slotRow) };
+      return { title: dayTitle(iso), meta: open ? 'есть места' : 'мест нет', has_deficit: !!deficit, deficit: deficit ? deficit.title + '. ' + deficit.text : '', rows: list.map(slotRow) };
     });
     const svcList = Array.from(new Set(slots.map((sl) => sl.svc))).map((svc) => [svc, (slots.find((sl) => sl.svc === svc) || {}).title || svc]);
     const filters = [
@@ -273,7 +279,7 @@ class Component extends DCLogic {
       { key: 'fWhen', title: 'Когда', value: fWhen, def: 'all', options: [{ k: 'all', label: 'Любой день' }].concat(days.filter((iso) => iso >= today).map((iso) => {
         const n = slots.filter((sl) => sl.iso === iso && !sl.full && !(iso === today && sl.to <= now)).length;
         const name = RSH_DOW[date(iso).getDay()].toLowerCase() + ' ' + date(iso).getDate();
-        return { k: iso, label: iso === today ? 'Сегодня, ' + name : (iso === tomorrow ? 'Завтра, ' + name : RSH_DAY_FULL[date(iso).getDay()] + ', ' + date(iso).getDate() + ' ' + RSH_MONTH[date(iso).getMonth()]), note: n ? n + ' ' + RSH_PLURAL(n, 'слот', 'слота', 'слотов') + ' с местами' : 'мест нет' };
+        return { k: iso, label: iso === today ? 'Сегодня, ' + name : (iso === tomorrow ? 'Завтра, ' + name : RSH_DAY_FULL[date(iso).getDay()] + ', ' + date(iso).getDate() + ' ' + RSH_MONTH[date(iso).getMonth()]), note: n ? 'есть места' : 'мест нет' };
       }), [{ k: 'weekend', label: 'Выходные', note: 'сб и вс' }]) },
       { key: 'fPart', title: 'Время суток', value: fPart, def: 'all', options: [{ k: 'all', label: 'Любое время' }, { k: 'morning', label: 'Утро', note: 'начало до 12:00' }, { k: 'day', label: 'День', note: 'начало 12:00–17:00' }, { k: 'evening', label: 'Вечер', note: 'начало с 17:00' }] },
       { key: 'fLen', title: 'Длина', value: fLen, def: 'all', options: [{ k: 'all', label: 'Любая длина' }, { k: 'short', label: 'До 4 ч' }, { k: 'long', label: 'От 4 ч' }] },
@@ -291,7 +297,7 @@ class Component extends DCLogic {
       return {
         svc: sl.svc, title: sl.title, place: sl.place, time: RSH_TIME(sl.from) + '–' + RSH_TIME(sl.to),
         status: r.badge, tone: sl.full ? 'muted' : (sl.apply || sl.taken === 'requested' ? 'warn' : 'ok'),
-        whenNote: dayTitle(sl.iso) + ', ' + RSH_DUR(sl.to - sl.from) + (sl.bonus ? '. ' + sl.bonus : '') + (sl.apply ? '. Отклик это заявка, смену подтвердит сервис' : ''),
+        whenNote: dayTitle(sl.iso) + ', ' + RSH_DUR(sl.to - sl.from) + (sl.bonus ? '. ' + sl.bonus : '') + (sl.apply ? '. Отклик это заявка, смену подтвердит сервис' : '') + (sl.svc === 'vkusvill' ? '. ' + RSH_VV_NOTE : '') + (sl.full && RSH_NO_WATCH.indexOf(sl.svc) !== -1 ? '. Слежение в этом сервисе недоступно: риск блокировки аккаунта' : ''),
         money: m.text, moneyNote: m.note,
         conflict: clash ? 'Пересекается с вашей сменой ' + clash.title + ' ' + RSH_TIME(clash.from) + '–' + RSH_TIME(clash.to) : '',
         rule: sl.taken ? ruleFor(sl.svc, sl.iso, sl.from).text : (sl.apply ? '' : offerRule(sl.svc)), ruleTone: '',

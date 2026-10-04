@@ -259,6 +259,10 @@ const RSS_SVC = {
 };
 // кнопка по сути: куда идём брать слот
 const RSS_AT = { samokat: 'в Самокате', vkusvill: 'во ВкусВилле', 'yandex-eda': 'в Яндекс Еде', x5: 'в X5' };
+// слежение там, где оно грозит блокировкой аккаунта, не предлагаем
+const RSS_NO_WATCH = ['magnit', 'yandex-lavka'];
+const RSS_NO_WATCH_NOTE = 'Мест нет, слежение в сервисе недоступно: риск блокировки аккаунта';
+const RSS_VV_NOTE = 'Часы обычно согласуют с куратором, выбор слота не подтверждён';
 const RSS_ZONES = [{ name: 'Центр', f: 1 }, { name: 'Север', f: 0.95 }, { name: 'Юг', f: 0.92 }, { name: 'Запад', f: 0.9 }];
 const rssZoneF = (name) => (RSS_ZONES.find((z) => z.name === name) || RSS_ZONES[0]).f;
 // спрос по часам и поправки сервисов по времени суток, демо на основе заказов курьеров Разноса
@@ -332,7 +336,7 @@ const RSS_TERMS = {
   'предварительная': 'Смена в черновике сервиса и может измениться',
   'свободный выход': 'Бронь не нужна: выходите на линию когда удобно и на сколько удобно, это Яндекс Еда',
   'нужен слот': 'Сервис даёт заказы только по брони. Слот берётся в приложении сервиса, мы покажем где',
-  'мест нет': 'Все слоты разобрали. Можно следить, мы напишем, когда место освободится',
+  'мест нет': 'Все слоты разобрали. Где слежение доступно, мы напишем, когда место освободится',
   'отработано': 'Смена прошла, это реальный заработок из приложения сервиса',
   'по заявке': 'Отклик на слот это заявка, смену подтверждает сервис',
   'слот': 'Смена по брони в приложении сервиса',
@@ -607,8 +611,8 @@ class Component extends DCLogic {
       const now = isToday && w.from <= RSS_NOW && w.to > RSS_NOW;
       const sl = kind === 'need' || kind === 'full' ? slotFor(w) : null;
       let note = '', action = '', actionKind = 'secondary', onAction = () => {}, urgent = false;
-      if (!past && kind === 'need' && sl) { note = sl.apply ? 'Отклик это заявка, смену подтверждает сервис' : 'Нужно взять слот в ' + RSS_SVC[w.svc].in + ', свободно мест: ' + sl.seats; action = (sl.apply ? 'Откликнуться ' : 'Взять ') + RSS_AT[w.svc]; actionKind = 'primary'; urgent = true; onAction = () => takeSlot(sl, w.iso, w.svc); }
-      if (!past && kind === 'full') { const on = !!watches[w.key]; note = 'Мест нет. ' + (on ? 'Напишем, если появится' : 'Можно следить за местом'); action = on ? 'Слежу' : 'Следить'; actionKind = on ? 'watch-on' : 'watch'; onAction = () => { const nx = Object.assign({}, watches); if (on) delete nx[w.key]; else nx[w.key] = true; set({ watches: nx }); flash(on ? 'Больше не следим' : 'Напишем, когда появится место'); }; }
+      if (!past && kind === 'need' && sl) { note = w.svc === 'vkusvill' ? RSS_VV_NOTE : (sl.apply ? 'Отклик это заявка, смену подтверждает сервис' : 'Нужно взять слот в ' + RSS_SVC[w.svc].in + ', места есть'); action = (sl.apply ? 'Откликнуться ' : 'Взять ') + RSS_AT[w.svc]; actionKind = 'primary'; urgent = true; onAction = () => takeSlot(sl, w.iso, w.svc); }
+      if (!past && kind === 'full') { const on = !!watches[w.key]; note = 'Мест нет. ' + (on ? 'Напишем, если появится' : 'Можно следить за местом'); action = on ? 'Слежу' : 'Следить'; actionKind = on ? 'watch-on' : 'watch'; onAction = () => { const nx = Object.assign({}, watches); if (on) delete nx[w.key]; else nx[w.key] = true; set({ watches: nx }); flash(on ? 'Больше не следим' : 'Напишем, когда появится место'); }; if (RSS_NO_WATCH.indexOf(w.svc) !== -1) { note = RSS_NO_WATCH_NOTE; action = ''; actionKind = 'secondary'; onAction = () => {}; } }
       if (w.source === 'bt') note = 'Добавлено из Когда выгоднее';
       if (w.source === 'booking' && kind === 'pending') note = w.status === 'requested' ? 'Сервис ещё не подтвердил, это не бронь' : 'Смена в черновике сервиса, может измениться';
       // переезд между бронями разных сервисов: то же предупреждение, что на Сегодня и в Слотах
@@ -727,16 +731,17 @@ class Component extends DCLogic {
     const rowOf = (o) => {
       const sl = o.slot;
       const on = !!watches[o.key];
-      const badge = o.avail === 'free' ? 'свободный выход' : (o.avail === 'full' ? 'мест нет' : (o.avail === 'apply' ? 'по заявке' : sl.seats + ' ' + (sl.seats === 1 ? 'место' : (sl.seats < 5 ? 'места' : 'мест'))));
+      const badge = o.avail === 'free' ? 'свободный выход' : (o.avail === 'full' ? 'мест нет' : (o.avail === 'apply' ? 'по заявке' : 'есть места'));
       const row = {
         from: rssTime(o.from), to: rssTime(o.to), svc: o.svc, title: RSS_SVC[o.svc].title,
         sub: placeOf(o), pay: '≈ ' + rssFmt(o.rate) + ' ₽/ч', kind: o.avail === 'free' ? 'free' : (o.avail === 'full' ? 'full' : 'need'), badge,
         tap: () => {}, onBadge: () => set({ term: RSS_TERMS[badge] ? badge : (o.avail === 'free' ? 'свободный выход' : 'нужен слот') })
       };
-      const slotTail = o.avail === 'free' ? '' : (o.avail === 'apply' ? ', нужна заявка' : ', слот нужно взять');
+      const slotTail = o.avail === 'free' ? '' : (o.svc === 'vkusvill' ? ', часы обычно согласуют с куратором' : (o.avail === 'apply' ? ', нужна заявка' : ', слот нужно взять'));
       if (o.fit === 'free') return Object.assign(row, { gain: true, note: '+' + rssFmt(o.gain) + ' ₽ к неделе' + slotTail, action: 'В расписание', actionKind: 'primary', onAction: () => addWin(o) });
       if (o.fit === 'swap') return Object.assign(row, { gain: true, note: '+' + rssFmt(o.gain) + ' ₽ к неделе вместо плана в ' + RSS_SVC[o.over[0].svc].in + slotTail, action: 'Заменить', actionKind: 'primary', onAction: () => addWin(o) });
       if (o.fit === 'clash') return Object.assign(row, { note: 'Пересекается с ' + (o.hard.source === 'booking' ? 'бронью' : 'вашим окном') + ' в ' + RSS_SVC[o.hard.svc].in + ' ' + rssTime(o.hard.from) + '–' + rssTime(o.hard.to), action: '' });
+      if (o.fit === 'full' && RSS_NO_WATCH.indexOf(o.svc) !== -1) return Object.assign(row, { note: RSS_NO_WATCH_NOTE, action: '' });
       if (o.fit === 'full') return Object.assign(row, { note: on ? 'Напишем, если появится место' : 'Мест нет, можно следить', action: on ? 'Слежу' : 'Следить', actionKind: on ? 'watch-on' : 'watch',
         onAction: () => { const nx = Object.assign({}, watches); if (on) delete nx[o.key]; else nx[o.key] = true; set({ watches: nx }); flash(on ? 'Больше не следим' : 'Напишем, когда появится место'); } });
       return Object.assign(row, { note: 'Не выгоднее плана в ' + RSS_SVC[o.over[0].svc].in, action: '' });

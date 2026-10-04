@@ -352,6 +352,21 @@
             <dc-import name="RaznosJobGuide" city="{{ city }}" section="{{ guide_section }}" onBack="{{ go_home_any }}" onOpenService="{{ guide_open_service }}"></dc-import>
           </sc-if>
 
+          <sc-if value="{{ is_tax_forms }}">
+            <div class="raznos-phone-body" data-screen-label="Tax forms">
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Налоги по сервисам</h1></div>
+              <p class="raznos-text-small">Как вы оформлены в каждом сервисе, от этого зависит, считаем ли мы налог</p>
+              <sc-for list="{{ tax_forms_rows }}" as="tf" hint-placeholder-count="2">
+                <div class="raznos-card raznos-card-pad raznos-fx raznos-col raznos-gap8">
+                  <span class="raznos-fx raznos-ac raznos-gap8"><dc-import name="RaznosIcon" svc="{{ tf.key }}" alt="{{ tf.title }}" size="sm"></dc-import><span class="raznos-text-h3">{{ tf.title }}</span></span>
+                  <span class="raznos-text-small">Как вы оформлены в сервисе</span>
+                  <div class="raznos-chip-row"><sc-for list="{{ tf.chips }}" as="ch" hint-placeholder-count="4"><button type="button" class="{{ ch.cls }}" onClick="{{ ch.tap }}">{{ ch.label }}</button></sc-for></div>
+                  <span class="raznos-text-tiny">{{ tf.note }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
           <sc-if value="{{ is_integrations }}">
             <div class="raznos-phone-body" data-screen-label="18 Integrations">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_home_any }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Сервисы доставки</h1></div>
@@ -408,6 +423,11 @@
               <sc-if value="{{ conn_show_temp_notice }}" hint-placeholder-val="{{ true }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Что получит Разнос</span><span class="raznos-text-small">Разнос входит в {{ conn_title }} под вашим аккаунтом, как приложение курьера, и читает заработок, заказы и смены. Заказы мы не принимаем и не меняем. Сервис не даёт доступ только на чтение, поэтому вход технически шире, чем нужно нам. Отозвать доступ можно в любой момент здесь же, кнопкой Отключить сервис</span></div></sc-if>
 
               <sc-if value="{{ conn_show_agree }}" hint-placeholder-val="{{ true }}">
+                <div class="raznos-fx raznos-col raznos-gap8">
+                  <span class="raznos-text-h3">Как вы оформлены в сервисе</span>
+                  <div class="raznos-chip-row"><sc-for list="{{ tax_chips }}" as="ch" hint-placeholder-count="4"><button type="button" class="{{ ch.cls }}" onClick="{{ ch.tap }}">{{ ch.label }}</button></sc-for></div>
+                  <span class="raznos-text-tiny">Нужно, чтобы считать налог, потом можно поменять в профиле</span>
+                </div>
                 <button type="button" class="raznos-consent-row" onClick="{{ toggle_conn_agree }}"><span class="{{ conn_agree_class }}">{{ conn_agree_mark }}</span><span class="raznos-text-body">Понимаю, что Разнос входит под моим аккаунтом, а не по отдельному доступу только на чтение</span></button>
               </sc-if>
 
@@ -560,7 +580,7 @@
               </div>
               <dc-import name="RaznosOrderLink" svc="{{ ord_svc }}" svcTitle="{{ ord_svc_title }}" orderNo="{{ ord_no }}" orderRef="{{ ord_link_ref }}" orderState="done" app="{{ order_link_app }}" launch="{{ order_link_launch }}" resetKey="{{ state_gen }}"></dc-import>
               <dc-import name="RaznosRouteMap" pickupAddr="{{ ord_pickup }}" dropAddr="{{ ord_drop }}" distance="{{ ord_distance }}"></dc-import>
-              <dc-import name="RaznosOfferVsFact" promised="{{ ord_promised }}" accrued="{{ ord_pay }}" payout="{{ ord_money }}"></dc-import>
+              <sc-if value="{{ ord_promised_known }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosOfferVsFact" promised="{{ ord_promised }}" accrued="{{ ord_pay }}" payout="{{ ord_money }}"></dc-import></sc-if>
               <div class="raznos-card raznos-card-pad">
                 <span class="raznos-text-h3">Начисление</span>
 
@@ -896,7 +916,7 @@
                       <span class="raznos-list-title">{{ asv.title }}</span>
                       <span class="raznos-text-small">Заказы: {{ asv.orders }}</span>
                       <span class="raznos-text-small">Стаж: {{ asv.tenure }}</span>
-                      <span class="raznos-text-small">Оценки покупателей: {{ asv.rating }}</span>
+                      <span class="raznos-text-small">Оценки из сервиса: {{ asv.rating }}</span>
                     </span>
                   </div>
                 </sc-for>
@@ -1079,15 +1099,14 @@
                 </div>
                 <dc-import name="RaznosConnHealth" items="{{ conn_health_items }}" okNote="{{ conn_health_ok_note }}" netOffline="{{ net_offline }}" onAction="{{ conn_health_action }}"></dc-import>
                 <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-col raznos-gap12">
-                  <span class="raznos-text-h3">Как вас оценили покупатели</span>
-                  <p class="raznos-text-tiny">Клиент оценивает доставку в сервисе, это не отзывы курьера о сервисе</p>
+                  <span class="raznos-text-h3">Оценки из сервиса</span>
+                  <p class="raznos-text-tiny">Показываем то, что сервис сам отдаёт о вас, со шкалой и источником</p>
                   <div class="raznos-fx raznos-col raznos-gap8">
                     <sc-for list="{{ pf_client_ratings }}" as="cr" hint-placeholder-count="2">
-                      <div class="raznos-kv-row"><span class="raznos-kv-key raznos-fx raznos-ac raznos-gap4"><dc-import name="RaznosIcon" svc="{{ cr.key }}" alt="{{ cr.title }}" size="sm"></dc-import>{{ cr.title }}</span><span class="raznos-kv-val">{{ cr.value }}</span></div>
+                      <div class="raznos-imp-reviews__group-head"><dc-import name="RaznosIcon" svc="{{ cr.key }}" alt="{{ cr.title }}" size="sm"></dc-import><span class="raznos-imp-reviews__name"><span class="raznos-list-title">{{ cr.title }}</span><sc-if value="{{ cr.source }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-tiny">{{ cr.source }}</span></sc-if></span><span class="{{ cr.value_cls }}">{{ cr.value }}</span></div>
                     </sc-for>
                   </div>
-                  <div class="raznos-badge-row"><span class="raznos-badge">50 заказов в ВкусВилле</span><span class="raznos-badge">Без опозданий · сентябрь</span></div>
-                  <dc-import name="RaznosImportedReviews" courierId="c1" compact="{{ true }}" onAll="{{ go_imported_reviews }}"></dc-import>
+                  <p class="raznos-text-small">Отзывы покупателей сервисы пока не отдают, как только отдадут, они появятся здесь</p>
                 </div></sc-if>
                 <sc-if value="{{ has_no_data }}"><p class="raznos-text-small">Подключите сервис или посмотрите демо, чтобы увидеть стаж, метрики и достижения</p></sc-if>
                 <sc-if value="{{ pf_restricted }}" hint-placeholder-val="{{ false }}">
@@ -1107,8 +1126,9 @@
                 <div class="raznos-card">
                   <button type="button" class="raznos-list-row" onClick="{{ go_history }}"><div class="raznos-list-main"><span class="raznos-list-title">История заказов</span></div><span class="raznos-row-chevron">›</span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ go_slots_from_profile }}"><div class="raznos-list-main"><span class="raznos-list-title">Смены и слоты</span><span class="raznos-text-small">История броней по сервисам</span></div><span class="raznos-row-chevron">›</span></button>
+                  <button type="button" class="raznos-list-row" onClick="{{ go_tax_forms }}"><div class="raznos-list-main"><span class="raznos-list-title">Налоги по сервисам</span><span class="raznos-text-small">{{ tax_forms_summary }}</span></div><span class="raznos-row-chevron">›</span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ go_expenses_from_profile }}"><div class="raznos-list-main"><span class="raznos-list-title">Расходы</span><span class="raznos-text-small">Журнал расходов и шаблоны</span></div><span class="raznos-row-chevron">›</span></button>
-                  <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-list-row" onClick="{{ go_imported_reviews }}"><div class="raznos-list-main"><span class="raznos-list-title">История отзывов из сервисов</span><span class="raznos-text-small">ВкусВилл и Самокат, по периодам</span></div><span class="raznos-row-chevron">›</span></button></sc-if>
+                  <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-list-row" onClick="{{ go_imported_reviews }}"><div class="raznos-list-main"><span class="raznos-list-title">История отзывов из сервисов</span><span class="raznos-text-small">Сервисы пока не отдают отзывы</span></div><span class="raznos-row-chevron">›</span></button></sc-if>
                   <button type="button" class="raznos-list-row" onClick="{{ go_my_activity }}"><div class="raznos-list-main"><span class="raznos-list-title">Мои отзывы, вопросы и ответы</span><span class="raznos-text-small">{{ my_activity_count_label }}</span></div><span class="raznos-row-chevron">›</span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ live_go_mine }}" style="border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">Мои оперативные сообщения</span><span class="raznos-text-small">{{ live_profile_label }}</span></div><span class="raznos-row-chevron">›</span></button>
                 </div>
@@ -2197,6 +2217,8 @@
         const a = (from && from < TODAY_ISO ? from : TODAY_ISO), b = (to && to < TODAY_ISO ? to : TODAY_ISO);
         return a <= b ? [a, b] : [b, a];
       }
+      // обещанная сумма известна до заказа только у этих сервисов, у остальных показываем один факт
+      const PROMISED_SVCS = ['dostavista', 'wb', 'magnit', 'x5', 'kuper'];
       // демо удержаний, бонусов и отмен с 1 сентября, по каждому случаю есть сервис, причина и заказ
       const STATS_FINES = [
         { date: '2026-09-03', svc: 'samokat', reason: 'Опоздание к клиенту', amount: 150, promised: 280, order: 'СМ-40211' },
@@ -2211,6 +2233,12 @@
       ];
       const STATS_CANCELS = ['2026-09-04', '2026-09-12', '2026-09-15'];
       // НПД: доход от юрлиц 6%, налоговый бонус 10 000 ₽ снижает ставку до 4% пока не израсходован, лимит 2,4 млн в год
+      // форма оформления курьера по сервисам, от неё зависит налог
+      const TAX_FORMS = [['self', 'Самозанятый'], ['ip', 'ИП'], ['employee', 'Трудовой договор или ГПХ'], ['unknown', 'Не знаю']];
+      const TAX_FORMS_DEMO = { vkusvill: 'self', samokat: 'self', x5: 'unknown', 'yandex-eda': 'self' };
+      const TAX_FORM_NOTE = { ip: 'Налог зависит от вашего режима', employee: 'Налог удерживает работодатель', unknown: 'Считаем как у самозанятого, предварительно, уточните оформление' };
+      // платформа сама удерживает НПД по условиям сервиса
+      const NPD_WITHHELD_SVCS = ['dostavista', 'ozon-fresh'];
       const NPD_RATE = 0.06, NPD_BONUS_RATE = 0.02, NPD_BONUS = 10000, NPD_LIMIT = 2400000;
       // смены на неделю 14–20 сентября, один набор для экрана Смены, виджета в Работе и умного расписания
       // время в минутах от полуночи, rateVerified только там, где ставка за смену подтверждена в коде сервиса
@@ -2262,7 +2290,7 @@
         slotRow('m8', '2026-09-18', 'x5', 8, 12, 2, { place: 'Пятёрочка, Нижняя Масловка, 3' }),
         slotRow('m9', '2026-09-18', 'vkusvill', 12, 16, 3),
         slotRow('m10', '2026-09-18', 'samokat', 13, 17, 0, { place: 'Даркстор Ходынский бульвар, 4' }),
-        slotRow('m11', '2026-09-19', 'x5', 9, 12, 4),
+        slotRow('m11', '2026-09-19', 'x5', 9, 13, 4),
         slotRow('m12', '2026-09-19', 'samokat', 17, 21, 3, { place: 'Даркстор Ходынский бульвар, 4' }),
         slotRow('m13', '2026-09-20', 'vkusvill', 9, 13, 2, { place: 'ВкусВилл, Нижняя Масловка, 8' }),
         slotRow('m14', '2026-09-20', 'x5', 16, 22, 3, { bonus: '+40 ₽/ч в выходные' }),
@@ -2276,7 +2304,7 @@
         slotRow('k7', '2026-09-24', 'samokat', 7, 10, 3, { place: 'Даркстор Ходынский бульвар, 4' }),
         slotRow('k8', '2026-09-25', 'vkusvill', 9, 13, 4, { place: 'ВкусВилл, Нижняя Масловка, 8' }),
         slotRow('k9', '2026-09-25', 'samokat', 14, 18, 2, { bonus: '+30 ₽/ч днём' }),
-        slotRow('k10', '2026-09-26', 'x5', 9, 12, 3),
+        slotRow('k10', '2026-09-26', 'x5', 9, 13, 3),
         slotRow('k11', '2026-09-26', 'vkusvill', 17, 21, 2, { apply: true }),
         slotRow('k12', '2026-09-27', 'yandex-eda', 18, 22, 4),
         slotRow('k13', '2026-09-27', 'x5', 12, 16, 0, { place: 'Пятёрочка, Нижняя Масловка, 3' })
@@ -2293,12 +2321,12 @@
         { id: 'o2', svc: 'samokat', title: 'Слоты Самоката на следующую неделю', text: 'Появляются по пятницам около 12:00', meta: 'По наблюдениям Разноса за 4 недели', remind: true }
       ];
       const SHIFT_DEFICITS = [
-        { iso: '2026-09-19', svc: 'samokat', title: 'Суббота в Самокате почти занята', text: 'На Беговой свободно 2 места из 24, обычно их разбирают за 7 минут', meta: 'По 46 курьерам Разноса в Москве, обезличено' },
+        { iso: '2026-09-19', svc: 'samokat', title: 'Суббота в Самокате почти занята', text: 'На Беговой слоты почти разобраны, обычно последние уходят за минуты', meta: 'По 46 курьерам Разноса в Москве, обезличено' },
         { iso: '2026-09-16', svc: 'yandex-eda', title: 'Дневные слоты Яндекса на среду закончились', text: 'Можно следить за местом, после отмен оно появляется примерно раз в день', meta: 'По 38 курьерам Разноса в Москве, обезличено' },
         { iso: '2026-09-17', svc: 'x5', title: 'В четверг у X5 на Ленинградском мало мест', text: 'Свободно 2 из 10, на прошлой неделе закончились к обеду среды', meta: 'По 31 курьеру Разноса в Москве, обезличено' },
-        { iso: '2026-09-18', svc: 'x5', title: 'Пятница у X5 спокойнее обычного', text: 'Свободно 3 места, в прошлые пятницы оставалось не больше одного', meta: 'По 31 курьеру Разноса в Москве, обезличено' },
+        { iso: '2026-09-18', svc: 'x5', title: 'Пятница у X5 спокойнее обычного', text: 'Слоты ещё есть, в прошлые пятницы к этому времени их почти не оставалось', meta: 'По 31 курьеру Разноса в Москве, обезличено' },
         { iso: '2026-09-19', svc: 'yandex-eda', title: 'Вечер субботы в Яндексе разбирают первым', text: 'Места на 18–22 заканчиваются за 4 минуты после открытия записи', meta: 'По 38 курьерам Разноса в Москве, обезличено' },
-        { iso: '2026-09-20', svc: 'samokat', title: 'Воскресенье в Самокате свободнее обычного', text: 'Свободно 6 мест, в прошлые воскресенья было не больше двух', meta: 'По 46 курьерам Разноса в Москве, обезличено' }
+        { iso: '2026-09-20', svc: 'samokat', title: 'Воскресенье в Самокате свободнее обычного', text: 'Слотов больше обычного, в прошлые воскресенья к этому времени их почти не было', meta: 'По 46 курьерам Разноса в Москве, обезличено' }
       ];
       // районы получения заказа, один список для фильтра, разбивки и настройки сравнения
       const STATS_DISTRICTS = ['Беговой', 'Тверской', 'Пресненский', 'Дорогомилово', 'Арбат', 'Гагаринский'];
@@ -2782,11 +2810,12 @@
         const b = RATING_RANGE_BUCKETS.find((x) => v >= x[0]) || RATING_RANGE_BUCKETS[RATING_RANGE_BUCKETS.length - 1];
         return b[0].toFixed(1).replace('.', ',') + '–' + b[1].toFixed(1).replace('.', ',') + ' из 5';
       }
-      const CLIENT_RATINGS = {
-
-        vkusvill: { rating: 4.93, source: 'Оценки клиентов ВкусВилл за доставку' },
-        samokat: { rating: 4.68, source: 'Оценки клиентов Самокат за доставку' }
+      // что сервис сам отдаёт о курьере: у остальных подключённых данных нет
+      const SERVICE_SCORES = {
+        x5: { num: 4.6, label: '4,6 из 5', source: 'Рейтинг X5, шкала от 0 до 5' },
+        'yandex-eda': { num: null, label: '84 балла', source: 'Баллы Про, шкала как в сервисе' }
       };
+      const scoreAnonLabel = (k) => { const sc = SERVICE_SCORES[k]; return !sc ? 'Нет данных из сервиса' : (sc.num != null ? ratingRangeLabel(sc.num) : 'Есть, ' + sc.source.split(',')[0].toLowerCase()); };
       // системная тема в макете зафиксирована, чтобы Системная давала предсказуемый результат
       const SYSTEM_IS_DARK = false;
       const NOTIF_CATS = [
@@ -2821,7 +2850,7 @@
       ];
       // поля именного профиля, имя показывается всегда, остальное по выбору курьера
       const PV_FIELDS = [
-        ['photo', 'Фото'], ['city', 'Город'], ['transport', 'Транспорт'], ['tenure', 'Стаж'], ['orders', 'Заказы'], ['ratings', 'Оценки покупателей'], ['reviews', 'Отзывы']
+        ['photo', 'Фото'], ['city', 'Город'], ['transport', 'Транспорт'], ['tenure', 'Стаж'], ['orders', 'Заказы'], ['ratings', 'Оценки из сервиса'], ['reviews', 'Отзывы']
       ];
       const PLACEHOLDER_TITLES = {};
       // публичная ссылка для чаевых и условный QR, настоящий код в прототипе не нужен
@@ -3041,12 +3070,11 @@
         return keys.map((key, i) => {
           const local = (seed >>> (i * 3 + 2));
           const count = ANON_ORDER_SAMPLES[local % ANON_ORDER_SAMPLES.length];
-          const rating = CLIENT_RATINGS[key];
           return {
             key: key, title: SERVICES[key].title,
             orders: count == null ? 'Нет данных' : orderRangeLabel(count).replace(' заказов', ''),
             tenure: ANON_TENURE_SAMPLES[(local >>> 2) % ANON_TENURE_SAMPLES.length],
-            rating: rating ? ratingRangeLabel(rating.rating) : 'Нет данных'
+            rating: scoreAnonLabel(key)
           };
         });
       }
@@ -3560,7 +3588,7 @@
             'review-restricted', 'review-appeal', 'review-appeal-sent', 'questions', 'anon-courier', 'top', 'profile', 'profile-edit', 'photo', 'share', 'share-link-view', 'privacy',
             'favorites', 'couriers', 'public-profile', 'tips', 'tips-sent', 'contest',
             'expenses', 'expense-form', 'recurring', 'recurring-form', 'my-activity', 'imported-reviews', 'live-feed', 'live-thread', 'live-compose', 'live-place-pick', 'live-photo', 'live-place', 'live-report', 'live-mine',
-            'wallet', 'wallet-income', 'wallet-withdraw', 'wallet-withdraw-history', 'work-hub', 'slots', 'smart', 'work-schedule', 'job-guide', 'settings',
+            'wallet', 'wallet-income', 'wallet-withdraw', 'wallet-withdraw-history', 'work-hub', 'slots', 'smart', 'work-schedule', 'job-guide', 'tax-forms', 'settings',
             'notifications', 'worker-data', 'common-states', 'work-tasks', 'faq', 'best-times', 'best-places', 'services-compare'
           ];
           const vals = {};
@@ -3573,6 +3601,10 @@
           // в демо подключены все сервисы, по которым есть брони и варианты в Плане и Слотах
           const integrationStatus = st.integrationStatus || (demoOn ? { vkusvill: 'connected', samokat: 'connected', 'yandex-eda': 'limited', x5: 'connected' } : {});
           const connectedKeys = Object.keys(integrationStatus).filter((k) => integrationStatus[k] === 'connected' || integrationStatus[k] === 'limited');
+          const taxForms = Object.assign({}, demoOn ? TAX_FORMS_DEMO : {}, st.taxForms);
+          const taxFormOf = (k) => taxForms[k] || 'unknown';
+          const taxFormTitle = (k) => (TAX_FORMS.find((f) => f[0] === taxFormOf(k)) || TAX_FORMS[3])[1];
+          const taxChips = (k) => TAX_FORMS.map((f) => ({ label: f[1], cls: taxFormOf(k) === f[0] ? 'raznos-chip raznos-is-active' : 'raznos-chip', tap: () => set({ taxForms: Object.assign({}, taxForms, { [k]: f[0] }) }) }));
           // данные по заказам есть по ВкусВиллу и Самокату, показываем их для этих реально подключённых сервисов
           const dataSvcConnected = connectedKeys.filter((k) => k === 'vkusvill' || k === 'samokat');
           const statsSavedServices = Object.keys(integrationStatus).filter((key) => (key === 'vkusvill' || key === 'samokat') && ['connected', 'limited', 'disabled', 'exited'].indexOf(integrationStatus[key]) !== -1);
@@ -3847,10 +3879,15 @@
             const partial = iso.slice(8) === '01' ? 0 : (statsDaysSource('custom', [month + '-01', statsShiftISO(iso, -1)], false).earn || 0);
             return full + partial;
           };
+          // в налог идут только сервисы с самозанятым и с неизвестной формой, данные по сервисам есть у ВкусВилла и Самоката
+          const taxVvWeight = STATS.week.vvEarn / (STATS.week.vvEarn + STATS.week.samokatEarn);
+          const taxCounts = (k) => taxFormOf(k) === 'self' || taxFormOf(k) === 'unknown';
+          const taxShare = (taxCounts('vkusvill') ? taxVvWeight : 0) + (taxCounts('samokat') ? 1 - taxVvWeight : 0);
           const statsNpdFor = (income, startISO) => {
             if (income == null) return null;
-            const bonusLeft = Math.max(0, NPD_BONUS - statsYearIncomeBefore(startISO) * NPD_BONUS_RATE);
-            return Math.round(income * NPD_RATE - Math.min(bonusLeft, income * NPD_BONUS_RATE));
+            const taxable = income * taxShare;
+            const bonusLeft = Math.max(0, NPD_BONUS - statsYearIncomeBefore(startISO) * taxShare * NPD_BONUS_RATE);
+            return Math.round(taxable * NPD_RATE - Math.min(bonusLeft, taxable * NPD_BONUS_RATE));
           };
           const statsTaxKnown = statsSvcFilterNow === 'all' && !statsByDistrict && !statsNoGranularData && statsGross != null;
           const statsTax = statsTaxKnown ? statsNpdFor(statsGross, statsRange[0] < '2025-01-01' ? '2025-01-01' : statsRange[0]) : null;
@@ -3859,7 +3896,7 @@
           const statsTaxMonthRange = statsCalendarRange('month', '', '', (Number(statsTaxAnchor.slice(0, 4)) - 2026) * 12 + Number(statsTaxAnchor.slice(5, 7)) - 9);
           const statsTaxMonthIncome = statsTaxKnown ? (statsTaxMonthRange[0] === '2026-09-01' ? STATS.month.earn : statsRecapSource('month', statsTaxMonthRange, statsMonths, -1).earn) : null;
           const statsTaxMonth = statsNpdFor(statsTaxMonthIncome, statsTaxMonthRange[0]);
-          const statsYearIncome = statsYearIncomeBefore(TODAY_ISO) + STATS.today.earn;
+          const statsYearIncome = Math.round((statsYearIncomeBefore(TODAY_ISO) + STATS.today.earn) * taxShare);
           const statsBonusLeftNow = Math.max(0, NPD_BONUS - statsYearIncome * NPD_BONUS_RATE);
           const statsRecap = {
             range: statsRange, earn: statsGross, hours: statsHours, orders: statsOrdersCount,
@@ -4266,8 +4303,8 @@
             const weekOrdersScoped = knownSvcs.reduce((sum, k) => sum + (k === 'vkusvill' ? vvWeekOrders : skWeekOrders), 0);
             const incomeScoped = knownSvcs.reduce((sum, k) => sum + (k === 'vkusvill' ? STATS.today.vvEarn : STATS.today.samokatEarn), 0);
             const ratingsRows = selectedSvcs.map((k) => {
-              const cr = CLIENT_RATINGS[k];
-              return { title: SERVICES[k].title, score: cr ? cr.rating + ' из 5' : 'Нет данных', source: cr ? cr.source : '' };
+              const cr = SERVICE_SCORES[k];
+              return { title: SERVICES[k].title, score: cr ? cr.label : 'Нет данных из сервиса', source: cr ? cr.source : '' };
             });
             return {
               showPhoto: !!fields.photo, photoKind: photoKindSnap || 'portrait1', uploadedSrc: uploadedSrcSnap || '',
@@ -4589,7 +4626,7 @@
           liveMineReplies.sort((a, b) => b.r.createdAt - a.r.createdAt);
 
           const navRole = role;
-          const tabOf = { 'courier-home': 'home', 'courier-empty': 'home', 'work-hub': 'work', 'work-setup': 'work', offers: 'work', 'offer-detail': 'work', 'active-order': 'work', 'confirm-decline': 'work', 'offer-result': 'work', 'service-open-demo': 'work', 'work-summary': 'work', slots: 'work', 'job-guide': 'home', stats: 'stats', market: 'market', 'market-services': 'market', profile: 'profile', history: 'home', order: 'home', integrations: 'home', 'integration-connect': 'home', zones: 'home', service: 'market', 'form-review': 'market', questions: 'market', 'anon-courier': 'market', photo: 'profile', share: 'profile', privacy: 'profile', contest: 'profile', 'my-activity': 'profile', 'imported-reviews': 'profile', 'live-feed': 'home', 'live-mine': 'profile', 'user-home': 'home', favorites: 'favorites', couriers: 'couriers', 'public-profile': 'couriers', tips: 'market', 'tips-sent': 'profile', expenses: 'home', 'expense-form': 'home', recurring: 'profile', 'recurring-form': 'profile', wallet: 'profile', 'wallet-income': 'profile', 'wallet-withdraw': 'profile', 'wallet-withdraw-history': 'profile', notifications: 'profile', support: 'profile', 'worker-data': 'home', 'common-states': 'home', 'work-tasks': 'work' };
+          const tabOf = { 'courier-home': 'home', 'courier-empty': 'home', 'work-hub': 'work', 'work-setup': 'work', offers: 'work', 'offer-detail': 'work', 'active-order': 'work', 'confirm-decline': 'work', 'offer-result': 'work', 'service-open-demo': 'work', 'work-summary': 'work', slots: 'work', 'job-guide': 'home', 'tax-forms': 'profile', stats: 'stats', market: 'market', 'market-services': 'market', profile: 'profile', history: 'home', order: 'home', integrations: 'home', 'integration-connect': 'home', zones: 'home', service: 'market', 'form-review': 'market', questions: 'market', 'anon-courier': 'market', photo: 'profile', share: 'profile', privacy: 'profile', contest: 'profile', 'my-activity': 'profile', 'imported-reviews': 'profile', 'live-feed': 'home', 'live-mine': 'profile', 'user-home': 'home', favorites: 'favorites', couriers: 'couriers', 'public-profile': 'couriers', tips: 'market', 'tips-sent': 'profile', expenses: 'home', 'expense-form': 'home', recurring: 'profile', 'recurring-form': 'profile', wallet: 'profile', 'wallet-income': 'profile', 'wallet-withdraw': 'profile', 'wallet-withdraw-history': 'profile', notifications: 'profile', support: 'profile', 'worker-data': 'home', 'common-states': 'home', 'work-tasks': 'work' };
           const activeTab = tabOf[s];
           const showNav = (role === 'courier' && !!activeTab && s !== 'history' && s !== 'order' && s !== 'integrations' && s !== 'integration-connect' && s !== 'zones' && s !== 'courier-map' && s !== 'photo' && s !== 'share' && s !== 'privacy' && s !== 'contest' && s !== 'service' && s !== 'form-review' && s !== 'questions' && s !== 'anon-courier' && s !== 'expenses' && s !== 'expense-form' && s !== 'recurring' && s !== 'recurring-form' && s !== 'wallet' && s !== 'wallet-income' && s !== 'wallet-withdraw' && s !== 'wallet-withdraw-history' && s !== 'notifications' && s !== 'support' && s !== 'worker-data' && s !== 'common-states') || (role === 'user' && !!activeTab && s !== 'privacy' && s !== 'notifications' && s !== 'support');
           const showNavFinal = showNav && !st.pvPreview && (s.indexOf('live-') !== 0 || s === 'live-feed' || s === 'live-mine');
@@ -4799,6 +4836,10 @@
             go_history_vv: () => { if (role === 'courier') set(Object.assign({ s: 'history', histPeriod: 'today', histSvc: 'vkusvill', histStatus: 'all', histPage: 0 }, resetHistDays())); },
             go_history_samokat: () => { if (role === 'courier') set(Object.assign({ s: 'history', histPeriod: 'today', histSvc: 'samokat', histStatus: 'all', histPage: 0 }, resetHistDays())); },
             go_profile: () => set({ s: 'profile' }),
+            go_tax_forms: () => set({ s: 'tax-forms' }),
+            tax_chips: taxChips(connKey),
+            tax_forms_rows: connectedKeys.map((k) => ({ key: k, title: SERVICES[k].title, chips: taxChips(k), note: TAX_FORM_NOTE[taxFormOf(k)] || (NPD_WITHHELD_SVCS.indexOf(k) !== -1 ? 'Сервис сам удерживает НПД, в налог Разноса это не входит' : 'Налог считаем как у самозанятого') })),
+            tax_forms_summary: connectedKeys.length ? connectedKeys.map((k) => SERVICES[k].title + ' · ' + taxFormTitle(k).toLowerCase()).join(', ') : 'Появится после подключения сервиса',
             go_profile_any: () => set({ s: 'profile' }),
             pf_switch_to_user: () => set({ role: 'user', s: 'user-home' }),
             pf_switch_to_courier: () => set({ role: 'courier', s: readyHome ? 'courier-home' : 'courier-empty' }),
@@ -4988,20 +5029,21 @@
                 stats_fine_cases: statsFineRows.slice().reverse().map((row) => ({
                   key: row.svc, reason: row.reason, amount: '−' + formatMoney(row.amount) + ' ₽',
                   meta: dayLabel(row.date) + ' · ' + (svcTitle[row.svc] || row.svc) + ' · заказ ' + row.order,
-                  lost: row.promised ? 'Обещали ' + formatMoney(row.promised) + ' ₽, выплатили ' + formatMoney(Math.max(0, row.promised - row.amount)) + ' ₽' : 'Заказ не оплачен',
+                  lost: PROMISED_SVCS.indexOf(row.svc) === -1 ? '' : row.promised ? 'Обещали ' + formatMoney(row.promised) + ' ₽, выплатили ' + formatMoney(Math.max(0, row.promised - row.amount)) + ' ₽' : 'Заказ не оплачен',
                   tap: () => set(Object.assign({ s: 'history', histBack: 'stats', histPeriod: 'period', histFrom: row.date, histTo: row.date, histSvc: row.svc, histDistrict: 'all', histStatus: 'all', histPage: 0 }, resetHistDays()))
                 })),
-                stats_tax_card_value: statsTax == null ? 'Нет данных' : '≈ ' + formatMoney(statsTax) + ' ₽',
-                stats_tax_card_sub: statsTax == null ? 'Налог считается по всем начислениям без фильтров' : 'за период ' + statsRangeHuman.replace(/^Неделя · /, '') + ', ' + (statsBonusLeftNow > 0 ? '4% с учётом налогового бонуса' : '6% с дохода от сервисов') + (statsTaxMonth == null ? '' : '. ' + (taxPaid ? 'Налог за ' + taxMonthName + ' ' + formatMoney(statsTaxMonth) + ' ₽ оплачен' : 'К уплате за ' + taxMonthName + ' ' + formatMoney(statsTaxMonth) + ' ₽ до ' + dueLabel)),
+                stats_tax_card_value: taxShare === 0 ? 'Не считаем' : statsTax == null ? 'Нет данных' : '≈ ' + formatMoney(statsTax) + ' ₽',
+                stats_tax_card_sub: taxShare === 0 ? 'Налог по вашему оформлению в сервисах здесь не считаем, подробности внутри' : (statsTax == null ? 'Налог считается по всем начислениям без фильтров' : 'за период ' + statsRangeHuman.replace(/^Неделя · /, '') + ', ' + (statsBonusLeftNow > 0 ? '4% с учётом налогового бонуса' : '6% с дохода от сервисов') + (statsTaxMonth == null ? '' : '. ' + (taxPaid ? 'Налог за ' + taxMonthName + ' ' + formatMoney(statsTaxMonth) + ' ₽ оплачен' : 'К уплате за ' + taxMonthName + ' ' + formatMoney(statsTaxMonth) + ' ₽ до ' + dueLabel))) + (taxShare > 0 && connectedKeys.some((k) => taxFormOf(k) === 'unknown') ? '. Предварительно: где оформление не задано, считаем как у самозанятого' : ''),
                 stats_tax_month_title: taxPaid ? 'Налог за ' + taxMonthName : 'К уплате за ' + taxMonthName,
-                stats_tax_month_value: statsTaxMonth == null ? 'Нет данных' : formatMoney(statsTaxMonth) + ' ₽',
+                stats_tax_month_value: taxShare === 0 ? 'Не считаем' : statsTaxMonth == null ? 'Нет данных' : formatMoney(statsTaxMonth) + ' ₽',
                 stats_tax_month_sub: taxPaid ? 'Оплачен до ' + dueLabel : 'Заплатить до ' + dueLabel + ', до конца месяца сумма ещё вырастет',
                 stats_tax_rows: [
                   { label: 'Налог за период ' + statsRangeHuman.replace(/^Неделя · /, ''), value: statsTax == null ? 'Нет данных' : '≈ ' + formatMoney(statsTax) + ' ₽', strong: true },
                   { label: 'Доход за период', value: money(statsGross), note: 'Налог считается со всех начислений, расходы его не уменьшают' },
                   { label: 'Ставка', value: statsBonusLeftNow > 0 ? '4%' : '6%', note: 'Сервисы платят как компании, базовая ставка 6%, налоговый бонус снижает её до 4%' },
                   { label: 'Налоговый бонус', value: formatMoney(Math.round(statsBonusLeftNow)) + ' из ' + formatMoney(NPD_BONUS) + ' ₽', note: statsBonusLeftNow > 0 ? 'Когда закончится, ставка станет 6%' : 'Бонус израсходован' }
-                ],
+                ].concat(connectedKeys.filter((k) => NPD_WITHHELD_SVCS.indexOf(k) !== -1 && taxFormOf(k) === 'self').length ? [{ label: 'Уже удержано сервисом', value: 'Учтено', note: connectedKeys.filter((k) => NPD_WITHHELD_SVCS.indexOf(k) !== -1 && taxFormOf(k) === 'self').map((k) => SERVICES[k].title).join(', ') + ' сам удерживает НПД, эти начисления в сумму выше не входят' }] : [])
+                  .concat(connectedKeys.filter((k) => taxFormOf(k) !== 'self').map((k) => ({ label: SERVICES[k].title + ' · ' + taxFormTitle(k), value: taxFormOf(k) === 'unknown' ? 'Как самозанятый' : 'Не считаем', note: TAX_FORM_NOTE[taxFormOf(k)] }))),
                 stats_tax_year_value: formatMoney(statsYearIncome) + ' ₽',
                 stats_tax_year_sub: 'Доход с начала года из ' + formatMoney(NPD_LIMIT) + ' ₽ лимита самозанятого',
                 stats_tax_year_style: 'width:' + Math.max(2, Math.min(100, Math.round(statsYearIncome * 100 / NPD_LIMIT))) + '%',
@@ -5647,6 +5689,7 @@
             ord_money: ordSource.money, ord_money_pill_class: ordSource.money === 'Скорректировано' ? 'raznos-status-pill raznos-pill-warn' : (ordSource.money === 'Выплачено' ? 'raznos-status-pill raznos-pill-ok' : 'raznos-status-pill raznos-pill-muted'),
             ord_pay: ordSource.pay, ord_tip_digital: ordSource.tipDigital,
             ord_offer_snapshot: OFFER_SNAPSHOTS[ordSource.id] || null, ord_total_min: parseInt(ordSource.wait, 10) + parseInt(ordSource.duration, 10),
+            ord_promised_known: PROMISED_SVCS.indexOf(ordSource.svc) !== -1,
             ord_promised: ordSource.money === 'Скорректировано' ? ordSource.pay + 60 : (ordSource.id === 'samokat-0' ? ordSource.pay - 50 : ordSource.pay),
             ord_items: ordSource.items, ord_weight: ordSource.weight, ord_wait: ordSource.wait, ord_duration: ordSource.duration, ord_distance: ordSource.distance,
             ord_pickup: ordSource.pickupAddr, ord_drop: ordSource.dropAddr,
@@ -5799,8 +5842,7 @@
               const ownServices = ownPreview ? ['vkusvill', 'samokat'].map((key) => {
                 const own = courierReviews[key];
                 const cnt = own && own.orders ? own.orders.count : (HISTORY.filter((o) => o.svc === key).length || null);
-                const rating = CLIENT_RATINGS[key];
-                return { key: key, title: SERVICES[key].title, orders: cnt == null ? 'Нет данных' : orderRangeLabel(cnt).replace(' заказов', ''), tenure: TENURE_RANGE_BY_SVC[key] || 'Нет данных', rating: rating ? ratingRangeLabel(rating.rating) : 'Нет данных' };
+                return { key: key, title: SERVICES[key].title, orders: cnt == null ? 'Нет данных' : orderRangeLabel(cnt).replace(' заказов', ''), tenure: TENURE_RANGE_BY_SVC[key] || 'Нет данных', rating: scoreAnonLabel(key) };
               }) : [];
               const services = ownServices.length ? ownServices : anonSafeServices(ident.seed, anonSvcKey);
               // по сервису публикации берём реальные демо-данные, остальные показываем такими же диапазонами
@@ -5911,7 +5953,7 @@
             hist_show_empty: !histHasData && !pvHideHistory,
             hist_show_list: histHasData && !pvHideHistory,
             hist_unhide: () => set({ pvHideHistory: false }),
-            pf_client_ratings: connectedKeys.map((k) => { const cr = CLIENT_RATINGS[k]; return { key: k, title: SERVICES[k].title, value: cr ? (String(cr.rating).replace('.', ',') + ' / 5') : 'Нет данных' }; }),
+            pf_client_ratings: connectedKeys.map((k) => { const cr = SERVICE_SCORES[k]; return { key: k, title: SERVICES[k].title, value: cr ? cr.label : 'Нет данных из сервиса', source: cr ? cr.source : '', value_cls: 'raznos-imp-reviews__value' + (cr ? '' : ' raznos-imp-reviews__value--none') }; }),
             pf_restricted: myAccountRestricted,
             pf_restriction_reason: (() => {
               const rec = restrictionArchive.filter((r) => r.author === myName && !r.liftedAt).pop();

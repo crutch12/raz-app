@@ -43,8 +43,8 @@
           <div class="raznos-imp-reviews__group">
             <div class="raznos-imp-reviews__group-head">
               <dc-import name="RaznosIcon" svc="{{ g.svc }}" alt="{{ g.title }}" size="sm"></dc-import>
-              <span class="raznos-list-title">{{ g.title }}</span>
-              <sc-if value="{{ g.hasRating }}" hint-placeholder-val="{{ true }}"><span class="raznos-head-side raznos-fx raznos-col" style="align-items:flex-end"><span class="raznos-num">{{ g.ratingLabel }}</span><span class="raznos-text-tiny">{{ g.countLabel }}</span></span></sc-if>
+              <span class="raznos-imp-reviews__name"><span class="raznos-list-title">{{ g.title }}</span><sc-if value="{{ g.countLabel }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-tiny">{{ g.countLabel }}</span></sc-if></span>
+              <sc-if value="{{ g.hasRating }}" hint-placeholder-val="{{ true }}"><span class="{{ g.valueCls }}">{{ g.ratingLabel }}</span></sc-if>
             </div>
             <sc-if value="{{ g.hasCards }}">
               <div class="raznos-fx raznos-col raznos-gap8">
@@ -80,52 +80,32 @@
       // даты отзывов от демо-времени 15 сентября 2026, в превью показываем самый свежий по сервису
       const DEMO_BY_COURIER = {
         c1: [
-          { svc: "vkusvill", title: "ВкусВилл", rating: 4.93, count: 212, reviews: [
-            { rating: 5, iso: "2026-09-12", date: "12 сент", month: "сентябре", text: "Заказ привезли быстро, курьер предупредил заранее" },
-            { rating: 5, iso: "2026-09-08", date: "8 сент", month: "сентябре", text: "Пакеты целые, яйца не побились, спасибо" },
-            { rating: 4, iso: "2026-08-30", date: "30 авг", month: "августе", text: "Привёз вовремя, но не позвонил перед приездом" },
-            { rating: 5, iso: "2026-08-14", date: "14 авг", month: "августе", text: "" },
-            { rating: 3, iso: "2026-07-20", date: "20 июля", month: "июле", text: "Опоздал на 10 минут, зато предупредил в чате" },
-            { rating: 5, iso: "2026-06-03", date: "3 июня", month: "июне", text: "Очень вежливый курьер, донёс до двери" }
-          ] },
-          { svc: "samokat", title: "Самокат", rating: 4.68, count: 87, reviews: [
-            { rating: 2, iso: "2026-09-05", date: "5 сент", month: "сентябре", text: "Пришлось долго ждать у подъезда" },
-            { rating: 5, iso: "2026-08-28", date: "28 авг", month: "августе", text: "Быстро и аккуратно, всё холодное" },
-            { rating: 4, iso: "2026-08-10", date: "10 авг", month: "августе", text: "Нормально, одна бутылка была помята" },
-            { rating: 5, iso: "2026-07-02", date: "2 июля", month: "июле", text: "Приехал раньше времени" }
-          ] }
+          { svc: "vkusvill", title: "ВкусВилл", score: null, reviews: [] },
+          { svc: "samokat", title: "Самокат", score: null, reviews: [] },
+          { svc: "x5", title: "X5 Доставка", score: { num: 4.6, label: "4,6 из 5", source: "Рейтинг X5, шкала от 0 до 5" }, reviews: [] },
+          { svc: "yandex-eda", title: "Яндекс Еда", score: { num: null, label: "84 балла", source: "Баллы Про, шкала как в сервисе" }, reviews: [] }
         ],
         c2: [
-          { svc: "samokat", title: "Самокат", rating: 4.34, count: 34, reviews: [
-            { rating: 5, iso: "2026-09-10", date: "10 сент", month: "сентябре", text: "Приехал точно в срок, всё аккуратно упаковано" },
-            { rating: 4, iso: "2026-08-22", date: "22 авг", month: "августе", text: "Немного задержался, но предупредил заранее" },
-            { rating: 4, iso: "2026-07-15", date: "15 июля", month: "июле", text: "" }
-          ] }
+          { svc: "samokat", title: "Самокат", score: null, reviews: [] }
         ],
         c3: [
-          { svc: "x5", title: "X5 Доставка", rating: 4.51, count: 41, reviews: [
-            { rating: 5, iso: "2026-09-06", date: "6 сент", month: "сентябре", text: "Донёс тяжёлые пакеты до двери, вежливо поздоровался" },
-            { rating: 4, iso: "2026-08-02", date: "2 авг", month: "августе", text: "Заказ был немного дольше обычного, но всё довезли целым" }
-          ] }
+          { svc: "x5", title: "X5 Доставка", score: { num: 4.5, label: "4,5 из 5", source: "Рейтинг X5, шкала от 0 до 5" }, reviews: [] }
         ],
         // автор отзыва о сервисе из обсуждения: показываем только выбранный сервис, связь с другими не раскрываем
         "svc-author": [
-          { svc: "vkusvill", title: "ВкусВилл", rating: 4.82, count: 164, reviews: [{ rating: 5, iso: "2026-09-02", date: "2 сент", month: "сентябре", text: "Курьер вежливый, заказ собран полностью" }] },
-          { svc: "samokat", title: "Самокат", rating: 4.61, count: 118, reviews: [{ rating: 4, iso: "2026-08-21", date: "21 авг", month: "августе", text: "Привёз быстро, пакет немного помят" }] },
-          { svc: "x5", title: "X5 Доставка", rating: 4.9, count: 23, reviews: [{ rating: 5, iso: "2026-09-09", date: "9 сент", month: "сентябре", text: "Всё вовремя" }] }
+          { svc: "vkusvill", title: "ВкусВилл", score: null, reviews: [] },
+          { svc: "samokat", title: "Самокат", score: null, reviews: [] },
+          { svc: "x5", title: "X5 Доставка", score: { num: 4.9, label: "4,9 из 5", source: "Рейтинг X5, шкала от 0 до 5" }, reviews: [] }
         ]
       };
       const PERIODS = [["month", "За месяц", "2026-08-16"], ["quarter", "3 месяца", "2026-06-16"], ["all", "Всё время", ""]];
       // владелец и посетитель именного профиля видят точное среднее, обезличенный профиль получает только границы диапазона
       const RATING_BUCKETS = [[4.8, 5.0], [4.5, 4.7], [4.0, 4.4], [3.0, 3.9], [1.0, 2.9]];
-      const COUNT_BUCKETS = [[500, "больше 500 оценок"], [100, "100–500 оценок"], [50, "50–100 оценок"], [0, "меньше 50 оценок"]];
-      const oneDecimal = (v) => v.toFixed(1).replace(".", ",");
-      const exactAvg = (v) => v.toFixed(2).replace(".", ",") + " из 5";
-      function ratingRangeLabel(v) {
+            const oneDecimal = (v) => v.toFixed(1).replace(".", ",");
+            function ratingRangeLabel(v) {
         const b = RATING_BUCKETS.find((x) => v >= x[0]) || RATING_BUCKETS[RATING_BUCKETS.length - 1];
         return oneDecimal(b[0]) + "–" + oneDecimal(b[1]) + " из 5";
       }
-      function countRangeLabel(n) { return (COUNT_BUCKETS.find((x) => n >= x[0]) || COUNT_BUCKETS[3])[1]; }
       function plural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
       class Component extends DCLogic {
         renderVals() {
@@ -141,15 +121,16 @@
           // обезличенный профиль всегда про один сервис, иначе сочетание сервисов связывает человека
           const allGroups = (DEMO_BY_COURIER[p.courierId] || []).filter((g) => !p.svc || g.svc === p.svc);
           const list = full ? allGroups.filter((g) => fSvc === "all" || g.svc === fSvc) : allGroups;
-          const groups = list.map((g) => {
+          const groups = (full ? [] : list).map((g) => {
             const valid = p.hideReviews ? [] : g.reviews.filter((r) => r.rating != null || !!r.text);
             const reviews = full ? valid.filter((r) => !periodFrom || r.iso >= periodFrom) : valid.slice(0, 1);
             return {
               svc: g.svc,
               title: g.title,
-              hasRating: g.rating != null && !p.hideRatings,
-              ratingLabel: g.rating == null ? "" : (anon ? ratingRangeLabel(g.rating) : exactAvg(g.rating)),
-              countLabel: g.count == null ? "" : (anon ? countRangeLabel(g.count) : g.count + " " + plural(g.count, "оценка", "оценки", "оценок")),
+              hasRating: !p.hideRatings,
+              ratingLabel: !g.score ? "Нет данных из сервиса" : (anon ? (g.score.num != null ? ratingRangeLabel(g.score.num) : "Есть, " + g.score.source.split(",")[0].toLowerCase()) : g.score.label),
+              countLabel: g.score ? g.score.source : "",
+              valueCls: "raznos-imp-reviews__value" + (g.score ? "" : " raznos-imp-reviews__value--none"),
               hasCards: reviews.length > 0,
               cards: reviews.map((r) => ({
                 hasRating: r.rating != null,
@@ -167,9 +148,9 @@
           const shownCount = groups.reduce((sum, g) => sum + g.cards.length, 0);
           const hasMore = allGroups.some((g) => g.reviews.length > 1);
           return {
-            headTitle: full ? "История отзывов из сервисов" : (p.hideReviews ? "Оценки покупателей" : "Последние отзывы"),
-            headNote: anon ? "Пересказы отзывов покупателей из сервиса, без исходного текста и точной даты. Средняя оценка показана диапазоном" : (visitor ? "Оценки и отзывы из сервисов доставки, которые курьер разрешил показывать. Средние точные, число оценок за всю историю в сервисе. Покупатели не могут писать отзывы о курьерах в Разносе" : "Ваши точные данные из сервисов доставки. В именном профиле посетители видят только разрешённые поля, средние там тоже точные, в обезличенном профиле диапазоны. Покупатели не могут писать отзывы о курьерах в Разносе"),
-            isFull: full,
+            headTitle: full ? "История отзывов из сервисов" : "Оценки из сервиса",
+            headNote: anon ? "Что сервис отдаёт о курьере, без точных значений. Отзывы покупателей сервисы пока не отдают" : (visitor ? "Оценки, рейтинги и уровни из сервисов, которые курьер разрешил показывать, у каждого указаны шкала и источник. Отзывы покупателей сервисы пока не отдают" : "Ваши данные из сервисов со шкалой и источником. Где сервис ничего не отдаёт, так и написано. Отзывы покупателей сервисы пока не отдают"),
+            isFull: full && shownCount > 0,
             isRegular: !compact,
             isCompact: compact && compactRows.length > 0,
             compactRows,
@@ -178,7 +159,7 @@
             fullSummary: shownCount + " " + plural(shownCount, "отзыв", "отзыва", "отзывов") + " за период, средняя и число оценок за всю историю в сервисе",
             groups,
             isEmpty: !compact && groups.length === 0,
-            emptyText: full && allGroups.length ? "За этот период отзывов нет, выберите период длиннее" : "Отзывов из сервисов пока нет",
+            emptyText: "Сервисы пока не отдают отзывы курьеров, когда отдадут, они появятся здесь",
             showAllBtn: !full && !anon && !visitor && !!p.onAll && hasMore,
             allLabel: "Все отзывы",
             onAll: p.onAll || (() => {})

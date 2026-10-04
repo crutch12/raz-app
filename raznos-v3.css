@@ -336,6 +336,9 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-imp-reviews__group { display: flex; flex-direction: column; gap: 8px; }
 .raznos-imp-reviews__group-head { display: flex; align-items: center; gap: 8px; }
 .raznos-imp-reviews__group-head .raznos-list-title { flex: 1; }
+.raznos-imp-reviews__name { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.raznos-imp-reviews__value { flex: none; font: 700 15px var(--raznos-font); color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.raznos-imp-reviews__value--none { font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
 
 /* Текстовая кнопка без фона, используется вместо ссылки (например, автор отзыва) */
 .raznos-link-btn { background: none; border: none; padding: 0; margin: 0; text-align: left; cursor: pointer; color: inherit; font: inherit; text-decoration: underline dotted; }

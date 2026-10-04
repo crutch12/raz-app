@@ -54,7 +54,7 @@
 // один выбор на любой отрезок времени: свободное время или окно плана, что стоит сейчас и чем можно заменить
 const RGP_DEMO = [
   { from: '18:00', to: '22:00', svc: 'yandex-eda', title: 'Яндекс Еда', sub: 'Центр', pay: '≈ 800 ₽/ч', kind: 'free', badge: 'свободный выход', note: '+3 200 ₽ к неделе', action: 'В план', actionKind: 'primary', gain: true },
-  { from: '18:00', to: '22:00', svc: 'samokat', title: 'Самокат', sub: 'Даркстор Беговая, 7', pay: '≈ 780 ₽/ч', kind: 'need', badge: '5 мест', note: '+3 120 ₽ к неделе, слот нужно взять', action: 'В план', actionKind: 'primary', gain: true }
+  { from: '18:00', to: '22:00', svc: 'samokat', title: 'Самокат', sub: 'Даркстор Беговая, 7', pay: '≈ 780 ₽/ч', kind: 'need', badge: 'есть места', note: '+3 120 ₽ к неделе, слот нужно взять', action: 'В план', actionKind: 'primary', gain: true }
 ];
 const RGP_PLURAL = (n) => { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return 'вариант'; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'варианта'; return 'вариантов'; };
 class Component extends DCLogic {

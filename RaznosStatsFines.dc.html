@@ -26,8 +26,8 @@ class Component extends DCLogic {
       { key: 'vkusvill', title: 'ВкусВилл', amount: '−300 ₽', bar_style: 'width:86%' }
     ];
     const cases = (p.cases || [
-      { key: 'samokat', reason: 'Опоздание к клиенту', amount: '−100 ₽', meta: '15 сентября · Самокат · заказ СМ-40731', lost: 'Обещали 260 ₽, выплатили 160 ₽' },
-      { key: 'vkusvill', reason: 'Нет фото вручения', amount: '−50 ₽', meta: '14 сентября · ВкусВилл · заказ ВВ-88602', lost: 'Обещали 290 ₽, выплатили 240 ₽' }
+      { key: 'samokat', reason: 'Опоздание к клиенту', amount: '−100 ₽', meta: '15 сентября · Самокат · заказ СМ-40731' },
+      { key: 'vkusvill', reason: 'Нет фото вручения', amount: '−50 ₽', meta: '14 сентября · ВкусВилл · заказ ВВ-88602' }
     ]).map((row) => Object.assign({}, row, { tap: typeof row.tap === 'function' ? row.tap : (() => {}) }));
     return {
       title: p.title || 'Удержано', accent: p.accent === undefined ? '650 ₽' : (p.accent || ''), sub: p.sub || '',
