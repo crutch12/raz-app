@@ -176,13 +176,29 @@
                 <button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" style="align-self:flex-start" onClick="{{ start_home_shift }}">Выйти на смену снова</button>
               </sc-if>
               <sc-if value="{{ home_shift_not_ended }}" hint-placeholder-val="{{ true }}">
-              <div class="raznos-hero-dark">
+              <div class="raznos-hero-dark raznos-hero-today">
+                <button type="button" class="raznos-hero-open" onClick="{{ today_sheet_open }}" aria-label="Подробнее о заработке за сегодня"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
                 <span class="raznos-hero-label">Заработано сегодня</span>
                 <div class="raznos-fx raznos-ac raznos-gap8"><span class="raznos-hero-value">{{ today_earn_label }}</span><span class="raznos-hero-unit">₽</span></div>
                 <span style="color:var(--raznos-on-dark);opacity:0.88;font:600 13px var(--raznos-mono);margin-top:2px">{{ today_hero_stats }}</span>
-                <sc-if value="{{ today_hero_note_show }}" hint-placeholder-val="{{ true }}"><span class="raznos-hero-formula">{{ today_hero_note }}</span></sc-if>
-                <div class="raznos-hero-pace"><div class="raznos-hero-pace-track"><span class="raznos-hero-pace-fill" style="{{ today_pace_style }}"></span></div><span class="raznos-hero-pace-note">{{ today_earn_label }} из {{ today_target }} ₽, дневная часть цели недели · {{ today_pace_note }}</span></div>
+                <sc-if value="{{ today_hero_note_show }}" hint-placeholder-val="{{ true }}"><div class="raznos-hero-chips"><sc-if value="{{ today_tips_show }}" hint-placeholder-val="{{ true }}"><span class="raznos-hero-chip">Чаевые <b>{{ today_tips_label }}</b></span></sc-if><sc-if value="{{ today_exp_show }}" hint-placeholder-val="{{ true }}"><span class="raznos-hero-chip">Расходы <b>{{ today_exp_label }}</b></span></sc-if></div></sc-if>
+                <div class="raznos-hero-pace"><div class="raznos-hero-pace-track"><span class="raznos-hero-pace-fill" style="{{ today_pace_style }}"></span></div><span class="raznos-hero-pace-note">{{ today_pace_note }}</span></div>
               </div>
+              <sc-if value="{{ today_sheet }}" hint-placeholder-val="{{ false }}">
+                <div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="Заработок за сегодня" onClick="{{ today_sheet_close }}">
+                  <div class="raznos-dialog raznos-day-sheet" onClick="{{ today_sheet_stop }}">
+                    <span class="raznos-text-h3">Заработок за сегодня</span>
+                    <div class="raznos-day-rows">
+                      <div class="raznos-day-row"><span>Начислено в сервисах<small>{{ today_hero_stats }}</small></span><b>{{ today_earn_label }} ₽</b></div>
+                      <sc-if value="{{ today_fines_show }}" hint-placeholder-val="{{ true }}"><div class="raznos-day-row"><span>Удержано сервисами</span><b class="raznos-day-minus">{{ today_fines_label }}</b></div></sc-if>
+                      <sc-if value="{{ today_exp_show }}" hint-placeholder-val="{{ true }}"><div class="raznos-day-row"><span>Расходы</span><b class="raznos-day-minus">{{ today_exp_label }}</b></div></sc-if>
+                      <div class="raznos-day-row raznos-day-total"><span>Чистыми<small>≈ {{ today_net_hourly }} ₽/ч</small></span><b>{{ today_remain_label }} ₽</b></div>
+                    </div>
+                    <sc-if value="{{ today_tips_show }}" hint-placeholder-val="{{ true }}"><div class="raznos-day-tips"><div class="raznos-day-row"><span>Чаевые</span><b>{{ today_tips_label }}</b></div><sc-for list="{{ today_tips_note }}" as="tn" hint-placeholder-count="2"><span class="raznos-day-tips-note">{{ tn }}</span></sc-for></div></sc-if>
+                    <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ today_sheet_recap }}">Итог дня в Результатах</button>
+                  </div>
+                </div>
+              </sc-if>
               </sc-if>
               <dc-import name="RaznosEarnBreakdown" services="{{ earn_services }}" expenses="{{ earn_expenses }}" onOpenService="{{ go_history }}" onOpenExpenses="{{ go_expenses_from_home }}" onAddExpense="{{ go_expense_form_from_home }}"></dc-import>
               <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onAddExpense="{{ go_expense_form_from_home }}" onSaveTip="{{ save_recent_tip }}"></dc-import>
@@ -418,18 +434,18 @@
                 <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ go_worker_data }}">Посмотреть данные работника</button>
               </sc-if>
 
-              <sc-if value="{{ conn_show_temp_notice }}" hint-placeholder-val="{{ true }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Нужен курьерский аккаунт</span><span class="raznos-text-small">Подключить сервис получится, только если в нём уже есть активированный курьерский аккаунт. Сначала пройдите регистрацию и активацию в приложении сервиса</span></div></sc-if>
-
-              <sc-if value="{{ conn_show_temp_notice }}" hint-placeholder-val="{{ true }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Что получит Разнос</span><span class="raznos-text-small">Разнос входит в {{ conn_title }} под вашим аккаунтом, как приложение курьера, и читает заработок, заказы и смены. Заказы мы не принимаем и не меняем. Сервис не даёт доступ только на чтение, поэтому вход технически шире, чем нужно нам. Отозвать доступ можно в любой момент здесь же, кнопкой Отключить сервис</span></div></sc-if>
+              <sc-if value="{{ conn_show_temp_notice }}" hint-placeholder-val="{{ true }}"><p class="raznos-conn-lead">Войдите так же, как в приложении курьера {{ conn_title }}</p></sc-if>
 
               <sc-if value="{{ conn_show_agree }}" hint-placeholder-val="{{ true }}">
                 <sc-if value="{{ conn_tax_ask }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-col raznos-gap8">
                   <span class="raznos-text-h3">Как вы оформлены в сервисе</span>
                   <div class="raznos-chip-row"><sc-for list="{{ tax_chips }}" as="ch" hint-placeholder-count="4"><button type="button" class="{{ ch.cls }}" onClick="{{ ch.tap }}">{{ ch.label }}</button></sc-for></div>
-                  <span class="raznos-text-tiny">Сервис это не отдаёт, а нам нужно, чтобы считать налог. Потом можно поменять в профиле</span>
+                  <span class="raznos-text-tiny">Нужно для налога, сервис этого не отдаёт. Поменять можно в профиле</span>
                 </div></sc-if>
-                <sc-if value="{{ conn_tax_auto }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">Форму оформления для налога возьмём из сервиса, поправить можно в профиле, в Налогах по сервисам</span></sc-if>
-                <button type="button" class="raznos-consent-row" onClick="{{ toggle_conn_agree }}"><span class="{{ conn_agree_class }}">{{ conn_agree_mark }}</span><span class="raznos-text-body">Понимаю, что Разнос входит под моим аккаунтом, а не по отдельному доступу только на чтение</span></button>
+                <button type="button" class="raznos-consent-row" onClick="{{ toggle_conn_agree }}"><span class="{{ conn_agree_class }}">{{ conn_agree_mark }}</span><span class="raznos-text-body">Понимаю, что Разнос входит под моим аккаунтом</span></button>
+                <sc-if value="{{ conn_agree_nudge }}" hint-placeholder-val="{{ false }}"><p class="raznos-conn-nudge">Отметьте галку, без неё не войти</p></sc-if>
+                <button type="button" class="raznos-conn-why" onClick="{{ conn_why_toggle }}" aria-expanded="{{ conn_why_open }}">Почему не только чтение ›</button>
+                <sc-if value="{{ conn_why_open }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Сервисы не дают отдельного доступа только на чтение, поэтому вход технически шире, чем нужно нам. Мы только читаем данные и ничего не делаем от вашего имени</p></sc-if>
               </sc-if>
 
               <sc-if value="{{ conn_is_unsupported }}" hint-placeholder-val="{{ false }}">
@@ -478,9 +494,19 @@
               </div></sc-if>
 
               <sc-if value="{{ conn_form_external }}"><div class="raznos-fx raznos-col raznos-gap12">
-                <div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">{{ conn_title }} подключаем в тестовом режиме: вы войдёте в приложении сервиса как обычно, а данные первое время могут приходить с задержкой или не все</span></div>
+                <div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Бета: данные первое время могут приходить с задержкой</span></div>
                 <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ conn_finish }}">Демо: открыть вход {{ conn_title }}</button>
               </div></sc-if>
+
+              <sc-if value="{{ conn_show_temp_notice }}" hint-placeholder-val="{{ true }}">
+                <div class="raznos-conn-facts">
+                  <span class="raznos-conn-facts-title">Что получит Разнос</span>
+                  <span class="raznos-conn-fact"><i class="raznos-conn-fact-ok" aria-hidden="true">✓</i>Читаем заработок, заказы и смены</span>
+                  <span class="raznos-conn-fact"><i class="raznos-conn-fact-no" aria-hidden="true">✕</i>Не принимаем и не меняем заказы</span>
+                  <span class="raznos-conn-fact"><i class="raznos-conn-fact-ok" aria-hidden="true">↺</i>Отключить можно в любой момент</span>
+                </div>
+                <p class="raznos-conn-note">Нужен уже активированный курьерский аккаунт {{ conn_title }}<sc-if value="{{ conn_tax_auto }}" hint-placeholder-val="{{ false }}">. Форму оформления для налога возьмём из сервиса</sc-if></p>
+              </sc-if>
             </div>
           </sc-if>
 
@@ -4065,7 +4091,7 @@
           const connHealthAction = (key, kind) => {
             if (kind === 'open') return set({ s: 'integrations' });
             if (kind === 'net') return set({ netOffline: false, syncAgo: Object.assign({}, syncAgo, syncTargets.reduce((acc, k) => { if (!svcHealth[k]) acc[k] = 0; return acc; }, {})) });
-            if (kind === 'relogin') return set({ s: 'integration-connect', connKey: key, connAgree: false, connStage: 'form', connCodeInput: '', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: '' });
+            if (kind === 'relogin') return set({ s: 'integration-connect', connKey: key, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: '' });
             if (kind === 'offline') { const h = Object.assign({}, svcHealth); delete h[key]; return set({ svcHealth: h, syncAgo: Object.assign({}, syncAgo, { [key]: 0 }) }); }
             if (kind === 'error') return set({ s: 'service-open-demo', openDemoLabel: SERVICES[key].title });
           };
@@ -4106,7 +4132,7 @@
               key, title: svc.title, note,
               status: pill ? pill[1] : (status === 'connected' ? 'connected' : (status === 'limited' ? 'limited' : (status === 'exited' ? 'exited' : (status === 'disabled' ? 'disabled' : (svc.method === 'unsupported' && !svc.catalogNote ? 'unsupported' : 'none'))))),
               statusLabel: pill ? pill[0] : '', showChevron: true,
-              onTap: () => set({ s: 'integration-connect', connKey: key, connAgree: false, connStage: 'form', connCodeInput: '', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: '' }),
+              onTap: () => set({ s: 'integration-connect', connKey: key, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: '' }),
               last: i === Object.keys(SERVICES).length - 1
             };
           });
@@ -4172,7 +4198,7 @@
           const yandexConnected = !!integrationStatus[conn.sharedWith];
           const connReady = effectiveMethod === 'unsupported' ? true : connAgree;
           const finalizeConnection = () => {
-            if (!connReady) return;
+            if (!connReady) { if (!connAgree) set({ connAgreeNudge: true }); return; }
             const statusValue = effectiveMethod === 'external' ? 'limited' : 'connected';
             const patch = { [connKey]: statusValue };
             if (conn.sharedWith) patch[conn.sharedWith] = statusValue;
@@ -4702,7 +4728,16 @@
             vv_hours: today.vvHours, samokat_hours: today.samokatHours, overlap_hours: today.overlapHours,
             today_remain: formatMoney(todayRemain), today_avg_wait: today.avgWait,
             today_hero_stats: todayOrders + ' ' + ruPlural(todayOrders, 'заказ', 'заказа', 'заказов') + ' · ' + todayHourly + ' ₽/ч · ' + todayHours + ' ч на линии',
-            today_hero_note_show: todayTipsDigital > 0 || todayTipsCash > 0 || todayExpenses > 0 || todayFines > 0,
+            today_hero_note_show: todayTipsDigital > 0 || todayTipsCash > 0 || todayExpenses > 0,
+            // на главной только чаевые и расходы, разбор удержаний и чистыми по стрелке в Результатах
+            // шторка дня: те же переменные, что и карточка, чтобы цифры не спорили
+            today_sheet: !!st.todaySheet, today_sheet_open: () => set({ todaySheet: true }), today_sheet_close: () => set({ todaySheet: false }), today_sheet_stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
+            today_sheet_recap: () => set(Object.assign({ todaySheet: false }, { s: 'stats', statsPeriod: 'today', statsStep: 0, statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' })),
+            today_fines_show: todayFines > 0, today_fines_label: '−' + formatMoney(todayFines) + ' ₽',
+            today_remain_label: formatMoney(todayRemain), today_net_hourly: formatMoney(todayNetHourly),
+            today_tips_note: [todayTipsDigital > 0 ? formatMoney(todayTipsDigital) + ' ₽ через сервис, уже в начисленном' : '', todayTipsCash > 0 ? formatMoney(todayTipsCash) + ' ₽ вне сервиса, в сумму не входят' : ''].filter(Boolean),
+            today_tips_show: todayTipsDigital + todayTipsCash > 0, today_tips_label: formatMoney(todayTipsDigital + todayTipsCash) + ' ₽',
+            today_exp_show: todayExpenses > 0, today_exp_label: '−' + formatMoney(todayExpenses) + ' ₽',
             today_hero_note: [
               todayTipsDigital > 0 ? ('чаевые ' + formatMoney(todayTipsDigital) + ' ₽ уже в сумме') : '',
               todayTipsCash > 0 ? ('чаевые вне сервиса ' + formatMoney(todayTipsCash) + ' ₽ не входят в сумму') : '',
@@ -4784,8 +4819,8 @@
             })(),
             today_pace_style: 'width:' + todayPacePct + '%',
             today_pace_note: todayEarn >= todayTarget
-              ? 'на сегодня выполнено'
-              : ('осталось ≈ ' + Math.max(1, todayOrdersLeft) + ' ' + ruPlural(Math.max(1, todayOrdersLeft), 'заказ', 'заказа', 'заказов')),
+              ? 'Дневная часть цели недели выполнена'
+              : ('До дневной части цели ≈ ' + Math.max(1, todayOrdersLeft) + ' ' + ruPlural(Math.max(1, todayOrdersLeft), 'заказ', 'заказа', 'заказов')),
             today_earn_label: formatMoney(todayEarn),
             svc_hourly_rows: svcHourlyRows, svc_hourly_note: svcHourlyNote,
             services_note: connectedKeys.length ? connectedKeys.map((k) => SERVICES[k].title).join(', ') + ' подключены' : 'ни один сервис не подключён',
@@ -5240,7 +5275,7 @@
             go_services_compare: () => set({ s: 'services-compare', scFrom: s }),
             services_compare_back: () => set({ s: (this.state && this.state.scFrom) || 'work-hub' }),
             svc_connected: connectedKeys,
-            svc_compare_connect: (key) => set({ s: 'integration-connect', connKey: key, connAgree: false, connStage: 'form', connCodeInput: '', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: '' }),
+            svc_compare_connect: (key) => set({ s: 'integration-connect', connKey: key, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: '' }),
             best_places_back: () => set({ s: (this.state && this.state.bpFrom) || 'work-hub' }),
           go_active_order: () => set({ s: 'active-order' }), active_order_hub_visible: activeAccepted,
           go_settings: () => set({ s: 'settings' }),
@@ -5327,7 +5362,7 @@
               label: !workSelectedSvc[key] ? 'Выключен' : (integrationStatus[key] !== 'connected' ? 'Нужен вход' : (!workOn ? 'Готов' : (activeAccepted ? (activeOffer.svc === key ? (orderStage === 'delivered' ? 'Доставлен' : 'Заказ в работе') : 'Пауза в Разносе') : (workPaused ? 'Пауза в Разносе' : 'Ищет заказы')))),
               pillClass: !workSelectedSvc[key] ? 'raznos-status-pill raznos-pill-muted' : (integrationStatus[key] !== 'connected' ? 'raznos-status-pill raznos-pill-error' : (!workOn ? 'raznos-status-pill raznos-pill-muted' : (activeAccepted ? (activeOffer.svc === key ? 'raznos-status-pill raznos-pill-ok' : 'raznos-status-pill raznos-pill-warn') : (workPaused ? 'raznos-status-pill raznos-pill-warn' : 'raznos-status-pill raznos-pill-ok')))),
               note: !workSelectedSvc[key] ? 'Не выбран для работы' : (integrationStatus[key] !== 'connected' ? 'Откройте подключение сервиса' : (!workOn ? 'Готов принимать заказы' : (activeAccepted ? (activeOffer.svc === key ? (orderStage === 'delivered' ? 'Заказ передан получателю' : 'Выполняете заказ') : 'Приостановлен пока у вас другой заказ') : (workPaused ? 'Лента на паузе' : 'Ждёт новые предложения')))),
-              tap: () => set({ s: 'integration-connect', connKey: key, connAgree: false, connStage: 'form', connLogin: null, connPassword: '' }) })).map((row) => {
+              tap: () => set({ s: 'integration-connect', connKey: key, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connLogin: null, connPassword: '' }) })).map((row) => {
               const h = workSelectedSvc[row.key] && integrationStatus[row.key] === 'connected' ? healthOf(row.key) : 'ok';
               if (!HEALTH_PILL[h]) return Object.assign(row, { hasNote: false, healthNote: '' });
               const actionHint = { relogin: 'Нажмите, чтобы войти снова', offline: 'Нажмите, чтобы проверить связь', rate: 'Повторим сами', error: 'Нажмите, чтобы открыть приложение сервиса' }[h];
@@ -5635,7 +5670,7 @@
             conn_form_code_entry: !connIsConnected && effectiveMethod === 'code' && connStage === 'code-entry' && !isDeliveryConn,
             conn_form_password: !connIsConnected && connStatusValue !== 'exited' && effectiveMethod === 'password' && !isDeliveryConn,
             conn_form_external: !connIsConnected && effectiveMethod === 'external' && !isDeliveryConn,
-            conn_request_code: () => { if (connAgree) set({ connStage: 'code-entry', connCodeInput: '', connCodeError: false }); },
+            conn_request_code: () => { if (connAgree) set({ connStage: 'code-entry', connCodeInput: '', connCodeError: false }); else set({ connAgreeNudge: true }); },
             conn_code_value: connCodeInput,
             conn_code_set: (v) => set({ connCodeInput: v, connCodeError: false }),
             conn_code_error: connCodeError,
@@ -5645,7 +5680,8 @@
             conn_password_value: connPassword, conn_password_change: (e) => set({ connPassword: e && e.target ? e.target.value : connPassword }),
             conn_show_agree: !connIsConnected && connStatusValue !== 'exited' && effectiveMethod !== 'unsupported' && effectiveMethod !== 'soon' && !(isDeliveryConn && !yandexConnected),
             conn_agree_class: connAgree ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', conn_agree_mark: connAgree ? '✓' : '',
-            toggle_conn_agree: () => set({ connAgree: !connAgree }),
+            toggle_conn_agree: () => set({ connAgree: !connAgree, connAgreeNudge: false }),
+            conn_agree_nudge: !!st.connAgreeNudge && !connAgree, conn_why_open: !!st.connWhyOpen, conn_why_toggle: () => set({ connWhyOpen: !st.connWhyOpen }),
             conn_finish: finalizeConnection,
             conn_done_show: !!st.connDone && s === 'integrations', conn_done_title: st.connDone && SERVICES[st.connDone] ? SERVICES[st.connDone].title + ' подключён' : '',
             conn_done_text: st.connDone && integrationStatus[st.connDone] === 'limited' ? 'Это бета: первые данные появятся в течение 30 минут, часть может прийти позже' : 'Первые данные появятся в течение 30 минут',

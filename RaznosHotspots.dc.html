@@ -18,8 +18,8 @@
     .rhs-map { position: relative; overflow: hidden; border-radius: 16px; border: 1px solid var(--raznos-line); }
     .rhs-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); }
     .rhs-legend > span { display: inline-flex; align-items: center; gap: 5px; }
-    .rhs-legend i { width: 12px; height: 12px; border-radius: 4px; }
-    .rhs-legend .rhs-l0 { background: oklch(0.93 0.03 145); } .rhs-legend .rhs-l1 { background: oklch(0.85 0.08 145); } .rhs-legend .rhs-l2 { background: oklch(0.72 0.12 145); } .rhs-legend .rhs-l3 { background: oklch(0.58 0.14 148); }
+    .rhs-legend i { width: 12px; height: 13px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+    .rhs-legend .rhs-l1 { background: oklch(0.8 0.1 150 / 0.55); } .rhs-legend .rhs-l2 { background: oklch(0.7 0.14 150 / 0.7); } .rhs-legend .rhs-l3 { background: oklch(0.58 0.15 150 / 0.85); }
     .rhs-legend-note { width: 100%; color: var(--raznos-ink-3); }
     .rhs-pick { background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 4px 16px; }
     .rhs-empty { padding: 20px 0; font: 500 14px var(--raznos-font); color: var(--raznos-ink-2); text-align: center; }
@@ -55,7 +55,7 @@
     <dc-import name="RaznosFilterChips" filters="{{ filters }}" onChange="{{ on_filter }}"></dc-import>
     <sc-if value="{{ is_map }}" hint-placeholder-val="{{ false }}">
       <div class="rhs-map"><dc-import name="RaznosCourierMap" couriers="{{ false }}" hideCouriers="{{ true }}" hideMe="{{ true }}" zones="{{ map_zones }}"></dc-import></div>
-      <div class="rhs-legend"><span><i class="rhs-l3" aria-hidden="true"></i>Лучшие</span><span><i class="rhs-l2" aria-hidden="true"></i>Выше среднего</span><span><i class="rhs-l1" aria-hidden="true"></i>Средне</span><span><i class="rhs-l0" aria-hidden="true"></i>Ниже</span><span class="rhs-legend-note">↑ растёт за 4 недели · нажмите на район, чтобы увидеть подробности</span></div>
+      <div class="rhs-legend"><span><i class="rhs-l3" aria-hidden="true"></i>Лучшие</span><span><i class="rhs-l2" aria-hidden="true"></i>Выше среднего</span><span><i class="rhs-l1" aria-hidden="true"></i>Средне</span><span class="rhs-legend-note">Без заливки ниже среднего · ↑ растёт за 4 недели · нажмите на район</span></div>
       <sc-if value="{{ has_pick }}" hint-placeholder-val="{{ true }}"><div class="rhs-pick"><dc-import name="RaznosRankRow" rank="{{ pick.rank }}" title="{{ pick.name }}" meta="{{ pick.meta }}" fill="{{ pick.fill }}" value="{{ pick.val }}" action="{{ pick.action }}" href="{{ pick.routeHref }}" actionLabel="{{ pick.routeAria }}" trend="{{ pick.trend }}" trendTail="{{ pick.trendTail }}" divider="{{ false }}"></dc-import></div></sc-if>
     </sc-if>
     <sc-if value="{{ is_list }}" hint-placeholder-val="{{ true }}">
