@@ -1,0 +1,109 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rvs-layer { align-items: flex-end; padding: 0; }
+    .rvs-sheet { box-sizing: border-box; width: 100%; max-height: 88%; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 8px 16px 16px; border-radius: 22px 22px 0 0; background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 -18px 48px rgba(20, 25, 40, .2); }
+    .rvs-sheet > * { flex: none; }
+    .rvs-handle { flex: none; width: 40px; height: 4px; align-self: center; border-radius: 999px; background: var(--raznos-line-strong); }
+    .rvs-head { display: flex; align-items: center; gap: 10px; margin-top: -2px; }
+    .rvs-head-copy { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+    .rvs-head h2 { margin: 0; font: 700 18px var(--raznos-font); }
+    .rvs-head small { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rvs-close { flex: none; width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 12px; background: var(--raznos-surface-2); color: var(--raznos-ink); cursor: pointer; }
+    .rvs-verdict { margin: 0; font: 700 16px/1.3 var(--raznos-font); }
+    .rvs-tabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+    .rvs-tabs::-webkit-scrollbar { display: none; }
+    .rvs-tab { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border: 1px solid var(--raznos-line); border-radius: 999px; background: var(--raznos-surface); font: 600 13.5px var(--raznos-font); color: var(--raznos-ink-2); cursor: pointer; white-space: nowrap; }
+    .rvs-tab.raznos-is-active { border-color: var(--raznos-dark); background: var(--raznos-dark); color: var(--raznos-on-dark); }
+    .rvs-tab i { font: 700 11px var(--raznos-font); font-style: normal; padding: 1px 6px; border-radius: 999px; background: var(--raznos-green-tint); color: var(--raznos-green-deep); }
+    .rvs-gives { margin: 0; font: 500 14px/1.4 var(--raznos-font); color: var(--raznos-ink); }
+    .rvs-list { display: flex; flex-direction: column; }
+    .rvs-row { display: flex; align-items: baseline; gap: 12px; padding: 10px 0; border-top: 1px solid var(--raznos-line); }
+    .rvs-label { flex: 0 0 84px; font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rvs-value { flex: 1 1 auto; min-width: 0; font: 500 14px/1.4 var(--raznos-font); color: var(--raznos-ink); }
+    .rvs-note { display: block; margin-top: 2px; font: 500 12px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rvs-pill { display: inline-block; margin-right: 6px; padding: 1px 8px; border-radius: 999px; background: var(--raznos-surface-2); font: 600 11px/1.5 var(--raznos-font); color: var(--raznos-ink-2); white-space: nowrap; }
+    .rvs-more { border-top: 1px solid var(--raznos-line); }
+    .rvs-more summary { min-height: 44px; display: flex; align-items: center; font: 600 13.5px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
+    .rvs-more summary:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .rvs-more .rvs-row:first-of-type { border-top: 0; padding-top: 0; }
+    .rvs-seen { display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 14px; background: var(--raznos-surface-2); }
+    .rvs-seen b { font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rvs-seen span { font: 500 14px/1.4 var(--raznos-font); }
+    .rvs-tab:focus-visible, .rvs-close:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    @media (prefers-reduced-motion: no-preference) {
+      .rvs-sheet { animation: rvs-in .28s cubic-bezier(.16, 1, .3, 1) both; }
+      @keyframes rvs-in { from { transform: translateY(100%); } to { transform: none; } }
+    }
+  </style>
+</helmet>
+<div class="raznos-dialog-layer rvs-layer" onClick="{{ close }}">
+  <section class="rvs-sheet" role="dialog" aria-modal="true" aria-label="Оформление" onClick="{{ stop }}">
+    <span class="rvs-handle" aria-hidden="true"></span>
+    <div class="rvs-head">
+      <dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ title }}" size="md"></dc-import>
+      <span class="rvs-head-copy"><h2>Оформление</h2><small>{{ title }}</small></span>
+      <button type="button" class="rvs-close" onClick="{{ close }}" aria-label="Закрыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <p class="rvs-verdict">{{ verdict }}</p>
+    <sc-if value="{{ has_tabs }}" hint-placeholder-val="{{ true }}"><div class="rvs-tabs" role="tablist"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3"><button type="button" role="tab" aria-selected="{{ t.on }}" class="{{ t.cls }}" onClick="{{ t.tap }}">{{ t.label }}<sc-if value="{{ t.mine }}" hint-placeholder-val="{{ false }}"><i>у вас</i></sc-if></button></sc-for></div></sc-if>
+    <p class="rvs-gives">{{ gives }}<dc-import name="RaznosFactSource" src="{{ gives_src }}"></dc-import></p>
+    <div class="rvs-list">
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4"><div class="rvs-row"><span class="rvs-label">{{ r.label }}</span><span class="rvs-value"><sc-if value="{{ r.pill }}" hint-placeholder-val="{{ false }}"><span class="rvs-pill">{{ r.pill }}</span></sc-if>{{ r.value }}<dc-import name="RaznosFactSource" src="{{ r.src }}"></dc-import><sc-if value="{{ r.note }}" hint-placeholder-val="{{ false }}"><span class="rvs-note">{{ r.note }}<dc-import name="RaznosFactSource" src="{{ r.noteSrc }}"></dc-import></span></sc-if></span></div></sc-for>
+    </div>
+    <sc-if value="{{ has_more }}" hint-placeholder-val="{{ true }}">
+      <details class="rvs-more"><summary>Как сменить и проверить</summary>
+        <sc-for list="{{ more }}" as="r" hint-placeholder-count="3"><div class="rvs-row"><span class="rvs-label">{{ r.label }}</span><span class="rvs-value">{{ r.value }}<dc-import name="RaznosFactSource" src="{{ r.src }}"></dc-import></span></div></sc-for>
+      </details>
+    </sc-if>
+    <div class="rvs-seen"><b>Что видит Разнос</b><span>{{ seen }}<dc-import name="RaznosFactSource" src="{{ seen_src }}"></dc-import></span></div>
+    <span class="raznos-text-tiny">Проверено по Москве, в других городах условия могут отличаться</span>
+  </section>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"via":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":760}}'>
+// шторка оформления: вывод, варианты оформления табами (только те, что есть у сервиса), что платит курьер, налог по форме, как сменить и проверить
+const RVS_FEE_PILL = { 'вывод': 'за вывод', 'заказ': 'с заказа', 'сутки': 'в сутки', 'не раскрыта': 'не раскрыта' };
+const RVS_CHECK = 'Попросите договор, комиссию и её вид, сроки выплат и порядок выхода';
+const RVS_RISK = 'Задержки выплат и непрозрачные удержания, поддержка может перекладывать ответственность между сервисом и посредником';
+// без пропсов показываем демо для дизайн-системы
+const RVS_DEMO = {
+  svc: 'yandex-eda', title: 'Яндекс Еда', verdict: 'Можно напрямую, не из ЕАЭС нужна служба', mine: 'park',
+  kinds: [
+    { k: 'direct', label: 'Напрямую', gives: 'Договор с сервисом без партнёров, у самозанятых приоритет выше', fee: { kind: 'нет', text: 'Комиссий партнёрам нет' }, payout: 'Карта Про, выплата за 5 минут', tax: 'НПД 4 и 6%' },
+    { k: 'park', label: 'Через парк', mine: true, gives: 'Парк ведёт выплаты, чат в Про и самозанятость в Мой налог', fee: { kind: 'вывод', text: 'Комиссия парка за вывод, видна до запроса' }, payout: 'Сроки и лимиты вывода ставит парк', tax: 'Уточните, кто платит налог, расчёта нет', taxSrc: 'источники расходятся', change: 'Новый парк привязывает, старый отвязывает, отзовите связку в Мой налог', changeSrc: 'по правилам Доставки' }
+  ],
+  seen: 'Парк · партнёр Яндекс Про · рейтинг 4,6, условия вывода', seenSrc: 'демо'
+};
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const v = p.via || RVS_DEMO;
+    const kinds = v.kinds || [];
+    const mineKind = kinds.find((k) => k.mine) || null;
+    const cur = kinds.find((k) => k.k === st.tab) || mineKind || kinds[0] || { k: 'direct', label: '', gives: '' };
+    const fee = cur.fee || null;
+    const rows = [];
+    if (cur.names) rows.push({ label: 'Кто', value: cur.names, src: cur.namesSrc || '', pill: '' });
+    if (fee) rows.push({ label: 'Платите', value: fee.text, src: fee.src || '', pill: RVS_FEE_PILL[fee.kind] || '', note: fee.note || '', noteSrc: fee.noteSrc || '' });
+    if (cur.payout) rows.push({ label: 'Выплаты', value: cur.payout, src: cur.payoutSrc || '', pill: '' });
+    if (cur.tax) rows.push({ label: 'Налог', value: cur.tax, src: cur.taxSrc || '', pill: '' });
+    const middle = cur.k !== 'direct' && cur.k !== 'tk' && cur.k !== 'shop';
+    const more = [];
+    if (cur.change) more.push({ label: 'Сменить', value: cur.change, src: cur.changeSrc || '' });
+    if (middle) more.push({ label: 'Риски', value: RVS_RISK, src: 'отзывы' });
+    if (middle) more.push({ label: 'Проверить', value: RVS_CHECK, src: '' });
+    return {
+      svc: v.svc || 'yandex-eda', title: v.title || '', verdict: v.verdict || '',
+      has_tabs: kinds.length > 1,
+      tabs: kinds.map((k) => ({ label: k.label, mine: !!k.mine, on: k.k === cur.k, cls: 'rvs-tab' + (k.k === cur.k ? ' raznos-is-active' : ''), tap: () => this.setState({ tab: k.k }) })),
+      gives: cur.gives || '', gives_src: cur.givesSrc || '',
+      rows, more, has_more: more.length > 0,
+      seen: v.seen || 'Сервис не отдаёт', seen_src: v.seenSrc || '',
+      close: () => { if (typeof p.onClose === 'function') p.onClose(); },
+      stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
+    };
+  }
+}
+</script></body></html>

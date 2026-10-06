@@ -45,6 +45,7 @@
             </div>
           </div>
         </sc-if>
+        <sc-if value="{{ via_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosViaSheet" via="{{ via_data }}" onClose="{{ via_close }}"></dc-import></sc-if>
         <sc-if value="{{ ux_toast_visible }}" hint-placeholder-val="{{ false }}">
           <div style="position:absolute;left:12px;right:12px;bottom:76px;z-index:80"><dc-import name="RaznosUndoToast" toastId="{{ ux_toast_id }}" text="{{ ux_toast_text }}" actionLabel="{{ ux_toast_label }}" onAction="{{ ux_toast_action }}" onClose="{{ ux_toast_close }}"></dc-import></div>
         </sc-if>
@@ -260,7 +261,7 @@
                 <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ stats_detail_close }}" aria-label="Назад к статистике">‹</button><h1 class="raznos-text-h1" style="margin:0">{{ stats_detail_title }}</h1></div>
                 <p class="raznos-stats-range">{{ stats_range_human }}<sc-if value="{{ stats_range_hint }}" hint-placeholder-val="{{ true }}"> · {{ stats_range_hint }}</sc-if></p>
                 <sc-if value="{{ stats_detail_is_money }}">
-                  <dc-import name="RaznosStatsMoney" title="{{ stats_money_title }}" accent="{{ stats_money_accent }}" sub="{{ stats_money_sub }}" rows="{{ stats_money_rows }}" finesLabel="{{ stats_fines_link }}" onFines="{{ stats_detail_go_fines }}" onExpenses="{{ go_expenses_from_stats }}"></dc-import>
+                  <dc-import name="RaznosStatsMoney" title="{{ stats_money_title }}" accent="{{ stats_money_accent }}" sub="{{ stats_money_sub }}" rows="{{ stats_money_rows }}" finesLabel="{{ stats_fines_link }}" viaLabel="{{ stats_via_link }}" onFines="{{ stats_detail_go_fines }}" onExpenses="{{ go_expenses_from_stats }}"></dc-import>
                   <sc-if value="{{ stats_sec_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAppSectionLink" svc="{{ stats_sec_svc }}" svcTitle="{{ stats_sec_title }}" section="income" onOpen="{{ stats_sec_income }}"></dc-import></sc-if>
                   <dc-import name="RaznosStatsLedger" title="Из чего сложилось" rows="{{ stats_money_ledger }}" note="Чаевые и бонусы уже входят в начисление, если их передал сервис"></dc-import>
                   <dc-import name="RaznosStatsTaxCard" value="{{ stats_tax_card_value }}" sub="{{ stats_tax_card_sub }}" onOpen="{{ stats_detail_go_taxes }}"></dc-import>
@@ -284,7 +285,7 @@
                   <dc-import name="RaznosStatsTaxes" monthTitle="{{ stats_tax_month_title }}" monthValue="{{ stats_tax_month_value }}" monthSub="{{ stats_tax_month_sub }}" rows="{{ stats_tax_rows }}" yearValue="{{ stats_tax_year_value }}" yearSub="{{ stats_tax_year_sub }}" yearStyle="{{ stats_tax_year_style }}" yearShare="{{ stats_tax_year_share }}"></dc-import>
                 </sc-if>
                 <sc-if value="{{ stats_detail_is_fines }}">
-                  <dc-import name="RaznosStatsFines" title="{{ stats_fines_title }}" accent="{{ stats_fines_accent }}" sub="{{ stats_fines_sub }}" share="{{ stats_fines_share }}" byService="{{ stats_fines_by_service }}" cases="{{ stats_fine_cases }}" casesTitle="{{ stats_fines_cases_title }}" note="{{ stats_fines_note }}"></dc-import>
+                  <dc-import name="RaznosStatsFines" title="{{ stats_fines_title }}" accent="{{ stats_fines_accent }}" sub="{{ stats_fines_sub }}" share="{{ stats_fines_share }}" byService="{{ stats_fines_by_service }}" cases="{{ stats_fine_cases }}" via="{{ stats_via }}" casesTitle="{{ stats_fines_cases_title }}" note="{{ stats_fines_note }}"></dc-import>
                   <sc-if value="{{ stats_sec_fines_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAppSectionLink" svc="{{ stats_sec_fines_svc }}" svcTitle="{{ stats_sec_fines_title }}" section="fines" onOpen="{{ stats_sec_fines }}"></dc-import></sc-if>
                 </sc-if>
                 <sc-if value="{{ stats_detail_is_trends }}">
@@ -303,7 +304,7 @@
                   <dc-import name="RaznosStatsServices" rows="{{ stats_services }}" title="{{ stats_services_title }}" accent="{{ stats_services_accent }}" accentClass="{{ stats_services_accent_class }}" onOpen="{{ stats_detail_go_services }}"></dc-import>
                   <dc-import name="RaznosStatsDistricts" rows="{{ stats_districts }}" onAll="{{ stats_detail_go_districts }}"></dc-import>
                   <sc-if value="{{ stats_work_visible }}"><dc-import name="RaznosStatsWork" work="{{ stats_work }}" onOpenTime="{{ stats_detail_go_time }}"></dc-import></sc-if>
-                  <dc-import name="RaznosStatsMoney" title="{{ stats_money_title }}" accent="{{ stats_money_accent }}" sub="{{ stats_payout_sub }}" rows="{{ stats_money_rows }}" only="{{ stats_payout_kinds }}" finesLabel="{{ stats_fines_link_plain }}" onFines="{{ stats_detail_go_fines }}" onOpen="{{ stats_detail_go_money }}" onExpenses="{{ go_expenses_from_stats }}" taxValue="{{ stats_tax_card_value }}" taxSub="{{ stats_tax_card_sub }}" onTax="{{ stats_detail_go_taxes }}"></dc-import>
+                  <dc-import name="RaznosStatsMoney" title="{{ stats_money_title }}" accent="{{ stats_money_accent }}" sub="{{ stats_payout_sub }}" rows="{{ stats_money_rows }}" only="{{ stats_payout_kinds }}" finesLabel="{{ stats_fines_link_plain }}" viaLabel="{{ stats_via_link }}" onFines="{{ stats_detail_go_fines }}" onOpen="{{ stats_detail_go_money }}" onExpenses="{{ go_expenses_from_stats }}" taxValue="{{ stats_tax_card_value }}" taxSub="{{ stats_tax_card_sub }}" onTax="{{ stats_detail_go_taxes }}"></dc-import>
                   <dc-import name="RaznosStatsOrdersLink" caption="{{ stats_orders_caption }}" onOpen="{{ stats_history_open }}"></dc-import>
                 </sc-if>
                 <sc-if value="{{ stats_no_data }}"><div class="raznos-empty-state"><span class="raznos-text-h3">Пока нет данных</span><p class="raznos-text-small">Подключите сервис или посмотрите демо</p><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ go_integrations }}">Подключить сервис</button><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ stats_start_demo }}">Посмотреть демо</button></div></sc-if>
@@ -379,7 +380,7 @@
             <dc-import name="RaznosUserHome" city="{{ uh_city }}" cityTitle="{{ uh_city_title }}" rates="{{ uh_market_rates }}" onCityChange="{{ uh_set_city }}" onNavigate="{{ uh_navigate }}"></dc-import>
           </sc-if>
           <sc-if value="{{ is_job_guide }}">
-            <dc-import name="RaznosJobGuide" city="{{ city }}" section="{{ guide_section }}" onBack="{{ go_home_any }}" onOpenService="{{ guide_open_service }}"></dc-import>
+            <dc-import name="RaznosJobGuide" city="{{ city }}" section="{{ guide_section }}" via="{{ guide_via }}" onOpenVia="{{ guide_open_via }}" onBack="{{ go_home_any }}" onOpenService="{{ guide_open_service }}"></dc-import>
           </sc-if>
 
           <sc-if value="{{ is_tax_forms }}">
@@ -416,7 +417,7 @@
           <sc-if value="{{ is_integration_connect }}">
             <div class="raznos-phone-body" data-screen-label="19 Integration connect">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_integrations }}">‹</button><dc-import name="RaznosIcon" svc="{{ conn_key }}" alt="{{ conn_title }}" size="md"></dc-import><h1 class="raznos-text-h1" style="margin:0">{{ conn_title }}</h1></div>
-              <sc-if value="{{ conn_has_caps }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosServiceCaps" caps="{{ conn_caps }}" compact="{{ true }}"></dc-import></sc-if>
+              <sc-if value="{{ conn_has_caps }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosServiceCaps" caps="{{ conn_caps }}" compact="{{ true }}" viaMine="{{ conn_via_mine }}" viaSeen="{{ conn_via_seen }}" onVia="{{ conn_via_open }}"></dc-import></sc-if>
 
               <sc-if value="{{ conn_is_connected }}" hint-placeholder-val="{{ false }}">
                 <div class="raznos-notice raznos-notice-ok"><span class="raznos-notice-title">Сервис подключён</span><span class="raznos-text-small">{{ conn_connected_note }}</span></div>
@@ -772,7 +773,7 @@
                   </button>
                 </sc-for>
               </div>
-              <p class="raznos-text-tiny">Методика: доход в час считается из начислений за вычетом удержаний за известное рабочее время, без наличных, расходов и налогов. Место присваивается при 30+ курьерах и 100+ заказах. Публичные данные обновляются с задержкой не менее суток, «Вчера» показывает предыдущий закрытый день</p>
+              <p class="raznos-text-tiny">Методика: доход в час считается из начислений за вычетом удержаний за известное рабочее время, без наличных, расходов и налогов. Место присваивается при 30+ курьерах и 100+ заказах. Публичные данные обновляются с задержкой не менее суток, «Вчера» показывает предыдущий закрытый день. Через парк доход ниже на комиссию посредника, это касается Яндекса и Ozon Экспресса</p>
               </sc-if>
               <sc-if value="{{ mk_no_data }}">
                 <div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">{{ mk_city_label }}</span><span class="raznos-text-small">Пока нет данных по этому городу</span></div>
@@ -793,7 +794,7 @@
               <sc-if value="{{ sv_insufficient }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">Данных за период пока нет, цифры выше показаны как «Нет данных» вместо нуля</p></sc-if>
               <sc-if value="{{ sv_has_caps }}" hint-placeholder-val="{{ true }}">
                 <span class="raznos-text-h3">Как работает</span>
-                <dc-import name="RaznosServiceCaps" caps="{{ sv_caps }}"></dc-import>
+                <dc-import name="RaznosServiceCaps" caps="{{ sv_caps }}" viaMine="{{ sv_via_mine }}" onVia="{{ sv_via_open }}"></dc-import>
               </sc-if>
               <sc-if value="{{ sv_ratings_shown }}" hint-placeholder-val="{{ true }}">
               <div class="raznos-card raznos-card-pad">
@@ -2106,6 +2107,122 @@
         wish: { confirmed: 'одобрена', requested: 'пожелание' }, draft: { confirmed: 'утверждена', requested: 'черновик' }
       };
       Object.keys(SERVICE_CAPS).forEach((k) => { SERVICE_CAPS[k].words = SHIFT_WORDS[SERVICE_CAPS[k].status] || null; });
+      // оформление и посредники по сервисам, поля via: need (no, cond, yes), verdict, forms, kinds, seen, seenSrc
+      // kind: gives, fee {kind, text, note, src}, payout, tax, change, names, у полей метка источника с суффиксом Src (RaznosFactSource)
+      // факты уровня A-B без метки, остальное с меткой источника, подробности в docs/integration-research/PARTNERS-PARKS.md, проверена Москва
+      const VIA_KINDS = { direct: 'Напрямую', park: 'Через парк', service: 'Через службу', partner: 'Через партнёра', curator: 'Через куратора', tk: 'ТК или ГПХ', outsource: 'Через аутсорс', shop: 'Через пиццерию' };
+      const VIA_YA_DIRECT = { k: 'direct', gives: 'Договор с сервисом без партнёров, у самозанятых приоритет выше', fee: { kind: 'нет', text: 'Комиссий партнёрам нет' }, payout: 'Карта Про, выплата за 5 минут', tax: 'Самозанятый НПД 4 и 6%, ИП идёт как НПД' };
+      const VIA_YA_PARK = {
+        k: 'park', gives: 'Парк ведёт выплаты, чат в Про и самозанятость в Мой налог. Только граждане РФ',
+        fee: { kind: 'вывод', text: 'Комиссию за вывод ставит парк, видна до запроса', note: 'по блогу Еды 1-5% дохода', noteSrc: 'вторичный' },
+        payout: 'Вывод через парк, лимиты и остаток задаёт парк', tax: 'Самозанятый: уточните, кто платит налог, расчёта нет', taxSrc: 'источники расходятся',
+        change: 'Порядок смены парка не опубликован'
+      };
+      const VIA_YA_SERVICE = {
+        k: 'service', gives: 'Служба нанимает по ТК или ГПХ, платит и удерживает налог. Не из ЕАЭС: патент, ВНЖ или РВП',
+        fee: { kind: 'не раскрыта', text: 'Что удерживает служба, оговаривается при найме' }, payout: 'Раз в неделю, со среды по пятницу',
+        tax: 'НДФЛ 13% удерживает служба, расчёта налога у Разноса нет', change: 'Прекратить: сдать инвентарь в курьерском центре'
+      };
+      const VIA_YA_SEEN = 'Парк, рейтинг парка, условия вывода, контакты не храним';
+      const SERVICE_VIA = {
+        'yandex-eda': { need: 'cond', verdict: 'Можно напрямую самозанятым, не из ЕАЭС нужна служба', forms: ['Самозанятый', 'ИП как НПД', 'Служба: ТК или ГПХ', 'Парк'], kinds: [VIA_YA_DIRECT, VIA_YA_PARK, VIA_YA_SERVICE], seen: VIA_YA_SEEN, seenSrc: 'APK' },
+        'yandex-lavka': {
+          need: 'cond', verdict: 'Можно напрямую самозанятым, не из ЕАЭС нужна служба', forms: ['Самозанятый', 'ИП как НПД', 'Служба: ТК или ГПХ', 'Парк'],
+          kinds: [VIA_YA_DIRECT, VIA_YA_PARK, Object.assign({}, VIA_YA_SERVICE, { names: 'ООО Звезда', payout: 'Раз в неделю, со среды по понедельник' })], seen: VIA_YA_SEEN, seenSrc: 'APK'
+        },
+        samokat: {
+          need: 'yes', verdict: 'Фактически через компанию-партнёра', forms: ['Самозанятый', 'Партнёр'],
+          kinds: [{ k: 'partner', gives: 'Договор с компанией-партнёром, не с Самокатом', names: 'ГлобалТрейд-Логистикс, Брик', fee: { kind: 'не раскрыта', text: 'Комиссии партнёров не раскрыты' }, tax: 'Самозанятый НПД, с юрлиц 6%' }],
+          seen: 'Сервис не отдаёт', seenSrc: ''
+        },
+        vkusvill: {
+          need: 'cond', verdict: 'Напрямую самозанятым, без самозанятости аутсорс', forms: ['Самозанятый', 'Аутсорс'],
+          kinds: [
+            { k: 'direct', gives: 'Договор с ВкусВиллом, безналичные заказы только при самозанятости', fee: { kind: 'нет', text: 'Посредника нет' }, tax: 'Самозанятый НПД 4 и 6%' },
+            { k: 'outsource', gives: 'Аутсорс-компания оформляет вас, если самозанятость недоступна', fee: { kind: 'не раскрыта', text: 'Названия и условия компаний не опубликованы' }, tax: 'Зависит от договора, расчёта нет' }
+          ],
+          seen: 'Самозанятость, ИНН и тип работы', seenSrc: 'APK'
+        },
+        magnit: {
+          need: 'no', verdict: 'Можно напрямую самозанятым или через партнёра', forms: ['Самозанятый', 'Партнёр'],
+          kinds: [
+            { k: 'direct', gives: 'Договор с Магнитом, самозанятый', fee: { kind: 'нет', text: 'Посредника нет' }, payout: 'По четвергам', tax: 'Самозанятый НПД 4 и 6%' },
+            { k: 'partner', gives: 'Договор с партнёрской компанией, не с Магнитом', names: 'ТОП-ТИМ, Хорошей Дороги, Два Колеса', namesSrc: 'вторичный', fee: { kind: 'не раскрыта', text: 'Комиссия не раскрыта' }, payout: 'Сроки у партнёра свои, задержки бывают', payoutSrc: 'отзывы', tax: 'Зависит от договора, расчёта нет' }
+          ],
+          seen: 'Тип договора и подрядчик', seenSrc: 'APK'
+        },
+        kuper: {
+          need: 'no', verdict: 'Напрямую самозанятым или ИП', forms: ['Самозанятый', 'ИП'],
+          kinds: [{ k: 'direct', gives: 'Договор с Купером, самозанятый или ИП', fee: { kind: 'нет', text: 'Посредника нет' }, payout: 'Ранний вывод прямым самозанятым с Серебра', tax: 'Самозанятый НПД 4 и 6%, ИП по своему режиму' }],
+          seen: 'Форма оформления и компания', seenSrc: 'APK'
+        },
+        x5: {
+          need: 'no', verdict: 'Напрямую самозанятым, про посредников данных нет', forms: ['Самозанятый'],
+          kinds: [{ k: 'direct', gives: 'Договор с X5 как с самозанятым, с 16 лет', fee: { kind: 'нет', text: 'Комиссий не найдено' }, payout: 'Раз в неделю на карту', tax: 'Самозанятый НПД 4 и 6%' }],
+          seen: 'Компания и тип оформления', seenSrc: 'APK'
+        },
+        'ozon-courier': {
+          need: 'yes', verdict: 'Нужен посредник: парк', forms: ['Самозанятый', 'Парк'],
+          kinds: [{ k: 'park', gives: 'Самозанятый плюс договор с парком, имена парков не опубликованы', fee: { kind: 'заказ', text: '15% с заказа, видно в Сборах' }, payout: 'Банк берёт за вывод 0,9-2,4%', tax: 'Самозанятый НПД 4 и 6%' }],
+          seen: 'Сборы и Удержания за 2 недели, имя парка не отдаёт', seenSrc: ''
+        },
+        'ozon-fresh': {
+          need: 'no', verdict: 'Напрямую самозанятым или ИП', forms: ['Самозанятый', 'ИП'],
+          kinds: [{ k: 'direct', gives: 'Договор с Ozon, самозанятый или ИП', fee: { kind: 'нет', text: 'Посредника нет, аренда транспорта удерживается из выплаты' }, payout: 'Через 3 или 12 часов после слота, по уровню', tax: 'Самозанятый НПД платите сами, можно включить автооплату', change: 'Расторгнуть можно самому, тип сотрудничества меняется до 10 раз' }],
+          seen: 'Сервис не отдаёт', seenSrc: ''
+        },
+        dostaevsky: {
+          need: 'no', verdict: 'Самозанятым или по ТК, без посредников', forms: ['Самозанятый', 'ТК'],
+          kinds: [
+            { k: 'direct', gives: 'Договор как с самозанятым', fee: { kind: 'нет', text: 'Посредника нет' }, payout: 'Ежедневно', tax: 'Самозанятый НПД 4 и 6%' },
+            { k: 'tk', gives: 'Трудовой договор с компанией', fee: { kind: 'нет', text: 'Посредника нет' }, payout: 'Два раза в месяц', tax: 'НДФЛ 13% удерживает работодатель, расчёта нет' }
+          ],
+          seen: 'Сервис не отдаёт', seenSrc: ''
+        },
+        dostavista: {
+          need: 'no', verdict: 'Можно напрямую или через парк', forms: ['Самозанятый', 'Парк'],
+          kinds: [
+            { k: 'direct', gives: 'Паспорт, от 14 лет, любое гражданство. Без самозанятости только заказы с наличными', fee: { kind: 'нет', text: 'Посредника нет' }, tax: 'Самозанятый НПД, автоуплата с 01.09.2026' },
+            { k: 'park', gives: 'Парк-партнёр ведёт кошелёк и выплаты, названия не опубликованы', fee: { kind: 'не раскрыта', text: 'Комиссия парка официально не найдена' }, tax: 'Зависит от парка, расчёта нет' }
+          ],
+          seen: 'Название парка из Инструкции партнёра, контакты не храним', seenSrc: 'APK'
+        },
+        'wb-courier': {
+          need: 'no', verdict: 'Напрямую самозанятым по оферте', forms: ['Самозанятый'],
+          kinds: [{ k: 'direct', gives: 'Оферта WB, самозанятый, партнёр Wildberries в Мой налог', fee: { kind: 'нет', text: 'Посредников официально нет' }, tax: 'Самозанятый НПД 4 и 6%' }],
+          seen: 'Сервис не отдаёт', seenSrc: ''
+        },
+        flowwow: {
+          need: 'cond', verdict: 'Самозанятым, напрямую или через куратора', forms: ['Самозанятый', 'Куратор'],
+          kinds: [
+            { k: 'direct', gives: 'Договор с Flowwow, самозанятый, 18+, ИП не принимают', fee: { kind: 'нет', text: 'Посредника нет' }, tax: 'Самозанятый НПД 4 и 6%' },
+            { k: 'curator', gives: 'Куратор привлекает курьеров, договор через него', fee: { kind: 'не раскрыта', text: 'В оферте процент не назван, в отзывах около 21%', src: 'отзывы' }, tax: 'Самозанятый НПД 4 и 6%' }
+          ],
+          seen: 'Сервис не отдаёт', seenSrc: ''
+        },
+        dodo: {
+          need: 'no', verdict: 'Нанимает пиццерия, форма не названа', forms: ['Форма не названа'],
+          kinds: [{ k: 'shop', gives: 'Нанимает пиццерия, условия у управляющего', fee: { kind: 'нет', text: 'Комиссий посредника не найдено' }, tax: 'Сервис форму не называет, уточните у управляющего' }],
+          seen: 'Сервис не отдаёт', seenSrc: ''
+        }
+      };
+      // Яндекс Доставка и Деливери: парки при регистрации, условия вывода по перехвату 29.09.2026
+      SERVICE_VIA.delivery = SERVICE_VIA['yandex-delivery'] = {
+        need: 'no', verdict: 'Можно напрямую самозанятым или ИП, есть парки', forms: ['Самозанятый', 'ИП', 'Парк'],
+        kinds: [
+          VIA_YA_DIRECT,
+          Object.assign({}, VIA_YA_PARK, {
+            gives: 'При регистрации выбор из 10 парков: ОТ и ДО, СТАРТ КУРЬЕР, LEON Logistic и другие. Иностранцам ЕАЭС парковая самозанятость только в Москве',
+            fee: { kind: '', text: 'На 29.09.2026: вывод 1% (минимум 20-50 ₽) или 30 ₽, у части парков 2-6% с заказа или 50 ₽ в сутки', src: 'по текстам парков' },
+            change: 'Новый парк привязывает, старый отвязывает в Диспетчерской, связку в Мой налог отзовите, иначе доступ ограничат', changeSrc: ''
+          })
+        ],
+        seen: VIA_YA_SEEN, seenSrc: 'APK'
+      };
+      Object.keys(SERVICE_VIA).forEach((k) => { SERVICE_CAPS[k].via = SERVICE_VIA[k]; });
+      // у демо-пользователя Яндекс Еда через парк, название парка и рейтинг демо
+      const VIA_MINE_DEMO = { 'yandex-eda': 'park' };
+      const VIA_DEMO_SEEN = 'Парк · партнёр Яндекс Про, рейтинг 4,6, условия вывода: комиссия видна до запроса';
       const OFFERS = [
         { id: 'o1', svc: 'vkusvill', pay: 320, weight: '4.2 кг', distance: '1.1 км', eta: '18 мин', etaPoint: '4 мин', packages: 2, pickupAddr: 'ул. Правды, 24', dropAddr: 'Ленинградский пр-т, 46', canDecline: true },
         { id: 'o2', svc: 'samokat', pay: 280, weight: '2.8 кг', distance: '0.8 км', eta: '14 мин', etaPoint: '3 мин', packages: 1, pickupAddr: 'Тверская ул., 12', dropAddr: 'Настасьинский пер., 3', canDecline: false },
@@ -2415,15 +2532,24 @@
         { date: '2026-09-07', svc: 'samokat', title: '30 заказов за неделю', amount: 500 },
         { date: '2026-09-13', svc: 'vkusvill', title: 'Выход в пиковые часы', amount: 300 }
       ];
+      // комиссия посредника отдельно от удержаний, у демо-пользователя Яндекс Еда через парк, парк берёт за вывод
+      const STATS_VIA = [
+        { date: '2026-09-02', svc: 'yandex-eda', reason: 'Комиссия парка за вывод', amount: 30 },
+        { date: '2026-09-07', svc: 'yandex-eda', reason: 'Комиссия парка за вывод', amount: 45 },
+        { date: '2026-09-10', svc: 'yandex-eda', reason: 'Комиссия парка за вывод', amount: 30 },
+        { date: '2026-09-14', svc: 'yandex-eda', reason: 'Комиссия парка за вывод', amount: 60 }
+      ];
       const STATS_CANCELS = ['2026-09-04', '2026-09-12', '2026-09-15'];
       // НПД: доход от юрлиц 6%, налоговый бонус 10 000 ₽ снижает ставку до 4% пока не израсходован, лимит 2,4 млн в год
       // форма оформления курьера по сервисам, от неё зависит налог
-      const TAX_FORMS = [['self', 'Самозанятый'], ['ip', 'ИП'], ['employee', 'Трудовой договор или ГПХ'], ['unknown', 'Не знаю']];
+      const TAX_FORMS = [['self', 'Самозанятый'], ['ip', 'ИП'], ['employee', 'Трудовой договор или ГПХ'], ['unknown', 'Не знаю'], ['park', 'Самозанятый через парк']];
+      // самозанятый через парк только у брендов Яндекса, у него налог неясен, поэтому без расчёта
+      const TAX_PARK_SVCS = ['yandex-eda', 'yandex-lavka', 'delivery', 'yandex-delivery'];
       // форма оформления, которую сервис отдаёт сам (по разбору API, на рабочих аккаунтах ещё не подтверждено), в демо значения примерные
       const TAX_FORM_FROM_SVC = { vkusvill: 'self', x5: 'self', 'ozon-fresh': 'self', kuper: 'self', dostavista: 'self', 'yandex-eda': 'self', 'yandex-lavka': 'self', delivery: 'self' };
       // где сервис форму не отдаёт, курьер выбирает сам, в демо уже ответил
-      const TAX_FORMS_DEMO = { samokat: 'self' };
-      const TAX_FORM_NOTE = { ip: 'Налог зависит от вашего режима', employee: 'Налог удерживает работодатель', unknown: 'Считаем как у самозанятого, предварительно, уточните оформление' };
+      const TAX_FORMS_DEMO = { samokat: 'self', 'yandex-eda': 'park' };
+      const TAX_FORM_NOTE = { ip: 'Налог зависит от вашего режима', employee: 'НДФЛ 13% удерживает работодатель или служба, налог Разноса не считает', unknown: 'Считаем как у самозанятого, предварительно, уточните оформление', park: 'Уточните, кто платит налог, у парка и в Яндексе источники расходятся, расчёта нет' };
       // платформа сама удерживает НПД по условиям сервиса
       const NPD_WITHHELD_SVCS = ['dostavista', 'ozon-fresh'];
       const NPD_RATE = 0.06, NPD_BONUS_RATE = 0.02, NPD_BONUS = 10000, NPD_LIMIT = 2400000;
@@ -3882,10 +4008,23 @@
           const transportOptions = TRANSPORT_CHIPS.filter((c) => trCaps.some((cap) => (cap.transport || []).indexOf(c[1]) !== -1)).map((c) => ({ k: c[0], label: c[2], cls: transport === c[0] ? 'raznos-chip raznos-is-active' : 'raznos-chip', pick: () => set({ transport: c[0] }) }));
           const transportHint = connectedKeys.length ? 'Набор по подключённым сервисам' : 'Набор уточнится после подключения сервисов';
           const taxForms = Object.assign({}, demoOn ? TAX_FORMS_DEMO : {}, st.taxForms);
-          const taxFromSvc = (k) => !!TAX_FORM_FROM_SVC[k] && !(st.taxForms && st.taxForms[k]);
+          // форма из оформления демо-пользователя (через парк) не берётся из сервиса
+          const taxFromVia = (k) => demoOn && !!TAX_FORMS_DEMO[k] && !!TAX_FORM_FROM_SVC[k] && !(st.taxForms && st.taxForms[k]);
+          const taxFromSvc = (k) => !!TAX_FORM_FROM_SVC[k] && !(st.taxForms && st.taxForms[k]) && !taxFromVia(k);
           const taxFormOf = (k) => taxForms[k] || TAX_FORM_FROM_SVC[k] || 'unknown';
           const taxFormTitle = (k) => (TAX_FORMS.find((f) => f[0] === taxFormOf(k)) || TAX_FORMS[3])[1];
-          const taxChips = (k) => TAX_FORMS.map((f) => ({ label: f[1], cls: taxFormOf(k) === f[0] ? 'raznos-chip raznos-is-active' : 'raznos-chip', tap: () => set({ taxForms: Object.assign({}, taxForms, { [k]: f[0] }) }) }));
+          const taxChips = (k) => TAX_FORMS.filter((f) => f[0] !== 'park' || TAX_PARK_SVCS.indexOf(k) !== -1 || taxFormOf(k) === 'park').sort((a, b) => (a[0] === 'unknown') - (b[0] === 'unknown')).map((f) => ({ label: f[1], cls: taxFormOf(k) === f[0] ? 'raznos-chip raznos-is-active' : 'raznos-chip', tap: () => set({ taxForms: Object.assign({}, taxForms, { [k]: f[0] }) }) }));
+          // оформление и посредник: данные шторки, у демо-пользователя Яндекс Еда через парк
+          const viaMineOf = (k) => (demoOn && VIA_MINE_DEMO[k]) || '';
+          const viaFor = (k) => {
+            const c = SERVICE_CAPS[k], v = c && c.via;
+            if (!v) return null;
+            const mine = viaMineOf(k);
+            return { svc: k, title: c.title, verdict: v.verdict, tone: v.need, forms: v.forms, mine, kinds: v.kinds.map((kd) => Object.assign({}, kd, { label: VIA_KINDS[kd.k], mine: kd.k === mine })), seen: mine === 'park' ? VIA_DEMO_SEEN : v.seen, seenSrc: mine === 'park' ? 'демо' : v.seenSrc };
+          };
+          const viaMineLabel = (k) => (viaMineOf(k) ? 'у вас: ' + VIA_KINDS[viaMineOf(k)].toLowerCase() : '');
+          const guideVia = {};
+          Object.keys(SERVICE_CAPS).filter((k) => SERVICE_CAPS[k].via).forEach((k) => { const v = SERVICE_CAPS[k].via; guideVia[k] = { title: SERVICE_CAPS[k].title, verdict: v.verdict, tone: v.need, forms: v.forms, mine: viaMineLabel(k) }; });
           // данные по заказам есть по ВкусВиллу и Самокату, показываем их для этих реально подключённых сервисов
           const dataSvcConnected = connectedKeys.filter((k) => k === 'vkusvill' || k === 'samokat');
           const statsSavedServices = Object.keys(integrationStatus).filter((key) => (key === 'vkusvill' || key === 'samokat') && ['connected', 'limited', 'disabled', 'exited'].indexOf(integrationStatus[key]) !== -1);
@@ -4147,6 +4286,9 @@
           const statsFineKeys = statsFineRows.map((row) => row.svc).filter((k, i, arr) => arr.indexOf(k) === i);
           const statsFines = statsNoGranularData || statsByDistrict || statsGross == null ? null :
             (statsCasesKnown ? statsFineRows.reduce((sum, row) => sum + row.amount, 0) : Math.round(statsGross * 0.006 / 50) * 50);
+          // комиссия посредника только где сервис её отдаёт, в демо это парк Яндекс Еды
+          const statsViaRows = statsCasesKnown && viaMineOf('yandex-eda') === 'park' ? STATS_VIA.filter(statsCaseScope) : [];
+          const statsVia = statsViaRows.reduce((sum, row) => sum + row.amount, 0);
           const statsBonusRows = statsCasesKnown ? STATS_BONUSES.filter(statsCaseScope) : [];
           const statsBonuses = statsCasesKnown ? statsBonusRows.reduce((sum, row) => sum + row.amount, 0) : null;
           const statsCancels = statsCasesKnown ? STATS_CANCELS.filter((date) => date >= statsRange[0] && date <= statsRange[1]).length : null;
@@ -5239,7 +5381,7 @@
             go_profile: () => set({ s: 'profile' }),
             go_tax_forms: () => set({ s: 'tax-forms' }),
             tax_chips: taxChips(connKey), conn_tax_ask: !TAX_FORM_FROM_SVC[connKey], conn_tax_auto: !!TAX_FORM_FROM_SVC[connKey],
-            tax_forms_rows: connectedKeys.map((k) => ({ key: k, title: SERVICES[k].title, chips: taxChips(k), src: taxFromSvc(k) ? 'Взяли из сервиса, поправьте, если не так' : (TAX_FORM_FROM_SVC[k] ? 'Вы поправили вручную, сервис отдаёт другое' : 'Сервис это не отдаёт, выберите сами'), src_cls: 'raznos-text-small' + (taxFromSvc(k) ? ' raznos-tax-src-auto' : ''), note: TAX_FORM_NOTE[taxFormOf(k)] || (NPD_WITHHELD_SVCS.indexOf(k) !== -1 ? 'Сервис сам удерживает НПД, в налог Разноса это не входит' : 'Налог считаем как у самозанятого') })),
+            tax_forms_rows: connectedKeys.map((k) => ({ key: k, title: SERVICES[k].title, chips: taxChips(k), src: taxFromSvc(k) ? 'Взяли из сервиса, поправьте, если не так' : (taxFromVia(k) ? 'По вашему оформлению в сервисе' : TAX_FORM_FROM_SVC[k] ? 'Вы поправили вручную, сервис отдаёт другое' : 'Сервис это не отдаёт, выберите сами'), src_cls: 'raznos-text-small' + (taxFromSvc(k) ? ' raznos-tax-src-auto' : ''), note: TAX_FORM_NOTE[taxFormOf(k)] || (NPD_WITHHELD_SVCS.indexOf(k) !== -1 ? 'Сервис сам удерживает НПД, в налог Разноса это не входит' : 'Налог считаем как у самозанятого') })),
             tax_forms_summary: connectedKeys.length ? connectedKeys.map((k) => SERVICES[k].title + ' · ' + taxFormTitle(k).toLowerCase()).join(', ') : 'Появится после подключения сервиса',
             go_profile_any: () => set({ s: 'profile' }),
             pf_switch_to_user: () => set({ role: 'user', s: 'user-home' }),
@@ -5287,6 +5429,8 @@
               });
             })(),
             guide_section: st.guideSection || 'newbies',
+            guide_via: guideVia, guide_open_via: (key) => set({ viaSheet: key }),
+            via_open: !!(st.viaSheet && viaFor(st.viaSheet)), via_data: st.viaSheet ? viaFor(st.viaSheet) : null, via_close: () => set({ viaSheet: '' }),
             go_job_guide: () => set({ s: 'job-guide', guideSection: 'newbies' }),
             go_faq: () => set({ s: 'faq' }),
             faq_back: () => set({ s: 'profile' }),
@@ -5442,6 +5586,8 @@
                   { label: 'Отмены', value: statsCancels == null ? 'Нет данных' : String(statsCancels) },
                   { label: 'Возвраты', value: statsFullOrderCoverage ? String(statsVisibleOrders.filter((o) => o.delivery === 'Возврат').length) : 'Нет данных' }
                 ],
+                stats_via_link: statsVia ? 'Комиссия парка Яндекс Еды · −' + formatMoney(statsVia) + ' ₽' : '',
+                stats_via: statsVia ? { accent: formatMoney(statsVia) + ' ₽', sub: 'Доход Яндекс Еды в отчёт пока не входит, видим только вывод, в удержания и штрафы комиссия не входит', rows: statsViaRows.slice().reverse().map((row) => ({ key: row.svc, reason: row.reason, amount: '−' + formatMoney(row.amount) + ' ₽', meta: dayLabel(row.date) + ' · ' + SERVICES[row.svc].title })), note: 'Комиссию парка видно в Балансе Яндекс Про до запроса вывода. Строка есть только у сервисов, которые отдают комиссию посредника' } : null,
                 stats_fines_link: statsFines ? fineWords(statsFineKeys) + ' · −' + formatMoney(statsFines) + ' ₽' : '',
                 stats_fines_link_plain: statsFines ? fineWords(statsFineKeys) : '',
                 stats_fines_cases_title: fineWords(statsFineKeys) === 'Штрафы и удержания' ? 'За что удержали' : 'За что скорректировали',
@@ -5458,7 +5604,7 @@
                   tap: () => set(Object.assign({ s: 'history', histBack: 'stats', histPeriod: 'period', histFrom: row.date, histTo: row.date, histSvc: row.svc, histDistrict: 'all', histStatus: 'all', histPage: 0 }, resetHistDays()))
                 })),
                 stats_tax_card_value: taxShare === 0 ? 'Не считаем' : statsTax == null ? 'Нет данных' : '≈ ' + formatMoney(statsTax) + ' ₽',
-                stats_tax_card_sub: taxShare === 0 ? 'Налог по вашему оформлению в сервисах здесь не считаем, подробности внутри' : (statsTax == null ? 'Налог считается по всем начислениям без фильтров' : (taxShare > 0 && connectedKeys.some((k) => taxFormOf(k) === 'unknown') ? '≈ ' : '') + (statsBonusLeftNow > 0 ? '4% с учётом бонуса' : '6% с дохода от сервисов') + (statsTaxMonth == null ? '' : ' · ' + (taxPaid ? 'Налог за ' + taxMonthName + ' ' + formatMoney(statsTaxMonth) + ' ₽ оплачен' : 'к уплате за ' + taxMonthName + ' ' + formatMoney(statsTaxMonth) + ' ₽ до ' + dueLabel))),
+                stats_tax_card_sub: (taxShare === 0 ? 'Налог по вашему оформлению в сервисах здесь не считаем, подробности внутри' : (statsTax == null ? 'Налог считается по всем начислениям без фильтров' : (taxShare > 0 && connectedKeys.some((k) => taxFormOf(k) === 'unknown') ? '≈ ' : '') + (statsBonusLeftNow > 0 ? '4% с учётом бонуса' : '6% с дохода от сервисов') + (statsTaxMonth == null ? '' : ' · ' + (taxPaid ? 'Налог за ' + taxMonthName + ' ' + formatMoney(statsTaxMonth) + ' ₽ оплачен' : 'к уплате за ' + taxMonthName + ' ' + formatMoney(statsTaxMonth) + ' ₽ до ' + dueLabel)))),
                 stats_tax_month_title: taxPaid ? 'Налог за ' + taxMonthName : 'К уплате за ' + taxMonthName,
                 stats_tax_month_value: taxShare === 0 ? 'Не считаем' : statsTaxMonth == null ? 'Нет данных' : formatMoney(statsTaxMonth) + ' ₽',
                 stats_tax_month_sub: taxPaid ? 'Оплачен до ' + dueLabel : 'Заплатить до ' + dueLabel + ', до конца месяца сумма ещё вырастет',
@@ -5870,7 +6016,7 @@
 
             integration_list: integrationList,
 
-            conn_caps: SERVICE_CAPS[connKey] || null, conn_has_caps: !!SERVICE_CAPS[connKey],
+            conn_caps: SERVICE_CAPS[connKey] || null, conn_has_caps: !!SERVICE_CAPS[connKey], conn_via_mine: viaMineLabel(connKey), conn_via_seen: viaMineOf(connKey) === 'park' ? VIA_DEMO_SEEN : '', conn_via_open: () => set({ viaSheet: connKey }),
             conn_key: connKey, conn_title: conn.title, conn_login_label: conn.loginLabel || 'Логин',
             conn_is_connected: connIsConnected,
             conn_show_temp_notice: !connIsConnected && connStatusValue !== 'exited' && conn.method !== 'unsupported' && conn.method !== 'soon',
@@ -6240,7 +6386,7 @@
             mk_rows: mkRowsData, mk_top: mkRowsData.slice(0, 4), mk_count_label: mkRowsData.length + ' ' + ruPlural(mkRowsData.length, 'сервис', 'сервиса', 'сервисов') + ' в городе',
 
             // Сервис / отзывы
-            sv_caps: SERVICE_CAPS[svKey] || null, sv_has_caps: !!SERVICE_CAPS[svKey],
+            sv_caps: SERVICE_CAPS[svKey] || null, sv_has_caps: !!SERVICE_CAPS[svKey], sv_via_mine: viaMineLabel(svKey), sv_via_open: () => set({ viaSheet: svKey }),
             sv_key: svKey, sv_title: SERVICES[svKey].title, sv_title_dat: svcDat(svKey), sv_title_prep: svcPrep(svKey),
             sv_insufficient: !svSufficient,
             sv_hourly: svSufficient && svBase.hourly ? (Math.round(svBase.hourly * cityFactor) + ' ₽') : 'Нет данных',

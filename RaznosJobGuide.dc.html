@@ -1,5 +1,5 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
-<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-final.css" /></helmet>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-final.css" /><style>.rjg-chips { scrollbar-width: none; } .rjg-chips::-webkit-scrollbar { display: none; } .rjg-chips .raznos-chip { flex: none; white-space: nowrap; }</style></helmet>
 <div class="raznos-phone-body" data-screen-label="Job guide">
   <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Подобрать работу</h1></div>
   <div class="raznos-segmented">
@@ -30,7 +30,9 @@
   </sc-if>
 
   <sc-if value="{{ is_start }}">
-    <div class="raznos-chip-row"><sc-for list="{{ svc_chips }}" as="c"><button type="button" class="{{ c.cls }}" onClick="{{ c.tap }}">{{ c.label }}</button></sc-for></div>
+    <div class="raznos-chip-row rjg-chips" style="flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 calc(var(--raznos-screen-x, 16px) * -1);padding:0 var(--raznos-screen-x, 16px)"><sc-for list="{{ start_chips }}" as="c"><button type="button" class="{{ c.cls }}" onClick="{{ c.tap }}">{{ c.label }}</button></sc-for></div>
+    <sc-if value="{{ has_via }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosViaRow" verdict="{{ via_verdict }}" tone="{{ via_tone }}" forms="{{ via_forms }}" mine="{{ via_mine }}" onOpen="{{ via_open }}"></dc-import></sc-if>
+    <sc-if value="{{ has_start }}" hint-placeholder-val="{{ true }}">
     <div class="raznos-hero-dark">
       <span class="raznos-hero-label">До первой выплаты · {{ start.title }}</span>
       <div class="raznos-fx raznos-ac raznos-gap8"><span class="raznos-hero-value">{{ start.total }}</span><span class="raznos-hero-unit">₽</span></div>
@@ -41,6 +43,7 @@
     </div>
     <div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">{{ start.deposit_title }}</span><span class="raznos-text-small">{{ start.deposit }}</span></div>
     <p class="raznos-text-tiny">{{ start.source }}</p>
+    </sc-if>
   </sc-if>
 
   <sc-if value="{{ is_schedule }}">
@@ -68,7 +71,7 @@
   </sc-if>
   <p class="raznos-text-tiny">Демо-данные. Статистика участников Разноса, а не всех курьеров сервиса</p>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"city":{"editor":"text","default":"moscow"},"section":{"editor":"enum","default":"newbies","options":["newbies","start","schedule","terms"]},"onBack":{"editor":null},"onOpenService":{"editor":null},"$preview":{"width":390,"height":900}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"city":{"editor":"text","default":"moscow"},"section":{"editor":"enum","default":"newbies","options":["newbies","start","schedule","terms"]},"onBack":{"editor":null},"onOpenService":{"editor":null},"via":{"editor":null},"onOpenVia":{"editor":null},"$preview":{"width":390,"height":900}}'>
 const JG_CITIES = { moscow: 'Москва', spb: 'Санкт-Петербург' };
 function jgPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
 const JG_SVC = ['vkusvill', 'samokat', 'x5', 'yandex-eda'];
@@ -110,11 +113,16 @@ class Component extends DCLogic {
     const hasData = !!JG_CITIES[city];
     const tab = st.tab || p.section || 'newbies';
     const svc = st.svc || 'vkusvill';
+    // оформление есть у всех сервисов каталога, расходы на старте и условия только у четырёх
+    const via = p.via && typeof p.via === 'object' ? p.via : {};
+    const viaKeys = JG_SVC.concat(Object.keys(via).filter((k) => JG_SVC.indexOf(k) === -1));
+    const viaOf = via[svc] || null;
+    const termsSvc = JG_TERMS[svc] ? svc : 'vkusvill';
     const days = st.days || [5, 6];
     const wins = st.wins || ['day', 'evening'];
     const toggle = (list, v) => (list.indexOf(v) !== -1 ? list.filter((x) => x !== v) : list.concat([v]));
-    const start = JG_START[svc];
-    const spend = start.rows.reduce((a, r) => a + r[2], 0);
+    const start = JG_START[svc] || null;
+    const spend = start ? start.rows.reduce((a, r) => a + r[2], 0) : 0;
     const winLabels = JG_WINDOWS.filter((w) => wins.indexOf(w[0]) !== -1).map((w) => w[1].split(' ')[0].toLowerCase());
     return {
       onBack: p.onBack || (() => {}),
@@ -122,13 +130,17 @@ class Component extends DCLogic {
       no_data: !hasData,
       tabs: [['newbies', 'Новичкам'], ['start', 'Старт'], ['schedule', 'График'], ['terms', 'Условия']].map((t) => ({ label: t[1], cls: 'raznos-segment' + (tab === t[0] ? ' raznos-is-active' : ''), tap: () => this.setState({ tab: t[0] }) })),
       is_newbies: hasData && tab === 'newbies', is_start: hasData && tab === 'start', is_schedule: hasData && tab === 'schedule', is_terms: hasData && tab === 'terms',
-      svc_chips: JG_SVC.map((k) => ({ label: JG_TITLE[k], cls: 'raznos-chip' + (svc === k ? ' raznos-is-active' : ''), tap: () => this.setState({ svc: k }) })),
+      svc_chips: JG_SVC.map((k) => ({ label: JG_TITLE[k], cls: 'raznos-chip' + (termsSvc === k ? ' raznos-is-active' : ''), tap: () => this.setState({ svc: k }) })),
+      start_chips: viaKeys.map((k) => ({ label: JG_TITLE[k] || (via[k] && via[k].title) || k, cls: 'raznos-chip' + (svc === k ? ' raznos-is-active' : ''), tap: () => this.setState({ svc: k }) })),
+      has_via: !!viaOf, via_verdict: viaOf ? viaOf.verdict : '', via_tone: viaOf ? viaOf.tone : 'unknown', via_forms: viaOf ? viaOf.forms : [], via_mine: viaOf ? viaOf.mine : '',
+      via_open: () => { if (typeof p.onOpenVia === 'function') p.onOpenVia(svc); },
+      has_start: !!start, no_start: !start,
       newbies: !hasData ? [] : JG_SVC.map((k) => {
         const r = JG_NEWBIES[city][k];
         const enough = r[5] > 0;
         return { key: k, title: JG_TITLE[k], cls: 'raznos-card raznos-card-pad raznos-svc-border-' + k, sample: r[5] + ' ' + jgPlural(r[5], 'новичок', 'новичка', 'новичков'), enough, not_enough: !enough, newH: r[0] + ' ₽', oldH: r[1] + ' ₽', newWait: r[2] + ' мин', oldWait: r[3] + ' мин', stayed: r[4] || '—', hard: r[6] };
       }),
-      start: {
+      start: !start ? {} : {
         title: JG_TITLE[svc],
         deposit_title: start.deposit ? 'Залог вернут' : 'Без залога',
         total: rub(spend + start.deposit),
@@ -154,8 +166,8 @@ class Component extends DCLogic {
           has_range: kind !== 'no', range: sc.range[0] + '–' + sc.range[1] + ' ₽/ч'
         };
       }).sort((a, b) => a.order - b.order),
-      terms: { rows: JG_TERMS[svc].map((r) => ({ label: r[0], text: r[1] })), source: 'Демо-пересказ для макета, условия сервиса ' + JG_TITLE[svc] + ' здесь вымышлены и не сверялись с офертой. Окончательные условия в приложении сервиса', title_prep: JG_PREP[svc] },
-      open_service: () => (p.onOpenService || (() => {}))(svc)
+      terms: { rows: JG_TERMS[termsSvc].map((r) => ({ label: r[0], text: r[1] })), source: 'Демо-пересказ для макета, условия сервиса ' + JG_TITLE[termsSvc] + ' здесь вымышлены и не сверялись с офертой. Окончательные условия в приложении сервиса', title_prep: JG_PREP[termsSvc] },
+      open_service: () => (p.onOpenService || (() => {}))(termsSvc)
     };
   }
 }
