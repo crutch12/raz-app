@@ -5,7 +5,7 @@
     <div class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">{{ title }} <em class="raznos-stats-fines-accent">{{ accent }}</em></h2><small>{{ sub }}</small></div>
     <sc-if value="{{ share }}" hint-placeholder-val="{{ true }}"><span class="raznos-stats-fines-share">{{ share }}</span></sc-if>
     <sc-if value="{{ has_services }}" hint-placeholder-val="{{ true }}">
-      <div class="raznos-stats-service-bars"><sc-for list="{{ by_service }}" as="row" hint-placeholder-count="2"><div class="raznos-stats-service-bar raznos-is-{{ row.key }} raznos-is-static"><span class="raznos-stats-service-track"><i style="{{ row.bar_style }}"></i></span><span class="raznos-stats-service-head"><span class="raznos-stats-service-label"><dc-import name="RaznosIcon" svc="{{ row.key }}" size="sm"></dc-import><strong>{{ row.title }}</strong></span><strong class="raznos-stats-fines-amount">{{ row.amount }}</strong></span></div></sc-for></div>
+      <div class="raznos-stats-service-bars raznos-stats-fines-bars"><sc-for list="{{ by_service }}" as="row" hint-placeholder-count="2"><div class="raznos-stats-service-bar raznos-is-{{ row.key }} raznos-is-static"><span class="raznos-stats-service-head"><span class="raznos-stats-service-label"><dc-import name="RaznosIcon" svc="{{ row.key }}" size="sm"></dc-import><strong>{{ row.title }}</strong></span><strong class="raznos-stats-fines-amount">{{ row.amount }}</strong></span><span class="raznos-stats-service-track"><i style="{{ row.bar_style }}"></i></span></div></sc-for></div>
     </sc-if>
   </div>
   <sc-if value="{{ has_cases }}" hint-placeholder-val="{{ true }}">

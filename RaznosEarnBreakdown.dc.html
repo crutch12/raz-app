@@ -4,6 +4,8 @@
   <style>
     .reb { box-sizing: border-box; width: 100%; max-width: 100%; text-align: left; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 14px; font: inherit; color: inherit; }
     .reb-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .reb.reb-flat { padding: 4px 0 12px; border: 0; border-radius: 0; background: none; border-bottom: 1px solid var(--raznos-line); }
+    .reb-title > .reb-sub { display: block; margin-top: 2px; font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
     .reb-title { font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
     .reb-total { font: 700 14px var(--raznos-mono); color: var(--raznos-ink-3); font-variant-numeric: tabular-nums; }
     .reb-item { display: flex; flex-direction: column; gap: 6px; }
@@ -21,8 +23,8 @@
     .reb-sum { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
   </style>
 </helmet>
-<div class="reb">
-  <div class="reb-head"><span class="reb-title">Из чего сложилась сумма</span><span class="reb-total">{{ total }} ₽</span></div>
+<div class="{{ box_cls }}">
+  <div class="reb-head"><span class="reb-title">{{ title }}<sc-if value="{{ has_sub }}" hint-placeholder-val="{{ false }}"><small class="reb-sub">{{ sub }}</small></sc-if></span><span class="reb-total">{{ total }} ₽</span></div>
   <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
     <div class="reb-item">
       <button type="button" class="reb-row" onClick="{{ r.open }}">
@@ -34,10 +36,10 @@
       <div class="reb-bar"><span class="reb-fill" style="{{ r.fillStyle }}"></span></div>
     </div>
   </sc-for>
-  <button type="button" class="reb-exp" onClick="{{ open_expenses }}"><span class="reb-exp-name">Расходы</span><span class="reb-exp-sum">−{{ expenses }} ₽</span><span class="raznos-row-chevron">›</span></button>
+  <sc-if value="{{ show_exp }}" hint-placeholder-val="{{ true }}"><button type="button" class="reb-exp" onClick="{{ open_expenses }}"><span class="reb-exp-name">Расходы</span><span class="reb-exp-sum">−{{ expenses }} ₽</span><span class="raznos-row-chevron">›</span></button></sc-if>
   <sc-if value="{{ has_add }}" hint-placeholder-val="{{ true }}"><button type="button" class="reb-add" onClick="{{ add_expense }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Добавить расход</button></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"services":{"editor":null},"expenses":{"editor":null},"onOpenService":{"editor":null},"onOpenExpenses":{"editor":null},"onAddExpense":{"editor":null},"$preview":{"width":390,"height":230}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"services":{"editor":null},"expenses":{"editor":null},"onOpenService":{"editor":null},"onOpenExpenses":{"editor":null},"onAddExpense":{"editor":null},"title":{"editor":"text","default":"Из чего сложилась сумма"},"sub":{"editor":"text","default":""},"flat":{"editor":"boolean","default":false},"hideExpenses":{"editor":"boolean","default":false},"$preview":{"width":390,"height":230}}'>
 // разбивка заработка по сервисам прогресс-баром для раздела Сегодня, по мотивам Gridwise Weekly Recap
 const REB_SVC = { samokat: 'Самокат', vkusvill: 'ВкусВилл', 'yandex-eda': 'Яндекс Еда' };
 const REB_DEMO = [
@@ -61,14 +63,15 @@ class Component extends DCLogic {
     const total = ordered.reduce((a, b) => a + b.sum, 0);
     const max = ordered.length ? ordered[0].sum : 1;
     const rows = ordered.map((r) => ({
-      svc: r.svc, name: REB_SVC[r.svc] || r.svc,
+      svc: r.svc, name: r.title || REB_SVC[r.svc] || r.svc,
       count: r.count, sum: REB_FMT(r.sum),
       fillStyle: 'width:' + Math.max(6, Math.round(r.sum / max * 100)) + '%;background:' + REB_COLOR(r.svc),
       open: () => onOpenService(r.svc)
     }));
     // добавить расход прямо из разбивки, отдельная кнопка на экране не нужна
     const addExpense = typeof p.onAddExpense === 'function' ? p.onAddExpense : null;
-    return { total: REB_FMT(total), rows, expenses: REB_FMT(expenses), open_expenses: openExpenses, has_add: !!addExpense, add_expense: addExpense || (() => {}) };
+    // в шторке дня без рамки и без строки расходов, расходы там отдельной строкой
+    return { title: p.title || 'Из чего сложилась сумма', sub: p.sub || '', has_sub: !!p.sub, box_cls: 'reb' + (p.flat ? ' reb-flat' : ''), show_exp: !p.hideExpenses, total: REB_FMT(total), rows, expenses: REB_FMT(expenses), open_expenses: openExpenses, has_add: !!addExpense, add_expense: addExpense || (() => {}) };
   }
 }
 </script></body></html>

@@ -36,10 +36,6 @@
 .raznos-live-note { margin: 0; font: 500 13px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
 .raznos-live-state { align-self: flex-start; }
 
-.raznos-live-filters { display: grid; grid-template-columns: 1fr; gap: 8px; }
-.raznos-live-sort .raznos-segment { white-space: nowrap; font-size: 13px; padding: 8px 2px; }
-.raznos-live-filters .raznos-field-label { font-size: 13px; }
-.raznos-live-filters .raznos-input { min-height: 44px; font-size: 14px; padding: 0 10px; }
 .raznos-live-quota { display: flex; align-items: center; gap: 8px; font: 600 14px/1.35 var(--raznos-font); color: var(--raznos-ink); }
 .raznos-live-quota-dots { display: inline-flex; gap: 3px; }
 .raznos-live-quota-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--raznos-green); }
@@ -76,3 +72,9 @@
 
 .raznos-live-photo-view { border-radius: 14px; overflow: hidden; border: 1px solid var(--raznos-line); background: var(--raznos-dark); }
 .raznos-live-photo-view img { display: block; width: 100%; height: auto; }
+
+/* заготовки сообщения над полем */
+.raznos-live-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.raznos-live-chip { min-height: 40px; padding: 0 14px; border: 1px solid var(--raznos-line); border-radius: 999px; background: var(--raznos-surface); font: 600 13.5px var(--raznos-font); color: var(--raznos-ink-2); cursor: pointer; }
+.raznos-live-chip:active { background: var(--raznos-surface-2); }
+.raznos-live-chip:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }

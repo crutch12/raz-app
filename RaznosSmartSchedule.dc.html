@@ -191,7 +191,7 @@
     <dc-import name="RaznosDayCompareSheet" title="Собрать день заново" sub="{{ rb_sub }}" a="{{ rb_a }}" b="{{ rb_b }}" same="{{ rb_same }}" modes="{{ rb_modes }}" modeWhy="{{ rb_why }}" hoursFrom="{{ rb_from }}" hoursTo="{{ rb_to }}" hoursCustom="{{ rb_custom }}" onHours="{{ rb_set_hours }}" svcs="{{ rb_svcs }}" checkLabel="{{ rb_check_label }}" checkOn="{{ rb_keep }}" onCheck="{{ rb_toggle_keep }}" primaryLabel="Применить" secondaryLabel="Отмена" onPrimary="{{ rb_apply }}" onClose="{{ rb_close }}"></dc-import>
   </sc-if>
   <sc-if value="{{ show_goal }}" hint-placeholder-val="{{ false }}">
-    <dc-import name="RaznosGoalSheet" goal="{{ gs_goal }}" daysLeft="{{ gs_days }}" earned="{{ gs_earned_v }}" booked="{{ gs_booked_v }}" requested="{{ gs_req_v }}" planned="{{ gs_plan_v }}" onGoal="{{ goal_set }}" onFix="{{ goal_fix }}" onClose="{{ close_goal }}"></dc-import>
+    <dc-import name="RaznosGoalSheet" past="{{ gs_past }}" onResults="{{ gs_results }}" goal="{{ gs_goal }}" daysLeft="{{ gs_days }}" earned="{{ gs_earned_v }}" booked="{{ gs_booked_v }}" requested="{{ gs_req_v }}" planned="{{ gs_plan_v }}" onGoal="{{ goal_set }}" onFix="{{ goal_fix }}" onClose="{{ close_goal }}"></dc-import>
   </sc-if>
 
   <sc-if value="{{ show_ext }}" hint-placeholder-val="{{ false }}">
@@ -1056,8 +1056,9 @@ class Component extends DCLogic {
       // выполнена только по заработанному, по плану пишем, что запланированного хватит
       goal_state: weekPast ? 'заработано ' + rssFmt(weekEarned) + ' ₽' : (weekEarned >= weekGoal ? 'цель выполнена' : 'по плану ≈ ' + rssFmt(weekTotal) + ' ₽'),
       goal_state_cls: weekShort && weekEarned < weekGoal ? 'rss-goal-short' : '',
-      goal_aria: 'Цель недели ' + rssFmt(weekGoal) + ' рублей, заработано ' + rssFmt(weekEarned) + (weekPast ? ', открыть результаты недели' : ', по плану к воскресенью ' + rssFmt(weekTotal) + (weekShort ? ', до цели не хватает ' + rssFmt(weekGoal - weekTotal) : ', плана хватает')),
-      open_goal: () => { if (!weekPast) set({ goalOpen: true }); else if (typeof p.onOpenWeekResult === 'function') p.onOpenWeekResult(weekOff); }, close_goal: () => set({ goalOpen: false }), show_goal: !!st.goalOpen,
+      goal_aria: 'Цель недели ' + rssFmt(weekGoal) + ' рублей, заработано ' + rssFmt(weekEarned) + (weekPast ? ', открыть итог недели' : ', по плану к воскресенью ' + rssFmt(weekTotal) + (weekShort ? ', до цели не хватает ' + rssFmt(weekGoal - weekTotal) : ', плана хватает')),
+      // на прошедшей неделе тоже шторка, только итог, в Результаты по кнопке внутри
+      open_goal: () => set({ goalOpen: true }), gs_past: weekPast, gs_results: () => { set({ goalOpen: false }); if (typeof p.onOpenWeekResult === 'function') p.onOpenWeekResult(weekOff); }, close_goal: () => set({ goalOpen: false }), show_goal: !!st.goalOpen,
       gs_goal: weekGoal, gs_days: weekDays.filter((x) => rssIso(x) >= RSS_TODAY_ISO).length, gs_earned_v: weekEarned, gs_booked_v: weekBooked, gs_req_v: weekReq, gs_plan_v: weekPlanPart,
       goal_set: setGoal,
       goal_fix: () => { const best = weekDays.map(rssIso).filter((iso) => iso >= RSS_TODAY_ISO).map((iso) => ({ iso, free: freeMinOf(iso) })).sort((a, b) => b.free - a.free)[0]; set({ goalOpen: false, day: best && best.free ? best.iso : selIso }); },

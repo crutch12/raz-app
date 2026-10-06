@@ -139,6 +139,7 @@
 .raznos-stats-section-action { min-height: 44px; min-width: 68px; flex: none; padding: 0 4px; border: 0; background: transparent; color: var(--raznos-green-deep); font: 650 12px var(--raznos-font); cursor: pointer; box-sizing: border-box; }
 .raznos-stats-section-action:hover { color: var(--stats-ink); }
 .raznos-stats-head-link { width: 100%; min-height: 44px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 0; border: 0; background: transparent; color: var(--stats-ink); text-align: left; font: inherit; cursor: pointer; }
+.raznos-stats-head-link.raznos-is-static { cursor: default; }
 .raznos-stats-head-copy { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
 .raznos-stats-head-copy small { color: var(--stats-muted); font: 500 13px/1.35 var(--raznos-font); }
 .raznos-stats-head-chevron { flex: none; margin-top: 2px; color: var(--raznos-line-strong); transition: transform .15s ease, color .15s ease; }
@@ -192,18 +193,20 @@
 
 .raznos-stats-service-bars,
 .raznos-stats-ranking { display: flex; flex-direction: column; gap: 0; }
-.raznos-stats-service-bar { width: 100%; display: flex; flex-direction: column; gap: 12px; padding: 14px 0; border: 0; background: transparent; color: var(--stats-ink); text-align: left; cursor: pointer; }
+.raznos-stats-service-bar { width: 100%; display: flex; flex-direction: column; gap: 10px; padding: 14px 0; border: 0; background: transparent; color: var(--stats-ink); text-align: left; cursor: pointer; }
 .raznos-stats-service-bar:first-child { padding-top: 0; }
 .raznos-stats-service-bar:last-child { padding-bottom: 0; }
 .raznos-stats-service-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .raznos-stats-service-label { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
 .raznos-stats-service-label strong { font: 650 15px var(--raznos-font); }
-.raznos-stats-service-meta { display: inline-flex; align-items: baseline; gap: 8px; white-space: nowrap; }
-.raznos-stats-service-meta strong { font: 750 16px var(--raznos-font); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.raznos-stats-service-name { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.raznos-stats-service-sum { flex: none; font: 750 16px var(--raznos-font); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .raznos-stats-service-track { width: 100%; height: 10px; display: block; overflow: hidden; border-radius: 999px; background: var(--stats-track); }
 .raznos-stats-service-track i { display: block; height: 100%; min-width: 8px; border-radius: inherit; background: var(--raznos-green); }
 .raznos-stats-service-bar.raznos-is-vkusvill .raznos-stats-service-track i { background: var(--raznos-svc-vkusvill); }
 .raznos-stats-service-bar.raznos-is-samokat .raznos-stats-service-track i { background: var(--raznos-svc-samokat); }
+/* удержания и корректировки всегда красные, это минус к доходу, цвет сервиса тут не нужен */
+.raznos-stats-fines-bars .raznos-stats-service-bar .raznos-stats-service-track i { background: var(--raznos-red); }
 .raznos-stats-service-orders,
 .raznos-stats-rank-orders { color: var(--stats-muted); font: 500 12.5px var(--raznos-font); }
 
@@ -407,6 +410,7 @@
 
 /* Мои тренды: список показателей, как у Gridwise */
 .raznos-stats-trend-list { display: flex; flex-direction: column; gap: 10px; }
+.raznos-stats-trend-group { margin: 8px 2px 0; font: 700 15px var(--raznos-font); color: var(--raznos-ink-2); }
 .raznos-stats-trend-card { display: flex; flex-direction: column; gap: 14px; width: 100%; padding: 14px 16px; border: 0; border-radius: 16px; background: var(--raznos-surface); color: var(--raznos-ink); text-align: left; font: inherit; cursor: pointer; }
 .raznos-stats-trend-card:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
 .raznos-stats-trend-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--raznos-ink-3); }
@@ -464,3 +468,10 @@
 .raznos-stats-verdict-copy > b { font: 700 14px/1.3 var(--raznos-font); }
 .raznos-stats-verdict-copy > small { color: var(--stats-muted); font: 500 12.5px/1.35 var(--raznos-font); }
 .raznos-stats-verdict-settings { margin: -11px -6px -11px 0; }
+
+/* карточка Сравнение: три ставки в один ряд без дыры, под выводом мини-шкала медианы */
+.raznos-stats-compare-card .raznos-stats-trend-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.raznos-stats-compare-card .raznos-stats-trend-tile { flex-direction: column; align-items: flex-start; gap: 8px; }
+.raznos-stats-compare-card .raznos-stats-trend-badge { width: 32px; height: 32px; border-radius: 10px; }
+.raznos-stats-compare-card .raznos-stats-trend-tile-copy small { flex-direction: column; }
+.raznos-stats-verdict-gauge { margin: -2px 0 0 30px; }

@@ -214,29 +214,52 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 .raznos-hero-unit { font: 600 16px var(--raznos-font); opacity: 0.8; }
 .raznos-hero-today { position: relative; }
 .raznos-hero-open { position: absolute; top: 8px; right: 8px; width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 12px; background: none; color: color-mix(in oklab, var(--raznos-on-dark) 75%, transparent); cursor: pointer; }
-.raznos-day-sheet { gap: 14px; }
-.raznos-day-rows { display: flex; flex-direction: column; }
-.raznos-day-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--raznos-line); }
-.raznos-day-row > span { display: flex; flex-direction: column; gap: 2px; font: 500 15px var(--raznos-font); color: var(--raznos-ink); }
-.raznos-day-row > span > small { font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
-.raznos-day-row > b { font: 700 16px var(--raznos-font); color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* полоска долей сервисов под карточкой Заработано сегодня */
+.raznos-today-mix { width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: -4px; padding: 10px 4px 2px; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.raznos-today-mix-bar { display: flex; gap: 3px; height: 8px; }
+.raznos-today-mix-bar > i { display: block; min-width: 6px; border-radius: 999px; }
+.raznos-today-mix-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-today-mix-legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.raznos-today-mix-legend i { width: 8px; height: 8px; border-radius: 50%; }
+.raznos-today-mix-legend b { font-weight: 700; color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+.raznos-today-mix:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 10px; }
+/* шторка Сегодня: ответ сверху, карточки ниже, суммы одной гарнитурой */
+.raznos-dialog-bottom > .raznos-dialog.raznos-day-sheet { max-height: 86%; gap: 12px; padding: 8px 16px 0; background: var(--raznos-bg); }
+.raznos-day-handle { align-self: center; width: 40px; height: 4px; border-radius: 999px; background: var(--raznos-line-strong); }
+.raznos-day-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -2px -4px -6px 4px; }
+.raznos-day-close { font-size: 24px; line-height: 1; }
+.raznos-day-net { display: flex; flex-direction: column; gap: 2px; padding: 0 4px; }
+.raznos-day-net-label { font: 600 14px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-day-net-value { font: 800 34px/1.1 var(--raznos-font); letter-spacing: -0.02em; color: var(--raznos-green-deep); font-variant-numeric: tabular-nums; }
+.raznos-day-net-sub { font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-day-card { display: flex; flex-direction: column; padding: 4px 14px; border-radius: 18px; background: var(--raznos-surface); }
+.raznos-day-line { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; font: 500 15px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-day-line > b, .raznos-day-svc-top > b, .raznos-day-exp-open > b, .raznos-day-tip > b { font: 700 15px var(--raznos-font); color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.raznos-day-line-head { font-weight: 700; }
 .raznos-day-minus { color: var(--raznos-red) !important; }
-.raznos-day-row-link { width: 100%; min-height: 44px; align-items: center; border-top: 0; border-left: 0; border-right: 0; background: transparent; font: inherit; text-align: left; cursor: pointer; }
-.raznos-day-svc { width: 100%; min-height: 48px; display: flex; align-items: center; gap: 10px; padding: 4px 0 4px 8px; border: 0; border-bottom: 1px solid var(--raznos-line); background: transparent; font: inherit; text-align: left; cursor: pointer; }
-.raznos-day-svc-name { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; font: 600 14px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-day-svc, .raznos-day-exp-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 8px 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.raznos-day-svc { width: 100%; border-top: 1px solid var(--raznos-line); }
+.raznos-day-svc-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.raznos-day-svc-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.raznos-day-svc-name { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; font: 600 14.5px var(--raznos-font); color: var(--raznos-ink); }
 .raznos-day-svc-name > small { font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
-.raznos-day-svc > b { font: 700 15px var(--raznos-font); color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.raznos-day-total { border-bottom: 0; }
-.raznos-day-total > span { font-weight: 700; }
-.raznos-day-total > b { font-size: 20px; color: var(--raznos-green-deep); }
-.raznos-day-goal { display: flex; flex-direction: column; gap: 8px; }
-.raznos-day-goal-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font: 600 14px var(--raznos-font); color: var(--raznos-ink); }
-.raznos-day-goal-head > b { font: 700 14px var(--raznos-font); font-variant-numeric: tabular-nums; }
-.raznos-day-goal-track { height: 8px; background: var(--raznos-surface-2) !important; }
-.raznos-day-goal-note { font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
-.raznos-day-tips { padding: 2px 14px 12px; border-radius: 14px; background: var(--raznos-surface-2); }
-.raznos-day-tips .raznos-day-row { border-bottom: 0; padding-bottom: 4px; }
-.raznos-day-tips-note { display: block; font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-day-bar { display: block; height: 6px; border-radius: 999px; background: var(--raznos-surface-2); overflow: hidden; }
+.raznos-day-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--raznos-green); }
+.raznos-day-bar-goal { height: 8px; }
+.raznos-day-goal { gap: 8px; padding-bottom: 12px; }
+.raznos-day-goal .raznos-day-line { min-height: 36px; }
+.raznos-day-note { font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-day-fines, .raznos-day-exp { border-top: 1px solid var(--raznos-line); }
+.raznos-day-exp { display: flex; align-items: center; gap: 8px; }
+.raznos-day-exp-ico { width: 32px; height: 32px; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: var(--raznos-red-tint); color: var(--raznos-red); }
+.raznos-day-exp-add { width: 40px; height: 40px; flex: none; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--raznos-line-strong); border-radius: 12px; background: var(--raznos-surface); color: var(--raznos-ink); cursor: pointer; }
+.raznos-day-exp-add:focus-visible, .raznos-day-exp-open:focus-visible, .raznos-day-svc:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+.raznos-day-tip { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--raznos-line); }
+.raznos-day-tip-cash { width: 32px; height: 32px; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: color-mix(in oklab, var(--raznos-green) 16%, var(--raznos-surface)); color: var(--raznos-green-deep); font: 800 15px var(--raznos-font); }
+.raznos-day-tip-none { display: flex; align-items: center; gap: 10px; padding: 10px 0 8px; border-top: 1px solid var(--raznos-line); font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-day-tip-none-icons { display: inline-flex; flex: none; gap: 4px; opacity: 0.7; }
+.raznos-day-foot { position: sticky; bottom: 0; margin: 0 -16px; padding: 10px 16px 16px; background: linear-gradient(to bottom, transparent, var(--raznos-bg) 30%); }
+.raznos-day-foot > .raznos-btn { width: 100%; }
 .raznos-hero-today { cursor: pointer; }
 .raznos-hero-today:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 3px; }
 .raznos-hero-open:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
@@ -626,3 +649,8 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 
 /* сота-метка рядом с главной мыслью */
 .raznos-hex-mark { flex: none; display: inline-block; width: 14px; height: 16px; clip-path: var(--raznos-hex); background: var(--raznos-green); }
+
+/* заметка к адресу доставки в карточке заказа и маршруте */
+.raznos-addr-note-btn { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; margin: -8px 0; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.raznos-addr-note-btn:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+.raznos-addr-note-line { font: 500 12px var(--raznos-font); color: var(--raznos-amber); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

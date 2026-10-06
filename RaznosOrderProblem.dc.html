@@ -1,0 +1,61 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rop-layer { align-items: flex-end; padding: 0; }
+    .rop-sheet { box-sizing: border-box; width: 100%; display: flex; flex-direction: column; gap: 14px; padding: 8px 16px 16px; border-radius: 22px 22px 0 0; background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 -18px 48px rgba(20, 25, 40, .2); }
+    .rop-handle { width: 40px; height: 4px; align-self: center; border-radius: 999px; background: var(--raznos-line-strong); }
+    .rop-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: -6px; }
+    .rop-head h2 { margin: 0; font: 700 18px var(--raznos-font); }
+    .rop-close { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 12px; background: var(--raznos-surface-2); color: var(--raznos-ink); cursor: pointer; }
+    .rop-group { display: flex; flex-direction: column; gap: 8px; }
+    .rop-label { font: 600 13px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rop-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .rop-reason { min-height: 40px; padding: 0 14px; border: 1px solid var(--raznos-line); border-radius: 999px; background: var(--raznos-surface); font: 600 13.5px var(--raznos-font); color: var(--raznos-ink-2); cursor: pointer; }
+    .rop-reason.raznos-is-active { border-color: var(--raznos-dark); background: var(--raznos-dark); color: var(--raznos-on-dark); }
+    .rop-when { margin: 0; font: 500 13.5px var(--raznos-font); color: var(--raznos-ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rop-photo { display: flex; align-items: center; gap: 10px; }
+    .rop-photo img { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; background: var(--raznos-surface-2); }
+    .rop-close:focus-visible, .rop-reason:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    @media (prefers-reduced-motion: no-preference) {
+      .rop-sheet { animation: rop-in .28s cubic-bezier(.16, 1, .3, 1) both; }
+      @keyframes rop-in { from { transform: translateY(100%); } to { transform: none; } }
+    }
+  </style>
+</helmet>
+<div class="raznos-dialog-layer rop-layer" onClick="{{ close }}">
+  <section class="rop-sheet" role="dialog" aria-modal="true" aria-label="Зафиксировать проблему" onClick="{{ stop }}">
+    <span class="rop-handle" aria-hidden="true"></span>
+    <div class="rop-head"><h2>Зафиксировать проблему</h2><button type="button" class="rop-close" onClick="{{ close }}" aria-label="Закрыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="rop-group"><span class="rop-label">Что случилось</span><div class="rop-chips"><sc-for list="{{ reasons }}" as="r" hint-placeholder-count="4"><button type="button" class="{{ r.cls }}" onClick="{{ r.tap }}" aria-pressed="{{ r.on }}">{{ r.label }}</button></sc-for></div></div>
+    <p class="rop-when">{{ when_line }}</p>
+    <div class="rop-photo"><sc-if value="{{ has_photo }}" hint-placeholder-val="{{ false }}"><img src="{{ photo_src }}" alt="Приложенное фото" /></sc-if><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ photo_tap }}">{{ photo_label }}</button><sc-if value="{{ has_photo }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ photo_remove }}">Убрать</button></sc-if></div>
+    <button type="button" class="{{ save_cls }}" onClick="{{ save }}" disabled="{{ save_disabled }}">Сохранить</button>
+  </section>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"reasons":{"editor":null},"timeLabel":{"editor":"text","default":"15:40"},"photoSrc":{"editor":"text","default":""},"onPhoto":{"editor":null},"onSave":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":420}}'>
+// проблема с заказом: причина одним тапом, время и место подставляются сами, фото по желанию
+const ROP_DEMO_REASONS = [{ k: 'wait', label: 'Долго ждал на выдаче', place: 'Правды ул., 24' }, { k: 'door', label: 'Клиент не открыл', place: 'Ленинградский пр-т, 46' }, { k: 'damaged', label: 'Товар повреждён', place: 'Ленинградский пр-т, 46' }, { k: 'other', label: 'Другое', place: 'Ленинградский пр-т, 46' }];
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const set = (patch) => this.setState(patch);
+    const reasons = Array.isArray(p.reasons) ? p.reasons : ROP_DEMO_REASONS;
+    const cur = reasons.find((r) => r.k === st.reason) || null;
+    const photoSrc = p.photoSrc || '';
+    const time = p.timeLabel || '15:40';
+    return {
+      reasons: reasons.map((r) => ({ label: r.label, on: !!cur && cur.k === r.k, cls: 'rop-reason' + (cur && cur.k === r.k ? ' raznos-is-active' : ''), tap: () => set({ reason: r.k }) })),
+      when_line: time + (cur ? ' · ' + cur.place : ' · место подставится по причине'),
+      has_photo: !!photoSrc, photo_src: photoSrc, photo_label: photoSrc ? 'Заменить фото' : 'Добавить фото',
+      photo_tap: () => { if (typeof p.onPhoto === 'function') p.onPhoto(); },
+      photo_remove: () => { if (typeof p.onPhoto === 'function') p.onPhoto(true); },
+      save: () => { if (cur && typeof p.onSave === 'function') p.onSave(cur.k, cur.label, cur.place); },
+      save_disabled: !cur, save_cls: cur ? 'raznos-btn raznos-btn-primary' : 'raznos-btn-disabled',
+      close: () => { if (typeof p.onClose === 'function') p.onClose(); },
+      stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
+    };
+  }
+}
+</script></body></html>

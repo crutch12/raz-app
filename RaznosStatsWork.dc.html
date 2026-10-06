@@ -1,7 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
 <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
 <section class="raznos-stats-work-card" aria-label="Как работали">
-  <h2 class="raznos-stats-section-title">Как работали</h2>
+  <h2 class="raznos-stats-section-title">{{ head }} <em>{{ head_accent }}</em>{{ head_tail }}</h2>
   <div class="raznos-stats-work-tiles">
     <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="3">
       <div class="raznos-stats-work-tile"><b>{{ t.big }}</b><span>{{ t.label }}</span><sc-if value="{{ t.sub }}" hint-placeholder-val="{{ false }}"><small>{{ t.sub }}</small></sc-if></div>
@@ -42,6 +42,8 @@ class Component extends DCLogic {
     const bookedLine = [].concat(booked > 0 ? ['в бронях ' + rswH(booked)] : [], free >= 0.5 ? ['свободный выход ' + rswH(free)] : []).join(', ');
     const chips = [].concat(w.asked ? ['Заявки без ответа: ' + w.asked] : [], w.lost ? ['Отменены или пропущены: ' + w.lost] : []);
     return {
+      // заголовок отвечает, как прошло время, если доля с заказами известна
+      head: share == null ? 'Как работали' : 'С заказами', head_accent: share == null ? '' : share + '%', head_tail: share == null ? '' : ' времени',
       tiles, has_time: line > 0, time_total: rswH(line), has_bar: parts.length > 0, parts, has_booked: bookedLine !== '', booked_line: bookedLine.charAt(0).toUpperCase() + bookedLine.slice(1),
       // в подробном экране времени блок уже открыт, стрелку не показываем
       has_open: typeof p.onOpenTime === 'function', on_open: typeof p.onOpenTime === 'function' ? p.onOpenTime : (() => {}),

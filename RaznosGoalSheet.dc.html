@@ -49,14 +49,16 @@
   <section class="rgs-sheet" role="dialog" aria-modal="true" aria-label="Цель недели" onClick="{{ stop }}">
     <span class="rgs-handle" aria-hidden="true"></span>
     <div class="rgs-head">
-      <h2>Цель недели</h2>
+      <h2>{{ head }}</h2>
       <button type="button" class="rgs-close" onClick="{{ close }}" aria-label="Закрыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
 
-    <div class="rgs-goal">
+    <sc-if value="{{ past }}" hint-placeholder-val="{{ false }}"><div class="{{ past_cls }}"><b>{{ past_line }}</b><span>{{ past_sub }}</span></div></sc-if>
+    <sc-if value="{{ live }}" hint-placeholder-val="{{ true }}"><div class="rgs-goal">
       <label class="rgs-goal-field"><input type="text" inputmode="numeric" value="{{ goal_text }}" onChange="{{ goal_change }}" aria-label="Цель недели в рублях" /><span>₽</span></label>
       <div class="rgs-presets"><sc-for list="{{ presets }}" as="pr" hint-placeholder-count="2"><button type="button" class="{{ pr.cls }}" onClick="{{ pr.tap }}">{{ pr.label }}</button></sc-for></div>
     </div>
+
 
     <div class="{{ total_cls }}"><b>{{ total_line }}</b><sc-if value="{{ has_earned_line }}" hint-placeholder-val="{{ true }}"><span>{{ earned_line }}</span></sc-if></div>
     <div class="rgs-bar" role="img" aria-label="{{ bar_aria }}">
@@ -79,9 +81,14 @@
 
     <sc-if value="{{ short }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ fix }}">Показать, где добрать</button></sc-if>
     <sc-if value="{{ not_short }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ close }}">Готово</button></sc-if>
+    </sc-if>
+    <sc-if value="{{ past }}" hint-placeholder-val="{{ false }}">
+      <div class="rgs-bar" role="img" aria-label="{{ past_aria }}"><span class="rgs-bar-fill"><i class="rgs-earned" style="{{ past_style }}"></i></span><span class="rgs-mark" style="{{ past_mark }}"></span></div>
+      <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ results }}">Результаты недели</button>
+    </sc-if>
   </section>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"goal":{"editor":"number"},"earned":{"editor":"number"},"booked":{"editor":"number"},"requested":{"editor":"number"},"rely":{"editor":"text"},"planned":{"editor":"number"},"usual":{"editor":"number"},"best":{"editor":"number"},"rate":{"editor":"number"},"orderPay":{"editor":"number"},"daysLeft":{"editor":"number"},"onGoal":{"editor":null},"onFix":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"goal":{"editor":"number"},"past":{"editor":"boolean","default":false},"onResults":{"editor":null},"earned":{"editor":"number"},"booked":{"editor":"number"},"requested":{"editor":"number"},"rely":{"editor":"text"},"planned":{"editor":"number"},"usual":{"editor":"number"},"best":{"editor":"number"},"rate":{"editor":"number"},"orderPay":{"editor":"number"},"daysLeft":{"editor":"number"},"onGoal":{"editor":null},"onFix":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
 // шторка цели недели: цель, чем она закрывается и что сделать
 const RGS_FMT = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const RGS_R = (n) => Math.round(n / 100) * 100;
@@ -116,7 +123,16 @@ class Component extends DCLogic {
     const daysLeft = Math.max(1, p.daysLeft || 6);
     const perDay = daysLeft === 1 ? '≈ ' + hours + ' ч сегодня' : 'по ≈ ' + Math.max(1, Math.round(hours / daysLeft)) + ' ч в день до воскресенья';
     const close = () => { if (typeof p.onClose === 'function') p.onClose(); };
+    // прошедшая неделя: цель уже не меняем, показываем итог и даём перейти в Результаты
+    const past = !!p.past;
+    const pscale = Math.max(goal, earned) || 1;
     return {
+      past, live: !past, head: past ? 'Итог недели' : 'Цель недели', past_cls: 'rgs-total' + (earned < goal ? ' rgs-short' : ''),
+      past_line: 'Заработано ' + RGS_FMT(earned) + ' ₽ из ' + RGS_FMT(goal) + ' ₽',
+      past_sub: earned >= goal ? 'Цель выполнена, сверху ' + RGS_FMT(earned - goal) + ' ₽' : 'До цели не хватило ' + RGS_FMT(goal - earned) + ' ₽',
+      past_style: 'width:' + (earned * 100 / pscale).toFixed(1) + '%', past_mark: 'left:' + (goal * 100 / pscale).toFixed(1) + '%',
+      past_aria: 'Заработано ' + RGS_FMT(earned) + ' из цели ' + RGS_FMT(goal) + ' рублей',
+      results: () => { if (typeof p.onResults === 'function') p.onResults(); },
       goal_text: RGS_FMT(goal),
       goal_change: (e) => setGoal(parseInt(String((e && e.target ? e.target.value : e) || '').replace(/\D/g, ''), 10) || 0),
       presets,

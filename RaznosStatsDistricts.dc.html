@@ -1,7 +1,8 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
 <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
 <div class="raznos-stats-section">
-  <button type="button" class="raznos-stats-head-link" onClick="{{ on_all }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">{{ title }} <em>{{ accent }}</em></h2><small>По адресу, где забрали заказ</small></span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+  <sc-if value="{{ has_all }}" hint-placeholder-val="{{ true }}">  <button type="button" class="raznos-stats-head-link" onClick="{{ on_all }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">{{ title }} <em>{{ accent }}</em></h2><small>По адресу, где забрали заказ</small></span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></sc-if>
+  <sc-if value="{{ no_all }}" hint-placeholder-val="{{ false }}"><div class="raznos-stats-head-link raznos-is-static"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">{{ title }} <em>{{ accent }}</em></h2><small>По адресу, где забрали заказ</small></span></div></sc-if>
   <sc-if value="{{ has_rows }}" hint-placeholder-val="{{ true }}"><div class="raznos-stats-ranking"><sc-for list="{{ rows }}" as="row" hint-placeholder-count="3"><button type="button" class="raznos-stats-rank-row" onClick="{{ row.tap }}"><span class="raznos-stats-rank-number">{{ row.rank }}</span><span class="raznos-stats-rank-copy"><strong>{{ row.name }}</strong><span class="raznos-stats-rank-orders">{{ row.orders_label }}</span></span><span class="raznos-stats-rank-track"><i style="{{ row.style }}"></i></span><span class="raznos-stats-rank-value">{{ row.amount }}</span></button></sc-for></div></sc-if>
   <sc-if value="{{ no_rows }}" hint-placeholder-val="{{ false }}"><p class="raznos-stats-note">По выбранным заказам район получения неизвестен</p></sc-if>
 </div>
@@ -18,7 +19,8 @@ class Component extends DCLogic {
     }));
     const plural = (n) => { const m10 = n % 10, m100 = n % 100; return m10 === 1 && m100 !== 11 ? 'заказ' : (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? 'заказа' : 'заказов'); };
     prepared.forEach((row) => { if (row.orders != null) row.orders_label = row.orders + ' ' + plural(row.orders); });
-    return { title: rows.length ? 'Лучший район' : 'Районы получения', accent: rows.length ? rows[0].name : '', rows: prepared, has_rows: rows.length > 0, no_rows: rows.length === 0, on_all: typeof p.onAll === 'function' ? p.onAll : (() => {}) };
+    return { title: rows.length ? 'Лучший район' : 'Районы получения', accent: rows.length ? rows[0].name : '', rows: prepared, has_rows: rows.length > 0, no_rows: rows.length === 0, // на подробном экране Районы переходить уже некуда, заголовок без стрелки
+      has_all: typeof p.onAll === 'function', no_all: typeof p.onAll !== 'function', on_all: typeof p.onAll === 'function' ? p.onAll : (() => {}) };
   }
 }
 </script></body></html>

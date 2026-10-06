@@ -5,6 +5,10 @@
     <div class="{{ verdict_class }}"><span class="raznos-stats-delta-mark" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><span class="raznos-stats-verdict-copy"><b>{{ verdict_title }}</b><small>{{ verdict_note }}</small></span></div>
     <sc-if value="{{ has_settings }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-stats-cohort-settings raznos-stats-verdict-settings" onClick="{{ on_settings }}" aria-label="Настроить сравнение"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button></sc-if>
   </div>
+  <sc-if value="{{ recap_enough }}" hint-placeholder-val="{{ true }}"><div class="raznos-stats-cohort-gauge raznos-stats-verdict-gauge" aria-label="Ваш результат относительно курьеров города">
+    <div class="raznos-stats-cohort-track"><span class="raznos-stats-cohort-range" style="{{ recap_range_style }}"></span><i class="raznos-stats-cohort-median" style="{{ recap_median_style }}"></i><i class="raznos-stats-cohort-you" style="{{ recap_you_style }}"></i></div>
+    <div class="raznos-stats-cohort-legend"><span><i class="raznos-stats-cohort-swatch raznos-is-you"></i>вы {{ recap_mine }}</span><span><i class="raznos-stats-cohort-swatch raznos-is-median"></i>медиана {{ recap_median }}</span></div>
+  </div></sc-if>
 </sc-if>
 <sc-if value="{{ recap_mode }}" hint-placeholder-val="{{ false }}">
   <div class="raznos-stats-section raznos-stats-cohort-card">
