@@ -31,10 +31,20 @@
 </section>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"title":{"editor":"text","default":"Требует внимания"},"items":{"editor":null},"demoLong":{"editor":"boolean","default":false},"$preview":{"width":366,"height":220}}'>
 // что требует действия по сменам, одной строкой на пункт: пересечения, заявки, отмена, открытие записи
+// демо-сегодня: реальная дата устройства, запись открывается в ближайший четверг на неделю после него
+const RALM = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+const RALAt = (off) => { const d = new Date(); d.setDate(d.getDate() + off); return d; };
+const RALThu = (4 - new Date().getDay() + 7) % 7;
+const RALDm = (d) => d.getDate() + ' ' + RALM[d.getMonth()];
+const RALRange = (a, b) => (a.getMonth() === b.getMonth() ? a.getDate() + '–' : RALDm(a) + ' – ') + RALDm(b);
+const RALOPENING = { title: 'Запись в Яндекс на ' + RALRange(RALAt(RALThu + 4), RALAt(RALThu + 10)), text: 'Откроется в чт ' + RALDm(RALAt(RALThu)) + ' в 10:00' };
+const RAL_WD = ['воскресенье', 'понедельник', 'вторник', 'среду', 'четверг', 'пятницу', 'субботу'];
+const RAL_WD_SHORT = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+const RAL_TMR = RALAt(1);
 const RAL_DEMO = [
-  { tone: 'danger', title: 'Пересечение в среду', text: 'ВкусВилл 14:00–18:00 и Самокат 18:00–22:00, дорога ≈ 20 мин', action: 'Открыть' },
-  { tone: 'warn', title: 'Заявка ждёт ответа', text: 'ВкусВилл, ср 16, 14:00–18:00', action: '' },
-  { tone: 'info', title: 'Запись в Яндекс на 21–27 сентября', text: 'Откроется в чт 17 сентября в 10:00', action: 'Напомнить' }
+  { tone: 'danger', title: 'Пересечение ' + (RAL_TMR.getDay() === 2 ? 'во ' : 'в ') + RAL_WD[RAL_TMR.getDay()], text: 'ВкусВилл 14:00–18:00 и Самокат 18:00–22:00, дорога ≈ 20 мин', action: 'Открыть' },
+  { tone: 'warn', title: 'Заявка ждёт ответа', text: 'ВкусВилл, ' + RAL_WD_SHORT[RAL_TMR.getDay()] + ' ' + RAL_TMR.getDate() + ', 14:00–18:00', action: '' },
+  { tone: 'info', title: RALOPENING.title, text: RALOPENING.text, action: 'Напомнить' }
 ];
 // длинный пример для дизайн-системы: больше 5 пунктов, видно Ещё N
 const RAL_DEMO_LONG = RAL_DEMO.concat([

@@ -58,7 +58,7 @@
   </sc-for>
 
   <sc-if value="{{ tip_open }}" hint-placeholder-val="{{ false }}">
-    <div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="Чаевые">
+    <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Чаевые">
       <div class="raznos-dialog rro-sheet">
         <span class="raznos-text-h3">Чаевые вне сервиса<br><small class="rro-sheet-sub">{{ sheet_order }}</small></span>
         <span class="raznos-text-small">{{ tip_hint }}</span>
@@ -75,7 +75,7 @@
         </div>
         <div class="raznos-field"><span class="raznos-field-label">Комментарий</span><input class="raznos-input" placeholder="Например, спасибо за скорость" value="{{ comment_val }}" onInput="{{ comment_change }}" /></div>
         <div class="raznos-btn-row">
-          <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ sheet_cancel }}">Отмена</button>
+          <button data-cancel type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ sheet_cancel }}">Отмена</button>
           <button type="button" class="raznos-btn" onClick="{{ sheet_save }}">Сохранить</button>
         </div>
       </div>
@@ -83,7 +83,7 @@
   </sc-if>
 
   <sc-if value="{{ exp_open }}" hint-placeholder-val="{{ false }}">
-    <div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="Расход">
+    <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Расход">
       <div class="raznos-dialog rro-sheet">
         <span class="raznos-text-h3">{{ exp_title }} {{ sheet_order }}</span>
         <div class="rro-amt">
@@ -93,7 +93,7 @@
         </div>
         <div class="raznos-field"><span class="raznos-field-label">Комментарий</span><input class="raznos-input" placeholder="Например, бензин или мойка" value="{{ comment_val }}" onInput="{{ comment_change }}" /></div>
         <div class="raznos-btn-row">
-          <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ sheet_cancel }}">Отмена</button>
+          <button data-cancel type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ sheet_cancel }}">Отмена</button>
           <button type="button" class="raznos-btn" onClick="{{ sheet_save }}">Сохранить</button>
         </div>
       </div>
@@ -101,7 +101,7 @@
   </sc-if>
 
   <sc-if value="{{ review_open }}" hint-placeholder-val="{{ false }}">
-    <div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="Отзыв о заказе">
+    <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Отзыв о заказе">
       <div class="raznos-dialog rro-sheet">
         <span class="raznos-text-h3">Отзыв о заказе<br><small class="rro-sheet-sub">{{ sheet_order }}</small></span>
         <div class="rro-rate-row">
@@ -122,7 +122,7 @@
         </div>
         <div class="raznos-field"><span class="raznos-field-label">Комментарий</span><input class="raznos-input" placeholder="Про подъезд, домофон, доступ" value="{{ comment_val }}" onInput="{{ comment_change }}" /></div>
         <div class="raznos-btn-row">
-          <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ sheet_cancel }}">Отмена</button>
+          <button data-cancel type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ sheet_cancel }}">Отмена</button>
           <button type="button" class="raznos-btn" onClick="{{ sheet_save }}">Сохранить</button>
         </div>
       </div>

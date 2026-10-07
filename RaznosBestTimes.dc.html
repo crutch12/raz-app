@@ -121,7 +121,7 @@ const RBT_WEEK_FROM = 8; // неделю считаем по часам 8..23, �
 // доход в час по часам суток (демо): ночью мало, обед, вечерний пик
 const RBT_BASE = [460, 380, 320, 280, 280, 340, 420, 480, 520, 560, 620, 700, 860, 980, 900, 760, 720, 820, 1040, 1220, 1300, 1180, 920, 700];
 const RBT_DAY_MUL = [0.92, 1.02, 0.95, 1.0, 1.06, 1.1, 0.86];
-const RBT_TODAY = 1; // 15 сентября, вторник
+const RBT_TODAY = (new Date().getDay() + 6) % 7; // сегодня, 0 это понедельник
 const RBT_METRICS = [{ k: 'pay', label: '₽ в час' }, { k: 'ord', label: 'Заказов в час' }];
 const RBT_CATS = [
   { k: 'all', label: 'Все сервисы', mul: 1 },
@@ -137,10 +137,14 @@ const RBT_DISTRICTS = [
   { k: 'basmanny', label: 'Басманный', mul: 0.98, tilt: [0, 0.01, 0, 0.01, 0.03, 0.02, -0.02] },
   { k: 'begovoy', label: 'Беговой', mul: 0.94, tilt: [-0.02, -0.02, -0.02, -0.01, 0.02, 0.06, 0.08] }
 ];
-// выборка и период советов, демо: у Москвы и Петербурга своя выборка, 4 недели до демо-даты 15 сентября
+// выборка и период советов, демо: у Москвы и Петербурга своя выборка, 4 недели до сегодня
 const RBT_SAMPLE = { moscow: { couriers: 184, orders: 6240 }, spb: { couriers: 63, orders: 1870 } };
 const RBT_CITY_MUL = { moscow: 1, spb: 0.93 };
-const RBT_PERIOD = '18 авг – 14 сент';
+const RBT_PERIOD = (() => {
+  const mon = ['янв', 'февр', 'марта', 'апр', 'мая', 'июня', 'июля', 'авг', 'сент', 'окт', 'нояб', 'дек'];
+  const at = (off) => { const d = new Date(); d.setDate(d.getDate() + off); return d.getDate() + ' ' + mon[d.getMonth()]; };
+  return at(-28) + ' – ' + at(-1);
+})();
 const RBT_FMT = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const rbtOrd = (pay) => Math.round(pay / 260 * 10) / 10;
 const rbtHour = (h) => String(h).padStart(2, '0');

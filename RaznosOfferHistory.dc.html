@@ -18,12 +18,14 @@
 <sc-if value="{{ empty }}"><div class="raznos-empty-state"><span class="raznos-text-h3">Нет предложений за выбранные даты</span><p class="raznos-text-small">Решения появятся здесь после того, как вы примете, отклоните или пропустите предложение</p></div></sc-if>
 <sc-for list="{{ rows }}" as="r"><div class="raznos-card raznos-opportunity-log"><div class="raznos-fx raznos-ac raznos-gap8"><dc-import name="RaznosIcon" svc="{{ r.svc }}" size="sm"></dc-import><span class="raznos-list-main"><span class="raznos-list-title">{{ r.title }}</span><span class="raznos-text-tiny">{{ r.date }}</span></span><strong class="raznos-num">{{ r.pay }} ₽</strong></div><span class="raznos-status-pill raznos-pill-muted" style="align-self:flex-start">{{ r.label }}</span><span class="raznos-text-body">{{ r.reason }}</span><details><summary>Как принято решение</summary><p class="raznos-text-small">{{ r.details }}</p></details></div></sc-for>
 </div></x-dc><script type="text/x-dc" data-dc-script data-props='{"items":{"editor":null},"onBack":{"editor":null}}'>
-const OH_TODAY_ISO = '2026-09-15';
+// демо-сегодня: реальная дата устройства
+const ohIsoAt = (off) => { const d = new Date(); d.setDate(d.getDate() + off); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const OH_TODAY_ISO = ohIsoAt(0);
 const RU_MONTHS_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 function ohDateLabel(iso) { if (!iso) return ''; const d = new Date(iso + 'T00:00:00'); return d.getDate() + ' ' + RU_MONTHS_GEN[d.getMonth()]; }
 function ohPeriodRange(period, from, to) {
-  if (period === 'week') return ['2026-09-09', OH_TODAY_ISO];
-  if (period === 'month') return ['2026-09-01', OH_TODAY_ISO];
+  if (period === 'week') return [ohIsoAt(-6), OH_TODAY_ISO];
+  if (period === 'month') return [OH_TODAY_ISO.slice(0, 8) + '01', OH_TODAY_ISO];
   if (period === 'period') { const f = from || OH_TODAY_ISO, t = to || OH_TODAY_ISO; return f <= t ? [f, t] : [t, f]; }
   return [OH_TODAY_ISO, OH_TODAY_ISO];
 }

@@ -77,7 +77,7 @@
       "onAll": { "editor": null },
       "$preview": { "width": 360, "height": 320 }
     }'>
-      // даты отзывов от демо-времени 15 сентября 2026, в превью показываем самый свежий по сервису
+      // даты отзывов от демо-сегодня, это реальная дата устройства, в превью показываем самый свежий по сервису
       const DEMO_BY_COURIER = {
         c1: [
           { svc: "vkusvill", title: "ВкусВилл", score: null, reviews: [] },
@@ -98,7 +98,9 @@
           { svc: "x5", title: "X5 Доставка", score: { num: 4.9, label: "4,9 из 5", source: "Рейтинг X5, шкала от 0 до 5" }, reviews: [] }
         ]
       };
-      const PERIODS = [["month", "За месяц", "2026-08-16"], ["quarter", "3 месяца", "2026-06-16"], ["all", "Всё время", ""]];
+      // начало периода: столько месяцев назад и следующий день
+      const monthsAgoIso = (n) => { const t = new Date(), d = new Date(t.getFullYear(), t.getMonth() - n, t.getDate() + 1); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+      const PERIODS = [["month", "За месяц", monthsAgoIso(1)], ["quarter", "3 месяца", monthsAgoIso(3)], ["all", "Всё время", ""]];
       // владелец и посетитель именного профиля видят точное среднее, обезличенный профиль получает только границы диапазона
       const RATING_BUCKETS = [[4.8, 5.0], [4.5, 4.7], [4.0, 4.4], [3.0, 3.9], [1.0, 2.9]];
             const oneDecimal = (v) => v.toFixed(1).replace(".", ",");
@@ -138,7 +140,7 @@
                 hasText: !!r.text,
                 text: r.text || "",
                 badge: anon ? "Пересказ" : (full ? "Отзыв покупателя" : "Пример отзыва из сервиса"),
-                date: anon ? ("В " + (r.month || "недавнем месяце") + " 2026") : (r.date || "")
+                date: anon ? ("В " + (r.month || "недавнем месяце") + " " + new Date().getFullYear()) : (r.date || "")
               }))
             };
           }).filter((g) => g.hasRating || g.hasCards);

@@ -29,7 +29,7 @@
   </sc-if>
 
   <sc-if value="{{ is_newbies }}" hint-placeholder-val="{{ true }}">
-    <p class="raznos-text-small">Первые 4 недели работы отдельно от опытных курьеров, велосипед, медиана за июль и август</p>
+    <p class="raznos-text-small">Первые 4 недели работы отдельно от опытных курьеров, велосипед, медиана за {{ median_months }}</p>
     <sc-for list="{{ newbies_full }}" as="n" hint-placeholder-count="3">
       <div class="{{ n.cls }}">
         <div class="raznos-head-row"><div class="raznos-fx raznos-ac raznos-gap8 raznos-head-title"><dc-import name="RaznosIcon" svc="{{ n.key }}" alt="{{ n.title }}" size="sm"></dc-import><span class="raznos-text-h3">{{ n.title }}</span></div><span class="raznos-text-tiny raznos-head-side">{{ n.sample }}</span></div>
@@ -86,7 +86,7 @@
         <sc-if value="{{ f.has_range }}" hint-placeholder-val="{{ true }}"><div class="raznos-breakdown-row"><span class="raznos-text-small">В выбранные часы обычно</span><span class="raznos-num">{{ f.range }}</span></div></sc-if>
       </div>
     </sc-for>
-    <p class="raznos-text-tiny">Диапазон между четвертью и тремя четвертями курьеров Разноса на велосипеде за август, это не обещание дохода</p>
+    <p class="raznos-text-tiny">Диапазон между четвертью и тремя четвертями курьеров Разноса на велосипеде за {{ prev_month }}, это не обещание дохода</p>
   </sc-if>
 
   <sc-if value="{{ is_terms }}">
@@ -238,6 +238,10 @@ class Component extends DCLogic {
       open_reviews: () => call('onOpenService', svc)
     };
     out.newbies_full = out.newbies_all.filter((n) => n.enough);
+    // данные гайда за прошлые месяцы от сегодня
+    const jgMonth = (k) => ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'][(new Date().getMonth() + 12 + k) % 12];
+    out.median_months = jgMonth(-2) + ' и ' + jgMonth(-1);
+    out.prev_month = jgMonth(-1);
     return out;
   }
 }

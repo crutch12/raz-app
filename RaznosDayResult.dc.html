@@ -15,12 +15,12 @@
 </helmet>
 <button type="button" class="rdr" onClick="{{ open }}" aria-label="{{ aria }}">
   <div class="rdr-head">
-    <span class="rdr-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.3 5.1 5.6.5-4.2 3.7 1.3 5.5L12 15.9 7 17.8l1.3-5.5-4.2-3.7 5.6-.5z"/></svg>Итог дня</span>
+    <span class="rdr-title"><svg data-stamp="day-result" data-stamp-delay="800" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.3 5.1 5.6.5-4.2 3.7 1.3 5.5L12 15.9 7 17.8l1.3-5.5-4.2-3.7 5.6-.5z"/></svg>Итог дня</span>
     <span class="rdr-open">Открыть<span class="raznos-row-chevron">›</span></span>
   </div>
   <div class="rdr-hero">
-    <span class="rdr-earn">{{ earn }} ₽</span>
-    <sc-if value="{{ has_delta }}" hint-placeholder-val="{{ true }}"><span class="rdr-delta"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>{{ delta }}</span></sc-if>
+    <span class="rdr-earn" data-roll="day-result-earn" data-roll-from="0">{{ earn }} ₽</span>
+    <sc-if value="{{ has_delta }}" hint-placeholder-val="{{ true }}"><span class="rdr-delta" data-roll="day-result-delta" data-roll-from="0" data-roll-delay="400"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>{{ delta }}</span></sc-if>
   </div>
   <span class="rdr-sub">{{ sub }}</span>
 </button>

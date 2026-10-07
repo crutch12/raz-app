@@ -8,15 +8,21 @@
   </div>
   <sc-if value="{{ has_filter }}" hint-placeholder-val="{{ false }}"><div class="raznos-stats-filter-strip"><button type="button" class="raznos-stats-filter-chip" onClick="{{ on_filters }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span>{{ filter_label }}</span></button><button type="button" class="raznos-stats-filter-reset-link" onClick="{{ on_reset }}">Сбросить</button></div></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"chips":{"editor":null},"title":{"editor":"text","default":"Неделя · 14–20 сентября"},"hint":{"editor":"text","default":"данные по 15 сентября"},"stepVisible":{"editor":"boolean","default":true},"backDisabled":{"editor":"boolean","default":false},"nextDisabled":{"editor":"boolean","default":true},"onBack":{"editor":null},"onNext":{"editor":null},"filterLabel":{"editor":"text","default":""},"onFilters":{"editor":null},"onReset":{"editor":null},"$preview":{"width":360,"height":130}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"chips":{"editor":null},"title":{"editor":"text","default":""},"hint":{"editor":"text","default":""},"stepVisible":{"editor":"boolean","default":true},"backDisabled":{"editor":"boolean","default":false},"nextDisabled":{"editor":"boolean","default":true},"onBack":{"editor":null},"onNext":{"editor":null},"filterLabel":{"editor":"text","default":""},"onFilters":{"editor":null},"onReset":{"editor":null},"$preview":{"width":360,"height":130}}'>
 // переключатель периода статистики: день, неделя, месяц, год, свои даты и стрелки соседнего периода
 const RSR_NOOP = () => {};
+// без пропсов показываем текущую неделю пн–вс и сегодня
+const RSR_DEMO = (() => {
+  const m = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'], dm = (d) => d.getDate() + ' ' + m[d.getMonth()];
+  const t = new Date(), a = new Date(t.getFullYear(), t.getMonth(), t.getDate() - (t.getDay() + 6) % 7), b = new Date(a.getFullYear(), a.getMonth(), a.getDate() + 6);
+  return { title: 'Неделя · ' + (a.getMonth() === b.getMonth() ? a.getDate() + '–' : dm(a) + ' – ') + dm(b), hint: 'данные по ' + dm(t) };
+})();
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
     const chips = p.chips || ['День', 'Неделя', 'Месяц', 'Год', 'Даты'].map((label, i) => ({ label, pressed: i === 1, cls: 'raznos-chip' + (i === 1 ? ' raznos-is-active' : ''), tap: RSR_NOOP }));
     return {
-      chips, title: p.title || '', hint: p.hint || '',
+      chips, title: p.title || RSR_DEMO.title, hint: p.hint || RSR_DEMO.hint,
       step_visible: p.stepVisible !== false, back_disabled: !!p.backDisabled, next_disabled: p.nextDisabled !== false,
       on_back: typeof p.onBack === 'function' ? p.onBack : RSR_NOOP,
       on_next: typeof p.onNext === 'function' ? p.onNext : RSR_NOOP,

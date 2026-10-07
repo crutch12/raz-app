@@ -122,10 +122,7 @@
 .raznos-shift-alert.raznos-is-watch .raznos-shift-alert-action { background: var(--sh-track); color: var(--sh-ink); }
 .raznos-shift-alert-action:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
 
-@media (prefers-reduced-motion: no-preference) {
-  .raznos-shifts-toast { animation: raznos-shifts-toast-in .25s cubic-bezier(.16, 1, .3, 1) both; }
-  @keyframes raznos-shifts-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-}
+/* вход тоста общий для всех [data-toast], в raznos-v3.css */
 
 
 /* слоты: дата слева липкой колонкой, как в расписании календаря, сегодня в зелёном кружке */

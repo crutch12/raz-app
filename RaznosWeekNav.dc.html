@@ -20,7 +20,7 @@
   <span class="rwn-copy" aria-live="polite"><b>{{ title }}</b><span>{{ sub }}<sc-if value="{{ has_link }}" hint-placeholder-val="{{ false }}"> · <button type="button" class="rwn-link" onClick="{{ link }}">{{ link_label }}</button></sc-if></span></span>
   <button type="button" class="rwn-step" onClick="{{ next }}" disabled="{{ next_off }}" aria-label="Следующая неделя"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"start":{"editor":"text","default":"2026-09-14"},"offset":{"editor":"number","default":0},"min":{"editor":"number","default":-1},"max":{"editor":"number","default":1},"onChange":{"editor":null},"linkLabel":{"editor":"text"},"onLink":{"editor":null},"$preview":{"width":366,"height":60}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"start":{"editor":"text","default":""},"offset":{"editor":"number","default":0},"min":{"editor":"number","default":-1},"max":{"editor":"number","default":1},"onChange":{"editor":null},"linkLabel":{"editor":"text"},"onLink":{"editor":null},"$preview":{"width":366,"height":60}}'>
 // листание недель пн–вс в Плане: прошлая, эта и следующая
 const RWN_MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 class Component extends DCLogic {
@@ -28,7 +28,8 @@ class Component extends DCLogic {
     const p = this.props || {};
     const off = p.offset || 0;
     const min = p.min != null ? p.min : -1, max = p.max != null ? p.max : 1;
-    const a = new Date((p.start || '2026-09-14') + 'T00:00:00');
+    // без start берём понедельник текущей недели
+    const a = p.start ? new Date(p.start + 'T00:00:00') : (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - (d.getDay() + 6) % 7); })();
     a.setDate(a.getDate() + off * 7);
     const b = new Date(a); b.setDate(b.getDate() + 6);
     const change = (v) => { if (typeof p.onChange === 'function') p.onChange(v); };

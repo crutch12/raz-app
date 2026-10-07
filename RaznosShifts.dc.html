@@ -61,9 +61,9 @@
     <dc-import name="RaznosShiftSheet" svc="{{ sh.svc }}" title="{{ sh.title }}" place="{{ sh.place }}" time="{{ sh.time }}" status="{{ sh.status }}" tone="{{ sh.tone }}" whenNote="{{ sh.whenNote }}" money="{{ sh.money }}" moneyNote="{{ sh.moneyNote }}" conflict="{{ sh.conflict }}" rule="{{ sh.rule }}" ruleTone="{{ sh.ruleTone }}" ruleSrc="{{ sh.ruleSrc }}" action="{{ sh.action }}" actionNote="{{ sh.actionNote }}" onAction="{{ sh.act }}" onClose="{{ close_sheet }}"></dc-import>
   </sc-if>
 
-  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div class="raznos-shifts-toast" role="status"><span>{{ toast }}</span><sc-if value="{{ toast_has_act }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-shifts-toast-act" onClick="{{ toast_show }}">Показать</button></sc-if></div></sc-if>
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div class="raznos-shifts-toast" data-toast role="status"><button type="button" class="raznos-toast-x" data-toast-close onClick="{{ toast_close }}" aria-label="Закрыть"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span>{{ toast }}</span><sc-if value="{{ toast_has_act }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-shifts-toast-act" onClick="{{ toast_show }}">Показать</button></sc-if></div></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"caps":{"editor":null},"days":{"editor":null},"shifts":{"editor":null},"slots":{"editor":null},"rules":{"editor":null},"openings":{"editor":null},"deficits":{"editor":null},"watches":{"editor":null},"facts":{"editor":null},"today":{"editor":"text","default":"2026-09-15"},"nowMinutes":{"editor":null},"initialTab":{"editor":"text","default":"mine"},"initialWeek":{"editor":null},"onTake":{"editor":null},"onShowInPlan":{"editor":null},"initialDay":{"editor":"text","default":""},"initialSvc":{"editor":"text","default":""},"onBack":{"editor":null},"onOpenService":{"editor":null},"$preview":{"width":390,"height":1600}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"caps":{"editor":null},"days":{"editor":null},"shifts":{"editor":null},"slots":{"editor":null},"rules":{"editor":null},"openings":{"editor":null},"deficits":{"editor":null},"watches":{"editor":null},"facts":{"editor":null},"today":{"editor":"text","default":""},"nowMinutes":{"editor":null},"initialTab":{"editor":"text","default":"mine"},"initialWeek":{"editor":null},"onTake":{"editor":null},"onShowInPlan":{"editor":null},"initialDay":{"editor":"text","default":""},"initialSvc":{"editor":"text","default":""},"onBack":{"editor":null},"onOpenService":{"editor":null},"$preview":{"width":390,"height":1600}}'>
 // Смены: что уже взято в сервисах и что требует действия, плюс слоты, которые можно взять, и слежение
 // решения когда и где работать живут в Плане, здесь журнал броней недели
 const RSH_FMT = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
@@ -112,9 +112,11 @@ const RSH_STATUS = {
 const RSH_DAY_FULL = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
 const RSH_DOW = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 const RSH_MONTH = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+// демо-сегодня для показа отдельно от приложения, в приложении дата приходит пропсом today
+const RSH_TODAY_ISO = (() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();
 const RSH_DEMO_SHIFTS = [
-  { id: 'd1', iso: '2026-09-15', svc: 'vkusvill', title: 'ВкусВилл', place: 'Даркстор на Правды, 24', from: 840, to: 1020, status: 'active', rate: 400 },
-  { id: 'd2', iso: '2026-09-15', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Локация Беговая', from: 1020, to: 1200, status: 'confirmed', rate: 390 }
+  { id: 'd1', iso: RSH_TODAY_ISO, svc: 'vkusvill', title: 'ВкусВилл', place: 'Даркстор на Правды, 24', from: 840, to: 1020, status: 'active', rate: 400 },
+  { id: 'd2', iso: RSH_TODAY_ISO, svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Локация Беговая', from: 1020, to: 1200, status: 'confirmed', rate: 390 }
 ];
 const RSH_DOW_SHORT = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 class Component extends DCLogic {
@@ -122,13 +124,15 @@ class Component extends DCLogic {
     const p = this.props || {};
     const st = this.state || {};
     const set = (patch) => this.setState(patch);
-    const today = p.today || '2026-09-15';
+    const today = p.today || RSH_TODAY_ISO;
+    // понедельник недели сегодняшнего дня
+    const mon = (() => { const d = new Date(today + 'T00:00:00'); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return d; })();
     const now = p.nowMinutes == null ? 940 : p.nowMinutes;
     // неделя приходит из Плана: прошлая только посмотреть, эта и следующая как обычно
-    const weekOf = (iso) => Math.floor((new Date(iso + 'T00:00:00') - new Date(2026, 8, 14)) / (7 * 86400000));
+    const weekOf = (iso) => Math.floor(Math.round((new Date(iso + 'T00:00:00') - mon) / 86400000) / 7);
     const weekOff = p.initialWeek != null ? p.initialWeek : (p.initialDay ? weekOf(p.initialDay) : 0);
     const weekPast = weekOff < 0;
-    const weekIsos = Array.from({ length: 7 }, (_, i) => { const x = new Date(2026, 8, 14 + weekOff * 7 + i); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); });
+    const weekIsos = Array.from({ length: 7 }, (_, i) => { const x = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + weekOff * 7 + i); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); });
     const shifts = (p.shifts || RSH_DEMO_SHIFTS).filter((x) => weekIsos.indexOf(x.iso) !== -1);
     const slots = (p.slots || []).filter((x) => weekIsos.indexOf(x.iso) !== -1);
     const rules = p.rules || {};
@@ -377,7 +381,7 @@ class Component extends DCLogic {
     }));
     return {
       on_back: typeof p.onBack === 'function' ? p.onBack : (() => {}),
-      range_label: date(days[0]).getDate() + '–' + date(days[days.length - 1]).getDate() + ' ' + RSH_MONTH[date(days[days.length - 1]).getMonth()] + (weekOff < 0 ? ' · прошлая неделя' : (weekOff > 0 ? ' · следующая неделя' : ' · текущая неделя')),
+      range_label: date(days[0]).getDate() + (date(days[0]).getMonth() === date(days[days.length - 1]).getMonth() ? '–' : ' ' + RSH_MONTH[date(days[0]).getMonth()] + ' – ') + date(days[days.length - 1]).getDate() + ' ' + RSH_MONTH[date(days[days.length - 1]).getMonth()] + (weekOff < 0 ? ' · прошлая неделя' : (weekOff > 0 ? ' · следующая неделя' : ' · текущая неделя')),
       attention, has_attention: attention.length > 0,
       head_title: hasFree ? 'Слоты' : 'Смены',
       tabs, show_tabs: !weekPast && tabs.length > 1,
@@ -394,7 +398,7 @@ class Component extends DCLogic {
       watch_meta: watchCount ? watchCount + ' ' + RSH_PLURAL(watchCount, 'слот', 'слота', 'слотов') : '',
       watch_list: watchList, watch_empty: !watchList.length, opening_list: openingList,
       show_sheet: !!sheetShift || !!slotSheetView, sh: slotSheetView || sheetView, close_sheet: () => set({ sheet: null, slotSheet: null }),
-      toast: st.toast || '', toast_has_act: !!st.toastSlot && typeof p.onShowInPlan === 'function', toast_show: () => { if (st.toastSlot && typeof p.onShowInPlan === 'function') p.onShowInPlan(st.toastSlot); }
+      toast: st.toast || '', toast_close: () => this.setState({ toast: '' }), toast_has_act: !!st.toastSlot && typeof p.onShowInPlan === 'function', toast_show: () => { if (st.toastSlot && typeof p.onShowInPlan === 'function') p.onShowInPlan(st.toastSlot); }
     };
   }
 }

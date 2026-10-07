@@ -5,7 +5,7 @@
     <div class="raznos-stats-summary-lead">
       <sc-if value="{{ headline_visible }}" hint-placeholder-val="{{ true }}"><p class="raznos-stats-headline"><i class="raznos-hex-mark" aria-hidden="true"></i>{{ headline }}</p></sc-if>
       <div class="raznos-stats-recap-top"><h2 class="raznos-stats-summary-title">{{ lead_label }}</h2><sc-if value="{{ status_visible }}" hint-placeholder-val="{{ true }}"><span class="{{ status_class }}"><i aria-hidden="true"></i>{{ status_label }}</span></sc-if></div>
-      <div class="raznos-stats-summary-total"><span class="raznos-stats-summary-amount">{{ main_value }}</span><sc-if value="{{ net_known }}" hint-placeholder-val="{{ true }}"><span class="raznos-stats-summary-suffix">чистыми</span></sc-if></div>
+      <div class="raznos-stats-summary-total"><span class="raznos-stats-summary-amount" data-roll="stats-main">{{ main_value }}</span><sc-if value="{{ net_known }}" hint-placeholder-val="{{ true }}"><span class="raznos-stats-summary-suffix">чистыми</span></sc-if></div>
       <p class="raznos-stats-summary-sub">{{ sub_label }}</p>
       <sc-if value="{{ delta_visible }}" hint-placeholder-val="{{ true }}"><div class="{{ delta_class }}"><span class="raznos-stats-delta-mark" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><span>{{ delta_label }}</span></div></sc-if>
     </div>
@@ -25,7 +25,7 @@
     <sc-if value="{{ chart_visible }}" hint-placeholder-val="{{ true }}">
       <div class="raznos-stats-rhythm-panel">
         <h3 class="raznos-stats-rhythm-title">{{ chart_best_prefix }} <em class="raznos-stats-rhythm-accent">{{ chart_best_name }}</em></h3>
-        <div class="{{ chart_class }}" aria-label="Доход по периоду">
+        <div class="{{ chart_class }}" style="{{ chart_style }}" aria-label="Доход по периоду">
           <sc-for list="{{ chart }}" as="bar" hint-placeholder-count="7">
             <div class="{{ bar.cls }}" title="{{ bar.title }}"><span class="raznos-stats-day-ring" style="{{ bar.ring_style }}"><i></i></span><span class="raznos-stats-bar-label">{{ bar.label }}</span><span class="raznos-stats-bar-value">{{ bar.value }}</span></div>
           </sc-for>
@@ -38,6 +38,15 @@
 const RSS_FMT = (value) => String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const RSS_PLURAL = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; };
 const RSS_DAY = { 'Пн': 'в понедельник', 'Вт': 'во вторник', 'Ср': 'в среду', 'Чт': 'в четверг', 'Пт': 'в пятницу', 'Сб': 'в субботу', 'Вс': 'в воскресенье' };
+// отрезок кружка словами: 5.09–10.09 это с 5 по 10 сентября, 7–12 это с 7 по 12 число
+const RSS_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+const rssDay = (t) => { const [dd, mm] = t.split('.'); return mm ? Number(dd) + ' ' + RSS_GEN[Number(mm) - 1] : dd; };
+const rssSpan = (label) => {
+  const [a, b] = String(label).split('–');
+  if (!b) return rssDay(a) + (a.indexOf('.') === -1 ? ' числа' : '');
+  const same = a.split('.')[1] && a.split('.')[1] === b.split('.')[1];
+  return 'с ' + (same ? a.split('.')[0] : rssDay(a)) + ' по ' + rssDay(b) + (a.indexOf('.') === -1 ? ' число' : '');
+};
 const RSS_MONTH = { 'янв': 'в январе', 'фев': 'в феврале', 'мар': 'в марте', 'апр': 'в апреле', 'май': 'в мае', 'июн': 'в июне', 'июл': 'в июле', 'авг': 'в августе', 'сен': 'в сентябре', 'окт': 'в октябре', 'ноя': 'в ноябре', 'дек': 'в декабре' };
 class Component extends DCLogic {
   renderVals() {
@@ -63,7 +72,7 @@ class Component extends DCLogic {
     const goalPercent = goalTotal > 0 && goalFact != null ? Math.max(0, Math.round(goalFact * 100 / goalTotal)) : null;
     const goalPace = goalTotal > 0 && p.goalPace != null ? Math.max(0, Math.min(100, Math.round(Number(p.goalPace) * 100 / goalTotal))) : null;
     const bestPrefix = 'Больше всего заработали';
-    const bestName = !best ? '' : (chartMode === 'month' ? 'на ' + best.label.replace(' нед', '-й неделе') : (chartMode === 'year' ? (RSS_MONTH[best.label] || best.label) : (chartMode === 'long' ? 'с ' + best.label.replace('–', ' по ') + ' число' : (RSS_DAY[best.label] || best.label))));
+    const bestName = !best ? '' : (chartMode === 'year' ? (RSS_MONTH[best.label] || best.label) : (chartMode === 'month' || chartMode === 'long' ? rssSpan(best.label) : (RSS_DAY[best.label] || best.label)));
     const expensesKnown = /\d/.test(String(p.expensesLabel || ''));
     const finesShown = /[1-9]/.test(String(p.finesLabel || ''));
     return {
@@ -91,7 +100,9 @@ class Component extends DCLogic {
       goal_note: p.goalNote || (goalPercent == null ? '' : 'Выполнено ' + goalPercent + '%'),
       goal_note_class: 'raznos-stats-goal-note' + (/^Опережаете|выполнена/.test(p.goalNote || '') ? ' raznos-is-positive' : ''),
       chart_visible: p.chartMode !== 'today',
-      chart_class: 'raznos-stats-bars raznos-is-' + chartMode,
+      // больше 7 кружков раскладываем в два ряда
+      chart_class: 'raznos-stats-bars raznos-is-' + chartMode + (chart.length > 7 ? ' raznos-is-rows' : ''),
+      chart_style: chart.length > 7 ? '--rss-cols:' + Math.ceil(chart.length / 2) : '',
       chart_best_prefix: best ? bestPrefix : 'Пока нет данных по дням', chart_best_name: bestName,
       chart: chart.map((bar) => {
         const span = chartMode === 'month' ? Math.round(Math.max(0, Math.min(7, bar.spanDays == null ? 7 : bar.spanDays)) * 100 / 7) : 100;

@@ -11,14 +11,16 @@
   </div>
   <dc-import name="RaznosStatsLedger" title="Как считается" rows="{{ rows }}" note="Расчёт предварительный, точную сумму и квитанцию формирует приложение Мой налог"></dc-import>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"monthTitle":{"editor":"text","default":"К уплате за сентябрь"},"monthValue":{"editor":"text","default":"2 356 ₽"},"monthSub":{"editor":"text","default":"Заплатить до 28 октября, до конца месяца сумма ещё вырастет"},"rows":{"editor":null},"yearValue":{"editor":"text","default":"444 400 ₽"},"yearSub":{"editor":"text","default":"Доход с начала года из 2 400 000 ₽ лимита самозанятого"},"yearStyle":{"editor":"text","default":"width:19%"},"yearShare":{"editor":"text","default":"19%"},"$preview":{"width":360,"height":520}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"monthTitle":{"editor":"text","default":""},"monthValue":{"editor":"text","default":"2 356 ₽"},"monthSub":{"editor":"text","default":""},"rows":{"editor":null},"yearValue":{"editor":"text","default":"444 400 ₽"},"yearSub":{"editor":"text","default":"Доход с начала года из 2 400 000 ₽ лимита самозанятого"},"yearStyle":{"editor":"text","default":"width:19%"},"yearShare":{"editor":"text","default":"19%"},"$preview":{"width":360,"height":520}}'>
 // налоги самозанятого: сумма к уплате, лимит дохода за год и как считается ставка
+// демо-сегодня: налог за текущий месяц до 28 числа следующего
+const RSTXTAX = (() => { const t = new Date(), due = new Date(t.getFullYear(), t.getMonth() + 1, 28); return { month: ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'][t.getMonth()], due: due.getDate() + ' ' + ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'][due.getMonth()] }; })();
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
     return {
-      month_title: p.monthTitle || 'К уплате за сентябрь', month_value: p.monthValue || '2 356 ₽',
-      month_sub: p.monthSub || 'Заплатить до 28 октября, до конца месяца сумма ещё вырастет',
+      month_title: p.monthTitle || 'К уплате за ' + RSTXTAX.month, month_value: p.monthValue || '2 356 ₽',
+      month_sub: p.monthSub || 'Заплатить до ' + RSTXTAX.due + ', до конца месяца сумма ещё вырастет',
       year_value: p.yearValue || '444 400 ₽', year_sub: p.yearSub || 'Доход с начала года из 2 400 000 ₽ лимита самозанятого',
       year_style: p.yearStyle || 'width:19%', year_share: p.yearShare || '19%',
       rows: p.rows || [

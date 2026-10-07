@@ -9,8 +9,15 @@
   <span class="raznos-shift-alert-copy"><strong>{{ title }}</strong><span>{{ text }}</span><sc-if value="{{ meta }}" hint-placeholder-val="{{ true }}"><small>{{ meta }}</small></sc-if></span>
   <sc-if value="{{ has_action }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ action_cls }}" aria-pressed="{{ active }}" onClick="{{ on_action }}">{{ action }}</button></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"kind":{"editor":"enum","default":"opening","options":["opening","deficit","watch"]},"title":{"editor":"text","default":"Запись в Яндекс на 21–27 сентября"},"text":{"editor":"text","default":"Откроется в чт 17 сентября в 10:00 для уровня Золото"},"meta":{"editor":"text","default":"Платина видит слоты на 2 часа раньше · правила Яндекс Про"},"action":{"editor":"text","default":"Напомнить"},"activeAction":{"editor":"text","default":"Напомним за 5 мин"},"active":{"editor":"boolean","default":false},"onAction":{"editor":null},"$preview":{"width":366,"height":120}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"kind":{"editor":"enum","default":"opening","options":["opening","deficit","watch"]},"title":{"editor":"text","default":""},"text":{"editor":"text","default":""},"meta":{"editor":"text","default":"Платина видит слоты на 2 часа раньше · правила Яндекс Про"},"action":{"editor":"text","default":"Напомнить"},"activeAction":{"editor":"text","default":"Напомним за 5 мин"},"active":{"editor":"boolean","default":false},"onAction":{"editor":null},"$preview":{"width":366,"height":120}}'>
 // напоминание об открытии записи, предупреждение о дефиците слотов или слежение за слотом
+// демо-сегодня: реальная дата устройства, запись открывается в ближайший четверг на неделю после него
+const RSAM = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+const RSAAt = (off) => { const d = new Date(); d.setDate(d.getDate() + off); return d; };
+const RSAThu = (4 - new Date().getDay() + 7) % 7;
+const RSADm = (d) => d.getDate() + ' ' + RSAM[d.getMonth()];
+const RSARange = (a, b) => (a.getMonth() === b.getMonth() ? a.getDate() + '–' : RSADm(a) + ' – ') + RSADm(b);
+const RSAOPENING = { title: 'Запись в Яндекс на ' + RSARange(RSAAt(RSAThu + 4), RSAAt(RSAThu + 10)), text: 'Откроется в чт ' + RSADm(RSAAt(RSAThu)) + ' в 10:00' };
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
@@ -20,7 +27,7 @@ class Component extends DCLogic {
     const action = active ? val('activeAction', 'Напомним за 5 мин') : val('action', 'Напомнить');
     return {
       is_opening: kind === 'opening', is_deficit: kind === 'deficit', is_watch: kind === 'watch',
-      title: val('title', 'Запись в Яндекс на 21–27 сентября'), text: val('text', 'Откроется в чт 17 сентября в 10:00 для уровня Золото'),
+      title: p.title || RSAOPENING.title, text: p.text || RSAOPENING.text + ' для уровня Золото',
       meta: val('meta', 'Платина видит слоты на 2 часа раньше · правила Яндекс Про'),
       action, has_action: !!action, active,
       action_cls: 'raznos-shift-alert-action' + (active ? ' raznos-is-on' : ''),

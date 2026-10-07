@@ -125,9 +125,11 @@
 .raznos-stats-bars.raznos-is-year { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px 4px; }
 .raznos-stats-bars.raznos-is-year .raznos-stats-day-ring { width: 34px; height: 34px; }
 .raznos-stats-bars.raznos-is-year .raznos-stats-day-ring i { inset: 6px; }
-.raznos-stats-bars.raznos-is-long { gap: 2px; }
-.raznos-stats-bars.raznos-is-long .raznos-stats-day-ring { width: 20px; height: 20px; }
-.raznos-stats-bars.raznos-is-long .raznos-stats-day-ring i { inset: 4px; }
+/* больше 7 кружков: два ряда; у своих дат подписи не влезают, лучший отрезок назван в заголовке */
+.raznos-stats-bars.raznos-is-rows { display: grid; grid-template-columns: repeat(var(--rss-cols, 7), minmax(0, 1fr)); gap: 12px 4px; justify-items: center; }
+.raznos-stats-bars.raznos-is-long .raznos-stats-day-ring { width: 32px; height: 32px; }
+.raznos-stats-bars.raznos-is-long .raznos-stats-day-ring i { inset: 6px; }
+.raznos-stats-bars.raznos-is-long .raznos-stats-bar-label { display: none; }
 .raznos-stats-bars.raznos-is-long .raznos-stats-bar-value { display: none; }
 .raznos-stats-bars.raznos-is-long .raznos-stats-bar-label { font-size: 9px; }
 
@@ -336,9 +338,7 @@
 .raznos-stats-field :focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 3px; }
 
 @media (prefers-reduced-motion: no-preference) {
-  .raznos-stats-overview-card { animation: raznos-stats-card-in .45s cubic-bezier(.16, 1, .3, 1) both; }
-  .raznos-stats-filter-sheet { animation: raznos-stats-filter-in .28s cubic-bezier(.16, 1, .3, 1) both; }
-  @keyframes raznos-stats-card-in { from { opacity: .5; transform: translateY(8px); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
+  .raznos-stats-filter-sheet { animation: raznos-stats-filter-in .24s cubic-bezier(.16, 1, .3, 1) both; }
   @keyframes raznos-stats-filter-in { from { transform: translateY(18px); } to { transform: none; } }
 }
 
@@ -476,16 +476,19 @@
 .raznos-stats-compare-card .raznos-stats-trend-tile-copy small { flex-direction: column; }
 .raznos-stats-verdict-gauge { margin: -2px 0 0 30px; }
 
-/* топ курьеров в профиле: место справа, сдвиг за сегодня под подписью, при открытии по рамке дважды пробегает золотой блик */
-@property --rstl-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+/* топ курьеров в профиле: место справа, сдвиг за сегодня под подписью, при открытии по поверхности один раз перекатывается золотой блик, не по рамке, чтобы не путать с идущим окном */
 .raznos-stats-top-card { position: relative; }
 .raznos-stats-top-delta { display: inline-flex; align-items: center; gap: 3px; font: 600 11.5px var(--raznos-font); white-space: nowrap; }
 .raznos-stats-top-delta.raznos-is-up { color: var(--raznos-green-deep); }
 .raznos-stats-top-delta.raznos-is-down { color: var(--stats-muted); }
 .raznos-stats-top-num { font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: no-preference) {
-  .raznos-stats-top-shine::before { content: ""; position: absolute; inset: 0; padding: 2px; border-radius: inherit; pointer-events: none; opacity: 0; background: conic-gradient(from var(--rstl-angle), transparent 0deg 240deg, var(--raznos-amber) 300deg, oklch(0.93 0.11 92) 325deg, transparent 360deg); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: rstl-shine 2.8s ease-in-out .2s 1 both; }
-  .raznos-stats-top-shine .raznos-stats-top-delta { animation: rstl-delta-in .45s cubic-bezier(.34, 1.56, .64, 1) .6s both; }
-  @keyframes rstl-shine { 0% { --rstl-angle: 0deg; opacity: 0; } 8% { opacity: 1; } 90% { opacity: 1; } 100% { --rstl-angle: 720deg; opacity: 0; } }
-  @keyframes rstl-delta-in { from { opacity: 0; transform: translateY(4px) scale(.9); } to { opacity: 1; transform: none; } }
+  .raznos-stats-top-shine { overflow: hidden; }
+  .raznos-stats-top-shine::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(105deg, transparent 32%, color-mix(in oklab, oklch(0.93 0.11 92) 60%, transparent) 50%, transparent 68%); transform: translateX(-100%); animation: rstl-sweep 1.1s cubic-bezier(.45, 0, .25, 1) .3s 1 both; }
+  .raznos-stats-top-shine .raznos-stats-top-delta { animation: rstl-delta-in .25s cubic-bezier(.16, 1, .3, 1) .6s both; }
+  @keyframes rstl-sweep { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+  @keyframes rstl-delta-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 }
+
+/* строка периода со стрелками липнет к верху, табы периода уезжают под неё */
+.raznos-stats-sticky { position: sticky; top: -54px; z-index: 6; margin: 0 calc(var(--raznos-screen-x, 16px) * -1); padding: 6px var(--raznos-screen-x, 16px) 8px; background: var(--raznos-bg); }

@@ -28,7 +28,7 @@
 .raznos-conn-problem { display: flex; align-items: center; gap: 10px; }
 .raznos-conn-problem .raznos-list-main { min-width: 0; }
 .raznos-sync-progress { height: 4px; border-radius: 2px; background: var(--raznos-surface-2); overflow: hidden; }
-.raznos-sync-progress-fill { display: block; height: 100%; background: var(--raznos-dark); transition: width 0.3s ease; }
+.raznos-sync-progress-fill { display: block; height: 100%; background: var(--raznos-dark); }
 
 /* Календарь слотов */
 .raznos-slot-day { display: flex; flex-direction: column; gap: 6px; }

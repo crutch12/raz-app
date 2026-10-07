@@ -41,10 +41,12 @@
     </sc-for>
   </div>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"period":{"editor":"enum","default":"year","options":["year","12m","custom"]},"svc":{"editor":"text","default":"all"},"months":{"editor":null},"from":{"editor":"text","default":"2026-06"},"to":{"editor":"text","default":"2026-09"},"onRangeChange":{"editor":null},"onOpenExpenses":{"editor":null},"$preview":{"width":360,"height":900}}'>
-const SH_MIN = '2025-10';
-const SH_MAX = '2026-09';
-// месяцы приходят из RaznosApp вместе с текущим сентябрём, чтобы итоги совпадали со сравнением
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"period":{"editor":"enum","default":"year","options":["year","12m","custom"]},"svc":{"editor":"text","default":"all"},"months":{"editor":null},"from":{"editor":"text","default":""},"to":{"editor":"text","default":""},"onRangeChange":{"editor":null},"onOpenExpenses":{"editor":null},"$preview":{"width":360,"height":900}}'>
+// ключ месяца со сдвигом от текущего, данные есть за 11 месяцев до текущего
+const shMonthAt = (k) => { const t = new Date(), d = new Date(t.getFullYear(), t.getMonth() + k, 1); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); };
+const SH_MIN = shMonthAt(-11);
+const SH_MAX = shMonthAt(0);
+// месяцы приходят из RaznosApp вместе с текущим, чтобы итоги совпадали со сравнением
 const shFmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const shK = (n) => { const v = Math.round(n / 100) / 10; return String(v >= 100 ? Math.round(v) : v).replace('.', ','); };
 function shPick(m, svc) {
@@ -70,11 +72,11 @@ class Component extends DCLogic {
     const period = p.period || 'year';
     const svc = p.svc || 'all';
     const all = p.months || [];
-    const from = p.from || '2026-06';
+    const from = p.from || shMonthAt(-3);
     const to = p.to || SH_MAX;
     const onRange = p.onRangeChange || (() => {});
     const lo = from <= to ? from : to, hi = from <= to ? to : from;
-    const months = period === '12m' ? all : (period === 'year' ? all.filter((m) => m.key >= '2026-01') : all.filter((m) => m.key >= lo && m.key <= hi));
+    const months = period === '12m' ? all : (period === 'year' ? all.filter((m) => m.key >= SH_MAX.slice(0, 4) + '-01') : all.filter((m) => m.key >= lo && m.key <= hi));
     const group = st.group === 'quarter' ? 'quarter' : 'month';
     const t = shSum(months, svc);
     const bucketsOf = () => {
@@ -100,7 +102,8 @@ class Component extends DCLogic {
       cls: 'raznos-bar-fill' + (b.empty ? ' raznos-is-missing' : (b.s.gross === 0 ? ' raznos-is-zero' : '')) + (svc === 'samokat' ? ' raznos-is-alt' : ''),
       style: b.empty || b.s.gross === 0 ? '' : 'height:' + Math.max(6, Math.round((b.s.gross / maxGross) * 100)) + '%'
     }));
-    const rangeLabel = months.length ? (months.length === 1 ? months[0].title : months[0].title.replace(/^1–15 /, '') + ' – ' + (months[months.length - 1].key === '2026-09' ? '15 сентября 2026' : months[months.length - 1].title)) : '';
+    const rangeLabel = months.length ? (months.length === 1 ? months[0].title : months[0].title.replace(/^1(–\d+)? /, '') + ' – ' + months[months.length - 1].title) : '';
+    const zeroMonth = months.find((m) => m.vv && m.sk && m.vv[0] === 0 && m.sk[0] === 0);
     const perHour = t.hours > 0 ? shFmt(t.gross / t.hours) + ' ₽/ч' : '—';
     const svcTitle = svc === 'vkusvill' ? 'ВкусВилл' : (svc === 'samokat' ? 'Самокат' : '');
     const periodTitle = period === 'year' ? 'Этот год' : (period === '12m' ? 'Последние 12 месяцев' : 'Свой период');
@@ -126,7 +129,7 @@ class Component extends DCLogic {
         { key: 'month', label: 'Месяцы', disabled: false },
         { key: 'quarter', label: 'Кварталы', disabled: false }
       ].map((g) => ({ label: g.label, disabled: g.disabled, hint: g.hint || '', cls: 'raznos-chip' + (group === g.key ? ' raznos-is-active' : ''), tap: g.disabled ? (() => {}) : (() => this.setState({ group: g.key })) })),
-      group_hint: 'Дни и недели доступны за период до 92 дней' + (months.some((m) => m.key === '2026-01') ? '. Январь без заказов показан нулём' : '') + (t.missing.length ? ', месяцы без данных заштрихованы' : ''),
+      group_hint: 'Дни и недели доступны за период до 92 дней' + (zeroMonth ? '. ' + zeroMonth.title.split(' ')[0] + ' без заказов показан нулём' : '') + (t.missing.length ? ', месяцы без данных заштрихованы' : ''),
       bars,
       periods: buckets.slice().reverse().map((b) => ({
         label: b.title,

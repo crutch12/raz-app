@@ -30,23 +30,25 @@
   </div>
   <div class="rsp-foot"><span class="rsp-goal">{{ foot_note }}</span><span class="rsp-open">План дня<span class="raznos-row-chevron">›</span></span></div>
 </button>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"caps":{"editor":null},"open":{"editor":null},"blocks":{"editor":null},"bookings":{"editor":null},"today":{"editor":"text","default":"2026-09-15"},"nowMinutes":{"editor":null},"dayLabel":{"editor":"text","default":"Сегодня"},"$preview":{"width":390,"height":330}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"caps":{"editor":null},"open":{"editor":null},"blocks":{"editor":null},"bookings":{"editor":null},"today":{"editor":"text","default":""},"nowMinutes":{"editor":null},"dayLabel":{"editor":"text","default":"Сегодня"},"$preview":{"width":390,"height":330}}'>
 // превью плана на сегодня для хаба Работа: брони из Смен важнее плана, план закрывает свободные часы
 // названия и свободный выход идут из профиля сервисов (пропс caps), запасной набор только для показа без приложения
 const RSP_CAPS_FALLBACK = { 'yandex-eda': { title: 'Яндекс Еда', modes: ['plan', 'free'] }, samokat: { title: 'Самокат', modes: ['plan'] }, vkusvill: { title: 'ВкусВилл', modes: ['plan'] }, x5: { title: 'X5 Доставка', modes: ['plan'] } };
 // план закрывает свободные часы графика свободным выходом, брони из Смен важнее
 const RSP_DEMO = [{ from: 9, to: 18, svc: 'yandex-eda' }];
+// демо-сегодня: реальная дата устройства
+const rspAt = (off) => { const d = new Date(); d.setDate(d.getDate() + off); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 const RSP_DEMO_BOOKED = [
-  { iso: '2026-09-15', svc: 'samokat', from: 540, to: 720, status: 'completed' },
-  { iso: '2026-09-15', svc: 'vkusvill', from: 840, to: 1020, status: 'active' },
-  { iso: '2026-09-15', svc: 'yandex-eda', from: 1020, to: 1200, status: 'confirmed' }
+  { iso: rspAt(0), svc: 'samokat', from: 540, to: 720, status: 'completed' },
+  { iso: rspAt(0), svc: 'vkusvill', from: 840, to: 1020, status: 'active' },
+  { iso: rspAt(0), svc: 'yandex-eda', from: 1020, to: 1200, status: 'confirmed' }
 ];
 const RSP_TIME = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
     const open = typeof p.open === 'function' ? p.open : (() => {});
-    const today = p.today || '2026-09-15';
+    const today = p.today || rspAt(0);
     const now = p.nowMinutes == null ? 940 : p.nowMinutes;
     const caps = p.caps || RSP_CAPS_FALLBACK;
     const RSP_SVC = {}, RSP_FREE = [];

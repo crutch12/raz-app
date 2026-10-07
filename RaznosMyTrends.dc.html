@@ -138,10 +138,13 @@ class Component extends DCLogic {
     }));
     // столбики по периодам с медианой города, как сравнение в Gridwise
     const demoPoint = (label, title, earn, median, running) => ({ label, title, running, values: { earn, rate: Math.round(earn / 100), perOrder: 280, ordersPerHour: 2.4 }, medians: { earn: median, rate: Math.round(median / 100), perOrder: 270, ordersPerHour: 2.3 } });
-    const series = Array.isArray(p.series) ? p.series : [
-      demoPoint('апр', 'Апрель 2026', 60950, 56700), demoPoint('май', 'Май 2026', 70000, 72800), demoPoint('июн', 'Июнь 2026', 75400, 67900),
-      demoPoint('июл', 'Июль 2026', 49500, 48500), demoPoint('авг', 'Август 2026', 79650, 84400), demoPoint('сен', 'Сентябрь 2026, период идёт', 58900, 54200, true)
-    ];
+    // демо без пропса: шесть месяцев до текущего включительно
+    const demoMonth = (i, earn, median) => {
+      const t = new Date(), d = new Date(t.getFullYear(), t.getMonth() - 5 + i, 1), cur = i === 5;
+      const names = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+      return demoPoint(names[d.getMonth()].slice(0, 3).toLowerCase(), names[d.getMonth()] + ' ' + d.getFullYear() + (cur ? ', период идёт' : ''), earn, median, cur);
+    };
+    const series = Array.isArray(p.series) ? p.series : [[60950, 56700], [70000, 72800], [75400, 67900], [49500, 48500], [79650, 84400], [58900, 54200]].map((v, i) => demoMonth(i, v[0], v[1]));
     const unit = ({ earn: ' ₽', orders: '', rate: ' ₽/ч', perOrder: ' ₽', ordersPerHour: '', hours: ' ч' })[selected.key] || '';
     const known = series.filter((point) => point.values && point.values[selected.key] != null);
     const maxValue = Math.max.apply(null, known.map((point) => Math.max(point.values[selected.key], point.medians[selected.key] || 0)).concat([1])) * 1.08;

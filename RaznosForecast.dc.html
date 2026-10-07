@@ -40,7 +40,7 @@
 
         <sc-if value="{{ is_tab_now }}" hint-placeholder-val="{{ true }}">
           <div class="raznos-fx raznos-col raznos-gap12">
-            <span class="raznos-text-tiny">Сейчас, 15 сентября · открыто в {{ now_clock }}</span>
+            <span class="raznos-text-tiny">Сейчас, {{ today_label }} · открыто в {{ now_clock }}</span>
             <dc-import name="RaznosAreaMap" title="Районы сейчас" rows="{{ area_map_rows }}" source="Демонстрация текущих предложений, свежесть и источники указаны в карточках ниже"></dc-import>
 
             <sc-for list="{{ now_cards }}" as="rec" hint-placeholder-count="4">
@@ -100,7 +100,7 @@
               </sc-for>
             </div>
             <sc-if value="{{ forecast_has_data }}" hint-placeholder-val="{{ true }}">
-              <span class="raznos-text-tiny">Прогноз на 15 сентября</span>
+              <span class="raznos-text-tiny">Прогноз на {{ today_label }}</span>
               <div class="raznos-forecast-rec-top">
                 <dc-import name="RaznosIcon" svc="{{ forecast_selected_svc }}" alt="{{ forecast_selected_svc_title }}" size="md"></dc-import>
                 <div class="raznos-forecast-rec-title">
@@ -220,6 +220,10 @@
           { id: 'kolomna', district: 'Коломна', svc: 'samokat', demand: 'unknown', duration: null, nextWait: null, travelBase: 13, updatedAt: '14:55', source: 'демо предложений сервиса', hasData: false }
         ]
       };
+      // демо-сегодня: реальная дата устройства, выборка это 28 дней до сегодня
+      const FC_MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+      const fcDay = (off) => { const d = new Date(); d.setDate(d.getDate() + off); return d.getDate() + ' ' + FC_MONTHS[d.getMonth()]; };
+      const FC_PERIOD = fcDay(-28) + ' – ' + fcDay(-1);
       function fcPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
       const USUAL_DATA = {
         moscow: [
@@ -393,7 +397,7 @@
             district: item.district,
             svcTitle: SERVICE_TITLES[item.svc] || item.svc,
             rangeText: item.rateMin + '–' + item.rateMax,
-            sampleText: '28 дней · 18 августа – 14 сентября · ' + item.sampleShifts + ' ' + fcPlural(item.sampleShifts, 'смена', 'смены', 'смен')
+            sampleText: '28 дней · ' + FC_PERIOD + ' · ' + item.sampleShifts + ' ' + fcPlural(item.sampleShifts, 'смена', 'смены', 'смен')
           }));
 
           const forecastCity = FORECAST_DATA[city];
@@ -435,10 +439,10 @@
             is_tab_now: st.tab === 'now',
             is_tab_usual: st.tab === 'usual',
             is_tab_forecast: st.tab === 'forecast',
-            now_clock: '15:40',
+            now_clock: '15:40', today_label: fcDay(0),
             area_map_rows: now_cards.filter(r => r.hasData).slice(0, 3).map(r => ({ district: r.district, income: r.rangeText, incomeNote: 'До расходов', activity: r.demandLabel, activityNote: r.svcTitle })),
             now_cards,
-            usual_period_text: '28 дней, 18 августа – 14 сентября',
+            usual_period_text: '28 дней, ' + FC_PERIOD,
             usual_rows,
             forecast_district_options,
             forecast_has_data,

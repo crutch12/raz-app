@@ -32,9 +32,10 @@ class Component extends DCLogic {
       { key: 'samokat', title: 'Самокат', amount: '−350 ₽', bar_style: 'width:100%' },
       { key: 'vkusvill', title: 'ВкусВилл', amount: '−300 ₽', bar_style: 'width:86%' }
     ];
+    const finesDay = (off) => { const d = new Date(); d.setDate(d.getDate() + off); return d.getDate() + ' ' + ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'][d.getMonth()]; };
     const cases = (p.cases || [
-      { key: 'samokat', reason: 'Корректировка за опоздание', amount: '−100 ₽', meta: '15 сентября · Самокат · заказ СМ-40731' },
-      { key: 'vkusvill', reason: 'Корректировка: нет фото вручения', amount: '−50 ₽', meta: '14 сентября · ВкусВилл · заказ ВВ-88602' }
+      { key: 'samokat', reason: 'Корректировка за опоздание', amount: '−100 ₽', meta: finesDay(0) + ' · Самокат · заказ СМ-40731' },
+      { key: 'vkusvill', reason: 'Корректировка: нет фото вручения', amount: '−50 ₽', meta: finesDay(-1) + ' · ВкусВилл · заказ ВВ-88602' }
     ]).map((row) => Object.assign({}, row, { tap: typeof row.tap === 'function' ? row.tap : (() => {}) }));
     return {
       title: p.title || 'Удержано', accent: p.accent === undefined ? '650 ₽' : (p.accent || ''), sub: p.sub || '',

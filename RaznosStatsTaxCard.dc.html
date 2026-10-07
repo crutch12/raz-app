@@ -5,13 +5,15 @@
   <span class="raznos-stats-top-copy"><strong>Налог {{ value }}</strong><small>{{ sub }}</small></span>
   <svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
 </button>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"value":{"editor":"text","default":"≈ 320 ₽"},"sub":{"editor":"text","default":"4% с учётом налогового бонуса · за сентябрь до 28 октября"},"onOpen":{"editor":null},"$preview":{"width":360,"height":84}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"value":{"editor":"text","default":"≈ 320 ₽"},"sub":{"editor":"text","default":""},"onOpen":{"editor":null},"$preview":{"width":360,"height":84}}'>
 // налог самозанятого за период, по нажатию экран с суммой к уплате, бонусом и лимитом
+// демо-сегодня: налог за текущий месяц до 28 числа следующего
+const RSTCTAX = (() => { const t = new Date(), due = new Date(t.getFullYear(), t.getMonth() + 1, 28); return { month: ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'][t.getMonth()], due: due.getDate() + ' ' + ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'][due.getMonth()] }; })();
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
     const value = p.value || '≈ 320 ₽';
-    const sub = p.sub || '4% с учётом налогового бонуса · за сентябрь до 28 октября';
+    const sub = p.sub || '4% с учётом налогового бонуса · за ' + RSTCTAX.month + ' до ' + RSTCTAX.due;
     return { value, sub, aria: 'Налог за период ' + value + ', ' + sub, on_open: typeof p.onOpen === 'function' ? p.onOpen : (() => {}) };
   }
 }

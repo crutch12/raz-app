@@ -76,10 +76,18 @@ const RTC_COURIERS = [
   { money: 34200, orders: 205, tips: 540, hour: 900, dist: 610 },
   { money: 32900, orders: 189, tips: 690, hour: 940, dist: 470 }
 ];
-// те же цифры, что в Статистике и Профиле за 7–13 сентября
+// демо-цифры за прошлую неделю
 const RTC_ME = { money: 27240, orders: 92, tips: 105, hour: 650, dist: 210 };
 // демо-место среди всех участников города по каждому показателю
 const RTC_MY_RANK = { money: 28, orders: 64, tips: 118, hour: 71, dist: 56 };
+// прошлая неделя пн–вс и прошлый месяц от сегодня
+const RTC_PERIODS = (() => {
+  const gen = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+  const nom = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+  const t = new Date(), a = new Date(t.getFullYear(), t.getMonth(), t.getDate() - (t.getDay() + 6) % 7 - 7), b = new Date(a.getFullYear(), a.getMonth(), a.getDate() + 6);
+  const week = a.getMonth() === b.getMonth() ? a.getDate() + '–' + b.getDate() + ' ' + gen[b.getMonth()] : a.getDate() + ' ' + gen[a.getMonth()] + ' – ' + b.getDate() + ' ' + gen[b.getMonth()];
+  return { week: 'Неделя ' + week, month: nom[(t.getMonth() + 11) % 12] };
+})();
 const rtcFmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const rtcVal = (v, unit) => unit === 'money' ? (rtcFmt(v) + ' ₽') : unit === 'hour' ? (rtcFmt(v) + ' ₽/ч') : unit === 'dist' ? (rtcFmt(v) + ' км') : rtcFmt(v);
 class Component extends DCLogic {
@@ -107,7 +115,7 @@ class Component extends DCLogic {
       filters: [
         { key: 'metric', title: 'Показатель', value: metric, def: 'money', options: RTC_METRICS.map((m) => ({ k: m.key, label: m.label })) },
         { key: 'scope', title: 'Где', value: scope, def: 'city', options: [{ k: 'city', label: 'Москва' }, { k: 'all', label: 'Все города' }] },
-        { key: 'period', title: 'Период', value: period, def: 'week', options: [{ k: 'week', label: 'Неделя 7–13 сентября' }, { k: 'month', label: 'Август' }] }
+        { key: 'period', title: 'Период', value: period, def: 'week', options: [{ k: 'week', label: RTC_PERIODS.week }, { k: 'month', label: RTC_PERIODS.month }] }
       ],
       set_filter: (key, v) => set({ [key]: v }),
       my_place: myRank[metric] + ' место',

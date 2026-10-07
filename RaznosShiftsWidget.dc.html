@@ -21,13 +21,15 @@
   <sc-if value="{{ has_flags }}" hint-placeholder-val="{{ true }}"><span class="rsw-flags"><sc-for list="{{ flags }}" as="flag" hint-placeholder-count="2"><span class="{{ flag.cls }}">{{ flag.label }}</span></sc-for></span></sc-if>
   <sc-if value="{{ deadline }}" hint-placeholder-val="{{ false }}"><span class="rsw-deadline">{{ deadline }}</span></sc-if>
 </button>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"caps":{"editor":null},"shifts":{"editor":null},"rules":{"editor":null},"today":{"editor":"text","default":"2026-09-15"},"nowMinutes":{"editor":null},"open":{"editor":null},"$preview":{"width":390,"height":130}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"caps":{"editor":null},"shifts":{"editor":null},"rules":{"editor":null},"today":{"editor":"text","default":""},"nowMinutes":{"editor":null},"open":{"editor":null},"$preview":{"width":390,"height":130}}'>
 // вход в Смены из Работы: сколько смен на неделе и что требует внимания, подробности на самом экране
+// демо-сегодня: реальная дата устройства
+const rswAt = (off) => { const d = new Date(); d.setDate(d.getDate() + off); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 const RSW_DEMO = [
-  { id: 'a', iso: '2026-09-15', svc: 'vkusvill', title: 'ВкусВилл', from: 840, to: 1020, status: 'active' },
-  { id: 'b', iso: '2026-09-15', svc: 'yandex-eda', title: 'Яндекс Еда', from: 1020, to: 1200, status: 'confirmed' },
-  { id: 'c', iso: '2026-09-16', svc: 'samokat', title: 'Самокат', from: 630, to: 810, status: 'confirmed' },
-  { id: 'd', iso: '2026-09-16', svc: 'vkusvill', title: 'ВкусВилл', from: 840, to: 1080, status: 'requested' }
+  { id: 'a', iso: rswAt(0), svc: 'vkusvill', title: 'ВкусВилл', from: 840, to: 1020, status: 'active' },
+  { id: 'b', iso: rswAt(0), svc: 'yandex-eda', title: 'Яндекс Еда', from: 1020, to: 1200, status: 'confirmed' },
+  { id: 'c', iso: rswAt(1), svc: 'samokat', title: 'Самокат', from: 630, to: 810, status: 'confirmed' },
+  { id: 'd', iso: rswAt(1), svc: 'vkusvill', title: 'ВкусВилл', from: 840, to: 1080, status: 'requested' }
 ];
 const RSW_TRAVEL = 20;
 const RSW_DOW = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
@@ -37,7 +39,7 @@ class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
     const open = typeof p.open === 'function' ? p.open : (() => {});
-    const today = p.today || '2026-09-15';
+    const today = p.today || rswAt(0);
     const now = p.nowMinutes == null ? 940 : p.nowMinutes;
     const rules = p.rules || {};
     const live = (p.shifts || RSW_DEMO).filter((s) => s.status !== 'cancelled' && s.status !== 'missed');
