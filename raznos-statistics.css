@@ -476,7 +476,7 @@
 .raznos-stats-compare-card .raznos-stats-trend-tile-copy small { flex-direction: column; }
 .raznos-stats-verdict-gauge { margin: -2px 0 0 30px; }
 
-/* топ курьеров в профиле: место справа, сдвиг за сегодня под подписью, при открытии по рамке один раз пробегает золотой блик */
+/* топ курьеров в профиле: место справа, сдвиг за сегодня под подписью, при открытии по рамке дважды пробегает золотой блик */
 @property --rstl-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
 .raznos-stats-top-card { position: relative; }
 .raznos-stats-top-delta { display: inline-flex; align-items: center; gap: 3px; font: 600 11.5px var(--raznos-font); white-space: nowrap; }
@@ -484,8 +484,8 @@
 .raznos-stats-top-delta.raznos-is-down { color: var(--stats-muted); }
 .raznos-stats-top-num { font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: no-preference) {
-  .raznos-stats-top-shine::before { content: ""; position: absolute; inset: 0; padding: 2px; border-radius: inherit; pointer-events: none; opacity: 0; background: conic-gradient(from var(--rstl-angle), transparent 0deg 240deg, var(--raznos-amber) 300deg, oklch(0.93 0.11 92) 325deg, transparent 360deg); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: rstl-shine 1.7s ease-in-out .2s 1 both; }
-  .raznos-stats-top-shine .raznos-stats-top-delta { animation: rstl-delta-in .45s cubic-bezier(.34, 1.56, .64, 1) 1.05s both; }
-  @keyframes rstl-shine { 0% { --rstl-angle: 0deg; opacity: 0; } 12% { opacity: 1; } 85% { opacity: 1; } 100% { --rstl-angle: 360deg; opacity: 0; } }
+  .raznos-stats-top-shine::before { content: ""; position: absolute; inset: 0; padding: 2px; border-radius: inherit; pointer-events: none; opacity: 0; background: conic-gradient(from var(--rstl-angle), transparent 0deg 240deg, var(--raznos-amber) 300deg, oklch(0.93 0.11 92) 325deg, transparent 360deg); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: rstl-shine 2.8s ease-in-out .2s 1 both; }
+  .raznos-stats-top-shine .raznos-stats-top-delta { animation: rstl-delta-in .45s cubic-bezier(.34, 1.56, .64, 1) .6s both; }
+  @keyframes rstl-shine { 0% { --rstl-angle: 0deg; opacity: 0; } 8% { opacity: 1; } 90% { opacity: 1; } 100% { --rstl-angle: 720deg; opacity: 0; } }
   @keyframes rstl-delta-in { from { opacity: 0; transform: translateY(4px) scale(.9); } to { opacity: 1; transform: none; } }
 }

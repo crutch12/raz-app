@@ -127,3 +127,14 @@
   @keyframes raznos-shifts-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 }
 
+
+/* слоты: дата слева липкой колонкой, как в расписании календаря, сегодня в зелёном кружке */
+.raznos-shifts-cal { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 8px; align-items: start; }
+.raznos-shifts-gutter { align-self: stretch; }
+.raznos-shifts-date { position: sticky; top: 8px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 4px; }
+.raznos-shifts-date > span { font: 600 12px var(--raznos-font); color: var(--sh-muted); }
+.raznos-shifts-date > b { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font: 750 18px var(--raznos-font); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+.raznos-shifts-date.raznos-is-today > span { color: var(--raznos-green-deep); }
+.raznos-shifts-date.raznos-is-today > b { background: var(--raznos-green); color: var(--raznos-on-dark); }
+.raznos-shifts-col { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.raznos-shifts-cal + .raznos-shifts-cal { margin-top: 6px; }

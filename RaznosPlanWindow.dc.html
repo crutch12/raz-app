@@ -14,11 +14,16 @@
     }
     .rpw.rpw-need { border: 1px dashed var(--raznos-line-strong); }
     .rpw.rpw-past { opacity: 0.55; }
+    .rpw.rpw-inline .rpw-hit { grid-template-columns: 1fr; }
+    .rpw.rpw-inline .rpw-time { display: none; }
+    .rpw.rpw-inline .rpw-sub { white-space: pre-line; }
     /* окно идёт сейчас: яркая рамка, пульс у бейджа, полоска прошедшего времени */
     .rpw.rpw-now { position: relative; border: 1.5px solid color-mix(in oklab, var(--raznos-green) 55%, var(--raznos-line)); }
-    .rpw-now-row { display: flex; align-items: center; gap: 10px; }
-    .rpw-now-bar { flex: 1; height: 6px; border-radius: 999px; background: color-mix(in oklab, var(--raznos-green) 18%, var(--raznos-surface-2)); overflow: hidden; }
-    .rpw-now-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--raznos-green); }
+    /* линия сейчас поперёк идущего окна, на высоте прошедшего времени, как в календаре */
+    .rpw-nowline { position: absolute; left: -18px; right: -12px; height: 2px; background: var(--raznos-red); pointer-events: none; z-index: 0; opacity: .85; }
+    .rpw-now .rpw-hit, .rpw-now .rpw-end { position: relative; z-index: 1; }
+    .rpw-now .rpw-time, .rpw-now .rpw-title, .rpw-now .rpw-sub { text-shadow: 0 0 3px var(--raznos-green-tint), 0 0 3px var(--raznos-green-tint); }
+    .rpw-nowline::before { content: ""; position: absolute; left: 0; top: 50%; width: 10px; height: 10px; border-radius: 50%; background: var(--raznos-red); transform: translateY(-50%); }
     .rpw-now-left { flex: none; font: 650 12.5px var(--raznos-font); color: var(--raznos-green-deep); font-variant-numeric: tabular-nums; }
     .rpw-badge.rpw-badge-live { display: inline-flex; align-items: center; gap: 5px; }
     .rpw-badge.rpw-badge-live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--raznos-green); }
@@ -26,7 +31,7 @@
       .rpw-badge.rpw-badge-live::before { animation: rpw-live 1.6s ease-in-out infinite; }
       @keyframes rpw-live { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--raznos-green) 70%, transparent); } 50% { box-shadow: 0 0 0 4px transparent; } }
     }
-    .rpw-main { display: flex; align-items: center; gap: 10px; width: 100%; }
+    .rpw-main { position: relative; display: flex; align-items: center; gap: 10px; width: 100%; }
     .rpw-hit { flex: 1; min-width: 0; display: grid; grid-template-columns: 48px 1fr; align-items: center; gap: 10px; padding: 0; border: 0; background: none; text-align: left; font: inherit; color: inherit; cursor: pointer; }
     .rpw-hit:focus-visible, .rpw-end > button:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 3px; border-radius: 8px; }
     .rpw-pay-btn { padding: 0; border: 0; background: none; cursor: pointer; font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -60,28 +65,30 @@
     .rpw-note.rpw-note-gain { font-weight: 700; font-size: 13.5px; color: var(--raznos-green-deep); font-variant-numeric: tabular-nums; }
     .rpw-in-plan { flex: none; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--raznos-green); color: var(--raznos-on-dark); }
     .rpw-foot .raznos-btn { flex: none; white-space: nowrap; }
-    .rpw-more { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 44px; margin-bottom: -6px; padding: 0; border: 0; border-top: 1px solid var(--raznos-line); background: none; text-align: left; font: 600 13px var(--raznos-font); color: var(--raznos-ink-2); cursor: pointer; }
+    .rpw-more { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 44px; margin-bottom: -6px; padding: 0; border: 0; border-top: 1px solid var(--raznos-line); background: none; text-align: left; font: 650 13.5px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
     .rpw-more:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 6px; }
-    .rpw-more > svg { flex: none; color: var(--raznos-ink-3); }
+    .rpw-more > svg { flex: none; color: var(--raznos-green-deep); }
+    .rpw-more-copy { display: inline-flex; align-items: center; gap: 8px; }
     .rpw-watch { gap: 6px; }
     .rpw-watch.rpw-watch-on { border-color: transparent; background: color-mix(in oklab, var(--raznos-green) 14%, var(--raznos-surface)); color: var(--raznos-green-deep); }
   </style>
 </helmet>
 <div class="{{ cls }}">
   <div class="rpw-main">
+    <sc-if value="{{ is_now }}" hint-placeholder-val="{{ false }}"><i class="rpw-nowline" style="{{ now_line_style }}" aria-hidden="true"></i></sc-if>
     <button type="button" class="rpw-hit" onClick="{{ on_tap }}" aria-label="{{ aria }}">
       <span class="rpw-time">{{ from }}<small>{{ to }}</small></span>
       <span class="rpw-body"><dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ title }}" size="sm"></dc-import><span class="rpw-copy"><span class="rpw-title">{{ title }}</span><span class="rpw-sub">{{ sub }}</span></span></span>
     </button>
     <span class="rpw-end"><button type="button" class="rpw-pay-btn" onClick="{{ on_tap }}" tabindex="-1" aria-hidden="true">{{ pay }}<svg class="rpw-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button><button type="button" class="{{ badge_cls }}" onClick="{{ on_badge }}" aria-label="{{ badge_aria }}">{{ badge }}</button></span>
   </div>
-  <sc-if value="{{ is_now }}" hint-placeholder-val="{{ false }}"><div class="rpw-now-row"><span class="rpw-now-bar" aria-hidden="true"><i style="{{ now_style }}"></i></span><span class="rpw-now-left">{{ now_left }}</span></div></sc-if>
+  <sc-if value="{{ is_now }}" hint-placeholder-val="{{ false }}"><span class="rpw-now-left">{{ now_left }}</span></sc-if>
   <sc-if value="{{ has_foot }}" hint-placeholder-val="{{ false }}">
     <div class="rpw-foot"><span class="{{ note_cls }}"><sc-if value="{{ urgent }}" hint-placeholder-val="{{ false }}"><svg class="rpw-urgent-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/><path d="M12 16.5h.01"/></svg></sc-if>{{ note }}</span><sc-if value="{{ has_action }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ action_cls }}" onClick="{{ on_action }}" aria-pressed="{{ watch_on }}"><sc-if value="{{ is_watch }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></sc-if>{{ action }}</button></sc-if><sc-if value="{{ in_plan }}" hint-placeholder-val="{{ false }}"><span class="rpw-in-plan" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4.5 4.5L19 7"/></svg></span></sc-if></div>
   </sc-if>
-  <sc-if value="{{ has_more }}" hint-placeholder-val="{{ false }}"><button type="button" class="rpw-more" onClick="{{ on_more }}">{{ more }}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></sc-if>
+  <sc-if value="{{ has_more }}" hint-placeholder-val="{{ false }}"><button type="button" class="rpw-more" onClick="{{ on_more }}"><span class="rpw-more-copy"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg>{{ more }}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"12:00"},"to":{"editor":"text","default":"14:00"},"svc":{"editor":"text","default":"yandex-eda"},"progress":{"editor":"number"},"left":{"editor":"text"},"title":{"editor":"text","default":"Яндекс Еда"},"sub":{"editor":"text","default":"Центр"},"pay":{"editor":"text","default":"≈ 740 ₽/ч"},"kind":{"editor":"enum","options":["free","booked","pending","need","full","option","auto","shift"],"default":"free"},"badge":{"editor":"text","default":"свободный выход"},"state":{"editor":"enum","options":["","now","past"],"default":""},"note":{"editor":"text","default":""},"action":{"editor":"text","default":""},"actionKind":{"editor":"enum","options":["primary","secondary","ghost"],"default":"secondary"},"onTap":{"editor":null},"onBadge":{"editor":null},"added":{"editor":null},"highlight":{"editor":null},"urgent":{"editor":null},"gain":{"editor":null},"plain":{"editor":null},"more":{"editor":"text","default":""},"onMore":{"editor":null},"onAction":{"editor":null},"$preview":{"width":366,"height":130}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"12:00"},"to":{"editor":"text","default":"14:00"},"svc":{"editor":"text","default":"yandex-eda"},"progress":{"editor":"number"},"timeInline":{"editor":"boolean","default":false},"left":{"editor":"text"},"title":{"editor":"text","default":"Яндекс Еда"},"sub":{"editor":"text","default":"Центр"},"pay":{"editor":"text","default":"≈ 740 ₽/ч"},"kind":{"editor":"enum","options":["free","booked","pending","need","full","option","auto","shift"],"default":"free"},"badge":{"editor":"text","default":"свободный выход"},"state":{"editor":"enum","options":["","now","past"],"default":""},"note":{"editor":"text","default":""},"action":{"editor":"text","default":""},"actionKind":{"editor":"enum","options":["primary","secondary","ghost"],"default":"secondary"},"onTap":{"editor":null},"onBadge":{"editor":null},"added":{"editor":null},"highlight":{"editor":null},"urgent":{"editor":null},"gain":{"editor":null},"plain":{"editor":null},"more":{"editor":"text","default":""},"onMore":{"editor":null},"onAction":{"editor":null},"$preview":{"width":366,"height":130}}'>
 // окно в умном расписании: бронь из Смен, окно плана или вариант, доступность бейджем, действие внизу
 class Component extends DCLogic {
   renderVals() {
@@ -95,11 +102,11 @@ class Component extends DCLogic {
     const title = p.title || 'Яндекс Еда';
     const from = p.from || '12:00', to = p.to || '14:00';
     return {
-      from, to, svc: p.svc || 'yandex-eda', title, sub: p.sub === undefined ? 'Центр' : p.sub,
+      from, to, svc: p.svc || 'yandex-eda', title, sub: p.timeInline ? [(p.from || '') + '–' + (p.to || ''), p.sub === undefined ? 'Центр' : p.sub].filter(Boolean).join(String.fromCharCode(10)) : (p.sub === undefined ? 'Центр' : p.sub),
       pay: p.pay == null ? '≈ 740 ₽/ч' : p.pay, badge: state === 'now' ? 'идёт' : (p.badge || 'свободный выход'),
       badge_cls: 'rpw-badge' + (badgeTone ? ' rpw-badge-' + badgeTone : ''),
       // срочно: окно уже в плане, но без брони сервис заказы не даст
-      cls: 'rpw' + (p.urgent ? ' rpw-urgent' : (({ booked: ' rpw-booked', shift: ' rpw-booked', auto: ' rpw-booked', pending: ' rpw-pending', need: ' rpw-need' })[kind] || '')) + (state === 'past' ? ' rpw-past' : '') + (state === 'now' ? ' rpw-now' : '') + (p.plain ? ' rpw-plain' : '') + (p.highlight ? ' rpw-hl' : ''),
+      cls: 'rpw' + (p.urgent ? ' rpw-urgent' : (({ booked: ' rpw-booked', shift: ' rpw-booked', auto: ' rpw-booked', pending: ' rpw-pending', need: ' rpw-need' })[kind] || '')) + (state === 'past' ? ' rpw-past' : '') + (p.timeInline ? ' rpw-inline' : '') + (state === 'now' ? ' rpw-now' : '') + (p.plain ? ' rpw-plain' : '') + (p.highlight ? ' rpw-hl' : ''),
       urgent: !!p.urgent,
       // окно уже в расписании: зелёная подпись и галочка в кружке на месте кнопки
       in_plan: !!p.added && !action, note_cls: 'rpw-note' + (p.added ? ' rpw-note-added' : '') + (p.gain ? ' rpw-note-gain' : '') + (p.urgent ? ' rpw-note-urgent' : ''),
@@ -114,7 +121,7 @@ class Component extends DCLogic {
       on_tap: typeof p.onTap === 'function' ? p.onTap : (() => {}),
       // тап по метке объясняет, что она значит
       on_badge: typeof p.onBadge === 'function' ? p.onBadge : (typeof p.onTap === 'function' ? p.onTap : (() => {})),
-      is_now: state === 'now' && p.progress != null, now_style: 'width:' + Math.max(3, Math.min(100, Number(p.progress) || 0)) + '%', now_left: p.left || '',
+      is_now: state === 'now' && p.progress != null, now_line_style: 'top:' + Math.max(6, Math.min(94, Number(p.progress) || 0)) + '%', now_left: p.left || '',
       badge_aria: 'Что значит ' + (state === 'now' ? 'идёт' : (p.badge || 'свободный выход')),
       on_action: typeof p.onAction === 'function' ? p.onAction : (() => {})
     };

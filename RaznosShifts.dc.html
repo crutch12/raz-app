@@ -15,11 +15,13 @@
   <sc-if value="{{ is_mine }}" hint-placeholder-val="{{ true }}">
     <sc-if value="{{ has_past }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-shifts-past-toggle" onClick="{{ toggle_past }}" aria-expanded="{{ past_open }}"><span>{{ past_label }}</span><svg class="{{ past_chev }}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></sc-if>
     <sc-for list="{{ mine_days }}" as="day" hint-placeholder-count="2">
-      <section class="raznos-shifts-day" aria-label="{{ day.title }}">
-        <div class="raznos-shifts-day-head"><h3>{{ day.title }}<sc-if value="{{ day.today }}" hint-placeholder-val="{{ false }}"><span class="raznos-shifts-today">сегодня</span></sc-if></h3><span>{{ day.meta }}</span></div>
+      <section class="raznos-shifts-day raznos-shifts-cal" aria-label="{{ day.title }}">
+        <div class="raznos-shifts-gutter" aria-hidden="true"><div class="{{ day.gutter_cls }}"><span>{{ day.dow }}</span><b>{{ day.num }}</b></div></div>
+        <div class="raznos-shifts-col">
         <sc-for list="{{ day.rows }}" as="r" hint-placeholder-count="2">
-          <dc-import name="RaznosPlanWindow" from="{{ r.from }}" to="{{ r.to }}" svc="{{ r.svc }}" title="{{ r.title }}" sub="{{ r.sub }}" pay="{{ r.pay }}" kind="{{ r.kind }}" badge="{{ r.badge }}" state="{{ r.state }}" note="{{ r.note }}" action="" onTap="{{ r.tap }}" onBadge="{{ r.tap }}" urgent="{{ r.urgent }}"></dc-import>
+          <dc-import name="RaznosPlanWindow" timeInline="{{ true }}" from="{{ r.from }}" to="{{ r.to }}" svc="{{ r.svc }}" title="{{ r.title }}" sub="{{ r.sub }}" pay="{{ r.pay }}" kind="{{ r.kind }}" badge="{{ r.badge }}" state="{{ r.state }}" note="{{ r.note }}" action="" onTap="{{ r.tap }}" onBadge="{{ r.tap }}" urgent="{{ r.urgent }}"></dc-import>
         </sc-for>
+        </div>
       </section>
     </sc-for>
     <sc-if value="{{ mine_empty }}" hint-placeholder-val="{{ false }}"><div class="raznos-shifts-empty raznos-is-static"><span>На этой неделе смен нет. Поставьте окна в Плане или возьмите смену в приложении сервиса</span></div></sc-if>
@@ -28,17 +30,19 @@
   <sc-if value="{{ is_free }}" hint-placeholder-val="{{ false }}">
     <dc-import name="RaznosFilterChips" filters="{{ filters }}" onChange="{{ set_filter }}"></dc-import>
     <sc-for list="{{ free_days }}" as="day" hint-placeholder-count="2">
-      <section class="raznos-shifts-day" aria-label="{{ day.title }}">
-        <div class="raznos-shifts-day-head"><h3>{{ day.title }}</h3><span>{{ day.meta }}</span></div>
+      <section class="raznos-shifts-day raznos-shifts-cal" aria-label="{{ day.title }}">
+        <div class="raznos-shifts-gutter" aria-hidden="true"><div class="{{ day.gutter_cls }}"><span>{{ day.dow }}</span><b>{{ day.num }}</b></div></div>
+        <div class="raznos-shifts-col">
         <sc-if value="{{ day.has_deficit }}" hint-placeholder-val="{{ false }}"><p class="raznos-shifts-deficit">{{ day.deficit }}</p></sc-if>
         <sc-for list="{{ day.rows }}" as="r" hint-placeholder-count="2">
-          <dc-import name="RaznosPlanWindow" from="{{ r.from }}" to="{{ r.to }}" svc="{{ r.svc }}" title="{{ r.title }}" sub="{{ r.sub }}" pay="{{ r.pay }}" kind="{{ r.kind }}" badge="{{ r.badge }}" note="{{ r.note }}" action="{{ r.action }}" actionKind="{{ r.actionKind }}" onTap="{{ r.tap }}" onAction="{{ r.onAction }}" onBadge="{{ r.tap }}" gain="{{ r.gain }}" added="{{ r.added }}"></dc-import>
+          <dc-import name="RaznosPlanWindow" timeInline="{{ true }}" from="{{ r.from }}" to="{{ r.to }}" svc="{{ r.svc }}" title="{{ r.title }}" sub="{{ r.sub }}" pay="{{ r.pay }}" kind="{{ r.kind }}" badge="{{ r.badge }}" note="{{ r.note }}" action="{{ r.action }}" actionKind="{{ r.actionKind }}" onTap="{{ r.tap }}" onAction="{{ r.onAction }}" onBadge="{{ r.tap }}" gain="{{ r.gain }}" added="{{ r.added }}"></dc-import>
         </sc-for>
+        </div>
       </section>
     </sc-for>
     <sc-if value="{{ free_empty }}" hint-placeholder-val="{{ false }}"><div class="raznos-shifts-empty raznos-is-static"><span>Сервисы не прислали свободных слотов с такими фильтрами</span></div></sc-if>
     <sc-if value="{{ has_clash_slots }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-shifts-past-toggle" onClick="{{ toggle_clash }}" aria-expanded="{{ clash_open }}"><span>{{ clash_label }}</span><svg class="{{ clash_chev }}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></sc-if>
-    <sc-if value="{{ clash_open }}" hint-placeholder-val="{{ false }}"><sc-for list="{{ clash_rows }}" as="r" hint-placeholder-count="2"><dc-import name="RaznosPlanWindow" from="{{ r.from }}" to="{{ r.to }}" svc="{{ r.svc }}" title="{{ r.title }}" sub="{{ r.sub }}" pay="{{ r.pay }}" kind="{{ r.kind }}" badge="{{ r.badge }}" state="past" note="{{ r.note }}" action="" onTap="{{ r.tap }}" onBadge="{{ r.tap }}"></dc-import></sc-for></sc-if>
+    <sc-if value="{{ clash_open }}" hint-placeholder-val="{{ false }}"><sc-for list="{{ clash_rows }}" as="r" hint-placeholder-count="2"><dc-import name="RaznosPlanWindow" timeInline="{{ true }}" from="{{ r.from }}" to="{{ r.to }}" svc="{{ r.svc }}" title="{{ r.title }}" sub="{{ r.sub }}" pay="{{ r.pay }}" kind="{{ r.kind }}" badge="{{ r.badge }}" state="past" note="{{ r.note }}" action="" onTap="{{ r.tap }}" onBadge="{{ r.tap }}"></dc-import></sc-for></sc-if>
   </sc-if>
 
   <sc-if value="{{ is_watch }}" hint-placeholder-val="{{ false }}">
@@ -112,6 +116,7 @@ const RSH_DEMO_SHIFTS = [
   { id: 'd1', iso: '2026-09-15', svc: 'vkusvill', title: 'ВкусВилл', place: 'Даркстор на Правды, 24', from: 840, to: 1020, status: 'active', rate: 400 },
   { id: 'd2', iso: '2026-09-15', svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Локация Беговая', from: 1020, to: 1200, status: 'confirmed', rate: 390 }
 ];
+const RSH_DOW_SHORT = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
@@ -248,7 +253,7 @@ class Component extends DCLogic {
     const mineDays = days.filter((iso) => shifts.some((s) => s.iso === iso) && (pastOpen || !dayIsPast(iso))).map((iso) => {
       const list = shifts.filter((s) => s.iso === iso).sort((a, b) => a.from - b.from);
       const mins = list.filter((s) => s.status !== 'cancelled' && s.status !== 'missed' && RSH_UNCONF.indexOf(s.status) === -1).reduce((sum, s) => sum + s.to - s.from, 0);
-      return { title: dayTitle(iso), today: iso === today, meta: [RSH_COUNT(list, caps), mins ? RSH_DUR(mins) : ''].filter(Boolean).join(' · '), rows: list.map(rowOf) };
+      return { dow: RSH_DOW_SHORT[new Date(iso + 'T12:00').getDay()], num: String(Number(iso.slice(8))), gutter_cls: 'raznos-shifts-date' + (iso === today ? ' raznos-is-today' : ''), title: dayTitle(iso), today: iso === today, meta: [RSH_COUNT(list, caps), mins ? RSH_DUR(mins) : ''].filter(Boolean).join(' · '), rows: list.map(rowOf) };
     });
 
     // вкладка Можно взять: свободные слоты недели по дням, лучшие по деньгам сверху
@@ -298,7 +303,7 @@ class Component extends DCLogic {
       const list = okSlots.filter((sl) => sl.iso === iso).sort((a, b) => (!!a.gone === !!b.gone ? RSH_RATE(b.svc, b.from, b.to) * (b.to - b.from) - RSH_RATE(a.svc, a.from, a.to) * (a.to - a.from) : (a.gone ? 1 : -1)));
       const deficit = (p.deficits || []).find((d) => d.iso === iso && (!d.svc || okSvc(d.svc)));
       const open = list.filter((sl) => !sl.gone && !sl.taken).length;
-      return { title: dayTitle(iso), meta: open ? open + ' ' + RSH_PLURAL(open, 'слот', 'слота', 'слотов') : 'слотов нет в списке', has_deficit: !!deficit, deficit: deficit ? deficit.title + '. ' + deficit.text : '', rows: list.map(slotRow) };
+      return { dow: RSH_DOW_SHORT[new Date(iso + 'T12:00').getDay()], num: String(Number(iso.slice(8))), gutter_cls: 'raznos-shifts-date' + (iso === today ? ' raznos-is-today' : ''), title: dayTitle(iso), meta: open ? open + ' ' + RSH_PLURAL(open, 'слот', 'слота', 'слотов') : 'слотов нет в списке', has_deficit: !!deficit, deficit: deficit ? deficit.title + '. ' + deficit.text : '', rows: list.map(slotRow) };
     });
     const svcList = Array.from(new Set(slots.map((sl) => sl.svc))).map((svc) => [svc, (slots.find((sl) => sl.svc === svc) || {}).title || svc]);
     const filters = [
