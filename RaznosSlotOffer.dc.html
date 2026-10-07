@@ -15,7 +15,7 @@
     <sc-if value="{{ can_watch }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ watch_cls }}" aria-pressed="{{ watching }}" onClick="{{ on_watch }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>{{ watch_label }}</button></sc-if>
   </div>
 </article>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"svc":{"editor":"text","default":"samokat"},"title":{"editor":"text","default":"Самокат"},"place":{"editor":"text","default":"Даркстор Беговая, 7"},"time":{"editor":"text","default":"18:00–22:00"},"duration":{"editor":"text","default":"4 ч"},"gone":{"editor":"boolean","default":false},"noWatch":{"editor":"boolean","default":false},"pay":{"editor":"text","default":"≈ 1 840 ₽"},"payNote":{"editor":"text","default":"410 ₽/ч, известна заранее"},"bonus":{"editor":"text","default":"+50 ₽/ч вечером"},"rule":{"editor":"text","default":"Отменить можно не позже чем за 48 ч (по отзывам), позже падает рейтинг"},"conflict":{"editor":"text","default":""},"takeLabel":{"editor":"text","default":"Запросить часы"},"watching":{"editor":"boolean","default":false},"onTake":{"editor":null},"onWatch":{"editor":null},"$preview":{"width":366,"height":280}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"svc":{"editor":"text","default":"samokat"},"title":{"editor":"text","default":"Самокат"},"place":{"editor":"text","default":"Даркстор Беговая, 7"},"time":{"editor":"text","default":"18:00–22:00"},"duration":{"editor":"text","default":"4 ч"},"gone":{"editor":"boolean","default":false},"noWatch":{"editor":"boolean","default":false},"pay":{"editor":"text","default":"≈ 1 840 ₽"},"payNote":{"editor":"text","default":"410 ₽/ч, известна заранее"},"bonus":{"editor":"text","default":"+50 ₽/ч вечером"},"rule":{"editor":"text","default":"Курьеры пишут, что отменить можно не позже чем за 48 ч, позже падает рейтинг"},"conflict":{"editor":"text","default":""},"takeLabel":{"editor":"text","default":"Запросить часы"},"watching":{"editor":"boolean","default":false},"onTake":{"editor":null},"onWatch":{"editor":null},"$preview":{"width":366,"height":280}}'>
 // свободный слот сервиса: ставка, надбавка, правило отмены, взять в приложении сервиса или следить
 // числа мест нет, gone: слот пропал из списка сервиса
 class Component extends DCLogic {
@@ -28,7 +28,7 @@ class Component extends DCLogic {
       svc: p.svc || 'samokat', title: val('title', 'Самокат'), place: val('place', 'Даркстор Беговая, 7'),
       time: val('time', '18:00–22:00'), duration: val('duration', '4 ч'), tag: full ? 'нет в списке' : '', has_tag: full, full,
       pay: val('pay', '≈ 1 840 ₽'), pay_note: val('payNote', '410 ₽/ч, известна заранее'), bonus: val('bonus', '+50 ₽/ч вечером'),
-      rule: val('rule', 'Отменить можно не позже чем за 48 ч (по отзывам), позже падает рейтинг'), conflict: val('conflict', ''),
+      rule: val('rule', 'Курьеры пишут, что отменить можно не позже чем за 48 ч, позже падает рейтинг'), conflict: val('conflict', ''),
       can_take: !full, take_label: val('takeLabel', 'Запросить часы'),
       can_watch: !p.noWatch, watching, watch_label: watching ? 'Слежу' : (full ? 'Следить за слотом' : 'Следить'),
       watch_cls: 'raznos-shift-action raznos-is-watch' + (watching ? ' raznos-is-on' : ''),

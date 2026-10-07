@@ -1,0 +1,73 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rsp-field { box-sizing: border-box; width: 100%; min-height: 52px; display: flex; align-items: center; gap: 10px; padding: 8px 14px; border: 1px solid var(--raznos-line-strong); border-radius: 14px; background: var(--raznos-surface); color: var(--raznos-ink); font: 600 15px var(--raznos-font); text-align: left; cursor: pointer; }
+    .rsp-field-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rsp-arrow { flex: none; color: var(--raznos-ink-3); }
+    .rsp-layer { align-items: flex-end; padding: 0; }
+    .rsp-sheet { box-sizing: border-box; width: 100%; max-height: 78%; display: flex; flex-direction: column; gap: 8px; padding: 8px 16px 16px; border-radius: 22px 22px 0 0; background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 -18px 48px rgba(20, 25, 40, .2); }
+    .rsp-handle { width: 40px; height: 4px; align-self: center; border-radius: 999px; background: var(--raznos-line-strong); }
+    .rsp-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .rsp-head h2 { margin: 0; font: 700 18px var(--raznos-font); }
+    .rsp-close { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 12px; background: var(--raznos-surface-2); color: var(--raznos-ink); cursor: pointer; }
+    .rsp-list { display: flex; flex-direction: column; overflow-y: auto; margin: 0 -8px; padding: 0 8px; }
+    .rsp-item { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 8px; border: 0; border-radius: 12px; background: none; color: var(--raznos-ink); font: 600 15px var(--raznos-font); text-align: left; cursor: pointer; }
+    .rsp-item.raznos-is-active { background: var(--raznos-surface-2); }
+    .rsp-item-name { flex: 1; min-width: 0; }
+    .rsp-check { flex: none; color: var(--raznos-green-deep); }
+    .rsp-field:focus-visible, .rsp-item:focus-visible, .rsp-close:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    @media (prefers-reduced-motion: no-preference) {
+      .rsp-sheet { animation: rsp-in .28s cubic-bezier(.16, 1, .3, 1) both; }
+      @keyframes rsp-in { from { transform: translateY(100%); } to { transform: none; } }
+    }
+  </style>
+</helmet>
+<div>
+  <button type="button" class="rsp-field" onClick="{{ open }}" aria-haspopup="dialog" aria-label="{{ aria }}">
+    <dc-import name="RaznosIcon" svc="{{ cur_key }}" alt="{{ cur_title }}" size="sm"></dc-import>
+    <span class="rsp-field-name">{{ cur_title }}</span>
+    <svg class="rsp-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+  </button>
+  <sc-if value="{{ is_open }}" hint-placeholder-val="{{ false }}">
+    <div class="raznos-dialog-layer rsp-layer" onClick="{{ close }}">
+      <section class="rsp-sheet" role="dialog" aria-modal="true" aria-label="Сервис" onClick="{{ stop }}">
+        <span class="rsp-handle" aria-hidden="true"></span>
+        <div class="rsp-head"><h2>Сервис</h2><button type="button" class="rsp-close" onClick="{{ close }}" aria-label="Закрыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+        <div class="rsp-list">
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+            <button type="button" class="{{ r.cls }}" onClick="{{ r.tap }}" aria-pressed="{{ r.on }}">
+              <dc-import name="RaznosIcon" svc="{{ r.key }}" alt="{{ r.title }}" size="sm"></dc-import>
+              <span class="rsp-item-name">{{ r.title }}</span>
+              <sc-if value="{{ r.on }}"><svg class="rsp-check" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></sc-if>
+            </button>
+          </sc-for>
+        </div>
+      </section>
+    </div>
+  </sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"items":{"editor":null},"value":{"editor":"text","default":"vkusvill"},"onChange":{"editor":null},"$preview":{"width":366,"height":420}}'>
+// выбор сервиса выпадашкой: кнопка с иконкой и названием, по тапу нижняя шторка со списком
+const RSP_DEMO = [{ key: 'vkusvill', title: 'ВкусВилл' }, { key: 'samokat', title: 'Самокат' }, { key: 'x5', title: 'X5 Доставка' }, { key: 'yandex-eda', title: 'Яндекс Еда' }];
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const items = Array.isArray(p.items) && p.items.length ? p.items : RSP_DEMO;
+    const value = p.value || st.value || items[0].key;
+    const cur = items.filter((i) => i.key === value)[0] || items[0];
+    const close = () => this.setState({ open: false });
+    return {
+      cur_key: cur.key, cur_title: cur.title, aria: 'Сервис: ' + cur.title + ', выбрать другой',
+      is_open: !!st.open,
+      open: () => this.setState({ open: true }),
+      close, stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
+      rows: items.map((i) => ({
+        key: i.key, title: i.title, on: i.key === cur.key, cls: 'rsp-item' + (i.key === cur.key ? ' raznos-is-active' : ''),
+        tap: () => { this.setState({ open: false, value: i.key }); if (typeof p.onChange === 'function') p.onChange(i.key); }
+      }))
+    };
+  }
+}
+</script></body></html>

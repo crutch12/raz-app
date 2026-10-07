@@ -50,6 +50,8 @@ class Component extends DCLogic {
       transport = c.transportNote;
     }
     const sign = (key) => src[key] || '';
+    // значение, в котором источник не уверен, не показываем как факт
+    const unsure = (key) => /^(не подтверждено|источники расходятся)$/.test(src[key] || '');
     const via = c.via || null;
     // слоты у сервиса сами не подтверждены, режим и запись не обещаем
     const noSlots = (c.unverified || []).some((u) => /^слоты/.test(u));
@@ -59,7 +61,7 @@ class Component extends DCLogic {
     ];
     if (!p.compact) {
       rows.push({ label: 'Заказы', value: RSC_ORDERS[c.orders] || 'нет данных', src: sign('orders') });
-      rows.push({ label: 'Транспорт', value: transport, src: sign('transport') });
+      rows.push({ label: 'Транспорт', value: unsure('transport') ? 'Точно не известно, уточните в сервисе' : transport, src: unsure('transport') ? '' : sign('transport') });
       rows.push({ label: 'Запись на смены', value: noSlots ? 'нет данных' : (RSC_STATUS[c.status] || 'без записи на смены'), src: sign('status') });
     }
     // один источник у всех строк показываем один раз в шапке
@@ -67,8 +69,8 @@ class Component extends DCLogic {
     const shared = !!first && rows.length > 1 && rows.every((r) => r.src === first);
     if (shared) rows.forEach((r) => { r.src = ''; });
     // что видит Разнос про посредника, строка только когда экран передал её
-    if (via && p.viaSeen) rows.push({ label: 'Что видит Разнос', value: p.viaSeen, src: 'демо' });
-    return { rows, has_via: !!via, via_verdict: via ? via.verdict : '', via_mine: p.viaMine || '', via_aria: 'Оформление: ' + (via ? via.verdict : '') + ', подробнее', via_tap: typeof p.onVia === 'function' ? p.onVia : () => {}, has_shared_src: shared, shared_src: shared ? first : '', unverified_note: (c.unverified && c.unverified.length) ? 'Не подтверждено: ' + c.unverified.join(', ') : '' };
+    if (via && p.viaSeen) rows.push({ label: 'В Разносе будет видно', value: p.viaSeen, src: '' });
+    return { rows, has_via: !!via, via_verdict: via ? via.verdict : '', via_mine: p.viaMine || '', via_aria: 'Оформление: ' + (via ? via.verdict : '') + ', подробнее', via_tap: typeof p.onVia === 'function' ? p.onVia : () => {}, has_shared_src: shared, shared_src: shared ? first : '', unverified_note: (c.unverified && c.unverified.length) ? 'Точно не известно: ' + c.unverified.join(', ') : '' };
   }
 }
 </script></body></html>

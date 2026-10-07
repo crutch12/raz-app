@@ -380,7 +380,7 @@
             <dc-import name="RaznosUserHome" city="{{ uh_city }}" cityTitle="{{ uh_city_title }}" rates="{{ uh_market_rates }}" onCityChange="{{ uh_set_city }}" onNavigate="{{ uh_navigate }}"></dc-import>
           </sc-if>
           <sc-if value="{{ is_job_guide }}">
-            <dc-import name="RaznosJobGuide" city="{{ city }}" section="{{ guide_section }}" via="{{ guide_via }}" onOpenVia="{{ guide_open_via }}" onBack="{{ go_home_any }}" onOpenService="{{ guide_open_service }}"></dc-import>
+            <dc-import name="RaznosJobGuide" city="{{ city }}" section="{{ guide_section }}" svc="{{ guide_svc }}" services="{{ guide_services }}" connected="{{ guide_connected }}" via="{{ guide_via }}" onOpenVia="{{ guide_open_via }}" onBack="{{ go_home_any }}" onOpenService="{{ guide_open_service }}" onSection="{{ guide_set_section }}" onSvc="{{ guide_set_svc }}" onRegister="{{ guide_register }}" onConnect="{{ guide_connect }}"></dc-import>
           </sc-if>
 
           <sc-if value="{{ is_tax_forms }}">
@@ -416,7 +416,7 @@
 
           <sc-if value="{{ is_integration_connect }}">
             <div class="raznos-phone-body" data-screen-label="19 Integration connect">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_integrations }}">‹</button><dc-import name="RaznosIcon" svc="{{ conn_key }}" alt="{{ conn_title }}" size="md"></dc-import><h1 class="raznos-text-h1" style="margin:0">{{ conn_title }}</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ conn_back }}">‹</button><dc-import name="RaznosIcon" svc="{{ conn_key }}" alt="{{ conn_title }}" size="md"></dc-import><h1 class="raznos-text-h1" style="margin:0">{{ conn_title }}</h1></div>
               <sc-if value="{{ conn_has_caps }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosServiceCaps" caps="{{ conn_caps }}" compact="{{ true }}" viaMine="{{ conn_via_mine }}" viaSeen="{{ conn_via_seen }}" onVia="{{ conn_via_open }}"></dc-import></sc-if>
 
               <sc-if value="{{ conn_is_connected }}" hint-placeholder-val="{{ false }}">
@@ -2005,7 +2005,7 @@
       function svcPrep(key) { return (SERVICE_CASES[key] || {}).prep || SERVICES[key].title; }
       // профиль возможностей сервисов по ТЗ 7а, один источник для Смен, Плана, Сегодня, Рынка, Результатов и Сервисов
       // поля описаны в .claude/caps-fields.md, неизвестное null, не заменяем нулём и правилом другого сервиса
-      // src: подпись источника для неофициальных фактов (отзывы, APK, вторичный), официальные без метки
+      // src: источник неофициальных фактов (отзывы, вторичный, не подтверждено), показываем словами, официальные без пометки, APK не показываем
       const SERVICE_CAPS = {
         'yandex-eda': {
           title: 'Яндекс Еда', prep: 'Яндекс Еде', app: 'Яндекс Про', modes: ['plan', 'free'], zone: 'локация', orders: 'offers',
@@ -2030,12 +2030,12 @@
           title: 'Самокат', prep: 'Самокате', app: 'Доставка Про', modes: ['plan', 'auto'], zone: 'даркстор', orders: 'auto',
           transport: ['foot', 'bike', 'ebike', 'moto', 'car'], status: 'zayavka', slots: true, take: 'Запросить часы', rate: 'known', watch: true,
           cancel: { kind: 'hours', hours: 48, late: 'Позже падает рейтинг, денежных штрафов нет по словам представителя' },
-          opening: null, ratings: false, tips: 'service', link: 'task', src: { cancel: 'отзывы', transport: 'APK' }
+          opening: null, ratings: false, tips: 'service', link: 'task', src: { cancel: 'отзывы', transport: 'не подтверждено' }
         },
         'ozon-fresh': {
           title: 'Ozon fresh', prep: 'Ozon fresh', app: 'Вози Ozon', modes: ['plan'], zone: 'даркстор', orders: 'route',
           transport: null, status: 'bron', slots: true, take: 'Взять в Ozon fresh', rate: 'known', watch: true,
-          cancel: { kind: 'hours', hours: 1, late: 'Позже предупреждение, за повторные ошибки сервис ограничивает доступ' },
+          cancel: { kind: 'hours', hours: 1, late: 'Отмена позже чем за час до начала или невыход: блокировка на 2 дня' },
           opening: { text: 'горизонт слотов зависит от рейтинга' }, ratings: true, tips: 'service', link: 'task', src: {}
         },
         kuper: {
@@ -2107,69 +2107,69 @@
         wish: { confirmed: 'одобрена', requested: 'пожелание' }, draft: { confirmed: 'утверждена', requested: 'черновик' }
       };
       Object.keys(SERVICE_CAPS).forEach((k) => { SERVICE_CAPS[k].words = SHIFT_WORDS[SERVICE_CAPS[k].status] || null; });
-      // оформление и посредники по сервисам, поля via: need (no, cond, yes), verdict, forms, kinds, seen, seenSrc
+      // оформление и посредники по сервисам, поля via: need (no, cond, yes), verdict, forms, kinds, seen
       // kind: gives, fee {kind, text, note, src}, payout, tax, change, names, у полей метка источника с суффиксом Src (RaznosFactSource)
       // факты уровня A-B без метки, остальное с меткой источника, подробности в docs/integration-research/PARTNERS-PARKS.md, проверена Москва
       const VIA_KINDS = { direct: 'Напрямую', park: 'Через парк', service: 'Через службу', partner: 'Через партнёра', curator: 'Через куратора', tk: 'ТК или ГПХ', outsource: 'Через аутсорс', shop: 'Через пиццерию' };
       const VIA_YA_DIRECT = { k: 'direct', gives: 'Договор с сервисом без партнёров, у самозанятых приоритет выше', fee: { kind: 'нет', text: 'Комиссий партнёрам нет' }, payout: 'Карта Про, выплата за 5 минут', tax: 'Самозанятый НПД 4 и 6%, ИП идёт как НПД' };
       const VIA_YA_PARK = {
         k: 'park', gives: 'Парк ведёт выплаты, чат в Про и самозанятость в Мой налог. Только граждане РФ',
-        fee: { kind: 'вывод', text: 'Комиссию за вывод ставит парк, видна до запроса', note: 'по блогу Еды 1-5% дохода', noteSrc: 'вторичный' },
-        payout: 'Вывод через парк, лимиты и остаток задаёт парк', tax: 'Самозанятый: уточните, кто платит налог, расчёта нет', taxSrc: 'источники расходятся',
-        change: 'Порядок смены парка не опубликован'
+        fee: { kind: 'вывод', text: 'Комиссию ставит парк, видна до запроса', note: 'По словам блога Еды, 1-5% дохода', noteSrc: '' },
+        payout: 'Вывод через парк, лимиты задаёт парк', tax: 'Уточните в парке, кто платит налог', taxSrc: '',
+        change: 'Сервис порядок не публикует'
       };
       const VIA_YA_SERVICE = {
         k: 'service', gives: 'Служба нанимает по ТК или ГПХ, платит и удерживает налог. Не из ЕАЭС: патент, ВНЖ или РВП',
-        fee: { kind: 'не раскрыта', text: 'Что удерживает служба, оговаривается при найме' }, payout: 'Раз в неделю, со среды по пятницу',
-        tax: 'НДФЛ 13% удерживает служба, расчёта налога у Разноса нет', change: 'Прекратить: сдать инвентарь в курьерском центре'
+        fee: { kind: '', text: 'Удержания служба называет при найме' }, payout: 'Раз в неделю, со среды по пятницу',
+        tax: 'НДФЛ 13% удерживает служба, Разнос его не считает', change: 'Чтобы уйти, сдайте инвентарь в курьерском центре'
       };
-      const VIA_YA_SEEN = 'Парк, рейтинг парка, условия вывода, контакты не храним';
+      const VIA_YA_SEEN = 'Название парка, его рейтинг, условия вывода. Контакты не сохраняем';
       const SERVICE_VIA = {
-        'yandex-eda': { need: 'cond', verdict: 'Можно напрямую самозанятым, не из ЕАЭС нужна служба', forms: ['Самозанятый', 'ИП как НПД', 'Служба: ТК или ГПХ', 'Парк'], kinds: [VIA_YA_DIRECT, VIA_YA_PARK, VIA_YA_SERVICE], seen: VIA_YA_SEEN, seenSrc: 'APK' },
+        'yandex-eda': { need: 'cond', verdict: 'Напрямую граждане РФ, Беларуси, Казахстана, Киргизии, остальные через службу', forms: ['Самозанятый', 'ИП как НПД', 'Служба: ТК или ГПХ', 'Парк'], kinds: [VIA_YA_DIRECT, VIA_YA_PARK, VIA_YA_SERVICE], seen: VIA_YA_SEEN },
         'yandex-lavka': {
-          need: 'cond', verdict: 'Можно напрямую самозанятым, не из ЕАЭС нужна служба', forms: ['Самозанятый', 'ИП как НПД', 'Служба: ТК или ГПХ', 'Парк'],
-          kinds: [VIA_YA_DIRECT, VIA_YA_PARK, Object.assign({}, VIA_YA_SERVICE, { names: 'ООО Звезда', payout: 'Раз в неделю, со среды по понедельник' })], seen: VIA_YA_SEEN, seenSrc: 'APK'
+          need: 'cond', verdict: 'Напрямую граждане РФ, Беларуси, Казахстана, Киргизии, остальные через службу', forms: ['Самозанятый', 'ИП как НПД', 'Служба: ТК или ГПХ', 'Парк'],
+          kinds: [VIA_YA_DIRECT, VIA_YA_PARK, Object.assign({}, VIA_YA_SERVICE, { names: 'ООО Звезда', payout: 'Раз в неделю, со среды по понедельник' })], seen: VIA_YA_SEEN
         },
         samokat: {
           need: 'yes', verdict: 'Фактически через компанию-партнёра', forms: ['Самозанятый', 'Партнёр'],
-          kinds: [{ k: 'partner', gives: 'Договор с компанией-партнёром, не с Самокатом', names: 'ГлобалТрейд-Логистикс, Брик', fee: { kind: 'не раскрыта', text: 'Комиссии партнёров не раскрыты' }, tax: 'Самозанятый НПД, с юрлиц 6%' }],
-          seen: 'Сервис не отдаёт', seenSrc: ''
+          kinds: [{ k: 'partner', gives: 'Договор с компанией-партнёром, не с Самокатом', names: 'ГлобалТрейд-Логистикс, Брик', fee: { kind: '', text: 'Партнёры комиссию не публикуют' }, tax: 'Самозанятый НПД, с юрлиц 6%' }],
+          seen: 'Пока ничего: сервис эти данные не передаёт'
         },
         vkusvill: {
           need: 'cond', verdict: 'Напрямую самозанятым, без самозанятости аутсорс', forms: ['Самозанятый', 'Аутсорс'],
           kinds: [
             { k: 'direct', gives: 'Договор с ВкусВиллом, безналичные заказы только при самозанятости', fee: { kind: 'нет', text: 'Посредника нет' }, tax: 'Самозанятый НПД 4 и 6%' },
-            { k: 'outsource', gives: 'Аутсорс-компания оформляет вас, если самозанятость недоступна', fee: { kind: 'не раскрыта', text: 'Названия и условия компаний не опубликованы' }, tax: 'Зависит от договора, расчёта нет' }
+            { k: 'outsource', gives: 'Аутсорс-компания оформляет вас, если самозанятость недоступна', fee: { kind: '', text: 'Компании названия и условия не публикуют' }, tax: 'Зависит от договора, расчёта нет' }
           ],
-          seen: 'Самозанятость, ИНН и тип работы', seenSrc: 'APK'
+          seen: 'Точно не известно, покажем, что отдаст сервис'
         },
         magnit: {
           need: 'no', verdict: 'Можно напрямую самозанятым или через партнёра', forms: ['Самозанятый', 'Партнёр'],
           kinds: [
             { k: 'direct', gives: 'Договор с Магнитом, самозанятый', fee: { kind: 'нет', text: 'Посредника нет' }, payout: 'По четвергам', tax: 'Самозанятый НПД 4 и 6%' },
-            { k: 'partner', gives: 'Договор с партнёрской компанией, не с Магнитом', names: 'ТОП-ТИМ, Хорошей Дороги, Два Колеса', namesSrc: 'вторичный', fee: { kind: 'не раскрыта', text: 'Комиссия не раскрыта' }, payout: 'Сроки у партнёра свои, задержки бывают', payoutSrc: 'отзывы', tax: 'Зависит от договора, расчёта нет' }
+            { k: 'partner', gives: 'Договор с партнёрской компанией, не с Магнитом', names: 'ТОП-ТИМ, Хорошей Дороги, Два Колеса', namesSrc: 'вторичный', fee: { kind: '', text: 'Партнёры комиссию не публикуют' }, payout: 'Сроки у партнёра свои, курьеры пишут о задержках', tax: 'Зависит от договора, расчёта нет' }
           ],
-          seen: 'Тип договора и подрядчик', seenSrc: 'APK'
+          seen: 'Точно не известно, покажем, что отдаст сервис'
         },
         kuper: {
           need: 'no', verdict: 'Напрямую самозанятым или ИП', forms: ['Самозанятый', 'ИП'],
           kinds: [{ k: 'direct', gives: 'Договор с Купером, самозанятый или ИП', fee: { kind: 'нет', text: 'Посредника нет' }, payout: 'Ранний вывод прямым самозанятым с Серебра', tax: 'Самозанятый НПД 4 и 6%, ИП по своему режиму' }],
-          seen: 'Форма оформления и компания', seenSrc: 'APK'
+          seen: 'Точно не известно, покажем, что отдаст сервис'
         },
         x5: {
           need: 'no', verdict: 'Напрямую самозанятым, про посредников данных нет', forms: ['Самозанятый'],
-          kinds: [{ k: 'direct', gives: 'Договор с X5 как с самозанятым, с 16 лет', fee: { kind: 'нет', text: 'Комиссий не найдено' }, payout: 'Раз в неделю на карту', tax: 'Самозанятый НПД 4 и 6%' }],
-          seen: 'Компания и тип оформления', seenSrc: 'APK'
+          kinds: [{ k: 'direct', gives: 'Договор с X5 как с самозанятым, с 16 лет', fee: { kind: 'нет', text: 'В правилах комиссий нет' }, payout: 'Раз в неделю на карту', tax: 'Самозанятый НПД 4 и 6%' }],
+          seen: 'Точно не известно, покажем, что отдаст сервис'
         },
         'ozon-courier': {
           need: 'yes', verdict: 'Нужен посредник: парк', forms: ['Самозанятый', 'Парк'],
-          kinds: [{ k: 'park', gives: 'Самозанятый плюс договор с парком, имена парков не опубликованы', fee: { kind: 'заказ', text: '15% с заказа, видно в Сборах' }, payout: 'Банк берёт за вывод 0,9-2,4%', tax: 'Самозанятый НПД 4 и 6%' }],
-          seen: 'Сборы и Удержания за 2 недели, имя парка не отдаёт', seenSrc: ''
+          kinds: [{ k: 'park', gives: 'Самозанятый плюс договор с парком, имена парков не опубликованы', fee: { kind: 'заказ', text: '15%, видно в Сборах' }, payout: 'Банк берёт за вывод 0,9-2,4%', tax: 'Самозанятый НПД 4 и 6%' }],
+          seen: 'Сборы и удержания за 2 недели. Имя парка сервис не передаёт'
         },
         'ozon-fresh': {
           need: 'no', verdict: 'Напрямую самозанятым или ИП', forms: ['Самозанятый', 'ИП'],
           kinds: [{ k: 'direct', gives: 'Договор с Ozon, самозанятый или ИП', fee: { kind: 'нет', text: 'Посредника нет, аренда транспорта удерживается из выплаты' }, payout: 'Через 3 или 12 часов после слота, по уровню', tax: 'Самозанятый НПД платите сами, можно включить автооплату', change: 'Расторгнуть можно самому, тип сотрудничества меняется до 10 раз' }],
-          seen: 'Сервис не отдаёт', seenSrc: ''
+          seen: 'Пока ничего: сервис эти данные не передаёт'
         },
         dostaevsky: {
           need: 'no', verdict: 'Самозанятым или по ТК, без посредников', forms: ['Самозанятый', 'ТК'],
@@ -2177,33 +2177,33 @@
             { k: 'direct', gives: 'Договор как с самозанятым', fee: { kind: 'нет', text: 'Посредника нет' }, payout: 'Ежедневно', tax: 'Самозанятый НПД 4 и 6%' },
             { k: 'tk', gives: 'Трудовой договор с компанией', fee: { kind: 'нет', text: 'Посредника нет' }, payout: 'Два раза в месяц', tax: 'НДФЛ 13% удерживает работодатель, расчёта нет' }
           ],
-          seen: 'Сервис не отдаёт', seenSrc: ''
+          seen: 'Пока ничего: сервис эти данные не передаёт'
         },
         dostavista: {
           need: 'no', verdict: 'Можно напрямую или через парк', forms: ['Самозанятый', 'Парк'],
           kinds: [
             { k: 'direct', gives: 'Паспорт, от 14 лет, любое гражданство. Без самозанятости только заказы с наличными', fee: { kind: 'нет', text: 'Посредника нет' }, tax: 'Самозанятый НПД, автоуплата с 01.09.2026' },
-            { k: 'park', gives: 'Парк-партнёр ведёт кошелёк и выплаты, названия не опубликованы', fee: { kind: 'не раскрыта', text: 'Комиссия парка официально не найдена' }, tax: 'Зависит от парка, расчёта нет' }
+            { k: 'park', gives: 'Парк-партнёр ведёт кошелёк и выплаты, названия не опубликованы', fee: { kind: '', text: 'Парки комиссию не публикуют' }, tax: 'Зависит от парка, расчёта нет' }
           ],
-          seen: 'Название парка из Инструкции партнёра, контакты не храним', seenSrc: 'APK'
+          seen: 'Точно не известно, покажем, что отдаст сервис'
         },
         'wb-courier': {
           need: 'no', verdict: 'Напрямую самозанятым по оферте', forms: ['Самозанятый'],
           kinds: [{ k: 'direct', gives: 'Оферта WB, самозанятый, партнёр Wildberries в Мой налог', fee: { kind: 'нет', text: 'Посредников официально нет' }, tax: 'Самозанятый НПД 4 и 6%' }],
-          seen: 'Сервис не отдаёт', seenSrc: ''
+          seen: 'Пока ничего: сервис эти данные не передаёт'
         },
         flowwow: {
           need: 'cond', verdict: 'Самозанятым, напрямую или через куратора', forms: ['Самозанятый', 'Куратор'],
           kinds: [
             { k: 'direct', gives: 'Договор с Flowwow, самозанятый, 18+, ИП не принимают', fee: { kind: 'нет', text: 'Посредника нет' }, tax: 'Самозанятый НПД 4 и 6%' },
-            { k: 'curator', gives: 'Куратор привлекает курьеров, договор через него', fee: { kind: 'не раскрыта', text: 'В оферте процент не назван, в отзывах около 21%', src: 'отзывы' }, tax: 'Самозанятый НПД 4 и 6%' }
+            { k: 'curator', gives: 'Куратор привлекает курьеров, договор через него', fee: { kind: '', text: 'В оферте процент не назван, курьеры пишут про 21%' }, tax: 'Самозанятый НПД 4 и 6%' }
           ],
-          seen: 'Сервис не отдаёт', seenSrc: ''
+          seen: 'Пока ничего: сервис эти данные не передаёт'
         },
         dodo: {
           need: 'no', verdict: 'Нанимает пиццерия, форма не названа', forms: ['Форма не названа'],
-          kinds: [{ k: 'shop', gives: 'Нанимает пиццерия, условия у управляющего', fee: { kind: 'нет', text: 'Комиссий посредника не найдено' }, tax: 'Сервис форму не называет, уточните у управляющего' }],
-          seen: 'Сервис не отдаёт', seenSrc: ''
+          kinds: [{ k: 'shop', gives: 'Нанимает пиццерия, условия у управляющего', fee: { kind: 'нет', text: 'В правилах комиссий посредника нет' }, tax: 'Сервис форму не называет, уточните у управляющего' }],
+          seen: 'Пока ничего: сервис эти данные не передаёт'
         }
       };
       // Яндекс Доставка и Деливери: парки при регистрации, условия вывода по перехвату 29.09.2026
@@ -2213,16 +2213,16 @@
           VIA_YA_DIRECT,
           Object.assign({}, VIA_YA_PARK, {
             gives: 'При регистрации выбор из 10 парков: ОТ и ДО, СТАРТ КУРЬЕР, LEON Logistic и другие. Иностранцам ЕАЭС парковая самозанятость только в Москве',
-            fee: { kind: '', text: 'На 29.09.2026: вывод 1% (минимум 20-50 ₽) или 30 ₽, у части парков 2-6% с заказа или 50 ₽ в сутки', src: 'по текстам парков' },
-            change: 'Новый парк привязывает, старый отвязывает в Диспетчерской, связку в Мой налог отзовите, иначе доступ ограничат', changeSrc: ''
+            fee: { kind: '', text: 'По текстам парков на 29.09.2026: вывод 1% (минимум 20-50 ₽) или 30 ₽, у части 2-6% с заказа или 50 ₽ в сутки' },
+            change: 'Новый парк привязывает, старый отвязывает в Диспетчерской. Связку в Мой налог отзовите, иначе доступ ограничат'
           })
         ],
-        seen: VIA_YA_SEEN, seenSrc: 'APK'
+        seen: VIA_YA_SEEN
       };
       Object.keys(SERVICE_VIA).forEach((k) => { SERVICE_CAPS[k].via = SERVICE_VIA[k]; });
       // у демо-пользователя Яндекс Еда через парк, название парка и рейтинг демо
       const VIA_MINE_DEMO = { 'yandex-eda': 'park' };
-      const VIA_DEMO_SEEN = 'Парк · партнёр Яндекс Про, рейтинг 4,6, условия вывода: комиссия видна до запроса';
+      const VIA_DEMO_SEEN = 'Парк партнёр Яндекс Про, рейтинг 4,6, комиссия за вывод видна до запроса';
       const OFFERS = [
         { id: 'o1', svc: 'vkusvill', pay: 320, weight: '4.2 кг', distance: '1.1 км', eta: '18 мин', etaPoint: '4 мин', packages: 2, pickupAddr: 'ул. Правды, 24', dropAddr: 'Ленинградский пр-т, 46', canDecline: true },
         { id: 'o2', svc: 'samokat', pay: 280, weight: '2.8 кг', distance: '0.8 км', eta: '14 мин', etaPoint: '3 мин', packages: 1, pickupAddr: 'Тверская ул., 12', dropAddr: 'Настасьинский пер., 3', canDecline: false },
@@ -4020,7 +4020,7 @@
             const c = SERVICE_CAPS[k], v = c && c.via;
             if (!v) return null;
             const mine = viaMineOf(k);
-            return { svc: k, title: c.title, verdict: v.verdict, tone: v.need, forms: v.forms, mine, kinds: v.kinds.map((kd) => Object.assign({}, kd, { label: VIA_KINDS[kd.k], mine: kd.k === mine })), seen: mine === 'park' ? VIA_DEMO_SEEN : v.seen, seenSrc: mine === 'park' ? 'демо' : v.seenSrc };
+            return { svc: k, title: c.title, verdict: v.verdict, tone: v.need, forms: v.forms, mine, kinds: v.kinds.map((kd) => Object.assign({}, kd, { label: VIA_KINDS[kd.k], mine: kd.k === mine })), seen: mine === 'park' ? VIA_DEMO_SEEN : v.seen };
           };
           const viaMineLabel = (k) => (viaMineOf(k) ? 'у вас: ' + VIA_KINDS[viaMineOf(k)].toLowerCase() : '');
           const guideVia = {};
@@ -4608,7 +4608,7 @@
             const nextStatus = Object.assign({}, integrationStatus, { [connKey]: 'exited' });
             const nextHealth = Object.assign({}, svcHealth);
             delete nextHealth[connKey];
-            set({ s: 'integrations', integrationStatus: nextStatus, svcHealth: nextHealth, connExitedAt: Object.assign({}, st.connExitedAt || {}, { [connKey]: '15 сентября, 15:40' }) });
+            set({ s: 'integrations', connFrom: '', integrationStatus: nextStatus, svcHealth: nextHealth, connExitedAt: Object.assign({}, st.connExitedAt || {}, { [connKey]: '15 сентября, 15:40' }) });
           };
           const connMethodChoice = st.connMethodChoice || 'code';
           const effectiveMethod = (conn.altMethod && connMethodChoice === 'password') ? 'password' : conn.method;
@@ -4627,7 +4627,7 @@
             if (conn.sharedWith) patch[conn.sharedWith] = statusValue;
             const restoredHealth = Object.assign({}, svcHealth);
             Object.keys(patch).forEach((k) => { delete restoredHealth[k]; });
-            set({ connDone: connKey, s: 'integrations', integrationStatus: Object.assign({}, integrationStatus, patch), svcHealth: restoredHealth, syncAgo: Object.assign({}, syncAgo, Object.keys(patch).reduce((acc, k) => { acc[k] = 0; return acc; }, {})), connStage: 'form', connCodeInput: '', connCodeError: false });
+            set({ connDone: connKey, s: 'integrations', connFrom: '', integrationStatus: Object.assign({}, integrationStatus, patch), svcHealth: restoredHealth, syncAgo: Object.assign({}, syncAgo, Object.keys(patch).reduce((acc, k) => { acc[k] = 0; return acc; }, {})), connStage: 'form', connCodeInput: '', connCodeError: false });
           };
 
           // История заказов
@@ -5270,7 +5270,7 @@
                 const d = new Date(row.iso + 'T00:00:00');
                 if (r.freeCancel === 'noonBefore') { d.setDate(d.getDate() - 1); d.setHours(12); } else d.setMinutes(row.from - r.hoursBefore * 60);
                 const cur = new Date(TODAY_ISO + 'T00:00:00'); cur.setMinutes(nowMin);
-                return d > cur && d - cur <= 24 * 3600000 ? 'Отменить без последствий до ' + ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][d.getDay()] + ' ' + fmt(d.getHours() * 60 + d.getMinutes()) + (r.src ? ' · ' + ({ 'отзывы': 'по отзывам', 'APK': 'по APK', 'вторичный': 'вторичный источник', 'не подтверждено': 'не проверено', 'партнёрские материалы': 'по материалам партнёров' }[r.src] || r.src) : '') : '';
+                return d > cur && d - cur <= 24 * 3600000 ? 'Отменить без последствий до ' + ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][d.getDay()] + ' ' + fmt(d.getHours() * 60 + d.getMinutes()) + (r.src ? ' · ' + ({ 'отзывы': 'со слов курьеров', 'вторичный': 'из пересказов', 'не подтверждено': 'точно не известно', 'партнёрские материалы': 'по словам партнёров' }[r.src] || r.src) : '') : '';
               };
               const booking = (row, kind) => ({ id: row.id, svc: row.svc, kind, source: 'booking', title: row.title, place: row.place, time: fmt(row.from) + '–' + fmt(row.to), hint: kind === 'now' ? 'ещё ' + left(row.to - nowMin) : 'через ' + left(row.from - nowMin), word: row.status === 'requested' ? (SERVICE_CAPS[row.svc].words || SHIFT_WORDS.bron).requested : (SERVICE_CAPS[row.svc].status === 'bron' ? 'бронь' : 'смена'), deadline: kind === 'next' ? cancelBy(row) : '' });
               // без брони план ставит только то, куда можно выйти сразу: свободный выход в Яндекс Еде
@@ -5352,7 +5352,8 @@
             },
             go_market: () => set({ s: 'market' }),
             go_market_services: () => set({ s: 'market-services' }),
-            service_back: () => set({ s: st.svFrom === 'market-services' ? 'market-services' : 'market' }),
+            service_back: () => set(st.svFrom === 'job-guide' ? { s: 'job-guide', svFrom: '' } : { s: st.svFrom === 'market-services' ? 'market-services' : 'market' }),
+            conn_back: () => { if (st.connFrom === 'job-guide') return set({ s: 'job-guide', connFrom: '' }); if (role === 'courier') set({ s: 'integrations' }); },
             go_history: () => { if (role === 'courier') set({ s: 'history', histBack: '', histSvc: 'all', histDistrict: 'all' }); },
             recent_orders: HISTORY.filter((o) => o.dateISO === TODAY_ISO && (demoOn || activeDataSvcs.indexOf(o.svc) !== -1)).slice().sort((a, b) => (a.date < b.date ? 1 : -1)).filter((o, i, arr) => !o.tripId || arr.findIndex((x) => x.tripId === o.tripId) === i).slice(0, 3).map((o) => o.tripId ? (() => {
               const ti = tripInfo(o.tripId);
@@ -5429,6 +5430,13 @@
               });
             })(),
             guide_section: st.guideSection || 'newbies',
+            guide_svc: st.guideSvc || 'vkusvill',
+            guide_services: Object.keys(SERVICES).map((k) => ({ key: k, title: SERVICES[k].title })),
+            guide_connected: Object.keys(integrationStatus || {}).reduce((acc, k) => { if (integrationStatus[k] === 'connected' || integrationStatus[k] === 'limited') acc[k] = true; return acc; }, {}),
+            guide_set_section: (t) => set({ guideSection: t }),
+            guide_set_svc: (k) => set({ guideSvc: k }),
+            guide_register: (k) => set({ s: 'service-open-demo', openDemoSection: 'register', openDemoLabel: SERVICES[k] ? SERVICES[k].title : k, openDemoFrom: 'job-guide', openDemoShift: '', openDemoSlot: '' }),
+            guide_connect: (k) => set({ s: 'integration-connect', connFrom: 'job-guide', connKey: k, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: '' }),
             guide_via: guideVia, guide_open_via: (key) => set({ viaSheet: key }),
             via_open: !!(st.viaSheet && viaFor(st.viaSheet)), via_data: st.viaSheet ? viaFor(st.viaSheet) : null, via_close: () => set({ viaSheet: '' }),
             go_job_guide: () => set({ s: 'job-guide', guideSection: 'newbies' }),
@@ -5443,7 +5451,7 @@
               { q: 'Что такое умное расписание?', a: 'Оно берёт ваш график работы и историю и подсказывает, в какие часы и районы выгоднее выходить. Настройте график в разделе План' }
             ],
             profile_services_note: connProblemItems.length ? connProblemItems.map((i) => i.title + ': ' + HEALTH_PILL[i.state].toLowerCase()).join(', ') : (syncTargets.length ? syncTargets.length + ' ' + ruPlural(syncTargets.length, 'подключён', 'подключено', 'подключено') + ' · ' + connHealthOkNote : (exitedKeys.length ? 'Нужно подключить заново: ' + exitedKeys.length : 'Ни один сервис не подключён')),
-            guide_open_service: (key) => set({ s: 'service', svKey: key, svReviewTab: 'courier' }),
+            guide_open_service: (key) => set({ s: 'service', svKey: key, svReviewTab: 'courier', svFrom: 'job-guide' }),
 
             uh_set_city: (nextCity) => set({ city: nextCity }),
             uh_navigate: (key, extra) => {
@@ -5854,7 +5862,7 @@
           stats_sec_fines: openAppSection(sectionSvcOf(statsFineRows.length ? statsFineRows[0].svc : statsSvcFilter), 'fines'),
           faq_sec_svc: sectionSvcOf(''), faq_sec_title: sectionTitleOf(sectionSvcOf('')), faq_sec_show: !!sectionSvcOf(''),
           faq_sec_open: openAppSection(sectionSvcOf(''), 'support'),
-          open_demo_text: APP_SECTIONS[st.openDemoSection]
+          open_demo_text: st.openDemoSection === 'register' ? 'Откроется страница регистрации сервиса. В прототипе переход не выполняется' : APP_SECTIONS[st.openDemoSection]
             ? 'Откроется приложение сервиса. Найдите в нём раздел ' + APP_SECTIONS[st.openDemoSection] + (st.openDemoSection === 'fines' ? ' и сверьте суммы с Разносом' : st.openDemoSection === 'support' ? ' и напишите туда' : '')
             : st.openDemoShift
             ? 'Откроется приложение сервиса. Найдите смену ' + st.openDemoShift + ' в разделе смен' + (demoSlot ? (demoSlot.apply ? ' и отправьте отклик' : ' и возьмите её там') : '. Отменить или отозвать её можно только там')
@@ -6033,7 +6041,7 @@
             conn_relogin_ok: st.connReloginDemo === 'same',
             conn_relogin_other_id: st.connReloginDemo === 'other',
             conn_relogin_no_id: st.connReloginDemo === 'noid',
-            conn_relogin_finish: () => set({ s: 'integrations', connReloginDemo: '', integrationStatus: Object.assign({}, integrationStatus, { [connKey]: 'connected' }) }),
+            conn_relogin_finish: () => set({ s: 'integrations', connFrom: '', connReloginDemo: '', integrationStatus: Object.assign({}, integrationStatus, { [connKey]: 'connected' }) }),
             go_worker_data: () => set({ s: 'worker-data' }),
             go_work_setup: () => set({ s: 'work-setup' }),
 

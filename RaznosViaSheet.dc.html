@@ -27,7 +27,8 @@
     .rvs-more { border-top: 1px solid var(--raznos-line); }
     .rvs-more summary { min-height: 44px; display: flex; align-items: center; font: 600 13.5px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
     .rvs-more summary:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
-    .rvs-more .rvs-row:first-of-type { border-top: 0; padding-top: 0; }
+    .rvs-more ul { margin: 0 0 12px; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font: 500 14px/1.4 var(--raznos-font); color: var(--raznos-ink); }
+    .rvs-more + .rvs-more { margin-top: -12px; }
     .rvs-seen { display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 14px; background: var(--raznos-surface-2); }
     .rvs-seen b { font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); }
     .rvs-seen span { font: 500 14px/1.4 var(--raznos-font); }
@@ -52,28 +53,31 @@
     <div class="rvs-list">
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4"><div class="rvs-row"><span class="rvs-label">{{ r.label }}</span><span class="rvs-value"><sc-if value="{{ r.pill }}" hint-placeholder-val="{{ false }}"><span class="rvs-pill">{{ r.pill }}</span></sc-if>{{ r.value }}<dc-import name="RaznosFactSource" src="{{ r.src }}"></dc-import><sc-if value="{{ r.note }}" hint-placeholder-val="{{ false }}"><span class="rvs-note">{{ r.note }}<dc-import name="RaznosFactSource" src="{{ r.noteSrc }}"></dc-import></span></sc-if></span></div></sc-for>
     </div>
-    <sc-if value="{{ has_more }}" hint-placeholder-val="{{ true }}">
-      <details class="rvs-more"><summary>Как сменить и проверить</summary>
-        <sc-for list="{{ more }}" as="r" hint-placeholder-count="3"><div class="rvs-row"><span class="rvs-label">{{ r.label }}</span><span class="rvs-value">{{ r.value }}<dc-import name="RaznosFactSource" src="{{ r.src }}"></dc-import></span></div></sc-for>
+    <sc-for list="{{ questions }}" as="q" hint-placeholder-count="2">
+      <details class="rvs-more"><summary>{{ q.title }}</summary>
+        <ul><sc-for list="{{ q.items }}" as="it" hint-placeholder-count="2"><li>{{ it.text }}<dc-import name="RaznosFactSource" src="{{ it.src }}"></dc-import></li></sc-for></ul>
       </details>
-    </sc-if>
-    <div class="rvs-seen"><b>Что видит Разнос</b><span>{{ seen }}<dc-import name="RaznosFactSource" src="{{ seen_src }}"></dc-import></span></div>
+    </sc-for>
+    <div class="rvs-seen"><b>В Разносе будет видно</b><span>{{ seen }}<dc-import name="RaznosFactSource" src="{{ seen_src }}"></dc-import></span></div>
     <span class="raznos-text-tiny">Проверено по Москве, в других городах условия могут отличаться</span>
   </section>
 </div>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"via":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":760}}'>
-// шторка оформления: вывод, варианты оформления табами (только те, что есть у сервиса), что платит курьер, налог по форме, как сменить и проверить
-const RVS_FEE_PILL = { 'вывод': 'за вывод', 'заказ': 'с заказа', 'сутки': 'в сутки', 'не раскрыта': 'не раскрыта' };
-const RVS_CHECK = 'Попросите договор, комиссию и её вид, сроки выплат и порядок выхода';
-const RVS_RISK = 'Задержки выплат и непрозрачные удержания, поддержка может перекладывать ответственность между сервисом и посредником';
+// шторка оформления: варианты табами (только те, что есть у сервиса), что платит курьер, налог по форме, два вопроса про смену и выбор посредника
+// плашка вида комиссии только у известных видов, неизвестную комиссию говорим фразой без плашки
+const RVS_FEE_PILL = { 'вывод': 'за вывод', 'заказ': 'с заказа', 'сутки': 'в сутки' };
+const RVS_CHANGE = { park: 'Как перейти в другой парк', partner: 'Как перейти к другому партнёру', outsource: 'Как перейти в другую компанию', service: 'Как уйти из службы', curator: 'Как сменить куратора', direct: 'Как расторгнуть договор', tk: 'Как расторгнуть договор', shop: 'Как расторгнуть договор' };
+const RVS_PICK = { park: 'Как выбрать надёжный парк', partner: 'Как выбрать надёжного партнёра', outsource: 'Как выбрать надёжную компанию', service: 'Как выбрать надёжную службу', curator: 'Как выбрать надёжного куратора' };
+const RVS_CHECK = ['Попросите договор до первого заказа', 'Узнайте размер комиссии и за что она', 'Узнайте сроки выплат и как выйти'];
+const RVS_RISK = 'выплаты задерживают, удержания непонятные, а поддержка отправляет от сервиса к посреднику и обратно';
 // без пропсов показываем демо для дизайн-системы
 const RVS_DEMO = {
   svc: 'yandex-eda', title: 'Яндекс Еда', verdict: 'Можно напрямую, не из ЕАЭС нужна служба', mine: 'park',
   kinds: [
     { k: 'direct', label: 'Напрямую', gives: 'Договор с сервисом без партнёров, у самозанятых приоритет выше', fee: { kind: 'нет', text: 'Комиссий партнёрам нет' }, payout: 'Карта Про, выплата за 5 минут', tax: 'НПД 4 и 6%' },
-    { k: 'park', label: 'Через парк', mine: true, gives: 'Парк ведёт выплаты, чат в Про и самозанятость в Мой налог', fee: { kind: 'вывод', text: 'Комиссия парка за вывод, видна до запроса' }, payout: 'Сроки и лимиты вывода ставит парк', tax: 'Уточните, кто платит налог, расчёта нет', taxSrc: 'источники расходятся', change: 'Новый парк привязывает, старый отвязывает, отзовите связку в Мой налог', changeSrc: 'по правилам Доставки' }
+    { k: 'park', label: 'Через парк', mine: true, gives: 'Парк ведёт выплаты, чат в Про и самозанятость в Мой налог', fee: { kind: 'вывод', text: 'Комиссия парка за вывод, видна до запроса' }, payout: 'Сроки и лимиты вывода ставит парк', tax: 'Уточните в парке, кто платит налог', taxSrc: 'источники расходятся', change: 'Новый парк привязывает, старый отвязывает, отзовите связку в Мой налог', changeSrc: 'по правилам Доставки' }
   ],
-  seen: 'Парк · партнёр Яндекс Про · рейтинг 4,6, условия вывода', seenSrc: 'демо'
+  seen: 'Название парка, его рейтинг, условия вывода'
 };
 class Component extends DCLogic {
   renderVals() {
@@ -90,17 +94,19 @@ class Component extends DCLogic {
     if (cur.payout) rows.push({ label: 'Выплаты', value: cur.payout, src: cur.payoutSrc || '', pill: '' });
     if (cur.tax) rows.push({ label: 'Налог', value: cur.tax, src: cur.taxSrc || '', pill: '' });
     const middle = cur.k !== 'direct' && cur.k !== 'tk' && cur.k !== 'shop';
-    const more = [];
-    if (cur.change) more.push({ label: 'Сменить', value: cur.change, src: cur.changeSrc || '' });
-    if (middle) more.push({ label: 'Риски', value: RVS_RISK, src: 'отзывы' });
-    if (middle) more.push({ label: 'Проверить', value: RVS_CHECK, src: '' });
+    const questions = [];
+    const changeItems = [];
+    if (cur.change) changeItems.push({ text: cur.change, src: cur.changeSrc || '' });
+    else if (middle) changeItems.push({ text: 'Сервис порядок не публикует', src: '' });
+    if (changeItems.length) questions.push({ title: RVS_CHANGE[cur.k] || 'Как расторгнуть договор', items: changeItems });
+    if (middle) questions.push({ title: RVS_PICK[cur.k] || 'Как выбрать надёжного посредника', items: [{ text: 'Курьеры пишут, что ' + RVS_RISK, src: '' }].concat(RVS_CHECK.map((t) => ({ text: t, src: '' }))) });
     return {
       svc: v.svc || 'yandex-eda', title: v.title || '', verdict: v.verdict || '',
       has_tabs: kinds.length > 1,
       tabs: kinds.map((k) => ({ label: k.label, mine: !!k.mine, on: k.k === cur.k, cls: 'rvs-tab' + (k.k === cur.k ? ' raznos-is-active' : ''), tap: () => this.setState({ tab: k.k }) })),
       gives: cur.gives || '', gives_src: cur.givesSrc || '',
-      rows, more, has_more: more.length > 0,
-      seen: v.seen || 'Сервис не отдаёт', seen_src: v.seenSrc || '',
+      rows, questions,
+      seen: v.seen || 'Пока ничего: сервис эти данные не передаёт', seen_src: v.seenSrc || '',
       close: () => { if (typeof p.onClose === 'function') p.onClose(); },
       stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
     };

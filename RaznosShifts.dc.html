@@ -159,7 +159,7 @@ class Component extends DCLogic {
       return r.freeCancel === 'noonBefore' ? (() => { const d = date(iso); d.setDate(d.getDate() - 1); d.setHours(12); return d; })() : new Date(start.getTime() - (r.hoursBefore || 24) * 3600000);
     };
     const nowDate = (() => { const d = date(today); d.setMinutes(now); return d; })();
-    const RSH_SRC = { 'отзывы': 'по отзывам', 'APK': 'по APK', 'вторичный': 'вторичный источник', 'не подтверждено': 'не проверено', 'партнёрские материалы': 'по материалам партнёров' };
+    const RSH_SRC = { 'отзывы': 'со слов курьеров', 'вторичный': 'из пересказов', 'не подтверждено': 'точно не известно', 'партнёрские материалы': 'по словам партнёров' };
     const deadlineLabel = (d) => RSH_DOW[d.getDay()].toLowerCase() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
     const ruleFor = (svc, iso, from) => {
       const r = rules[svc];
