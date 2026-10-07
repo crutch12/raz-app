@@ -159,7 +159,7 @@ class Component extends DCLogic {
       return r.freeCancel === 'noonBefore' ? (() => { const d = date(iso); d.setDate(d.getDate() - 1); d.setHours(12); return d; })() : new Date(start.getTime() - (r.hoursBefore || 24) * 3600000);
     };
     const nowDate = (() => { const d = date(today); d.setMinutes(now); return d; })();
-    const RSH_SRC = { 'отзывы': 'со слов курьеров', 'вторичный': 'из пересказов', 'не подтверждено': 'точно не известно', 'партнёрские материалы': 'по словам партнёров' };
+    const RSH_SRC = { 'отзывы': '', 'вторичный': 'из пересказов', 'не подтверждено': 'точно не известно', 'партнёрские материалы': 'по словам партнёров' };
     const deadlineLabel = (d) => RSH_DOW[d.getDay()].toLowerCase() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
     const ruleFor = (svc, iso, from) => {
       const r = rules[svc];
@@ -359,7 +359,7 @@ class Component extends DCLogic {
       }));
       live.filter((s) => s.status === 'confirmed').forEach((s) => {
         const d = deadlineOf(s.svc, s.iso, s.from);
-        if (d && d > nowDate && d - nowDate < 24 * 3600000) attention.push({ tone: 'warn', title: 'Отменить без последствий до ' + deadlineLabel(d), text: s.title + ', ' + shortDay(s.iso) + ', ' + RSH_TIME(s.from) + '–' + RSH_TIME(s.to) + (rules[s.svc].src ? ' · ' + (RSH_SRC[rules[s.svc].src] || rules[s.svc].src) : ''), action: 'Открыть', tap: () => openSheet(s) });
+        if (d && d > nowDate && d - nowDate < 24 * 3600000) attention.push({ tone: 'warn', title: 'Отменить без последствий до ' + deadlineLabel(d), text: s.title + ', ' + shortDay(s.iso) + ', ' + RSH_TIME(s.from) + '–' + RSH_TIME(s.to) + (rules[s.svc].src && rules[s.svc].src !== 'отзывы' ? ' · ' + (RSH_SRC[rules[s.svc].src] || rules[s.svc].src) : ''), action: 'Открыть', tap: () => openSheet(s) });
       });
       openingList.slice(0, 1).forEach((o) => attention.push({ tone: 'info', title: o.title, text: o.text, action: o.active ? 'Напомним' : 'Напомнить', on: o.active, tap: o.tap }));
     }

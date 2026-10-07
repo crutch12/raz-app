@@ -1,0 +1,28 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rnb-btn { position: relative; }
+    .rnb-count { position: absolute; top: -5px; right: -6px; min-width: 20px; height: 20px; box-sizing: border-box; padding: 0 5px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; border: 2px solid var(--raznos-bg, var(--raznos-surface)); background: var(--raznos-red); color: #fff; font: 700 11px/1 var(--raznos-font); font-variant-numeric: tabular-nums; }
+    .rnb-btn:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+  </style>
+</helmet>
+<button type="button" class="raznos-icon-btn rnb-btn" onClick="{{ open }}" aria-label="{{ aria }}">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+  <sc-if value="{{ has_count }}" hint-placeholder-val="{{ true }}"><span class="rnb-count" aria-hidden="true">{{ count_label }}</span></sc-if>
+</button>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"count":{"editor":"number","default":0},"onOpen":{"editor":null},"$preview":{"width":80,"height":64}}'>
+// колокольчик в шапке Профиля, цифра только для непрочитанного, где нужно действие
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const n = Math.max(0, Number(p.count) || 0);
+    return {
+      has_count: n > 0,
+      count_label: n > 9 ? '9+' : String(n),
+      aria: n > 0 ? 'Уведомления, нужно действие: ' + n : 'Уведомления',
+      open: () => { if (typeof p.onOpen === 'function') p.onOpen(); }
+    };
+  }
+}
+</script></body></html>

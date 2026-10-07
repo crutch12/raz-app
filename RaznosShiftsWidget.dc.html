@@ -64,10 +64,10 @@ class Component extends DCLogic {
       const d = r.freeCancel === 'noonBefore' ? (() => { const x = new Date(s.iso + 'T00:00:00'); x.setDate(x.getDate() - 1); x.setHours(12); return x; })() : new Date(start.getTime() - (r.hoursBefore || 24) * 3600000);
       return { s, d };
     }).filter((x) => x.d > nowDate && x.d - nowDate <= 24 * 3600000).sort((a, b) => a.d - b.d);
-    const RSW_SRC = { 'отзывы': 'со слов курьеров', 'вторичный': 'из пересказов', 'не подтверждено': 'точно не известно', 'партнёрские материалы': 'по словам партнёров' };
+    const RSW_SRC = { 'отзывы': '', 'вторичный': 'из пересказов', 'не подтверждено': 'точно не известно', 'партнёрские материалы': 'по словам партнёров' };
     const soon = deadlines[0];
     const summary = live.length + ' ' + RSW_PLURAL(live.length, 'смена', 'смены', 'смен') + ' на неделе · ' + Math.round(minutes / 60) + ' ч';
-    const deadline = soon ? 'Отменить ' + soon.s.title + ' без последствий можно до ' + RSW_DOW[soon.d.getDay()] + ' ' + RSW_TIME(soon.d.getHours() * 60 + soon.d.getMinutes()) + (rules[soon.s.svc].src ? ' · ' + (RSW_SRC[rules[soon.s.svc].src] || rules[soon.s.svc].src) : '') : '';
+    const deadline = soon ? 'Отменить ' + soon.s.title + ' без последствий можно до ' + RSW_DOW[soon.d.getDay()] + ' ' + RSW_TIME(soon.d.getHours() * 60 + soon.d.getMinutes()) + (rules[soon.s.svc].src && rules[soon.s.svc].src !== 'отзывы' ? ' · ' + (RSW_SRC[rules[soon.s.svc].src] || rules[soon.s.svc].src) : '') : '';
     return {
       open, summary, flags, has_flags: flags.length > 0, deadline,
       aria: 'Смены, ' + summary + (flags.length ? ', ' + flags.map((f) => f.label).join(', ') : '') + (deadline ? ', ' + deadline : '')

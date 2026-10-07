@@ -129,18 +129,6 @@
     </div>
   </sc-if>
 
-  <sc-if value="{{ note_open }}" hint-placeholder-val="{{ false }}">
-    <div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="Заметка">
-      <div class="raznos-dialog rro-sheet">
-        <span class="raznos-text-h3">{{ note_title }}<br><small class="rro-sheet-sub">{{ sheet_order }}</small></span>
-        <textarea class="raznos-textarea" placeholder="Видно только вам" value="{{ note_val }}" onInput="{{ note_change }}"></textarea>
-        <div class="raznos-btn-row">
-          <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ sheet_cancel }}">Отмена</button>
-          <button type="button" class="raznos-btn" onClick="{{ sheet_save }}">Сохранить</button>
-        </div>
-      </div>
-    </div>
-  </sc-if>
 </div>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"onAll":{"editor":null},"onOpenOrder":{"editor":null},"onOpenTrip":{"editor":null},"onAddExpense":{"editor":null},"onSaveTip":{"editor":null},"$preview":{"width":390,"height":260}}'>
 // последние заказы для раздела Сегодня, плюс у заказа открывает меню: чаевые, расход, отзыв, заметка
@@ -152,8 +140,8 @@ const RRO_DEMO = [
   { id: 'T-12', isTrip: true, svc: 'samokat', route: 'Маршрут · 3 заказа', count: 3, meta: '13:34–14:35 · Профсоюзная, Правды, Беговая', pay: 690 },
   { id: 'V-9020', svc: 'vkusvill', route: 'Садовая 3 → Клин 8', meta: '13:40 · доставлен', pay: 360 }
 ];
-const RRO_ORDER_MENU = [{ key: 'tip', label: 'Чаевые' }, { key: 'expense', label: 'Расходы' }, { key: 'review', label: 'Отзыв о заказе' }, { key: 'note', label: 'Заметка' }];
-const RRO_TRIP_MENU = [{ key: 'expense', label: 'Расходы' }, { key: 'note', label: 'Заметка к маршруту' }];
+const RRO_ORDER_MENU = [{ key: 'tip', label: 'Чаевые' }, { key: 'expense', label: 'Расходы' }, { key: 'review', label: 'Отзыв о заказе' }, { key: 'note', label: 'Заметка к адресу' }];
+const RRO_TRIP_MENU = [{ key: 'expense', label: 'Расходы' }];
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
@@ -171,7 +159,6 @@ class Component extends DCLogic {
     const sheet = st.sheet || '';
     const tipType = st.tipType || 'cash';
     const comment = st.comment || '';
-    const notes = st.notes || {};
     const placeRate = st.placeRate || 0;
     const recRate = st.recRate || 0;
     const close = () => set({ openId: null, sheet: '' });
@@ -195,9 +182,11 @@ class Component extends DCLogic {
     const menuPick = (key) => {
       const id = menuId;
       if (key === 'expense' && onAddExpense) { set({ menuId: null }); onAddExpense(id); return; }
+      // заметка одна, к адресу доставки, пишется в карточке заказа
+      if (key === 'note') { set({ menuId: null }); if (typeof p.onNote === 'function') p.onNote(id); return; }
       // шторка чаевых открывается с текущей суммой заказа
       const cur = src.find((x) => x.id === id);
-      set({ menuId: null, openId: id, sheet: key, amt: 100, tipText: cur && cur.tip ? fmtAmt(cur.tip) : '', tipType: 'cash', comment: '', placeRate: 0, recRate: 0, noteDraft: notes[id] || '' });
+      set({ menuId: null, openId: id, sheet: key, amt: 100, tipText: cur && cur.tip ? fmtAmt(cur.tip) : '', tipType: 'cash', comment: '', placeRate: 0, recRate: 0 });
     };
 
     const ttCls = (v) => 'rro-seg-btn' + (tipType === v ? ' raznos-is-active' : '');
@@ -213,14 +202,12 @@ class Component extends DCLogic {
       menu_items: RRO_ORDER_MENU,
       menu_pick: menuPick,
       menu_close: () => set({ menuId: null }),
-      note_title: String(openId || '').indexOf('trip') === 0 ? 'Заметка к маршруту' : 'Заметка к заказу',
       exp_title: String(openId || '').indexOf('trip') === 0 ? 'Расход по маршруту' : 'Расход по заказу',
       sheet_order: (() => { const o = src.find((x) => x.id === openId); return o ? o.meta.split(' ')[0] + ', ' + o.route.split(' → ')[0] : ''; })(),
       tip_open: !!openId && sheet === 'tip',
       tip_hint: (() => { const o = src.find((x) => x.id === openId); return o && o.tipDigital ? 'Чаевые через сервис ' + o.tipDigital + ' ₽ уже учтены, здесь только то, что дали наличными или переводом' : 'Чаевые через сервис учтём сами, здесь только то, что дали наличными или переводом'; })(),
       exp_open: !!openId && sheet === 'expense',
       review_open: !!openId && sheet === 'review',
-      note_open: !!openId && sheet === 'note',
       amt: amt,
       tip_text: tipText,
       tip_change: (e) => {
@@ -239,12 +226,9 @@ class Component extends DCLogic {
       comment_change: (e) => set({ comment: (e && e.target && e.target.value) || '' }),
       place_stars: stars(placeRate, 'placeRate'),
       rec_stars: stars(recRate, 'recRate'),
-      note_val: st.noteDraft || '',
-      note_change: (e) => set({ noteDraft: (e && e.target && e.target.value) || '' }),
       sheet_cancel: close,
       sheet_save: () => {
-        if (sheet === 'note') set({ notes: Object.assign({}, notes, { [openId]: st.noteDraft || '' }), openId: null, sheet: '' });
-        else if (sheet === 'tip') { onSaveTip(openId, tipNum, tipType, comment); close(); }
+        if (sheet === 'tip') { onSaveTip(openId, tipNum, tipType, comment); close(); }
         else close();
       }
     };

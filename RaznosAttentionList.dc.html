@@ -17,31 +17,50 @@
     .ral-act { flex: none; min-height: 36px; padding: 0 12px; border: 1px solid var(--raznos-line-strong); border-radius: 10px; background: var(--raznos-surface); font: 650 13px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; }
     .ral-act.ral-act-on { border-color: transparent; background: color-mix(in oklab, var(--raznos-green) 14%, var(--raznos-surface)); color: var(--raznos-green-deep); }
     .ral-act:focus-visible, .ral-chev:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .ral-more { width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 12px; border: 0; border-top: 1px solid var(--raznos-line); background: none; font: 650 13.5px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; text-align: left; }
+    .ral-more:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: -2px; }
     .ral-chev { flex: none; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 10px; background: none; color: var(--raznos-ink-3); cursor: pointer; }
   </style>
 </helmet>
 <section class="ral" aria-label="{{ title }}">
   <h2 class="ral-title">{{ title }}</h2>
   <ul class="ral-list">
-    <sc-for list="{{ items }}" as="it" hint-placeholder-count="3"><li class="{{ it.cls }}"><i class="ral-dot" aria-hidden="true"></i><span class="ral-copy"><b>{{ it.title }}</b><span>{{ it.text }}</span></span><sc-if value="{{ it.has_action }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ it.act_cls }}" onClick="{{ it.tap }}">{{ it.action }}</button></sc-if><sc-if value="{{ it.has_chev }}" hint-placeholder-val="{{ false }}"><button type="button" class="ral-chev" onClick="{{ it.tap }}" aria-label="Открыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></sc-if></li></sc-for>
+    <sc-for list="{{ shown }}" as="it" hint-placeholder-count="3"><li class="{{ it.cls }}"><i class="ral-dot" aria-hidden="true"></i><span class="ral-copy"><b>{{ it.title }}</b><span>{{ it.text }}</span></span><sc-if value="{{ it.has_action }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ it.act_cls }}" onClick="{{ it.tap }}">{{ it.action }}</button></sc-if><sc-if value="{{ it.has_chev }}" hint-placeholder-val="{{ false }}"><button type="button" class="ral-chev" onClick="{{ it.tap }}" aria-label="Открыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></sc-if></li></sc-for>
+    <sc-if value="{{ has_more }}" hint-placeholder-val="{{ false }}"><li><button type="button" class="ral-more" onClick="{{ toggle_more }}" aria-expanded="{{ expanded }}">{{ more_label }}<span aria-hidden="true">{{ more_icon }}</span></button></li></sc-if>
   </ul>
 </section>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"title":{"editor":"text","default":"Требует внимания"},"items":{"editor":null},"$preview":{"width":366,"height":220}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"title":{"editor":"text","default":"Требует внимания"},"items":{"editor":null},"demoLong":{"editor":"boolean","default":false},"$preview":{"width":366,"height":220}}'>
 // что требует действия по сменам, одной строкой на пункт: пересечения, заявки, отмена, открытие записи
 const RAL_DEMO = [
   { tone: 'danger', title: 'Пересечение в среду', text: 'ВкусВилл 14:00–18:00 и Самокат 18:00–22:00, дорога ≈ 20 мин', action: 'Открыть' },
   { tone: 'warn', title: 'Заявка ждёт ответа', text: 'ВкусВилл, ср 16, 14:00–18:00', action: '' },
   { tone: 'info', title: 'Запись в Яндекс на 21–27 сентября', text: 'Откроется в чт 17 сентября в 10:00', action: 'Напомнить' }
 ];
+// длинный пример для дизайн-системы: больше 5 пунктов, видно Ещё N
+const RAL_DEMO_LONG = RAL_DEMO.concat([
+  { tone: 'warn', title: 'Пожелание ждёт ответа', text: 'Додо, вс 20, 12:00–20:00', action: '' },
+  { tone: 'danger', title: 'Не успеете доехать, вт 15', text: 'ВкусВилл 14:00–17:00 и Яндекс Еда 17:00–21:00', action: 'Открыть' },
+  { tone: 'warn', title: 'Отменить без последствий до ср 11:00', text: 'X5 Доставка, чт 17, 11:00–17:00', action: 'Открыть' },
+  { tone: 'info', title: 'Запись в Самокат откроется в пятницу', text: 'Слоты на следующую неделю', action: 'Напомнить' }
+]);
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
-    const items = (p.items || RAL_DEMO).map((it) => ({
+    // сначала срочное, потом ждущее ответа, потом подсказки; до 5 пунктов показываем все, больше: 3 важных и Ещё N
+    const rank = { danger: 0, warn: 1, info: 2 };
+    const items = (p.items || (p.demoLong ? RAL_DEMO_LONG : RAL_DEMO)).map((it, i) => Object.assign({ _i: i }, it)).sort((a, b) => (rank[a.tone] ?? 2) - (rank[b.tone] ?? 2) || a._i - b._i).map((it) => ({
       cls: 'ral-row ral-' + (it.tone || 'info'), title: it.title, text: it.text || '',
       has_action: !!it.action, action: it.action || '', has_chev: !it.action && typeof it.tap === 'function', act_cls: 'ral-act' + (it.on ? ' ral-act-on' : ''),
       tap: typeof it.tap === 'function' ? it.tap : (() => {})
     }));
-    return { title: p.title || 'Требует внимания', items };
+    const st = this.state || {};
+    const cut = items.length > 5 && !st.open;
+    return {
+      title: p.title || 'Требует внимания', items, shown: cut ? items.slice(0, 3) : items,
+      has_more: items.length > 5, expanded: !!st.open,
+      more_label: st.open ? 'Свернуть' : 'Ещё ' + (items.length - 3), more_icon: st.open ? '' : '›',
+      toggle_more: () => this.setState({ open: !st.open })
+    };
   }
 }
 </script></body></html>

@@ -214,7 +214,7 @@
               <sc-if value="{{ qt_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosQuickTip" orders="{{ qt_orders }}" defaultId="{{ qt_default }}" onAdd="{{ qt_add }}" onClose="{{ qt_close }}"></dc-import></sc-if>
               <sc-if value="{{ qe_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosQuickExpense" defaultCat="{{ qe_cat }}" recent="{{ qe_recent }}" onAdd="{{ qe_add }}" onMore="{{ qe_more }}" onClose="{{ qe_close }}"></dc-import></sc-if>
               </sc-if>
-              <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onOpenTrip="{{ open_recent_trip }}"onAddExpense="{{ go_expense_form_from_home }}" onSaveTip="{{ save_recent_tip }}"></dc-import>
+              <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onOpenTrip="{{ open_recent_trip }}"onAddExpense="{{ go_expense_form_from_home }}" onSaveTip="{{ save_recent_tip }}" onNote="{{ open_recent_note }}"></dc-import>
 
               <h2 class="raznos-home-group">Вокруг</h2>
               <dc-import name="RaznosLiveToday" items="{{ live_today_items }}" cityTitle="{{ city_title }}" onAll="{{ live_go_feed_home }}" onWrite="{{ live_go_compose_home }}"></dc-import>
@@ -335,7 +335,7 @@
                 </div>
             </div>
             </sc-if>
-            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" caps="{{ shifts_caps }}" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ go_work_schedule }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
+            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" caps="{{ shifts_caps }}" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ go_work_schedule }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" changeNote="{{ plan_change_note }}" changeIso="{{ plan_change_iso }}" changeKey="{{ plan_change_key }}" onChangeHide="{{ plan_change_hide }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
           </sc-if>
 
           <sc-if value="{{ is_active_order }}">
@@ -612,12 +612,13 @@
               <dc-import name="RaznosOrderLink" svc="{{ ord_svc }}" svcTitle="{{ ord_svc_title }}" orderNo="{{ ord_no }}" orderRef="{{ ord_link_ref }}" orderState="done" app="{{ order_link_app }}" launch="{{ order_link_launch }}" resetKey="{{ state_gen }}"></dc-import>
               <dc-import name="RaznosRouteMap" pickupAddr="{{ ord_pickup }}" dropAddr="{{ ord_drop }}" distance="{{ ord_distance }}"></dc-import>
               <div class="raznos-card raznos-card-pad raznos-addr-note">
+                <sc-if value="{{ ord_client_note_show }}" hint-placeholder-val="{{ true }}"><div class="raznos-client-note"><span class="raznos-text-small">Комментарий клиента · {{ ord_svc_title }}</span><span class="raznos-text-body">{{ ord_client_note }}</span></div></sc-if>
                 <sc-if value="{{ an_editing }}" hint-placeholder-val="{{ false }}">
-                  <label class="raznos-field"><span class="raznos-field-label">Заметка к адресу, {{ ord_drop }}</span><input class="raznos-input raznos-addr-note-input" type="text" enterkeyhint="done" placeholder="Например, домофон не работает" value="{{ an_draft }}" onChange="{{ an_change }}" onKeyDown="{{ an_key }}" /></label>
+                  <label class="raznos-field"><span class="raznos-field-label">Моя заметка к адресу, {{ ord_drop }} · видна только вам</span><input class="raznos-input raznos-addr-note-input" type="text" enterkeyhint="done" placeholder="Например, домофон не работает" value="{{ an_draft }}" onChange="{{ an_change }}" onKeyDown="{{ an_key }}" /></label>
                   <div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-primary raznos-btn-small" onClick="{{ an_save }}">Сохранить</button><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ an_cancel }}">Отмена</button></div>
                 </sc-if>
                 <sc-if value="{{ an_view }}" hint-placeholder-val="{{ true }}">
-                  <button type="button" class="raznos-addr-note-btn" onClick="{{ an_open }}"><span class="raznos-list-main"><span class="raznos-text-small">Заметка к адресу</span><span class="{{ an_text_cls }}">{{ an_text }}</span></span><span class="raznos-row-chevron" aria-hidden="true">{{ an_icon }}</span></button>
+                  <button type="button" class="raznos-addr-note-btn" onClick="{{ an_open }}"><span class="raznos-list-main"><span class="raznos-text-small">Моя заметка к адресу · видна только вам</span><span class="{{ an_text_cls }}">{{ an_text }}</span></span><span class="raznos-row-chevron" aria-hidden="true">{{ an_icon }}</span></button>
                 </sc-if>
               </div>
               <sc-for list="{{ ord_problems }}" as="pr" hint-placeholder-count="1"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Зафиксировано {{ pr.time }} · {{ pr.reason }}</span><span class="raznos-text-small">{{ pr.place }}{{ pr.photo }}</span></div></sc-for>
@@ -637,19 +638,6 @@
                 <div class="raznos-breakdown-row"><span>Вес</span><span class="raznos-num">{{ ord_weight }}</span></div>
                 <div class="raznos-breakdown-row"><span>Ожидание / выполнение</span><span class="raznos-num">{{ ord_wait }} / {{ ord_duration }}</span></div>
                 <div class="raznos-breakdown-row"><span>Расстояние</span><span class="raznos-num">{{ ord_distance }}</span></div>
-              </div>
-              <div class="raznos-card raznos-card-pad">
-                <span class="raznos-text-h3">Заметка для себя</span>
-                <p class="raznos-text-tiny">Свободная заметка о заказе, видно только вам</p>
-                <sc-if value="{{ ord_comment_editing }}" hint-placeholder-val="{{ false }}">
-                  <textarea class="raznos-textarea" value="{{ ord_comment_draft }}" onChange="{{ ord_comment_change }}"></textarea>
-                  <div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-primary raznos-btn-small" onClick="{{ ord_comment_save }}">Сохранить</button><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ ord_comment_cancel }}">Отмена</button></div>
-                </sc-if>
-                <sc-if value="{{ ord_comment_view }}">
-                  <p class="raznos-text-body">{{ ord_comment_text }}</p>
-                  <span class="raznos-text-tiny">{{ ord_comment_meta }}</span>
-                  <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ ord_comment_edit }}">{{ ord_comment_btn_label }}</button>
-                </sc-if>
               </div>
               <div class="raznos-card raznos-card-pad">
                 <span class="raznos-text-h3">Отзыв о заказе</span>
@@ -697,7 +685,7 @@
                 <div class="raznos-fx raznos-jb raznos-ac"><span class="raznos-text-h3">Наличные чаевые</span><span class="raznos-status-pill raznos-pill-warn">Не подтверждено</span></div>
                 <sc-if value="{{ ord_cash_hidden }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Скрыто из статистики</p><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ ord_cash_unhide }}">Показать снова</button></sc-if>
                 <sc-if value="{{ ord_cash_visible }}">
-                  <div class="raznos-fx raznos-ac raznos-gap8"><input class="raznos-input" style="max-width:120px" type="number" min="0" value="{{ ord_cash_value }}" onChange="{{ ord_cash_change }}" /><span class="raznos-text-small">₽ со слов курьера</span></div>
+                  <div class="raznos-fx raznos-ac raznos-gap8"><input class="raznos-input" style="max-width:120px" type="number" min="0" value="{{ ord_cash_value }}" onChange="{{ ord_cash_change }}" /><span class="raznos-text-small">₽ наличными</span></div>
                   <div class="raznos-btn-row">
                     <button type="button" class="{{ ord_cash_save_class }}" onClick="{{ ord_cash_save }}" disabled="{{ ord_cash_save_disabled }}">Сохранить</button>
                     <sc-if value="{{ ord_cash_dirty }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ ord_cash_cancel }}">Отмена</button></sc-if>
@@ -807,7 +795,7 @@
                 <span class="raznos-text-h3 raznos-head-title">Отзывы · {{ sv_reviews_geo }}</span>
                 <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small raznos-head-side" onClick="{{ sv_toggle_geo }}">{{ sv_geo_btn_label }}</button>
               </div>
-              <div class="raznos-gallery-row">
+              <div class="raznos-segmented" role="tablist" aria-label="Чьи отзывы">
                 <button type="button" class="{{ sv_tab_courier_class }}" onClick="{{ sv_set_tab_courier }}">{{ sv_tab_courier_label }}</button>
                 <button type="button" class="{{ sv_tab_user_class }}" onClick="{{ sv_set_tab_user }}">{{ sv_tab_user_label }}</button>
               </div>
@@ -1147,7 +1135,7 @@
 
           <sc-if value="{{ is_profile }}">
             <div class="raznos-phone-body" data-screen-label="24 Profile">
-              <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Профиль</h1><button type="button" class="raznos-icon-btn" onClick="{{ go_settings }}" aria-label="Настройки"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+              <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Профиль</h1><div class="raznos-fx raznos-ac raznos-gap8"><sc-if value="{{ is_role_courier }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosNotifBell" count="{{ inbox_badge }}" onOpen="{{ go_inbox }}"></dc-import></sc-if><button type="button" class="raznos-icon-btn" onClick="{{ go_settings }}" aria-label="Настройки"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
               <sc-if value="{{ is_role_courier }}" hint-placeholder-val="{{ true }}">
                 <div class="raznos-profile-hero">
                   <dc-import name="RaznosAvatar" kind="{{ pf_photo_kind }}" uploadedSrc="{{ pf_uploaded_src }}" alt="{{ pf_my_name }}, демо-профиль"></dc-import>
@@ -1161,7 +1149,7 @@
                     </div>
                   </sc-if>
                 </div>
-                <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosStatsTopLink" place="{{ 28 }}" scope="{{ stats_top_scope }}" onOpen="{{ go_top }}"></dc-import></sc-if>
+                <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosStatsTopLink" place="{{ 28 }}" placeDelta="{{ 3 }}" scope="{{ stats_top_scope }}" onOpen="{{ go_top }}"></dc-import></sc-if>
                 <dc-import name="RaznosConnHealth" items="{{ conn_health_items }}" okNote="{{ conn_health_ok_note }}" netOffline="{{ net_offline }}" onAction="{{ conn_health_action }}"></dc-import>
                 <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-col raznos-gap12">
                   <span class="raznos-text-h3">Оценки из сервиса</span>
@@ -1393,6 +1381,25 @@
             </div>
           </sc-if>
 
+
+          <sc-if value="{{ is_inbox }}">
+            <div class="raznos-phone-body" data-screen-label="45a Inbox">
+              <div class="raznos-app-bar"><div class="raznos-fx raznos-ac" style="gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ inbox_back }}" aria-label="Назад в Профиль">‹</button><h1 class="raznos-text-h1" style="margin:0">Уведомления</h1></div><button type="button" class="raznos-icon-btn" onClick="{{ inbox_settings }}" aria-label="Настроить уведомления"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+              <sc-if value="{{ inbox_has_unread }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-ac" style="justify-content:space-between;padding:0 4px"><span class="raznos-text-small">{{ inbox_unread_label }}</span><button type="button" class="raznos-link-btn raznos-text-small" style="min-height:44px;color:var(--raznos-green-deep);font-weight:600;text-decoration:none" onClick="{{ inbox_read_all }}">Прочитать все</button></div></sc-if>
+              <sc-if value="{{ inbox_has_today }}" hint-placeholder-val="{{ true }}">
+                <span class="raznos-text-h3">Сегодня</span>
+                <div class="raznos-card" style="overflow:hidden"><sc-for list="{{ inbox_today }}" as="n" hint-placeholder-count="4"><dc-import name="RaznosNotifRow" item="{{ n }}" onOpen="{{ inbox_open }}" onHide="{{ inbox_hide }}"></dc-import></sc-for></div>
+              </sc-if>
+              <sc-if value="{{ inbox_has_earlier }}" hint-placeholder-val="{{ true }}">
+                <span class="raznos-text-h3">Раньше</span>
+                <div class="raznos-card" style="overflow:hidden"><sc-for list="{{ inbox_earlier }}" as="n" hint-placeholder-count="3"><dc-import name="RaznosNotifRow" item="{{ n }}" onOpen="{{ inbox_open }}" onHide="{{ inbox_hide }}"></dc-import></sc-for></div>
+              </sc-if>
+              <sc-if value="{{ inbox_empty }}" hint-placeholder-val="{{ false }}">
+                <div class="raznos-empty-state"><span class="raznos-empty-glyph" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span><span class="raznos-text-h3">Новых уведомлений нет</span></div>
+              </sc-if>
+              <p class="raznos-text-small">Пишем только по делу: деньги, смены и брони, подключения сервисов, ответы вам и важное от Разноса. Рекламы здесь нет</p>
+            </div>
+          </sc-if>
 
           <sc-if value="{{ is_expenses }}">
             <div class="raznos-phone-body" data-screen-label="35 Expenses">
@@ -1898,7 +1905,7 @@
           </sc-if>
 
         </div>
-        <sc-if value="{{ show_nav }}"><dc-import name="RaznosNav" role="{{ nav_role }}" active="{{ nav_active }}" onNavigate="{{ on_navigate }}"></dc-import></sc-if>
+        <sc-if value="{{ show_nav }}"><dc-import name="RaznosNav" role="{{ nav_role }}" active="{{ nav_active }}" dot="{{ nav_dot }}" onNavigate="{{ on_navigate }}"></dc-import></sc-if>
       </div>
     </x-dc>
     <script type="text/x-dc" data-dc-script data-props='{
@@ -2361,6 +2368,8 @@
         'anon-unknown-orders': { s: 'anon-courier', anonSvcKey: 'samokat', anonAuthor: 'СпбЭкспресс', svKey: 'samokat', anonBack: 'service' },
         'preview-anon': { s: 'anon-courier', anonSvcKey: 'vkusvill', anonAuthor: 'Алексей Соколов', svKey: 'vkusvill', pvPreview: 'anon', pvPublic: true, anonBack: 'service' },
         'preview-hidden-fields': { s: 'public-profile', ppSelectedId: 'c1', pvPreview: 'public', pvPublic: true, pvFields: { photo: false, city: true, transport: false, tenure: true, ratings: true, reviews: false } },
+        // вошли в Разнос с нового телефона: сервисы подключены, данные есть, но войти в сервисы надо заново
+        'new-device': { s: 'courier-home', svcHealth: { samokat: 'device', vkusvill: 'device' } },
         'conn-loss': { s: 'courier-home', integrationStatus: { vkusvill: 'connected', samokat: 'connected', kuper: 'connected', x5: 'disabled' }, svcHealth: { kuper: 'relogin' }, syncAgo: { vkusvill: 3, samokat: 26, kuper: 195 } },
         'conn-offline-work': { s: 'offers', svcHealth: { vkusvill: 'offline' }, syncAgo: { vkusvill: 10, samokat: 2 } },
         'active-offline': { s: 'active-order', activeAccepted: true, activeOfferId: 'o1', selectedOfferId: 'o1', orderStage: 'picked_up', svcHealth: { vkusvill: 'offline' }, syncAgo: { vkusvill: 10, samokat: 2 } },
@@ -2565,7 +2574,7 @@
         shiftRow('s1', '2026-09-14', 'samokat', 9, 13, 'completed'), shiftRow('s2', '2026-09-14', 'vkusvill', 14, 18, 'completed'),
         shiftRow('s3', '2026-09-15', 'samokat', 9, 12, 'completed'), shiftRow('s4', '2026-09-15', 'vkusvill', 14, 17, 'active'),
         shiftRow('s5', '2026-09-15', 'yandex-eda', 17, 21, 'confirmed'),
-        shiftRow('s6', '2026-09-16', 'samokat', 10.5, 13.5, 'confirmed'), shiftRow('s7', '2026-09-16', 'vkusvill', 14, 18, 'requested'),
+        shiftRow('s6', '2026-09-16', 'samokat', 10.5, 13.5, 'cancelled'), shiftRow('s7', '2026-09-16', 'vkusvill', 14, 18, 'requested'),
         shiftRow('s8', '2026-09-17', 'x5', 11, 17, 'confirmed'),
         shiftRow('s9', '2026-09-18', 'samokat', 18, 22, 'confirmed', { transfer: true }),
         shiftRow('s10', '2026-09-19', 'yandex-eda', 12, 16, 'confirmed'), shiftRow('s11', '2026-09-19', 'vkusvill', 16, 20, 'cancelled'),
@@ -2867,7 +2876,9 @@
       }
       const SYNC_DEMO_OUTCOME = { samokat: 'partial' };
       const SYNC_RESULT_LABELS = { ok: ['Обновлено', 'connected'], partial: ['Частично', 'rate'], offline: ['Нет связи', 'relogin'], relogin: ['Нужен вход', 'relogin'], rate: ['Ограничение', 'rate'] };
-      const HEALTH_PILL = { relogin: 'Нужен вход', offline: 'Нет связи', rate: 'Ограничение', error: 'Ошибка сервиса' };
+      // демо: комментарии клиентов к заказам, в реальности текст приходит из сервиса
+      const DEMO_CLIENT_NOTES = ['Подъезд 2, код 45К, позвоните за 5 минут', 'Оставьте у двери, ребёнок спит', 'Домофон не работает, наберите на телефон', 'Этаж 7, лифт только грузовой', 'Встречу у шлагбаума'];
+      const HEALTH_PILL = { device: 'Войдите на этом телефоне', relogin: 'Нужен вход', offline: 'Нет связи', rate: 'Ограничение', error: 'Ошибка сервиса' };
       function ruPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
       // демо-время 15 сентября 15:40, давние обновления показываем датой и временем
       function syncAgoLabel(min) {
@@ -3146,6 +3157,7 @@
         'ozon-fresh': { hourly: 540, orderPay: 250, duration: 16, wait: 6, orders: 70, couriers: 12 }
       };
       // author — внутренний идентификатор для своих отзывов и модерации, наружу отзыв всегда подписан «Курьер сервиса»
+      // демо: у каждого сервиса есть отзывы, пустых списков в демо не держим
       const REVIEWS = {
         vkusvill: [
           { author: 'Курьер_Юг', city: 'Москва', rating: 4, confirmed: true, date: '28 авг', text: 'Вечером бывает очередь на пункте выдачи', orders: { count: 140, coverage: 'partial' }, reactions: { courierLikes: 9, courierDislikes: 1, userLikes: 4, userDislikes: 0 } },
@@ -3163,7 +3175,7 @@
           { author: 'СпбЭкспресс', city: 'Санкт-Петербург', rating: 3, confirmed: false, date: '20 авг', text: 'Поддержка отвечает долго', orders: { count: null, coverage: 'unknown' }, reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 0, userDislikes: 0 } }
         ],
         x5: [{ author: 'Курьер_Юг', city: 'Москва', rating: 5, confirmed: true, date: '10 сент', text: 'Хорошая оплата за длинные заказы', orders: { count: 20, coverage: 'partial' }, reactions: { courierLikes: 2, courierDislikes: 0, userLikes: 0, userDislikes: 0 } }],
-        'yandex-eda': [], 'yandex-lavka': [], magnit: [], 'ozon-fresh': [], delivery: [], kuper: [], dostaevsky: [], dodo: []
+        'yandex-eda': [{ author: 'Еда_Север', city: 'Москва', rating: 4, confirmed: true, date: '9 сент', text: 'Вечером много заказов, но в ресторанах ждёшь по 10 минут', orders: { count: 320, coverage: 'partial' }, reactions: { courierLikes: 10, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }, { author: 'ВелоЦентр', city: 'Москва', rating: 5, confirmed: true, date: '2 сент', text: 'Выводить можно каждый день, удобно', orders: { count: 180, coverage: 'partial' }, reactions: { courierLikes: 6, courierDislikes: 0, userLikes: 1, userDislikes: 0 } }, { author: 'Курьер_Арбат', city: 'Москва', rating: 3, confirmed: true, date: '27 авг', text: 'Дальние заказы оплачивают мало', orders: { count: 90, coverage: 'partial' }, reactions: { courierLikes: 4, courierDislikes: 0, userLikes: 1, userDislikes: 0 } }], 'yandex-lavka': [{ author: 'ЛавкаЗапад', city: 'Москва', rating: 4, confirmed: true, date: '8 сент', text: 'Даркстор рядом с домом, заказы короткие', orders: { count: 210, coverage: 'partial' }, reactions: { courierLikes: 7, courierDislikes: 0, userLikes: 1, userDislikes: 0 } }, { author: 'Самурай_вело', city: 'Москва', rating: 4, confirmed: true, date: '1 сент', text: 'Слоты на выходные разбирают быстро', orders: { count: 140, coverage: 'partial' }, reactions: { courierLikes: 5, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }, { author: 'Курьер_Фили', city: 'Москва', rating: 3, confirmed: true, date: '25 авг', text: 'Тяжёлые заказы с водой, термосумка не выдерживает', orders: { count: 60, coverage: 'partial' }, reactions: { courierLikes: 3, courierDislikes: 0, userLikes: 1, userDislikes: 0 } }], magnit: [{ author: 'МагнитЮг', city: 'Москва', rating: 4, confirmed: true, date: '7 сент', text: 'Заказы небольшие, магазин рядом', orders: { count: 120, coverage: 'partial' }, reactions: { courierLikes: 5, courierDislikes: 0, userLikes: 1, userDislikes: 0 } }, { author: 'Курьер_Люблино', city: 'Москва', rating: 3, confirmed: true, date: '30 авг', text: 'Сборку ждёшь по вечерам', orders: { count: 55, coverage: 'partial' }, reactions: { courierLikes: 3, courierDislikes: 1, userLikes: 2, userDislikes: 0 } }, { author: 'ВелоМагнит', city: 'Москва', rating: 4, confirmed: true, date: '22 авг', text: 'Поддержка отвечает за пару минут', orders: { count: 95, coverage: 'partial' }, reactions: { courierLikes: 4, courierDislikes: 1, userLikes: 3, userDislikes: 0 } }], 'ozon-fresh': [{ author: 'ФрешВосток', city: 'Москва', rating: 5, confirmed: true, date: '10 сент', text: 'Выплата через 12 часов, удобно', orders: { count: 260, coverage: 'partial' }, reactions: { courierLikes: 8, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }, { author: 'Курьер_Выхино', city: 'Москва', rating: 4, confirmed: true, date: '3 сент', text: 'Слоты понятные, заказы плотные', orders: { count: 150, coverage: 'partial' }, reactions: { courierLikes: 5, courierDislikes: 0, userLikes: 1, userDislikes: 0 } }, { author: 'Пеший_Озон', city: 'Москва', rating: 3, confirmed: true, date: '26 авг', text: 'Пакеты тяжёлые, нужна хорошая сумка', orders: { count: 40, coverage: 'partial' }, reactions: { courierLikes: 3, courierDislikes: 0, userLikes: 2, userDislikes: 0 } }], delivery: [{ author: 'ДеливериСЗАО', city: 'Москва', rating: 4, confirmed: true, date: '5 сент', text: 'Много заказов из ресторанов в обед', orders: { count: 170, coverage: 'partial' }, reactions: { courierLikes: 6, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }, { author: 'Курьер_Тушино', city: 'Москва', rating: 3, confirmed: true, date: '28 авг', text: 'Комиссия парка съедает часть дохода', orders: { count: 85, coverage: 'partial' }, reactions: { courierLikes: 4, courierDislikes: 1, userLikes: 2, userDislikes: 0 } }], kuper: [{ author: 'КуперЦентр', city: 'Москва', rating: 4, confirmed: true, date: '9 сент', text: 'Заказы крупные, но и платят больше', orders: { count: 190, coverage: 'partial' }, reactions: { courierLikes: 6, courierDislikes: 0, userLikes: 2, userDislikes: 0 } }, { author: 'Курьер_Сокол', city: 'Москва', rating: 4, confirmed: true, date: '31 авг', text: 'Можно брать заказы в удобное время', orders: { count: 110, coverage: 'partial' }, reactions: { courierLikes: 4, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }, { author: 'ВелоКупер', city: 'Москва', rating: 3, confirmed: true, date: '23 авг', text: 'Иногда долго собирают в магазине', orders: { count: 65, coverage: 'partial' }, reactions: { courierLikes: 3, courierDislikes: 1, userLikes: 3, userDislikes: 0 } }], dostaevsky: [{ author: 'Достаевский_Курьер', city: 'Москва', rating: 4, confirmed: true, date: '8 сент', text: 'Гарантия за смену выручает в тихие дни', orders: { count: 230, coverage: 'partial' }, reactions: { courierLikes: 7, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }, { author: 'Курьер_Невский', city: 'Москва', rating: 4, confirmed: true, date: '1 сент', text: 'Кухня отдаёт быстро', orders: { count: 120, coverage: 'partial' }, reactions: { courierLikes: 5, courierDislikes: 0, userLikes: 1, userDislikes: 0 } }], dodo: [{ author: 'ДодоКурьер', city: 'Москва', rating: 5, confirmed: true, date: '7 сент', text: 'Пиццерия рядом, заказы короткие', orders: { count: 160, coverage: 'partial' }, reactions: { courierLikes: 6, courierDislikes: 0, userLikes: 2, userDislikes: 0 } }, { author: 'Курьер_Беговая', city: 'Москва', rating: 4, confirmed: true, date: '30 авг', text: 'Смены по графику, всё понятно заранее', orders: { count: 100, coverage: 'partial' }, reactions: { courierLikes: 4, courierDislikes: 0, userLikes: 2, userDislikes: 0 } }], 'yandex-delivery': [{ author: 'ДоставкаЮг', city: 'Москва', rating: 4, confirmed: true, date: '6 сент', text: 'Посылки лёгкие, маршруты удобные', orders: { count: 140, coverage: 'partial' }, reactions: { courierLikes: 5, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }, { author: 'Курьер_Химки', city: 'Москва', rating: 3, confirmed: true, date: '29 авг', text: 'Выплаты зависят от парка', orders: { count: 70, coverage: 'partial' }, reactions: { courierLikes: 3, courierDislikes: 0, userLikes: 2, userDislikes: 0 } }], 'wb-courier': [{ author: 'ВБ_Курьер', city: 'Москва', rating: 4, confirmed: true, date: '9 сент', text: 'Много заказов в ПВЗ рядом', orders: { count: 180, coverage: 'partial' }, reactions: { courierLikes: 6, courierDislikes: 0, userLikes: 1, userDislikes: 0 } }, { author: 'Курьер_Мытищи', city: 'Москва', rating: 3, confirmed: true, date: '27 авг', text: 'Тяжёлые коробки, нужен транспорт', orders: { count: 50, coverage: 'partial' }, reactions: { courierLikes: 3, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], 'ozon-courier': [{ author: 'ОзонЭкспресс', city: 'Москва', rating: 4, confirmed: true, date: '8 сент', text: 'Заказы рядом со складом', orders: { count: 150, coverage: 'partial' }, reactions: { courierLikes: 5, courierDislikes: 0, userLikes: 1, userDislikes: 0 } }, { author: 'Курьер_Отрадное', city: 'Москва', rating: 3, confirmed: true, date: '30 авг', text: 'Комиссия парка заметна', orders: { count: 75, coverage: 'partial' }, reactions: { courierLikes: 3, courierDislikes: 1, userLikes: 1, userDislikes: 0 } }], dostavista: [{ author: 'Достависта_Пеший', city: 'Москва', rating: 4, confirmed: true, date: '7 сент', text: 'Можно брать заказы когда удобно', orders: { count: 130, coverage: 'partial' }, reactions: { courierLikes: 5, courierDislikes: 0, userLikes: 2, userDislikes: 0 } }, { author: 'Курьер_Сити', city: 'Москва', rating: 3, confirmed: true, date: '28 авг', text: 'Днём заказов меньше', orders: { count: 45, coverage: 'partial' }, reactions: { courierLikes: 3, courierDislikes: 1, userLikes: 1, userDislikes: 0 } }], flowwow: [{ author: 'ЦветыКурьер', city: 'Москва', rating: 5, confirmed: true, date: '6 сент', text: 'Букеты лёгкие, клиенты радуются', orders: { count: 90, coverage: 'partial' }, reactions: { courierLikes: 4, courierDislikes: 0, userLikes: 1, userDislikes: 0 } }, { author: 'Курьер_Цветы', city: 'Москва', rating: 4, confirmed: true, date: '26 авг', text: 'Пики перед праздниками', orders: { count: 60, coverage: 'partial' }, reactions: { courierLikes: 3, courierDislikes: 0, userLikes: 1, userDislikes: 0 } }]
       };
       const USER_REVIEWS = {
         vkusvill: [
@@ -3173,7 +3185,7 @@
         samokat: [
           { author: 'Клиент_Игорь', city: 'Москва', rating: 4, text: 'Заказ приехал быстрее, чем показывало приложение', date: '24 авг', reactions: { courierLikes: 2, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }
         ],
-        x5: [], 'yandex-eda': [], 'yandex-lavka': [], magnit: [], 'ozon-fresh': [], delivery: [], kuper: [], dostaevsky: [], dodo: []
+        x5: [{ author: 'Клиент_Света', city: 'Москва', rating: 4, text: 'Курьер поднял заказ на этаж без лифта', date: '4 сент', reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], 'yandex-eda': [{ author: 'Клиент_Анна', city: 'Москва', rating: 5, text: 'Курьер позвонил заранее, еда горячая', date: '8 сент', reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], 'yandex-lavka': [{ author: 'Покупатель_Дима', city: 'Москва', rating: 4, text: 'Привезли быстро, пакеты целые', date: '5 сент', reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], magnit: [{ author: 'Покупатель_Нина', city: 'Москва', rating: 4, text: 'Всё привезли, курьер вежливый', date: '6 сент', reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], 'ozon-fresh': [{ author: 'Клиент_Павел', city: 'Москва', rating: 5, text: 'Доставили раньше окна', date: '9 сент', reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], delivery: [{ author: 'Клиент_Ира', city: 'Москва', rating: 4, text: 'Курьер нашёл подъезд без звонка', date: '3 сент', reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], kuper: [{ author: 'Покупатель_Лена', city: 'Москва', rating: 5, text: 'Замены согласовали в чате', date: '7 сент', reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], dostaevsky: [{ author: 'Клиент_Артём', city: 'Москва', rating: 4, text: 'Пицца тёплая, курьер быстрый', date: '2 сент', reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], dodo: [{ author: 'Клиент_Оля', city: 'Москва', rating: 5, text: 'Приехали за 25 минут', date: '8 сент', reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], 'yandex-delivery': [{ author: 'Клиент_Костя', city: 'Москва', rating: 4, text: 'Посылку отдали в руки', date: '5 сент', reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], 'wb-courier': [{ author: 'Покупатель_Таня', city: 'Москва', rating: 4, text: 'Курьер подождал у двери', date: '6 сент', reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], 'ozon-courier': [{ author: 'Клиент_Миша', city: 'Москва', rating: 4, text: 'Привезли в обещанный интервал', date: '4 сент', reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], dostavista: [{ author: 'Клиент_Вика', city: 'Москва', rating: 5, text: 'Документы доставили за час', date: '7 сент', reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], flowwow: [{ author: 'Клиент_Саша', city: 'Москва', rating: 5, text: 'Букет свежий, курьер поздравил', date: '6 сент', reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }]
       };
       // одинаковые непересекающиеся границы для всех чужих просмотров
       const RATING_RANGE_BUCKETS = [[4.8, 5.0], [4.5, 4.7], [4.0, 4.4], [3.0, 3.9], [1.0, 2.9]];
@@ -3193,7 +3205,9 @@
       const NOTIF_CATS = [
         { key: 'offers', title: 'Новые предложения', note: 'Приходят, пока включён режим Работа' },
         { key: 'order', title: 'Изменения по заказу', note: 'Отмена сервисом, перенос, добавление точки' },
-        { key: 'money', title: 'Выплаты и чаевые', note: 'Зачисления, выводы и отказы платежа' },
+        { key: 'money', title: 'Выплаты и чаевые', note: 'Зачисления, выводы и отказы платежа, сроки налога' },
+        { key: 'shifts', title: 'Смены и брони', note: 'Отмена брони, замена окна в Плане, вернувшийся слот' },
+        { key: 'conn', title: 'Подключения сервисов', note: 'Новый телефон и повторный вход в сервис' },
         { key: 'answers', title: 'Ответы на мои сообщения', note: 'Ответы на вопросы, отзывы и оперативные сообщения' },
         { key: 'news', title: 'Новости сервисов', note: 'Изменения условий и бонусов подключённых сервисов' }
       ];
@@ -3271,6 +3285,7 @@
         return [
           { id: 'wd-seed-1', amount: 200, methodLabel: 'Карта •• 4412', status: 'paid', dateISO: '2026-09-10', date: '10 сент, 10:00' },
           { id: 'wd-seed-2', amount: 100, methodLabel: 'СБП, телефон •• 04 23', status: 'failed', dateISO: '2026-09-08', date: '8 сент, 16:20', reason: 'Банк отклонил перевод' },
+          { id: 'wd-seed-4', amount: 4200, methodLabel: 'Карта •• 4412', status: 'failed', dateISO: '2026-09-15', date: '15 сент, 14:20', reason: 'Банк отклонил перевод' },
           { id: 'wd-seed-3', amount: 150, methodLabel: 'Карта •• 4412', status: 'processing', dateISO: '2026-09-15', date: '15 сент, 08:00' }
         ];
       }
@@ -3697,7 +3712,7 @@
           const partial = Object.assign({}, cur.syncPartial || {});
           let outcome = SYNC_DEMO_OUTCOME[key] || 'ok';
           if (cur.netOffline) outcome = 'offline';
-          else if (health[key] === 'relogin' || health[key] === 'rate' || health[key] === 'offline') outcome = health[key];
+          else if (health[key] === 'relogin' || health[key] === 'device' || health[key] === 'rate' || health[key] === 'offline') outcome = health[key] === 'device' ? 'relogin' : health[key];
           if (outcome === 'ok') { ago[key] = 0; delete partial[key]; }
           if (outcome === 'partial') { partial[key] = ago[key] != null ? ago[key] : null; ago[key] = 0; }
           const done = run.done + 1;
@@ -3824,9 +3839,6 @@
           const histFrom = st.histFrom || TODAY_ISO;
           const histTo = st.histTo || TODAY_ISO;
           const histSelectedId = st.histSelectedId || HISTORY[0].id;
-          const orderComments = st.orderComments || {};
-          const orderCommentEditing = !!st.orderCommentEditing;
-          const orderCommentDraft = st.orderCommentDraft != null ? st.orderCommentDraft : '';
           const cashTips = st.cashTips || {};
           const addrNotes = st.addrNotes || {};
           const orderProblems = st.orderProblems || {};
@@ -3990,7 +4002,7 @@
             'favorites', 'couriers', 'public-profile', 'tips', 'tips-sent', 'contest',
             'expenses', 'expense-form', 'recurring', 'recurring-form', 'my-activity', 'imported-reviews', 'live-feed', 'live-thread', 'live-compose', 'live-place-pick', 'live-photo', 'live-place', 'live-report', 'live-mine',
             'wallet', 'wallet-income', 'wallet-withdraw', 'wallet-withdraw-history', 'work-hub', 'slots', 'smart', 'work-schedule', 'job-guide', 'tax-forms', 'settings',
-            'notifications', 'worker-data', 'common-states', 'work-tasks', 'faq', 'best-times', 'best-places', 'services-compare'
+            'notifications', 'inbox', 'worker-data', 'common-states', 'work-tasks', 'faq', 'best-times', 'best-places', 'services-compare'
           ];
           const vals = {};
           screens.forEach((name) => { vals['is_' + name.replace(/-/g, '_')] = s === name; });
@@ -4502,6 +4514,7 @@
             : syncAgoLabel(syncAgo[k]));
           const healthNoteOf = (k, state) => {
             if (state === 'relogin') return 'Последние данные: ' + syncAgoLabel(syncAgo[k]).replace('Обновлено ', '') + ', новые не приходят';
+            if (state === 'device') return 'На этом телефоне ещё не входили, загруженное раньше видно';
             if (state === 'offline') return syncLabelOf(k) + ', повторяем с паузой';
             if (state === 'rate') return syncLabelOf(k) + ', повторим в 15:52';
             if (state === 'error') return 'Повторим автоматически, команды заказа доступны в приложении сервиса';
@@ -4514,10 +4527,47 @@
           const connHealthAction = (key, kind) => {
             if (kind === 'open') return set({ s: 'integrations' });
             if (kind === 'net') return set({ netOffline: false, syncAgo: Object.assign({}, syncAgo, syncTargets.reduce((acc, k) => { if (!svcHealth[k]) acc[k] = 0; return acc; }, {})) });
-            if (kind === 'relogin') return set({ s: 'integration-connect', connKey: key, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: '' });
+            if (kind === 'relogin' || kind === 'device') return set({ s: 'integration-connect', connKey: key, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: '' });
             if (kind === 'offline') { const h = Object.assign({}, svcHealth); delete h[key]; return set({ svcHealth: h, syncAgo: Object.assign({}, syncAgo, { [key]: 0 }) }); }
             if (kind === 'error') return set({ s: 'service-open-demo', openDemoSection: '', openDemoLabel: SERVICES[key].title });
           };
+          // Центр уведомлений: только то, без чего курьер потеряет деньги, смену или доступ, цифра лишь у непрочитанного с действием
+          const inboxRead = st.inboxRead || {};
+          const inboxHidden = st.inboxHidden || {};
+          const inboxSeen = st.inboxSeen || {};
+          const connAskKeys = connHealthItems.filter((i) => i.state === 'device' || i.state === 'relogin').map((i) => i.key);
+          const connAskDevice = connHealthItems.some((i) => i.state === 'device');
+          const INBOX_SEED = (demoOn && role === 'courier') ? [
+            // как только вошли в сервис, строка пропадает сама
+            connAskKeys.length ? { id: 'n-conn', cat: 'conn', day: 'today', at: '15:02', need: true, to: 'integrations',
+              title: connAskDevice ? 'Войдите в сервисы на этом телефоне' : connAskKeys.map((k) => SERVICES[k].title).join(' и ') + (connAskKeys.length > 1 ? ' просят войти снова' : ' просит войти снова'),
+              text: connAskKeys.map((k) => SERVICES[k].title).join(', ') + ', пока не войдёте, новые заказы и выплаты не придут' } : null,
+            { id: 'n-withdraw', cat: 'money', day: 'today', at: '14:20', need: true, to: 'wallet-withdraw-history', title: 'Вывод 4 200 ₽ не прошёл', text: 'Банк отклонил платёж, проверьте карту и повторите' },
+            { id: 'n-booking', cat: 'shifts', day: 'today', at: '13:05', to: 'work-hub', title: 'Самокат отменил бронь на завтра', text: 'Бронь 10:30–13:30 снята, в Плане на это время Яндекс Еда без записи' },
+            { id: 'n-answers', cat: 'answers', day: 'today', at: '12:40', to: 'my-activity', title: '3 ответа на ваш отзыв о Самокате', text: 'Последний: у нас тоже так, пишите в поддержку склада' },
+            { id: 'n-tip', cat: 'money', day: 'today', at: '11:10', to: 'wallet', title: 'Чаевые 350 ₽', text: 'ВкусВилл, заказ на Правды ул.' },
+            { id: 'n-slot', cat: 'shifts', day: 'today', at: '09:30', to: 'slots', title: 'Слот Яндекс Еды на среду вернулся', text: 'Взять его можно в Яндекс Про, пока свободен' },
+            { id: 'n-tax', cat: 'money', day: 'earlier', at: 'Вчера', read: true, to: 'stats-taxes', title: 'Налог за сентябрь до 28 октября', text: 'Сумма ещё растёт, напомним за 3 дня до срока' },
+            { id: 'n-payout', cat: 'money', day: 'earlier', at: 'Вчера', read: true, to: 'wallet-income', title: '2 выплаты пришли', text: 'ВкусВилл 12 480 ₽ и Самокат 6 930 ₽' },
+            { id: 'n-live', cat: 'answers', day: 'earlier', at: '13 сент', read: true, to: 'live-mine', title: 'Ответили на ваше сообщение', text: 'Что происходит: шлагбаум уже открыли' },
+            { id: 'n-contest', cat: 'raznos', day: 'earlier', at: '12 сент', read: true, to: 'contest', title: 'Изменили правила конкурса', text: 'В зачёт идёт не больше ' + CONTEST_HOUR_CAP_PER_DAY + ' ч в день' },
+            { id: 'n-yandex', cat: 'conn', day: 'earlier', at: '11 сент', read: true, done: true, to: 'integrations', title: 'Яндекс Еда снова подключена', text: 'Вход подтвердили, данные снова приходят' }
+          ].filter(Boolean) : [];
+          // выключенная категория не попадает и в список, важное от Разноса не выключается
+          const inboxItems = INBOX_SEED
+            .filter((n) => !inboxHidden[n.id] && (n.cat === 'raznos' || notifOff.indexOf(n.cat) === -1))
+            .map((n) => Object.assign({}, n, { unread: !(n.read || inboxRead[n.id]), time: n.at }));
+          const inboxNeedFirst = (list) => list.filter((n) => n.need && !n.done && n.unread).concat(list.filter((n) => !(n.need && !n.done && n.unread)));
+          const inboxUnread = inboxItems.filter((n) => n.unread).length;
+          // цифра и точка гаснут, как только список открыли, строки остаются жирными до тапа
+          const inboxBadge = inboxItems.filter((n) => n.unread && n.need && !n.done && !inboxSeen[n.id]).length;
+          // назад с экрана, куда пришли из списка, возвращает в список
+          const backToInbox = (fn) => () => (st.inboxRet && st.inboxRet === s ? set(Object.assign({ s: 'inbox', inboxRet: '' }, s === 'stats' ? { statsDetail: '', statsDetailBack: '' } : {})) : fn());
+          // Изменилось без вас: то же событие, что в уведомлениях, даёт точку на Плане, пока План не открыли
+          if (s === 'work-hub') this._planSeen = true;
+          const planChangeOn = demoOn && role === 'courier' && !st.planChangeHidden;
+          const planChangeStart = st.graphPerDay && st.graphWeek && st.graphWeek[2] ? st.graphWeek[2].from : (st.graphStart != null ? st.graphStart : 9) * 60;
+          const planDot = demoOn && role === 'courier' && !this._planSeen;
           const requestSync = () => {
             const cur = this.state || {};
             if (cur.syncRun && cur.syncRun.running) return set({ syncRun: Object.assign({}, cur.syncRun, { joined: true }) });
@@ -4747,7 +4797,6 @@
             note: addrNotes[o.dropAddr] || '', hasNote: !!addrNotes[o.dropAddr],
             onTap: () => set({ s: 'order', histSelectedId: o.id, orderCommentEditing: false, ordBack: 'trip' })
           }));
-          const ordCommentSaved =orderComments[ordSource.id] != null ? orderComments[ordSource.id] : ordSource.comment;
           const ordCash = cashTips[ordSource.id] || { amount: ordSource.cashTip || 0, hidden: false };
           const ordCashDraftAmount = cashDrafts[ordSource.id] != null ? cashDrafts[ordSource.id] : ordCash.amount;
           const ordReview = orderReviews[ordSource.id] || { placeRating: 0, placeText: '', recRating: 0, recText: '' };
@@ -4756,11 +4805,11 @@
           const anSave = () => {
             const key = ordSource.dropAddr;
             const prev = addrNotes[key];
-            const text = (this.state.anDraft || '').trim();
+            const text = (this.state.anDraft != null ? this.state.anDraft : (prev || '')).trim();
             const next = Object.assign({}, this.state.addrNotes || {});
             if (text) next[key] = text; else delete next[key];
             set({ anEdit: false, addrNotes: next });
-            uxShowToast(text ? 'Заметка к адресу сохранена' : 'Заметка к адресу убрана', 'Отменить', () => {
+            uxShowToast(text ? 'Заметка сохранена' : 'Заметка убрана', 'Отменить', () => {
               const back = Object.assign({}, this.state.addrNotes || {});
               if (prev) back[key] = prev; else delete back[key];
               set({ addrNotes: back });
@@ -5135,9 +5184,9 @@
           liveMineReplies.sort((a, b) => b.r.createdAt - a.r.createdAt);
 
           const navRole = role;
-          const tabOf = { 'courier-home': 'home', 'courier-empty': 'home', 'work-hub': 'work', 'work-setup': 'work', offers: 'work', 'offer-detail': 'work', 'active-order': 'work', 'confirm-decline': 'work', 'offer-result': 'work', 'service-open-demo': 'work', 'work-summary': 'work', slots: 'work', 'job-guide': 'home', 'tax-forms': 'profile', stats: 'stats', market: 'market', 'market-services': 'market', profile: 'profile', history: 'home', order: 'home', integrations: 'home', 'integration-connect': 'home', zones: 'home', service: 'market', 'form-review': 'market', questions: 'market', 'anon-courier': 'market', top: 'profile', photo: 'profile', share: 'profile', privacy: 'profile', contest: 'profile', 'my-activity': 'profile', 'imported-reviews': 'profile', 'live-feed': 'home', 'live-mine': 'profile', 'user-home': 'home', favorites: 'favorites', couriers: 'couriers', 'public-profile': 'couriers', tips: 'market', 'tips-sent': 'profile', expenses: 'home', 'expense-form': 'home', recurring: 'profile', 'recurring-form': 'profile', wallet: 'profile', 'wallet-income': 'profile', 'wallet-withdraw': 'profile', 'wallet-withdraw-history': 'profile', notifications: 'profile', support: 'profile', 'worker-data': 'home', 'common-states': 'home', 'work-tasks': 'work' };
+          const tabOf = { 'courier-home': 'home', 'courier-empty': 'home', 'work-hub': 'work', 'work-setup': 'work', offers: 'work', 'offer-detail': 'work', 'active-order': 'work', 'confirm-decline': 'work', 'offer-result': 'work', 'service-open-demo': 'work', 'work-summary': 'work', slots: 'work', 'job-guide': 'home', 'tax-forms': 'profile', stats: 'stats', market: 'market', 'market-services': 'market', profile: 'profile', history: 'home', order: 'home', integrations: 'home', 'integration-connect': 'home', zones: 'home', service: 'market', 'form-review': 'market', questions: 'market', 'anon-courier': 'market', top: 'profile', photo: 'profile', share: 'profile', privacy: 'profile', contest: 'profile', 'my-activity': 'profile', 'imported-reviews': 'profile', 'live-feed': 'home', 'live-mine': 'profile', 'user-home': 'home', favorites: 'favorites', couriers: 'couriers', 'public-profile': 'couriers', tips: 'market', 'tips-sent': 'profile', expenses: 'home', 'expense-form': 'home', recurring: 'profile', 'recurring-form': 'profile', wallet: 'profile', 'wallet-income': 'profile', 'wallet-withdraw': 'profile', 'wallet-withdraw-history': 'profile', notifications: 'profile', inbox: 'profile', support: 'profile', 'worker-data': 'home', 'common-states': 'home', 'work-tasks': 'work' };
           const activeTab = tabOf[s];
-          const showNav = (role === 'courier' && !!activeTab && s !== 'history' && s !== 'order' && s !== 'integrations' && s !== 'integration-connect' && s !== 'zones' && s !== 'courier-map' && s !== 'photo' && s !== 'share' && s !== 'privacy' && s !== 'contest' && s !== 'service' && s !== 'form-review' && s !== 'questions' && s !== 'anon-courier' && s !== 'expenses' && s !== 'expense-form' && s !== 'recurring' && s !== 'recurring-form' && s !== 'wallet' && s !== 'wallet-income' && s !== 'wallet-withdraw' && s !== 'wallet-withdraw-history' && s !== 'notifications' && s !== 'support' && s !== 'worker-data' && s !== 'common-states') || (role === 'user' && !!activeTab && s !== 'privacy' && s !== 'notifications' && s !== 'support');
+          const showNav = (role === 'courier' && !!activeTab && s !== 'history' && s !== 'order' && s !== 'integrations' && s !== 'integration-connect' && s !== 'zones' && s !== 'courier-map' && s !== 'photo' && s !== 'share' && s !== 'privacy' && s !== 'contest' && s !== 'service' && s !== 'form-review' && s !== 'questions' && s !== 'anon-courier' && s !== 'expenses' && s !== 'expense-form' && s !== 'recurring' && s !== 'recurring-form' && s !== 'wallet' && s !== 'wallet-income' && s !== 'wallet-withdraw' && s !== 'wallet-withdraw-history' && s !== 'notifications' && s !== 'inbox' && s !== 'support' && s !== 'worker-data' && s !== 'common-states') || (role === 'user' && !!activeTab && s !== 'privacy' && s !== 'notifications' && s !== 'support');
           const showNavFinal = showNav && !st.pvPreview && (s.indexOf('live-') !== 0 || s === 'live-feed' || s === 'live-mine');
 
           Object.assign(vals, {
@@ -5270,7 +5319,7 @@
                 const d = new Date(row.iso + 'T00:00:00');
                 if (r.freeCancel === 'noonBefore') { d.setDate(d.getDate() - 1); d.setHours(12); } else d.setMinutes(row.from - r.hoursBefore * 60);
                 const cur = new Date(TODAY_ISO + 'T00:00:00'); cur.setMinutes(nowMin);
-                return d > cur && d - cur <= 24 * 3600000 ? 'Отменить без последствий до ' + ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][d.getDay()] + ' ' + fmt(d.getHours() * 60 + d.getMinutes()) + (r.src ? ' · ' + ({ 'отзывы': 'со слов курьеров', 'вторичный': 'из пересказов', 'не подтверждено': 'точно не известно', 'партнёрские материалы': 'по словам партнёров' }[r.src] || r.src) : '') : '';
+                return d > cur && d - cur <= 24 * 3600000 ? 'Отменить без последствий до ' + ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][d.getDay()] + ' ' + fmt(d.getHours() * 60 + d.getMinutes()) + (r.src && r.src !== 'отзывы' ? ' · ' + ({ 'отзывы': '', 'вторичный': 'из пересказов', 'не подтверждено': 'точно не известно', 'партнёрские материалы': 'по словам партнёров' }[r.src] || r.src) : '') : '';
               };
               const booking = (row, kind) => ({ id: row.id, svc: row.svc, kind, source: 'booking', title: row.title, place: row.place, time: fmt(row.from) + '–' + fmt(row.to), hint: kind === 'now' ? 'ещё ' + left(row.to - nowMin) : 'через ' + left(row.from - nowMin), word: row.status === 'requested' ? (SERVICE_CAPS[row.svc].words || SHIFT_WORDS.bron).requested : (SERVICE_CAPS[row.svc].status === 'bron' ? 'бронь' : 'смена'), deadline: kind === 'next' ? cancelBy(row) : '' });
               // без брони план ставит только то, куда можно выйти сразу: свободный выход в Яндекс Еде
@@ -5376,10 +5425,12 @@
               });
             },
             open_recent_order: (id) => { if (role === 'courier') set({ s: 'order', histSelectedId: id, orderCommentEditing: false, ordBack: 'home' }); },
+            // заметка из меню заказа: открываем карточку сразу с полем заметки к адресу
+            open_recent_note: (id) => { if (role !== 'courier') return; set({ s: 'order', histSelectedId: id, orderCommentEditing: false, ordBack: 'home', anEdit: true, anDraft: null }); setTimeout(() => { const el = document.querySelector('.raznos-addr-note-input'); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); } }, 120); },
             open_recent_trip: (id) => { if (role === 'courier') set({ s: 'trip', tripSelectedId: id, tripBack: 'home' }); },
             go_history_vv: () => { if (role === 'courier') set(Object.assign({ s: 'history', histPeriod: 'today', histSvc: 'vkusvill', histStatus: 'all', histPage: 0 }, resetHistDays())); },
             go_history_samokat: () => { if (role === 'courier') set(Object.assign({ s: 'history', histPeriod: 'today', histSvc: 'samokat', histStatus: 'all', histPage: 0 }, resetHistDays())); },
-            go_profile: () => set({ s: 'profile' }),
+            go_profile: backToInbox(() => set({ s: 'profile' })),
             go_tax_forms: () => set({ s: 'tax-forms' }),
             tax_chips: taxChips(connKey), conn_tax_ask: !TAX_FORM_FROM_SVC[connKey], conn_tax_auto: !!TAX_FORM_FROM_SVC[connKey],
             tax_forms_rows: connectedKeys.map((k) => ({ key: k, title: SERVICES[k].title, chips: taxChips(k), src: taxFromSvc(k) ? 'Взяли из сервиса, поправьте, если не так' : (taxFromVia(k) ? 'По вашему оформлению в сервисе' : TAX_FORM_FROM_SVC[k] ? 'Вы поправили вручную, сервис отдаёт другое' : 'Сервис это не отдаёт, выберите сами'), src_cls: 'raznos-text-small' + (taxFromSvc(k) ? ' raznos-tax-src-auto' : ''), note: TAX_FORM_NOTE[taxFormOf(k)] || (NPD_WITHHELD_SVCS.indexOf(k) !== -1 ? 'Сервис сам удерживает НПД, в налог Разноса это не входит' : 'Налог считаем как у самозанятого') })),
@@ -5714,7 +5765,7 @@
             stats_detail_is_trends: st.statsDetail === 'trends' || (st.statsDetail === 'filters' && st.statsFiltersBack === 'trends'),
             // налоги и штрафы возвращают туда, откуда открыты: на главный экран или в Деньги
             // из показателя трендов назад в список, из списка в Статистику
-            stats_detail_close: () => st.statsDetail === 'trends' && st.statsTrendFocus ? set({ statsTrendFocus: '' }) : set(st.statsDetailBack && (st.statsDetail === 'taxes' || st.statsDetail === 'fines') ? { statsDetail: st.statsDetailBack, statsDetailBack: '' } : { statsDetail: st.statsDetail === 'filters' && st.statsFiltersBack === 'trends' ? 'trends' : '', statsFiltersBack: '', statsDetailBack: '' }), stats_detail_go_money: () => set({ statsDetail: 'money' }),
+            stats_detail_close: st.inboxRet === 'stats' && st.statsDetail === 'taxes' ? backToInbox(() => {}) : () => st.statsDetail === 'trends' && st.statsTrendFocus ? set({ statsTrendFocus: '' }) : set(st.statsDetailBack && (st.statsDetail === 'taxes' || st.statsDetail === 'fines') ? { statsDetail: st.statsDetailBack, statsDetailBack: '' } : { statsDetail: st.statsDetail === 'filters' && st.statsFiltersBack === 'trends' ? 'trends' : '', statsFiltersBack: '', statsDetailBack: '' }), stats_detail_go_money: () => set({ statsDetail: 'money' }),
             stats_detail_go_time: () => set({ statsDetail: 'time' }), stats_detail_go_services: () => set({ statsDetail: 'services' }), stats_detail_go_districts: () => set({ statsDetail: 'districts' }), stats_trend_list_mode: !st.statsTrendFocus,
             stats_detail_go_compare: () => set({ statsDetail: 'compare' }), stats_detail_go_trends: () => set({ statsDetail: 'trends', statsFiltersBack: '', statsTrendFocus: '' }),
             stats_trend_focus: st.statsTrendFocus || '', set_stats_trend_focus: (k) => set({ statsTrendFocus: k }),
@@ -5801,7 +5852,7 @@
             // Найти слот из умного расписания: Свободные на этот день и сервис
             go_slots_find: (w) => set({ s: 'slots', slotsTab: 'free', slotsDay: (w && w.iso) || '', slotsSvc: (w && w.svc) || '', slotsWeek: null, slotsFrom: 'work-hub' }),
             slots_week: st.slotsWeek != null ? st.slotsWeek : null, slots_tab: st.slotsTab || 'mine', slots_day: st.slotsDay || '', slots_svc: st.slotsSvc || '',
-            slots_back: () => set({ s: st.slotsFrom === 'courier-home' ? 'courier-home' : (st.slotsFrom === 'profile' ? 'profile' : 'work-hub'), smartFocusIso: '', smartFocusKey: '' }), go_slots_from_profile: () => set({ s: 'slots', slotsTab: '', slotsDay: '', slotsSvc: '', slotsWeek: null, slotsFrom: 'profile' }), go_smart: () => set({ s: 'work-hub', smartFocusAdded: false, smartFocusIso: '', smartFocusKey: '', smartOpenKey: '' }), go_work_schedule: () => set({ s: 'work-schedule', wsFrom: s }), work_schedule_back: () => set({ s: (this.state && this.state.wsFrom) || 'profile' }),
+            slots_back: backToInbox(() => set({ s: st.slotsFrom === 'courier-home' ? 'courier-home' : (st.slotsFrom === 'profile' ? 'profile' : 'work-hub'), smartFocusIso: '', smartFocusKey: '' })), go_slots_from_profile: () => set({ s: 'slots', slotsTab: '', slotsDay: '', slotsSvc: '', slotsWeek: null, slotsFrom: 'profile' }), go_smart: () => set({ s: 'work-hub', smartFocusAdded: false, smartFocusIso: '', smartFocusKey: '', smartOpenKey: '' }), go_work_schedule: () => set({ s: 'work-schedule', wsFrom: s }), work_schedule_back: () => set({ s: (this.state && this.state.wsFrom) || 'profile' }),
             work_setup_needed: !demoOn && !graphSaved,
             work_ready: demoOn || graphSaved,
             go_best_times: (v) => set({ s: 'best-times', btFrom: s, btView: v === 'day' ? 'day' : 'week' }),
@@ -6019,7 +6070,7 @@
             summary_has_active: activeAccepted,
             finish_work: () => { this._stateGen = (this._stateGen || 0) + 1; clearTimeout(this._acceptTimer); this._acceptTimer = null; set({ s: 'courier-home', workOn: false, workPaused: false, acceptStage: 'idle' }); },
 
-            go_home_any: () => set({ s: role === 'courier' ? (readyHome ? 'courier-home' : 'courier-empty') : 'user-home' }),
+            go_home_any: backToInbox(() => set({ s: role === 'courier' ? (readyHome ? 'courier-home' : 'courier-empty') : 'user-home' })),
             hist_back: () => set({ s: st.histBack === 'stats' ? 'stats' : (readyHome ? 'courier-home' : 'courier-empty') }),
 
             integration_list: integrationList,
@@ -6300,18 +6351,13 @@
             ord_promised: ordSource.money === 'Скорректировано' ? ordSource.pay + 60 : (ordSource.id === 'samokat-0' ? ordSource.pay - 50 : ordSource.pay),
             ord_items: ordSource.items, ord_weight: ordSource.weight, ord_wait: ordSource.wait, ord_duration: ordSource.duration, ord_distance: ordSource.distance,
             ord_pickup: ordSource.pickupAddr, ord_drop: ordSource.dropAddr,
+            // комментарий клиента приходит из сервиса и только читается, своя заметка ниже
+            ord_client_note: ordSource.clientNote || DEMO_CLIENT_NOTES[(String(ordSource.dropAddr || '').length) % DEMO_CLIENT_NOTES.length],
+            ord_client_note_show: !!ordSource.dropAddr,
             ord_link_ref: linkDemo.noRef ? '' : ordSource.orderNo.replace('№', ''),
-            ord_comment_editing: orderCommentEditing, ord_comment_view: !orderCommentEditing,
-            ord_comment_text: ordCommentSaved || 'Заметки пока нет', ord_comment_draft: orderCommentEditing ? orderCommentDraft : ordCommentSaved,
-            ord_comment_meta: ordCommentSaved ? 'Сохранено, видно только вам' : 'Заполните, чтобы запомнить детали',
-            ord_comment_btn_label: ordCommentSaved ? 'Изменить' : 'Добавить заметку',
-            ord_comment_edit: () => set({ orderCommentEditing: true, orderCommentDraft: ordCommentSaved || '' }),
-            ord_comment_change: (e) => set({ orderCommentDraft: e && e.target ? e.target.value : orderCommentDraft }),
-            ord_comment_save: () => set({ orderCommentEditing: false, orderComments: Object.assign({}, orderComments, { [ordSource.id]: orderCommentDraft }) }),
-            ord_comment_cancel: () => set({ orderCommentEditing: false }),
             // заметка к адресу доставки: тап по строке, ввод, Enter
             an_editing: !!st.anEdit, an_view: !st.anEdit,
-            an_draft: st.anDraft || '',
+            an_draft: st.anDraft != null ? st.anDraft : (addrNotes[ordSource.dropAddr] || ''),
             an_text: addrNotes[ordSource.dropAddr] || 'Добавить заметку',
             an_text_cls: addrNotes[ordSource.dropAddr] ? 'raznos-text-body' : 'raznos-text-tiny',
             an_icon: addrNotes[ordSource.dropAddr] ? '' : '+',
@@ -6410,8 +6456,9 @@
             sv_review_insufficient: svReviewTab === 'user' ? svUserAuthors.length < 5 : svReviewsConfirmedAuthors.length < 5,
             sv_review_tab_courier: svReviewTab !== 'user',
             sv_review_tab_user: svReviewTab === 'user',
-            sv_tab_courier_class: svReviewTab !== 'user' ? 'raznos-btn raznos-btn-secondary raznos-btn-small' : 'raznos-btn raznos-btn-ghost raznos-btn-small',
-            sv_tab_user_class: svReviewTab === 'user' ? 'raznos-btn raznos-btn-secondary raznos-btn-small' : 'raznos-btn raznos-btn-ghost raznos-btn-small',
+            // отзывы курьеров и пользователей табами, как остальные переключатели
+            sv_tab_courier_class: svReviewTab !== 'user' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
+            sv_tab_user_class: svReviewTab === 'user' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
             sv_tab_courier_label: 'Курьеры · ' + svReviewsCourier.length,
             sv_tab_user_label: 'Пользователи · ' + svReviewsUser.length,
             sv_set_tab_courier: () => set({ svReviewTab: 'courier' }),
@@ -6625,6 +6672,35 @@
             frame_class: 'raznos-phone-frame' + ((appTheme === 'dark' || (appTheme === 'system' && SYSTEM_IS_DARK)) ? ' raznos-theme-dark' : ''),
             set_app_theme: (v) => set({ appTheme: v }),
             go_notifications: () => set({ s: 'notifications', subFrom: s }),
+            go_inbox: () => set({ s: 'inbox', inboxSeen: Object.assign({}, inboxSeen, inboxItems.reduce((acc, n) => { acc[n.id] = true; return acc; }, {})) }),
+            inbox_back: () => set({ s: 'profile' }),
+            inbox_settings: () => set({ s: 'notifications', subFrom: 'inbox' }),
+            inbox_badge: inboxBadge,
+            inbox_today: inboxNeedFirst(inboxItems.filter((n) => n.day === 'today')),
+            inbox_earlier: inboxNeedFirst(inboxItems.filter((n) => n.day !== 'today')),
+            inbox_has_today: inboxItems.some((n) => n.day === 'today'),
+            inbox_has_earlier: inboxItems.some((n) => n.day !== 'today'),
+            inbox_empty: inboxItems.length === 0,
+            inbox_has_unread: inboxUnread > 0,
+            inbox_unread_label: inboxUnread + ' ' + ruPlural(inboxUnread, 'новое', 'новых', 'новых'),
+            inbox_open: (id) => {
+              const n = inboxItems.find((x) => x.id === id);
+              if (!n) return;
+              const read = Object.assign({}, inboxRead, { [id]: true });
+              if (n.to === 'work-hub') return set({ inboxRead: read, s: 'work-hub', smartFocusAdded: false, smartFocusIso: '2026-09-16', smartFocusKey: '', smartOpenKey: '' });
+              if (n.to === 'slots') return set({ inboxRead: read, s: 'slots', slotsTab: '', slotsDay: '', slotsSvc: '', slotsWeek: null, slotsFrom: 'profile', inboxRet: 'slots' });
+              if (n.to === 'stats-taxes') return set({ inboxRead: read, s: 'stats', statsDetail: 'taxes', statsDetailBack: '', inboxRet: 'stats' });
+              set({ inboxRead: read, s: n.to, inboxRet: n.to });
+            },
+            inbox_read_all: () => {
+              const prev = inboxRead;
+              set({ inboxRead: Object.assign({}, inboxRead, inboxItems.reduce((acc, n) => { acc[n.id] = true; return acc; }, {})) });
+              uxShowToast('Все уведомления прочитаны', 'Отменить', () => set({ inboxRead: prev }));
+            },
+            inbox_hide: (id) => {
+              set({ inboxHidden: Object.assign({}, inboxHidden, { [id]: true }) });
+              uxShowToast('Уведомление скрыто', 'Вернуть', () => { const h = Object.assign({}, (this.state && this.state.inboxHidden) || {}); delete h[id]; set({ inboxHidden: h }); });
+            },
             notif_summary: notifOnCount + ' из ' + NOTIF_CATS.length + ' категорий включено',
             notif_rows: NOTIF_CATS.map((c) => {
               const on = notifOff.indexOf(c.key) === -1;
@@ -6773,7 +6849,7 @@
             live_mine_replies: liveMineReplies.map(({ m, r }) => ({ text: r.text, parent: m.text, meta: liveAgo(r.createdAt) + ' · ' + (liveArchived(m) ? 'обсуждение в архиве' : 'обсуждение активно') + ' · полезно: ' + liveCount(r.likes, r.id, 'like'), onTap: liveOpenThread(m.id, 'live-mine') })),
             live_mine_empty: liveMineAll.length === 0 && liveMineReplies.length === 0,
             live_profile_label: liveMineAll.length || liveMineReplies.length ? (liveMineAll.filter((m) => !m.deletedAt && !m.hiddenAt && !liveArchived(m)).length + ' активных · ' + liveMineArchive.length + ' в архиве') : 'пока пусто',
-            live_mine_back: () => set({ s: 'profile' }),
+            live_mine_back: backToInbox(() => set({ s: 'profile' })),
             my_activity_count_label: myActivityList.length === 0 ? 'пока пусто' : [myActivityCounts.reviews + ' ' + ruPlural(myActivityCounts.reviews, 'отзыв', 'отзыва', 'отзывов'), myActivityCounts.questions + ' ' + ruPlural(myActivityCounts.questions, 'вопрос', 'вопроса', 'вопросов'), myActivityCounts.answers + ' ' + ruPlural(myActivityCounts.answers, 'ответ', 'ответа', 'ответов')].join(' · '),
             my_activity_has: myActivityList.length > 0,
             my_activity_reviews_label: 'Отзывы ' + myActivityCounts.reviews, my_activity_questions_label: 'Вопросы ' + myActivityCounts.questions, my_activity_answers_label: 'Ответы ' + myActivityCounts.answers,
@@ -6974,7 +7050,7 @@
             go_wallet_income: () => set({ s: 'wallet-income' }),
             go_wallet_withdraw_history: () => set({ s: 'wallet-withdraw-history' }),
             go_wallet_withdraw: () => set({ s: 'wallet-withdraw', wdStage: 'form', wdTouched: false, wdAmount: 0, wdForceFail: false, wdPendingId: '' }),
-            back_to_wallet: () => set({ s: 'wallet' }),
+            back_to_wallet: backToInbox(() => set({ s: 'wallet' })),
             w_available: wallet.available, w_pending: wallet.pending, w_reserved: wallet.reserved,
             w_can_withdraw: wallet.available > 0, w_can_withdraw_disabled: wallet.available <= 0,
             w_income_preview: walletIncome.slice(0, 3).map((r) => ({
@@ -6993,7 +7069,7 @@
 
             wh_empty: walletWithdrawals.length === 0,
             wh_list: walletWithdrawals.map((w) => ({
-              id: w.id, date: w.date, amount: w.amount, methodLabel: w.methodLabel,
+              id: w.id, date: w.date, amount: formatMoney(w.amount), methodLabel: w.methodLabel,
               statusLabel: WD_STATUS_LABELS[w.status] || w.status, statusClass: 'raznos-status-pill ' + (WD_STATUS_PILL[w.status] || 'raznos-pill-muted'),
               reason: w.reason || '', hasReason: !!w.reason
             })),
@@ -7035,7 +7111,10 @@
             contest_status_class: contestDisputeStage === 'disputed' ? 'raznos-pill-warn' : 'raznos-pill-ok',
             contest_status_label: contestDisputeStage === 'disputed' ? 'Проверка спорного заказа идёт' : 'Место подтверждено',
 
-            nav_role: navRole, nav_active: activeTab || 'home', show_nav: showNavFinal,
+            nav_role: navRole, nav_active: activeTab || 'home', show_nav: showNavFinal, nav_dot: [inboxBadge > 0 ? 'profile' : '', planDot ? 'work' : ''].filter(Boolean).join(','),
+            plan_change_note: planChangeOn ? 'Самокат отменил бронь на завтра 10:30–13:30, вместо неё Яндекс Еда' : '',
+            plan_change_iso: planChangeOn ? '2026-09-16' : '', plan_change_key: planChangeOn ? 'p:2026-09-16:' + Math.round(planChangeStart) : '',
+            plan_change_hide: () => set({ planChangeHidden: true }),
             on_navigate: (key) => {
               if (role === 'user') {
                 if (key === 'home') return set({ s: 'user-home' });
@@ -7045,6 +7124,7 @@
                 if (key === 'profile') return set({ s: 'profile' });
                 return;
               }
+              if (st.inboxRet) set({ inboxRet: '' });
               if (key === 'home') return set({ s: readyHome ? 'courier-home' : 'courier-empty' });
               if (key === 'work') return set({ s: activeAccepted ? 'active-order' : 'work-hub', smartOpenKey: '', smartFocusKey: '', smartFocusIso: '' });
               if (key === 'stats') return set({ s: 'stats', statsPeriod: 'week', statsStep: 0, statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' });

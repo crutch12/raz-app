@@ -71,7 +71,8 @@ class Component extends DCLogic {
       act: typeof p.onAction === 'function' ? p.onAction : (() => {}),
       has_trend: trend !== 0, up: trend > 0, down: trend < 0,
       trend_cls: 'rrr-trend ' + (trend > 0 ? 'rrr-trend-up' : 'rrr-trend-down'),
-      trend_text: (trend > 0 ? '+' : '−') + Math.abs(trend) + '%',
+      // если есть шаблоны, пишем предложением: Доход в час вырос на 13% за месяц
+      trend_text: (trend > 0 ? p.trendUp : p.trendDown) ? (trend > 0 ? p.trendUp : p.trendDown).replace('{n}', Math.abs(trend)) : (trend > 0 ? '+' : '−') + Math.abs(trend) + '%',
       trend_tail: p.trendTail || 'дохода в час за 4 недели'
     };
   }

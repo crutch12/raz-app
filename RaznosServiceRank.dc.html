@@ -28,7 +28,7 @@
     <span class="raznos-fx raznos-col"><span class="rsr-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M4 12h16M4 17h7"/></svg>Сравнение сервисов</span><span class="rsr-sub">{{ card_sub }}</span></span>
     <div class="rsr-list">
       <sc-for list="{{ card_rows }}" as="r" hint-placeholder-count="4">
-        <dc-import name="RaznosRankRow" rank="{{ r.rank }}" svc="{{ r.svc }}" title="{{ r.name }}" mine="{{ r.mine }}" fill="{{ r.fill }}" value="{{ r.val }}" trend="{{ r.trend }}" trendTail="{{ r.trendTail }}" divider="{{ r.divider }}"></dc-import>
+        <dc-import name="RaznosRankRow" rank="{{ r.rank }}" svc="{{ r.svc }}" title="{{ r.name }}" mine="{{ r.mine }}" fill="{{ r.fill }}" value="{{ r.val }}" trend="{{ r.trend }}" trendUp="{{ r.trendUp }}" trendDown="{{ r.trendDown }}" trendTail="{{ r.trendTail }}" divider="{{ r.divider }}"></dc-import>
       </sc-for>
     </div>
     <div class="rsr-foot"><span class="rsr-more-note">{{ more_label }}</span><button type="button" class="rsr-more" onClick="{{ open_more }}">Подробнее<span class="raznos-row-chevron">›</span></button></div>
@@ -44,7 +44,7 @@
     <dc-import name="RaznosFilterChips" filters="{{ filters }}" onChange="{{ on_filter }}"></dc-import>
     <div class="rsr-list">
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
-        <dc-import name="RaznosRankRow" rank="{{ r.rank }}" svc="{{ r.svc }}" title="{{ r.name }}" mine="{{ r.mine }}" meta="{{ r.meta }}" hot="{{ r.hot }}" fill="{{ r.fill }}" value="{{ r.val }}" action="{{ r.action }}" actionLabel="{{ r.actionLabel }}" onAction="{{ r.connect }}" trend="{{ r.trend }}" trendTail="{{ r.trendTail }}" divider="{{ r.divider }}"></dc-import>
+        <dc-import name="RaznosRankRow" rank="{{ r.rank }}" svc="{{ r.svc }}" title="{{ r.name }}" mine="{{ r.mine }}" meta="{{ r.meta }}" hot="{{ r.hot }}" fill="{{ r.fill }}" value="{{ r.val }}" action="{{ r.action }}" actionLabel="{{ r.actionLabel }}" onAction="{{ r.connect }}" trend="{{ r.trend }}" trendUp="{{ r.trendUp }}" trendDown="{{ r.trendDown }}" trendTail="{{ r.trendTail }}" divider="{{ r.divider }}"></dc-import>
       </sc-for>
       <sc-if value="{{ is_empty }}" hint-placeholder-val="{{ false }}"><p class="rsr-empty">{{ empty_text }}</p></sc-if>
     </div>
@@ -122,10 +122,11 @@ class Component extends DCLogic {
     const max = byValue.length ? byValue[0].v : 1;
     const min = byValue.length ? byValue[byValue.length - 1].v : 0;
     const fillOf = (v) => Math.round(18 + 82 * (max === min ? 1 : (v - min) / (max - min)));
-    const tail = metric.k === 'per' ? 'выплаты за заказ у участников за 4 недели' : (metric.k === 'ord' ? 'заказов в час у участников за 4 недели' : 'дохода участников в час за 4 недели');
+    const tail = '· по курьерам Разноса';
+    const trendTpl = metric.k === 'per' ? ['Выплата за заказ выросла на {n}% за месяц', 'Выплата за заказ упала на {n}% за месяц'] : (metric.k === 'ord' ? ['Заказов в час стало на {n}% больше за месяц', 'Заказов в час стало на {n}% меньше за месяц'] : ['Доход в час вырос на {n}% за месяц', 'Доход в час упал на {n}% за месяц']);
     const rowOf = (r) => ({
       rank: r.rank, svc: r.x.k, name: r.x.name, mine: isMine(r.x.k), val: shown(r.v), fill: fillOf(r.v),
-      meta: '', hot: false, action: '', actionLabel: '', connect: () => {}, trend: 0, trendTail: tail, divider: false
+      meta: '', hot: false, action: '', actionLabel: '', connect: () => {}, trend: 0, trendTail: tail, trendUp: trendTpl[0], trendDown: trendTpl[1], divider: false
     });
 
     // выноски только у самого растущего и самого падающего сервиса
@@ -154,7 +155,7 @@ class Component extends DCLogic {
     const top = byValue.slice(0, 3);
     const risingR = byValue.slice(3).filter((r) => r.x.trend >= 10).sort((a, b) => b.x.trend - a.x.trend)[0];
     const cardRows = top.map((r, i) => Object.assign(rowOf(r), { divider: !!risingR && i === top.length - 1 }));
-    if (risingR) cardRows.push(Object.assign(rowOf(risingR), { trend: risingR.x.trend, trendTail: 'дохода участников в час за 4 недели' }));
+    if (risingR) cardRows.push(Object.assign(rowOf(risingR), { trend: risingR.x.trend, trendTail: '· по курьерам Разноса', trendUp: 'Доход в час вырос на {n}% за месяц', trendDown: 'Доход в час упал на {n}% за месяц' }));
     const rest = Math.max(0, byValue.length - cardRows.length);
 
     const optsOf = (l) => l.map((o) => ({ k: o.k, label: o.label, note: o.note }));

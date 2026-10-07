@@ -1,0 +1,67 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rnr-row { display: flex; align-items: flex-start; border-bottom: 1px solid var(--raznos-line); }
+    .rnr-main { flex: 1; min-width: 0; display: flex; align-items: flex-start; gap: 12px; padding: 14px 4px 14px 14px; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+    .rnr-ico { position: relative; flex: none; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 11px; background: var(--raznos-surface-2); color: var(--raznos-ink-2); }
+    .rnr-ico-money { background: var(--raznos-green-tint); color: var(--raznos-green-deep); }
+    .rnr-ico-shifts { background: var(--raznos-amber-tint); color: var(--raznos-amber); }
+    .rnr-ico-conn { background: var(--raznos-red-tint); color: var(--raznos-red); }
+    .rnr-ico-raznos { background: var(--raznos-dark); color: var(--raznos-on-dark); }
+    .rnr-unread-dot { position: absolute; top: -3px; right: -3px; width: 10px; height: 10px; border-radius: 50%; background: var(--raznos-green); border: 2px solid var(--raznos-surface); }
+    .rnr-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+    .rnr-top { display: flex; align-items: baseline; gap: 8px; }
+    .rnr-title { flex: 1; min-width: 0; font: 500 15px/1.3 var(--raznos-font); color: var(--raznos-ink-2); overflow-wrap: anywhere; }
+    .rnr-row.rnr-is-unread .rnr-title { font-weight: 700; color: var(--raznos-ink); }
+    .rnr-time { flex: none; font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); font-variant-numeric: tabular-nums; }
+    .rnr-text { font: 400 14px/1.4 var(--raznos-font); color: var(--raznos-ink-2); overflow-wrap: anywhere; }
+    .rnr-need { align-self: flex-start; margin-top: 3px; padding: 2px 8px; border-radius: 999px; background: var(--raznos-red-tint); color: var(--raznos-red); font: 600 12.5px var(--raznos-font); }
+    .rnr-done { align-self: flex-start; margin-top: 3px; font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rnr-hide { flex: none; width: 44px; height: 44px; margin: 6px 4px 0 0; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 12px; background: transparent; color: var(--raznos-ink-3); cursor: pointer; }
+    .rnr-main:focus-visible, .rnr-hide:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: -2px; border-radius: 12px; }
+  </style>
+</helmet>
+<div class="{{ row_cls }}">
+  <button type="button" class="rnr-main" onClick="{{ open }}" aria-label="{{ aria }}">
+    <span class="{{ ico_cls }}" aria-hidden="true">
+      <sc-if value="{{ is_money }}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18M16 15h2"/></svg></sc-if>
+      <sc-if value="{{ is_shifts }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M8.5 3.5v4M15.5 3.5v4M4 10h16"/></svg></sc-if>
+      <sc-if value="{{ is_conn }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg></sc-if>
+      <sc-if value="{{ is_answers }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12.5a7.5 7.5 0 0 1-11 6.6L4 20l1-4.3A7.5 7.5 0 1 1 20 12.5z"/></svg></sc-if>
+      <sc-if value="{{ is_raznos }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 8v5M12 16.5v.01"/></svg></sc-if>
+      <sc-if value="{{ unread }}" hint-placeholder-val="{{ true }}"><span class="rnr-unread-dot"></span></sc-if>
+    </span>
+    <span class="rnr-body">
+      <span class="rnr-top"><span class="rnr-title">{{ title }}</span><span class="rnr-time">{{ time }}</span></span>
+      <span class="rnr-text">{{ text }}</span>
+      <sc-if value="{{ need }}" hint-placeholder-val="{{ true }}"><span class="rnr-need">Нужно действие</span></sc-if>
+      <sc-if value="{{ done }}"><span class="rnr-done">Решено</span></sc-if>
+    </span>
+  </button>
+  <button type="button" class="rnr-hide" onClick="{{ hide }}" aria-label="{{ hide_aria }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"item":{"editor":null},"onOpen":{"editor":null},"onHide":{"editor":null},"$preview":{"width":360,"height":110}}'>
+// строка уведомления: значок категории, точка у непрочитанного, метка у того, где нужно действие, крестик скрывает
+const RNR_DEMO = { id: 'demo', cat: 'money', title: 'Вывод 4 200 ₽ не прошёл', text: 'Банк отклонил платёж, проверьте карту', time: '14:20', unread: true, need: true, done: false };
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const it = p.item || RNR_DEMO;
+    const cat = it.cat || 'raznos';
+    const unread = !!it.unread;
+    return {
+      row_cls: 'rnr-row' + (unread ? ' rnr-is-unread' : ''),
+      // решённое тускнеет, без цвета категории
+      ico_cls: 'rnr-ico' + (it.done ? '' : ' rnr-ico-' + cat),
+      is_money: cat === 'money', is_shifts: cat === 'shifts', is_conn: cat === 'conn', is_answers: cat === 'answers', is_raznos: cat === 'raznos',
+      unread, need: !!it.need && !it.done, done: !!it.done,
+      title: it.title || '', text: it.text || '', time: it.time || '',
+      aria: [unread ? 'Новое' : '', it.title, it.text, it.time, it.need && !it.done ? 'Нужно действие' : '', it.done ? 'Решено' : ''].filter(Boolean).join('. '),
+      hide_aria: 'Скрыть: ' + (it.title || ''),
+      open: () => { if (typeof p.onOpen === 'function') p.onOpen(it.id); },
+      hide: () => { if (typeof p.onHide === 'function') p.onHide(it.id); }
+    };
+  }
+}
+</script></body></html>

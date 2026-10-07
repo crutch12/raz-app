@@ -1,21 +1,52 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
 <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
-<button type="button" class="raznos-stats-top-card" onClick="{{ on_open }}" aria-label="{{ aria }}">
+<button type="button" class="{{ card_cls }}" onClick="{{ on_open }}" aria-label="{{ aria }}" data-rstl="{{ uid }}">
   <span class="raznos-stats-top-medal" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></span>
-  <span class="raznos-stats-top-copy"><strong>Топ курьеров</strong><small>{{ scope }}</small></span>
-  <span class="raznos-stats-top-place">{{ place_label }}</span>
+  <span class="raznos-stats-top-copy"><strong>Топ курьеров</strong><small>{{ scope }}</small><sc-if value="{{ has_delta }}" hint-placeholder-val="{{ true }}"><span class="{{ delta_cls }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ delta_path }}"/></svg>{{ delta_label }}</span></sc-if></span>
+  <span class="raznos-stats-top-place">№ <span class="raznos-stats-top-num">{{ place_num }}</span></span>
   <svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
 </button>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"place":{"editor":null},"scope":{"editor":"text","default":"Москва · заработок за неделю"},"onOpen":{"editor":null},"$preview":{"width":360,"height":84}}'>
-// вход в топ курьеров из статистики, справа текущее место курьера
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"place":{"editor":null},"placeDelta":{"editor":"number","default":3},"scope":{"editor":"text","default":"Москва · заработок за неделю"},"onOpen":{"editor":null},"$preview":{"width":360,"height":84}}'>
+// вход в топ курьеров, справа место и сдвиг за сегодня; при открытии по рамке пробегает блик, место докручивается со вчерашнего
+let rstlSeq = 0;
 class Component extends DCLogic {
-  renderVals() {
+  componentDidMount() {
+    if (typeof document === 'undefined') return;
     const p = this.props || {};
     const place = p.place === undefined ? 28 : p.place;
+    const delta = p.placeDelta === undefined ? 3 : Number(p.placeDelta) || 0;
+    if (place == null || !delta) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    setTimeout(() => {
+      const el = document.querySelector('[data-rstl="' + this._uid + '"] .raznos-stats-top-num');
+      if (!el) return;
+      const from = place + delta, t0 = performance.now(), dur = 900;
+      const step = (t) => {
+        const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+        el.textContent = String(Math.round(from + (place - from) * e));
+        if (k < 1) requestAnimationFrame(step);
+      };
+      el.textContent = String(from);
+      requestAnimationFrame(step);
+    }, 250);
+  }
+  renderVals() {
+    const p = this.props || {};
+    if (!this._uid) this._uid = 'rstl' + (++rstlSeq);
+    const place = p.place === undefined ? 28 : p.place;
+    // положительный сдвиг значит поднялись в топе
+    const delta = p.placeDelta === undefined ? 3 : Number(p.placeDelta) || 0;
     const scope = p.scope || 'Москва · заработок за неделю';
+    const up = delta > 0;
     return {
-      scope, place_label: place == null ? 'Нет места' : '№ ' + place,
-      aria: 'Топ курьеров, ' + (place == null ? 'место пока не определено' : 'ваше место ' + place) + ', ' + scope,
+      uid: this._uid,
+      card_cls: 'raznos-stats-top-card' + (place != null && delta ? ' raznos-stats-top-shine' : ''),
+      scope, place_num: place == null ? 'нет' : String(place),
+      has_delta: place != null && !!delta,
+      delta_cls: 'raznos-stats-top-delta ' + (up ? 'raznos-is-up' : 'raznos-is-down'),
+      delta_path: up ? 'M12 19V5M5 12l7-7 7 7' : 'M12 5v14M5 12l7 7 7-7',
+      delta_label: 'на ' + Math.abs(delta) + (up ? ' выше' : ' ниже') + ' за сегодня',
+      aria: 'Топ курьеров, ' + (place == null ? 'место пока не определено' : 'ваше место ' + place + (delta ? ', за сегодня на ' + Math.abs(delta) + (up ? ' выше' : ' ниже') : '')) + ', ' + scope,
       on_open: typeof p.onOpen === 'function' ? p.onOpen : (() => {})
     };
   }

@@ -7,10 +7,11 @@
   </head>
   <body>
     <x-dc>
-      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><style>.raznos-nav-tab { position: relative; } .raznos-nav-dot { position: absolute; top: 5px; left: calc(50% + 7px); width: 9px; height: 9px; border-radius: 50%; background: var(--raznos-red); border: 2px solid var(--raznos-surface); }</style></helmet>
       <div class="raznos-bottom-nav">
         <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="5">
-          <button type="button" class="{{ tab.tabClass }}" onClick="{{ tab.onTap }}" aria-current="{{ tab.current }}">
+          <button type="button" class="{{ tab.tabClass }}" onClick="{{ tab.onTap }}" aria-current="{{ tab.current }}" aria-label="{{ tab.aria }}">
+            <sc-if value="{{ tab.hasDot }}" hint-placeholder-val="{{ false }}"><span class="raznos-nav-dot" aria-hidden="true"></span></sc-if>
             <svg class="raznos-nav-glyph" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <sc-if value="{{ tab.isHome }}" hint-placeholder-val="{{ true }}"><path d="M4 11.5L12 4l8 7.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M6 10v9h12v-9" stroke-linecap="round" stroke-linejoin="round" /></sc-if>
               <sc-if value="{{ tab.isWork }}"><rect x="4" y="5.5" width="16" height="14" rx="2.5" /><path d="M8.5 3.5v4M15.5 3.5v4M4 10h16" stroke-linecap="round" /><path d="M9 14.6l2 2 4-4" stroke-linecap="round" stroke-linejoin="round" /></sc-if>
@@ -28,6 +29,7 @@
     <script type="text/x-dc" data-dc-script data-props='{
       "role": { "editor": "enum", "default": "courier", "options": ["courier", "user"] },
       "active": { "editor": "text", "default": "home" },
+      "dot": { "editor": "text", "default": "" },
       "onNavigate": { "editor": null },
       "$preview": { "width": 390, "height": 120 }
     }'>
@@ -37,6 +39,8 @@
           const role = p.role || 'courier';
           const active = p.active || 'home';
           const onNavigate = p.onNavigate || (() => {});
+          // точка на вкладках, где есть непросмотренное, ключи вкладок строкой через запятую
+          const dots = String(p.dot || '').split(',');
           const courierTabs = [
             { key: 'home', label: 'Сегодня', icon: 'isHome' },
             { key: 'work', label: 'План', icon: 'isWork' },
@@ -57,6 +61,8 @@
               const isActive = active === t.key;
               const row = {
                 label: t.label,
+                hasDot: dots.indexOf(t.key) !== -1,
+                aria: dots.indexOf(t.key) !== -1 ? t.label + ', есть новое' : t.label,
                 current: isActive ? 'page' : 'false',
                 tabClass: isActive ? 'raznos-nav-tab raznos-is-active' : 'raznos-nav-tab',
                 onTap: () => onNavigate(t.key),

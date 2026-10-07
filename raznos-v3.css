@@ -223,6 +223,10 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 .raznos-today-mix-legend i { width: 8px; height: 8px; border-radius: 50%; }
 .raznos-today-mix-legend b { font-weight: 700; color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
 .raznos-today-mix:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 10px; }
+/* новый телефон: иконки сервисов, куда войти, одной стопкой */
+.raznos-conn-device-icons { display: inline-flex; flex: none; }
+.raznos-conn-device-icons > * + * { margin-left: -8px; }
+.raznos-client-note { display: flex; flex-direction: column; gap: 2px; padding-bottom: 10px; margin-bottom: 4px; border-bottom: 1px solid var(--raznos-line); }
 /* шторка Сегодня: ответ сверху, карточки ниже, суммы одной гарнитурой */
 .raznos-dialog-bottom > .raznos-dialog.raznos-day-sheet { max-height: 86%; gap: 12px; padding: 8px 16px 0; background: var(--raznos-bg); }
 .raznos-day-handle { align-self: center; width: 40px; height: 4px; border-radius: 999px; background: var(--raznos-line-strong); }
@@ -654,3 +658,10 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-addr-note-btn { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; margin: -8px 0; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
 .raznos-addr-note-btn:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
 .raznos-addr-note-line { font: 500 12px var(--raznos-font); color: var(--raznos-amber); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* идущее окно в Плане: по тонкой рамке медленно бежит светлый отрезок */
+@property --rpw-a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@media (prefers-reduced-motion: no-preference) {
+  .rpw.rpw-now::before { content: ""; position: absolute; inset: -1.5px; padding: 2.5px; border-radius: 15px; pointer-events: none; background: conic-gradient(from var(--rpw-a), transparent 0deg 210deg, oklch(0.62 0.15 150) 320deg, oklch(0.88 0.09 150) 345deg, transparent 360deg); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: rpw-run 3.2s linear infinite; }
+  @keyframes rpw-run { to { --rpw-a: 360deg; } }
+}

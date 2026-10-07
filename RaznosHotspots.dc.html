@@ -39,7 +39,7 @@
     <span class="raznos-fx raznos-col"><span class="rhs-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg>Где выгоднее</span><span class="rhs-sub">{{ card_sub }}</span></span>
     <div class="rhs-list">
       <sc-for list="{{ card_rows }}" as="z" hint-placeholder-count="4">
-        <dc-import name="RaznosRankRow" rank="{{ z.rank }}" title="{{ z.name }}" meta="{{ z.meta }}" fill="{{ z.fill }}" value="{{ z.val }}" action="{{ z.action }}" href="{{ z.routeHref }}" actionLabel="{{ z.routeAria }}" trend="{{ z.trend }}" trendTail="{{ z.trendTail }}" divider="{{ z.divider }}"></dc-import>
+        <dc-import name="RaznosRankRow" rank="{{ z.rank }}" title="{{ z.name }}" meta="{{ z.meta }}" fill="{{ z.fill }}" value="{{ z.val }}" action="{{ z.action }}" href="{{ z.routeHref }}" actionLabel="{{ z.routeAria }}" trend="{{ z.trend }}" trendUp="{{ z.trendUp }}" trendDown="{{ z.trendDown }}" trendTail="{{ z.trendTail }}" divider="{{ z.divider }}"></dc-import>
       </sc-for>
     </div>
     <div class="rhs-foot"><span class="rhs-best">{{ more_label }}</span><button type="button" class="rhs-more" onClick="{{ open_more }}">Подробнее<span class="raznos-row-chevron">›</span></button></div>
@@ -56,7 +56,7 @@
     <sc-if value="{{ is_map }}" hint-placeholder-val="{{ false }}">
       <div class="rhs-map"><dc-import name="RaznosCourierMap" couriers="{{ false }}" hideCouriers="{{ true }}" hideMe="{{ true }}" zones="{{ map_zones }}"></dc-import></div>
       <div class="rhs-legend"><span><i class="rhs-l3" aria-hidden="true"></i>Лучшие</span><span><i class="rhs-l2" aria-hidden="true"></i>Выше среднего</span><span><i class="rhs-l1" aria-hidden="true"></i>Средне</span><span class="rhs-legend-note">Без заливки ниже среднего · ↑ растёт за 4 недели · нажмите на район</span></div>
-      <sc-if value="{{ has_pick }}" hint-placeholder-val="{{ true }}"><div class="rhs-pick"><dc-import name="RaznosRankRow" rank="{{ pick.rank }}" title="{{ pick.name }}" meta="{{ pick.meta }}" fill="{{ pick.fill }}" value="{{ pick.val }}" action="{{ pick.action }}" href="{{ pick.routeHref }}" actionLabel="{{ pick.routeAria }}" trend="{{ pick.trend }}" trendTail="{{ pick.trendTail }}" divider="{{ false }}"></dc-import></div></sc-if>
+      <sc-if value="{{ has_pick }}" hint-placeholder-val="{{ true }}"><div class="rhs-pick"><dc-import name="RaznosRankRow" rank="{{ pick.rank }}" title="{{ pick.name }}" meta="{{ pick.meta }}" fill="{{ pick.fill }}" value="{{ pick.val }}" action="{{ pick.action }}" href="{{ pick.routeHref }}" actionLabel="{{ pick.routeAria }}" trend="{{ pick.trend }}" trendUp="{{ pick.trendUp }}" trendDown="{{ pick.trendDown }}" trendTail="{{ pick.trendTail }}" divider="{{ false }}"></dc-import></div></sc-if>
     </sc-if>
     <sc-if value="{{ is_list }}" hint-placeholder-val="{{ true }}">
     <div class="raznos-segmented" role="tablist" aria-label="Порядок районов">
@@ -65,7 +65,7 @@
     </div>
     <div class="rhs-list">
       <sc-for list="{{ rows }}" as="z" hint-placeholder-count="8">
-        <dc-import name="RaznosRankRow" rank="{{ z.rank }}" title="{{ z.name }}" meta="{{ z.meta }}" fill="{{ z.fill }}" value="{{ z.val }}" action="{{ z.action }}" href="{{ z.routeHref }}" actionLabel="{{ z.routeAria }}" trend="{{ z.trend }}" trendTail="{{ z.trendTail }}" divider="{{ z.divider }}"></dc-import>
+        <dc-import name="RaznosRankRow" rank="{{ z.rank }}" title="{{ z.name }}" meta="{{ z.meta }}" fill="{{ z.fill }}" value="{{ z.val }}" action="{{ z.action }}" href="{{ z.routeHref }}" actionLabel="{{ z.routeAria }}" trend="{{ z.trend }}" trendUp="{{ z.trendUp }}" trendDown="{{ z.trendDown }}" trendTail="{{ z.trendTail }}" divider="{{ z.divider }}"></dc-import>
       </sc-for>
       <sc-if value="{{ is_empty }}" hint-placeholder-val="{{ false }}"><p class="rhs-empty">В этих районах нет заказов выбранного сервиса</p></sc-if>
     </div>
@@ -156,7 +156,7 @@ class Component extends DCLogic {
         routeAria: 'Маршрут в район ' + x.z.name,
         action: 'route', divider: x !== list[list.length - 1],
         trend: big ? x.z.trend : 0,
-        trendTail: 'дохода участников в час за 4 недели'
+        trendTail: '· по курьерам Разноса', trendUp: 'Доход в час вырос на {n}% за месяц', trendDown: 'Доход в час упал на {n}% за месяц'
       });
     });
 
@@ -166,7 +166,7 @@ class Component extends DCLogic {
     // карточка: топ-3 и район, который растёт быстрее всех вне топа
     const top = byValue.slice(0, 3);
     const risingX = byValue.slice(3).filter((x) => x.z.trend >= 10).sort((a, b) => b.z.trend - a.z.trend)[0];
-    const rising = risingX ? Object.assign(rowOf(risingX), { trend: risingX.z.trend, trendTail: 'дохода участников в час за 4 недели' }) : null;
+    const rising = risingX ? Object.assign(rowOf(risingX), { trend: risingX.z.trend, trendTail: '· по курьерам Разноса', trendUp: 'Доход в час вырос на {n}% за месяц', trendDown: 'Доход в час упал на {n}% за месяц' }) : null;
 
     const optsOf = (l) => l.map((o) => ({ k: o.k, label: o.label, note: o.note }));
     const filters = [
