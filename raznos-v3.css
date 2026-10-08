@@ -153,6 +153,8 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 .raznos-consent-row { display: flex; align-items: flex-start; gap: 10px; }
 .raznos-check-box { width: 24px; height: 24px; min-width: 24px; border-radius: 7px; border: 2px solid var(--raznos-ink-3); background: var(--raznos-surface); display: flex; align-items: center; justify-content: center; font: 700 14px var(--raznos-font); color: var(--raznos-on-dark); }
 .raznos-check-box.raznos-is-on { background: var(--raznos-dark); border-color: var(--raznos-dark); }
+.raznos-check-box.raznos-is-error { border-color: var(--raznos-red); background: var(--raznos-red-tint); }
+.raznos-field-error { font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-red); }
 .raznos-radio-mark { width: 20px; height: 20px; min-width: 20px; border-radius: 50%; border: 1.5px solid var(--raznos-line-strong); position: relative; }
 .raznos-radio-mark.raznos-is-on { border-color: var(--raznos-green-deep); }
 .raznos-radio-mark.raznos-is-on::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: var(--raznos-green-deep); }
@@ -166,7 +168,13 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 
 .raznos-chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .raznos-chip { min-height: 44px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--raznos-line-strong); font: 600 14px var(--raznos-font); color: var(--raznos-ink-2); background: var(--raznos-surface); }
-.raznos-chip.raznos-is-active { background: var(--raznos-dark); color: var(--raznos-on-dark); border-color: var(--raznos-dark); }
+/* выбор чипа: тёмный круг растекается из точки нажатия, при снятии стягивается в неё; точку и радиус ставит RaznosTabMotion */
+@property --raznos-chip-r { syntax: '<length>'; inherits: false; initial-value: 0px; }
+.raznos-chip { background-image: radial-gradient(circle at var(--raznos-chip-x, 50%) var(--raznos-chip-y, 50%), var(--raznos-dark) calc(var(--raznos-chip-r) - .5px), transparent var(--raznos-chip-r)); }
+.raznos-chip.raznos-is-active { --raznos-chip-r: var(--raznos-chip-max, 120px); color: var(--raznos-on-dark); border-color: var(--raznos-dark); }
+@media (prefers-reduced-motion: no-preference) {
+  .raznos-chip { transition: --raznos-chip-r .42s cubic-bezier(.3, .6, .2, 1), color .2s ease .08s, border-color .2s ease; }
+}
 
 /* Карточки и списки */
 .raznos-card { background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; }
@@ -335,9 +343,11 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 /* Нижняя навигация */
 .raznos-bottom-nav { flex: none; display: flex; background: var(--raznos-surface); border-top: 1px solid var(--raznos-line); padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0)); }
 .raznos-nav-tab { flex: 1 1 0; min-width: 0; white-space: nowrap; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 2px; border-radius: 12px; font: 600 12px var(--raznos-font); letter-spacing: -0.01em; color: var(--raznos-ink-3); min-height: 44px; justify-content: center; background: transparent; border: 0; }
-.raznos-nav-tab.raznos-is-active { color: var(--raznos-ink); background: var(--raznos-surface-2); }
+/* активный пункт нижнего меню: фирменный зелёный, иконка и подпись белые; тон один для светлой и тёмной темы, чтобы белый читался */
+.raznos-bottom-nav { --raznos-nav-active: oklch(0.52 0.12 150); }
+.raznos-nav-tab.raznos-is-active { color: #fff; background: var(--raznos-nav-active); }
 .raznos-nav-glyph { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; }
-.raznos-nav-tab.raznos-is-active .raznos-nav-glyph { stroke: var(--raznos-brand, var(--raznos-green-deep)); }
+.raznos-nav-tab.raznos-is-active .raznos-nav-glyph { stroke: currentColor; }
 
 /* Демо-панель разработчика (снаружи телефона) */
 .raznos-dev-panel { width: 300px; max-width: 100%; max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; box-sizing: border-box; }
@@ -678,13 +688,13 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-segmented[data-ind]::before, .raznos-shifts-tabs[data-ind]::before, .raznos-bottom-nav[data-ind]::before, .raznos-stats-periods[data-ind]::before { content: ""; position: absolute; z-index: -1; left: var(--ind-l); right: var(--ind-r); top: var(--ind-t); height: var(--ind-h); pointer-events: none; }
 .raznos-segmented[data-ind]::before { border-radius: 9px; background: var(--raznos-surface); box-shadow: 0 1px 3px rgba(20, 25, 40, .14); }
 .raznos-shifts-tabs[data-ind]::before { border-radius: 10px; background: var(--raznos-dark); }
-.raznos-bottom-nav[data-ind]::before { border-radius: 12px; background: var(--raznos-surface-2); }
+.raznos-bottom-nav[data-ind]::before { border-radius: 12px; background: var(--raznos-nav-active); }
 .raznos-stats-periods[data-ind]::before { border-radius: 999px; background: var(--raznos-dark); }
 .raznos-stats-periods[data-ind] > .raznos-chip[aria-pressed="true"] { background: transparent; }
 .raznos-segmented[data-ind] > .raznos-segment.raznos-is-active, .raznos-shifts-tabs[data-ind] > .raznos-shifts-tab.raznos-is-active, .raznos-bottom-nav[data-ind] > .raznos-nav-tab.raznos-is-active { background: transparent; box-shadow: none; }
-.raznos-segment, .raznos-shifts-tab, .raznos-nav-tab, .raznos-stats-periods > .raznos-chip { transition: color .25s ease; }
-/* текст нового активного пункта меняет цвет, когда плашка уже доехала */
-.raznos-segment.raznos-is-active, .raznos-shifts-tab.raznos-is-active, .raznos-nav-tab.raznos-is-active, .raznos-stats-periods > .raznos-chip[aria-pressed="true"] { transition-delay: .18s; }
+/* пока плашка едет, ряд показывают две копии пунктов из RaznosTabMotion, настоящие пункты прозрачные и уже в конечном цвете */
+.raznos-stats-periods > .raznos-chip { transition: none; }
+[data-ind-moving] > :not([data-ind-layer]) { opacity: 0; }
 /* переезд плашки играет RaznosApp через transform, края идут с задержкой */
 [data-ind]::before { transform-origin: 0 0; }
 

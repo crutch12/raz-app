@@ -8,6 +8,7 @@
   <body>
     <x-dc>
       <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-forecast.css" /><link rel="stylesheet" href="./raznos-work.css" /><link rel="stylesheet" href="./raznos-opportunities.css" /><link rel="stylesheet" href="./raznos-user-home.css" /><link rel="stylesheet" href="./raznos-links.css" /><link rel="stylesheet" href="./raznos-live.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
+      <dc-import name="RaznosTabMotion"></dc-import>
       <div class="{{ frame_class }}" data-screen-label="Ð Ð°Ð·Ð½Ð¾Ñ">
         <div class="raznos-phone-status"><span>15:40</span><span>5G 64%</span></div>
         <sc-if value="{{ demo_on }}" hint-placeholder-val="{{ false }}"><div class="raznos-demo-ribbon"><span class="raznos-demo-ribbon-text">Демо · все данные вымышленные</span><button type="button" class="raznos-demo-ribbon-close" aria-label="Закрыть демо" onClick="{{ demo_close }}">×</button></div></sc-if>
@@ -63,7 +64,7 @@
                 <button type="button" class="{{ role_courier_class }}" onClick="{{ set_role_courier }}">Курьер</button>
                 <button type="button" class="{{ role_user_class }}" onClick="{{ set_role_user }}">Пользователь</button>
               </div>
-              <div class="raznos-field"><span class="raznos-field-label">Номер телефона</span><div class="raznos-field-box raznos-is-focus"><span class="raznos-field-prefix">+7</span><input class="raznos-input" style="border:0;padding:0" value="{{ phone_input_value }}" onChange="{{ phone_input_change }}" /></div></div>
+              <div class="raznos-field"><span class="raznos-field-label">Номер телефона</span><div class="{{ phone_box_class }}"><span class="raznos-field-prefix">+7</span><input class="raznos-input" style="border:0;padding:0" inputmode="tel" value="{{ phone_input_value }}" onChange="{{ phone_input_change }}" /></div><sc-if value="{{ phone_error }}" hint-placeholder-val="{{ false }}"><span class="raznos-field-error">Введите номер полностью, 10 цифр после +7</span></sc-if></div>
               <div class="raznos-field"><span class="raznos-field-label">Куда прислать код</span>
                 <div class="raznos-segmented">
                   <button type="button" class="{{ ch_tg_class }}" onClick="{{ set_ch_tg }}">Telegram</button>
@@ -71,9 +72,10 @@
                 </div>
               </div>
               <button type="button" class="raznos-consent-row" onClick="{{ toggle_agree }}"><span class="{{ agree_class }}">{{ agree_mark }}</span><span class="raznos-text-body">Согласен на обработку данных по политике Разноса</span></button>
+              <sc-if value="{{ agree_error }}" hint-placeholder-val="{{ false }}"><span class="raznos-field-error">Отметьте согласие, без него код не отправить</span></sc-if>
               <span class="raznos-text-tiny">В прототипе используйте код 123456, сообщения никуда не отправляются</span>
               <div class="raznos-sticky-actions">
-                <button type="button" class="{{ login_btn_class }}" onClick="{{ submit_login }}" disabled="{{ login_btn_disabled }}">Получить код</button>
+                <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ submit_login }}">Получить код</button>
                 <a class="raznos-list-row raznos-card raznos-entry-foot" style="text-decoration:none;color:inherit" href="https://t.me/raznos_app_bot" target="_blank" rel="noopener"><span class="raznos-list-main"><span class="raznos-list-title">Чат для проблем и вопросов</span><span class="raznos-text-small">Напишите в Telegram-бота</span></span><span class="raznos-row-chevron">›</span></a>
               </div>
             </div>
@@ -390,7 +392,7 @@
             <dc-import name="RaznosUserHome" city="{{ uh_city }}" cityTitle="{{ uh_city_title }}" rates="{{ uh_market_rates }}" onCityChange="{{ uh_set_city }}" onNavigate="{{ uh_navigate }}"></dc-import>
           </sc-if>
           <sc-if value="{{ is_job_guide }}">
-            <dc-import name="RaznosJobGuide" city="{{ city }}" section="{{ guide_section }}" svc="{{ guide_svc }}" services="{{ guide_services }}" connected="{{ guide_connected }}" via="{{ guide_via }}" onOpenVia="{{ guide_open_via }}" onBack="{{ go_home_any }}" onOpenService="{{ guide_open_service }}" onSection="{{ guide_set_section }}" onSvc="{{ guide_set_svc }}" onRegister="{{ guide_register }}" onConnect="{{ guide_connect }}"></dc-import>
+            <dc-import name="RaznosJobGuide" city="{{ city }}" section="{{ guide_section }}" svc="{{ guide_svc }}" services="{{ guide_services }}" connected="{{ guide_connected }}" via="{{ guide_via }}" onOpenVia="{{ guide_open_via }}" onBack="{{ market_back }}" onOpenService="{{ guide_open_service }}" onSection="{{ guide_set_section }}" onSvc="{{ guide_set_svc }}" onRegister="{{ guide_register }}" onConnect="{{ guide_connect }}"></dc-import>
           </sc-if>
 
           <sc-if value="{{ is_tax_forms }}">
@@ -3701,7 +3703,6 @@
         }
         componentDidMount() {
           this._stateGen = 0;
-          this._bindTabIndicators();
           this._bindToastSwipe();
           this._bindEscClose();
           this._bindMotion();
@@ -3778,7 +3779,6 @@
             document.removeEventListener('pointerdown', this._unlockOnGesture);
             document.removeEventListener('keydown', this._unlockOnGesture);
             document.removeEventListener('scroll', this._onPhoneScroll, true);
-            if (this._tabObs) this._tabObs.disconnect();
           }
           if (this._resendTimer) clearInterval(this._resendTimer);
           if (this._acceptTimer) clearTimeout(this._acceptTimer);
@@ -3890,36 +3890,6 @@
           document.addEventListener('pointercancel', end, true);
         }
         // перетекающая плашка под активным табом и пунктом нижнего меню: одна на ряд, переезжает с растяжкой
-        _bindTabIndicators() {
-          if (typeof document === 'undefined' || typeof MutationObserver === 'undefined') return;
-          const SEL = '.raznos-segmented, .raznos-shifts-tabs, .raznos-bottom-nav, .raznos-stats-periods';
-          let queued = false;
-          const sync = () => {
-            queued = false;
-            document.querySelectorAll(SEL).forEach((row) => {
-              if (ro && !row.__indRo) { row.__indRo = true; ro.observe(row); }
-              const act = row.querySelector('.raznos-is-active');
-              if (!act || act.parentElement !== row) { row.removeAttribute('data-ind'); return; }
-              const l = act.offsetLeft, r = row.clientWidth - act.offsetLeft - act.offsetWidth, t = act.offsetTop, h = act.offsetHeight;
-              const prev = row.__ind;
-              if (prev && prev.l === l && prev.r === r && prev.t === t && prev.h === h) return;
-              if (prev) row.setAttribute('data-ind-dir', l > prev.l ? 'r' : 'l');
-              if (prev && row.getAttribute('data-ind') === '1') this._moInd(row, prev, { l, r, t, h });
-              row.style.setProperty('--ind-l', l + 'px'); row.style.setProperty('--ind-r', r + 'px');
-              row.style.setProperty('--ind-t', t + 'px'); row.style.setProperty('--ind-h', h + 'px');
-              row.__ind = { l, r, t, h };
-              // первый замер без анимации, дальше плашка переезжает
-              if (!prev) { row.setAttribute('data-ind', '0'); requestAnimationFrame(() => row.setAttribute('data-ind', '1')); }
-            });
-          };
-          const queue = () => { if (!queued) { queued = true; requestAnimationFrame(sync); } };
-          // ряд мог поменять размер после первой отрисовки (шрифты, ширина), перемеряем
-          const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(queue) : null;
-          this._tabObs = new MutationObserver(queue);
-          this._tabObs.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
-          window.addEventListener('resize', queue);
-          queue();
-        }
         // новый экран открываем сверху, при возврате на предыдущий экран возвращаем прокрутку
         _keepScroll() {
           const s = routeKeyOf((this.state || {}).s, (this.state || {}).statsDetail);
@@ -4215,34 +4185,6 @@
           });
         }
         // перетекание плашки на transform: передний край уходит первым, задний догоняет через 100ms
-        _moInd(row, a, b) {
-          const M = this._mo;
-          if (!row.animate || (M && M.reduce())) return;
-          const W = row.clientWidth, wa = W - a.l - a.r, wb = W - b.l - b.r;
-          if (wb <= 0 || b.h <= 0) return;
-          // кривая cubic-bezier(.65, 0, .35, 1), как была у плашки
-          const bez = (t) => {
-            let u = t;
-            for (let i = 0; i < 8; i++) {
-              const x = 3 * u * (1 - u) * (1 - u) * 0.65 + 3 * u * u * (1 - u) * 0.35 + u * u * u - t;
-              const dx = 3 * (1 - u) * (1 - u) * 0.65 - 1.8 * u * (1 - u) + 1.95 * u * u;
-              if (Math.abs(dx) < 1e-6) break;
-              u = Math.max(0, Math.min(1, u - x / dx));
-            }
-            return 3 * u * u * (1 - u) + u * u * u;
-          };
-          const right = b.l > a.l, N = 20, total = 300, edge = 240;
-          const p = (tm, delay) => bez(Math.max(0, Math.min(1, (tm - delay) / edge)));
-          const kf = [];
-          for (let i = 0; i <= N; i++) {
-            const tm = total * i / N, pt = Math.min(1, tm / 180);
-            const L = a.l + (b.l - a.l) * p(tm, right ? 60 : 0);
-            const R = a.l + wa + (b.l + wb - a.l - wa) * p(tm, right ? 0 : 60);
-            const T = a.t + (b.t - a.t) * pt, H = a.h + (b.h - a.h) * pt;
-            kf.push({ offset: i / N, transform: 'translate(' + (L - b.l) + 'px, ' + (T - b.t) + 'px) scale(' + Math.max(0.01, (R - L) / wb) + ', ' + (H / b.h) + ')' });
-          }
-          row.animate(kf, { duration: total, pseudoElement: '::before' });
-        }
         _focusLiveMessage() {
           const cur = this.state || {};
           const fid = cur.liveFocusId;
@@ -4303,6 +4245,8 @@
           const peLast = st.peLast != null ? st.peLast : '';
           const channel = st.channel || 'telegram';
           const agree = !!st.agree;
+          // номер считаем полным, когда после +7 набрано 10 цифр
+          const phoneOk = String(st.phoneInput != null ? st.phoneInput : '916 555-01-23').replace(/\D/g, '').length === 10;
           const codeError = !!st.codeError;
           const codeInput = st.codeInput || '';
           const resendCount = st.resendCount || 0;
@@ -5710,7 +5654,7 @@
           liveMineReplies.sort((a, b) => b.r.createdAt - a.r.createdAt);
 
           const navRole = role;
-          const tabOf = { 'courier-home': 'home', 'courier-empty': 'home', 'work-hub': 'work', 'work-setup': 'work', offers: 'work', 'offer-detail': 'work', 'active-order': 'work', 'confirm-decline': 'work', 'offer-result': 'work', 'service-open-demo': 'work', 'work-summary': 'work', slots: 'work', 'job-guide': 'home', 'tax-forms': 'profile', stats: 'stats', market: 'market', 'market-services': 'market', profile: 'profile', history: 'home', order: 'home', integrations: 'home', 'integration-connect': 'home', zones: 'home', service: 'market', 'form-review': 'market', questions: 'market', 'anon-courier': 'market', top: 'profile', photo: 'profile', share: 'profile', privacy: 'profile', contest: 'profile', 'my-activity': 'profile', 'imported-reviews': 'profile', 'live-feed': 'home', 'live-mine': 'profile', 'user-home': 'home', favorites: 'favorites', couriers: 'couriers', 'public-profile': 'couriers', tips: 'market', 'tips-sent': 'profile', expenses: 'home', 'expense-form': 'home', recurring: 'profile', 'recurring-form': 'profile', wallet: 'profile', 'wallet-income': 'profile', 'wallet-withdraw': 'profile', 'wallet-withdraw-history': 'profile', notifications: 'profile', inbox: 'profile', support: 'profile', 'worker-data': 'home', 'common-states': 'home', 'work-tasks': 'work' };
+          const tabOf = { 'courier-home': 'home', 'courier-empty': 'home', 'work-hub': 'work', 'work-setup': 'work', offers: 'work', 'offer-detail': 'work', 'active-order': 'work', 'confirm-decline': 'work', 'offer-result': 'work', 'service-open-demo': 'work', 'work-summary': 'work', slots: 'work', 'job-guide': 'market', 'tax-forms': 'profile', stats: 'stats', market: 'market', 'market-services': 'market', profile: 'profile', history: 'home', order: 'home', integrations: 'home', 'integration-connect': 'home', zones: 'home', service: 'market', 'form-review': 'market', questions: 'market', 'anon-courier': 'market', top: 'profile', photo: 'profile', share: 'profile', privacy: 'profile', contest: 'profile', 'my-activity': 'profile', 'imported-reviews': 'profile', 'live-feed': 'home', 'live-mine': 'profile', 'user-home': 'home', favorites: 'favorites', couriers: 'couriers', 'public-profile': 'couriers', tips: 'market', 'tips-sent': 'profile', expenses: 'home', 'expense-form': 'home', recurring: 'profile', 'recurring-form': 'profile', wallet: 'profile', 'wallet-income': 'profile', 'wallet-withdraw': 'profile', 'wallet-withdraw-history': 'profile', notifications: 'profile', inbox: 'profile', support: 'profile', 'worker-data': 'home', 'common-states': 'home', 'work-tasks': 'work' };
           const activeTab = tabOf[s];
           const showNav = (role === 'courier' && !!activeTab && s !== 'history' && s !== 'order' && s !== 'integrations' && s !== 'integration-connect' && s !== 'zones' && s !== 'courier-map' && s !== 'photo' && s !== 'share' && s !== 'privacy' && s !== 'contest' && s !== 'service' && s !== 'form-review' && s !== 'questions' && s !== 'anon-courier' && s !== 'expenses' && s !== 'expense-form' && s !== 'recurring' && s !== 'recurring-form' && s !== 'wallet' && s !== 'wallet-income' && s !== 'wallet-withdraw' && s !== 'wallet-withdraw-history' && s !== 'notifications' && s !== 'inbox' && s !== 'support' && s !== 'worker-data' && s !== 'common-states') || (role === 'user' && !!activeTab && s !== 'privacy' && s !== 'notifications' && s !== 'support');
           const showNavFinal = showNav && !st.pvPreview && (s.indexOf('live-') !== 0 || s === 'live-feed' || s === 'live-mine');
@@ -5724,14 +5668,16 @@
             ch_tg_class: channel === 'telegram' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
             ch_sms_class: channel === 'sms' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
             set_ch_tg: () => set({ channel: 'telegram', channelSwitched: st.s === 'code' && channel !== 'telegram' }), set_ch_sms: () => set({ channel: 'sms', channelSwitched: st.s === 'code' && channel !== 'sms' }),
-            agree_class: agree ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', agree_mark: agree ? '✓' : '',
+            // кнопку не блокируем: после нажатия незаполненное обязательное подсвечиваем красным
+            agree_class: agree ? 'raznos-check-box raznos-is-on' : (st.loginTried ? 'raznos-check-box raznos-is-error' : 'raznos-check-box'), agree_mark: agree ? '✓' : '',
+            agree_error: !!st.loginTried && !agree, phone_error: !!st.loginTried && !phoneOk,
+            phone_box_class: 'raznos-field-box ' + (st.loginTried && !phoneOk ? 'raznos-is-error' : 'raznos-is-focus'),
             toggle_agree: () => set({ agree: !agree }),
-            login_btn_class: agree ? 'raznos-btn raznos-btn-primary' : 'raznos-btn-disabled', login_btn_disabled: !agree,
             phone_input_value: st.phoneInput != null ? st.phoneInput : '916 555-01-23',
             phone_input_change: (e) => set({ phoneInput: e && e.target ? e.target.value : (st.phoneInput || '') }),
             submit_login: () => {
-              if (!agree) return;
-              set({ s: 'code', codeError: false, codeInput: '123456', resendSecondsLeft: 60, channelSwitched: false });
+              if (!agree || !phoneOk) return set({ loginTried: true });
+              set({ loginTried: false, s: 'code', codeError: false, codeInput: '123456', resendSecondsLeft: 60, channelSwitched: false });
             },
 
             channel_title: channel === 'telegram' ? 'Telegram' : 'SMS',
@@ -6831,7 +6777,7 @@
             conn_login_value: connLogin, conn_login_change: (e) => set({ connLogin: e && e.target ? e.target.value : connLogin }),
             conn_password_value: connPassword, conn_password_change: (e) => set({ connPassword: e && e.target ? e.target.value : connPassword }),
             conn_show_agree: !connIsConnected && connStatusValue !== 'exited' && effectiveMethod !== 'unsupported' && effectiveMethod !== 'soon' && !(isDeliveryConn && !yandexConnected),
-            conn_agree_class: connAgree ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', conn_agree_mark: connAgree ? '✓' : '',
+            conn_agree_class: connAgree ? 'raznos-check-box raznos-is-on' : (st.connAgreeNudge ? 'raznos-check-box raznos-is-error' : 'raznos-check-box'), conn_agree_mark: connAgree ? '✓' : '',
             toggle_conn_agree: () => set({ connAgree: !connAgree, connAgreeNudge: false }),
             conn_agree_nudge: !!st.connAgreeNudge && !connAgree, conn_why_open: !!st.connWhyOpen, conn_why_toggle: () => set({ connWhyOpen: !st.connWhyOpen }),
             conn_finish: finalizeConnection,

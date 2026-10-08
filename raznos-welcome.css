@@ -1,10 +1,11 @@
 /* онбординг: тот же отступ экрана, что у входа, чтобы основная кнопка стояла на одном месте */
 .raznos-onboarding { --raznos-screen-x: 12px; flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 12px var(--raznos-screen-x) 20px; background: var(--raznos-surface); box-sizing: border-box; min-height: 100%; }
-.raznos-onboarding-top { display: flex; justify-content: flex-end; align-items: center; min-height: 44px; padding-inline: 6px; }
-.raznos-onboarding-brand { display: flex; align-items: center; gap: 8px; font: 750 22px var(--raznos-font); }
-.raznos-onboarding-brand img { width: 32px; height: 32px; border-radius: 9px; }
+/* бренд слева, язык ровно по центру, пропустить справа */
+.raznos-onboarding-top { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); column-gap: 8px; align-items: center; min-height: 44px; padding-inline: 6px; }
+.raznos-onboarding-top > :last-child { justify-self: end; }
+.raznos-onboarding-brand { display: flex; align-items: center; gap: 6px; font: 750 19px var(--raznos-font); white-space: nowrap; }
+.raznos-onboarding-brand img { width: 28px; height: 28px; border-radius: 8px; }
 
-.raznos-onboarding-top > :first-child { margin-right: auto; }
 .raznos-ob-slide { display: flex; flex-direction: column; gap: 14px; }
 
 /* коллаж: цветная подложка на всю ширину, карточки внахлёст с наклоном и тенью */

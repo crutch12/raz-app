@@ -1,0 +1,141 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+<span hidden></span>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "$preview": { "width": 350, "height": 60 }
+}'>
+// плашка выбранного пункта во всех табах: сегменты, табы смен, периоды, нижнее меню
+// достаточно подключить компонент один раз на странице, дальше он следит за всеми табами сам
+const raznosTabMotion = (() => {
+const SEL = '.raznos-segmented, .raznos-shifts-tabs, .raznos-bottom-nav, .raznos-stats-periods';
+const reduce = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+// кривая cubic-bezier(.65, 0, .35, 1)
+const bez = (t) => {
+  let u = t;
+  for (let i = 0; i < 8; i++) {
+    const x = 3 * u * (1 - u) * (1 - u) * 0.65 + 3 * u * u * (1 - u) * 0.35 + u * u * u - t;
+    const dx = 3 * (1 - u) * (1 - u) * 0.65 - 1.8 * u * (1 - u) + 1.95 * u * u;
+    if (Math.abs(dx) < 1e-6) break;
+    u = Math.max(0, Math.min(1, u - x / dx));
+  }
+  return 3 * u * u * (1 - u) + u * u * u;
+};
+// переезд: передний край идёт первым, задний догоняет, плашка перетекает
+const move = (row, a, b) => {
+  const W = row.clientWidth, wa = W - a.l - a.r, wb = W - b.l - b.r;
+  if (wb <= 0 || b.h <= 0) return;
+  const right = b.l > a.l, N = 20, total = 300, edge = 240;
+  const p = (tm, delay) => bez(Math.max(0, Math.min(1, (tm - delay) / edge)));
+  const kf = [], clip = [];
+  const Hc = row.clientHeight, rad = getComputedStyle(row, '::before').borderTopLeftRadius || '0px';
+  for (let i = 0; i <= N; i++) {
+    const tm = total * i / N, pt = Math.min(1, tm / 180);
+    const L = a.l + (b.l - a.l) * p(tm, right ? 60 : 0);
+    const R = a.l + wa + (b.l + wb - a.l - wa) * p(tm, right ? 0 : 60);
+    const T = a.t + (b.t - a.t) * pt, H = a.h + (b.h - a.h) * pt;
+    kf.push({ offset: i / N, transform: 'translate(' + (L - b.l) + 'px, ' + (T - b.t) + 'px) scale(' + Math.max(0.01, (R - L) / wb) + ', ' + (H / b.h) + ')' });
+    clip.push({ offset: i / N, clipPath: 'inset(' + T + 'px ' + (W - R) + 'px ' + (Hc - T - H) + 'px ' + L + 'px round ' + rad + ')' });
+  }
+  row.animate(kf, { duration: total, pseudoElement: '::before' });
+  ink(row, clip, total);
+};
+// пока плашка едет, ряд рисуют две копии пунктов: снизу обычные, сверху выбранные, обрезанные по форме плашки
+// настоящие пункты на это время прозрачные, поэтому их цвет меняется сразу и в конце ничего не мигает
+const ink = (row, clip, total) => {
+  if (row.__inkDone) row.__inkDone();
+  if (row.scrollWidth > row.clientWidth + 1) return;
+  const cs = getComputedStyle(row), bg = getComputedStyle(row, '::before').backgroundColor;
+  const layerOf = (active) => {
+    const layer = document.createElement('div');
+    layer.setAttribute('aria-hidden', 'true'); layer.setAttribute('data-ind-layer', ''); layer.inert = true;
+    Object.assign(layer.style, { position: 'absolute', left: '0', top: '0', width: row.clientWidth + 'px', height: row.clientHeight + 'px', boxSizing: 'border-box', margin: '0', zIndex: '1', pointerEvents: 'none', background: active ? bg : 'transparent', display: cs.display, flexDirection: cs.flexDirection, alignItems: cs.alignItems, justifyContent: cs.justifyContent, gap: cs.gap, padding: cs.padding, gridTemplateColumns: cs.gridTemplateColumns });
+    Array.from(row.children).forEach((el) => {
+      if (el.hasAttribute('data-ind-layer')) return;
+      const c = el.cloneNode(true);
+      c.classList.toggle('raznos-is-active', active);
+      if (c.hasAttribute('aria-pressed')) c.setAttribute('aria-pressed', active ? 'true' : 'false');
+      Object.assign(c.style, { background: 'transparent', boxShadow: 'none', transition: 'none', borderColor: 'transparent' });
+      layer.appendChild(c);
+    });
+    return layer;
+  };
+  const base = layerOf(false), top = layerOf(true);
+  row.appendChild(base); row.appendChild(top);
+  row.setAttribute('data-ind-moving', '');
+  const an = top.animate(clip, { duration: total, fill: 'forwards' });
+  const done = row.__inkDone = () => {
+    if (row.__inkDone !== done) return;
+    row.__inkDone = null; base.remove(); top.remove(); row.removeAttribute('data-ind-moving');
+  };
+  an.onfinish = done; an.oncancel = done;
+};
+const bind = () => {
+  if (typeof document === 'undefined' || typeof MutationObserver === 'undefined' || window.__raznosTabMotion) return;
+  window.__raznosTabMotion = true;
+  let queued = false;
+  const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => queue()) : null;
+  const sync = () => {
+    queued = false;
+    document.querySelectorAll(SEL).forEach((row) => {
+      if (ro && !row.__indRo) { row.__indRo = true; ro.observe(row); }
+      const act = row.querySelector(':scope > .raznos-is-active');
+      const motion = row.animate && !reduce();
+      if (!act || act.parentElement !== row) {
+        // выбор сняли: плашка гаснет на месте
+        if (row.__ind && motion && row.getAttribute('data-ind') === '1') {
+          const f = row.__fade = row.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, pseudoElement: '::before', fill: 'forwards' });
+          f.onfinish = () => { if (row.__fade === f) { row.__fade = null; f.cancel(); if (!row.__ind) row.removeAttribute('data-ind'); } };
+        } else if (!row.__fade) row.removeAttribute('data-ind');
+        row.__empty = true;
+        row.__ind = null;
+        return;
+      }
+      if (row.__fade) { row.__fade.cancel(); row.__fade = null; }
+      // плашка встаёт под весь пункт или под его часть с data-ind-target, например капсулу иконки в нижнем меню
+      const tgt = act.querySelector('[data-ind-target]');
+      let l = act.offsetLeft, r = row.clientWidth - act.offsetLeft - act.offsetWidth, t = act.offsetTop, h = act.offsetHeight;
+      if (tgt) {
+        const rr = row.getBoundingClientRect(), tr = tgt.getBoundingClientRect();
+        l = Math.round(tr.left - rr.left - row.clientLeft + row.scrollLeft); r = row.clientWidth - l - Math.round(tr.width);
+        t = Math.round(tr.top - rr.top - row.clientTop + row.scrollTop); h = Math.round(tr.height);
+      }
+      const prev = row.__ind;
+      if (prev && prev.l === l && prev.r === r && prev.t === t && prev.h === h) return;
+      if (prev) row.setAttribute('data-ind-dir', l > prev.l ? 'r' : 'l');
+      if (prev && motion && row.getAttribute('data-ind') === '1') move(row, prev, { l, r, t, h });
+      row.style.setProperty('--ind-l', l + 'px'); row.style.setProperty('--ind-r', r + 'px');
+      row.style.setProperty('--ind-t', t + 'px'); row.style.setProperty('--ind-h', h + 'px');
+      row.__ind = { l, r, t, h };
+      if (prev) return;
+      if (row.__empty) {
+        // первый выбор в пустых табах: плашка проявляется под пунктом
+        row.__empty = false;
+        row.setAttribute('data-ind', '1');
+        if (motion) row.animate([{ opacity: 0, transform: 'scale(.9)', transformOrigin: '50% 50%' }, { opacity: 1, transform: 'none', transformOrigin: '50% 50%' }], { duration: 200, easing: 'cubic-bezier(.16, 1, .3, 1)', pseudoElement: '::before' });
+        return;
+      }
+      // первый замер при открытии без анимации
+      row.setAttribute('data-ind', '0'); requestAnimationFrame(() => row.setAttribute('data-ind', '1'));
+    });
+  };
+  const queue = () => { if (!queued) { queued = true; requestAnimationFrame(sync); } };
+  // чипы: заливка выбора растекается из точки нажатия до самого дальнего угла
+  document.addEventListener('pointerdown', (e) => {
+    const chip = e.target && e.target.closest ? e.target.closest('.raznos-chip') : null;
+    if (!chip) return;
+    const rc = chip.getBoundingClientRect(), x = e.clientX - rc.left, y = e.clientY - rc.top;
+    const far = Math.ceil(Math.hypot(Math.max(x, rc.width - x), Math.max(y, rc.height - y))) + 1;
+    chip.style.setProperty('--raznos-chip-x', x + 'px'); chip.style.setProperty('--raznos-chip-y', y + 'px'); chip.style.setProperty('--raznos-chip-max', far + 'px');
+  }, true);
+  // смену выбранного ловим до отрисовки кадра, иначе один кадр новый пункт стоит без плашки
+  new MutationObserver(() => sync()).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
+  window.addEventListener('resize', queue);
+  queue();
+};
+return bind;
+})();
+class Component extends DCLogic {
+  componentDidMount() { raznosTabMotion(); }
+  renderVals() { return {}; }
+}
+</script></body></html>
