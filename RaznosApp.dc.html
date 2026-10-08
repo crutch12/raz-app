@@ -239,11 +239,12 @@
             <div class="raznos-phone-body raznos-cmap-screen" data-screen-label="Courier map">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ cmap_back }}" aria-label="Назад">‹</button><h1 class="raznos-text-h1" style="margin:0">Карта курьеров</h1></div>
               <div class="raznos-cmap-stage">
+                <dc-import name="RaznosCourierMap" fill="{{ true }}" svcs="{{ cmap_svcs }}" couriers="{{ cmap_share }}" hideCouriers="{{ cmap_locked }}" me="{{ true }}" pins="{{ cmap_pins }}" focus="{{ cmap_focus_pt }}" activeId="{{ cmap_active_id }}"></dc-import>
+                <!-- фильтры после карты: без своего z-index рисуются поверх неё, а шторка сервисов не заперта в их полоске -->
                 <div class="raznos-cmap-filters" role="group" aria-label="Фильтры карты">
                   <dc-import name="RaznosFilterChips" filters="{{ cmap_filters }}" onChange="{{ cmap_set_filter }}"></dc-import>
                   <sc-for list="{{ cmap_toggles }}" as="t" hint-placeholder-count="1"><button type="button" class="{{ t.cls }}" aria-pressed="{{ t.on }}" onClick="{{ t.tap }}"><svg width="16" height="15" viewBox="-12 -27 24 28" aria-hidden="true"><path d="M-5-26H5a6 6 0 0 1 6 6v6a6 6 0 0 1-6 6H3L0 0-3-8H-5a6 6 0 0 1-6-6v-6a6 6 0 0 1 6-6z" fill="var(--raznos-red)"/><circle cx="-5" cy="-17" r="1.8" fill="#fff"/><circle cx="0" cy="-17" r="1.8" fill="#fff"/><circle cx="5" cy="-17" r="1.8" fill="#fff"/></svg>{{ t.label }}</button></sc-for>
                 </div>
-                <dc-import name="RaznosCourierMap" fill="{{ true }}" svcs="{{ cmap_svcs }}" couriers="{{ cmap_share }}" hideCouriers="{{ cmap_locked }}" me="{{ true }}" pins="{{ cmap_pins }}" focus="{{ cmap_focus_pt }}" activeId="{{ cmap_active_id }}"></dc-import>
                 <sc-if value="{{ cmap_panel }}" hint-placeholder-val="{{ true }}">
                   <div class="raznos-cmap-dock">
                     <button type="button" class="{{ cmap_locate_cls }}" onClick="{{ cmap_locate }}" aria-label="{{ cmap_locate_label }}" aria-pressed="{{ cmap_focus_me }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8z"/></svg></button>

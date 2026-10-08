@@ -257,7 +257,7 @@
     <dc-import name="RaznosShiftSheet" svc="{{ bs.svc }}" title="{{ bs.title }}" place="{{ bs.place }}" time="{{ bs.time }}" status="{{ bs.status }}" tone="{{ bs.tone }}" whenNote="{{ bs.whenNote }}" money="{{ bs.money }}" moneyNote="{{ bs.moneyNote }}" conflict="{{ bs.conflict }}" rule="{{ bs.rule }}" ruleTone="{{ bs.ruleTone }}" ruleSrc="{{ bs.ruleSrc }}" action="{{ bs.action }}" actionNote="{{ bs.actionNote }}" onAction="{{ bs.act }}" onClose="{{ bs_close }}"></dc-import>
   </sc-if>
   <sc-if value="{{ show_rebuild }}" hint-placeholder-val="{{ false }}">
-    <dc-import name="RaznosDayCompareSheet" title="Собрать день заново" sub="{{ rb_sub }}" a="{{ rb_a }}" b="{{ rb_b }}" same="{{ rb_same }}" modes="{{ rb_modes }}" modeWhy="{{ rb_why }}" hoursFrom="{{ rb_from }}" hoursTo="{{ rb_to }}" hoursCustom="{{ rb_custom }}" onHours="{{ rb_set_hours }}" svcs="{{ rb_svcs }}" checkLabel="{{ rb_check_label }}" checkOn="{{ rb_keep }}" onCheck="{{ rb_toggle_keep }}" primaryLabel="Применить" secondaryLabel="Отмена" onPrimary="{{ rb_apply }}" onClose="{{ rb_close }}"></dc-import>
+    <dc-import name="RaznosDayCompareSheet" title="Собрать день заново" sub="{{ rb_sub }}" a="{{ rb_a }}" b="{{ rb_b }}" same="{{ rb_same }}" modes="{{ rb_modes }}" modeWhy="{{ rb_why }}" hoursFrom="{{ rb_from }}" hoursTo="{{ rb_to }}" hoursMin="{{ rb_min }}" hoursMax="{{ rb_max }}" hoursMinNote="{{ rb_min_note }}" hoursCustom="{{ rb_custom }}" onHours="{{ rb_set_hours }}" svcs="{{ rb_svcs }}" checkLabel="{{ rb_check_label }}" checkOn="{{ rb_keep }}" onCheck="{{ rb_toggle_keep }}" primaryLabel="Применить" secondaryLabel="Отмена" onPrimary="{{ rb_apply }}" onClose="{{ rb_close }}"></dc-import>
   </sc-if>
   <sc-if value="{{ show_goal }}" hint-placeholder-val="{{ false }}">
     <dc-import name="RaznosGoalSheet" past="{{ gs_past }}" onResults="{{ gs_results }}" goal="{{ gs_goal }}" daysLeft="{{ gs_days }}" earned="{{ gs_earned_v }}" booked="{{ gs_booked_v }}" requested="{{ gs_req_v }}" planned="{{ gs_plan_v }}" onGoal="{{ goal_set }}" onFix="{{ goal_fix }}" onClose="{{ close_goal }}"></dc-import>
@@ -1344,6 +1344,7 @@ class Component extends DCLogic {
       rb_modes: [['money', 'Больше денег'], ['rate', 'Выше ₽/ч']].map(([k, label]) => ({ label, on: rbMode === k, tap: () => set({ rbMode: k }) })),
       rb_why: rbMode === 'rate' ? 'Оставляем только часы, где платят выше вашего среднего ' + rssFmt(RSS_MY_RATE) + ' ₽/ч: работать меньше, час дороже' : 'Ставим самые доходные окна во все ваши часы, сумма за день максимальная',
       rb_from: rssTime(spanFrom), rb_to: rssTime(spanTo), rb_custom: !!dayHours,
+      rb_min: rssTime(dayFrom), rb_max: rssTime(dayTo), rb_min_note: isToday ? 'Сегодня не раньше ' + rssTime(dayFrom) : '',
       rb_set_hours: (which, v) => {
         const all = Object.assign({}, st.dayHours || {});
         if (which === 'reset') { delete all[selIso]; set({ dayHours: all }); return; }

@@ -43,8 +43,10 @@ const move = (row, a, b) => {
 // настоящие пункты на это время прозрачные, поэтому их цвет меняется сразу и в конце ничего не мигает
 const ink = (row, clip, total) => {
   if (row.__inkDone) row.__inkDone();
-  if (row.scrollWidth > row.clientWidth + 1) return;
-  const cs = getComputedStyle(row), bg = getComputedStyle(row, '::before').backgroundColor;
+  const cs = getComputedStyle(row);
+  // в прокручиваемом ряду копии не совпадут с пунктами; выступающая точка уведомлений ряд прокручиваемым не делает
+  if (/auto|scroll/.test(cs.overflowX) && row.scrollWidth > row.clientWidth + 1) return;
+  const bg = getComputedStyle(row, '::before').backgroundColor;
   const layerOf = (active) => {
     const layer = document.createElement('div');
     layer.setAttribute('aria-hidden', 'true'); layer.setAttribute('data-ind-layer', ''); layer.inert = true;

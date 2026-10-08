@@ -646,10 +646,13 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-cmap-screen { padding-bottom: 12px; }
 .raznos-cmap-stage { position: relative; flex: 1; min-height: 520px; border-radius: 18px; overflow: hidden; }
 /* фильтры карты лежат поверх карты сверху, с тенью, чтобы читались на любом фоне */
-.raznos-cmap-filters { position: absolute; top: 10px; left: 10px; right: 10px; z-index: 3; display: flex; align-items: center; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
+.raznos-cmap-filters { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; align-items: center; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
 .raznos-cmap-filters .rfc-chip, .raznos-cmap-filters > button { box-shadow: 0 2px 8px rgba(20, 25, 40, .16); }
 .raznos-cmap-filters::-webkit-scrollbar { display: none; }
-.raznos-cmap-toggle { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); font: 600 13px var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; cursor: pointer; }
+/* шторка выбора сервисов открывается на весь телефон, а не внутри полоски фильтров */
+.raznos-phone-frame { contain: layout; }
+.raznos-cmap-filters .raznos-dialog-layer { position: fixed; }
+.raznos-cmap-toggle { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); font: 600 14px var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; cursor: pointer; }
 .raznos-cmap-toggle.raznos-is-active { border-color: var(--raznos-dark); background: var(--raznos-dark); color: var(--raznos-on-dark); }
 .raznos-cmap-dock { position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
 .raznos-cmap-locate { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%; background: var(--raznos-surface); box-shadow: 0 4px 14px rgba(20, 25, 40, 0.18); color: var(--raznos-ink); cursor: pointer; }

@@ -75,6 +75,6 @@
 
 /* заготовки сообщения над полем */
 .raznos-live-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.raznos-live-chip { min-height: 40px; padding: 0 14px; border: 1px solid var(--raznos-line); border-radius: 999px; background: var(--raznos-surface); font: 600 13.5px var(--raznos-font); color: var(--raznos-ink-2); cursor: pointer; }
+.raznos-live-chip { min-height: 44px; padding: 0 14px; border: 1px solid var(--raznos-line-strong); border-radius: 999px; background: var(--raznos-surface); font: 600 14px var(--raznos-font); color: var(--raznos-ink-2); cursor: pointer; }
 .raznos-live-chip:active { background: var(--raznos-surface-2); }
 .raznos-live-chip:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }

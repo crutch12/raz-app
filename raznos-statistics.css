@@ -374,7 +374,7 @@
 .raznos-stats-top-card:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 3px; }
 
 .raznos-stats-filter-strip { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: -4px 2px 0; }
-.raznos-stats-filter-chip { min-width: 0; min-height: 36px; display: inline-flex; align-items: center; gap: 7px; padding: 0 12px; border: 0; border-radius: 999px; background: color-mix(in oklab, var(--raznos-green) 14%, var(--stats-card)); color: var(--raznos-green-deep); font: 650 13px var(--raznos-font); cursor: pointer; }
+.raznos-stats-filter-chip { min-width: 0; min-height: 44px; display: inline-flex; align-items: center; gap: 7px; padding: 0 14px; border: 0; border-radius: 999px; background: color-mix(in oklab, var(--raznos-green) 14%, var(--stats-card)); color: var(--raznos-green-deep); font: 650 14px var(--raznos-font); cursor: pointer; }
 .raznos-stats-filter-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .raznos-stats-filter-reset-link { flex: none; min-height: 44px; padding: 0 4px; border: 0; background: transparent; color: var(--stats-muted); font: 600 13px var(--raznos-font); cursor: pointer; }
 

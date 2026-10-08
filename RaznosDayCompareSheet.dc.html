@@ -28,7 +28,7 @@
     .rdc-hours-note { margin-top: -4px; font-size: 12px; justify-content: space-between; }
     .rdc-link { padding: 0; border: 0; background: none; font: 650 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
     .rdc-rule-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-    .rdc-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border: 1px solid var(--raznos-line-strong); border-radius: 999px; background: var(--raznos-surface); font: 600 13px var(--raznos-font); color: var(--raznos-ink-3); cursor: pointer; }
+    .rdc-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border: 1px solid var(--raznos-line-strong); border-radius: 999px; background: var(--raznos-surface); font: 600 14px var(--raznos-font); color: var(--raznos-ink-3); cursor: pointer; }
     .rdc-chip > i { width: 8px; height: 8px; border-radius: 50%; opacity: 0.35; }
     .rdc-chip.raznos-is-active { border-color: var(--raznos-dark); color: var(--raznos-ink); }
     .rdc-chip.raznos-is-active > i { opacity: 1; }
@@ -65,7 +65,7 @@
       <section class="rdc-rules" aria-label="Как собираем">
         <div class="raznos-segmented"><sc-for list="{{ modes }}" as="m" hint-placeholder-count="2"><button type="button" class="{{ m.cls }}" aria-pressed="{{ m.on }}" onClick="{{ m.tap }}">{{ m.label }}</button></sc-for></div>
         <p class="rdc-rule-why">{{ mode_why }}</p>
-        <div class="rdc-rule-row rdc-hours-row"><span>Часы</span><label class="rdc-time"><input type="time" step="1800" value="{{ hours_from }}" onChange="{{ set_from }}" aria-label="С какого времени" /></label><i aria-hidden="true">–</i><label class="rdc-time"><input type="time" step="1800" value="{{ hours_to }}" onChange="{{ set_to }}" aria-label="До какого времени" /></label></div>
+        <div class="rdc-rule-row rdc-hours-row"><span>Часы</span><label class="rdc-time"><input type="time" step="1800" min="{{ hours_min }}" max="{{ hours_max }}" value="{{ hours_from }}" onChange="{{ set_from }}" aria-label="С какого времени" /></label><i aria-hidden="true">–</i><label class="rdc-time"><input type="time" step="1800" min="{{ hours_min }}" max="{{ hours_max }}" value="{{ hours_to }}" onChange="{{ set_to }}" aria-label="До какого времени" /></label></div>
         <div class="rdc-rule-row rdc-hours-note"><span>{{ hours_note }}</span><sc-if value="{{ hours_custom }}" hint-placeholder-val="{{ false }}"><button type="button" class="rdc-link" onClick="{{ reset_hours }}">как в графике</button></sc-if></div>
         <div class="rdc-rule-chips" role="group" aria-label="Сервисы"><sc-for list="{{ svcs }}" as="c" hint-placeholder-count="4"><button type="button" class="{{ c.cls }}" aria-pressed="{{ c.on }}" onClick="{{ c.tap }}"><i style="{{ c.dot }}" aria-hidden="true"></i>{{ c.label }}</button></sc-for></div>
       </section>
@@ -119,7 +119,9 @@ class Component extends DCLogic {
       modes: (p.modes || []).map((m) => ({ label: m.label, on: !!m.on, cls: 'raznos-segment' + (m.on ? ' raznos-is-active' : ''), tap: fn(m.tap) })),
       mode_why: p.modeWhy || '',
       hours_from: p.hoursFrom || '09:00', hours_to: p.hoursTo || '22:00', hours_custom: !!p.hoursCustom,
-      hours_note: p.hoursCustom ? 'Только на этот день, график не меняем' : 'Как в вашем графике',
+      // раньше hoursMin день не собрать: сегодня это ближайший час, прошедшее время уже не вернуть
+      hours_min: p.hoursMin || '00:00', hours_max: p.hoursMax || '23:59',
+      hours_note: p.hoursCustom ? 'Только на этот день, график не меняем' : (p.hoursMinNote || 'Как в вашем графике'),
       set_from: (e) => { if (typeof p.onHours === 'function') p.onHours('from', e && e.target ? e.target.value : e); },
       set_to: (e) => { if (typeof p.onHours === 'function') p.onHours('to', e && e.target ? e.target.value : e); },
       reset_hours: () => { if (typeof p.onHours === 'function') p.onHours('reset'); },
