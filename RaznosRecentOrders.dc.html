@@ -37,7 +37,7 @@
   </style>
 </helmet>
 <div class="rro">
-  <div class="rro-head"><span class="rro-title">Последние заказы</span><button type="button" class="rro-all" onClick="{{ on_all }}">Показать все</button></div>
+  <div class="rro-head"><span class="rro-title">{{ title }}</span><button type="button" class="rro-all" onClick="{{ on_all }}">Показать все</button></div>
   <sc-for list="{{ rows }}" as="o" hint-placeholder-count="3">
     <div class="rro-row">
       <button type="button" class="{{ o.openClass }}" onClick="{{ o.openOrder }}">
@@ -197,6 +197,8 @@ class Component extends DCLogic {
     }));
 
     return {
+      // до смены и в выходной показываем прошлый рабочий день, дата в заголовке
+      title: p.dayLabel ? 'Последние заказы · ' + p.dayLabel : 'Последние заказы',
       on_all: onAll,
       rows,
       menu_items: RRO_ORDER_MENU,

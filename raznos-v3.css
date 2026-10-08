@@ -122,7 +122,7 @@ a:hover { color: var(--raznos-ink); }
 .raznos-ptr.raznos-ptr-done .raznos-ptr-mark::after { content: "✓"; font-size: 17px; }
 @keyframes raznos-ptr-spin { to { transform: rotate(360deg); } }
 /* на один кадр снимаем анимации, чтобы после обновления они сыграли заново */
-.raznos-ptr-replay, .raznos-ptr-replay * { animation: none !important; }
+.raznos-ptr-replay, .raznos-ptr-replay *, .raznos-ptr-replay *::before, .raznos-ptr-replay *::after { animation: none !important; }
 /* отступ от краёв экрана до блоков и между основными блоками, плотнее как у Gridwise */
 .raznos-phone-body { --raznos-screen-x: 12px; --raznos-screen-gap: 12px; flex: 1; padding: 12px var(--raznos-screen-x) 20px; display: flex; flex-direction: column; gap: var(--raznos-screen-gap); background: var(--raznos-bg); }
 

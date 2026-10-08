@@ -246,7 +246,7 @@
                 </div>
               </sc-if>
               <sc-if value="{{ home_nudge_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosPlanNudge" icon="{{ home_nudge_icon }}" title="{{ home_nudge_title }}" onTitle="{{ home_nudge_title_tap }}" text="{{ home_nudge_text }}" meta="{{ home_nudge_meta }}" action="{{ home_nudge_action }}" dismiss="{{ home_nudge_dismiss }}" onAction="{{ home_nudge_accept }}" onDismiss="{{ home_nudge_close }}"></dc-import></sc-if>
-              <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onOpenTrip="{{ open_recent_trip }}"onAddExpense="{{ go_expense_form_from_home }}" onSaveTip="{{ save_recent_tip }}" onNote="{{ open_recent_note }}"></dc-import>
+              <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" dayLabel="{{ recent_day_label }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onOpenTrip="{{ open_recent_trip }}"onAddExpense="{{ go_expense_form_from_home }}" onSaveTip="{{ save_recent_tip }}" onNote="{{ open_recent_note }}"></dc-import>
 
               <h2 class="raznos-home-group">Вокруг</h2>
               <dc-import name="RaznosLiveToday" items="{{ live_today_items }}" cityTitle="{{ city_title }}" onAll="{{ live_go_feed_home }}" onWrite="{{ live_go_compose_home }}"></dc-import>
@@ -4711,6 +4711,7 @@
             : homeShifts.filter((sh) => sh.iso > TODAY_ISO).sort((a, b) => (a.iso < b.iso ? -1 : a.iso > b.iso ? 1 : a.from - b.from))[0] || null;
           const homeHm = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
           const homeDayName = (iso) => (iso === isoAt(1) ? 'завтра' : ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][new Date(iso + 'T00:00:00').getDay()] + ' ' + Number(iso.slice(8)));
+          const recentDay = homePre ? (HISTORY.map((o) => o.dateISO).filter((iso) => iso < TODAY_ISO).sort().pop() || TODAY_ISO) : TODAY_ISO;
           const homePreLine = !homePreShift ? (homePre === 'off' ? 'Смен пока нет, подберите в Плане' : 'Смен на сегодня нет')
             : homePre === 'before' ? 'Первая смена в ' + homeHm(homePreShift.from) + ' · ' + homePreShift.title
             : 'Следующая смена: ' + homeDayName(homePreShift.iso) + ', ' + homeHm(homePreShift.from) + ' · ' + homePreShift.title + (homePreShift.status === 'requested' ? ', заявка' : '');
@@ -6127,7 +6128,9 @@
             service_back: navBack(() => set(st.svFrom === 'job-guide' ? { s: 'job-guide', svFrom: '' } : { s: st.svFrom === 'market-services' ? 'market-services' : 'market' })),
             conn_back: navBack(() => { if (st.connFrom === 'job-guide') return set({ s: 'job-guide', connFrom: '' }); if (role === 'courier') set({ s: 'integrations' }); }),
             go_history: () => { if (role === 'courier') set({ s: 'history', histBack: '', histSvc: 'all', histDistrict: 'all' }); },
-            recent_orders: HISTORY.filter((o) => o.dateISO === TODAY_ISO && (demoOn || activeDataSvcs.indexOf(o.svc) !== -1)).slice().sort((a, b) => (a.date < b.date ? 1 : -1)).filter((o, i, arr) => !o.tripId || arr.findIndex((x) => x.tripId === o.tripId) === i).slice(0, 3).map((o) => o.tripId ? (() => {
+            // до первой смены и в выходной сегодняшних заказов нет: берём последний рабочий день
+            recent_day_label: recentDay === TODAY_ISO ? '' : Number(recentDay.slice(8)) + ' ' + RU_MONTHS_GEN[Number(recentDay.slice(5, 7)) - 1],
+            recent_orders: HISTORY.filter((o) => o.dateISO === recentDay && (demoOn || activeDataSvcs.indexOf(o.svc) !== -1)).slice().sort((a, b) => (a.date < b.date ? 1 : -1)).filter((o, i, arr) => !o.tripId || arr.findIndex((x) => x.tripId === o.tripId) === i).slice(0, 3).map((o) => o.tripId ? (() => {
               const ti = tripInfo(o.tripId);
               return { id: o.tripId, isTrip: true, svc: ti.t.svc, route: ti.title, count: ti.count, meta: ti.time + (ti.status === 'Доставлен' ? '' : ' · ' + ti.status.toLowerCase()) + ' · ' + ti.orders.map((x) => x.dropAddr.split(',')[0].replace(/ (ул\.|пер\.|пр-т)$/, '')).join(', '), pay: formatMoney(ti.total), tip: 0, tipDigital: 0 };
             })() : ({
