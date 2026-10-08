@@ -7,12 +7,19 @@
 .raznos-onboarding-top > :first-child { margin-right: auto; }
 .raznos-ob-slide { display: flex; flex-direction: column; gap: 14px; }
 
-/* кадр живого экрана: фон приложения, заголовок вкладки, нижнее меню */
-.raznos-ob-screen { height: 300px; display: flex; flex-direction: column; overflow: hidden; border-radius: 24px; border: 1px solid var(--raznos-line); background: var(--raznos-bg); box-shadow: 0 10px 28px -12px rgba(20, 30, 45, .22); }
-.raznos-ob-screen-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; padding: 12px 12px 0; overflow: hidden; }
-.raznos-ob-screen-title { font: 750 18px/1.1 var(--raznos-font); letter-spacing: -0.01em; color: var(--raznos-ink); }
-.raznos-ob-nav { flex: none; zoom: .86; pointer-events: none; }
-.raznos-ob-card { background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 12px; }
+/* коллаж: цветная подложка на всю ширину, карточки внахлёст с наклоном и тенью */
+.raznos-ob-screen { --ob-bg: var(--raznos-green-tint); --ob-blob: var(--raznos-green); position: relative; height: 300px; margin-inline: calc(-1 * var(--raznos-screen-x)); display: flex; flex-direction: column; overflow: hidden; background: radial-gradient(circle at 88% 12%, color-mix(in oklab, var(--ob-blob) 38%, transparent) 0 70px, transparent 71px), radial-gradient(circle at 6% 96%, color-mix(in oklab, var(--ob-blob) 22%, transparent) 0 90px, transparent 91px), var(--ob-bg); }
+.raznos-ob-stage-2 { --ob-bg: var(--raznos-amber-tint); --ob-blob: var(--raznos-svc-yandex-eda); }
+.raznos-ob-stage-3 { --ob-bg: oklch(0.95 0.03 235); --ob-blob: oklch(0.72 0.12 235); }
+.raznos-ob-stage-4 { --ob-bg: oklch(0.95 0.035 300); --ob-blob: oklch(0.7 0.13 300); }
+.raznos-ob-stage-5 { --ob-bg: var(--raznos-svc-vkusvill-tint); --ob-blob: var(--raznos-svc-samokat); }
+.raznos-ob-screen-body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; padding: 18px 30px; }
+.raznos-ob-screen-body > * { position: relative; flex: none; box-shadow: 0 16px 32px -16px rgba(20, 30, 45, .45), 0 2px 6px rgba(20, 30, 45, .08); }
+.raznos-ob-screen-body > :nth-child(odd) { transform: rotate(-1deg) translateX(-4px); }
+.raznos-ob-screen-body > :nth-child(even) { transform: rotate(.8deg) translateX(6px); z-index: 1; }
+.raznos-ob-screen-body > * + * { margin-top: -6px; }
+.raznos-ob-card { background: var(--raznos-surface); border-radius: 16px; padding: 12px; }
+.raznos-ob-split { display: flex; flex-direction: column; gap: 8px; }
 
 /* Сегодня */
 .raznos-ob-hero { display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; border-radius: 18px; background: var(--raznos-dark); color: var(--raznos-on-dark); }
@@ -25,7 +32,7 @@
 .raznos-ob-share > span { border-radius: 999px; }
 .raznos-ob-share-a { flex: 235; background: var(--raznos-svc-vkusvill); }
 .raznos-ob-share-b { flex: 185; background: var(--raznos-svc-samokat); }
-.raznos-ob-share-legend { display: flex; gap: 14px; font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-ob-share-legend { display: flex; justify-content: space-between; gap: 8px; font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); }
 .raznos-ob-share-legend > span { display: inline-flex; align-items: center; gap: 6px; }
 .raznos-ob-share-legend b { color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
 .raznos-ob-share-legend .raznos-svc-icon-sm { width: 20px; height: 20px; border-radius: 6px; }
@@ -35,7 +42,7 @@
 .raznos-ob-goal-row { flex: none; font: 700 13px var(--raznos-font); white-space: nowrap; }
 .raznos-ob-goal-track { flex: 1; height: 6px; border-radius: 999px; background: var(--raznos-line); overflow: hidden; }
 .raznos-ob-goal-track > span { display: block; height: 100%; border-radius: inherit; background: var(--raznos-green-deep); }
-.raznos-ob-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.raznos-ob-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 8px; }
 .raznos-ob-day { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 3px 0 4px; border-radius: 10px; font: 600 13px var(--raznos-font); font-variant-numeric: tabular-nums; color: var(--raznos-ink); }
 .raznos-ob-day small { font: 500 10.5px var(--raznos-font); color: var(--raznos-ink-3); }
 .raznos-ob-day i { width: 5px; height: 5px; border-radius: 50%; margin-top: 1px; }
@@ -44,7 +51,7 @@
 .raznos-ob-day-today { background: var(--raznos-dark); color: var(--raznos-on-dark); }
 .raznos-ob-day-today small { color: inherit; opacity: .75; }
 .raznos-ob-day-today i { background: var(--raznos-green); }
-.raznos-ob-win { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 14px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); }
+.raznos-ob-win { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 16px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); }
 .raznos-ob-win .raznos-svc-icon-sm { width: 24px; height: 24px; border-radius: 8px; flex: none; }
 .raznos-ob-win-now { background: var(--raznos-green-tint); border-color: var(--raznos-green); }
 .raznos-ob-win-next { background: var(--raznos-svc-yandex-eda-tint); border-color: color-mix(in oklab, var(--raznos-svc-yandex-eda) 45%, transparent); }
@@ -76,7 +83,7 @@
 .raznos-ob-compare-me { position: absolute; right: 4%; top: 50%; width: 12px; height: 12px; border-radius: 50%; background: var(--raznos-green-deep); transform: translate(50%, -50%); box-shadow: 0 0 0 2px var(--raznos-surface); }
 
 /* Рынок: соты районов */
-.raznos-ob-map { position: relative; flex: 1; min-height: 0; border-radius: 16px; border: 1px solid var(--raznos-line); background: oklch(0.96 0.012 120); overflow: hidden; }
+.raznos-ob-map { position: relative; height: 230px; border-radius: 20px; border: 4px solid var(--raznos-surface); background: oklch(0.96 0.012 120); overflow: hidden; }
 .raznos-ob-map-bg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .raznos-ob-hex { position: absolute; width: 14px; height: 16px; clip-path: var(--raznos-hex); transform: translate(-50%, -50%); }
 .raznos-ob-tone-a { background: var(--raznos-green-deep); }
@@ -90,13 +97,13 @@
 .raznos-ob-map-legend i { width: 10px; height: 11px; clip-path: var(--raznos-hex); }
 
 /* Профиль */
-.raznos-ob-person { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 18px; background: var(--raznos-dark); color: var(--raznos-on-dark); }
+.raznos-ob-person { margin-bottom: 4px; display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 18px; background: var(--raznos-dark); color: var(--raznos-on-dark); }
 .raznos-ob-person-photo { flex: none; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; display: flex; }
 .raznos-ob-person-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .raznos-ob-person-main b { font: 700 14px var(--raznos-font); white-space: nowrap; }
 .raznos-ob-person-main small, .raznos-ob-person-sum small { font: 500 11.5px var(--raznos-font); opacity: .75; }
 .raznos-ob-person-sum { display: flex; flex-direction: column; align-items: flex-end; font: 700 15px var(--raznos-mono); white-space: nowrap; }
-.raznos-ob-top { zoom: .86; border: 1px solid var(--raznos-line); border-radius: 18px; overflow: hidden; }
+.raznos-ob-top { zoom: .9; border-radius: 18px; overflow: hidden; background: var(--raznos-surface); }
 
 .raznos-onboarding-copy { display: flex; flex-direction: column; gap: 8px; padding-inline: 6px; }
 .raznos-onboarding-copy h1 { margin: 0; font: 750 28px/1.1 var(--raznos-font); letter-spacing: -0.6px; text-wrap: balance; }
@@ -120,3 +127,10 @@
 @media (prefers-reduced-motion: reduce) {
   .raznos-ob-go-next, .raznos-ob-go-back { animation: raznos-fade-in .15s ease both; }
 }
+
+/* Назад и Дальше в одном ряду на всю ширину */
+.raznos-onboarding-controls { display: flex; gap: 8px; width: 100%; }
+.raznos-onboarding-controls > .raznos-btn { flex: 1 1 0; min-width: 0; }
+.raznos-onboarding-controls > .raznos-onboarding-back { flex: 0 0 38%; }
+.raznos-ob-stage-2 .raznos-ob-screen-body > * + * { margin-top: 2px; }
+.raznos-ob-share-legend b { white-space: nowrap; }

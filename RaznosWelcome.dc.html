@@ -6,17 +6,15 @@
       <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-welcome.css" /></helmet>
       <div class="raznos-onboarding">
         <div class="raznos-onboarding-top">
-          <sc-if value="{{ isFirst }}" hint-placeholder-val="{{ true }}"><span class="raznos-onboarding-brand"><img src="./app-icon.svg" alt="" />Разнос</span></sc-if>
-          <sc-if value="{{ canBack }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-icon-btn" onClick="{{ back }}" aria-label="Назад">‹</button></sc-if>
+          <span class="raznos-onboarding-brand"><img src="./app-icon.svg" alt="" />Разнос</span>
           <dc-import name="RaznosLanguagePicker" value="{{ language }}" onChange="{{ onLanguageChange }}" compact="{{ true }}"></dc-import>
           <sc-if value="{{ showSkip }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ onStart }}">Пропустить</button></sc-if>
         </div>
 
         <sc-if value="{{ s1 }}" hint-placeholder-val="{{ true }}">
           <div class="{{ slideCls }}">
-            <div class="raznos-ob-screen" aria-hidden="true">
+            <div class="raznos-ob-screen raznos-ob-stage-1" aria-hidden="true">
               <div class="raznos-ob-screen-body">
-                <span class="raznos-ob-screen-title">Сегодня</span>
                 <div class="raznos-ob-hero">
                   <span class="raznos-ob-hero-label">Заработано сегодня</span>
                   <span class="raznos-ob-hero-sum">4 200 <small>₽</small></span>
@@ -26,13 +24,14 @@
                     <span class="raznos-hero-pace-note">Цель 4 300 ₽ · к концу дня ≈ 8 270 ₽</span>
                   </div>
                 </div>
+                <div class="raznos-ob-card raznos-ob-split">
                 <div class="raznos-ob-share"><span class="raznos-ob-share-a"></span><span class="raznos-ob-share-b"></span></div>
                 <div class="raznos-ob-share-legend">
                   <span><dc-import name="RaznosIcon" svc="vkusvill" size="sm"></dc-import>ВкусВилл <b>2 350 ₽</b></span>
                   <span><dc-import name="RaznosIcon" svc="samokat" size="sm"></dc-import>Самокат <b>1 850 ₽</b></span>
                 </div>
+                </div>
               </div>
-              <div class="raznos-ob-nav"><dc-import name="RaznosNav" role="courier" active="home"></dc-import></div>
             </div>
             <div class="raznos-onboarding-copy"><h1>Весь заработок в одном месте</h1><p>Все сервисы за день и сколько осталось до цели</p></div>
           </div>
@@ -40,14 +39,13 @@
 
         <sc-if value="{{ s2 }}">
           <div class="{{ slideCls }}">
-            <div class="raznos-ob-screen" aria-hidden="true">
+            <div class="raznos-ob-screen raznos-ob-stage-2" aria-hidden="true">
               <div class="raznos-ob-screen-body">
-                <span class="raznos-ob-screen-title">План</span>
                 <div class="raznos-ob-card raznos-ob-goal">
                   <span class="raznos-ob-goal-row">Цель недели 30 000 ₽</span>
                   <div class="raznos-ob-goal-track"><span style="width:56%"></span></div>
                 </div>
-                <div class="raznos-ob-days">
+                <div class="raznos-ob-card raznos-ob-days">
                   <sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
                     <span class="{{ d.cls }}"><small>{{ d.wd }}</small>{{ d.num }}<i></i></span>
                   </sc-for>
@@ -65,7 +63,6 @@
                   <span class="raznos-ob-win-pay">≈ 790 ₽/ч</span>
                 </div>
               </div>
-              <div class="raznos-ob-nav"><dc-import name="RaznosNav" role="courier" active="work"></dc-import></div>
             </div>
             <div class="raznos-onboarding-copy"><h1>План недели под вашу цель</h1><p>Окна по сервисам и сколько они принесут</p></div>
           </div>
@@ -73,9 +70,8 @@
 
         <sc-if value="{{ s3 }}">
           <div class="{{ slideCls }}">
-            <div class="raznos-ob-screen" aria-hidden="true">
+            <div class="raznos-ob-screen raznos-ob-stage-3" aria-hidden="true">
               <div class="raznos-ob-screen-body">
-                <span class="raznos-ob-screen-title">Результаты</span>
                 <div class="raznos-ob-card raznos-ob-result">
                   <span class="raznos-ob-result-label">Заработали за неделю</span>
                   <span class="raznos-ob-result-sum">14 202 ₽</span>
@@ -90,7 +86,6 @@
                   <div class="raznos-ob-compare-track"><span class="raznos-ob-compare-band"></span><span class="raznos-ob-compare-median"></span><span class="raznos-ob-compare-me"></span></div>
                 </div>
               </div>
-              <div class="raznos-ob-nav"><dc-import name="RaznosNav" role="courier" active="stats"></dc-import></div>
             </div>
             <div class="raznos-onboarding-copy"><h1>Видно, что сработало</h1><p>Итоги недели и сравнение с курьерами города</p></div>
           </div>
@@ -98,9 +93,8 @@
 
         <sc-if value="{{ s4 }}">
           <div class="{{ slideCls }}">
-            <div class="raznos-ob-screen" aria-hidden="true">
+            <div class="raznos-ob-screen raznos-ob-stage-4" aria-hidden="true">
               <div class="raznos-ob-screen-body">
-                <span class="raznos-ob-screen-title">Где выгоднее</span>
                 <div class="raznos-ob-map">
                   <svg class="raznos-ob-map-bg" viewBox="0 0 300 200" preserveAspectRatio="none"><path d="M-10 70C60 60 90 130 150 120S250 40 310 60" stroke="oklch(0.8 0.06 235)" stroke-width="12" fill="none"/><path d="M40 -10L120 210M-10 160L310 120M200 -10L250 210" stroke="var(--raznos-surface)" stroke-width="6" fill="none"/></svg>
                   <sc-for list="{{ hexes }}" as="h" hint-placeholder-count="40">
@@ -110,9 +104,7 @@
                   <span class="raznos-ob-map-pin" style="left:66%;top:34%">740</span>
                   <span class="raznos-ob-map-pin" style="left:84%;top:78%">640</span>
                 </div>
-                <div class="raznos-ob-map-legend"><span><i class="raznos-ob-tone-a"></i>Лучшие</span><span><i class="raznos-ob-tone-b"></i>Выше среднего</span><span><i class="raznos-ob-tone-c"></i>Средне</span></div>
               </div>
-              <div class="raznos-ob-nav"><dc-import name="RaznosNav" role="courier" active="market"></dc-import></div>
             </div>
             <div class="raznos-onboarding-copy"><h1>Где платят больше</h1><p>Районы и сервисы города по доходу в час</p></div>
           </div>
@@ -120,9 +112,8 @@
 
         <sc-if value="{{ s5 }}">
           <div class="{{ slideCls }}">
-            <div class="raznos-ob-screen" aria-hidden="true">
+            <div class="raznos-ob-screen raznos-ob-stage-5" aria-hidden="true">
               <div class="raznos-ob-screen-body">
-                <span class="raznos-ob-screen-title">Профиль</span>
                 <div class="raznos-ob-person">
                   <span class="raznos-ob-person-photo"><dc-import name="RaznosAvatar" kind="portrait1" size="sm" alt=""></dc-import></span>
                   <span class="raznos-ob-person-main"><b>Алексей Соколов</b><small>Москва · велосипед</small></span>
@@ -130,7 +121,6 @@
                 </div>
                 <div class="raznos-ob-top"><dc-import name="RaznosStatsTopLink" place="{{ 28 }}" placeDelta="{{ 3 }}" scope="Москва · заработок за неделю"></dc-import></div>
               </div>
-              <div class="raznos-ob-nav"><dc-import name="RaznosNav" role="courier" active="profile"></dc-import></div>
             </div>
             <div class="raznos-onboarding-copy"><h1>Ваше место среди курьеров</h1><p>Топ города по заработку, имена скрыты</p></div>
           </div>
@@ -140,7 +130,8 @@
           <div class="raznos-onboarding-dots" role="img" aria-label="{{ stepLabel }}">
             <sc-for list="{{ dots }}" as="dt" hint-placeholder-count="5"><span class="{{ dt.cls }}"></span></sc-for>
           </div>
-          <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ next }}">{{ nextLabel }}</button>
+          <!-- Назад рядом с Дальше, вместе они занимают ту же ширину, что основная кнопка на входе -->
+          <div class="raznos-onboarding-controls"><sc-if value="{{ canBack }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-onboarding-back" onClick="{{ back }}">Назад</button></sc-if><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ next }}">{{ nextLabel }}</button></div>
           <span class="raznos-entry-foot raznos-onboarding-demo">Примеры данных, не обещание заработка</span>
         </div>
       </div>

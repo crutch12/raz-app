@@ -338,6 +338,9 @@
 .raznos-stats-field :focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 3px; }
 
 @media (prefers-reduced-motion: no-preference) {
+  /* смена периода: карточка сводки проявляется из лёгкого размытия, число при этом докручивается */
+  .raznos-stats-overview-card { animation: raznos-stats-card-in .45s cubic-bezier(.16, 1, .3, 1) both; }
+  @keyframes raznos-stats-card-in { from { opacity: .5; transform: translateY(8px); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
   .raznos-stats-filter-sheet { animation: raznos-stats-filter-in .24s cubic-bezier(.16, 1, .3, 1) both; }
   @keyframes raznos-stats-filter-in { from { transform: translateY(18px); } to { transform: none; } }
 }
@@ -484,7 +487,7 @@
 .raznos-stats-top-num { font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: no-preference) {
   .raznos-stats-top-shine { overflow: hidden; }
-  .raznos-stats-top-shine::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(105deg, transparent 32%, color-mix(in oklab, oklch(0.93 0.11 92) 60%, transparent) 50%, transparent 68%); transform: translateX(-100%); animation: rstl-sweep 1.1s cubic-bezier(.45, 0, .25, 1) .3s 1 both; }
+  .raznos-stats-top-shine::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(105deg, transparent 32%, color-mix(in oklab, oklch(0.93 0.11 92) 60%, transparent) 50%, transparent 68%); transform: translateX(-100%); animation: rstl-sweep 2s cubic-bezier(.45, 0, .25, 1) .3s 1 both; }
   .raznos-stats-top-shine .raznos-stats-top-delta { animation: rstl-delta-in .25s cubic-bezier(.16, 1, .3, 1) .6s both; }
   @keyframes rstl-sweep { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
   @keyframes rstl-delta-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }

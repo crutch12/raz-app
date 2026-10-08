@@ -107,6 +107,13 @@
               <p class="raznos-text-small">Заполните фамилию и имя, чтобы продолжить. Это имя профиля Разноса, его можно изменить позже в профиле</p>
               <div class="raznos-field"><span class="raznos-field-label">Фамилия</span><input class="raznos-input" placeholder="Фамилия" autocomplete="family-name" value="{{ name_last_value }}" onInput="{{ name_last_change }}" /></div>
               <div class="raznos-field"><span class="raznos-field-label">Имя</span><input class="raznos-input" placeholder="Имя" autocomplete="given-name" value="{{ name_first_value }}" onInput="{{ name_first_change }}" /></div>
+              <div class="raznos-field"><span class="raznos-field-label">Пол, необязательно</span>
+                <div class="raznos-segmented">
+                  <button type="button" class="{{ gender_m_class }}" onClick="{{ set_gender_m }}">Мужской</button>
+                  <button type="button" class="{{ gender_f_class }}" onClick="{{ set_gender_f }}">Женский</button>
+                </div>
+              </div>
+              <div class="raznos-field"><span class="raznos-field-label">Дата рождения, необязательно</span><input class="raznos-input" type="date" autocomplete="bday" max="{{ birth_max }}" value="{{ birth_value }}" onChange="{{ birth_change }}" /></div>
               <div class="raznos-sticky-actions"><button type="button" class="{{ name_continue_class }}" onClick="{{ confirm_name }}" disabled="{{ name_continue_disabled }}">Продолжить</button></div>
             </div>
           </sc-if>
@@ -725,7 +732,7 @@
             </div>
           </sc-if>
 
-          <sc-if value="{{ is_market_map }}"><dc-import name="RaznosPublicAreas" city="{{ mk_city_key }}" cityTitle="{{ mk_city_label }}" onBack="{{ go_market }}"></dc-import></sc-if>
+          <sc-if value="{{ is_market_map }}"><dc-import name="RaznosPublicAreas" city="{{ mk_city_key }}" cityTitle="{{ mk_city_label }}" onBack="{{ market_back }}"></dc-import></sc-if>
           <sc-if value="{{ is_market }}">
             <div class="raznos-phone-body" data-screen-label="22 Market">
               <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Рынок сервисов</h1></div>
@@ -743,7 +750,7 @@
 
           <sc-if value="{{ is_market_services }}">
             <div class="raznos-phone-body" data-screen-label="22a Market services">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_market }}" aria-label="Назад в Рынок">‹</button><h1 class="raznos-text-h1" style="margin:0">Все сервисы</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ market_back }}" aria-label="Назад в Рынок">‹</button><h1 class="raznos-text-h1" style="margin:0">Все сервисы</h1></div>
               <dc-import name="RaznosCitySelect" value="{{ mkCity }}" onChange="{{ set_mk_city }}"></dc-import>
               <sc-if value="{{ mk_has_data }}" hint-placeholder-val="{{ true }}">
               <dc-import name="RaznosFilterChips" filters="{{ mk_filters }}" onChange="{{ set_mk_filter }}"></dc-import>
@@ -1291,9 +1298,16 @@
           <sc-if value="{{ is_profile_edit }}">
             <div class="raznos-phone-body" data-screen-label="24.1 Profile edit">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ sub_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Редактировать профиль</h1></div>
-              <p class="raznos-text-small">Фамилия и имя в профиле Разноса, они отдельно от данных, которые приходят из подключённых сервисов</p>
+              <p class="raznos-text-small">Профиль Разноса, он отдельно от данных, которые приходят из подключённых сервисов</p>
               <div class="raznos-field"><span class="raznos-field-label">Фамилия</span><input class="raznos-input" placeholder="Фамилия" autocomplete="family-name" value="{{ pe_last_value }}" onInput="{{ pe_last_change }}" /></div>
               <div class="raznos-field"><span class="raznos-field-label">Имя</span><input class="raznos-input" placeholder="Имя" autocomplete="given-name" value="{{ pe_first_value }}" onInput="{{ pe_first_change }}" /></div>
+              <div class="raznos-field"><span class="raznos-field-label">Пол, необязательно</span>
+                <div class="raznos-segmented">
+                  <button type="button" class="{{ pe_gender_m_class }}" onClick="{{ pe_set_gender_m }}">Мужской</button>
+                  <button type="button" class="{{ pe_gender_f_class }}" onClick="{{ pe_set_gender_f }}">Женский</button>
+                </div>
+              </div>
+              <div class="raznos-field"><span class="raznos-field-label">Дата рождения, необязательно</span><input class="raznos-input" type="date" autocomplete="bday" max="{{ birth_max }}" value="{{ pe_birth_value }}" onChange="{{ pe_birth_change }}" /></div>
               <div class="raznos-sticky-actions"><button type="button" class="{{ pe_save_class }}" onClick="{{ save_profile_edit }}" disabled="{{ pe_save_disabled }}">Сохранить</button></div>
             </div>
           </sc-if>
@@ -3592,7 +3606,9 @@
             role: fresh ? 'courier' : (p.initialRole || 'courier'),
             demoOn, demoReturnState: null, language: prevLanguage || 'ru',
             city: 'moscow', transport: 'bike', channel: 'telegram', phoneInput: '916 555-01-23',
-            firstName: 'Алексей', lastName: 'Соколов', peFirst: '', peLast: '',
+            // имя в прототипе подставлено, но экран имени при первом входе всё равно показываем
+            firstName: 'Алексей', lastName: 'Соколов', nameSet: false, gender: '', birthDate: '', peFirst: '', peLast: '',
+            // прототип: номер и код заполнены, согласие курьер отмечает сам
             agree: false, codeError: false, codeInput: '123456', resendCount: 0, resendSecondsLeft: 60,
             period: 'today',
             workVv: true, workSamokat: true, workX5: false, workAgree: false, workPreset: 'unverified', workOn: false,
@@ -3608,7 +3624,7 @@
             svcHealth: {}, netOffline: false, syncAgo: null, syncPartial: {}, syncRun: null, cancelNotice: null, cancelScheduled: false, feedEmpty: '', guideSection: 'newbies',
             resultKind: 'expired', hiddenOfferIds: [], declinedOfferIds: [],
             connKey: p.initialConnKey || 'vkusvill', connAgree: false,
-            connMethodChoice: 'code', connStage: 'form', connCodeInput: '', connCodeError: false, connLogin: null, connPassword: '', openDemoLabel: '', openDemoSection: '',
+            connMethodChoice: 'code', connStage: 'form', connCodeInput: '123456', connCodeError: false, connLogin: null, connPassword: 'demo1234', openDemoLabel: '', openDemoSection: '',
             integrationStatus: {},
             histSvc: 'all', histDistrict: 'all', histBack: 'courier-home', histStatus: 'all', histPage: 0, histSelectedId: '', histPeriod: 'today', histFrom: '', histTo: '',
             tripSelectedId: '', tripBack: 'history', ordBack: 'history',
@@ -3906,7 +3922,7 @@
         }
         // новый экран открываем сверху, при возврате на предыдущий экран возвращаем прокрутку
         _keepScroll() {
-          const s = (this.state || {}).s;
+          const s = routeKeyOf((this.state || {}).s, (this.state || {}).statsDetail);
           const box = typeof document === 'undefined' ? null : document.querySelector('.raznos-phone-scroll');
           if (!box || s === this._scrollS) return;
           const prev = this._scrollS;
@@ -3914,7 +3930,8 @@
           if (prev === undefined) return;
           this._scrollSaved = this._scrollSaved || {};
           this._scrollSaved[prev] = this._scrollLast || 0;
-          const back = this._scrollFrom === s;
+          // при возврате по стеку прокрутка тоже возвращается
+          const back = this._scrollFrom === s || !!(this._nav && this._nav.wasBack);
           this._scrollFrom = prev;
           box.scrollTop = back ? (this._scrollSaved[s] || 0) : 0;
           this._scrollLast = box.scrollTop;
@@ -4214,13 +4231,13 @@
             }
             return 3 * u * u * (1 - u) + u * u * u;
           };
-          const right = b.l > a.l, N = 26, total = 520, edge = 420;
+          const right = b.l > a.l, N = 20, total = 300, edge = 240;
           const p = (tm, delay) => bez(Math.max(0, Math.min(1, (tm - delay) / edge)));
           const kf = [];
           for (let i = 0; i <= N; i++) {
-            const tm = total * i / N, pt = Math.min(1, tm / 300);
-            const L = a.l + (b.l - a.l) * p(tm, right ? 100 : 0);
-            const R = a.l + wa + (b.l + wb - a.l - wa) * p(tm, right ? 0 : 100);
+            const tm = total * i / N, pt = Math.min(1, tm / 180);
+            const L = a.l + (b.l - a.l) * p(tm, right ? 60 : 0);
+            const R = a.l + wa + (b.l + wb - a.l - wa) * p(tm, right ? 0 : 60);
             const T = a.t + (b.t - a.t) * pt, H = a.h + (b.h - a.h) * pt;
             kf.push({ offset: i / N, transform: 'translate(' + (L - b.l) + 'px, ' + (T - b.t) + 'px) scale(' + Math.max(0.01, (R - L) / wb) + ', ' + (H / b.h) + ')' });
           }
@@ -4244,6 +4261,16 @@
           // слот, который курьер идёт брать в приложении сервиса
           const demoSlot = st.openDemoSlot ? SHIFT_SLOTS.find((x) => x.id === st.openDemoSlot) : null;
           const routeKey = routeKeyOf(s, st.statsDetail);
+          // стек экранов для кнопки назад: возврат к уже открытому экрану срезает стек, нижнее меню начинает его заново
+          const nav = this._nav || (this._nav = { stack: [], cur: routeKey, s, d: st.statsDetail || '', back: false, tab: false });
+          if (nav.cur !== routeKey) {
+            const at = nav.stack.findIndex((e) => e.k === routeKey);
+            nav.wasBack = nav.back || at !== -1;
+            if (nav.back) {} else if (at !== -1) nav.stack.length = at;
+            else if (nav.tab) nav.stack = [];
+            else { nav.stack.push({ k: nav.cur, s: nav.s, d: nav.d }); if (nav.stack.length > 40) nav.stack.shift(); }
+            nav.back = false; nav.tab = false; nav.cur = routeKey; nav.s = s; nav.d = st.statsDetail || '';
+          }
           // синхронизация экрана с историей браузера, чтобы работала кнопка назад
           if (typeof window !== 'undefined' && window.history) {
             if (!this._histInit) {
@@ -4460,6 +4487,16 @@
           const guardLeave = (dirty, patch) => { if (dirty) set({ leavePatch: patch }); else set(patch); };
           const sameDraft = (a, b) => JSON.stringify(a || null) === JSON.stringify(b || null);
           const goto = (screen) => () => set({ s: screen });
+          // назад на экран, откуда пришли, без сброса его состояния; если открыли напрямую, то на запасной экран
+          const navBack = (fallback, extra) => () => {
+            const n = this._nav, t = n && n.stack.length ? n.stack[n.stack.length - 1] : null;
+            if (!t) return fallback();
+            n.stack.pop(); n.back = true;
+            set(Object.assign({}, extra || {}, { s: t.s, statsDetail: t.d }));
+          };
+          const withoutScreen = (patch) => { const o = Object.assign({}, patch); delete o.s; return o; };
+          // назад из формы: с правками сначала спрашиваем
+          const guardBack = (dirty, patch) => (dirty ? set({ leavePatch: Object.assign({ navBack: true }, patch) }) : navBack(() => set(patch), withoutScreen(patch))());
           // обратимые действия показывают тост с кнопкой, необратимые просят подтверждение шторкой снизу
           const uxToast = st.uxToast || null;
           const uxConfirm = st.uxConfirm || null;
@@ -5009,7 +5046,7 @@
           const connHealthAction = (key, kind) => {
             if (kind === 'open') return set({ s: 'integrations' });
             if (kind === 'net') return set({ netOffline: false, syncAgo: Object.assign({}, syncAgo, syncTargets.reduce((acc, k) => { if (!svcHealth[k]) acc[k] = 0; return acc; }, {})) });
-            if (kind === 'relogin' || kind === 'device') return set({ s: 'integration-connect', connKey: key, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: '' });
+            if (kind === 'relogin' || kind === 'device') return set({ s: 'integration-connect', connKey: key, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '123456', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: 'demo1234' });
             if (kind === 'offline') { const h = Object.assign({}, svcHealth); delete h[key]; return set({ svcHealth: h, syncAgo: Object.assign({}, syncAgo, { [key]: 0 }) }); }
             if (kind === 'error') return set({ s: 'service-open-demo', openDemoSection: '', openDemoLabel: SERVICES[key].title });
           };
@@ -5094,7 +5131,7 @@
               key, title: svc.title, note,
               status: pill ? pill[1] : (status === 'connected' ? 'connected' : (status === 'limited' ? 'limited' : (status === 'exited' ? 'exited' : (status === 'disabled' ? 'disabled' : (svc.method === 'unsupported' && !svc.catalogNote ? 'unsupported' : 'none'))))),
               statusLabel: pill ? pill[0] : '', showChevron: true,
-              onTap: () => set({ s: 'integration-connect', connKey: key, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: '' }),
+              onTap: () => set({ s: 'integration-connect', connKey: key, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '123456', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: 'demo1234' }),
               last: i === Object.keys(SERVICES).length - 1
             };
           });
@@ -5166,7 +5203,7 @@
             if (conn.sharedWith) patch[conn.sharedWith] = statusValue;
             const restoredHealth = Object.assign({}, svcHealth);
             Object.keys(patch).forEach((k) => { delete restoredHealth[k]; });
-            set({ connDone: connKey, s: 'integrations', connFrom: '', integrationStatus: Object.assign({}, integrationStatus, patch), svcHealth: restoredHealth, syncAgo: Object.assign({}, syncAgo, Object.keys(patch).reduce((acc, k) => { acc[k] = 0; return acc; }, {})), connStage: 'form', connCodeInput: '', connCodeError: false });
+            set({ connDone: connKey, s: 'integrations', connFrom: '', integrationStatus: Object.assign({}, integrationStatus, patch), svcHealth: restoredHealth, syncAgo: Object.assign({}, syncAgo, Object.keys(patch).reduce((acc, k) => { acc[k] = 0; return acc; }, {})), connStage: 'form', connCodeInput: '123456', connCodeError: false });
           };
 
           // История заказов
@@ -5705,20 +5742,32 @@
             resend_disabled: resendSecondsLeft > 0,
             resend_label: resendSecondsLeft > 0 ? ('Отправить снова через 0:' + String(resendSecondsLeft).padStart(2, '0')) : ('Отправить снова' + (resendCount > 0 ? ' (' + resendCount + ')' : '')),
             resend_code: () => { if (resendSecondsLeft <= 0) set({ resendCount: resendCount + 1, codeError: false, resendSecondsLeft: 60, channelSwitched: false }); },
-            confirm_code: () => { if (codeInput === '123456') set({ s: st.returning ? (role === 'courier' ? (readyHome ? 'courier-home' : 'courier-empty') : 'user-home') : (nameFilled ? 'city' : 'name'), codeError: false }); else set({ codeError: true }); },
+            confirm_code: () => { if (codeInput === '123456') set({ s: st.returning ? (role === 'courier' ? (readyHome ? 'courier-home' : 'courier-empty') : 'user-home') : (nameFilled && st.nameSet ? 'city' : 'name'), codeError: false }); else set({ codeError: true }); },
             name_first_value: firstName, name_last_value: lastName,
             name_first_change: (e) => set({ firstName: e.target.value }),
             name_last_change: (e) => set({ lastName: e.target.value }),
             name_continue_disabled: !nameFilled,
             name_continue_class: nameFilled ? 'raznos-btn raznos-btn-primary' : 'raznos-btn-disabled',
-            confirm_name: () => { if (nameFilled) set({ s: 'city' }); },
-            go_profile_edit: () => set({ s: 'profile-edit', peFirst: firstName, peLast: lastName, subFrom: s }),
+            confirm_name: () => { if (nameFilled) set({ s: 'city', nameSet: true }); },
+            // пол и дата рождения необязательны, повторное нажатие снимает выбор пола
+            gender_m_class: st.gender === 'm' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
+            gender_f_class: st.gender === 'f' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
+            set_gender_m: () => set({ gender: st.gender === 'm' ? '' : 'm' }),
+            set_gender_f: () => set({ gender: st.gender === 'f' ? '' : 'f' }),
+            birth_value: st.birthDate || '', birth_max: TODAY_ISO,
+            birth_change: (e) => set({ birthDate: e && e.target ? e.target.value : '' }),
+            go_profile_edit: () => set({ s: 'profile-edit', peFirst: firstName, peLast: lastName, peGender: st.gender || '', peBirth: st.birthDate || '', subFrom: s }),
             pe_first_value: peFirst, pe_last_value: peLast,
             pe_first_change: (e) => set({ peFirst: e.target.value }),
             pe_last_change: (e) => set({ peLast: e.target.value }),
             pe_save_disabled: !(peFirst && peFirst.trim() && peLast && peLast.trim()),
             pe_save_class: (peFirst && peFirst.trim() && peLast && peLast.trim()) ? 'raznos-btn raznos-btn-primary' : 'raznos-btn-disabled',
-            save_profile_edit: () => { if (peFirst && peFirst.trim() && peLast && peLast.trim()) set({ firstName: peFirst.trim(), lastName: peLast.trim(), s: 'profile' }); },
+            save_profile_edit: () => { if (peFirst && peFirst.trim() && peLast && peLast.trim()) { const saved = { firstName: peFirst.trim(), lastName: peLast.trim(), gender: st.peGender || '', birthDate: st.peBirth || '' }; navBack(() => set(Object.assign({ s: 'profile' }, saved)), saved)(); } },
+            pe_gender_m_class: st.peGender === 'm' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
+            pe_gender_f_class: st.peGender === 'f' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
+            pe_set_gender_m: () => set({ peGender: st.peGender === 'm' ? '' : 'm' }),
+            pe_set_gender_f: () => set({ peGender: st.peGender === 'f' ? '' : 'f' }),
+            pe_birth_value: st.peBirth || '', pe_birth_change: (e) => set({ peBirth: e && e.target ? e.target.value : '' }),
 
             city, transport,
             city_title: cityShort, transport_title: transportTitles[transport],
@@ -5888,10 +5937,10 @@
               else if (conn.length > 0 && !cur.graphSaved) set({ s: 'work-schedule', wsFrom: s });
               else if (role === 'courier') set({ s: 'integrations' });
             },
-            go_market: () => set({ s: 'market' }),
+            go_market: () => set({ s: 'market' }), market_back: navBack(() => set({ s: 'market' })),
             go_market_services: () => set({ s: 'market-services' }),
-            service_back: () => set(st.svFrom === 'job-guide' ? { s: 'job-guide', svFrom: '' } : { s: st.svFrom === 'market-services' ? 'market-services' : 'market' }),
-            conn_back: () => { if (st.connFrom === 'job-guide') return set({ s: 'job-guide', connFrom: '' }); if (role === 'courier') set({ s: 'integrations' }); },
+            service_back: navBack(() => set(st.svFrom === 'job-guide' ? { s: 'job-guide', svFrom: '' } : { s: st.svFrom === 'market-services' ? 'market-services' : 'market' })),
+            conn_back: navBack(() => { if (st.connFrom === 'job-guide') return set({ s: 'job-guide', connFrom: '' }); if (role === 'courier') set({ s: 'integrations' }); }),
             go_history: () => { if (role === 'courier') set({ s: 'history', histBack: '', histSvc: 'all', histDistrict: 'all' }); },
             recent_orders: HISTORY.filter((o) => o.dateISO === TODAY_ISO && (demoOn || activeDataSvcs.indexOf(o.svc) !== -1)).slice().sort((a, b) => (a.date < b.date ? 1 : -1)).filter((o, i, arr) => !o.tripId || arr.findIndex((x) => x.tripId === o.tripId) === i).slice(0, 3).map((o) => o.tripId ? (() => {
               const ti = tripInfo(o.tripId);
@@ -5976,12 +6025,12 @@
             guide_set_section: (t) => set({ guideSection: t }),
             guide_set_svc: (k) => set({ guideSvc: k }),
             guide_register: (k) => set({ s: 'service-open-demo', openDemoSection: 'register', openDemoLabel: SERVICES[k] ? SERVICES[k].title : k, openDemoFrom: 'job-guide', openDemoShift: '', openDemoSlot: '' }),
-            guide_connect: (k) => set({ s: 'integration-connect', connFrom: 'job-guide', connKey: k, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: '' }),
+            guide_connect: (k) => set({ s: 'integration-connect', connFrom: 'job-guide', connKey: k, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '123456', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: 'demo1234' }),
             guide_via: guideVia, guide_open_via: (key) => set({ viaSheet: key }),
             via_open: !!(st.viaSheet && viaFor(st.viaSheet)), via_data: st.viaSheet ? viaFor(st.viaSheet) : null, via_close: () => set({ viaSheet: '' }),
             go_job_guide: () => set({ s: 'job-guide', guideSection: 'newbies' }),
             go_faq: () => set({ s: 'faq' }),
-            faq_back: () => set({ s: 'profile' }),
+            faq_back: navBack(() => set({ s: 'profile' })),
             faq_items: [
               { q: 'Как подключить сервис?', a: 'Профиль, раздел Сервисы доставки. Выберите сервис и войдите тем же телефоном и кодом, что в приложении курьера. Доступ шифруется и его можно отключить в любой момент' },
               { q: 'Почему данные обновляются не сразу?', a: 'Разнос запрашивает статистику по расписанию, примерно раз в 5 минут, чтобы не нарушать лимиты сервисов. Обновить вручную можно кнопкой Запросить данные в разделе Сервисы' },
@@ -6254,7 +6303,7 @@
             stats_detail_is_trends: st.statsDetail === 'trends' || (st.statsDetail === 'filters' && st.statsFiltersBack === 'trends'),
             // налоги и штрафы возвращают туда, откуда открыты: на главный экран или в Деньги
             // из показателя трендов назад в список, из списка в Статистику
-            stats_detail_close: st.inboxRet === 'stats' && st.statsDetail === 'taxes' ? backToInbox(() => {}) : () => st.statsDetail === 'trends' && st.statsTrendFocus ? set({ statsTrendFocus: '' }) : set(st.statsDetailBack && (st.statsDetail === 'taxes' || st.statsDetail === 'fines') ? { statsDetail: st.statsDetailBack, statsDetailBack: '' } : { statsDetail: st.statsDetail === 'filters' && st.statsFiltersBack === 'trends' ? 'trends' : '', statsFiltersBack: '', statsDetailBack: '' }), stats_detail_go_money: () => set({ statsDetail: 'money' }),
+            stats_detail_close: st.inboxRet === 'stats' && st.statsDetail === 'taxes' ? backToInbox(() => {}) : () => st.statsDetail === 'trends' && st.statsTrendFocus ? set({ statsTrendFocus: '' }) : navBack(() => set(st.statsDetailBack && (st.statsDetail === 'taxes' || st.statsDetail === 'fines') ? { statsDetail: st.statsDetailBack, statsDetailBack: '' } : { statsDetail: st.statsDetail === 'filters' && st.statsFiltersBack === 'trends' ? 'trends' : '', statsFiltersBack: '', statsDetailBack: '' }))(), stats_detail_go_money: () => set({ statsDetail: 'money' }),
             stats_detail_go_time: () => set({ statsDetail: 'time' }), stats_detail_go_services: () => set({ statsDetail: 'services' }), stats_detail_go_districts: () => set({ statsDetail: 'districts' }), stats_trend_list_mode: !st.statsTrendFocus,
             stats_detail_go_compare: () => set({ statsDetail: 'compare' }), stats_detail_go_trends: () => set({ statsDetail: 'trends', statsFiltersBack: '', statsTrendFocus: '' }),
             stats_trend_focus: st.statsTrendFocus || '', set_stats_trend_focus: (k) => set({ statsTrendFocus: k }),
@@ -6270,10 +6319,10 @@
             go_zones: () => set({ s: 'zones' }),
             // карта курьеров взаимная: видите других, только если показываете себя, и только пока идёт смена
             go_courier_map: () => set({ s: 'courier-map', cmapBack: '', cmapFocus: '' }),
-            cmap_back: () => {
+            cmap_back: navBack(() => {
               if (st.cmapBack) set({ s: st.cmapBack, cmapBack: '' });
               else set({ s: role === 'courier' ? (readyHome ? 'courier-home' : 'courier-empty') : 'user-home' });
-            },
+            }),
             cmap_locked: !st.cmapShare, cmap_share: cmapShare,
             cmap_count: 30,
             cmap_svcs: cmapSvcs,
@@ -6341,18 +6390,18 @@
             // Найти слот из умного расписания: Свободные на этот день и сервис
             go_slots_find: (w) => set({ s: 'slots', slotsTab: 'free', slotsDay: (w && w.iso) || '', slotsSvc: (w && w.svc) || '', slotsWeek: null, slotsFrom: 'work-hub' }),
             slots_week: st.slotsWeek != null ? st.slotsWeek : null, slots_tab: st.slotsTab || 'mine', slots_day: st.slotsDay || '', slots_svc: st.slotsSvc || '',
-            slots_back: backToInbox(() => set({ s: st.slotsFrom === 'courier-home' ? 'courier-home' : (st.slotsFrom === 'profile' ? 'profile' : 'work-hub'), smartFocusIso: '', smartFocusKey: '' })), go_slots_from_profile: () => set({ s: 'slots', slotsTab: '', slotsDay: '', slotsSvc: '', slotsWeek: null, slotsFrom: 'profile' }), go_smart: () => set({ s: 'work-hub', smartFocusAdded: false, smartFocusIso: '', smartFocusKey: '', smartOpenKey: '' }), go_work_schedule: () => set({ s: 'work-schedule', wsFrom: s }), work_schedule_back: () => set({ s: (this.state && this.state.wsFrom) || 'profile' }),
+            slots_back: navBack(backToInbox(() => set({ s: st.slotsFrom === 'courier-home' ? 'courier-home' : (st.slotsFrom === 'profile' ? 'profile' : 'work-hub'), smartFocusIso: '', smartFocusKey: '' }))), go_slots_from_profile: () => set({ s: 'slots', slotsTab: '', slotsDay: '', slotsSvc: '', slotsWeek: null, slotsFrom: 'profile' }), go_smart: () => set({ s: 'work-hub', smartFocusAdded: false, smartFocusIso: '', smartFocusKey: '', smartOpenKey: '' }), go_work_schedule: () => set({ s: 'work-schedule', wsFrom: s }), work_schedule_back: navBack(() => set({ s: (this.state && this.state.wsFrom) || 'profile' })),
             work_setup_needed: !demoOn && !graphSaved,
             work_ready: demoOn || graphSaved,
             go_best_times: (v) => set({ s: 'best-times', btFrom: s, btView: v === 'day' ? 'day' : 'week' }),
             bt_view: (this.state && this.state.btView) || 'week',
-            best_times_back: () => set({ s: (this.state && this.state.btFrom) || 'work-hub' }),
+            best_times_back: navBack(() => set({ s: (this.state && this.state.btFrom) || 'work-hub' })),
             go_best_places: () => set({ s: 'best-places', bpFrom: s }),
             go_services_compare: () => set({ s: 'services-compare', scFrom: s }),
-            services_compare_back: () => set({ s: (this.state && this.state.scFrom) || 'work-hub' }),
+            services_compare_back: navBack(() => set({ s: (this.state && this.state.scFrom) || 'work-hub' })),
             svc_connected: connectedKeys,
-            svc_compare_connect: (key) => set({ s: 'integration-connect', connKey: key, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: '' }),
-            best_places_back: () => set({ s: (this.state && this.state.bpFrom) || 'work-hub' }),
+            svc_compare_connect: (key) => set({ s: 'integration-connect', connKey: key, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '123456', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: 'demo1234' }),
+            best_places_back: navBack(() => set({ s: (this.state && this.state.bpFrom) || 'work-hub' })),
           go_active_order: () => set({ s: 'active-order' }), active_order_hub_visible: activeAccepted,
           go_settings: () => set({ s: 'settings' }),
           save_work_graph: (g) => set({ graphSaved: true, graphStart: g && g.start != null ? g.start : 9, graphEnd: g && g.end != null ? g.end : 18, graphDays: g && g.days ? g.days : null, graphPerDay: !!(g && g.perDay), graphWeek: g && g.perDay ? g.week : null }),
@@ -6391,9 +6440,9 @@
           today_exp_sub: todayExpenses > 0 ? 'за сегодня' : 'пока нет',
           today_sheet_add_expense: () => set({ quickExp: true, todaySheet: false }),
           today_sheet_expenses: () => set({ s: 'expenses', expBack: 'courier-home', period: 'today', expFormDirect: false, todaySheet: false }),
-          sub_back: () => set({ s: (this.state && this.state.subFrom) || 'profile' }),
+          sub_back: navBack(() => set({ s: (this.state && this.state.subFrom) || 'profile' })),
           slots_open_service: (svc, when) => set({ s: 'service-open-demo', openDemoSection: '', openDemoLabel: (SERVICES[svc] ? SERVICES[svc].title : svc), openDemoFrom: 'slots', openDemoShift: when || '', openDemoSlot: '' }),
-          open_demo_back: () => set({ s: (this.state && this.state.openDemoFrom) || 'offers', openDemoShift: '', openDemoSlot: '', openDemoSection: '' }),
+          open_demo_back: navBack(() => set({ s: (this.state && this.state.openDemoFrom) || 'offers', openDemoShift: '', openDemoSlot: '', openDemoSection: '' }), { openDemoShift: '', openDemoSlot: '', openDemoSection: '' }),
           open_demo_take: !!demoSlot, open_demo_plain: !demoSlot,
           // входы в разделы приложений: деньги и удержания в Результатах, расписание в Сменах, поддержка в Помощи
           stats_sec_svc: sectionSvcOf(statsSvcFilter), stats_sec_title: sectionTitleOf(sectionSvcOf(statsSvcFilter)), stats_sec_show: !!sectionSvcOf(statsSvcFilter),
@@ -6411,7 +6460,7 @@
           open_demo_note: APP_SECTIONS[st.openDemoSection] ? 'Сам раздел Разнос открыть не может, ссылка на него не подтверждена. В прототипе переход не выполняется' : demoSlot ? 'Когда вернётесь, бронь появится в Разносе после синхронизации с сервисом, до этого слот остаётся свободным. В прототипе переход не выполняется, выберите, чем всё закончилось' : 'В прототипе переход не выполняется',
           open_demo_took_label: demoSlot && demoSlot.apply ? 'Я откликнулся' : 'Я взял смену',
           open_demo_took: () => set({ takenSlots: Object.assign({}, st.takenSlots || {}, st.openDemoSlot ? { [st.openDemoSlot]: true } : {}), s: st.openDemoFrom || 'slots', openDemoShift: '', openDemoSlot: '' }),
-          open_demo_failed: () => set({ s: st.openDemoFrom || 'slots', openDemoShift: '', openDemoSlot: '' }), work_hub_goal: 60000, work_hub_planned: 54800, work_hub_nudge: 'Добавьте пару вечерних часов в Центре, там платят больше', go_top: () => set({ s: 'top' }), top_back: () => set({ s: 'profile' }), top_open_anon: () => set({ s: 'anon-courier', anonSvcKey: 'samokat', anonAuthor: 'Курьер', anonBack: 'top', pvPreview: '' }),
+          open_demo_failed: () => set({ s: st.openDemoFrom || 'slots', openDemoShift: '', openDemoSlot: '' }), work_hub_goal: 60000, work_hub_planned: 54800, work_hub_nudge: 'Добавьте пару вечерних часов в Центре, там платят больше', go_top: () => set({ s: 'top' }), top_back: navBack(() => set({ s: 'profile' })), top_open_anon: () => set({ s: 'anon-courier', anonSvcKey: 'samokat', anonAuthor: 'Курьер', anonBack: 'top', pvPreview: '' }),
             active_filter: st.activeFilter || '', set_active_filter: (name) => set({ activeFilter: name || '' }),
             active_filter_label: (st.activeFilter ? 'Фильтр: ' + st.activeFilter : 'Без фильтра'),
             active_filter_pill_class: 'raznos-status-pill ' + (st.activeFilter ? 'raznos-pill-ok' : 'raznos-pill-muted'),
@@ -6458,13 +6507,13 @@
 
             work_filters: workFilters, offer_log: st.offerLog || [],
             save_work_filters: value => set({ workFilters: value, s: activeAccepted ? 'active-order' : (workOn ? 'offers' : 'work-setup') }),
-            back_work_tools: () => set({ s: 'work-hub' }),
+            back_work_tools: navBack(() => set({ s: 'work-hub' })),
             offer_estimate: offerEstimate(selOffer, workFilters[selOffer.svc]),
             work_service_statuses: Object.keys(workSelectedSvc).map(key => ({ key, title: SERVICES[key].title, noAction: activeAccepted || !workSelectedSvc[key] || integrationStatus[key] === 'connected',
               label: !workSelectedSvc[key] ? 'Выключен' : (integrationStatus[key] !== 'connected' ? 'Нужен вход' : (!workOn ? 'Готов' : (activeAccepted ? (activeOffer.svc === key ? (orderStage === 'delivered' ? 'Доставлен' : 'Заказ в работе') : 'Пауза в Разносе') : (workPaused ? 'Пауза в Разносе' : 'Ищет заказы')))),
               pillClass: !workSelectedSvc[key] ? 'raznos-status-pill raznos-pill-muted' : (integrationStatus[key] !== 'connected' ? 'raznos-status-pill raznos-pill-error' : (!workOn ? 'raznos-status-pill raznos-pill-muted' : (activeAccepted ? (activeOffer.svc === key ? 'raznos-status-pill raznos-pill-ok' : 'raznos-status-pill raznos-pill-warn') : (workPaused ? 'raznos-status-pill raznos-pill-warn' : 'raznos-status-pill raznos-pill-ok')))),
               note: !workSelectedSvc[key] ? 'Не выбран для работы' : (integrationStatus[key] !== 'connected' ? 'Откройте подключение сервиса' : (!workOn ? 'Готов принимать заказы' : (activeAccepted ? (activeOffer.svc === key ? (orderStage === 'delivered' ? 'Заказ передан получателю' : 'Выполняете заказ') : 'Приостановлен пока у вас другой заказ') : (workPaused ? 'Лента на паузе' : 'Ждёт новые предложения')))),
-              tap: () => set({ s: 'integration-connect', connKey: key, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connLogin: null, connPassword: '' }) })).map((row) => {
+              tap: () => set({ s: 'integration-connect', connKey: key, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connLogin: null, connPassword: 'demo1234' }) })).map((row) => {
               const h = workSelectedSvc[row.key] && integrationStatus[row.key] === 'connected' ? healthOf(row.key) : 'ok';
               if (!HEALTH_PILL[h]) return Object.assign(row, { hasNote: false, healthNote: '' });
               const actionHint = { relogin: 'Нажмите, чтобы войти снова', offline: 'Нажмите, чтобы проверить связь', rate: 'Повторим сами', error: 'Нажмите, чтобы открыть приложение сервиса' }[h];
@@ -6559,8 +6608,8 @@
             summary_has_active: activeAccepted,
             finish_work: () => { this._stateGen = (this._stateGen || 0) + 1; clearTimeout(this._acceptTimer); this._acceptTimer = null; set({ s: 'courier-home', workOn: false, workPaused: false, acceptStage: 'idle' }); },
 
-            go_home_any: backToInbox(() => set({ s: role === 'courier' ? (readyHome ? 'courier-home' : 'courier-empty') : 'user-home' })),
-            hist_back: () => set({ s: st.histBack === 'stats' ? 'stats' : (readyHome ? 'courier-home' : 'courier-empty') }),
+            go_home_any: navBack(backToInbox(() => set({ s: role === 'courier' ? (readyHome ? 'courier-home' : 'courier-empty') : 'user-home' }))),
+            hist_back: navBack(() => set({ s: st.histBack === 'stats' ? 'stats' : (readyHome ? 'courier-home' : 'courier-empty') })),
 
             integration_list: integrationList,
 
@@ -6763,7 +6812,7 @@
             conn_unsupported_note: conn.unsupportedNote || ('У сервиса ' + conn.title + ' пока нет найденного способа входа курьера, форму ввода не показываем'),
             conn_is_delivery_linked: !connIsConnected && isDeliveryConn && yandexConnected,
             conn_is_delivery_unlinked: !connIsConnected && isDeliveryConn && !yandexConnected,
-            conn_goto_yandex: () => set({ connKey: conn.sharedWith, connStage: 'form', connAgree: false, connCodeInput: '', connCodeError: false, connLogin: null, connPassword: '' }),
+            conn_goto_yandex: () => set({ connKey: conn.sharedWith, connStage: 'form', connAgree: false, connCodeInput: '123456', connCodeError: false, connLogin: null, connPassword: 'demo1234' }),
             conn_show_method_choice: !connIsConnected && connStatusValue !== 'exited' && !!conn.altMethod && !isDeliveryConn,
             conn_method_code_class: connMethodChoice === 'code' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
             conn_method_password_class: connMethodChoice === 'password' ? 'raznos-segment raznos-is-active' : 'raznos-segment',
@@ -6773,11 +6822,11 @@
             conn_form_code_entry: !connIsConnected && effectiveMethod === 'code' && connStage === 'code-entry' && !isDeliveryConn,
             conn_form_password: !connIsConnected && connStatusValue !== 'exited' && effectiveMethod === 'password' && !isDeliveryConn,
             conn_form_external: !connIsConnected && effectiveMethod === 'external' && !isDeliveryConn,
-            conn_request_code: () => { if (connAgree) set({ connStage: 'code-entry', connCodeInput: '', connCodeError: false }); else set({ connAgreeNudge: true }); },
+            conn_request_code: () => { if (connAgree) set({ connStage: 'code-entry', connCodeInput: '123456', connCodeError: false }); else set({ connAgreeNudge: true }); },
             conn_code_value: connCodeInput,
             conn_code_set: (v) => set({ connCodeInput: v, connCodeError: false }),
             conn_code_error: connCodeError,
-            conn_resend_code: () => set({ connCodeInput: '', connCodeError: false }),
+            conn_resend_code: () => set({ connCodeInput: '123456', connCodeError: false }),
             conn_confirm_code: () => { if (connCodeInput === '123456') finalizeConnection(); else set({ connCodeError: true }); },
             conn_login_value: connLogin, conn_login_change: (e) => set({ connLogin: e && e.target ? e.target.value : connLogin }),
             conn_password_value: connPassword, conn_password_change: (e) => set({ connPassword: e && e.target ? e.target.value : connPassword }),
@@ -6827,12 +6876,12 @@
             trip_total: formatMoney(tripSel.total), trip_status: tripSel.status, trip_status_pill_class: tripSel.partial ? 'raznos-status-pill raznos-pill-warn' : 'raznos-status-pill raznos-pill-ok',
             trip_money: tripSel.money, trip_pay_note: tripSel.t.breakdown ? 'Сервис отдаёт разбивку по заказам' : 'Оплата за маршрут целиком, по заказам сервис её не делит',
             trip_distance_known: !!tripSel.t.distance, trip_distance: tripSel.t.distance, trip_stops: tripStops,
-            trip_back: () => set(st.tripBack === 'home' ? { s: readyHome ? 'courier-home' : 'courier-empty' } : { s: 'history', histBack: '', histSvc: 'all', histDistrict: 'all' }),
+            trip_back: navBack(() => set(st.tripBack === 'home' ? { s: readyHome ? 'courier-home' : 'courier-empty' } : { s: 'history', histBack: '', histSvc: 'all', histDistrict: 'all' })),
             ord_in_trip:!!ordTrip, ord_trip_label: ordTrip ? 'Часть маршрута из ' + ordTrip.count + ' ' + ruPlural(ordTrip.count, 'заказа', 'заказов', 'заказов') : '',
             ord_trip_of: ordTrip ? (ordTrip.orders.indexOf(ordSource) + 1) + ' из ' + ordTrip.count : '',
             ord_trip_open: () => { if (ordTrip) set({ s: 'trip', tripSelectedId: ordSource.tripId, tripBack: st.ordBack === 'trip' ? (st.tripBack || 'history') : (st.ordBack || 'history') }); },
             ord_pay_known: ordPayKnown, ord_pay_unknown: !ordPayKnown,
-            ord_back: () => set(st.ordBack === 'trip' && ordTrip ? { s: 'trip', tripSelectedId: ordSource.tripId } : (st.ordBack === 'home' ? { s: readyHome ? 'courier-home' : 'courier-empty' } : { s: 'history', histBack: '', histSvc: 'all', histDistrict: 'all' })),
+            ord_back: navBack(() => set(st.ordBack === 'trip' && ordTrip ? { s: 'trip', tripSelectedId: ordSource.tripId } : (st.ordBack === 'home' ? { s: readyHome ? 'courier-home' : 'courier-empty' } : { s: 'history', histBack: '', histSvc: 'all', histDistrict: 'all' }))),
             ord_money: ordSource.money, ord_money_pill_class: ordSource.money === 'Скорректировано' ? 'raznos-status-pill raznos-pill-warn' : (ordSource.money === 'Выплачено' ? 'raznos-status-pill raznos-pill-ok' : 'raznos-status-pill raznos-pill-muted'),
             ord_pay: ordSource.pay, ord_tip_digital: tipSrcOf(ordSource.svc) ? ordSource.tipDigital + ' ₽' : 'Нет данных из сервиса',
             ord_offer_snapshot: OFFER_SNAPSHOTS[ordSource.id] || null, ord_total_min: parseInt(ordSource.wait, 10) + parseInt(ordSource.duration, 10),
@@ -7010,7 +7059,7 @@
             },
 
             // Обезличенный профиль курьера, открывается из отзыва или ответа на вопрос
-            go_back_from_anon: () => set(anonBack && anonBack !== 'service' ? { s: anonBack } : { s: 'service', svKey: anonSvcKey || svKey }),
+            go_back_from_anon: navBack(() => set(anonBack && anonBack !== 'service' ? { s: anonBack } : { s: 'service', svKey: anonSvcKey || svKey })),
             ac_city: (() => {
               const rec = (REVIEWS[anonSvcKey] || []).find((r) => r.author === anonAuthor);
               return rec ? rec.city : (anonAuthor === myName ? cityShort : 'Город недоступен');
@@ -7164,7 +7213,7 @@
             go_notifications: () => set({ s: 'notifications', subFrom: s }),
             go_inbox: () => set({ s: 'inbox', inboxSeen: Object.assign({}, inboxSeen, inboxItems.reduce((acc, n) => { acc[n.id] = true; return acc; }, {})) }),
             // в архиве назад возвращает в список уведомлений
-            inbox_back: () => (st.inboxArchive ? set({ inboxArchive: false }) : set({ s: 'profile' })),
+            inbox_back: () => (st.inboxArchive ? set({ inboxArchive: false }) : navBack(() => set({ s: 'profile' }))()),
             inbox_title: st.inboxArchive ? 'Архив' : 'Уведомления', inbox_not_archive: !st.inboxArchive,
             inbox_go_archive: () => set({ inboxArchive: true }),
             inbox_archive_note: 'Скрытые и старше 30 дней · ' + inboxArchived.length,
@@ -7220,7 +7269,7 @@
             live_go_compose: () => set({ s: 'live-compose', lcBack: 'live-feed', lcSvc: connectedKeys[0] || 'vkusvill', lcScope: 'city', lcText: '', lcPhoto: '', lcPlace: '' }),
             live_go_mine: () => set({ s: 'live-mine' }),
             live_work_entry_label: liveTodayItems.length ? liveTodayItems.length + ' ' + ruPlural(liveTodayItems.length, 'активное сообщение', 'активных сообщения', 'активных сообщений') + ' по вашим сервисам · ' + cityShort : 'Сообщения курьеров о сбоях, очередях и перекрытиях',
-            live_back: () => set({ s: st.liveBack || 'courier-home' }),
+            live_back: navBack(() => set({ s: st.liveBack || 'courier-home' })),
             live_back_label: { 'courier-home': 'Сегодня', offers: 'К ожиданию заказов', 'active-order': 'К активному заказу', profile: 'Профиль' }[st.liveBack] || 'Назад',
             live_from_work: st.liveBack === 'offers' || st.liveBack === 'active-order',
             live_work_note: activeAccepted ? 'Активный заказ остаётся в работе, вернуться можно кнопкой выше' : 'Поиск заказов продолжается, вернуться можно кнопкой выше',
@@ -7242,7 +7291,7 @@
 
             // обсуждение
             live_thread: liveThread ? liveCardProps(liveThread, st.liveThreadBack || 'live-feed') : { text: '' },
-            live_thread_back: () => set({ s: st.liveThreadBack || 'live-feed' }),
+            live_thread_back: navBack(() => set({ s: st.liveThreadBack || 'live-feed' })),
             live_thread_active: !!liveThread && liveThreadStatus === 'active',
             live_thread_archived: !!liveThread && liveThreadStatus === 'archived',
             live_thread_hidden: !!liveThread && liveThreadStatus === 'hidden',
@@ -7297,7 +7346,7 @@
             lc_used_today: liveUsedToday,
             lc_next_label: 'Следующее сообщение можно написать завтра с 00:00 по времени города профиля, ' + cityShort,
             lc_no_services: connectedKeys.length === 0,
-            lc_back: () => set({ s: st.lcBack || 'live-feed' }),
+            lc_back: navBack(() => set({ s: st.lcBack || 'live-feed' })),
             lc_set_svc: (k) => set({ lcSvc: k }),
             lc_set_scope: (v) => set({ lcScope: v }),
             lc_set_text: (e) => set({ lcText: e && e.target ? e.target.value : '' }),
@@ -7323,13 +7372,13 @@
             lp_done_disabled: !st.lcPlace,
 
             // просмотр фото и места, жалоба, автор
-            live_view_back: () => set({ s: st.liveViewBack || 'live-feed' }),
+            live_view_back: navBack(() => set({ s: st.liveViewBack || 'live-feed' })),
             live_photo_src: st.livePhoto ? LIVE_PHOTOS[st.livePhoto] : '',
             live_place_id: st.livePlaceId || '',
             live_place_label: liveSpotLabel(st.livePlaceId),
             live_report_reasons: LIVE_REPORT_REASONS.map((r) => ({ label: r[1], mark: (st.liveReportReason || 'spam') === r[0] ? 'raznos-radio-mark raznos-is-on' : 'raznos-radio-mark', tap: () => set({ liveReportReason: r[0] }) })),
             live_report_submit: () => set({ liveReports: Object.assign({}, liveReports, { [st.liveReportId]: st.liveReportReason || 'spam' }), s: st.liveReportBack || 'live-feed' }),
-            live_report_back: () => set({ s: st.liveReportBack || 'live-feed' }),
+            live_report_back: navBack(() => set({ s: st.liveReportBack || 'live-feed' })),
             live_report_is_reply: !!st.liveReportId && st.liveReportId.indexOf('lr-') === 0,
 
             // мои оперативные сообщения
@@ -7345,7 +7394,7 @@
             live_mine_replies: liveMineReplies.map(({ m, r }) => ({ text: r.text, parent: m.text, meta: liveAgo(r.createdAt) + ' · ' + (liveArchived(m) ? 'обсуждение в архиве' : 'обсуждение активно') + ' · полезно: ' + liveCount(r.likes, r.id, 'like'), onTap: liveOpenThread(m.id, 'live-mine') })),
             live_mine_empty: liveMineAll.length === 0 && liveMineReplies.length === 0,
             live_profile_label: liveMineAll.length || liveMineReplies.length ? (liveMineAll.filter((m) => !m.deletedAt && !m.hiddenAt && !liveArchived(m)).length + ' активных · ' + liveMineArchive.length + ' в архиве') : 'пока пусто',
-            live_mine_back: backToInbox(() => set({ s: 'profile' })),
+            live_mine_back: navBack(backToInbox(() => set({ s: 'profile' }))),
             my_activity_count_label: myActivityList.length === 0 ? 'пока пусто' : [myActivityCounts.reviews + ' ' + ruPlural(myActivityCounts.reviews, 'отзыв', 'отзыва', 'отзывов'), myActivityCounts.questions + ' ' + ruPlural(myActivityCounts.questions, 'вопрос', 'вопроса', 'вопросов'), myActivityCounts.answers + ' ' + ruPlural(myActivityCounts.answers, 'ответ', 'ответа', 'ответов')].join(' · '),
             my_activity_has: myActivityList.length > 0,
             my_activity_reviews_label: 'Отзывы ' + myActivityCounts.reviews, my_activity_questions_label: 'Вопросы ' + myActivityCounts.questions, my_activity_answers_label: 'Ответы ' + myActivityCounts.answers,
@@ -7505,7 +7554,7 @@
               if (mode === 'public' && pvPublic && pvCloseStage !== 'closed') set({ s: 'public-profile', ppSelectedId: 'c1', pvPreview: 'public' });
               else set({ s: 'anon-courier', anonSvcKey: previewAnonKey, anonAuthor: myName, pvPreview: 'anon' });
             },
-            pv_preview_back: () => set({ s: 'privacy', pvPreview: '' }),
+            pv_preview_back: navBack(() => set({ s: 'privacy', pvPreview: '' }), { pvPreview: '' }),
             pp_services_note: 'Разрешённые сведения: ' + ppCourier.services,
             pp_fav_class: 'raznos-btn raznos-btn-secondary',
             pp_fav_label: ppIsFav ? 'В избранном' : 'В избранное',
@@ -7621,9 +7670,11 @@
                 return;
               }
               if (st.inboxRet) set({ inboxRet: '' });
+              if (this._nav) this._nav.tab = true;
               if (key === 'home') return set({ s: readyHome ? 'courier-home' : 'courier-empty' });
               if (key === 'work') return set({ s: activeAccepted ? 'active-order' : 'work-hub', smartOpenKey: '', smartFocusKey: '', smartFocusIso: '' });
-              if (key === 'stats') return set({ s: 'stats', statsPeriod: 'week', statsStep: 0, statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' });
+              // вкладка помнит выбранный период и фильтры
+              if (key === 'stats') return set({ s: 'stats', statsDetail: '' });
               if (key === 'market') return set({ s: 'market' });
               if (key === 'profile') return set({ s: 'profile' });
             }
@@ -7684,7 +7735,7 @@
             go_history_stats_sk: () => set(Object.assign({ s: 'history', histPeriod: period, histSvc: 'samokat', histStatus: 'all', histPage: 0 }, resetHistDays())),
             go_recurring_from_profile: () => set({ s: 'recurring', recBack: 'profile' }),
             go_recurring_from_expenses: () => set({ s: 'recurring', recBack: 'expenses' }),
-            exp_back: () => set({ s: expBack }), rec_back: () => set({ s: recBack }),
+            exp_back: navBack(() => set({ s: expBack })), rec_back: navBack(() => set({ s: recBack })),
             exp_recurring_summary: expRecurringSummary,
             exp_period_label: period === 'today' ? dayMonth(0) : (period === 'week' ? isoRangeLabel(WEEK_MON_ISO, TODAY_ISO) : isoRangeLabel(MONTH_START_ISO, TODAY_ISO)),
             exp_total: formatMoney(expStatResult.total), exp_recurring_total: formatMoney(expStatResult.recurring),
@@ -7752,11 +7803,11 @@
               set(Object.assign({ expManual: expManual.map((e) => e.id === delId ? Object.assign({}, e, { deletedAt: TODAY_ISO }) : e) }, efExit));
               uxShowToast('Расход удалён', 'Вернуть', () => set({ expManual: (this.state.expManual || []).map((e) => e.id === delId ? Object.assign({}, e, { deletedAt: null }) : e) }));
             },
-            ef_back: () => guardLeave(efDirty, efExit),
+            ef_back: () => guardBack(efDirty, efExit),
             leave_guard_visible: !!st.leavePatch,
             leave_guard_text: 'Введённые данные не сохранятся, черновик мы не храним',
             leave_stay: () => set({ leavePatch: null }),
-            leave_discard: () => set(Object.assign({ leavePatch: null }, st.leavePatch)),
+            leave_discard: () => { const lp = st.leavePatch || {}; if (!lp.navBack) return set(Object.assign({ leavePatch: null }, lp)); const pt = Object.assign({ leavePatch: null }, lp); delete pt.navBack; navBack(() => set(pt), withoutScreen(pt))(); },
 
             rec_is_empty: expRecurring.length === 0,
             rec_list: expRecurring.map((r) => {
@@ -7812,7 +7863,7 @@
               set({ expRecurring: next, s: 'recurring', recFormId: '', recFormDraft: null, recFormInit: null });
             },
             rf_disable: () => { set({ expRecurring: expRecurring.map((r) => r.id === recFormId ? Object.assign({}, r, { endDay: r.startDay > TODAY_ISO ? r.startDay : TODAY_ISO }) : r), s: 'recurring', recFormId: '', recFormDraft: null, recFormInit: null }); },
-            rf_back: () => guardLeave(rfDirty, { s: 'recurring', recFormId: '', recFormDraft: null, recFormInit: null })
+            rf_back: () => guardBack(rfDirty, { s: 'recurring', recFormId: '', recFormDraft: null, recFormInit: null })
           });
 
           return vals;
