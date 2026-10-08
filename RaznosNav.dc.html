@@ -7,7 +7,7 @@
   </head>
   <body>
     <x-dc>
-      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><style>.raznos-nav-tab { position: relative; } .raznos-nav-dot { position: absolute; top: 5px; left: calc(50% + 7px); width: 9px; height: 9px; border-radius: 50%; background: var(--raznos-red); border: 2px solid var(--raznos-surface); }</style></helmet>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><style>.raznos-nav-tab { position: relative; } .raznos-nav-dot { position: absolute; top: 2px; left: calc(50% + 5px); width: 9px; height: 9px; border-radius: 50%; background: var(--raznos-red); border: 2px solid var(--raznos-surface); }</style></helmet>
       <div class="raznos-bottom-nav">
         <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="5">
           <button type="button" class="{{ tab.tabClass }}" onClick="{{ tab.onTap }}" aria-current="{{ tab.current }}" aria-label="{{ tab.aria }}">

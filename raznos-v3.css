@@ -341,12 +341,12 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-me-dot { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--raznos-dark); border: 2px solid var(--raznos-surface); }
 
 /* Нижняя навигация */
-.raznos-bottom-nav { flex: none; display: flex; background: var(--raznos-surface); border-top: 1px solid var(--raznos-line); padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0)); }
-.raznos-nav-tab { flex: 1 1 0; min-width: 0; white-space: nowrap; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 2px; border-radius: 12px; font: 600 12px var(--raznos-font); letter-spacing: -0.01em; color: var(--raznos-ink-3); min-height: 44px; justify-content: center; background: transparent; border: 0; }
+.raznos-bottom-nav { flex: none; display: flex; background: var(--raznos-surface); border-top: 1px solid var(--raznos-line); padding: 4px 8px calc(4px + env(safe-area-inset-bottom, 0)); }
+.raznos-nav-tab { flex: 1 1 0; min-width: 0; white-space: nowrap; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 2px; border-radius: 12px; font: 600 11px var(--raznos-font); letter-spacing: -0.01em; color: var(--raznos-ink-3); min-height: 44px; justify-content: center; background: transparent; border: 0; }
 /* активный пункт нижнего меню: фирменный зелёный, иконка и подпись белые; тон один для светлой и тёмной темы, чтобы белый читался */
 .raznos-bottom-nav { --raznos-nav-active: oklch(0.52 0.12 150); }
 .raznos-nav-tab.raznos-is-active { color: #fff; background: var(--raznos-nav-active); }
-.raznos-nav-glyph { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+.raznos-nav-glyph { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
 .raznos-nav-tab.raznos-is-active .raznos-nav-glyph { stroke: currentColor; }
 
 /* Демо-панель разработчика (снаружи телефона) */
