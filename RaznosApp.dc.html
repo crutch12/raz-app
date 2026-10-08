@@ -3835,7 +3835,8 @@
         scheduleSyncStep() {
           if (this._syncTimer) clearTimeout(this._syncTimer);
           const gen = this._stateGen || 0;
-          this._syncTimer = setTimeout(() => { this._syncTimer = null; if ((this._stateGen || 0) === gen) this.advanceSync(); }, 700);
+          const run = (this.state || {}).syncRun;
+          this._syncTimer = setTimeout(() => { this._syncTimer = null; if ((this._stateGen || 0) === gen) this.advanceSync(); }, run && run.stepMs ? run.stepMs : 700);
         }
         // один шаг демо-обновления: сервис за сервисом, ошибка одного не останавливает остальные
         advanceSync() {
@@ -3933,7 +3934,8 @@
               box.__ptr = true;
               const ptr = box.parentElement && box.parentElement.querySelector(':scope > .raznos-ptr');
               if (!ptr) return;
-              let y0 = null, d = 0, busy = false, moved = false;
+              let y0 = null, d = 0, busy = false, moved = false, startKey = '';
+              const screenKey = () => { const st = this.state || {}; return (st.s || '') + '|' + (st.statsDetail || ''); };
               const atRoot = () => { const st = this.state || {}; return ROOTS.indexOf(st.s) !== -1 && !(st.s === 'stats' && st.statsDetail); };
               const reduce = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
               const paint = (px, anim) => {
@@ -3943,9 +3945,12 @@
                 ptr.style.opacity = px ? Math.min(1, px / LIMIT) : 0;
                 ptr.style.transform = 'translate(-50%, ' + (px / 2 - 20) + 'px) rotate(' + (busy ? 0 : px * 4) + 'deg)';
               };
+              // ушли на другой экран во время обновления: индикатор убираем сразу, повтор анимаций не играем
+              box.__ptrAbort = () => { if (!busy && y0 == null) return; busy = false; y0 = null; moved = false; ptr.classList.remove('raznos-ptr-spin', 'raznos-ptr-done', 'raznos-ptr-ready'); paint(0, false); };
               const finish = () => {
+                if (screenKey() !== startKey) { box.__ptrAbort(); return; }
                 ptr.classList.remove('raznos-ptr-spin'); ptr.classList.add('raznos-ptr-done');
-                setTimeout(() => { busy = false; ptr.classList.remove('raznos-ptr-done'); paint(0, true); this._ptrReplay(box); }, reduce() ? 300 : 600);
+                setTimeout(() => { if (!busy || screenKey() !== startKey) return; busy = false; ptr.classList.remove('raznos-ptr-done'); paint(0, true); this._ptrReplay(box); }, reduce() ? 300 : 600);
               };
               // только основной экран: при открытой шторке, модалке или жесте внутри них не тянем
               const overlayOpen = (t) => (t && t.closest && t.closest('[role="dialog"], .raznos-dialog-layer, [data-backdrop], [data-toast]')) || box.parentElement.querySelector('.raznos-dialog-layer, [role="dialog"][aria-modal="true"]');
@@ -3967,11 +3972,11 @@
                 ptr.classList.remove('raznos-ptr-ready');
                 if (!moved) return;
                 if (d < LIMIT) { paint(0, true); return; }
-                busy = true; paint(56, true);
+                busy = true; startKey = screenKey(); paint(56, true);
                 if (!reduce()) ptr.classList.add('raznos-ptr-spin');
                 if (this._ptrSync) this._ptrSync();
                 const t0 = Date.now();
-                const wait = () => { const run = (this.state || {}).syncRun; if (Date.now() - t0 > 700 && !(run && run.running)) finish(); else setTimeout(wait, 150); };
+                const wait = () => { if (!busy) return; const run = (this.state || {}).syncRun; if (Date.now() - t0 > 450 && !(run && run.running)) finish(); else setTimeout(wait, 100); };
                 wait();
               };
               box.addEventListener('touchstart', (e) => start(e.touches[0].clientY, e.target), { passive: true });
@@ -4025,6 +4030,8 @@
           this._moSync();
         }
         _keepScroll() {
+          const pbox = typeof document === 'undefined' ? null : document.querySelector('.raznos-phone-scroll');
+          if (pbox && pbox.__ptrAbort && routeKeyOf((this.state || {}).s, (this.state || {}).statsDetail) !== this._scrollS) pbox.__ptrAbort();
           const s = routeKeyOf((this.state || {}).s, (this.state || {}).statsDetail);
           const box = typeof document === 'undefined' ? null : document.querySelector('.raznos-phone-scroll');
           if (!box || s === this._scrollS) return;
@@ -5218,14 +5225,16 @@
           const planChangeOn = demoOn && role === 'courier' && !st.planChangeHidden;
           const planChangeStart = st.graphPerDay && st.graphWeek && st.graphWeek[2] ? st.graphWeek[2].from : (st.graphStart != null ? st.graphStart : 9) * 60;
           const planDot = demoOn && role === 'courier' && !this._planSeen;
-          const requestSync = () => {
+          // потянуть вниз: общее время случайное 0,5–1,5 с, делится между сервисами
+          const requestSync = (opts) => {
             const cur = this.state || {};
             if (cur.syncRun && cur.syncRun.running) return set({ syncRun: Object.assign({}, cur.syncRun, { joined: true }) });
             if (!syncTargets.length) return;
-            set({ syncRun: { running: true, keys: syncTargets.slice(), done: 0, results: {}, joined: false } });
+            const stepMs = opts && opts.total ? Math.round(opts.total / syncTargets.length) : 0;
+            set({ syncRun: { running: true, keys: syncTargets.slice(), done: 0, results: {}, joined: false, stepMs } });
             this.scheduleSyncStep();
           };
-          this._ptrSync = requestSync;
+          this._ptrSync = () => requestSync({ total: 500 + Math.round(Math.random() * 1000) });
           const syncResults = syncRun ? syncRun.results : {};
           const syncSummary = syncRun && !syncRun.running
             ? 'Готово: ' + Object.keys(SYNC_RESULT_LABELS).map((kind) => { const n = syncRun.keys.filter((k) => syncResults[k] === kind).length; return n ? SYNC_RESULT_LABELS[kind][0].toLowerCase() + ' ' + n : ''; }).filter(Boolean).join(', ')
