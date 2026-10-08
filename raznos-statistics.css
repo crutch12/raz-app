@@ -92,12 +92,14 @@
 .raznos-stats-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding-top: 18px; border-top: 1px solid var(--stats-track); }
 .raznos-stats-summary-grid.raznos-has-fines { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .raznos-stats-summary-grid.raznos-has-fines .raznos-stats-summary-number { font-size: 16px; }
-.raznos-stats-summary-grid > div { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-.raznos-stats-summary-grid .raznos-stats-summary-number { color: var(--stats-ink); font: 750 18px/1.15 var(--raznos-font); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.raznos-stats-summary-grid > .raznos-stats-summary-cell { min-width: 0; min-height: 44px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.raznos-stats-summary-cell.raznos-is-fines .raznos-stats-summary-number { color: var(--raznos-red); }
+.raznos-stats-summary-grid .raznos-stats-summary-number { color: var(--stats-ink); font: 750 18px/1.15 var(--raznos-font); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .raznos-stats-summary-grid .raznos-stats-summary-number.raznos-is-unknown { color: var(--stats-muted); font-size: 15px; font-weight: 650; }
 
 .raznos-stats-goal { display: flex; flex-direction: column; gap: 9px; padding-top: 18px; border-top: 1px solid var(--stats-track); }
-.raznos-stats-goal-copy { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; color: var(--stats-ink); font: 650 15px var(--raznos-font); }
+.raznos-stats-goal-copy { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 12px; color: var(--stats-ink); font: 650 15px var(--raznos-font); }
+.raznos-stats-goal-copy > span { white-space: nowrap; }
 .raznos-stats-goal-copy strong { color: var(--stats-muted); font: 600 13px var(--raznos-font); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .raznos-stats-goal-track { height: 10px; position: relative; border-radius: 999px; background: var(--stats-track); }
 .raznos-stats-goal-track > span { display: block; height: 100%; max-width: 100%; border-radius: inherit; background: var(--raznos-green); }
@@ -109,7 +111,8 @@
 .raznos-stats-rhythm-title { margin: 0; color: var(--stats-ink); font: 700 18px/1.25 var(--raznos-font); letter-spacing: -0.02em; }
 .raznos-stats-rhythm-accent { font-style: normal; color: var(--raznos-green-deep); }
 .raznos-stats-bars { display: flex; justify-content: space-between; gap: 4px; }
-.raznos-stats-bar { min-width: 0; display: flex; flex: 1; flex-direction: column; align-items: center; gap: 6px; }
+.raznos-stats-bar { min-width: 0; min-height: 44px; display: flex; flex: 1; flex-direction: column; align-items: center; gap: 6px; padding: 0; border: 0; background: transparent; font: inherit; cursor: pointer; }
+.raznos-stats-bar:disabled { cursor: default; }
 .raznos-stats-day-ring { --raznos-stats-ring: 0%; --raznos-stats-span: 100%; width: 38px; height: 38px; position: relative; display: block; border-radius: 50%; background: conic-gradient(var(--raznos-green) 0 var(--raznos-stats-ring), var(--stats-track) var(--raznos-stats-ring) var(--raznos-stats-span), transparent var(--raznos-stats-span) 100%); }
 .raznos-stats-day-ring i { position: absolute; inset: 7px; border-radius: 50%; background: var(--stats-card); }
 .raznos-stats-bar.raznos-is-best .raznos-stats-day-ring { background: conic-gradient(var(--raznos-green-deep) 0 var(--raznos-stats-ring), var(--stats-track) var(--raznos-stats-ring) var(--raznos-stats-span), transparent var(--raznos-stats-span) 100%); }
@@ -125,13 +128,11 @@
 .raznos-stats-bars.raznos-is-year { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px 4px; }
 .raznos-stats-bars.raznos-is-year .raznos-stats-day-ring { width: 34px; height: 34px; }
 .raznos-stats-bars.raznos-is-year .raznos-stats-day-ring i { inset: 6px; }
-/* больше 7 кружков: два ряда; у своих дат подписи не влезают, лучший отрезок назван в заголовке */
+/* больше 7 кружков: два ряда; у своих дат подпись это начало отрезка, лучший отрезок назван в заголовке */
 .raznos-stats-bars.raznos-is-rows { display: grid; grid-template-columns: repeat(var(--rss-cols, 7), minmax(0, 1fr)); gap: 12px 4px; justify-items: center; }
 .raznos-stats-bars.raznos-is-long .raznos-stats-day-ring { width: 32px; height: 32px; }
 .raznos-stats-bars.raznos-is-long .raznos-stats-day-ring i { inset: 6px; }
-.raznos-stats-bars.raznos-is-long .raznos-stats-bar-label { display: none; }
-.raznos-stats-bars.raznos-is-long .raznos-stats-bar-value { display: none; }
-.raznos-stats-bars.raznos-is-long .raznos-stats-bar-label { font-size: 9px; }
+.raznos-stats-bars.raznos-is-long .raznos-stats-bar-label { font-size: 11px; }
 
 .raznos-stats-section-title { min-width: 0; margin: 0; color: var(--stats-ink); font: 750 19px/1.25 var(--raznos-font); letter-spacing: -0.02em; overflow-wrap: anywhere; }
 .raznos-stats-section-title em { font-style: normal; color: var(--raznos-green-deep); white-space: nowrap; }
@@ -165,6 +166,7 @@
 .raznos-stats-money-bar { display: flex; flex-direction: column; gap: 7px; }
 .raznos-stats-money-bar-copy { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .raznos-stats-money-bar-copy > span { color: var(--stats-muted); font: 550 14px var(--raznos-font); }
+.raznos-stats-money-bar-copy > span small { display: block; margin-top: 2px; font: 500 12.5px/1.3 var(--raznos-font); }
 .raznos-stats-money-bar-copy strong { color: var(--stats-ink); font: 700 15px var(--raznos-font); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .raznos-stats-money-bar-track { height: 10px; display: block; overflow: hidden; border-radius: 999px; background: var(--stats-track); }
 .raznos-stats-money-bar-track i { display: block; height: 100%; border-radius: inherit; background: var(--raznos-green); }
@@ -173,6 +175,7 @@
 .raznos-stats-money-bar.raznos-is-expenses .raznos-stats-money-bar-track i { background: var(--raznos-red); }
 .raznos-stats-money-bar.raznos-is-unknown strong { color: var(--stats-muted); font-weight: 600; }
 .raznos-stats-inline-link { width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: -4px 0 -8px; padding: 12px 0 0; border: 0; border-top: 1px solid var(--stats-track); background: transparent; color: var(--stats-ink); font: 600 14px var(--raznos-font); text-align: left; cursor: pointer; }
+.raznos-stats-ret { min-height: 44px; display: inline-flex; align-items: center; gap: 4px; margin: 0 0 4px -6px; padding: 0 10px 0 6px; border: 0; border-radius: 999px; background: transparent; color: var(--stats-ink); font: 600 14px var(--raznos-font); cursor: pointer; }
 .raznos-stats-inline-link .raznos-stats-head-chevron { margin: 0; }
 .raznos-stats-tax-link { align-items: flex-start; padding-top: 14px; }
 .raznos-stats-tax-link .raznos-stats-head-chevron { margin-top: 2px; }
@@ -188,6 +191,13 @@
 .raznos-stats-time-grid div { min-width: 0; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 4px 7px; }
 .raznos-stats-time-grid strong { color: var(--stats-ink); font: 750 17px/1.1 var(--raznos-font); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .raznos-stats-time-grid div > span { grid-column: 1 / -1; color: var(--stats-muted); font: 500 12px/1.3 var(--raznos-font); }
+.raznos-stats-time-extra { display: flex; flex-direction: column; border-top: 1px solid var(--stats-track); }
+.raznos-stats-time-extra-row { min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.raznos-stats-time-extra-row span { color: var(--stats-muted); font: 550 14px var(--raznos-font); }
+.raznos-stats-time-extra-row.raznos-is-link { width: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; text-align: left; }
+.raznos-stats-time-extra-row.raznos-is-link span { flex: 1; }
+.raznos-stats-time-extra-row.raznos-is-link .raznos-stats-head-chevron { margin: 0; }
+.raznos-stats-time-extra-row strong { color: var(--stats-ink); font: 700 15px var(--raznos-font); font-variant-numeric: tabular-nums; }
 .raznos-stats-time-dot { width: 8px; height: 8px; border-radius: 50%; }
 .raznos-stats-time-dot.raznos-is-active { background: var(--raznos-green); }
 .raznos-stats-time-dot.raznos-is-wait { background: var(--raznos-amber); }
@@ -429,6 +439,8 @@
 .raznos-stats-trend-spark-bar > em { position: absolute; left: 0; right: 0; bottom: 0; border-radius: 999px; background: color-mix(in oklab, var(--raznos-green) 45%, var(--raznos-surface-2)); }
 .raznos-stats-trend-spark-bar.raznos-is-current > em { background: var(--raznos-green-deep); }
 .raznos-stats-trend-card.raznos-is-down .raznos-stats-trend-spark-bar.raznos-is-current > em { background: var(--raznos-red); }
+/* период ещё идёт: штриховка, как у столбика в сравнении с медианой */
+.raznos-stats-trend-card .raznos-stats-trend-spark .raznos-stats-trend-spark-bar.raznos-is-running > em { background-image: repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.45) 0 2px, transparent 2px 4px); }
 .raznos-stats-trend-focus-title { margin: -4px 0 0; font: 750 20px var(--raznos-font); color: var(--raznos-ink); }
 .raznos-stats-trend-scale { margin: -4px 0 0; font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
 .raznos-stats-compare-delta { display: block; margin-top: 2px; font: 700 13px var(--raznos-font); font-style: normal; color: var(--raznos-ink-3); font-variant-numeric: tabular-nums; }
@@ -477,7 +489,7 @@
 .raznos-stats-compare-card .raznos-stats-trend-tile { flex-direction: column; align-items: flex-start; gap: 8px; }
 .raznos-stats-compare-card .raznos-stats-trend-badge { width: 32px; height: 32px; border-radius: 10px; }
 .raznos-stats-compare-card .raznos-stats-trend-tile-copy small { flex-direction: column; }
-.raznos-stats-verdict-gauge { margin: -2px 0 0 30px; }
+.raznos-stats-compare-card .raznos-stats-trend-tile-copy b { font: 750 16px/1.15 var(--raznos-font); letter-spacing: -0.02em; }
 
 /* топ курьеров в профиле: место справа, сдвиг за сегодня под подписью, при открытии по поверхности один раз перекатывается золотой блик, не по рамке, чтобы не путать с идущим окном */
 .raznos-stats-top-card { position: relative; }

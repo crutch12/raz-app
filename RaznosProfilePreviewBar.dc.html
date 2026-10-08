@@ -34,11 +34,11 @@
           const p = this.props || {};
           const canNamed = !!p.canNamed;
           const anon = !canNamed || p.mode === 'anon';
-          let note = 'Так видят профиль посетители: только поля, которые вы разрешили, оценки точные';
-          if (anon) note = canNamed ? 'Так вас видят из отзывов о сервисах: без имени и фото, оценки диапазоном' : 'Профиль не опубликован, посетители видят только обезличенный вариант';
+          let note = 'Так видят посетители, ничего не публикуется';
+          if (anon) note = canNamed ? 'Так вас видят из отзывов: без имени и фото' : 'Профиль закрыт, видна только обезличенная версия';
           return {
             canNamed,
-            note: note + '. Ничего не публикуется и не меняется',
+            note,
             namedClass: anon ? 'raznos-segment' : 'raznos-segment raznos-is-active',
             anonClass: anon ? 'raznos-segment raznos-is-active' : 'raznos-segment',
             pickNamed: () => { if (p.onMode) p.onMode('public'); },

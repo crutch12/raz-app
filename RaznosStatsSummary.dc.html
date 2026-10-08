@@ -10,10 +10,10 @@
       <sc-if value="{{ delta_visible }}" hint-placeholder-val="{{ true }}"><div class="{{ delta_class }}"><span class="raznos-stats-delta-mark" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><span>{{ delta_label }}</span></div></sc-if>
     </div>
     <div class="{{ grid_class }}">
-      <div><span class="raznos-stats-summary-number">{{ earn_label }}</span><span class="raznos-stats-summary-note">Начислено</span></div>
-      <sc-if value="{{ fines_visible }}" hint-placeholder-val="{{ false }}"><div><span class="raznos-stats-summary-number">{{ fines_label }}</span><span class="raznos-stats-summary-note">Удержано</span></div></sc-if>
-      <div><span class="{{ expenses_class }}">{{ expenses_label }}</span><span class="raznos-stats-summary-note">Расходы</span></div>
-      <div><span class="{{ hours_class }}">{{ hours_label }}</span><span class="raznos-stats-summary-note">На линии</span></div>
+      <sc-if value="{{ earn_visible }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-stats-summary-cell" onClick="{{ on_earn }}"><span class="raznos-stats-summary-number">{{ earn_label }}</span><span class="raznos-stats-summary-note">Начислено</span></button></sc-if>
+      <sc-if value="{{ fines_visible }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-stats-summary-cell raznos-is-fines" onClick="{{ on_fines }}"><span class="raznos-stats-summary-number">{{ fines_label }}</span><span class="raznos-stats-summary-note">Удержано</span></button></sc-if>
+      <button type="button" class="raznos-stats-summary-cell" onClick="{{ on_expenses }}"><span class="{{ expenses_class }}">{{ expenses_label }}</span><span class="raznos-stats-summary-note">{{ expenses_note }}</span></button>
+      <button type="button" class="raznos-stats-summary-cell" onClick="{{ on_hours }}"><span class="{{ hours_class }}">{{ hours_label }}</span><span class="raznos-stats-summary-note">На линии</span></button>
     </div>
     <sc-if value="{{ goal_has_data }}" hint-placeholder-val="{{ true }}">
       <div class="raznos-stats-goal">
@@ -27,27 +27,28 @@
         <h3 class="raznos-stats-rhythm-title">{{ chart_best_prefix }} <em class="raznos-stats-rhythm-accent">{{ chart_best_name }}</em></h3>
         <div class="{{ chart_class }}" style="{{ chart_style }}" aria-label="Доход по периоду">
           <sc-for list="{{ chart }}" as="bar" hint-placeholder-count="7">
-            <div class="{{ bar.cls }}" title="{{ bar.title }}"><span class="raznos-stats-day-ring" style="{{ bar.ring_style }}"><i></i></span><span class="raznos-stats-bar-label">{{ bar.label }}</span><span class="raznos-stats-bar-value">{{ bar.value }}</span></div>
+            <button type="button" class="{{ bar.cls }}" title="{{ bar.title }}" aria-label="{{ bar.title }}" disabled="{{ bar.disabled }}" onClick="{{ bar.tap }}"><span class="raznos-stats-day-ring" style="{{ bar.ring_style }}"><i></i></span><span class="raznos-stats-bar-label">{{ bar.label }}</span><span class="raznos-stats-bar-value">{{ bar.value }}</span></button>
           </sc-for>
         </div>
       </div>
     </sc-if>
   </div>
 </section>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"headline":{"editor":"text","default":"Центр дал половину дохода"},"mainLabel":{"editor":"text","default":"Осталось после расходов"},"mainValue":{"editor":"text","default":"7 400 ₽"},"netKnown":{"editor":"boolean","default":true},"statusLabel":{"editor":"text","default":"Период идёт"},"delta":{"editor":null},"prevWord":{"editor":"text","default":"чем на прошлой неделе"},"earnLabel":{"editor":"text","default":"8 000 ₽"},"finesLabel":{"editor":"text","default":""},"expensesLabel":{"editor":"text","default":"600 ₽"},"hoursLabel":{"editor":"text","default":"11,5 ч"},"ordersLabel":{"editor":"text","default":"30"},"goalTitle":{"editor":"text","default":"Цель недели"},"goalFact":{"editor":null},"goalTotal":{"editor":null},"goalPace":{"editor":null},"goalNote":{"editor":"text","default":""},"chart":{"editor":null},"chartMode":{"editor":"text","default":"week"},"$preview":{"width":360,"height":620}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"headline":{"editor":"text","default":"Центр дал половину дохода"},"mainLabel":{"editor":"text","default":"Осталось после расходов"},"mainValue":{"editor":"text","default":"7 400 ₽"},"netKnown":{"editor":"boolean","default":true},"statusLabel":{"editor":"text","default":"Период идёт"},"delta":{"editor":null},"prevWord":{"editor":"text","default":"чем на прошлой неделе"},"earnLabel":{"editor":"text","default":"8 000 ₽"},"finesLabel":{"editor":"text","default":""},"onEarn":{"editor":null},"onFines":{"editor":null},"onExpenses":{"editor":null},"onHours":{"editor":null},"expensesLabel":{"editor":"text","default":"600 ₽"},"expensesPartial":{"editor":"boolean","default":false},"hoursLabel":{"editor":"text","default":"11,5 ч"},"ordersLabel":{"editor":"text","default":"30"},"goalTitle":{"editor":"text","default":"Цель недели"},"goalFact":{"editor":null},"goalTotal":{"editor":null},"goalPace":{"editor":null},"goalNote":{"editor":"text","default":""},"chart":{"editor":null},"chartMode":{"editor":"text","default":"week"},"chartMonth":{"editor":"text","default":""},"$preview":{"width":360,"height":620}}'>
 const RSS_FMT = (value) => String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const RSS_PLURAL = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; };
 const RSS_DAY = { 'Пн': 'в понедельник', 'Вт': 'во вторник', 'Ср': 'в среду', 'Чт': 'в четверг', 'Пт': 'в пятницу', 'Сб': 'в субботу', 'Вс': 'в воскресенье' };
 // отрезок кружка словами: 5.09–10.09 это с 5 по 10 сентября, 7–12 это с 7 по 12 число
 const RSS_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const rssDay = (t) => { const [dd, mm] = t.split('.'); return mm ? Number(dd) + ' ' + RSS_GEN[Number(mm) - 1] : dd; };
-const rssSpan = (label) => {
+const rssSpan = (label, monthGen) => {
   const [a, b] = String(label).split('–');
-  if (!b) return rssDay(a) + (a.indexOf('.') === -1 ? ' числа' : '');
+  if (!b) return rssDay(a) + (a.indexOf('.') === -1 ? (monthGen ? ' ' + monthGen : ' числа') : '');
   const same = a.split('.')[1] && a.split('.')[1] === b.split('.')[1];
-  return 'с ' + (same ? a.split('.')[0] : rssDay(a)) + ' по ' + rssDay(b) + (a.indexOf('.') === -1 ? ' число' : '');
+  return 'с ' + (same ? a.split('.')[0] : rssDay(a)) + ' по ' + rssDay(b) + (a.indexOf('.') === -1 ? ' ' + (monthGen || 'число') : '');
 };
 const RSS_MONTH = { 'янв': 'в январе', 'фев': 'в феврале', 'мар': 'в марте', 'апр': 'в апреле', 'май': 'в мае', 'июн': 'в июне', 'июл': 'в июле', 'авг': 'в августе', 'сен': 'в сентябре', 'окт': 'в октябре', 'ноя': 'в ноябре', 'дек': 'в декабре' };
+const RSS_NOOP = () => {};
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
@@ -58,7 +59,9 @@ class Component extends DCLogic {
     const known = chart.filter((bar) => bar.amount != null);
     const max = Math.max.apply(null, known.map((bar) => bar.amount).concat([1]));
     const best = known.reduce((result, bar) => bar.amount > 0 && (!result || bar.amount > result.amount) ? bar : result, null);
-    const compact = (value) => value >= 10000 ? Math.round(value / 1000) + 'к' : RSS_FMT(value);
+    // один формат на все кружки: если есть суммы от 10 тысяч, все подписи в тысячах
+    const inK = max >= 10000;
+    const compact = (value) => inK ? (value >= 1000 ? Math.round(value / 1000) : String(Math.round(value / 100) / 10).replace('.', ',')) + 'к' : RSS_FMT(value);
     const chartMode = p.chartMode === 'month' || p.chartMode === 'year' ? p.chartMode : (chart.length > 7 ? 'long' : 'week');
     const netKnown = p.netKnown !== false;
     const headline = p.headline || '';
@@ -72,30 +75,34 @@ class Component extends DCLogic {
     const goalPercent = goalTotal > 0 && goalFact != null ? Math.max(0, Math.round(goalFact * 100 / goalTotal)) : null;
     const goalPace = goalTotal > 0 && p.goalPace != null ? Math.max(0, Math.min(100, Math.round(Number(p.goalPace) * 100 / goalTotal))) : null;
     const bestPrefix = 'Больше всего заработали';
-    const bestName = !best ? '' : (chartMode === 'year' ? (RSS_MONTH[best.label] || best.label) : (chartMode === 'month' || chartMode === 'long' ? rssSpan(best.label) : (RSS_DAY[best.label] || best.label)));
+    const bestName = !best ? '' : (chartMode === 'year' ? (RSS_MONTH[best.label] || best.label) : (chartMode === 'month' || chartMode === 'long' ? rssSpan(best.label, p.chartMonth) : (RSS_DAY[best.label] || best.label)));
     const expensesKnown = /\d/.test(String(p.expensesLabel || ''));
     const finesShown = /[1-9]/.test(String(p.finesLabel || ''));
+    const fn = (cb) => (typeof cb === 'function' ? cb : RSS_NOOP);
     return {
+      on_earn: fn(p.onEarn), on_fines: fn(p.onFines), on_expenses: fn(p.onExpenses), on_hours: fn(p.onHours),
       headline, headline_visible: headline !== '',
       status_visible: !!p.statusLabel, status_label: p.statusLabel || '',
       status_class: 'raznos-stats-recap-status' + (/идёт/.test(p.statusLabel || '') ? ' raznos-is-live' : ''),
-      lead_label: netKnown ? 'Заработали' : (p.mainLabel || 'Начислено'),
+      lead_label: netKnown ? 'Осталось' : (p.mainLabel || 'Начислено'),
       main_value: p.mainValue || 'Нет данных', net_known: netKnown,
       sub_label: (hasOrders ? 'за ' + RSS_FMT(orders) + ' ' + RSS_PLURAL(orders, 'заказ', 'заказа', 'заказов') : (String(p.ordersLabel) === '0' ? 'Заказов не было' : 'Число заказов неизвестно')) +
-        (netKnown ? '' : ' · расходы внесены не полностью'),
+        (netKnown || expensesKnown ? '' : ' · расходы внесены не полностью'),
       delta_visible: delta != null,
       delta_label: delta == null ? '' : (delta === 0 ? 'Начислено столько же, ' + prevWord.replace(/^чем /, 'как ') : 'Начислено на ' + Math.abs(delta) + '% ' + (delta > 0 ? 'больше, ' : 'меньше, ') + prevWord),
       delta_class: 'raznos-stats-summary-delta' + (delta > 0 ? ' raznos-is-positive' : (delta < 0 ? ' raznos-is-negative' : '')),
-      earn_label: p.earnLabel || 'Нет данных',
+      // когда главная сумма и есть начисленное, колонку не повторяем
+      earn_visible: netKnown, earn_label: p.earnLabel || 'Нет данных',
       fines_visible: finesShown, fines_label: finesShown ? '−' + p.finesLabel : '',
-      grid_class: 'raznos-stats-summary-grid' + (finesShown ? ' raznos-has-fines' : ''),
-      expenses_label: expensesKnown ? '−' + p.expensesLabel : 'Неполные',
+      grid_class: 'raznos-stats-summary-grid' + (finesShown && netKnown ? ' raznos-has-fines' : ''),
+      expenses_label: expensesKnown ? '−' + p.expensesLabel : 'Нет данных',
+      expenses_note: p.expensesPartial && expensesKnown ? 'Внесено расходов' : 'Расходы',
       expenses_class: 'raznos-stats-summary-number' + (expensesKnown ? '' : ' raznos-is-unknown'),
       hours_label: hasHours ? p.hoursLabel : 'Нет данных',
       hours_class: 'raznos-stats-summary-number' + (hasHours ? '' : ' raznos-is-unknown'),
       goal_has_data: goalPercent != null, goal_title: p.goalTitle || 'Цель периода',
       goal_value: Math.min(100, goalPercent || 0), goal_style: 'width:' + Math.min(100, goalPercent || 0) + '%',
-      goal_amounts: goalPercent == null ? '' : RSS_FMT(goalFact) + ' из ' + RSS_FMT(goalTotal) + ' ₽',
+      goal_amounts: goalPercent == null ? '' : 'из ' + (goalTotal >= 100000 ? RSS_FMT(goalTotal / 1000) + ' тыс.' : RSS_FMT(goalTotal)) + ' ₽',
       goal_pace_visible: goalPace != null && goalPace < 100, goal_pace_style: 'left:' + (goalPace || 0) + '%',
       goal_note: p.goalNote || (goalPercent == null ? '' : 'Выполнено ' + goalPercent + '%'),
       goal_note_class: 'raznos-stats-goal-note' + (/^Опережаете|выполнена/.test(p.goalNote || '') ? ' raznos-is-positive' : ''),
@@ -108,9 +115,10 @@ class Component extends DCLogic {
         const span = chartMode === 'month' ? Math.round(Math.max(0, Math.min(7, bar.spanDays == null ? 7 : bar.spanDays)) * 100 / 7) : 100;
         const ring = bar.amount == null || bar.amount <= 0 ? 0 : Math.min(span, Math.max(8, Math.round(bar.amount / max * span)));
         return {
-          label: bar.label, value: bar.amount == null ? '' : (bar.amount === 0 ? '0' : compact(bar.amount)),
+          label: chartMode === 'long' ? String(bar.label).split('–')[0] : bar.label, value: bar.amount == null ? '' : (bar.amount === 0 ? '0' : compact(bar.amount)),
           title: bar.amount == null ? bar.label + ': нет данных' : bar.label + ': ' + RSS_FMT(bar.amount) + ' ₽',
           ring_style: '--raznos-stats-ring:' + ring + '%;--raznos-stats-span:' + span + '%',
+          tap: fn(bar.tap), disabled: typeof bar.tap !== 'function',
           cls: 'raznos-stats-bar' + (best === bar ? ' raznos-is-best' : '') + (bar.amount == null ? ' raznos-is-empty' : '')
         };
       })

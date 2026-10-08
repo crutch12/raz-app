@@ -13,6 +13,7 @@
     .rsc-via { box-sizing: border-box; width: 100%; min-height: 44px; align-items: center; border-left: 0; border-right: 0; border-bottom: 0; background: none; padding: 8px 0; text-align: left; cursor: pointer; color: inherit; }
     .rsc-via:first-child { border-top: 0; }
     .rsc-via:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .rsc-value.rsc-variants { flex-direction: column; align-items: flex-start; gap: 2px; }
     .rsc-via-mine { flex-basis: 100%; font: 600 12px var(--raznos-font); color: var(--raznos-green-deep); }
     .rsc-value { flex: 1 1 auto; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font: 500 14px/1.35 var(--raznos-font); color: var(--raznos-ink); }
   </style>
@@ -24,7 +25,7 @@
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
         <div class="rsc-row"><span class="rsc-label">{{ r.label }}</span><span class="rsc-value">{{ r.value }}<dc-import name="RaznosFactSource" src="{{ r.src }}"></dc-import></span></div>
       </sc-for>
-      <sc-if value="{{ has_via }}" hint-placeholder-val="{{ false }}"><button type="button" class="rsc-row rsc-via" onClick="{{ via_tap }}" aria-label="{{ via_aria }}"><span class="rsc-label">Оформление</span><span class="rsc-value">{{ via_verdict }}<sc-if value="{{ via_mine }}" hint-placeholder-val="{{ false }}"><span class="rsc-via-mine">{{ via_mine }}</span></sc-if></span><span class="raznos-row-chevron">›</span></button></sc-if>
+      <sc-if value="{{ has_via }}" hint-placeholder-val="{{ false }}"><button type="button" class="rsc-row rsc-via" onClick="{{ via_tap }}" aria-label="{{ via_aria }}"><span class="rsc-label">Оформление</span><span class="rsc-value rsc-variants"><sc-for list="{{ via_variants }}" as="v" hint-placeholder-count="2"><span>{{ v.label }}</span></sc-for><sc-if value="{{ via_mine }}" hint-placeholder-val="{{ false }}"><span class="rsc-via-mine">{{ via_mine }}</span></sc-if></span><span class="raznos-row-chevron">›</span></button></sc-if>
     </div>
   </div>
   <sc-if value="{{ unverified_note }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ unverified_note }}</span></sc-if>
@@ -34,12 +35,14 @@
 const RSC_MODES = { plan: 'плановый слот', free: 'свободный слот', birzha: 'биржа заказов', auto: 'автоназначение', restaurant: 'смена в ресторане' };
 const RSC_ORDERS = { offers: 'входящие предложения', auto: 'автоназначение', feed: 'лента или карта', route: 'маршрут целиком' };
 const RSC_TRANSPORT = { foot: 'пешком', bike: 'велосипед', ebike: 'электро', moto: 'мото', car: 'авто' };
+// короткие варианты оформления в карточке сервиса
+const RSC_VIA = { direct: 'Самозанятым напрямую', park: 'Через парк', service: 'Через службу', partner: 'Через партнёра', curator: 'Через куратора', tk: 'По ТК или ГПХ', outsource: 'Без самозанятости через аутсорс', shop: 'Через пиццерию' };
 const RSC_STATUS = { bron: 'бронь слота', zayavka: 'заявка и подтверждение', wish: 'пожелания', draft: 'черновик и утверждение' };
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
     const c = p.caps;
-    if (!c) return { rows: [], has_via: false, via_verdict: '', via_mine: '', via_aria: '', via_tap: () => {}, has_shared_src: false, shared_src: '', unverified_note: '' };
+    if (!c) return { rows: [], has_via: false, via_verdict: '', via_variants: [], via_mine: '', via_aria: '', via_tap: () => {}, has_shared_src: false, shared_src: '', unverified_note: '' };
     const src = c.src || {};
     const modes = (c.modes || []).filter((m) => m !== 'auto').map((m) => RSC_MODES[m]).filter(Boolean).join(', ') || ((c.modes || []).includes('auto') ? RSC_MODES.auto : '');
     let transport = 'нет данных';
@@ -61,7 +64,7 @@ class Component extends DCLogic {
     ];
     if (!p.compact) {
       rows.push({ label: 'Заказы', value: RSC_ORDERS[c.orders] || 'нет данных', src: sign('orders') });
-      rows.push({ label: 'Транспорт', value: unsure('transport') ? 'Точно не известно, уточните в сервисе' : transport, src: unsure('transport') ? '' : sign('transport') });
+      rows.push({ label: 'Транспорт', value: transport, src: unsure('transport') ? '' : sign('transport') });
       rows.push({ label: 'Запись на смены', value: noSlots ? 'нет данных' : (RSC_STATUS[c.status] || 'без записи на смены'), src: sign('status') });
     }
     // один источник у всех строк показываем один раз в шапке
@@ -70,7 +73,7 @@ class Component extends DCLogic {
     if (shared) rows.forEach((r) => { r.src = ''; });
     // что видит Разнос про посредника, строка только когда экран передал её
     if (via && p.viaSeen) rows.push({ label: 'В Разносе будет видно', value: p.viaSeen, src: '' });
-    return { rows, has_via: !!via, via_verdict: via ? via.verdict : '', via_mine: p.viaMine || '', via_aria: 'Оформление: ' + (via ? via.verdict : '') + ', подробнее', via_tap: typeof p.onVia === 'function' ? p.onVia : () => {}, has_shared_src: shared, shared_src: shared ? first : '', unverified_note: (c.unverified && c.unverified.length) ? 'Точно не известно: ' + c.unverified.join(', ') : '' };
+    return { rows, has_via: !!via, via_verdict: via ? via.verdict : '', via_variants: via && via.kinds && via.kinds.length ? via.kinds.map((kd) => ({ label: RSC_VIA[kd.k] || kd.k })) : (via ? [{ label: via.verdict }] : []), via_mine: p.viaMine || '', via_aria: 'Оформление: ' + (via ? via.verdict : '') + ', подробнее', via_tap: typeof p.onVia === 'function' ? p.onVia : () => {}, has_shared_src: shared, shared_src: shared ? first : '', unverified_note: (c.unverified && c.unverified.length) ? 'Точно не известно: ' + c.unverified.join(', ') : '' };
   }
 }
 </script></body></html>

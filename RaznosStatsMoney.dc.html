@@ -2,13 +2,13 @@
 <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
 <div class="raznos-stats-money-card">
   <button type="button" class="raznos-stats-head-link" onClick="{{ on_open }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">{{ title }} <em>{{ accent }}</em></h2><sc-if value="{{ has_sub }}" hint-placeholder-val="{{ true }}"><small>{{ sub }}</small></sc-if></span><sc-if value="{{ has_open }}" hint-placeholder-val="{{ true }}"><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></sc-if></button>
-  <div class="raznos-stats-money-bars"><sc-for list="{{ rows }}" as="row" hint-placeholder-count="4"><div class="{{ row.cls }}"><span class="raznos-stats-money-bar-copy"><span>{{ row.label }}</span><strong>{{ row.value }}</strong></span><span class="raznos-stats-money-bar-track"><i style="{{ row.style }}"></i></span></div></sc-for></div>
+  <div class="raznos-stats-money-bars"><sc-for list="{{ rows }}" as="row" hint-placeholder-count="4"><div class="{{ row.cls }}"><span class="raznos-stats-money-bar-copy"><span>{{ row.label }}<sc-if value="{{ row.note }}" hint-placeholder-val="{{ false }}"><small>{{ row.note }}</small></sc-if></span><strong>{{ row.value }}</strong></span><sc-if value="{{ row.has_track }}" hint-placeholder-val="{{ true }}"><span class="raznos-stats-money-bar-track"><i style="{{ row.style }}"></i></span></sc-if></div></sc-for></div>
   <sc-if value="{{ has_tax }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-stats-inline-link raznos-stats-tax-link" onClick="{{ on_tax }}" aria-label="{{ tax_aria }}"><span class="raznos-stats-tax-link-copy"><strong>Налог {{ tax_value }}</strong><small>{{ tax_sub }}</small></span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></sc-if>
   <sc-if value="{{ fines_label }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-stats-inline-link raznos-is-fines" onClick="{{ on_fines }}"><span>{{ fines_label }}</span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></sc-if>
   <sc-if value="{{ via_label }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-stats-inline-link raznos-is-via" onClick="{{ on_fines }}"><span>{{ via_label }}</span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></sc-if>
-  <button type="button" class="raznos-stats-inline-link" onClick="{{ on_expenses }}"><span>Расходы за период</span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+  <button type="button" class="raznos-stats-inline-link" onClick="{{ on_expenses }}"><span>{{ expenses_text }}</span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"title":{"editor":"text","default":"Выплачено"},"accent":{"editor":"text","default":"93%"},"sub":{"editor":"text","default":"600 ₽ ещё ждёт выплаты"},"rows":{"editor":null},"onOpen":{"editor":null},"onExpenses":{"editor":null},"finesLabel":{"editor":"text","default":"Штрафы и удержания · −150 ₽"},"onFines":{"editor":null},"viaLabel":{"editor":"text","default":""},"only":{"editor":null},"taxValue":{"editor":"text","default":""},"taxSub":{"editor":"text","default":""},"onTax":{"editor":null},"$preview":{"width":360,"height":340}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"title":{"editor":"text","default":"Выплачено"},"accent":{"editor":"text","default":"93%"},"sub":{"editor":"text","default":"600 ₽ ещё ждёт выплаты"},"rows":{"editor":null},"onOpen":{"editor":null},"onExpenses":{"editor":null},"finesLabel":{"editor":"text","default":"Удержано · −150 ₽"},"onFines":{"editor":null},"viaLabel":{"editor":"text","default":""},"expensesLabel":{"editor":"text","default":""},"only":{"editor":null},"taxValue":{"editor":"text","default":""},"taxSub":{"editor":"text","default":""},"onTax":{"editor":null},"$preview":{"width":360,"height":340}}'>
 // деньги периода: начислено, выплачено, ждёт выплаты и расходы полосами относительно начисленного
 const RSM_NOOP = () => {};
 class Component extends DCLogic {
@@ -27,14 +27,16 @@ class Component extends DCLogic {
       // без пропсов показываем демо для дизайн-системы
       title: p.title === undefined ? 'Выплачено' : (p.title || 'Деньги за период'), accent: p.accent === undefined ? '93%' : (p.accent || ''),
       sub: p.sub === undefined ? '600 ₽ ещё ждёт выплаты' : (p.sub || ''), has_sub: p.sub === undefined || !!p.sub,
-      rows: only ? rows.filter((row) => only.indexOf(row.kind) !== -1) : rows,
+      rows: (only ? rows.filter((row) => only.indexOf(row.kind) !== -1) : rows).map((row) => Object.assign({}, row, { note: row.note || '', has_track: !row.plain })),
       // налог в этой же карточке, если экран его передал
       has_tax: !!p.taxValue, tax_value: p.taxValue || '', tax_sub: p.taxSub || '', tax_aria: 'Налог за период ' + (p.taxValue || '') + ', ' + (p.taxSub || ''), on_tax: typeof p.onTax === 'function' ? p.onTax : RSM_NOOP,
       on_open: typeof p.onOpen === 'function' ? p.onOpen : RSM_NOOP,
       on_expenses: typeof p.onExpenses === 'function' ? p.onExpenses : RSM_NOOP,
       // комиссия посредника отдельной строкой, не смешиваем с удержаниями
       via_label: p.viaLabel || '',
-      fines_label: p.finesLabel === undefined ? 'Штрафы и удержания · −150 ₽' : (p.finesLabel || ''),
+      // сумма расходов прямо в строке
+      expenses_text: p.expensesLabel ? 'Расходы · ' + p.expensesLabel : 'Расходы за период',
+      fines_label: p.finesLabel === undefined ? 'Удержано · −150 ₽' : (p.finesLabel || ''),
       on_fines: typeof p.onFines === 'function' ? p.onFines : RSM_NOOP
     };
   }

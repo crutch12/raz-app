@@ -7,6 +7,7 @@
     .rnr-ico { position: relative; flex: none; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 11px; background: var(--raznos-surface-2); color: var(--raznos-ink-2); }
     .rnr-ico-money { background: var(--raznos-green-tint); color: var(--raznos-green-deep); }
     .rnr-ico-shifts { background: var(--raznos-amber-tint); color: var(--raznos-amber); }
+    .rnr-ico-need { background: var(--raznos-red-tint); color: var(--raznos-red); }
     .rnr-ico-conn { background: var(--raznos-red-tint); color: var(--raznos-red); }
     .rnr-ico-raznos { background: var(--raznos-dark); color: var(--raznos-on-dark); }
     .rnr-unread-dot { position: absolute; top: -3px; right: -3px; width: 10px; height: 10px; border-radius: 50%; background: var(--raznos-green); border: 2px solid var(--raznos-surface); }
@@ -45,7 +46,7 @@
 </div>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"item":{"editor":null},"onOpen":{"editor":null},"onHide":{"editor":null},"onRestore":{"editor":null},"$preview":{"width":360,"height":110}}'>
 // строка уведомления: значок категории, точка у непрочитанного, метка у того, где нужно действие, крестик скрывает
-const RNR_DEMO = { id: 'demo', cat: 'money', title: 'Вывод 4 200 ₽ не прошёл', text: 'Банк отклонил платёж, проверьте карту', time: '14:20', unread: true, need: true, done: false };
+const RNR_DEMO = { id: 'demo', cat: 'money', title: 'Вывод 50 ₽ не прошёл', text: 'Банк отклонил платёж, проверьте карту', time: '14:20', unread: true, need: true, done: false };
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
@@ -54,8 +55,8 @@ class Component extends DCLogic {
     const unread = !!it.unread;
     return {
       row_cls: 'rnr-row' + (unread ? ' rnr-is-unread' : ''),
-      // решённое тускнеет, без цвета категории
-      ico_cls: 'rnr-ico' + (it.done ? '' : ' rnr-ico-' + cat),
+      // решённое тускнеет без цвета, требующее действия красное
+      ico_cls: 'rnr-ico' + (it.done ? '' : (it.need ? ' rnr-ico-need' : ' rnr-ico-' + cat)),
       is_money: cat === 'money', is_shifts: cat === 'shifts', is_conn: cat === 'conn', is_answers: cat === 'answers', is_raznos: cat === 'raznos',
       unread, need: !!it.need && !it.done, done: !!it.done,
       title: it.title || '', text: it.text || '', time: it.time || '',

@@ -23,7 +23,7 @@
             </button>
           </sc-for>
         </div>
-        <p class="raznos-text-tiny">Медиана за 4 недели, велосипед, участники Разноса. Транспорт и период можно посмотреть в Рынке</p>
+        <p class="raznos-text-tiny">За 4 недели, по данным курьеров Разноса. Транспорт и период в Рынке</p>
         <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ go_compare }}">Сравнить все сервисы</button>
         </sc-if>
         <sc-if value="{{ no_data }}">
@@ -63,7 +63,7 @@
           const services = !hasData ? [] : rates.map((r) => ({
             key: r.key,
             title: svcTitles[r.key],
-            note: r.sufficient ? `Медиана курьеров: ${r.hourly} ₽/ч` : 'Мало данных',
+            note: r.sufficient ? `Обычно платят ${r.hourly} ₽/ч` : 'Мало данных',
             cardClass: 'user-home-service-card raznos-svc-border-' + r.key,
             tintStyle: 'background:var(--raznos-svc-' + r.key + '-tint)',
             onTap: () => onNavigate('compare', r.key)

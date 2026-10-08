@@ -27,16 +27,12 @@
     .rws-wd-hours > i { font-style: normal; color: var(--raznos-ink-3); }
     .rws-wd-time { min-width: 0; height: 40px; padding: 0 8px; border: 1px solid var(--raznos-line-strong); border-radius: 10px; background: var(--raznos-surface); font: 600 15px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
     .rws-wd-off { flex: 1; text-align: right; font: 500 14px var(--raznos-font); color: var(--raznos-ink-3); }
-    .rws-recap { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 14px; background: var(--raznos-green-tint); border: 1px solid var(--raznos-green); }
-    .rws-recap-label { font: 500 12px var(--raznos-font); color: var(--raznos-green-deep); }
-    .rws-recap-value { font: 700 16px var(--raznos-font); color: var(--raznos-ink); }
   </style>
 </helmet>
 <div class="raznos-phone-body" data-screen-label="Work schedule">
   <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><h1 class="raznos-text-h1" style="margin:0">График работы</h1></div>
-  <p class="raznos-text-small">Когда вы обычно на линии. Умное расписание берёт это за основу плана дня</p>
+  <p class="raznos-text-small">План собирается в эти часы</p>
 
-  <div class="rws-recap"><span class="rws-recap-label">Сейчас в графике</span><span class="rws-recap-value">{{ summary }}</span></div>
 
   <button type="button" class="rws-toggle" onClick="{{ toggle_per_day }}" role="switch" aria-checked="{{ per_day_aria }}"><span class="rws-toggle-copy"><b>Разные часы по дням</b><span>Например, в понедельник 10–16, а в пятницу 14–22</span></span><span class="{{ per_day_switch }}"><span class="raznos-switch-knob"></span></span></button>
 
@@ -105,17 +101,12 @@ class Component extends DCLogic {
       else setDay(i, { to: m, from: Math.min(w.from, m - 60) });
     };
     const toggle = (i) => { const next = active.slice(); next[i] = !next[i]; set({ active: next }); };
-    const cnt = active.filter(Boolean).length;
     const hasDistricts = p.hasDistricts !== false; // город без районов передаёт hasDistricts=false
     const selZones = st.zones || []; // пусто = весь город
     const toggleZone = (name) => { const next = selZones.indexOf(name) >= 0 ? selZones.filter((z) => z !== name) : selZones.concat([name]); set({ zones: next }); };
     const zoneChips = [{ label: 'Весь город', cls: 'raznos-chip' + (selZones.length === 0 ? ' raznos-is-active' : ''), tap: () => set({ zones: [] }) }]
       .concat(RWS_ZONES.map((name) => ({ label: name, cls: 'raznos-chip' + (selZones.indexOf(name) >= 0 ? ' raznos-is-active' : ''), tap: () => toggleZone(name) })));
-    const zonesNote = !hasDistricts ? '' : (selZones.length === 0 ? 'весь город' : (selZones.length + ' ' + (selZones.length === 1 ? 'район' : (selZones.length < 5 ? 'района' : 'районов'))));
     const onDays = week.filter((w) => w.on);
-    const sameAll = onDays.every((w) => w.from === onDays[0].from && w.to === onDays[0].to);
-    const weekPart = !onDays.length ? 'Рабочие дни не выбраны, счёт с 09:00' : onDays.length + ' ' + (onDays.length === 1 ? 'день' : (onDays.length < 5 ? 'дня' : 'дней')) + ' в неделю' + (sameAll ? ', ' + rwsTime(onDays[0].from) + '–' + rwsTime(onDays[0].to) : ', часы по дням') ;
-    const daysPart = perDay ? weekPart : cnt ? (cnt + ' ' + (cnt === 1 ? 'день' : (cnt < 5 ? 'дня' : 'дней')) + ' в неделю, ' + rwsHour(start) + '–' + rwsHour(end)) : 'Рабочие дни не выбраны, счёт с 09:00';
     return {
       onBack: p.onBack || (() => {}),
       per_day: perDay, same_hours: !perDay, per_day_aria: String(perDay),
@@ -135,7 +126,6 @@ class Component extends DCLogic {
       end_dec: () => set({ end: Math.max(start + 1, end - 1) }), end_inc: () => set({ end: Math.min(23, end + 1) }),
       start_dec_off: start <= 0, start_inc_off: start >= end - 1, end_dec_off: end <= start + 1, end_inc_off: end >= 23,
       has_districts: hasDistricts, no_districts: !hasDistricts, zones: zoneChips,
-      summary: daysPart + (hasDistricts && zonesNote ? (', ' + zonesNote) : ''),
       saved: !!st.saved,
       do_save: () => { set({ saved: true }); if (typeof p.onSave === 'function') p.onSave(perDay ? { perDay: true, week, days: week.map((w) => w.on), start: Math.floor(Math.min.apply(null, onDays.map((w) => w.from).concat([start * 60])) / 60), end: Math.ceil(Math.max.apply(null, onDays.map((w) => w.to).concat([end * 60])) / 60) } : { perDay: false, start, end, days: active }); }
     };

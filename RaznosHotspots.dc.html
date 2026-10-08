@@ -39,7 +39,7 @@
     <span class="raznos-fx raznos-col"><span class="rhs-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg>Где выгоднее</span><span class="rhs-sub">{{ card_sub }}</span></span>
     <div class="rhs-list">
       <sc-for list="{{ card_rows }}" as="z" hint-placeholder-count="4">
-        <dc-import name="RaznosRankRow" rank="{{ z.rank }}" title="{{ z.name }}" meta="{{ z.meta }}" fill="{{ z.fill }}" value="{{ z.val }}" action="{{ z.action }}" href="{{ z.routeHref }}" actionLabel="{{ z.routeAria }}" trend="{{ z.trend }}" trendUp="{{ z.trendUp }}" trendDown="{{ z.trendDown }}" trendTail="{{ z.trendTail }}" divider="{{ z.divider }}"></dc-import>
+        <dc-import name="RaznosRankRow" rank="{{ z.rank }}" title="{{ z.name }}" meta="{{ z.meta }}" fill="{{ z.fill }}" value="{{ z.val }}" action="{{ z.action }}" href="{{ z.routeHref }}" actionLabel="{{ z.routeAria }}" trend="{{ z.trend }}" trendUp="{{ z.trendUp }}" trendDown="{{ z.trendDown }}" trendTail="{{ z.trendTail }}" divider="{{ z.divider }}" badge="{{ z.badge }}" onTap="{{ z.tap }}"></dc-import>
       </sc-for>
     </div>
     <div class="rhs-foot"><span class="rhs-best">{{ more_label }}</span><button type="button" class="rhs-more" onClick="{{ open_more }}">Подробнее<span class="raznos-row-chevron">›</span></button></div>
@@ -73,7 +73,7 @@
     <p class="raznos-text-tiny">{{ source_note }}</p>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"open":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"$preview":{"width":390,"height":330}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"open":{"editor":null},"initialView":{"editor":"text","default":"list"},"initialPick":{"editor":"text","default":""},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"$preview":{"width":390,"height":330}}'>
 // где выгоднее по мотивам Gridwise Where to Work: районы по доходу, полоса от лучшего, тренд за 4 недели
 // один компонент на карточку хаба Работа и экран, чтобы цифры совпадали
 // районы те же, что в фильтре Когда выгоднее, демо
@@ -104,6 +104,12 @@ const RHS_TODS = [
   { k: 'night', label: 'Ночь', note: '22–24', i: 3 }
 ];
 const RHS_FMT = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+// выборка и период те же, что в Когда выгоднее и Сравнении сервисов: последние 4 недели до вчера
+const RHS_PERIOD = (() => {
+  const mon = ['янв', 'февр', 'марта', 'апр', 'мая', 'июня', 'июля', 'авг', 'сент', 'окт', 'нояб', 'дек'];
+  const at = (off) => { const d = new Date(); d.setDate(d.getDate() + off); return d.getDate() + ' ' + mon[d.getMonth()]; };
+  return at(-28) + ' – ' + at(-1);
+})();
 const byKey = (list, k) => list.find((x) => x.k === k) || list[0];
 const rhsKm = (km) => String(km).replace('.', ',') + ' км';
 class Component extends DCLogic {
@@ -138,18 +144,16 @@ class Component extends DCLogic {
     const fillW = (v) => Math.round(18 + 82 * (max === min ? 1 : (v - min) / (max - min)));
     const rowOf = (x) => ({
       rank: x.rank, name: x.z.name, val: shown(x.v), fill: fillW(x.v),
-      meta: '', action: '', routeHref: '', routeAria: '', trend: 0, trendTail: '', divider: false
+      meta: '', action: '', routeHref: '', routeAria: '', trend: 0, trendTail: '', divider: false, badge: '', tap: null
     });
 
     // экран: сортировка по доходу или по расстоянию, выноски трендов от 10%
     const nearFirst = st.sort === 'near';
     const list = nearFirst ? byValue.slice().sort((a, b) => a.z.km - b.z.km) : byValue;
-    // выноски только у самого растущего и самого падающего района, чтобы список не пестрел
-    const upX = byValue.filter((x) => x.z.trend >= 10).sort((a, b) => b.z.trend - a.z.trend)[0];
-    const downX = byValue.filter((x) => x.z.trend <= -10).sort((a, b) => a.z.trend - b.z.trend)[0];
+    // выноска у тех, кто изменился на 10% и больше, тот же порог, что у стрелки на карте и плашки на главной
     const rows = list.map((x) => {
       const r = rowOf(x);
-      const big = x === upX || x === downX;
+      const big = Math.abs(x.z.trend) >= 10;
       return Object.assign(r, {
         meta: rhsKm(x.z.km),
         routeHref: 'https://yandex.ru/maps/?mode=routes&rtext=~' + encodeURIComponent(city + ', район ' + x.z.name),
@@ -161,12 +165,15 @@ class Component extends DCLogic {
     });
 
     // выбранный на карте район, по умолчанию самый выгодный
-    const pickX = byValue.find((x) => x.z.k === st.pick) || byValue[0];
-    const pickRow = pickX ? { k: pickX.z.k, row: Object.assign(rows.find((r) => r.name === pickX.z.name) || rowOf(pickX), { trend: pickX.z.trend, divider: false }) } : null;
+    const view = st.view || p.initialView || 'list';
+    const pickX = byValue.find((x) => x.z.k === (st.pick || p.initialPick)) || byValue[0];
+    const pickRow = pickX ? { k: pickX.z.k, row: Object.assign(rows.find((r) => r.name === pickX.z.name) || rowOf(pickX), { trend: Math.abs(pickX.z.trend) >= 10 ? pickX.z.trend : 0, divider: false }) } : null;
     // карточка: топ-3 и район, который растёт быстрее всех вне топа
     const top = byValue.slice(0, 3);
     const risingX = byValue.slice(3).filter((x) => x.z.trend >= 10).sort((a, b) => b.z.trend - a.z.trend)[0];
-    const rising = risingX ? Object.assign(rowOf(risingX), { trend: risingX.z.trend, trendTail: '· по курьерам Разноса', trendUp: 'Доход в час вырос на {n}% за месяц', trendDown: 'Доход в час упал на {n}% за месяц' }) : null;
+    const open = typeof p.open === 'function' ? p.open : (() => {});
+    // рост показываем плашкой в строке, без номера, чтобы счёт не скакал
+    const rising = risingX ? Object.assign(rowOf(risingX), { rank: 0, badge: 'растёт на ' + risingX.z.trend + '% за месяц' }) : null;
 
     const optsOf = (l) => l.map((o) => ({ k: o.k, label: o.label, note: o.note }));
     const filters = [
@@ -175,16 +182,15 @@ class Component extends DCLogic {
       { key: 'metric', title: 'Показатель', value: metric.k, def: 'pay', options: optsOf(RHS_METRICS) },
       { key: 'cat', title: 'Сервис', value: cat.k, def: 'all', options: optsOf(RHS_CATS) }
     ];
-    const open = typeof p.open === 'function' ? p.open : (() => {});
 
     return {
       no_data: !hasData, no_data_title: 'Нет данных по городу ' + city,
       is_card: !full && hasData, is_full: full && hasData,
-      card_sub: city + ' · ₽ в час · вся неделя',
+      card_sub: city + ' · ₽ в час · район за всю неделю',
       // растущий район отделяем чертой от топа
-      card_rows: top.map((x, i) => Object.assign(rowOf(x), { divider: !!rising && i === top.length - 1 })).concat(rising ? [rising] : []),
+      card_rows: top.map((x) => rowOf(x)).concat(rising ? [rising] : []).map((r, i) => Object.assign(r, { tap: () => open({ view: 'map', pick: (byValue.find((x) => x.z.name === r.name) || {}).z.k }), divider: false })),
       more_label: (() => { const n = Math.max(0, byValue.length - 3 - (rising ? 1 : 0)); const w = (n % 10 === 1 && n % 100 !== 11) ? 'район' : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'района' : 'районов'); return 'Ещё ' + n + ' ' + w; })(),
-      open_more: () => open(),
+      open_more: () => open({ view: 'list' }),
       by_rank: !nearFirst, by_near: nearFirst,
       seg_rank_cls: 'raznos-segment' + (!nearFirst ? ' raznos-is-active' : ''),
       seg_near_cls: 'raznos-segment' + (nearFirst ? ' raznos-is-active' : ''),
@@ -192,15 +198,15 @@ class Component extends DCLogic {
       filters, on_filter: (key, k) => set({ [key]: k }),
       rows, is_empty: rows.length === 0,
       // карта: те же районы и цифры, что в списке, цвет от худшего к лучшему
-      is_map: st.view === 'map', is_list: st.view !== 'map',
-      view_list_cls: 'raznos-segment' + (st.view !== 'map' ? ' raznos-is-active' : ''), view_map_cls: 'raznos-segment' + (st.view === 'map' ? ' raznos-is-active' : ''),
+      is_map: view === 'map', is_list: view !== 'map',
+      view_list_cls: 'raznos-segment' + (view !== 'map' ? ' raznos-is-active' : ''), view_map_cls: 'raznos-segment' + (view === 'map' ? ' raznos-is-active' : ''),
       view_list: () => set({ view: 'list' }), view_map: () => set({ view: 'map' }),
       map_zones: RHS_ZONES.map((z) => {
         const x = scored.find((y) => y.z === z);
         return { k: z.k, name: z.name, val: x ? shown(x.v) + (metric.k === 'pay' ? '/ч' : '') : 'нет заказов', t: x ? (max === min ? 1 : (x.v - min) / (max - min)) : null, up: !!x && z.trend >= 10, top: !!x && x.rank === 1, sel: pickRow && pickRow.k === z.k, tap: () => set({ pick: z.k }) };
       }),
       has_pick: !!pickRow, pick: pickRow ? pickRow.row : {},
-      source_note: 'По заказам курьеров Разноса: ' + city + ', 18 авг – 14 сент (4 недели), 184 курьера, 6 240 заказов. Расстояние считаем от вашего района'
+      source_note: 'Обычный доход в час, ' + city + ' · 184 курьера Разноса · 6 240 заказов · ' + RHS_PERIOD + '. Расстояние считаем от вашего района'
     };
   }
 }

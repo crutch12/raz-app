@@ -167,9 +167,9 @@ class Component extends DCLogic {
     const tipNum = Number(String(tipText).replace(',', '.')) || 0;
 
     const rows = src.map((o) => ({
-      svc: o.svc, svcTitle: RRO_SVC[o.svc] || o.svc, route: o.route, meta: o.meta, pay: o.pay,
+      svc: o.svc, svcTitle: RRO_SVC[o.svc] || o.svc, route: o.route, meta: o.meta.replace(/ ₽/g, " ₽"), pay: o.pay,
       openOrder: () => (o.isTrip ? onOpenTrip(o.id) : onOpenOrder(o.id)),
-      canAdd: true,
+      canAdd: !o.isTrip,
       isTrip: !!o.isTrip, count: o.count || '', note: o.note || '', hasNote: !!o.note,
       // у маршрута в меню только то, что относится ко всей поездке, чаевые и отзыв к заказу внутри маршрута
       menu: o.isTrip ? RRO_TRIP_MENU : RRO_ORDER_MENU,

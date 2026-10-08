@@ -64,7 +64,7 @@
                 </div>
               </div>
             </div>
-            <div class="raznos-onboarding-copy"><h1>План недели под вашу цель</h1><p>Считаем спрос по районам и подбираем окна, где час принесёт больше</p></div>
+            <div class="raznos-onboarding-copy"><h1>План недели под вашу цель</h1><p>Видим, где и когда заказов больше, и подсказываем, когда выйти</p></div>
           </div>
         </sc-if>
 
@@ -74,7 +74,7 @@
               <div class="raznos-ob-screen-body">
                 <div class="raznos-ob-card raznos-ob-result">
                   <span class="raznos-ob-result-label">Заработали за неделю</span>
-                  <span class="raznos-ob-result-sum">14 202 ₽</span>
+                  <span class="raznos-ob-result-sum">27 367 ₽</span>
                   <div class="raznos-ob-rings">
                     <sc-for list="{{ rings }}" as="r" hint-placeholder-count="7">
                       <span class="{{ r.cls }}"><i style="{{ r.style }}"></i>{{ r.wd }}</span>
@@ -82,12 +82,12 @@
                   </div>
                 </div>
                 <div class="raznos-ob-card raznos-ob-compare">
-                  <span class="raznos-ob-compare-head"><span class="raznos-ob-compare-arrow">↗</span>Выше медианы города на 8 050 ₽</span>
+                  <span class="raznos-ob-compare-head"><span class="raznos-ob-compare-arrow">↗</span>Больше, чем у половины курьеров</span>
                   <div class="raznos-ob-compare-track"><span class="raznos-ob-compare-band"></span><span class="raznos-ob-compare-median"></span><span class="raznos-ob-compare-me"></span></div>
                 </div>
               </div>
             </div>
-            <div class="raznos-onboarding-copy"><h1>Видно, что сработало</h1><p>Итоги по реальным заказам и сравнение с медианой курьеров города</p></div>
+            <div class="raznos-onboarding-copy"><h1>Итоги недели без догадок</h1><p>По реальным заказам и рядом с другими курьерами города</p></div>
           </div>
         </sc-if>
 
@@ -106,7 +106,7 @@
                 </div>
               </div>
             </div>
-            <div class="raznos-onboarding-copy"><h1>Где платят больше</h1><p>Прогноз дохода в час по районам на ближайшие часы, по заказам курьеров рядом</p></div>
+            <div class="raznos-onboarding-copy"><h1>Где платят больше</h1><p>Сколько можно заработать за час в районах рядом, по данным курьеров</p></div>
           </div>
         </sc-if>
 
@@ -116,13 +116,13 @@
               <div class="raznos-ob-screen-body">
                 <div class="raznos-ob-person">
                   <span class="raznos-ob-person-photo"><dc-import name="RaznosAvatar" kind="portrait1" size="sm" alt=""></dc-import></span>
-                  <span class="raznos-ob-person-main"><b>Алексей Соколов</b><small>Москва · велосипед</small></span>
+                  <span class="raznos-ob-person-main"><b><span class="raznos-ob-person-name">Алексей Соколов</span><em class="raznos-ob-person-you">Вы</em></b><small>Москва · велосипед</small></span>
                   <span class="raznos-ob-person-sum">27 367 ₽<small>за неделю</small></span>
                 </div>
                 <div class="raznos-ob-top"><dc-import name="RaznosStatsTopLink" place="{{ 28 }}" placeDelta="{{ 3 }}" scope="Москва · заработок за неделю"></dc-import></div>
               </div>
             </div>
-            <div class="raznos-onboarding-copy"><h1>Ваше место среди курьеров</h1><p>Топ города по реальному заработку, обновляется каждый день, имена скрыты</p></div>
+            <div class="raznos-onboarding-copy"><h1>Ваше место среди курьеров</h1><p>Рейтинг города по реальному заработку, каждый день заново, имена скрыты</p></div>
           </div>
         </sc-if>
 

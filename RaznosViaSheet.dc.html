@@ -106,7 +106,7 @@ class Component extends DCLogic {
       tabs: kinds.map((k) => ({ label: k.label, mine: !!k.mine, on: k.k === cur.k, cls: 'rvs-tab' + (k.k === cur.k ? ' raznos-is-active' : ''), tap: () => this.setState({ tab: k.k }) })),
       gives: cur.gives || '', gives_src: cur.givesSrc || '',
       rows, questions,
-      seen: v.seen || 'Пока ничего: сервис эти данные не передаёт', seen_src: v.seenSrc || '',
+      seen: v.seen || 'Заказы, выплаты и удержания из вашего аккаунта', seen_src: v.seenSrc || '',
       close: () => { if (typeof p.onClose === 'function') p.onClose(); },
       stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
     };

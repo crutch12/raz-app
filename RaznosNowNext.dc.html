@@ -36,10 +36,10 @@
       <span class="rnn-row-body"><span class="rnn-row-top"><span class="rnn-row-lab">{{ row.label }}</span><span class="rnn-row-hint">{{ row.hint }}</span></span><span class="rnn-row-name">{{ row.title }}</span><span class="rnn-row-sub">{{ row.subTime }}</span><sc-if value="{{ row.place }}" hint-placeholder-val="{{ true }}"><span class="rnn-row-place">{{ row.place }}</span></sc-if><sc-if value="{{ row.deadline }}" hint-placeholder-val="{{ false }}"><span class="rnn-row-place">{{ row.deadline }}</span></sc-if></span>
     </button>
   </sc-for>
-  <sc-if value="{{ warning }}" hint-placeholder-val="{{ true }}"><button type="button" class="rnn-warning" onClick="{{ on_warning }}"><span>{{ warning }}</span><span class="rnn-warning-act">Решить в плане ›</span></button></sc-if>
+  <sc-if value="{{ warning }}" hint-placeholder-val="{{ true }}"><button type="button" class="rnn-warning" onClick="{{ on_warning }}"><span>{{ warning }}</span><span class="rnn-warning-act">Что делать ›</span></button></sc-if>
   <button type="button" class="rnn-open" onClick="{{ open_plan }}">План дня<span class="raznos-row-chevron">›</span></button>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"text","default":"on"},"dayLine":{"editor":"text","default":"09:00–20:00 · осталось 4 ч 20 мин"},"rows":{"editor":null},"onWarning":{"editor":null},"warning":{"editor":"text","default":"Не успеете доехать: между сменами 0 мин, дорога ≈ 20 мин"},"onEnd":{"editor":null},"onStart":{"editor":null},"onOpenPlan":{"editor":null},"onOpenShift":{"editor":null},"$preview":{"width":390,"height":260}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"text","default":"on"},"dayLine":{"editor":"text","default":"09:00–20:00 · осталось 4 ч 20 мин"},"rows":{"editor":null},"onWarning":{"editor":null},"warning":{"editor":"text","default":"Не успеете доехать: смены встык, дорога ≈ 20 мин"},"onEnd":{"editor":null},"onStart":{"editor":null},"onOpenPlan":{"editor":null},"onOpenShift":{"editor":null},"$preview":{"width":390,"height":260}}'>
 // Сейчас и дальше в Сегодня: бронь из Смен важнее плана, план подставляется только в свободные часы
 class Component extends DCLogic {
   renderVals() {
@@ -65,7 +65,7 @@ class Component extends DCLogic {
         tap: row.source === 'booking' ? () => openShift(row) : openPlan
       });
     });
-    const warning = p.warning === undefined ? 'Не успеете доехать: между сменами 0 мин, дорога ≈ 20 мин' : (p.warning || '');
+    const warning = p.warning === undefined ? 'Не успеете доехать: смены встык, дорога ≈ 20 мин' : (p.warning || '');
     return {
       title: state === 'idle' ? 'Смена не начата' : 'Рабочий день',
       day_line: p.dayLine === undefined ? '09:00–20:00 · осталось 4 ч 20 мин' : p.dayLine,

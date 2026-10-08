@@ -165,7 +165,7 @@ class Component extends DCLogic {
     }
     const selZ = zones.find((z) => z.sel);
     // метки только у лучших и у выбранного, остальные районы видно по сотам
-    const labels = zones.filter((z) => z.sel || z.lvl >= 2).map((z) => ({ pos: z.pos, sel: z.sel, name: z.name, val: z.sel ? z.val : String(z.val).replace(/[^\d ]/g, '').trim(), up: z.up, lab_cls: 'rcm-zone-lab' + (z.sel ? ' rcm-lab-sel' : '') }));
+    const labels = zones.filter((z) => z.sel || z.lvl >= 2).map((z) => ({ pos: z.sel ? 'left:clamp(84px,' + (z.cx / 3.6) + '%,calc(100% - 84px));top:' + (z.cy / 4.4) + '%' : z.pos, sel: z.sel, name: z.name, val: z.sel ? z.val : String(z.val).replace(/[^\d ]/g, '').trim(), up: z.up, lab_cls: 'rcm-zone-lab' + (z.sel ? ' rcm-lab-sel' : '') }));
     // focus: {x, y} приближает карту к точке, края не выходят за схему
     const f = p.focus;
     let vb = '0 0 360 440';

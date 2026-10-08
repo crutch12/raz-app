@@ -1,7 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
 <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
 <div class="raznos-stats-services-card">
-  <button type="button" class="raznos-stats-head-link" onClick="{{ on_open }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">{{ title }} <em class="{{ accent_class }}">{{ accent }}</em></h2></span><sc-if value="{{ has_open }}" hint-placeholder-val="{{ true }}"><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></sc-if></button>
+  <button type="button" class="{{ head_class }}" onClick="{{ on_open }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">{{ title }} <em class="{{ accent_class }}">{{ accent }}</em></h2></span><sc-if value="{{ has_open }}" hint-placeholder-val="{{ true }}"><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></sc-if></button>
   <div class="raznos-stats-service-bars"><sc-for list="{{ rows }}" as="row" hint-placeholder-count="2"><button type="button" class="raznos-stats-service-bar raznos-is-{{ row.key }}" onClick="{{ row.tap }}"><span class="raznos-stats-service-head"><span class="raznos-stats-service-label"><dc-import name="RaznosIcon" svc="{{ row.key }}" size="sm"></dc-import><span class="raznos-stats-service-name"><strong>{{ row.title }}</strong><span class="raznos-stats-service-orders">{{ row.orders_label }}</span></span></span><strong class="raznos-stats-service-sum">{{ row.amount }}</strong></span><span class="raznos-stats-service-track"><i style="{{ row.bar_style }}"></i></span></button></sc-for></div>
 </div>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"rows":{"editor":null},"title":{"editor":null},"accent":{"editor":null},"accentClass":{"editor":null},"onOpen":{"editor":null},"$preview":{"width":360,"height":240}}'>
@@ -20,7 +20,8 @@ class Component extends DCLogic {
     const own = p.title != null;
     return {
       // в подробном экране карточка уже открыта, стрелку не показываем
-      has_open: typeof p.onOpen === 'function',
+      // до трёх сервисов список уже весь на карточке, перехода нет
+      has_open: typeof p.onOpen === 'function' && rows.length > 3, head_class: 'raznos-stats-head-link' + (typeof p.onOpen === 'function' && rows.length > 3 ? '' : ' raznos-is-static'),
       title: own ? p.title : (!top ? 'Где заработали' : (known.length > 1 ? 'Больше всего дал' : 'Весь доход дал')),
       accent: own ? (p.accent || '') : (top ? top.title : ''),
       accent_class: own ? (p.accentClass || '') : (top ? 'raznos-stats-svc-accent raznos-is-' + top.key : ''),
@@ -28,7 +29,7 @@ class Component extends DCLogic {
         orders_label: row.orders_label || (row.orders == null ? 'Нет данных' : row.orders + ' ' + RSS_SVC_PLURAL(row.orders)),
         tap: typeof row.tap === 'function' ? row.tap : (() => {})
       })),
-      on_open: typeof p.onOpen === 'function' ? p.onOpen : (() => {})
+      on_open: typeof p.onOpen === 'function' && rows.length > 3 ? p.onOpen : (() => {})
     };
   }
 }

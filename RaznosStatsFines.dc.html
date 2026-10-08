@@ -12,18 +12,18 @@
     <div class="raznos-stats-section">
       <h2 class="raznos-stats-section-title">{{ cases_title }}</h2>
       <div class="raznos-stats-fine-list"><sc-for list="{{ cases }}" as="row" hint-placeholder-count="3"><button type="button" class="raznos-stats-fine-row" onClick="{{ row.tap }}"><dc-import name="RaznosIcon" svc="{{ row.key }}" size="sm"></dc-import><span class="raznos-stats-fine-copy"><strong>{{ row.reason }}</strong><small>{{ row.meta }}</small><small>{{ row.lost }}</small></span><strong class="raznos-stats-fines-amount">{{ row.amount }}</strong></button></sc-for></div>
-      <p class="raznos-stats-note">{{ note }}</p>
+      <sc-if value="{{ note }}" hint-placeholder-val="{{ false }}"><p class="raznos-stats-note">{{ note }}</p></sc-if>
     </div>
   </sc-if>
   <sc-if value="{{ has_via }}" hint-placeholder-val="{{ false }}">
     <div class="raznos-stats-section">
-      <div class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">Комиссия посредника <em class="raznos-stats-fines-accent">{{ via_accent }}</em></h2><small>{{ via_sub }}</small></div>
+      <div class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">Парк взял за вывод <em class="raznos-stats-fines-accent">{{ via_accent }}</em></h2><small>{{ via_sub }}</small></div>
       <div class="raznos-stats-fine-list"><sc-for list="{{ via_rows }}" as="row" hint-placeholder-count="2"><div class="raznos-stats-fine-row" style="cursor:default"><dc-import name="RaznosIcon" svc="{{ row.key }}" size="sm"></dc-import><span class="raznos-stats-fine-copy"><strong>{{ row.reason }}</strong><small>{{ row.meta }}</small></span><strong class="raznos-stats-fines-amount">{{ row.amount }}</strong></div></sc-for></div>
-      <p class="raznos-stats-note">{{ via_note }}</p>
+      <sc-if value="{{ via_note }}" hint-placeholder-val="{{ false }}"><p class="raznos-stats-note">{{ via_note }}</p></sc-if>
     </div>
   </sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"title":{"editor":"text","default":"Удержано"},"accent":{"editor":"text","default":"650 ₽"},"sub":{"editor":"text","default":"5 случаев за период"},"share":{"editor":"text","default":"1,1% от начисленного"},"byService":{"editor":null},"cases":{"editor":null},"via":{"editor":null},"casesTitle":{"editor":"text","default":"За что удержали"},"note":{"editor":"text","default":"Удержания берём из заказов и личного кабинета сервиса, один случай учитывается один раз"},"$preview":{"width":360,"height":620}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"title":{"editor":"text","default":"Удержано"},"accent":{"editor":"text","default":"650 ₽"},"sub":{"editor":"text","default":"5 случаев за период"},"share":{"editor":"text","default":"1,1% от начисленного"},"byService":{"editor":null},"cases":{"editor":null},"via":{"editor":null},"casesTitle":{"editor":"text","default":"За что удержали"},"note":{"editor":"text","default":""},"$preview":{"width":360,"height":620}}'>
 // штрафы и удержания, у сервисов без официальных штрафов корректировки и возвраты: сумма, доля от начисленного, по сервисам и список случаев с переходом к заказу
 class Component extends DCLogic {
   renderVals() {
@@ -40,7 +40,7 @@ class Component extends DCLogic {
     return {
       title: p.title || 'Удержано', accent: p.accent === undefined ? '650 ₽' : (p.accent || ''), sub: p.sub || '',
       share: p.share === undefined ? '1,1% от начисленного' : (p.share || ''),
-      cases_title: p.casesTitle || 'За что удержали', note: p.note || 'Удержания берём из заказов и личного кабинета сервиса, один случай учитывается один раз',
+      cases_title: p.casesTitle || 'За что удержали', note: p.note || '',
       has_via: !!(p.via && p.via.rows && p.via.rows.length), via_accent: p.via ? p.via.accent : '', via_sub: p.via ? p.via.sub : '', via_rows: p.via && p.via.rows ? p.via.rows : [], via_note: p.via ? p.via.note : '',
       by_service: byService, has_services: byService.length > 0, cases, has_cases: cases.length > 0
     };

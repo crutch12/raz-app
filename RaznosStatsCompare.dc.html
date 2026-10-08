@@ -3,27 +3,21 @@
 <section class="raznos-stats-section raznos-stats-compare-card" aria-label="Сравнение">
   <button type="button" class="raznos-stats-head-link" onClick="{{ on_open }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">Сравнение</h2><small>{{ caption }}</small></span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
   <div class="raznos-stats-verdicts">
-    <sc-if value="{{ delta_visible }}" hint-placeholder-val="{{ true }}"><div class="{{ delta_class }}"><span class="raznos-stats-delta-mark" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><span>{{ delta_label }}</span></div></sc-if>
-    <dc-import name="RaznosCohortCompare" verdictMode="{{ true }}" recapMode="{{ true }}" city="{{ city }}" mineCity="{{ mine_city }}" transport="{{ transport }}" period="{{ period }}" svc="{{ svc }}" district="{{ district }}" mineAmount="{{ mine_amount }}" medianHint="{{ median_hint }}" onSettings="{{ on_settings }}"></dc-import>
+    <dc-import name="RaznosCohortCompare" verdictMode="{{ true }}" recapMode="{{ true }}" city="{{ city }}" mineCity="{{ mine_city }}" transport="{{ transport }}" period="{{ period }}" svc="{{ svc }}" district="{{ district }}" mineAmount="{{ mine_amount }}" medianHint="{{ median_hint }}" share="{{ share }}" onSettings="{{ on_settings }}"></dc-import>
   </div>
   <dc-import name="RaznosMyTrends" current="{{ current }}" previous="{{ previous }}" keys="{{ keys }}"></dc-import>
 </section>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"delta":{"editor":null},"prevWord":{"editor":"text","default":"чем на прошлой неделе"},"caption":{"editor":"text","default":"К прошлому периоду и к курьерам города"},"current":{"editor":null},"previous":{"editor":null},"city":{"editor":"text","default":"moscow"},"mineCity":{"editor":"text","default":"moscow"},"transport":{"editor":"text","default":"bike"},"period":{"editor":"text","default":"week"},"svc":{"editor":"text","default":"all"},"district":{"editor":"text","default":"all"},"mineAmount":{"editor":null},"medianHint":{"editor":null},"onOpen":{"editor":null},"onSettings":{"editor":null},"$preview":{"width":360,"height":420}}'>
-// сравнение одним блоком: вывод к прошлому периоду и к медиане города, ниже тренды по ставкам (суммы, заказы и часы уже в сводке)
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"caption":{"editor":"text","default":"К прошлому периоду и к курьерам города"},"current":{"editor":null},"previous":{"editor":null},"city":{"editor":"text","default":"moscow"},"mineCity":{"editor":"text","default":"moscow"},"transport":{"editor":"text","default":"bike"},"period":{"editor":"text","default":"week"},"svc":{"editor":"text","default":"all"},"district":{"editor":"text","default":"all"},"mineAmount":{"editor":null},"medianHint":{"editor":null},"share":{"editor":null},"onOpen":{"editor":null},"onSettings":{"editor":null},"$preview":{"width":360,"height":420}}'>
+// сравнение одним блоком: один вывод про курьеров города, ниже тренды к прошлому периоду по ставкам (суммы, заказы и часы уже в сводке)
 const RSC_KEYS = ['rate', 'perOrder', 'ordersPerHour'];
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
-    const delta = p.delta === undefined ? 2 : (p.delta == null ? null : Number(p.delta));
-    const prevWord = p.prevWord || 'чем в прошлый период';
     return {
       caption: p.caption || 'К прошлому периоду и к курьерам города',
-      delta_visible: delta != null,
-      delta_label: delta == null ? '' : (delta === 0 ? 'Начислено столько же, ' + prevWord.replace(/^чем /, 'как ') : 'Начислено на ' + Math.abs(delta) + '% ' + (delta > 0 ? 'больше, ' : 'меньше, ') + prevWord),
-      delta_class: 'raznos-stats-summary-delta' + (delta > 0 ? ' raznos-is-positive' : (delta < 0 ? ' raznos-is-negative' : '')),
       current: p.current, previous: p.previous, keys: RSC_KEYS,
       city: p.city || 'moscow', mine_city: p.mineCity || 'moscow', transport: p.transport || 'bike', period: p.period || 'week',
-      svc: p.svc || 'all', district: p.district || 'all', mine_amount: p.mineAmount === undefined ? 8000 : p.mineAmount, median_hint: p.medianHint,
+      svc: p.svc || 'all', district: p.district || 'all', mine_amount: p.mineAmount === undefined ? 8000 : p.mineAmount, median_hint: p.medianHint, share: p.share == null ? 1 : p.share,
       on_open: typeof p.onOpen === 'function' ? p.onOpen : (() => {}),
       on_settings: typeof p.onSettings === 'function' ? p.onSettings : undefined
     };

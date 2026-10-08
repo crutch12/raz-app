@@ -26,9 +26,9 @@
   </style>
 </helmet>
 <div class="raznos-dialog-layer rqt-layer" onClick="{{ close }}">
-  <section class="rqt-sheet" role="dialog" aria-modal="true" aria-label="Чаевые наличными" onClick="{{ stop }}">
+  <section class="rqt-sheet" role="dialog" aria-modal="true" aria-label="Наличные чаевые" onClick="{{ stop }}">
     <span class="rqt-handle" aria-hidden="true"></span>
-    <div class="rqt-head"><h2>Чаевые наличными</h2><button type="button" class="rqt-close" onClick="{{ close }}" aria-label="Закрыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="rqt-head"><h2>Наличные чаевые</h2><button type="button" class="rqt-close" onClick="{{ close }}" aria-label="Закрыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <label class="rqt-amount"><input class="rqt-input" type="text" inputmode="decimal" enterkeyhint="done" placeholder="0" value="{{ amount }}" onChange="{{ amount_change }}" onKeyDown="{{ key_down }}" aria-label="Сумма чаевых в рублях" /><span>₽</span></label>
     <sc-if value="{{ has_orders }}" hint-placeholder-val="{{ true }}"><div class="rqt-group"><span class="rqt-label">За какой заказ</span><div class="rqt-row"><sc-for list="{{ orders }}" as="o" hint-placeholder-count="3"><button type="button" class="{{ o.cls }}" onClick="{{ o.tap }}" aria-pressed="{{ o.on }}">{{ o.label }}</button></sc-for></div></div></sc-if>
     <button type="button" class="{{ add_cls }}" onClick="{{ add }}" disabled="{{ add_disabled }}">{{ add_label }}</button>

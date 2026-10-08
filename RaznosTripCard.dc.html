@@ -34,8 +34,8 @@
         <button type="button" class="rtc-head" onClick="{{ toggle }}" aria-expanded="{{ expanded }}">
           <dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ svcTitle }}" size="sm"></dc-import>
           <div class="raznos-list-main">
-            <span class="raznos-list-title">{{ svcTitle }}</span>
-            <span class="rtc-sub"><span class="rtc-badge" title="{{ title }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.5 6H14a4 4 0 0 1 0 8H10a4 4 0 0 0 0 8h5.5"/></svg>{{ shortTitle }}</span><span class="raznos-text-small">{{ timeLabel }}<sc-if value="{{ showStatus }}" hint-placeholder-val="{{ false }}"> · <span class="{{ statusClass }}">{{ statusLabel }}</span></sc-if></span></span>
+            <span class="raznos-list-title">{{ title }}</span>
+            <span class="rtc-sub"><span class="raznos-text-small">{{ timeLabel }}<sc-if value="{{ showStatus }}" hint-placeholder-val="{{ false }}"> · <span class="{{ statusClass }}">{{ statusLabel }}</span></sc-if></span></span>
           </div>
           <div class="raznos-list-end">
             <span class="raznos-num">{{ total }} ₽</span>

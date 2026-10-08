@@ -18,7 +18,6 @@
           <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ open }}">{{ openLabel }}</button>
         </sc-if>
         <sc-if value="{{ blocked }}" hint-placeholder-val="{{ false }}">
-          <button type="button" class="raznos-btn-disabled" disabled="{{ true }}">Переход недоступен</button>
           <p class="raznos-order-link-reason"><span class="raznos-order-link-reason-mark">!</span><span>{{ reason }}</span></p>
         </sc-if>
         <sc-if value="{{ isOpened }}" hint-placeholder-val="{{ false }}">
@@ -35,7 +34,7 @@
             <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" style="align-self:flex-start" onClick="{{ reset }}">Попробовать снова</button>
           </div>
         </sc-if>
-        <p class="raznos-order-link-hint">{{ hint }}</p>
+        <sc-if value="{{ hint }}" hint-placeholder-val="{{ true }}"><p class="raznos-order-link-hint">{{ hint }}</p></sc-if>
       </div>
     </x-dc>
     <script type="text/x-dc" data-dc-script data-props='{
@@ -93,7 +92,7 @@
           if (route && route.kind === 'current') openedText = 'В Самокате открылась бы текущая задача, она совпадает с этим заказом. Заказ не принимается и не завершается';
           // технические допущения по Android и iOS остаются в ORDER-APP-LINKS.md и подписях сценариев, в интерфейс курьера не выводятся
           let hint = isTask ? 'Откроет эту задачу в приложении сервиса, статус заказа не изменится' : 'Откроет этот заказ в приложении сервиса, статус заказа не изменится';
-          if (res.blocked) hint = 'Остальные действия с заказом в Разносе доступны';
+          if (res.blocked) hint = '';
           return {
             svc: p.svc || 'vkusvill',
             title,

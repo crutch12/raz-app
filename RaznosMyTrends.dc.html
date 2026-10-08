@@ -32,7 +32,7 @@
     <section class="raznos-stats-trend-focus" aria-label="{{ selected.label }}: вы и курьеры города">
       <div class="raznos-stats-compare-legend">
         <div class="raznos-stats-compare-side raznos-is-you"><small>Вы</small><strong>{{ focus_mine }}</strong><sc-if value="{{ focus_delta }}" hint-placeholder-val="{{ true }}"><em class="{{ focus_delta_cls }}">{{ focus_delta }}</em></sc-if></div>
-        <div class="raznos-stats-compare-side"><small>{{ city_label }}, медиана</small><strong>{{ focus_median }}</strong></div>
+        <div class="raznos-stats-compare-side"><small>{{ city_label }}, обычно</small><strong>{{ focus_median }}</strong></div>
       </div>
       <sc-if value="{{ chart_has_data }}" hint-placeholder-val="{{ true }}">
         <div class="raznos-stats-compare-chart" role="list">
@@ -167,7 +167,7 @@ class Component extends DCLogic {
         cls: 'raznos-stats-compare-bar' + (value == null ? ' raznos-is-empty' : '') + (point.running ? ' raznos-is-running' : '') + (index === focusIndex ? ' raznos-is-selected' : ''),
         fill_style: 'height:' + (value == null ? 0 : Math.max(3, Math.round(value * 100 / maxValue))) + '%',
         median_style: mid == null ? 'display:none' : 'bottom:' + Math.round(mid * 100 / maxValue) + '%',
-        aria: point.title + ': ' + (value == null ? 'нет данных' : format(value) + unit) + (mid == null ? '' : ', медиана ' + format(mid) + unit),
+        aria: point.title + ': ' + (value == null ? 'нет данных' : format(value) + unit) + (mid == null ? '' : ', обычно ' + format(mid) + unit),
         tap: () => { if (value != null) set({ bar: index }); }
       };
     });
@@ -182,7 +182,7 @@ class Component extends DCLogic {
         label: item.label, value: item.value, delta: item.delta, group,
         cls: 'raznos-stats-trend-card raznos-is-' + (judged ? kind : 'neutral'),
         aria: item.label + ' ' + item.value + (item.delta ? ', ' + item.delta + ' к прошлому периоду' : '') + ', открыть подробно',
-        spark: vals.map((v, i) => ({ cls: 'raznos-stats-trend-spark-bar' + (i === vals.length - 1 ? ' raznos-is-current' : ''), style: 'height:' + (v == null ? 0 : Math.max(8, Math.round(v * 100 / top))) + '%' })),
+        spark: vals.map((v, i) => ({ cls: 'raznos-stats-trend-spark-bar' + (i === vals.length - 1 ? ' raznos-is-current' : '') + (series[i] && series[i].running ? ' raznos-is-running' : ''), style: 'height:' + (v == null ? 0 : Math.max(8, Math.round(v * 100 / top))) + '%' })),
         tap: () => openFocus(item.key)
       };
     });
@@ -198,7 +198,7 @@ class Component extends DCLogic {
       focus_delta_cls: 'raznos-stats-compare-delta' + (() => { const d = focus && focus.running && focusIndex === lastKnown ? parseInt(selected.delta, 10) : own; return !judgedOwn || !d ? '' : (d > 0 ? ' raznos-is-positive' : ' raznos-is-negative'); })(),
       focus_median: median == null ? 'Нет данных' : format(median) + unit,
       focus_title: focus ? focus.title : '',
-      focus_verdict: gap == null ? '' : (gap === 0 ? 'На уровне медианы города' : (gap > 0 ? 'Выше медианы на ' + gap + '%' : 'Ниже медианы на ' + Math.abs(gap) + '%')),
+      focus_verdict: gap == null ? '' : (gap === 0 ? 'На уровне обычного в городе' : (gap > 0 ? 'Выше обычного на ' + gap + '%' : 'Ниже обычного на ' + Math.abs(gap) + '%')),
       focus_verdict_class: 'raznos-stats-compare-verdict' + (gap > 0 ? ' raznos-is-positive' : (gap < 0 ? ' raznos-is-negative' : '')),
       primary: rows[0], supportRows: [rows[2], rows[3], rows[4]], detailRows: rows, rows, tiles, selected, detail, compact: !detail,
       scope_label: p.scopeLabel || 'Все данные',

@@ -111,7 +111,18 @@ a:hover { color: var(--raznos-ink); }
 .raznos-demo-ribbon-close { position: relative; flex: 0 0 auto; width: 20px; height: 20px; padding: 0; background: rgba(255, 255, 255, 0.18); border: 0; border-radius: 999px; color: var(--raznos-on-dark); font: 700 13px/20px var(--raznos-font); text-align: center; }
 .raznos-demo-ribbon-close::before { content: ""; position: absolute; inset: -12px; }
 .raznos-demo-ribbon-close:focus { outline: 2px solid var(--raznos-on-dark); outline-offset: 2px; }
-.raznos-phone-scroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; overscroll-behavior-x: none; }
+.raznos-phone-scroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; overscroll-behavior-x: none; overscroll-behavior-y: contain; }
+/* потянуть, чтобы обновить: фирменная Р крутится вслед за пальцем, после порога зеленеет, при обновлении вращается, в конце галочка */
+.raznos-ptr { position: absolute; left: 50%; top: 0; z-index: 4; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--raznos-surface); color: var(--raznos-ink-3); box-shadow: 0 4px 14px rgba(20, 25, 40, .18); opacity: 0; pointer-events: none; transform: translate(-50%, -20px); }
+.raznos-ptr-mark { font: 800 17px var(--raznos-font); line-height: 1; }
+.raznos-ptr.raznos-ptr-ready, .raznos-ptr.raznos-ptr-spin { background: var(--raznos-brand, var(--raznos-green)); color: #fff; }
+.raznos-ptr.raznos-ptr-spin .raznos-ptr-mark { animation: raznos-ptr-spin .8s linear infinite; }
+.raznos-ptr.raznos-ptr-done { background: var(--raznos-green-deep); color: #fff; }
+.raznos-ptr.raznos-ptr-done .raznos-ptr-mark { font-size: 0; }
+.raznos-ptr.raznos-ptr-done .raznos-ptr-mark::after { content: "✓"; font-size: 17px; }
+@keyframes raznos-ptr-spin { to { transform: rotate(360deg); } }
+/* на один кадр снимаем анимации, чтобы после обновления они сыграли заново */
+.raznos-ptr-replay, .raznos-ptr-replay * { animation: none !important; }
 /* отступ от краёв экрана до блоков и между основными блоками, плотнее как у Gridwise */
 .raznos-phone-body { --raznos-screen-x: 12px; --raznos-screen-gap: 12px; flex: 1; padding: 12px var(--raznos-screen-x) 20px; display: flex; flex-direction: column; gap: var(--raznos-screen-gap); background: var(--raznos-bg); }
 
@@ -122,6 +133,8 @@ a:hover { color: var(--raznos-ink); }
 .raznos-tap { cursor: pointer; }
 
 /* Кнопки, инпуты */
+/* мобильный браузер не подсвечивает нажатие синим: отклик дают сами табы, чипы и кнопки, фокус с клавиатуры виден по focus-visible */
+:where(*) { -webkit-tap-highlight-color: transparent; }
 :where(button.raznos-btn, button.raznos-btn-disabled, button.raznos-icon-btn, button.raznos-chip, button.raznos-segment, button.raznos-nav-tab, button.raznos-check-box, button.raznos-row-btn) { font-family: var(--raznos-font); appearance: none; -webkit-appearance: none; margin: 0; text-align: left; }
 :where(button.raznos-row-btn) { width: 100%; background: transparent; border: 0; padding: 0; display: flex; align-items: center; }
 :where(button.raznos-list-row, button.raznos-consent-row) { appearance: none; -webkit-appearance: none; background: transparent; border: 0; margin: 0; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; box-sizing: border-box; }
@@ -151,6 +164,7 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 .raznos-segment { flex: 1; min-width: 0; text-align: center; padding: 8px 4px; border-radius: 9px; font: 600 14px var(--raznos-font); color: var(--raznos-ink-2); background: transparent; border: 0; cursor: pointer; overflow-wrap: break-word; }
 .raznos-segment.raznos-is-active { background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 1px 3px rgba(20,25,40,.14); }
 .raznos-consent-row { display: flex; align-items: flex-start; gap: 10px; }
+.raznos-inline-link { color: var(--raznos-green-deep); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; background: none; border: 0; padding: 4px 0; margin: 0; font-family: inherit; font-size: inherit; cursor: pointer; }
 .raznos-check-box { width: 24px; height: 24px; min-width: 24px; border-radius: 7px; border: 2px solid var(--raznos-ink-3); background: var(--raznos-surface); display: flex; align-items: center; justify-content: center; font: 700 14px var(--raznos-font); color: var(--raznos-on-dark); }
 .raznos-check-box.raznos-is-on { background: var(--raznos-dark); border-color: var(--raznos-dark); }
 .raznos-check-box.raznos-is-error { border-color: var(--raznos-red); background: var(--raznos-red-tint); }
@@ -188,6 +202,12 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 .raznos-list-end { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex: none; }
 .raznos-list-end .raznos-num { white-space: nowrap; }
 .raznos-row-chevron { color: var(--raznos-ink-3); font: 600 16px var(--raznos-font); }
+/* раскрывающаяся строка: выглядит как строка списка, стрелка поворачивается вниз при раскрытии */
+.raznos-disclosure-head { list-style: none; min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; }
+.raznos-disclosure-head::-webkit-details-marker { display: none; }
+.raznos-disclosure-head .raznos-row-chevron { transition: transform .2s ease; }
+.raznos-disclosure[open] > .raznos-disclosure-head .raznos-row-chevron { transform: rotate(90deg); }
+.raznos-sync-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .raznos-kv-row { display: flex; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--raznos-line); }
 .raznos-kv-row:last-child { border-bottom: 0; }
 .raznos-kv-key { font: 500 14px var(--raznos-font); color: var(--raznos-ink-2); }
@@ -221,6 +241,15 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 
 /* Главный блок заработка */
 .raznos-hero-dark { background: var(--raznos-dark); color: var(--raznos-on-dark); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+/* до смены и в выходной: светлая фирменная карточка, тёмная остаётся для денег смены */
+.raznos-hero-pre { appearance: none; border: 0; width: 100%; text-align: left; font-family: var(--raznos-font); cursor: pointer; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 6px; background: var(--raznos-green-tint); color: var(--raznos-ink); }
+.raznos-hero-pre-off { background: var(--raznos-surface-2); }
+.raznos-hero-pre-label { font: 600 14px var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-hero-pre-off .raznos-hero-pre-label { font: 750 26px/1.15 var(--raznos-font); color: var(--raznos-ink); }
+.raznos-hero-pre-value { font: 700 40px/1.1 var(--raznos-mono); letter-spacing: -0.02em; color: var(--raznos-green-deep); }
+.raznos-hero-pre-value small { font-size: 24px; }
+.raznos-hero-pre-line { font: 500 14px/1.35 var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-hero-pre-cta { margin-top: 6px; min-height: 44px; display: inline-flex; align-items: center; align-self: flex-start; padding: 0 16px; border-radius: 999px; background: var(--raznos-dark); color: var(--raznos-on-dark); font: 650 14px var(--raznos-font); }
 .raznos-hero-label { font: 500 14px var(--raznos-font); opacity: 0.72; }
 .raznos-hero-value { font: 700 40px/1 var(--raznos-mono); letter-spacing: -0.01em; }
 .raznos-hero-unit { font: 600 16px var(--raznos-font); opacity: 0.8; }
@@ -281,8 +310,7 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 .raznos-hero-open:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
 .raznos-hero-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .raznos-hero-chip { display: inline-flex; align-items: baseline; gap: 6px; padding: 5px 10px; border-radius: 999px; background: color-mix(in oklab, var(--raznos-on-dark) 12%, transparent); font: 500 13px var(--raznos-font); color: color-mix(in oklab, var(--raznos-on-dark) 80%, transparent); }
-.raznos-hero-chip-add { position: relative; align-items: center; gap: 4px; padding-inline: 9px; border: 0; font-family: inherit; cursor: pointer; color: var(--raznos-on-dark); }
-.raznos-hero-chip-add::after { content: ""; position: absolute; inset: -9px -6px; }
+.raznos-hero-chip-add { position: relative; align-items: center; gap: 6px; min-height: 44px; padding-inline: 14px; border: 0; font-family: inherit; cursor: pointer; color: var(--raznos-on-dark); }
 .raznos-hero-chip-add:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
 .raznos-hero-chip > b { font-weight: 700; color: var(--raznos-on-dark); font-variant-numeric: tabular-nums; }
 .raznos-hero-formula { font: 500 14px var(--raznos-font); font-variant-numeric: tabular-nums; opacity: 0.85; }
@@ -694,6 +722,10 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-bottom-nav[data-ind]::before { border-radius: 12px; background: var(--raznos-nav-active); }
 .raznos-stats-periods[data-ind]::before { border-radius: 999px; background: var(--raznos-dark); }
 .raznos-stats-periods[data-ind] > .raznos-chip[aria-pressed="true"] { background: transparent; }
+/* выбор с явным контрастом на входе и в анкете: тёмная плашка, текст берут и копии из RaznosTabMotion */
+.raznos-segmented-bold .raznos-segment.raznos-is-active { background: var(--raznos-dark); color: var(--raznos-on-dark); box-shadow: none; }
+.raznos-segmented-bold[data-ind]::before { background: var(--raznos-dark); box-shadow: none; }
+.raznos-segmented-bold[data-ind] > .raznos-segment.raznos-is-active { background: transparent; }
 .raznos-segmented[data-ind] > .raznos-segment.raznos-is-active, .raznos-shifts-tabs[data-ind] > .raznos-shifts-tab.raznos-is-active, .raznos-bottom-nav[data-ind] > .raznos-nav-tab.raznos-is-active { background: transparent; box-shadow: none; }
 /* пока плашка едет, ряд показывают две копии пунктов из RaznosTabMotion, настоящие пункты прозрачные и уже в конечном цвете */
 .raznos-stats-periods > .raznos-chip { transition: none; }
@@ -733,13 +765,16 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 
 /* дельта денег на чипе: пилюля над чипом, видна и при уменьшенном движении */
 [data-delta-host] { position: relative; }
-[data-delta-host][data-delta]::before { content: attr(data-delta); position: absolute; left: 50%; bottom: calc(100% + 4px); padding: 2px 7px; border-radius: 999px; background: var(--raznos-green); color: var(--raznos-dark); font: 700 11.5px var(--raznos-font); font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; transform: translateX(-50%); animation: raznos-delta-fade 1.6s ease-out both; }
-[data-delta-host][data-delta-dir="bad"]::before { background: var(--raznos-amber); }
-[data-delta-host][data-delta-dir="back"]::before { background: color-mix(in oklab, var(--raznos-on-dark) 80%, transparent); }
+[data-delta-host][data-delta]::before { content: attr(data-delta); position: absolute; left: 50%; bottom: calc(100% + 4px); padding: 2px 7px; border-radius: 999px; background: var(--raznos-green); color: #fff; font: 700 11.5px var(--raznos-font); font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; transform: translateX(-50%); animation: raznos-delta-fade 1.6s ease-out both; }
+/* на цветном фоне текст всегда белый: плюс зелёным, минус денег красным */
+[data-delta-host][data-delta-dir="bad"]::before { background: var(--raznos-red); }
+[data-delta-host][data-delta-dir="back"]::before { background: color-mix(in oklab, var(--raznos-on-dark) 80%, transparent); color: var(--raznos-ink); }
 [data-delta-host][data-delta] b { animation: raznos-money-glow 1.6s ease-out; }
+[data-delta-host][data-delta-dir="bad"] b { animation-name: raznos-money-glow-bad; }
 [data-delta-host][data-delta-static]::before, [data-delta-host][data-delta-static] b { animation: none !important; }
 @keyframes raznos-delta-fade { 0% { opacity: 0; } 10%, 75% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes raznos-money-glow { 0%, 100% { color: inherit; } 12%, 60% { color: oklch(0.86 0.15 150); } }
+@keyframes raznos-money-glow-bad { 0%, 100% { color: inherit; } 12%, 60% { color: oklch(0.8 0.14 25); } }
 @media (prefers-reduced-motion: no-preference) {
   [data-delta-host][data-delta]::before { animation: raznos-delta-float 1.6s cubic-bezier(.16, 1, .3, 1) both; }
   @keyframes raznos-delta-float { 0% { opacity: 0; transform: translate(-50%, 6px); } 12% { opacity: 1; transform: translate(-50%, 0); } 75% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -4px); } }

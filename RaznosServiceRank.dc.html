@@ -28,7 +28,7 @@
     <span class="raznos-fx raznos-col"><span class="rsr-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M4 12h16M4 17h7"/></svg>Сравнение сервисов</span><span class="rsr-sub">{{ card_sub }}</span></span>
     <div class="rsr-list">
       <sc-for list="{{ card_rows }}" as="r" hint-placeholder-count="4">
-        <dc-import name="RaznosRankRow" rank="{{ r.rank }}" svc="{{ r.svc }}" title="{{ r.name }}" mine="{{ r.mine }}" fill="{{ r.fill }}" value="{{ r.val }}" trend="{{ r.trend }}" trendUp="{{ r.trendUp }}" trendDown="{{ r.trendDown }}" trendTail="{{ r.trendTail }}" divider="{{ r.divider }}"></dc-import>
+        <dc-import name="RaznosRankRow" rank="{{ r.rank }}" svc="{{ r.svc }}" title="{{ r.name }}" mine="{{ r.mine }}" fill="{{ r.fill }}" value="{{ r.val }}" trend="{{ r.trend }}" trendUp="{{ r.trendUp }}" trendDown="{{ r.trendDown }}" trendTail="{{ r.trendTail }}" divider="{{ r.divider }}" badge="{{ r.badge }}" onTap="{{ r.tap }}"></dc-import>
       </sc-for>
     </div>
     <div class="rsr-foot"><span class="rsr-more-note">{{ more_label }}</span><button type="button" class="rsr-more" onClick="{{ open_more }}">Подробнее<span class="raznos-row-chevron">›</span></button></div>
@@ -51,7 +51,7 @@
     <p class="raznos-text-tiny">{{ source_note }}</p>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"open":{"editor":null},"connected":{"editor":null},"onConnect":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"$preview":{"width":390,"height":340}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"open":{"editor":null},"connected":{"editor":null},"onConnect":{"editor":null},"onOpenService":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"$preview":{"width":390,"height":340}}'>
 // сравнение сервисов по мотивам Gridwise Compare Companies и Solo Jobs: доход по сервисам города, тренд, горячие дни
 // hot: индексы дней Пн=0, tod: утро, день, вечер, ночь, демо
 const RSR_SERVICES = [
@@ -83,6 +83,13 @@ const RSR_TODS = [
   { k: 'night', label: 'Ночь', note: '22–24', i: 3 }
 ];
 const RSR_FMT = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+// выборка и период те же, что в Когда выгоднее и Где выгоднее: последние 4 недели до вчера
+const RSR_SAMPLE = { moscow: { couriers: 184, orders: 6240 }, spb: { couriers: 63, orders: 1870 } };
+const RSR_PERIOD = (() => {
+  const mon = ['янв', 'февр', 'марта', 'апр', 'мая', 'июня', 'июля', 'авг', 'сент', 'окт', 'нояб', 'дек'];
+  const at = (off) => { const d = new Date(); d.setDate(d.getDate() + off); return d.getDate() + ' ' + mon[d.getMonth()]; };
+  return at(-28) + ' – ' + at(-1);
+})();
 const byKey = (list, k) => list.find((x) => x.k === k) || list[0];
 const rsrPlural = (n, one, few, many) => (n % 10 === 1 && n % 100 !== 11) ? one : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? few : many);
 class Component extends DCLogic {
@@ -126,7 +133,7 @@ class Component extends DCLogic {
     const trendTpl = metric.k === 'per' ? ['Выплата за заказ выросла на {n}% за месяц', 'Выплата за заказ упала на {n}% за месяц'] : (metric.k === 'ord' ? ['Заказов в час стало на {n}% больше за месяц', 'Заказов в час стало на {n}% меньше за месяц'] : ['Доход в час вырос на {n}% за месяц', 'Доход в час упал на {n}% за месяц']);
     const rowOf = (r) => ({
       rank: r.rank, svc: r.x.k, name: r.x.name, mine: isMine(r.x.k), val: shown(r.v), fill: fillOf(r.v),
-      meta: '', hot: false, action: '', actionLabel: '', connect: () => {}, trend: 0, trendTail: tail, trendUp: trendTpl[0], trendDown: trendTpl[1], divider: false
+      meta: '', hot: false, action: '', actionLabel: '', connect: () => {}, badge: '', tap: null, trend: 0, trendTail: tail, trendUp: trendTpl[0], trendDown: trendTpl[1], divider: false
     });
 
     // выноски только у самого растущего и самого падающего сервиса
@@ -154,8 +161,11 @@ class Component extends DCLogic {
     // карточка: топ-3 и сервис, который растёт быстрее всех вне топа
     const top = byValue.slice(0, 3);
     const risingR = byValue.slice(3).filter((r) => r.x.trend >= 10).sort((a, b) => b.x.trend - a.x.trend)[0];
-    const cardRows = top.map((r, i) => Object.assign(rowOf(r), { divider: !!risingR && i === top.length - 1 }));
-    if (risingR) cardRows.push(Object.assign(rowOf(risingR), { trend: risingR.x.trend, trendTail: '· по курьерам Разноса', trendUp: 'Доход в час вырос на {n}% за месяц', trendDown: 'Доход в час упал на {n}% за месяц' }));
+    const openService = typeof p.onOpenService === 'function' ? p.onOpenService : (() => {});
+    // рост показываем плашкой в строке, без номера, чтобы счёт не скакал
+    const cardRows = top.map((r) => rowOf(r));
+    if (risingR) cardRows.push(Object.assign(rowOf(risingR), { rank: 0, badge: 'растёт на ' + risingR.x.trend + '% за месяц' }));
+    cardRows.forEach((c) => { c.tap = () => openService(c.svc); });
     const rest = Math.max(0, byValue.length - cardRows.length);
 
     const optsOf = (l) => l.map((o) => ({ k: o.k, label: o.label, note: o.note }));
@@ -183,7 +193,7 @@ class Component extends DCLogic {
       filters, on_filter: (key, k) => set({ [key]: k }),
       rows, is_empty: rows.length === 0,
       empty_text: onlyMine ? 'Среди этих сервисов нет подключённых. Нажмите + у сервиса, чтобы подключить' : 'Нет сервисов с такими заказами',
-      source_note: 'По заказам курьеров Разноса: ' + city + ', 18 авг – 14 сент (4 недели), ' + (cityKey === 'spb' ? '63 курьера, 1 870 заказов' : '184 курьера, 6 240 заказов') + '. Горячие дни это дни с самым высоким доходом. Через парк доход ниже на комиссию посредника, это касается Яндекса и Ozon Экспресса'
+      source_note: (() => { const m = RSR_SAMPLE[cityKey] || RSR_SAMPLE.moscow; return 'Обычный доход в час, ' + city + ' · ' + m.couriers + ' ' + rsrPlural(m.couriers, 'курьер', 'курьера', 'курьеров') + ' · ' + RSR_FMT(m.orders) + ' ' + rsrPlural(m.orders, 'заказ', 'заказа', 'заказов') + ' · ' + RSR_PERIOD + '. Горячие дни это дни с самым высоким доходом. Через парк доход ниже на комиссию посредника, это касается Яндекса'; })()
     };
   }
 }

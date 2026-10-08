@@ -4,8 +4,9 @@
   <button type="button" class="raznos-stats-head-link" onClick="{{ on_open }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">{{ title }} <em>{{ accent }}</em> {{ tail }}</h2><small>{{ caption }}</small></span><sc-if value="{{ has_open }}" hint-placeholder-val="{{ true }}"><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></sc-if></button>
   <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><div class="raznos-stats-time-track" aria-label="Распределение времени"><span class="raznos-stats-time-active" style="{{ active_style }}"></span><span class="raznos-stats-time-wait" style="{{ wait_style }}"></span></div></sc-if>
   <div class="raznos-stats-time-grid"><div><i class="raznos-stats-time-dot raznos-is-active"></i><strong>{{ with_order }}</strong><span>с заказами</span></div><div><i class="raznos-stats-time-dot raznos-is-wait"></i><strong>{{ wait_order }}</strong><span>ожидание заказа</span></div><div><i class="raznos-stats-time-dot raznos-is-pickup"></i><strong>{{ pickup }}</strong><span>на выдаче, в среднем</span></div></div>
+  <sc-if value="{{ has_extra }}" hint-placeholder-val="{{ false }}"><div class="raznos-stats-time-extra"><sc-for list="{{ extra }}" as="row" hint-placeholder-count="3"><sc-if value="{{ row.has_tap }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-stats-time-extra-row raznos-is-link" onClick="{{ row.tap }}"><span>{{ row.label }}</span><strong>{{ row.value }}</strong><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></sc-if><sc-if value="{{ row.no_tap }}" hint-placeholder-val="{{ true }}"><div class="raznos-stats-time-extra-row"><span>{{ row.label }}</span><strong>{{ row.value }}</strong></div></sc-if></sc-for></div></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"share":{"editor":null},"caption":{"editor":"text","default":"11,5 ч на линии"},"withOrder":{"editor":"text","default":"8 ч"},"waitOrder":{"editor":"text","default":"3,5 ч"},"pickup":{"editor":"text","default":"6 мин"},"onOpen":{"editor":null},"$preview":{"width":360,"height":220}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"share":{"editor":null},"caption":{"editor":"text","default":"11,5 ч на линии"},"withOrder":{"editor":"text","default":"8 ч"},"waitOrder":{"editor":"text","default":"3,5 ч"},"pickup":{"editor":"text","default":"6 мин"},"onOpen":{"editor":null},"extra":{"editor":null},"$preview":{"width":360,"height":220}}'>
 // куда ушло время: доля времени с заказами и ожидание одной полосой
 class Component extends DCLogic {
   renderVals() {
@@ -19,6 +20,7 @@ class Component extends DCLogic {
       active_style: 'width:' + (share || 0) + '%', wait_style: 'width:' + (share == null ? 0 : 100 - share) + '%',
       with_order: p.withOrder === undefined ? '8 ч' : (p.withOrder || 'Нет данных'), wait_order: p.waitOrder === undefined ? '3,5 ч' : (p.waitOrder || 'Нет данных'),
       pickup: p.pickup === undefined ? '6 мин' : (p.pickup || 'Нет данных'),
+      extra: Array.isArray(p.extra) ? p.extra.map((row) => Object.assign({}, row, { has_tap: typeof row.tap === 'function', no_tap: typeof row.tap !== 'function' })) : [], has_extra: Array.isArray(p.extra) && p.extra.length > 0,
       on_open: typeof p.onOpen === 'function' ? p.onOpen : (() => {})
     };
   }

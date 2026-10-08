@@ -67,9 +67,9 @@
     </div>
     <ul class="rgs-legend">
       <li><i class="rgs-earned"></i><span>Заработано</span><b>{{ earned }}</b></li>
-      <li><i class="rgs-booked"></i><span>Брони из Смен</span><b>{{ booked }}</b></li>
+      <li><i class="rgs-booked"></i><span>Брони</span><b>{{ booked }}</b></li>
       <sc-if value="{{ has_req }}" hint-placeholder-val="{{ false }}"><li><i class="rgs-req"></i><span>Заявки, ждут ответа</span><b>{{ requested }}</b></li></sc-if>
-      <li><i class="rgs-plan"></i><span>Окна плана</span><b>{{ planned }}</b></li>
+      <li><i class="rgs-plan"></i><span>План</span><b>{{ planned }}</b></li>
     </ul>
 
     <sc-if value="{{ has_rely }}" hint-placeholder-val="{{ true }}"><p class="rgs-rely">{{ rely }}</p></sc-if>
@@ -108,7 +108,7 @@ class Component extends DCLogic {
     const total = earned + booked + requested + planned;
     const short = total < goal;
     const sure = earned + booked;
-    const rely = p.rely == null ? 'Брони, заявки и окна плана это оценка по заказам курьеров Разноса рядом за 4 недели, обычно ±10%. Заработанное считаем по факту' : p.rely;
+    const rely = p.rely == null ? 'Брони, заявки и план это оценка по заказам курьеров Разноса рядом за 4 недели, обычно ±10%. Заработанное считаем по факту' : p.rely;
     // шкала до большего из цели и суммы, чтобы черта цели всегда была на полосе
     const scale = Math.max(goal, total) || 1;
     const pct = (v) => Math.max(0, v * 100 / scale).toFixed(1) + '%';
@@ -139,16 +139,16 @@ class Component extends DCLogic {
       earned: RGS_FMT(earned) + ' ₽', booked: '≈ ' + RGS_FMT(booked) + ' ₽', requested: '≈ ' + RGS_FMT(requested) + ' ₽', has_req: requested > 0, planned: '≈ ' + RGS_FMT(planned) + ' ₽',
       earned_style: 'width:' + pct(earned), booked_style: 'width:' + pct(booked), req_style: 'width:' + pct(requested), plan_style: 'width:' + pct(planned),
       mark_style: 'left:' + pct(goal),
-      bar_aria: 'Заработано ' + RGS_FMT(earned) + ', брони ' + RGS_FMT(booked) + (requested ? ', заявки ' + RGS_FMT(requested) : '') + ', окна плана ' + RGS_FMT(planned) + ' из цели ' + RGS_FMT(goal) + ' рублей',
+      bar_aria: 'Заработано ' + RGS_FMT(earned) + ', брони ' + RGS_FMT(booked) + (requested ? ', заявки ' + RGS_FMT(requested) : '') + ', план ' + RGS_FMT(planned) + ' из цели ' + RGS_FMT(goal) + ' рублей',
       total_cls: 'rgs-total' + (short ? ' rgs-short' : ''), total_line: 'По плану к воскресенью ≈ ' + RGS_FMT(total) + ' ₽',
       has_earned_line: earned > 0, earned_line: 'из них уже заработано ' + RGS_FMT(earned) + ' ₽',
       has_rely: !!rely, rely,
       short, not_short: !short,
       verdict_cls: 'rgs-verdict' + (short ? ' rgs-short' : ''),
       verdict: short ? 'Не хватает ≈ ' + RGS_FMT(RGS_R(gap)) + ' ₽, это ≈ ' + orders + ' ' + RGS_ORDERS(orders) + ', ' + perDay : (earned >= goal ? 'Цель уже выполнена, сверху ≈ ' + RGS_FMT(RGS_R(earned - goal)) + ' ₽' : 'Плана хватит на цель, запас ≈ ' + RGS_FMT(RGS_R(gap)) + ' ₽'),
-      // окна плана это прогноз, поэтому отдельно говорим, если цель держится на них
+      // план это прогноз, поэтому отдельно говорим, если цель держится на них
       has_risk: !short && sure < goal,
-      risk: 'Без окон плана не хватит ≈ ' + RGS_FMT(RGS_R(goal - sure)) + ' ₽',
+      risk: 'Без плана не хватит ≈ ' + RGS_FMT(RGS_R(goal - sure)) + ' ₽',
       fix: () => { if (typeof p.onFix === 'function') p.onFix(); },
       close, stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
     };

@@ -1,5 +1,5 @@
 /* онбординг: тот же отступ экрана, что у входа, чтобы основная кнопка стояла на одном месте */
-.raznos-onboarding { --raznos-screen-x: 12px; flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 12px var(--raznos-screen-x) 20px; background: var(--raznos-surface); box-sizing: border-box; min-height: 100%; }
+.raznos-onboarding { --raznos-screen-x: 12px; flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 12px var(--raznos-screen-x) 0; background: var(--raznos-surface); box-sizing: border-box; min-height: 100%; }
 /* бренд слева, язык ровно по центру, пропустить справа */
 .raznos-onboarding-top { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); column-gap: 8px; align-items: center; min-height: 44px; padding-inline: 6px; }
 .raznos-onboarding-top > :last-child { justify-self: end; }
@@ -101,9 +101,11 @@
 .raznos-ob-person { margin-bottom: 4px; display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 18px; background: var(--raznos-dark); color: var(--raznos-on-dark); }
 .raznos-ob-person-photo { flex: none; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; display: flex; }
 .raznos-ob-person-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.raznos-ob-person-main b { font: 700 14px var(--raznos-font); white-space: nowrap; }
+.raznos-ob-person-main b { display: flex; align-items: center; min-width: 0; font: 700 14px var(--raznos-font); white-space: nowrap; }
+.raznos-ob-person-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .raznos-ob-person-main small, .raznos-ob-person-sum small { font: 500 11.5px var(--raznos-font); opacity: .75; }
 .raznos-ob-person-sum { display: flex; flex-direction: column; align-items: flex-end; font: 700 15px var(--raznos-mono); white-space: nowrap; }
+.raznos-ob-person-you { flex: none; margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: var(--raznos-green); color: #fff; font: 700 11px var(--raznos-font); font-style: normal; vertical-align: 1px; }
 .raznos-ob-top { zoom: .9; border-radius: 18px; overflow: hidden; background: var(--raznos-surface); }
 
 .raznos-onboarding-copy { display: flex; flex-direction: column; gap: 8px; padding-inline: 6px; }
@@ -111,7 +113,7 @@
 .raznos-onboarding-copy p { margin: 0; font: 400 16px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
 
 /* низ как у входа: точки, кнопка, строка под кнопкой той же высоты, что баннер бота */
-.raznos-onboarding .raznos-sticky-actions { background: linear-gradient(to top, var(--raznos-surface) 70%, transparent); }
+.raznos-onboarding .raznos-sticky-actions { padding-bottom: 24px; background: linear-gradient(to top, var(--raznos-surface) 70%, transparent); }
 .raznos-onboarding-dots { display: flex; justify-content: center; gap: 6px; padding-bottom: 4px; }
 .raznos-onboarding-dots span { width: 6px; height: 6px; border-radius: 4px; background: var(--raznos-line-strong); }
 .raznos-onboarding-dots .raznos-onboarding-dot-active { width: 24px; background: var(--raznos-dark); }
@@ -135,3 +137,16 @@
 .raznos-onboarding-controls > .raznos-onboarding-back { flex: 0 0 38%; }
 .raznos-ob-stage-2 .raznos-ob-screen-body > * + * { margin-top: 2px; }
 .raznos-ob-share-legend b { white-space: nowrap; }
+
+/* низкие экраны (360x640): иллюстрация меньше, чтобы текст и кнопки не наезжали друг на друга */
+@media (max-height: 760px) {
+  .raznos-ob-screen { height: 252px; }
+}
+@media (max-height: 720px) {
+  .raznos-onboarding, .raznos-ob-slide { gap: 10px; }
+  .raznos-ob-screen { height: 190px; }
+  .raznos-ob-screen-body { zoom: .66; padding-block: 10px; }
+  .raznos-onboarding-copy { gap: 6px; }
+  .raznos-onboarding-copy h1 { font-size: 24px; }
+  .raznos-onboarding-copy p { font-size: 15px; line-height: 1.35; }
+}

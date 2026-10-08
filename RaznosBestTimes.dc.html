@@ -121,6 +121,9 @@ const RBT_WEEK_FROM = 8; // неделю считаем по часам 8..23, �
 // доход в час по часам суток (демо): ночью мало, обед, вечерний пик
 const RBT_BASE = [460, 380, 320, 280, 280, 340, 420, 480, 520, 560, 620, 700, 860, 980, 900, 760, 720, 820, 1040, 1220, 1300, 1180, 920, 700];
 const RBT_DAY_MUL = [0.92, 1.02, 0.95, 1.0, 1.06, 1.1, 0.86];
+// масштаб под медиану города за неделю, ту же, что в Сравнении сервисов (690 ₽/ч)
+const RBT_WEEK_MEDIAN = 690;
+const RBT_SCALE = RBT_WEEK_MEDIAN / (RBT_DAY_MUL.reduce((a, m) => a + m, 0) / 7 * RBT_BASE.slice(8).reduce((a, v) => a + v, 0) / 16);
 const RBT_TODAY = (new Date().getDay() + 6) % 7; // сегодня, 0 это понедельник
 const RBT_METRICS = [{ k: 'pay', label: '₽ в час' }, { k: 'ord', label: 'Заказов в час' }];
 const RBT_CATS = [
@@ -170,8 +173,10 @@ class Component extends DCLogic {
     const sampleShare = (dist.k === 'all' ? 1 : 0.18) * (cat.k === 'all' ? 1 : 0.4);
     const sCouriers = Math.max(1, Math.round(sampleBase.couriers * sampleShare)), sOrders = Math.round(sampleBase.orders * sampleShare / 10) * 10;
     const lowSample = sCouriers < 30 || sOrders < 100;
-    const basisText = sCouriers + ' ' + (sCouriers % 10 === 1 && sCouriers % 100 !== 11 ? 'курьер' : (sCouriers % 10 >= 2 && sCouriers % 10 <= 4 && (sCouriers % 100 < 10 || sCouriers % 100 >= 20) ? 'курьера' : 'курьеров')) + ', ' + RBT_FMT(sOrders) + ' заказов · ' + RBT_PERIOD + ', 4 недели' + (lowSample ? '. Данных мало, вывод предварительный' : '');
-    const pay = (d, i) => Math.round(RBT_BASE[i] * (RBT_DAY_MUL[d] + dist.tilt[d]) * k / 10) * 10;
+    const couriersWord = sCouriers % 10 === 1 && sCouriers % 100 !== 11 ? 'курьер' : (sCouriers % 10 >= 2 && sCouriers % 10 <= 4 && (sCouriers % 100 < 10 || sCouriers % 100 >= 20) ? 'курьера' : 'курьеров');
+    // подпись выборки одна на всех экранах Рынка: курьеры · заказы · период
+    const basisText = sCouriers + ' ' + couriersWord + ' · ' + RBT_FMT(sOrders) + ' заказов · ' + RBT_PERIOD + (lowSample ? '. Данных мало, вывод предварительный' : '');
+    const pay = (d, i) => Math.round(RBT_BASE[i] * RBT_SCALE * (RBT_DAY_MUL[d] + dist.tilt[d]) * k / 10) * 10;
     const toVal = (v) => metric.k === 'pay' ? v : rbtOrd(v);
     const fmt = (v) => metric.k === 'pay' ? RBT_FMT(v) + ' ₽/ч' : String(v).replace('.', ',') + ' зак/ч';
     const fmtShort = (v) => metric.k === 'pay' ? RBT_FMT(v) : String(v).replace('.', ',');
@@ -234,15 +239,15 @@ class Component extends DCLogic {
       roPill = inWin(selHour) ? 'лучшее окно' : demandOf(hp[selHour]);
       roMuted = !inWin(selHour);
       roNote = 'Лучшее окно ' + winLabel + ' · ≈ ' + fmt(toVal(winAvg)) + '. Серые черты отмечают начало и конец вашей смены ' + rbtHour(ws) + '–' + rbtHour(we);
-      trend = 'Доход участников в час в окне ' + winLabel + ' на 12% выше, чем 4 недели назад';
+      trend = 'Доход курьеров Разноса в час в окне ' + winLabel + ' на 12% выше, чем 4 недели назад';
     } else {
       roLabel = cap(RBT_DAYS_FULL[selDay]);
       roVal = fmt(toVal(dayPay[selDay]));
       const diff = Math.round((dayPay[bestDay] - dayPay[selDay]) / dayPay[bestDay] * 100);
       roPill = selDay === bestDay ? 'лучший день' : ('на ' + diff + '% ниже лучшего');
       roMuted = selDay !== bestDay;
-      roNote = 'Средний доход в час по дням недели. Тапните день, чтобы сравнить';
-      trend = cap(RBT_DAYS_FULL[bestDay]) + ': доход участников в час на 12% выше, чем 4 недели назад';
+      roNote = 'Обычный доход в час по дням недели. Нажмите день, чтобы сравнить';
+      trend = cap(RBT_DAYS_FULL[bestDay]) + ': доход курьеров Разноса в час на 12% выше, чем 4 недели назад';
     }
 
     // фильтры чипами, район и транспорт первыми
@@ -275,17 +280,18 @@ class Component extends DCLogic {
       scroll_cls: isDay ? 'rbt-scroll-on' : '',
       scroll_style: isDay ? 'width:' + (24 * colW) + 'px' : '',
       bars,
-      card_sub: isDay ? ('сегодня, ' + RBT_DAYS_FULL[RBT_TODAY] + ' · ₽ в час') : ((p.cityTitle || 'Москва') + ' · ₽ в час · вся неделя'),
+      card_sub: isDay ? ('сегодня, ' + RBT_DAYS_FULL[RBT_TODAY] + ' · ₽ в час') : ((p.cityTitle || 'Москва') + ' · ₽ в час · по дням недели'),
       best_prefix: lowSample ? (isDay ? 'Предварительно: лучшее окно' : 'Предварительно: лучше всего') : (isDay ? 'Лучшее окно' : 'Лучше всего'),
       best_label: isDay ? winLabel : RBT_DAYS_FULL[bestDay],
-      best_val: isDay ? fmt(toVal(winAvg)) : fmt(toVal(dayPay[bestDay])),
+      // лучший день рядом с неделей целиком, чтобы было понятно, почему он выше лучшего района
+      best_val: isDay ? fmt(toVal(winAvg)) : fmt(toVal(dayPay[bestDay])) + ', вся неделя ≈ ' + fmtShort(toVal(Math.round(dayPay.reduce((a, v) => a + v, 0) / 7 / 10) * 10)),
       open_more: () => open(view),
       daypick: RBT_DAYS.map((label, d) => ({ label, cls: 'rbt-dp' + (d === RBT_TODAY ? ' rbt-dp-today' : '') + (d === selDay ? ' raznos-is-active' : ''), tap: () => set({ day: d, hour: null }) })),
       ro_label: roLabel, ro_val: roVal, ro_pill: roPill, ro_pill_cls: 'rbt-pill' + (roMuted ? ' rbt-pill-mute' : ''), ro_note: roNote, trend,
       filters,
       on_filter: (key, k) => set({ [key]: k, hour: null }),
       // в план уходит лучшее окно выбранного дня, умное расписание добавляет его как намерение, а не бронь
-      source_note: 'По заказам курьеров Разноса: ' + (p.cityTitle || 'Москва') + ', ' + (dist.k === 'all' ? 'все районы' : dist.label) + ', ' + RBT_PERIOD + ' (4 недели), ' + sCouriers + ' курьеров, ' + RBT_FMT(sOrders) + ' заказов' + (lowSample ? '. Данных мало, вывод предварительный' : '')
+      source_note: 'Обычный доход в час, ' + (p.cityTitle || 'Москва') + ', ' + (dist.k === 'all' ? 'все районы' : dist.label) + ' · ' + basisText
     };
   }
 

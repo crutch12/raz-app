@@ -3,13 +3,17 @@
   <link rel="stylesheet" href="./raznos-v3.css" />
   <style>
     .rrr-row { display: grid; align-items: center; gap: 8px; padding: 9px 0; }
+    .rrr-tap { cursor: pointer; border-radius: 10px; }
+    .rrr-tap:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; }
+    .rrr-chev { color: var(--raznos-ink-3); text-align: right; }
+    .rrr-badge { font: 600 12px var(--raznos-font); color: var(--raznos-green-deep); }
     .rrr-divider { border-bottom: 1px solid var(--raznos-line); padding: 10px 0; }
     .rrr-rank { font: 700 14px var(--raznos-font); color: var(--raznos-ink-3); font-variant-numeric: tabular-nums; }
     .rrr-rank-top { color: var(--raznos-ink); }
     .rrr-name { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
     .rrr-title { display: flex; align-items: center; gap: 5px; min-width: 0; }
-    .rrr-title b { font: 600 14px var(--raznos-font); color: var(--raznos-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .rrr-mine { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--raznos-green); color: var(--raznos-on-dark); }
+    .rrr-title b { font: 600 14px var(--raznos-font); color: var(--raznos-ink); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .rrr-mine { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; padding: 0; border-radius: 999px; background: var(--raznos-green); color: var(--raznos-on-dark); font: 600 11px var(--raznos-font); }
     .rrr-name small { display: flex; align-items: center; gap: 4px; font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .rrr-track { display: block; height: 6px; border-radius: 999px; background: color-mix(in oklab, var(--raznos-ink) 10%, transparent); overflow: hidden; }
     .rrr-fill { display: block; height: 100%; border-radius: 999px; background: color-mix(in oklab, var(--raznos-green) 55%, var(--raznos-surface)); }
@@ -29,15 +33,17 @@
   </style>
 </helmet>
 <div>
-  <div class="{{ row_cls }}" style="{{ grid_style }}">
-    <span class="{{ rank_cls }}">{{ rank }}</span>
+  <div class="{{ row_cls }}" style="{{ grid_style }}" role="{{ row_role }}" tabindex="{{ row_tab }}" onClick="{{ tap }}">
+    <span class="{{ rank_cls }}">{{ rank_text }}</span>
     <sc-if value="{{ has_icon }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ title }}" size="sm"></dc-import></sc-if>
     <span class="rrr-name">
       <span class="rrr-title"><b>{{ title }}</b><sc-if value="{{ mine }}" hint-placeholder-val="{{ false }}"><span class="rrr-mine" title="Подключён"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span></sc-if></span>
+      <sc-if value="{{ has_badge }}" hint-placeholder-val="{{ false }}"><span class="rrr-badge">{{ badge }}</span></sc-if>
       <sc-if value="{{ has_meta }}" hint-placeholder-val="{{ false }}"><small><sc-if value="{{ hot }}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c1 3.2 4.6 5.4 4.6 10a4.6 4.6 0 0 1-9.2 0c0-1.9.8-3.2 1.9-4.4.2 1.6.9 2.6 2 3 0-3.3-.4-5.8.7-8.6Z"/></svg></sc-if>{{ meta }}</small></sc-if>
     </span>
     <span class="rrr-track"><span class="{{ fill_cls }}" style="{{ fill_style }}"></span></span>
     <span class="rrr-val">{{ value }}</span>
+    <sc-if value="{{ has_chev }}" hint-placeholder-val="{{ false }}"><span class="rrr-chev raznos-row-chevron" aria-hidden="true">›</span></sc-if>
     <sc-if value="{{ is_route }}" hint-placeholder-val="{{ false }}"><a class="rrr-act" href="{{ href }}" target="_blank" rel="noopener" aria-label="{{ action_label }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8-8-2z"/></svg></a></sc-if>
     <sc-if value="{{ is_connect }}" hint-placeholder-val="{{ false }}"><button type="button" class="rrr-act" onClick="{{ act }}" aria-label="{{ action_label }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></sc-if>
     <sc-if value="{{ is_done }}" hint-placeholder-val="{{ false }}"><span class="rrr-act rrr-act-done" aria-label="{{ action_label }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span></sc-if>
@@ -46,7 +52,7 @@
     <div class="{{ trend_cls }}"><sc-if value="{{ up }}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></sc-if><sc-if value="{{ down }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7 17 17M17 9v8H9"/></svg></sc-if><span><b>{{ trend_text }}</b> {{ trend_tail }}</span></div>
   </sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"rank":{"editor":"number","default":1},"svc":{"editor":"text","default":""},"title":{"editor":"text","default":"Пресненский"},"meta":{"editor":"text","default":"3,1 км"},"hot":{"editor":"boolean","default":false},"mine":{"editor":"boolean","default":false},"fill":{"editor":"number","default":100},"value":{"editor":"text","default":"760 ₽"},"action":{"editor":"text","default":"route"},"href":{"editor":"text","default":"#"},"actionLabel":{"editor":"text","default":""},"onAction":{"editor":null},"trend":{"editor":"number","default":0},"trendTail":{"editor":"text","default":"дохода в час за 4 недели"},"divider":{"editor":"boolean","default":false},"$preview":{"width":358,"height":120}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"rank":{"editor":"number","default":1},"svc":{"editor":"text","default":""},"title":{"editor":"text","default":"Пресненский"},"meta":{"editor":"text","default":"3,1 км"},"hot":{"editor":"boolean","default":false},"mine":{"editor":"boolean","default":false},"fill":{"editor":"number","default":100},"value":{"editor":"text","default":"760 ₽"},"action":{"editor":"text","default":"route"},"href":{"editor":"text","default":"#"},"actionLabel":{"editor":"text","default":""},"onAction":{"editor":null},"onTap":{"editor":null},"badge":{"editor":"text","default":""},"trend":{"editor":"number","default":0},"trendTail":{"editor":"text","default":"дохода в час за 4 недели"},"divider":{"editor":"boolean","default":false},"$preview":{"width":358,"height":120}}'>
 // строка рейтинга: место, иконка сервиса, название, полоса от лучшего, значение, действие, выноска тренда
 // action: route (ссылка маршрута) | connect (кнопка +) | done (подключено) | пусто
 class Component extends DCLogic {
@@ -55,15 +61,18 @@ class Component extends DCLogic {
     const rank = +p.rank || 0;
     const action = p.action || '';
     const hasIcon = !!p.svc;
-    const cols = ['20px'].concat(hasIcon ? ['28px'] : [], ['minmax(0, 1fr)', '44px', 'auto'], action ? ['36px'] : []);
+    const tap = typeof p.onTap === 'function' ? p.onTap : null;
+    const cols = ['20px'].concat(hasIcon ? ['28px'] : [], ['minmax(0, 1fr)', '44px', 'auto'], action ? ['36px'] : [], tap && !action ? ['12px'] : []);
     const trend = +p.trend || 0;
     const fill = Math.max(0, Math.min(100, p.fill == null ? 100 : +p.fill));
     return {
-      row_cls: 'rrr-row' + (p.divider ? ' rrr-divider' : ''),
+      row_cls: 'rrr-row' + (p.divider ? ' rrr-divider' : '') + (tap ? ' rrr-tap' : ''),
+      row_role: tap ? 'button' : 'presentation', row_tab: tap ? '0' : '-1', tap: tap || (() => {}), has_chev: !!tap && !action,
+      has_badge: !!p.badge, badge: p.badge || '',
       grid_style: 'grid-template-columns:' + cols.join(' '),
-      rank, rank_cls: 'rrr-rank' + (rank && rank <= 3 ? ' rrr-rank-top' : ''),
+      rank, rank_text: rank ? String(rank) : '', rank_cls: 'rrr-rank' + (rank && rank <= 3 ? ' rrr-rank-top' : ''),
       has_icon: hasIcon, svc: p.svc || '', title: p.title || '',
-      mine: !!p.mine, has_meta: !!p.meta, meta: p.meta || '', hot: !!p.hot,
+      mine: !!p.mine && action !== 'done', has_meta: !!p.meta, meta: p.meta || '', hot: !!p.hot,
       fill_cls: 'rrr-fill' + (rank === 1 ? ' rrr-fill-top' : ''), fill_style: 'width:' + fill + '%',
       value: p.value || '',
       is_route: action === 'route', is_connect: action === 'connect', is_done: action === 'done',

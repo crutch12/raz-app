@@ -8,8 +8,7 @@
   </sc-if>
   <sc-if value="{{ has_summary }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-small">{{ summary }}, подробности у каждого сервиса ниже</span></sc-if>
   <sc-if value="{{ has_joined }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">Обновление уже идёт, повторный запрос присоединён к нему</p></sc-if>
-  <button type="button" class="{{ button_class }}" onClick="{{ onRequest }}">{{ button_label }}<sc-if value="{{ is_running }}" hint-placeholder-val="{{ false }}"><span class="raznos-hex-loader" aria-hidden="true"><i></i><i></i><i></i></span></sc-if></button>
-  <p class="raznos-text-tiny">Ключи входа хранятся на телефоне и передаются серверу только для выполнения запроса, сервер их не сохраняет. Лимиты сервисов соблюдаются, поэтому свежесть не мгновенная. Мы только читаем данные, заказы не принимаем</p>
+  <button type="button" class="{{ button_class }}" onClick="{{ onRequest }}"><sc-if value="{{ is_idle }}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg></sc-if>{{ button_label }}<sc-if value="{{ is_running }}" hint-placeholder-val="{{ false }}"><span class="raznos-hex-loader" aria-hidden="true"><i></i><i></i><i></i></span></sc-if></button>
 </div>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"summary":{"editor":"text","default":""},"running":{"editor":"boolean","default":false},"done":{"editor":"int","default":0},"total":{"editor":"int","default":0},"joined":{"editor":"boolean","default":false},"onRequest":{"editor":null},"$preview":{"width":360,"height":360}}'>
 class Component extends DCLogic {
@@ -25,8 +24,9 @@ class Component extends DCLogic {
       progress_label: 'Ответили ' + done + ' из ' + total + ', сервисы опрашиваются по очереди',
       has_summary: !running && !!p.summary, summary: p.summary || '',
       has_joined: running && !!p.joined,
-      button_class: running ? 'raznos-btn raznos-btn-secondary' : 'raznos-btn raznos-btn-primary',
-      button_label: running ? 'Обновляем' : 'Запросить данные',
+      // видимая кнопка со значком, чтобы было понятно, что её можно нажать
+      button_class: 'raznos-btn raznos-btn-secondary raznos-sync-btn', is_idle: !running,
+      button_label: running ? 'Обновляем' : 'Обновить сейчас',
       onRequest: p.onRequest || (() => {})
     };
   }

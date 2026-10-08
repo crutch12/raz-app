@@ -35,6 +35,7 @@
         <sc-if value="{{ ownNote }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ ownNote }}</span></sc-if>
         <dc-import name="RaznosReactionRows" courierLikes="{{ courierLikes }}" courierDislikes="{{ courierDislikes }}" userLikes="{{ userLikes }}" userDislikes="{{ userDislikes }}" myCategory="{{ myCategory }}" myVote="{{ myVote }}" canVote="{{ canVote }}" showLabels="{{ showLabels }}" onLike="{{ onLike }}" onDislike="{{ onDislike }}"></dc-import>
         <sc-if value="{{ complained }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-small raznos-text-muted" style="align-self:flex-end">Жалоба отправлена</span></sc-if>
+        <sc-if value="{{ hasActions }}" hint-placeholder-val="{{ false }}"><div class="raznos-fx raznos-gap8" style="align-self:flex-end"><sc-if value="{{ canEdit }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ onEdit }}">Изменить</button></sc-if><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ onDelete }}">Удалить</button></div></sc-if>
         <sc-if value="{{ canComplain }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" style="align-self:flex-end" onClick="{{ onComplain }}">Пожаловаться</button></sc-if>
       </div>
     </x-dc>
@@ -62,6 +63,9 @@
       "onDislike": { "editor": null },
       "mine": { "editor": "boolean", "default": false },
       "ownNote": { "editor": "text", "default": "" },
+      "canEdit": { "editor": "boolean", "default": false },
+      "onEdit": { "editor": null },
+      "onDelete": { "editor": null },
       "showComplain": { "editor": "boolean", "default": false },
       "complained": { "editor": "boolean", "default": false },
       "onComplain": { "editor": null },
@@ -82,8 +86,8 @@
             hasAnon,
             anonLetter: anonNick.slice(0, 1),
             anonStyle: 'background:oklch(0.93 0.05 ' + anonHue + ');color:oklch(0.38 0.11 ' + anonHue + ')',
-            authorClickable: category === 'courier' && !hasAnon && !!p.onAuthorTap,
-            authorStatic: !(category === 'courier' && !hasAnon && !!p.onAuthorTap),
+            authorClickable: category === 'courier' && !!p.onAuthorTap,
+            authorStatic: !(category === 'courier' && !!p.onAuthorTap),
             onAuthorTap: p.onAuthorTap || (() => {}),
             authorCity: p.authorCity || '',
             confirmed: !!p.confirmed,
@@ -91,7 +95,7 @@
             date: p.date || '',
             text: p.text || '',
             ordersLabel: p.ordersLabel || '',
-            mine: !!p.mine, ownNote: p.mine ? (p.ownNote || '') : '',
+            mine: !!p.mine, hasActions: !!p.mine && typeof p.onDelete === 'function', canEdit: !!p.canEdit, onEdit: p.onEdit || (() => {}), onDelete: p.onDelete || (() => {}), ownNote: p.mine ? (p.ownNote || '') : '',
             ratingLabel: 'Оценка ' + rating + ' из 5',
             s1: starClass(1), s2: starClass(2), s3: starClass(3), s4: starClass(4), s5: starClass(5),
             courierLikes: p.courierLikes || 0, courierDislikes: p.courierDislikes || 0,

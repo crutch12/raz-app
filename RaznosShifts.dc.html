@@ -58,12 +58,16 @@
   </sc-if>
 
   <sc-if value="{{ show_sheet }}" hint-placeholder-val="{{ false }}">
-    <dc-import name="RaznosShiftSheet" svc="{{ sh.svc }}" title="{{ sh.title }}" place="{{ sh.place }}" time="{{ sh.time }}" status="{{ sh.status }}" tone="{{ sh.tone }}" whenNote="{{ sh.whenNote }}" money="{{ sh.money }}" moneyNote="{{ sh.moneyNote }}" conflict="{{ sh.conflict }}" rule="{{ sh.rule }}" ruleTone="{{ sh.ruleTone }}" ruleSrc="{{ sh.ruleSrc }}" action="{{ sh.action }}" actionNote="{{ sh.actionNote }}" onAction="{{ sh.act }}" onClose="{{ close_sheet }}"></dc-import>
+    <dc-import name="RaznosShiftSheet" svc="{{ sh.svc }}" title="{{ sh.title }}" place="{{ sh.place }}" time="{{ sh.time }}" status="{{ sh.status }}" tone="{{ sh.tone }}" whenNote="{{ sh.whenNote }}" svcLine="{{ sh.svcLine }}" money="{{ sh.money }}" moneyNote="{{ sh.moneyNote }}" conflict="{{ sh.conflict }}" rule="{{ sh.rule }}" ruleTone="{{ sh.ruleTone }}" ruleSrc="{{ sh.ruleSrc }}" action="{{ sh.action }}" actionNote="{{ sh.actionNote }}" onAction="{{ sh.act }}" onClose="{{ close_sheet }}"></dc-import>
+  </sc-if>
+
+  <sc-if value="{{ show_fix }}" hint-placeholder-val="{{ false }}">
+    <dc-import name="RaznosConflictSheet" aSvc="{{ fx.aSvc }}" aTitle="{{ fx.aTitle }}" aTo="{{ fx.aTo }}" bSvc="{{ fx.bSvc }}" bTitle="{{ fx.bTitle }}" bFrom="{{ fx.bFrom }}" travel="{{ fx.travel }}" rate="{{ fx.rate }}" onLeave="{{ fx.leave }}" onLate="{{ fx.late }}" onClose="{{ fix_close }}"></dc-import>
   </sc-if>
 
   <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div class="raznos-shifts-toast" data-toast role="status"><button type="button" class="raznos-toast-x" data-toast-close onClick="{{ toast_close }}" aria-label="Закрыть"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span>{{ toast }}</span><sc-if value="{{ toast_has_act }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-shifts-toast-act" onClick="{{ toast_show }}">Показать</button></sc-if></div></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"caps":{"editor":null},"days":{"editor":null},"shifts":{"editor":null},"slots":{"editor":null},"rules":{"editor":null},"openings":{"editor":null},"deficits":{"editor":null},"watches":{"editor":null},"facts":{"editor":null},"today":{"editor":"text","default":""},"nowMinutes":{"editor":null},"initialTab":{"editor":"text","default":"mine"},"initialWeek":{"editor":null},"onTake":{"editor":null},"onShowInPlan":{"editor":null},"initialDay":{"editor":"text","default":""},"initialSvc":{"editor":"text","default":""},"onBack":{"editor":null},"onOpenService":{"editor":null},"$preview":{"width":390,"height":1600}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"caps":{"editor":null},"days":{"editor":null},"shifts":{"editor":null},"slots":{"editor":null},"rules":{"editor":null},"openings":{"editor":null},"deficits":{"editor":null},"watches":{"editor":null},"facts":{"editor":null},"today":{"editor":"text","default":""},"nowMinutes":{"editor":null},"initialTab":{"editor":"text","default":"mine"},"initialWeek":{"editor":null},"onTake":{"editor":null},"onShowInPlan":{"editor":null},"initialDay":{"editor":"text","default":""},"initialPast":{"editor":null},"initialSvc":{"editor":"text","default":""},"onBack":{"editor":null},"onOpenService":{"editor":null},"$preview":{"width":390,"height":1600}}'>
 // Смены: что уже взято в сервисах и что требует действия, плюс слоты, которые можно взять, и слежение
 // решения когда и где работать живут в Плане, здесь журнал броней недели
 const RSH_FMT = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
@@ -73,13 +77,10 @@ const RSH_PLURAL = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; 
 // заявка и предварительная смена не бронь, считаем отдельно
 const RSH_UNCONF = ['requested', 'tentative'];
 // слова по профилю сервиса: бронь только у сервисов с бронью, у остальных смена, заявка только где она есть
-const RSH_COUNT = (list, caps) => {
-  const word = (s, k) => ((caps[s.svc] || {}).words || { confirmed: 'бронь', requested: 'заявка' })[k];
+const RSH_COUNT = (list) => {
   const act = list.filter((s) => s.status !== 'cancelled' && s.status !== 'missed');
-  const req = act.filter((s) => RSH_UNCONF.indexOf(s.status) !== -1), conf = act.filter((s) => RSH_UNCONF.indexOf(s.status) === -1);
-  const b = conf.length, r = req.length;
-  const bron = conf.every((s) => word(s, 'confirmed') === 'бронь'), zay = req.every((s) => word(s, 'requested') === 'заявка');
-  return [b ? b + ' ' + (bron ? RSH_PLURAL(b, 'бронь', 'брони', 'броней') : RSH_PLURAL(b, 'смена', 'смены', 'смен')) : '', r ? r + ' ' + (zay ? RSH_PLURAL(r, 'заявка', 'заявки', 'заявок') : RSH_PLURAL(r, 'ждёт ответа', 'ждут ответа', 'ждут ответа')) : ''].filter(Boolean).join(' · ');
+  const r = act.filter((s) => RSH_UNCONF.indexOf(s.status) !== -1).length, b = act.length - r;
+  return [b ? b + ' ' + RSH_PLURAL(b, 'бронь', 'брони', 'броней') : '', r ? r + ' ' + RSH_PLURAL(r, 'заявка', 'заявки', 'заявок') : ''].filter(Boolean).join(' · ');
 };
 // надёжность оценки: по скольким заказам и на сколько обычно ошибаемся
 const RSH_CONF = (from, to) => { let d = 0, n = 0; for (let h = Math.floor(from / 60); h < Math.ceil(to / 60); h++) { d += RSH_DEMAND[h % 24]; n++; } const orders = Math.round(18 + (n ? d / n : 0) * 90); return { orders, pct: orders >= 70 ? 8 : (orders >= 45 ? 12 : 18) }; };
@@ -105,7 +106,7 @@ const RSH_STATUS = {
   tentative: ['предварительная', 'pending', 'warn', 'Смена в черновике сервиса, может измениться'],
   confirmed: ['бронь', 'booked', 'ok', ''],
   active: ['идёт', 'booked', 'live', ''],
-  completed: ['выполнена', 'booked', 'muted', ''],
+  completed: ['отработано', 'booked', 'muted', ''],
   cancelled: ['отменена', 'option', 'muted', 'Сервис отменил смену'],
   missed: ['пропущена', 'option', 'danger', 'Сервис отметил неявку']
 };
@@ -146,7 +147,6 @@ class Component extends DCLogic {
     const hasFree = (p.slots || []).length > 0;
     const hasWatch = (p.slots || []).some((sl) => watchOk(sl.svc)) || (p.openings || []).length > 0;
     const modeOf = (svc) => (capOf(svc).modes || [])[0] || '';
-    const wordOf = (s) => (capOf(s.svc).words || { confirmed: 'бронь', requested: 'заявка' });
     const openService = typeof p.onOpenService === 'function' ? p.onOpenService : (() => {});
     const date = (iso) => new Date(iso + 'T00:00:00');
     const days = p.days || weekIsos;
@@ -168,7 +168,6 @@ class Component extends DCLogic {
       return r.freeCancel === 'noonBefore' ? (() => { const d = date(iso); d.setDate(d.getDate() - 1); d.setHours(12); return d; })() : new Date(start.getTime() - (r.hoursBefore || 24) * 3600000);
     };
     const nowDate = (() => { const d = date(today); d.setMinutes(now); return d; })();
-    const RSH_SRC = { 'отзывы': '', 'вторичный': 'из пересказов', 'не подтверждено': 'точно не известно', 'партнёрские материалы': 'по словам партнёров' };
     const deadlineLabel = (d) => RSH_DOW[d.getDay()].toLowerCase() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
     const ruleFor = (svc, iso, from) => {
       const r = rules[svc];
@@ -187,6 +186,9 @@ class Component extends DCLogic {
     const moneyOf = (s) => {
       const f = s.iso === today && s.status === 'completed' ? facts[s.svc] : null;
       const rate = RSH_RATE(s.svc, s.from, s.to);
+      // идущая смена: уже начисленное плюс оценка остатка, итог не меньше начисленного
+      const run = s.iso === today && s.status === 'active' ? facts[s.svc] : null;
+      if (run) { const left = Math.max(0, s.to - now), rest = Math.round(rate * left / 600) * 10; return { sum: run.earn + rest, rate, pay: RSH_FMT(run.earn) + ' ₽ уже', text: '≈ ' + RSH_FMT(Math.round((run.earn + rate * left / 60) / 10) * 10) + ' ₽ за смену', note: 'Уже ' + RSH_FMT(run.earn) + ' ₽, ещё ≈ ' + RSH_FMT(rest) + ' ₽ за ' + RSH_LEFT(left) }; }
       if (f) return { sum: f.earn, pay: RSH_FMT(f.earn) + ' ₽', text: RSH_FMT(f.earn) + ' ₽ за смену', note: f.orders + ' заказов, это факт из приложения сервиса' };
       return { sum: rate * (s.to - s.from) / 60, rate, pay: '≈ ' + RSH_FMT(Math.round(rate * (s.to - s.from) / 60 / 10) * 10) + ' ₽', text: '≈ ' + RSH_FMT(Math.round(rate * (s.to - s.from) / 60 / 10) * 10) + ' ₽ за смену', note: '≈ ' + RSH_FMT(rate) + ' ₽/ч, оценка Разноса ' + RSH_CONF_TEXT(s.from, s.to) + (s.rate && rateKnown(s.svc) ? '. Ставка сервиса ' + s.rate + ' ₽/ч известна заранее и уже внутри' : '') };
     };
@@ -204,17 +206,22 @@ class Component extends DCLogic {
     const upcoming = live.filter((s) => ['confirmed', 'requested', 'tentative'].indexOf(s.status) !== -1 && (s.iso > today || (s.iso === today && s.from > now)))
       .sort((a, b) => (a.iso === b.iso ? a.from - b.from : (a.iso < b.iso ? -1 : 1)))[0];
 
-    // статус смены словами сервиса: бронь, заявка, подтверждена, пожелание, одобрена
+    // метка из общего словаря: бронь, заявка, предварительная, идёт, отработано, отменена, пропущена
     const REQ_NOTE = { wish: 'Пожелание в график, сервис ещё не одобрил', draft: 'Черновик, сервис ещё не утвердил' };
     const statusOf = (s) => {
       const base = RSH_STATUS[s.status] || ['статус неизвестен', 'option', 'muted', ''];
-      const w = wordOf(s);
-      if (s.status === 'confirmed') return [w.confirmed, base[1], base[2], base[3]];
-      if (s.status === 'requested') return [w.requested, base[1], base[2], REQ_NOTE[capOf(s.svc).status] || base[3]];
+      if (s.status === 'requested') return [base[0], base[1], base[2], REQ_NOTE[capOf(s.svc).status] || base[3]];
       return base;
     };
+    // слова сервиса и режим серой строкой шторки: в Самокате: подтверждена, автоназначение
+    const svcLineOf = (svc, status) => {
+      const c = capOf(svc), words = c.words, label = status === 'requested' ? 'заявка' : 'бронь';
+      const own = words && status ? (status === 'requested' ? words.requested : (['confirmed', 'active', 'completed'].indexOf(status) !== -1 ? words.confirmed : '')) : '';
+      const m = c.modes || [];
+      const mode = status === 'requested' || status === 'tentative' ? '' : m[0] === 'restaurant' ? 'смена в ресторане' : (m.indexOf('auto') !== -1 && c.orders === 'auto' ? 'заказы назначает сервис' : '');
+      return [own && own !== label ? 'в ' + (c.prep || c.title || svc) + ': ' + own : '', mode].filter(Boolean).join(' · ');
+    };
     const cancelNote = (s) => (s.status === 'requested' ? (capOf(s.svc).status === 'wish' ? 'Пожелание можно отозвать' : 'Заявку можно отозвать') : (capOf(s.svc).status === 'bron' || !capOf(s.svc).status ? 'Бронь можно отменить' : 'Смену можно отменить'));
-    const ordersNote = (svc) => (capOf(svc).orders === 'auto' ? 'Заказы в смене назначает сервис' : '');
     // подробности брони в шторке
     const openSheet = (s) => set({ sheet: s.id });
     const sheetShift = st.sheet ? shifts.find((s) => s.id === st.sheet) : null;
@@ -226,14 +233,12 @@ class Component extends DCLogic {
       const isToday = s.iso === today;
       const when = dayTitle(s.iso) + (s.status === 'active' ? ', осталось ' + RSH_LEFT(s.to - now) : (isToday && s.from > now ? ', через ' + RSH_LEFT(s.from - now) : ''));
       const rule = past || s.status === 'active' ? { text: '', tone: '' } : ruleFor(s.svc, s.iso, s.from);
-      const dl = past ? null : deadlineOf(s.svc, s.iso, s.from);
-      const freeUntil = dl && dl > nowDate ? deadlineLabel(dl) : '';
       return {
         svc: s.svc, title: s.title, place: s.place, time: RSH_TIME(s.from) + '–' + RSH_TIME(s.to), status: stt[0], tone: stt[2],
-        whenNote: when + (stt[3] ? '. ' + stt[3] : '') + (s.transfer ? '. Смену передали вам' : '') + (past || !ordersNote(s.svc) ? '' : '. ' + ordersNote(s.svc)),
+        whenNote: when + (stt[3] ? '. ' + stt[3] : '') + (s.transfer ? '. Смену передали вам' : ''), svcLine: svcLineOf(s.svc, s.status),
         money: m.text, moneyNote: m.note, conflict: past ? '' : (conflictOf[s.id] || ''), rule: rule.text, ruleTone: rule.tone, ruleSrc: rule.text && rules[s.svc] ? rules[s.svc].src || '' : '',
         action: past ? '' : 'Открыть в приложении ' + s.title, act: () => openService(s.svc, whenOf(s)),
-        actionNote: past || s.status === 'active' ? '' : cancelNote(s) + ' только в приложении ' + s.title + (freeUntil && s.status !== 'requested' ? ', без последствий до ' + freeUntil : '')
+        actionNote: past || s.status === 'active' ? '' : cancelNote(s) + ' только в приложении ' + s.title
       };
     })() : {};
 
@@ -246,18 +251,18 @@ class Component extends DCLogic {
       return {
         from: RSH_TIME(s.from), to: RSH_TIME(s.to), svc: s.svc, title: s.title, sub: s.place, pay: m.pay,
         kind: stt[1] === 'booked' && modeOf(s.svc) === 'restaurant' ? 'shift' : stt[1], badge: f ? 'отработано' : stt[0], state: past ? 'past' : (s.status === 'active' ? 'now' : ''),
-        note: past ? '' : (conflictOf[s.id] || (s.status === 'requested' ? stt[3] : '')), urgent: !past && !!conflictOf[s.id],
+        note: past ? '' : (conflictOf[s.id] || ''), urgent: !past && !!conflictOf[s.id],
         tap: () => openSheet(s)
       };
     };
-    const pastOpen = weekPast || !!st.pastOpen;
+    const pastOpen = weekPast || (st.pastOpen != null ? !!st.pastOpen : !!p.initialPast);
     const dayIsPast = (iso) => iso < today;
     const pastDays = days.filter((iso) => dayIsPast(iso) && shifts.some((s) => s.iso === iso));
     const pastCount = shifts.filter((s) => dayIsPast(s.iso)).length;
     const mineDays = days.filter((iso) => shifts.some((s) => s.iso === iso) && (pastOpen || !dayIsPast(iso))).map((iso) => {
       const list = shifts.filter((s) => s.iso === iso).sort((a, b) => a.from - b.from);
       const mins = list.filter((s) => s.status !== 'cancelled' && s.status !== 'missed' && RSH_UNCONF.indexOf(s.status) === -1).reduce((sum, s) => sum + s.to - s.from, 0);
-      return { dow: RSH_DOW_SHORT[new Date(iso + 'T12:00').getDay()], num: String(Number(iso.slice(8))), gutter_cls: 'raznos-shifts-date' + (iso === today ? ' raznos-is-today' : ''), title: dayTitle(iso), today: iso === today, meta: [RSH_COUNT(list, caps), mins ? RSH_DUR(mins) : ''].filter(Boolean).join(' · '), rows: list.map(rowOf) };
+      return { dow: RSH_DOW_SHORT[new Date(iso + 'T12:00').getDay()], num: String(Number(iso.slice(8))), gutter_cls: 'raznos-shifts-date' + (iso === today ? ' raznos-is-today' : ''), title: dayTitle(iso), today: iso === today, meta: [RSH_COUNT(list), mins ? RSH_DUR(mins) : ''].filter(Boolean).join(' · '), rows: list.map(rowOf) };
     });
 
     // вкладка Можно взять: свободные слоты недели по дням, лучшие по деньгам сверху
@@ -290,8 +295,8 @@ class Component extends DCLogic {
         const folded = clashSlots.filter((c) => c.iso === sl.iso).length;
         const tail = folded ? ' · похожие слоты свёрнуты внизу' : '';
         return sl.taken === 'requested'
-          ? Object.assign(row, { kind: 'pending', badge: wordOf(sl).requested, note: 'Заявка в плане, ждёт ответа сервиса' + tail, action: '' })
-          : Object.assign(row, { kind: 'booked', badge: wordOf(sl).confirmed, note: 'Слот ваш, он уже в плане' + tail, action: '', added: true });
+          ? Object.assign(row, { kind: 'pending', badge: 'заявка', note: 'Заявка в плане, ждёт ответа сервиса' + tail, action: '' })
+          : Object.assign(row, { kind: 'booked', badge: 'бронь', note: 'Слот ваш, он уже в плане' + tail, action: '', added: true });
       }
       // слежение только там, где профиль сервиса его разрешает, иначе без кнопки
       if (sl.gone && !watchOk(sl.svc)) return Object.assign(row, { note: 'Слота нет в списке сервиса, слежение для него недоступно', action: '' });
@@ -332,7 +337,7 @@ class Component extends DCLogic {
       return {
         svc: sl.svc, title: sl.title, place: sl.place, time: RSH_TIME(sl.from) + '–' + RSH_TIME(sl.to),
         status: r.badge, tone: sl.gone ? 'muted' : (sl.apply || sl.taken === 'requested' ? 'warn' : 'ok'),
-        whenNote: dayTitle(sl.iso) + ', ' + RSH_DUR(sl.to - sl.from) + (sl.bonus ? '. ' + sl.bonus : '') + (sl.apply ? '. Отклик это заявка, смену подтвердит сервис' : '') + (sl.svc === 'vkusvill' ? '. ' + RSH_VV_NOTE : '') + (sl.gone && !watchOk(sl.svc) ? '. Слежение для этого сервиса недоступно' : '') + (ordersNote(sl.svc) ? '. ' + ordersNote(sl.svc) : ''),
+        whenNote: dayTitle(sl.iso) + ', ' + RSH_DUR(sl.to - sl.from) + (sl.bonus ? '. ' + sl.bonus : '') + (sl.apply ? '. Отклик это заявка, смену подтвердит сервис' : '') + (sl.svc === 'vkusvill' ? '. ' + RSH_VV_NOTE : '') + (sl.gone && !watchOk(sl.svc) ? '. Слежение для этого сервиса недоступно' : ''), svcLine: svcLineOf(sl.svc, sl.taken === 'requested' ? 'requested' : (sl.taken ? 'confirmed' : '')),
         money: m.text, moneyNote: m.note,
         conflict: clash ? 'Пересекается с вашей сменой ' + clash.title + ' ' + RSH_TIME(clash.from) + '–' + RSH_TIME(clash.to) : '',
         rule: sl.taken ? ruleFor(sl.svc, sl.iso, sl.from).text : offerRule(sl.svc), ruleTone: '', ruleSrc: (rules[sl.svc] || {}).src || '',
@@ -341,11 +346,18 @@ class Component extends DCLogic {
         act: () => { set({ slotSheet: null }); if (sl.taken) openService(sl.svc, whenOf(sl)); else if (r.onAction) r.onAction(); }
       };
     })() : null;
+    // конфликт броней: два действия по сути, оба ведут в приложение сервиса
+    const fixShifts = st.fix ? { a: shifts.find((s) => s.id === st.fix.a), b: shifts.find((s) => s.id === st.fix.b) } : null;
+    const fixView = fixShifts && fixShifts.a && fixShifts.b ? (() => {
+      const { a, b } = fixShifts;
+      const go = (s) => () => { set({ fix: null }); openService(s.svc, whenOf(s)); };
+      return { aSvc: a.svc, aTitle: a.title, aTo: a.to, bSvc: b.svc, bTitle: b.title, bFrom: b.from, travel: RSH_TRAVEL, rate: moneyOf(b).rate, leave: go(a), late: go(b) };
+    })() : null;
     // слежение и открытие записи
     const openingList = (p.openings || []).map((o) => {
       const active = reminders[o.id] != null ? reminders[o.id] : !!o.remind;
       return {
-        id: o.id, title: o.title, text: o.text, meta: o.meta, action: 'Напомнить', activeAction: 'Напомним', active,
+        id: o.id, title: o.title, line: o.line || o.title, text: o.text, meta: o.meta, action: 'Напомнить', activeAction: 'Напомним', active,
         tap: () => { const next = Object.assign({}, reminders); next[o.id] = !active; set({ reminders: next }); flash(next[o.id] ? 'Напомним за 5 минут до открытия записи' : 'Напоминание выключено'); }
       };
     });
@@ -360,17 +372,16 @@ class Component extends DCLogic {
     if (!weekPast) {
       clashes.filter((c) => c.iso >= today).forEach((c) => attention.push({
         tone: 'danger', title: (c.kind === 'overlap' ? 'Пересечение, ' : 'Не успеете доехать, ') + shortDay(c.iso),
-        text: c.a.title + ' ' + RSH_TIME(c.a.from) + '–' + RSH_TIME(c.a.to) + ' и ' + c.b.title + ' ' + RSH_TIME(c.b.from) + '–' + RSH_TIME(c.b.to) + (c.kind === 'travel' ? ', дорога ≈ ' + RSH_TRAVEL + ' мин' : ''),
-        action: 'Открыть', tap: () => set({ tab: 'mine', sheet: c.b.id })
+        action: 'Что делать', tap: () => set({ tab: 'mine', fix: { a: c.a.id, b: c.b.id } })
       }));
       live.filter((s) => s.status === 'requested' && s.iso >= today).forEach((s) => attention.push({
-        tone: 'warn', title: wordOf(s).requested.charAt(0).toUpperCase() + wordOf(s).requested.slice(1) + ' ждёт ответа', text: s.title + ', ' + shortDay(s.iso) + ', ' + RSH_TIME(s.from) + '–' + RSH_TIME(s.to), action: '', tap: () => openSheet(s)
+        tone: 'warn', title: s.title + ' ' + shortDay(s.iso) + ': заявка ждёт ответа', action: 'Открыть заявку', tap: () => openSheet(s)
       }));
       live.filter((s) => s.status === 'confirmed').forEach((s) => {
         const d = deadlineOf(s.svc, s.iso, s.from);
-        if (d && d > nowDate && d - nowDate < 24 * 3600000) attention.push({ tone: 'warn', title: 'Отменить без последствий до ' + deadlineLabel(d), text: s.title + ', ' + shortDay(s.iso) + ', ' + RSH_TIME(s.from) + '–' + RSH_TIME(s.to) + (rules[s.svc].src && rules[s.svc].src !== 'отзывы' ? ' · ' + (RSH_SRC[rules[s.svc].src] || rules[s.svc].src) : ''), action: 'Открыть', tap: () => openSheet(s) });
+        if (d && d > nowDate && d - nowDate < 24 * 3600000) attention.push({ tone: 'warn', title: s.title + ' ' + shortDay(s.iso) + ': бесплатно отменить до ' + deadlineLabel(d), action: 'Открыть', tap: () => openSheet(s) });
       });
-      openingList.slice(0, 1).forEach((o) => attention.push({ tone: 'info', title: o.title, text: o.text, action: o.active ? 'Напомним' : 'Напомнить', on: o.active, tap: o.tap }));
+      openingList.slice(0, 1).forEach((o) => attention.push({ tone: 'info', title: o.line, action: o.active ? 'Напомним' : 'Напомнить', on: o.active, tap: o.tap }));
     }
 
     const watchCount = Object.keys(watches).length;
@@ -385,18 +396,19 @@ class Component extends DCLogic {
       attention, has_attention: attention.length > 0,
       head_title: hasFree ? 'Слоты' : 'Смены',
       tabs, show_tabs: !weekPast && tabs.length > 1,
-      tab_hint: ({ mine: 'Что вы уже взяли в сервисах. Нажмите на смену, чтобы увидеть правила отмены и открыть приложение', free: 'Свободные слоты в сервисах на эту неделю, лучшие по деньгам сверху. Слот берёте в приложении сервиса, после синхронизации он появится в Мои и в Плане', watch: 'Слоты, которые пропали из списка сервиса, и напоминания об открытии записи' })[tab],
+      tab_hint: ({ mine: 'Что вы уже взяли в сервисах', free: 'Лучшие по деньгам сверху, берёте в приложении сервиса', watch: 'Пропавшие слоты и открытие записи' })[tab],
       is_mine: tab === 'mine', is_free: tab === 'free', is_watch: tab === 'watch',
       mine_days: mineDays, mine_empty: !mineDays.length && !pastCount,
       has_past: !weekPast && pastDays.length > 0, past_open: pastOpen,
       past_label: (pastOpen ? 'Скрыть прошедшие дни' : 'Прошедшие дни · ' + pastCount + ' ' + RSH_PLURAL(pastCount, 'смена', 'смены', 'смен')),
-      past_chev: 'raznos-shifts-past-chev' + (pastOpen ? ' raznos-is-open' : ''), toggle_past: () => set({ pastOpen: !st.pastOpen }),
+      past_chev: 'raznos-shifts-past-chev' + (pastOpen ? ' raznos-is-open' : ''), toggle_past: () => set({ pastOpen: !pastOpen }),
       filters, set_filter: setFilter, free_days: freeDays, free_empty: !freeDays.length && !clashSlots.length,
       has_clash_slots: clashSlots.length > 0, clash_open: !!st.clashOpen, toggle_clash: () => set({ clashOpen: !st.clashOpen }),
       clash_label: 'Пересекаются с вашими сменами · ' + clashSlots.length, clash_chev: 'raznos-shifts-past-chev' + (st.clashOpen ? ' raznos-is-open' : ''),
       clash_rows: clashSlots.map((sl) => Object.assign(slotRow(sl), { sub: shortDay(sl.iso) + ' · ' + sl.place })),
       watch_meta: watchCount ? watchCount + ' ' + RSH_PLURAL(watchCount, 'слот', 'слота', 'слотов') : '',
       watch_list: watchList, watch_empty: !watchList.length, opening_list: openingList,
+      show_fix: !!fixView, fx: fixView || {}, fix_close: () => set({ fix: null }),
       show_sheet: !!sheetShift || !!slotSheetView, sh: slotSheetView || sheetView, close_sheet: () => set({ sheet: null, slotSheet: null }),
       toast: st.toast || '', toast_close: () => this.setState({ toast: '' }), toast_has_act: !!st.toastSlot && typeof p.onShowInPlan === 'function', toast_show: () => { if (st.toastSlot && typeof p.onShowInPlan === 'function') p.onShowInPlan(st.toastSlot); }
     };

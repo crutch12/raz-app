@@ -11,9 +11,10 @@
       <button type="button" class="raznos-list-row raznos-row-btn" onClick="{{ onTap }}" style="{{ rowStyle }}">
         <dc-import name="RaznosIcon" svc="{{ svcName }}" alt="{{ title }}" size="md"></dc-import>
         <div class="raznos-list-main">
-          <span class="raznos-list-title">{{ title }}</span>
+          <span class="raznos-fx raznos-ac raznos-gap8"><span class="raznos-list-title">{{ title }}</span><sc-if value="{{ beta }}" hint-placeholder-val="{{ false }}"><span class="raznos-status-pill raznos-pill-warn">Бета</span></sc-if></span>
           <sc-if value="{{ hasNote }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-small">{{ note }}</span></sc-if>
         </div>
+        <sc-if value="{{ hasAction }}" hint-placeholder-val="{{ false }}"><span class="raznos-btn raznos-btn-secondary raznos-btn-small">{{ actionLabel }}</span></sc-if>
         <sc-if value="{{ hasStatus }}"><span class="{{ pillClass }}">{{ statusLabel }}</span></sc-if>
         <sc-if value="{{ showChevron }}"><span class="raznos-row-chevron">›</span></sc-if>
       </button>
@@ -25,6 +26,8 @@
       "status": { "editor": "enum", "default": "none", "options": ["connected", "disabled", "unsupported", "limited", "exited", "soon", "none"] },
       "statusLabel": { "editor": "text", "default": "" },
       "showChevron": { "editor": "boolean", "default": false },
+      "beta": { "editor": "boolean", "default": false },
+      "actionLabel": { "editor": "text", "default": "" },
       "onTap": { "editor": null }
     }'>
       class Component extends DCLogic {
@@ -54,11 +57,15 @@
             title: p.title || '',
             hasNote: !!p.note,
             note: p.note || '',
-            hasStatus: status !== 'none',
+            // Подключено без пояснения не повторяем, его уже сказал заголовок группы
+            hasStatus: status !== 'none' && !(status === 'connected' && !p.statusLabel),
             pillClass: pillMap[status] || 'raznos-status-pill raznos-pill-muted',
             statusLabel: p.statusLabel || labelMap[status] || '',
             showChevron: !!p.showChevron,
-            rowStyle: p.last ? 'border-bottom:0' : '',
+            beta: !!p.beta,
+            hasAction: !!p.actionLabel, actionLabel: p.actionLabel || '',
+            // Скоро: серая строка без цвета иконки
+            rowStyle: [p.last ? 'border-bottom:0' : '', status === 'soon' ? 'opacity:0.55;filter:grayscale(1)' : ''].filter(Boolean).join(';'),
             onTap: p.onTap || (() => {})
           };
         }

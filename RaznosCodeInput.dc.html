@@ -2,22 +2,24 @@
 <helmet data-dc-atomics>
   <link rel="stylesheet" href="./raznos-v3.css" />
   <style>
-    .raznos-code-input { display: flex; flex-direction: column; gap: 8px; }
+    .raznos-code-input { position: relative; }
+    /* настоящее поле лежит поверх ячеек и прозрачное: тап по ряду открывает цифровую клавиатуру */
+    .raznos-code-input-field { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; padding: 0; font-size: 16px; caret-color: transparent; cursor: text; }
+    .raznos-code-input:focus-within .raznos-otp-cell-next { border-color: var(--raznos-green-deep); }
   </style>
 </helmet>
 <div class="raznos-code-input">
-  <input class="{{ input_cls }}" inputmode="numeric" maxlength="{{ len }}" placeholder="{{ placeholder }}" value="{{ value }}" onChange="{{ on_change }}" />
   <div class="raznos-otp-cells">
     <sc-for list="{{ cells }}" as="c" hint-placeholder-count="6"><span class="{{ c.cls }}">{{ c.ch }}</span></sc-for>
   </div>
+  <input class="raznos-code-input-field" aria-label="Код из сообщения" inputmode="numeric" autocomplete="one-time-code" maxlength="{{ len }}" value="{{ value }}" onInput="{{ on_change }}" />
 </div>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{
   "value": { "editor": "text", "default": "1234" },
   "length": { "editor": "int", "default": 6 },
   "error": { "editor": "boolean", "default": false },
-  "placeholder": { "editor": "text", "default": "123456" },
   "onChange": { "editor": null },
-  "$preview": { "width": 320, "height": 120 }
+  "$preview": { "width": 320, "height": 80 }
 }'>
 class Component extends DCLogic {
   renderVals() {
@@ -28,13 +30,11 @@ class Component extends DCLogic {
     const onChange = typeof p.onChange === 'function' ? p.onChange : (() => {});
     const cells = [];
     for (let i = 0; i < len; i++) {
-      cells.push({ ch: value[i] || '·', cls: 'raznos-otp-cell' + (error ? ' raznos-is-error' : '') });
+      cells.push({ ch: value[i] || '·', cls: 'raznos-otp-cell' + (error ? ' raznos-is-error' : '') + (i === value.length ? ' raznos-otp-cell-next' : '') });
     }
     return {
       len,
       value,
-      placeholder: p.placeholder != null ? String(p.placeholder) : '123456',
-      input_cls: 'raznos-input' + (error ? ' raznos-is-error' : ''),
       cells,
       on_change: (e) => { const v = (e && e.target ? e.target.value : '').replace(/\D/g, '').slice(0, len); onChange(v); }
     };

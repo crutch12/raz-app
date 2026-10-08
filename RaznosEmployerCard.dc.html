@@ -22,9 +22,9 @@
           <sc-if value="{{ show_periods }}"><div class="raznos-kv-row"><span class="raznos-kv-key">Период данных</span><span class="raznos-kv-val">{{ periods_text }}</span></div></sc-if>
           <sc-if value="{{ show_orders }}"><div class="raznos-kv-row"><span class="raznos-kv-key">Заказов</span><span class="raznos-kv-val">{{ orders_text }}</span></div></sc-if>
           <sc-if value="{{ show_ratings }}">
-            <div class="raznos-kv-row"><span class="raznos-kv-key">Оценки клиентов</span><sc-if value="{{ ratings_empty }}" hint-placeholder-val="{{ false }}"><span class="raznos-kv-val">{{ ratings_empty_text }}</span></sc-if></div>
+            <div class="raznos-kv-row"><span class="raznos-kv-key">Оценки из сервиса</span><sc-if value="{{ ratings_empty }}" hint-placeholder-val="{{ false }}"><span class="raznos-kv-val">{{ ratings_empty_text }}</span></sc-if></div>
             <sc-for list="{{ ratings_rows }}" as="r" hint-placeholder-count="2">
-              <div class="raznos-fx raznos-jb"><span class="raznos-text-small">{{ r.title }}</span><span class="raznos-num">{{ r.score }}</span></div>
+              <div class="raznos-fx raznos-jb"><span class="raznos-text-small">{{ r.title }}</span><span class="{{ r.scoreCls }}">{{ r.score }}</span></div>
               <span class="raznos-text-tiny">{{ r.source }}</span>
             </sc-for>
           </sc-if>

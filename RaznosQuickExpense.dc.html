@@ -12,15 +12,17 @@
     .rqe-label { font: 600 13px var(--raznos-font); color: var(--raznos-ink-3); }
     .rqe-row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
     .rqe-row::-webkit-scrollbar { display: none; }
-    .rqe-repeat { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; border: 1px solid var(--raznos-line-strong); border-radius: 999px; background: var(--raznos-surface); font: 600 13.5px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; white-space: nowrap; }
+    .rqe-repeat { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border: 1px solid var(--raznos-line-strong); border-radius: 999px; background: var(--raznos-surface); font: 600 14px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; white-space: nowrap; }
     .rqe-repeat b { font-weight: 700; color: var(--raznos-red); font-variant-numeric: tabular-nums; }
     .rqe-amount { display: flex; align-items: baseline; gap: 6px; padding-bottom: 6px; border-bottom: 2px solid var(--raznos-line-strong); }
     .rqe-amount:focus-within { border-bottom-color: var(--raznos-green); }
     .rqe-amount input { min-width: 0; width: 100%; padding: 0; border: 0; background: transparent; color: var(--raznos-ink); font: 800 34px var(--raznos-font); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; caret-color: var(--raznos-green); outline: none; }
     .rqe-amount span { font: 700 22px var(--raznos-font); color: var(--raznos-ink-3); }
-    .rqe-cat { flex: none; min-height: 40px; padding: 0 14px; border: 1px solid var(--raznos-line); border-radius: 999px; background: var(--raznos-surface); font: 600 13.5px var(--raznos-font); color: var(--raznos-ink-2); cursor: pointer; }
+    .rqe-cat { flex: none; min-height: 44px; padding: 0 14px; border: 1px solid var(--raznos-line); border-radius: 999px; background: var(--raznos-surface); font: 600 14px var(--raznos-font); color: var(--raznos-ink-2); cursor: pointer; }
     .rqe-cat.raznos-is-active { border-color: var(--raznos-dark); background: var(--raznos-dark); color: var(--raznos-on-dark); }
-    .rqe-more { align-self: center; min-height: 40px; padding: 0 8px; border: 0; background: none; font: 600 13.5px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
+    .rqe-more { align-self: center; min-height: 44px; padding: 0 8px; border: 0; background: none; font: 600 13.5px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
+    .rqe-extra { display: flex; flex-direction: column; gap: 8px; }
+    .rqe-repeat > span { max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
     .rqe-repeat:focus-visible, .rqe-cat:focus-visible, .rqe-more:focus-visible, .rqe-close:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
     @media (prefers-reduced-motion: no-preference) {
       .rqe-sheet { animation: rqe-in .24s cubic-bezier(.16, 1, .3, 1) both; }
@@ -31,18 +33,19 @@
 <div class="raznos-dialog-layer rqe-layer" onClick="{{ close }}">
   <section class="rqe-sheet" role="dialog" aria-modal="true" aria-label="Быстрый расход" onClick="{{ stop }}">
     <span class="rqe-handle" aria-hidden="true"></span>
-    <div class="rqe-head"><h2>Расход сейчас</h2><button type="button" class="rqe-close" onClick="{{ close }}" aria-label="Закрыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-    <sc-if value="{{ has_recent }}" hint-placeholder-val="{{ true }}"><div class="rqe-group"><span class="rqe-label">Повторить в один тап</span><div class="rqe-row"><sc-for list="{{ recent }}" as="r" hint-placeholder-count="3"><button type="button" class="rqe-repeat" onClick="{{ r.tap }}">{{ r.label }} <b>{{ r.sum }}</b></button></sc-for></div></div></sc-if>
+    <div class="rqe-head"><h2>Расход</h2><button type="button" class="rqe-close" onClick="{{ close }}" aria-label="Закрыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <label class="rqe-amount"><input class="rqe-input" type="text" inputmode="decimal" enterkeyhint="done" placeholder="0" value="{{ amount }}" onChange="{{ amount_change }}" onKeyDown="{{ key_down }}" aria-label="Сумма расхода в рублях" /><span>₽</span></label>
     <div class="rqe-row"><sc-for list="{{ cats }}" as="c" hint-placeholder-count="6"><button type="button" class="{{ c.cls }}" onClick="{{ c.tap }}" aria-pressed="{{ c.on }}">{{ c.label }}</button></sc-for></div>
+    <sc-if value="{{ has_recent }}" hint-placeholder-val="{{ true }}"><div class="rqe-group"><span class="rqe-label">Повторить</span><div class="rqe-row"><sc-for list="{{ recent }}" as="r" hint-placeholder-count="3"><button type="button" class="rqe-repeat" onClick="{{ r.tap }}"><span>{{ r.label }}</span> <b>{{ r.sum }}</b></button></sc-for></div></div></sc-if>
+    <sc-if value="{{ more_open }}" hint-placeholder-val="{{ false }}"><div class="rqe-extra"><input class="raznos-input" placeholder="Комментарий" value="{{ note }}" onChange="{{ note_change }}" aria-label="Комментарий" /><input class="raznos-input" type="date" min="{{ min_day }}" max="{{ max_day }}" value="{{ day }}" onChange="{{ day_change }}" aria-label="Дата расхода" /></div></sc-if>
     <button type="button" class="{{ add_cls }}" onClick="{{ add }}" disabled="{{ add_disabled }}">{{ add_label }}</button>
-    <button type="button" class="rqe-more" onClick="{{ more }}">Другая дата или комментарий</button>
+    <sc-if value="{{ more_closed }}" hint-placeholder-val="{{ true }}"><button type="button" class="rqe-more" onClick="{{ more_toggle }}">Ещё</button></sc-if>
   </section>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"cats":{"editor":null},"defaultCat":{"editor":"text","default":"metro"},"recent":{"editor":null},"onAdd":{"editor":null},"onMore":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":520}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"cats":{"editor":null},"defaultCat":{"editor":"text","default":"metro"},"recent":{"editor":null},"onAdd":{"editor":null},"today":{"editor":"text","default":""},"minDay":{"editor":"text","default":""},"onClose":{"editor":null},"$preview":{"width":390,"height":520}}'>
 // быстрый расход сейчас: сумма сразу в фокусе, категория как в прошлый раз, повтор недавних в один тап
 const RQE_CATS = [{ k: 'metro', label: 'Метро' }, { k: 'carsharing', label: 'Каршеринг' }, { k: 'fuel', label: 'Заправка' }, { k: 'phone', label: 'Связь' }, { k: 'rent', label: 'Аренда' }, { k: 'other', label: 'Другое' }];
-const RQE_DEMO_RECENT = [{ cat: 'metro', label: 'Метро', amount: 62 }, { cat: 'fuel', label: 'Заправка', amount: 900 }];
+const RQE_DEMO_RECENT = [{ cat: 'metro', label: 'Метро', amount: 62 }, { cat: 'other', label: 'Парковка', amount: 30, note: 'Парковка' }];
 const rqeFmt = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 class Component extends DCLogic {
   componentDidMount() {
@@ -58,7 +61,9 @@ class Component extends DCLogic {
     const amountText = st.amount || '';
     const amount = parseFloat(String(amountText).replace(',', '.').replace(/[^\d.]/g, '')) || 0;
     const recent = Array.isArray(p.recent) ? p.recent : RQE_DEMO_RECENT;
-    const add = (c, a) => { if (a > 0 && typeof p.onAdd === 'function') p.onAdd(c, Math.round(a * 100) / 100); };
+    const today = p.today || '';
+    const day = st.day || today;
+    const add = (c, a, n, d) => { if (a > 0 && typeof p.onAdd === 'function') p.onAdd(c, Math.round(a * 100) / 100, n == null ? (st.note || '').trim() : n, d || day); };
     const close = () => { if (typeof p.onClose === 'function') p.onClose(); };
     return {
       // категория по умолчанию первой, чтобы выбор был виден без прокрутки
@@ -67,11 +72,14 @@ class Component extends DCLogic {
       amount_change: (e) => set({ amount: e && e.target ? e.target.value : '' }),
       key_down: (e) => { if (e && e.key === 'Enter') add(cat, amount); },
       has_recent: recent.length > 0,
-      recent: recent.map((r) => ({ label: r.label, sum: '−' + rqeFmt(r.amount) + ' ₽', tap: () => add(r.cat, r.amount) })),
+      // повтор берёт и комментарий, и сегодняшнюю дату
+      recent: recent.map((r) => ({ label: r.label, sum: '−' + rqeFmt(r.amount) + ' ₽', tap: () => add(r.cat, r.amount, r.note || '', today) })),
+      more_open: !!st.more, more_closed: !st.more, more_toggle: () => set({ more: true }),
+      note: st.note || '', note_change: (e) => set({ note: e && e.target ? e.target.value : '' }),
+      day, min_day: p.minDay || '', max_day: today, day_change: (e) => set({ day: e && e.target ? e.target.value : '' }),
       add: () => add(cat, amount), add_disabled: !(amount > 0),
       add_cls: amount > 0 ? 'raznos-btn raznos-btn-primary' : 'raznos-btn-disabled',
       add_label: amount > 0 ? 'Добавить −' + rqeFmt(amount) + ' ₽' : 'Добавить',
-      more: () => { if (typeof p.onMore === 'function') p.onMore(cat, amount); },
       close, stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
     };
   }

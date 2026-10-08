@@ -2,13 +2,9 @@
 <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-final.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
 <sc-if value="{{ verdict_mode }}" hint-placeholder-val="{{ false }}">
   <div class="raznos-stats-verdict-row">
-    <div class="{{ verdict_class }}"><span class="raznos-stats-delta-mark" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><span class="raznos-stats-verdict-copy"><b>{{ verdict_title }}</b><small>{{ verdict_note }}</small></span></div>
+    <div class="{{ verdict_class }}"><span class="raznos-stats-delta-mark" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><span class="raznos-stats-verdict-copy"><b>{{ verdict_title }}</b><sc-if value="{{ verdict_note }}" hint-placeholder-val="{{ false }}"><small>{{ verdict_note }}</small></sc-if></span></div>
     <sc-if value="{{ has_settings }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-stats-cohort-settings raznos-stats-verdict-settings" onClick="{{ on_settings }}" aria-label="Настроить сравнение"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button></sc-if>
   </div>
-  <sc-if value="{{ recap_enough }}" hint-placeholder-val="{{ true }}"><div class="raznos-stats-cohort-gauge raznos-stats-verdict-gauge" aria-label="Ваш результат относительно курьеров города">
-    <div class="raznos-stats-cohort-track"><span class="raznos-stats-cohort-range" style="{{ recap_range_style }}"></span><i class="raznos-stats-cohort-median" style="{{ recap_median_style }}"></i><i class="raznos-stats-cohort-you" style="{{ recap_you_style }}"></i></div>
-    <div class="raznos-stats-cohort-legend"><span><i class="raznos-stats-cohort-swatch raznos-is-you"></i>вы {{ recap_mine }}</span><span><i class="raznos-stats-cohort-swatch raznos-is-median"></i>медиана {{ recap_median }}</span></div>
-  </div></sc-if>
 </sc-if>
 <sc-if value="{{ recap_mode }}" hint-placeholder-val="{{ false }}">
   <div class="raznos-stats-section raznos-stats-cohort-card">
@@ -17,10 +13,10 @@
       <sc-if value="{{ has_settings }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-stats-cohort-settings" onClick="{{ on_settings }}" aria-label="Настроить сравнение"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button></sc-if>
     </div>
     <sc-if value="{{ recap_enough }}" hint-placeholder-val="{{ true }}">
-      <div class="raznos-stats-cohort-result" aria-label="Сравнение с медианой"><div class="raznos-stats-cohort-column raznos-is-you"><small>Вы</small><strong>{{ recap_mine }}</strong></div><div class="raznos-stats-cohort-column"><small>Медиана</small><strong>{{ recap_median }}</strong></div></div>
+      <div class="raznos-stats-cohort-result" aria-label="Сравнение с медианой"><div class="raznos-stats-cohort-column raznos-is-you"><small>Вы</small><strong>{{ recap_mine }}</strong></div><div class="raznos-stats-cohort-column"><small>У курьеров</small><strong>{{ recap_median }}</strong></div></div>
       <div class="raznos-stats-cohort-gauge" aria-label="Ваш результат относительно курьеров города">
         <div class="raznos-stats-cohort-track"><span class="raznos-stats-cohort-range" style="{{ recap_range_style }}"></span><i class="raznos-stats-cohort-median" style="{{ recap_median_style }}"></i><i class="raznos-stats-cohort-you" style="{{ recap_you_style }}"></i></div>
-        <div class="raznos-stats-cohort-legend"><span><i class="raznos-stats-cohort-swatch raznos-is-you"></i>вы</span><span><i class="raznos-stats-cohort-swatch raznos-is-median"></i>медиана</span><span><i class="raznos-stats-cohort-swatch raznos-is-range"></i>обычно {{ recap_range }}</span></div>
+        <div class="raznos-stats-cohort-legend"><span><i class="raznos-stats-cohort-swatch raznos-is-you"></i>вы</span><span><i class="raznos-stats-cohort-swatch raznos-is-median"></i>у курьеров</span><span><i class="raznos-stats-cohort-swatch raznos-is-range"></i>у большинства {{ recap_range }}</span></div>
       </div>
       <p class="raznos-stats-note">{{ recap_percentile }} · {{ recap_n }}</p>
     </sc-if>
@@ -51,7 +47,7 @@
   </sc-for>
 </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"city":{"editor":"text","default":"moscow"},"mineCity":{"editor":"text","default":"moscow"},"transport":{"editor":"enum","default":"bike","options":["bike","foot","car","electric","moto"]},"period":{"editor":"enum","default":"month","options":["today","week","month","year","12m","custom"]},"svc":{"editor":"text","default":"all"},"medianHint":{"editor":null},"district":{"editor":"text","default":"all"},"mineAmount":{"editor":null},"recapMode":{"editor":"boolean","default":false},"verdictMode":{"editor":"boolean","default":false},"onSettings":{"editor":null},"mine":{"editor":null},"onlyMine":{"editor":"boolean","default":false},"title":{"editor":"text","default":"Я и другие курьеры"},"$preview":{"width":360,"height":420}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"city":{"editor":"text","default":"moscow"},"mineCity":{"editor":"text","default":"moscow"},"transport":{"editor":"enum","default":"bike","options":["bike","foot","car","electric","moto"]},"period":{"editor":"enum","default":"month","options":["today","week","month","year","12m","custom"]},"svc":{"editor":"text","default":"all"},"medianHint":{"editor":null},"share":{"editor":null},"district":{"editor":"text","default":"all"},"mineAmount":{"editor":null},"recapMode":{"editor":"boolean","default":false},"verdictMode":{"editor":"boolean","default":false},"onSettings":{"editor":null},"mine":{"editor":null},"onlyMine":{"editor":"boolean","default":false},"title":{"editor":"text","default":"Я и другие курьеры"},"$preview":{"width":360,"height":420}}'>
 const CC_TITLES = { vkusvill: 'ВкусВилл', samokat: 'Самокат', x5: 'X5 Доставка', 'yandex-eda': 'Яндекс Еда' };
 const CC_TRANSPORT = { bike: 'велосипед', foot: 'пешком', car: 'авто', electric: 'электро', moto: 'мото' };
 // медиана за месяц, остальные периоды получают небольшой сдвиг и свою выборку
@@ -87,10 +83,13 @@ class Component extends DCLogic {
       const service = p.svc || 'all', district = p.district || 'all';
       // за сегодня медиана считается по текущему дню, в демо это доля недели
       const weekBase = (((CC_RECAP[city] || {})[transport] || {}).week || {})[service] || null;
-      const base = ((((CC_RECAP[city] || {})[transport] || {})[period] || {})[service] || null) || (period === 'today' && weekBase ? [Math.round(weekBase[0] / 7), Math.round(weekBase[1] / 7), Math.round(weekBase[2] / 7), Math.round(weekBase[3] * 0.6)] : null);
+      // свои даты без своей выборки берут разброс недели, медиану тогда передаёт экран
+      const base = ((((CC_RECAP[city] || {})[transport] || {})[period] || {})[service] || null) || (period === 'today' && weekBase ? [Math.round(weekBase[0] / 7), Math.round(weekBase[1] / 7), Math.round(weekBase[2] / 7), Math.round(weekBase[3] * 0.6)] : null) ||
+        (period === 'custom' && weekBase && p.medianHint > 0 ? weekBase : null);
       const districtBase = base && district === 'Пресненский' ? [Math.round(base[0] * .91), Math.round(base[1] * .91), Math.round(base[2] * .91), Math.round(base[3] * .35)] : (district === 'all' ? base : null);
-      // для прошлого периода экран передаёт медиану того периода, диапазон масштабируется вместе с ней
-      const factor = districtBase && p.medianHint > 0 ? p.medianHint / districtBase[0] : 1;
+      // экран передаёт медиану за те же дни, что у курьера, диапазон масштабируется вместе с ней
+      // без неё у идущего периода медиана полного периода урезается до прошедших дней (share)
+      const factor = districtBase && p.medianHint > 0 ? p.medianHint / districtBase[0] : (p.share > 0 && p.share < 1 ? p.share : 1);
       const adjusted = districtBase ? [Math.round(districtBase[0] * factor / 100) * 100, Math.round(districtBase[1] * factor / 100) * 100, Math.round(districtBase[2] * factor / 100) * 100, districtBase[3]] : null;
       const n = adjusted ? adjusted[3] : 0;
       const mine = p.mineAmount == null ? null : Number(p.mineAmount);
@@ -102,18 +101,19 @@ class Component extends DCLogic {
       const domainMax = enough ? Math.round(adjusted[2] * 1.12) : 1;
       const position = (value) => Math.max(0, Math.min(100, Math.round((value - domainMin) * 100 / Math.max(1, domainMax - domainMin))));
       const cityTitle = city === 'moscow' ? 'Москва' : (city === 'spb' ? 'Санкт-Петербург' : 'Ваш город');
+      const cityGen = city === 'moscow' ? 'Москвы' : (city === 'spb' ? 'Санкт-Петербурга' : 'города');
       return {
         recap_mode: !p.verdictMode, verdict_mode: !!p.verdictMode, legacy_mode: false, recap_enough: enough, recap_not_enough: !enough,
         verdict_class: 'raznos-stats-summary-delta raznos-stats-verdict' + (enough ? (diff >= 0 ? ' raznos-is-positive' : ' raznos-is-negative') : ''),
-        verdict_title: enough ? (diff >= 0 ? 'Выше медианы города на ' : 'Ниже медианы города на ') + amount(Math.abs(diff)) : 'Сравнение с курьерами',
-        verdict_note: enough ? cityTitle + ' · ' + (mine >= adjusted[2] ? 'выше 80% курьеров' : (mine >= adjusted[0] ? 'выше 50% курьеров' : 'выше 25% курьеров')) + ' · ' + n + ' ' + ccPlural(n, 'курьер', 'курьера', 'курьеров') : (crossCity ? 'Ваши заказы относятся к другому городу, личное сравнение недоступно' : (period === 'custom' ? 'Для выбранных дат сопоставимой выборки пока нет' : 'Для этой группы данных пока нет')),
+        verdict_title: enough ? (mine >= adjusted[2] ? 'Больше, чем у 8 из 10 курьеров ' : (mine >= adjusted[0] ? 'Больше, чем у половины курьеров ' : 'Меньше, чем у половины курьеров ')) + cityGen : 'Сравнение с курьерами',
+        verdict_note: enough ? '' : (crossCity ? 'Ваши заказы относятся к другому городу, личное сравнение недоступно' : (period === 'custom' ? 'Для выбранных дат сопоставимой выборки пока нет' : 'Для этой группы данных пока нет')),
         cohort_label: cityTitle + ' · ' + (CC_TRANSPORT[transport] || transport) + ' · ' + (CC_TITLES[service] || 'все сервисы') + (district === 'all' ? ' · все районы' : ' · ' + district),
         basis_label: 'начислено за тот же период', recap_mine: enough ? amount(mine) : 'Нет данных',
         recap_median: enough ? amount(adjusted[0]) : 'Нет данных',
         recap_range: enough ? amount(adjusted[1]) + ' – ' + amount(adjusted[2]) : 'Нет данных',
-        recap_diff: enough ? (diff >= 0 ? 'выше медианы на ' : 'ниже медианы на ') + amount(Math.abs(diff)) : '',
-        recap_title: enough ? (diff >= 0 ? 'Выше медианы на' : 'Ниже медианы на') : 'Сравнение с курьерами', recap_accent: enough ? amount(Math.abs(diff)) : '',
-        recap_percentile: enough ? (mine >= adjusted[2] ? 'Выше 80% курьеров' : (mine >= adjusted[0] ? 'Выше 50% курьеров' : 'Выше 25% курьеров')) : '',
+        recap_diff: enough ? (diff >= 0 ? 'выше обычного на ' : 'ниже обычного на ') + amount(Math.abs(diff)) : '',
+        recap_title: enough ? (diff >= 0 ? 'Выше обычного на' : 'Ниже обычного на') : 'Сравнение с курьерами', recap_accent: enough ? amount(Math.abs(diff)) : '',
+        recap_percentile: enough ? (mine >= adjusted[2] ? 'Больше, чем у 8 из 10 курьеров' : (mine >= adjusted[0] ? 'Больше, чем у половины курьеров' : 'Больше, чем у 1 из 4 курьеров')) : '',
         recap_n: enough ? n + ' ' + ccPlural(n, 'курьер', 'курьера', 'курьеров') : '',
         recap_range_style: enough ? 'left:' + position(adjusted[1]) + '%;width:' + Math.max(4, position(adjusted[2]) - position(adjusted[1])) + '%' : '',
         recap_median_style: enough ? 'left:' + position(adjusted[0]) + '%' : '', recap_you_style: enough ? 'left:' + position(mine) + '%' : '',

@@ -10,19 +10,16 @@
     .rtc-me-end { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
     .rtc-me-val { font: 800 22px var(--raznos-mono); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .rtc-me-metric { font: 500 12px var(--raznos-font); color: color-mix(in oklab, var(--raznos-on-dark) 70%, transparent); }
-    .rtc-list { display: flex; flex-direction: column; gap: 6px; }
+    .rtc-list { display: flex; flex-direction: column; gap: 0; }
     .rtc-near { display: flex; flex-direction: column; padding: 12px 14px 6px; border-radius: 16px; background: var(--raznos-surface); }
     .rtc-near-gap { display: flex; align-items: center; gap: 8px; padding-bottom: 8px; font: 650 14px var(--raznos-font); color: var(--raznos-ink); }
     .rtc-near-row { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; margin: 0 -10px; border-radius: 10px; }
     .rtc-near-row.rtc-is-me { background: color-mix(in oklab, var(--raznos-green) 16%, var(--raznos-surface)); }
     .rtc-near-row.rtc-is-me .rtc-near-name, .rtc-near-row.rtc-is-me .rtc-rank { font-weight: 800; color: var(--raznos-green-deep); }
     .rtc-near-name { font: 500 14px var(--raznos-font); color: var(--raznos-ink-2); }
-    .rtc-row { display: grid; grid-template-columns: 26px 40px 1fr auto; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); width: 100%; text-align: left; cursor: pointer; }
+    .rtc-row { display: grid; grid-template-columns: 26px 1fr; align-items: center; gap: 12px; padding: 12px 4px; border-bottom: 1px solid var(--raznos-line); }
     .rtc-rank { font: 700 14px var(--raznos-mono); color: var(--raznos-ink-2); text-align: center; }
-    .rtc-face { width: 40px; height: 40px; border-radius: 50%; background: var(--raznos-surface-2); border: 1px solid var(--raznos-line); display: flex; align-items: center; justify-content: center; font: 700 16px var(--raznos-font); color: var(--raznos-ink-3); }
-    .rtc-namecol { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-    .rtc-name { font: 600 15px var(--raznos-font); color: var(--raznos-ink); }
-    .rtc-sub { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rtc-row .rtc-val { text-align: right; }
     .rtc-val { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
   </style>
 </helmet>
@@ -49,17 +46,14 @@
   <span class="raznos-text-h3">Лидеры · {{ scope_label }}</span>
   <div class="rtc-list">
     <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
-      <button type="button" class="rtc-row" onClick="{{ r.tap }}">
+      <div class="rtc-row">
         <span class="rtc-rank">{{ r.rank }}</span>
-        <span class="rtc-face">{{ r.face }}</span>
-        <span class="rtc-namecol"><span class="rtc-name">{{ r.name }}</span><span class="rtc-sub">{{ r.sub }}</span></span>
         <span class="rtc-val">{{ r.val }}</span>
-      </button>
+      </div>
     </sc-for>
   </div>
-  <p class="raznos-text-tiny">Себя видно как есть, остальные обезличены, суммы у них реальные. Тап по строке открывает обезличенный профиль. Срез по городу и периоду</p>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"onOpenAnon":{"editor":null},"$preview":{"width":390,"height":760}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"onOpenAnon":{"editor":null},"me":{"editor":null},"$preview":{"width":390,"height":760}}'>
 const RTC_METRICS = [
   { key: 'money', label: 'Заработок', unit: 'money' },
   { key: 'orders', label: 'Заказы', unit: 'plain' },
@@ -99,12 +93,13 @@ class Component extends DCLogic {
     const scope = st.scope || 'city';
     const period = st.period || 'week';
     const md = RTC_METRICS.find((m) => m.key === metric) || RTC_METRICS[0];
-    const onOpen = p.onOpenAnon || (() => {});
     // демо: по всем городам лидеры чуть сильнее и мест больше, за месяц суммы примерно вчетверо, ₽/ч не растёт
     const k = (m) => (period === 'month' && m !== 'hour' ? 4.2 : 1) * (scope === 'all' ? 1.08 : 1);
     const scaled = (o) => Object.keys(o).reduce((a, m) => Object.assign(a, { [m]: Math.round(o[m] * k(m)) }), {});
     const couriers = RTC_COURIERS.map(scaled);
-    const me = Object.keys(RTC_ME).reduce((a, m) => Object.assign(a, { [m]: Math.round(RTC_ME[m] * (period === 'month' && m !== 'hour' ? 4.2 : 1)) }), {});
+    // свои цифры за прошлую неделю приходят из приложения, те же, что в профиле
+    const meWeek = Object.assign({}, RTC_ME, p.me || {});
+    const me = Object.keys(meWeek).reduce((a, m) => Object.assign(a, { [m]: Math.round(meWeek[m] * (period === 'month' && m !== 'hour' ? 4.2 : 1)) }), {});
     const myRank = Object.keys(RTC_MY_RANK).reduce((a, m) => Object.assign(a, { [m]: RTC_MY_RANK[m] * (scope === 'all' ? 9 : 1) + (period === 'month' ? 3 : 0) }), {});
     const ranked = couriers.slice().sort((a, b) => b[metric] - a[metric]);
     const scopeLabel = scope === 'all' ? 'Все города' : 'Москва';
@@ -118,7 +113,8 @@ class Component extends DCLogic {
         { key: 'period', title: 'Период', value: period, def: 'week', options: [{ k: 'week', label: RTC_PERIODS.week }, { k: 'month', label: RTC_PERIODS.month }] }
       ],
       set_filter: (key, v) => set({ [key]: v }),
-      my_place: myRank[metric] + ' место',
+      // размер выборки: все участники города, по всем городам в девять раз больше
+      my_place: myRank[metric] + ' из ' + rtcFmt(scope === 'all' ? 11160 : 1240),
       // соседи по месту в демо на 4% выше и 3% ниже вас
       gap_label: (() => { const up = Math.max(1, Math.round(me[metric] * 0.043)); return 'До ' + (myRank[metric] - 1) + ' места ещё ' + rtcVal(up, md.unit); })(),
       near: [
@@ -131,11 +127,7 @@ class Component extends DCLogic {
       my_metric: md.label,
       rows: ranked.map((c, i) => ({
         rank: String(i + 1),
-        face: '?',
-        name: 'Курьер',
-        sub: 'обезличено',
-        val: rtcVal(c[metric], md.unit),
-        tap: () => onOpen()
+        val: rtcVal(c[metric], md.unit)
       })),
     };
   }
