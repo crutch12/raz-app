@@ -74,9 +74,18 @@
     .rpw-more-copy { display: inline-flex; align-items: center; gap: 8px; }
     .rpw-watch { gap: 6px; }
     .rpw-watch.rpw-watch-on { border-color: transparent; background: color-mix(in oklab, var(--raznos-green) 14%, var(--raznos-surface)); color: var(--raznos-green-deep); }
+    /* спокойные карточки: без заливки, сервис узнаётся по полоске слева; цвет фона только у идущей смены и у проблемы */
+    .rpw { box-shadow: inset 3px 0 0 var(--rpw-svc, transparent); }
+    .rpw.rpw-booked, .rpw.rpw-pending { background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
+    .rpw.rpw-pending { border-style: dashed; border-color: var(--raznos-line-strong); }
+    .rpw.rpw-now { background: var(--raznos-green-tint); }
+    .rpw.rpw-changed { box-shadow: inset 3px 0 0 var(--rpw-svc, transparent), 0 0 0 2px var(--raznos-amber); }
+    .rpw.rpw-hl { box-shadow: inset 3px 0 0 var(--rpw-svc, transparent), 0 0 0 3px color-mix(in oklab, var(--raznos-green) 55%, transparent); }
+    /* ₽/ч мелко и серым, одно число на окно */
+    .rpw-pay, .rpw-pay-btn { font: 600 13px var(--raznos-font); color: var(--raznos-ink-2); }
   </style>
 </helmet>
-<div class="{{ cls }}">
+<div class="{{ cls }}" style="{{ svc_style }}">
   <sc-if value="{{ has_changed }}" hint-placeholder-val="{{ false }}"><span class="rpw-changed-tag">{{ changed_text }}</span></sc-if>
   <div class="rpw-main">
     <button type="button" class="rpw-hit" onClick="{{ on_tap }}" aria-label="{{ aria }}">
@@ -109,6 +118,8 @@ class Component extends DCLogic {
       pay: p.pay == null ? '≈ 740 ₽/ч' : p.pay, badge: state === 'now' ? 'идёт' : (p.badge || 'свободный выход'),
       badge_cls: 'rpw-badge' + (badgeTone ? ' rpw-badge-' + badgeTone : ''),
       // срочно: окно уже в плане, но без брони сервис заказы не даст
+      // полоска слева цветом сервиса, остальная карточка спокойная
+      svc_style: p.svc ? '--rpw-svc: var(--raznos-svc-' + p.svc + ')' : '',
       cls: 'rpw' + (p.urgent ? ' rpw-urgent' : (({ booked: ' rpw-booked', shift: ' rpw-booked', auto: ' rpw-booked', pending: ' rpw-pending', need: ' rpw-need' })[kind] || '')) + (state === 'past' ? ' rpw-past' : '') + (p.timeInline ? ' rpw-inline' : '') + (state === 'now' ? ' rpw-now' : '') + (p.plain ? ' rpw-plain' : '') + (p.highlight ? ' rpw-hl' : '') + (p.changed ? ' rpw-changed' : ''),
       urgent: !!p.urgent, mine: !!p.mine,
       // окно уже в расписании: зелёная подпись и галочка в кружке на месте кнопки

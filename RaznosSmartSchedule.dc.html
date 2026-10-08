@@ -80,7 +80,7 @@
     .rss-total-btn:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 6px; }
     .rss-total-cap { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); text-decoration: underline dotted; text-underline-offset: 3px; }
     .rss-list { display: flex; flex-direction: column; gap: 8px; }
-    .rss-goal.rss-goal-sticky { position: sticky; top: 0; z-index: 4; box-shadow: 0 6px 16px rgba(20, 25, 40, 0.08); }
+    .rss-goal.rss-goal-sticky { position: sticky; top: 0; z-index: 4; }
     /* план недели изменился: карточка пружинит и подсвечивается, дельта всплывает, по полосе проходит блик */
     .rss-goal { position: relative; }
     /* сумма дня: подсветка и дельта, как у цели недели */
@@ -129,7 +129,7 @@
     .rss-settings { max-width: 330px; gap: 12px; }
     .rss-settings-group { display: flex; flex-direction: column; gap: 6px; }
     .rss-settings-label { font: 650 13px var(--raznos-font); color: var(--raznos-ink); }
-    .rss-goal { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 10px 14px; border: 0; border-radius: 14px; background: var(--raznos-surface); text-align: left; font: inherit; color: var(--raznos-ink); cursor: pointer; }
+    .rss-goal { display: flex; flex-direction: column; gap: 6px; width: 100%; padding: 6px 2px 8px; border: 0; border-radius: 0; background: var(--raznos-bg, var(--raznos-surface-2)); text-align: left; font: inherit; color: var(--raznos-ink); cursor: pointer; }
     .rss-goal:focus-visible, .rss-shifts-btn:focus-visible, .rss-week-step:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
     .rss-goal-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
     .rss-goal-top > b { font: 700 15px var(--raznos-font); font-variant-numeric: tabular-nums; }
@@ -137,7 +137,7 @@
     .rss-goal-top > span.rss-goal-short { color: var(--raznos-ink-2); }
     .rss-goal-top > span { flex: 1; text-align: right; }
     .rss-goal-chev { flex: none; align-self: center; margin-right: -4px; color: var(--raznos-ink-3); }
-    .rss-goal-track { position: relative; height: 6px; border-radius: 999px; background: var(--raznos-surface-2); overflow: hidden; }
+    .rss-goal-track { position: relative; height: 4px; border-radius: 999px; background: var(--raznos-surface-2); overflow: hidden; }
     .rss-goal-done { position: absolute; left: 0; top: 0; bottom: 0; background: var(--raznos-green); border-radius: 999px; }
     .rss-goal-plan { position: absolute; top: 0; bottom: 0; background: color-mix(in oklab, var(--raznos-green) 35%, var(--raznos-surface-2)); }
     .rss-choice { display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 12px; border: 1px solid var(--raznos-line); border-radius: 12px; background: var(--raznos-surface); text-align: left; font: inherit; color: var(--raznos-ink); cursor: pointer; }
@@ -159,11 +159,6 @@
   <sc-if value="{{ has_back }}" hint-placeholder-val="{{ false }}"><p class="rss-intro">{{ intro }}</p></sc-if>
   <sc-if value="{{ has_changed }}" hint-placeholder-val="{{ false }}"><div class="rss-changed"><button type="button" class="rss-changed-go" onClick="{{ changed_go }}" aria-label="{{ changed_aria }}"><span>{{ changed_note }}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><button type="button" class="rss-changed-x" onClick="{{ changed_hide }}" aria-label="Скрыть строку об изменении"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div></sc-if>
 
-  <button type="button" class="{{ goal_cls }}" onClick="{{ open_goal }}" aria-label="{{ goal_aria }}">
-    <span class="rss-goal-top"><b>{{ goal_title }}</b><span class="{{ goal_state_cls }}">{{ goal_state_pre }}<span class="rss-goal-num">{{ goal_state_num }}</span>{{ goal_state_post }}</span><svg class="rss-goal-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
-    <span class="rss-goal-track"><span class="rss-goal-done" style="{{ goal_done_style }}"></span><span class="rss-goal-plan" style="{{ goal_plan_style }}"></span><sc-if value="{{ goal_delta_show }}" hint-placeholder-val="{{ false }}"><i class="{{ goal_diff_cls }}" style="{{ goal_diff_style }}" aria-hidden="true"></i></sc-if></span>
-    <sc-if value="{{ goal_delta_show }}" hint-placeholder-val="{{ false }}"><span class="{{ goal_delta_cls }}" aria-hidden="true">{{ goal_delta }}</span></sc-if>
-  </button>
 
 
 
@@ -186,6 +181,12 @@
   </div>
   <button type="button" class="rss-week-step" onClick="{{ week_next }}" disabled="{{ week_next_off }}" aria-label="Следующая неделя"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
   </div>
+
+  <button type="button" class="{{ goal_cls }}" onClick="{{ open_goal }}" aria-label="{{ goal_aria }}">
+    <span class="rss-goal-top"><b>{{ goal_title }}</b><span class="{{ goal_state_cls }}">{{ goal_state_pre }}<span class="rss-goal-num">{{ goal_state_num }}</span>{{ goal_state_post }}</span><svg class="rss-goal-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
+    <span class="rss-goal-track"><span class="rss-goal-done" style="{{ goal_done_style }}"></span><span class="rss-goal-plan" style="{{ goal_plan_style }}"></span><sc-if value="{{ goal_delta_show }}" hint-placeholder-val="{{ false }}"><i class="{{ goal_diff_cls }}" style="{{ goal_diff_style }}" aria-hidden="true"></i></sc-if></span>
+    <sc-if value="{{ goal_delta_show }}" hint-placeholder-val="{{ false }}"><span class="{{ goal_delta_cls }}" aria-hidden="true">{{ goal_delta }}</span></sc-if>
+  </button>
 
   <sc-if value="{{ is_mine }}" hint-placeholder-val="{{ true }}">
     <div class="rss-head">
@@ -839,7 +840,7 @@ class Component extends DCLogic {
         _past: past, _earn: f ? f.earn : 0,
         is_window: true, _t: w.from, key: w.key, src: w.source, mine: w.source === 'added' || w.source === 'bt', from: rssTime(w.from), to: rssTime(w.to), svc: w.svc, title: RSS_SVC[w.svc].title,
         sub: f ? (w.place || w.zone) + ' · ' + f.orders + ' заказов, ' + rssFmt(Math.round(f.earn * 60 / (w.to - w.from) / 10) * 10) + ' ₽/ч' : nf ? (w.place || w.zone) + ' · ' + nf.orders + ' заказов' : (noFact ? (w.place || w.zone) + ' · данные ещё не пришли' : (w.source === 'booking' && w.status === 'requested' ? (w.place || w.zone) + ' · ждёт подтверждения' : (w.place || w.zone))),
-        pay: f ? rssFmt(f.earn) + ' ₽' : nf ? rssFmt(nf.earn) + ' ₽ уже' : (selIso < RSS_TODAY_ISO ? '—' : '≈ ' + rssFmt(rate) + ' ₽/ч'), kind,
+        pay: f ? rssFmt(f.earn) + ' ₽' : (selIso < RSS_TODAY_ISO ? '—' : '≈ ' + rssFmt(rate) + ' ₽/ч'), kind,
         badge: f ? 'отработано' : (selIso < RSS_TODAY_ISO ? 'отработано' : w.source === 'booking' ? bookStat(w.status, w.svc)[0] : ({ free: 'свободный выход', need: 'нужен слот', full: 'нет в списке' })[kind]),
         state: past ? 'past' : (now ? 'now' : ''),
         // окно идёт: доля прошедшего времени и сколько осталось
@@ -1358,7 +1359,7 @@ class Component extends DCLogic {
       // у прошедшей недели ссылка на её итог в Результатах
       days, is_mine: true,
       day_title: (isToday ? 'Сегодня, ' : RSS_WD_FULL[selDate.getDay()] + ', ') + selDate.getDate() + ' ' + RSS_MONTHS[selDate.getMonth()],
-      day_sub: selIso < RSS_TODAY_ISO ? (realWins.length ? 'смены выполнены' : 'смен не было') : isToday ? rssFmt(todayEarned) + ' ₽ уже начислено' : realWins.length ? rssHours(dayMin) + ' · ' + bookInfo : (isWorkDay(selDate) ? 'рабочий день по графику' : 'выходной по графику'),
+      day_sub: selIso < RSS_TODAY_ISO ? (realWins.length ? 'смены выполнены' : 'смен не было') : realWins.length ? rssHours(dayMin) + ' · ' + bookInfo : (isWorkDay(selDate) ? 'рабочий день по графику' : 'выходной по графику'),
       has_total: realWins.length > 0 && selIso >= RSS_TODAY_ISO, day_total: '≈ ' + rssFmt(r10(dayEarn)) + ' ₽', day_total_num: rssFmt(r10(dayEarn)),
       total_cls: 'rss-total-btn' + (dayAnim ? ' rss-total-' + dayAnim.dir + '-' + (dayAnim.n % 2 ? 'a' : 'b') : ''),
       // бейдж ±₽ только у Цели недели, сумма дня просто докручивается
@@ -1383,7 +1384,7 @@ class Component extends DCLogic {
       gs_current: sheetCurrent, gs_remove: sheetWin ? removeWin : null,
       show_book_sheet: !!bookWin, bs: bookView, bs_close: () => set({ bookSheet: null }),
       show_fix: !!fixView, fx: fixView || {}, fix_close: () => set({ fix: null }),
-      legend, has_legend: legend.length > 0,
+      legend, has_legend: false,
       // часы дня в шторке открыты всегда: поменять их можно у любого непрошедшего дня
       open_rebuild: () => set({ rebuild: true, keepMine: rbPreview.keep, rebuildQuiet: false, rbRulesOpen: true }), show_rebuild: !!rb, rb_close: () => set({ rebuild: false }), rb_apply: () => { if (rb) applyRebuild(); },
       // галка нужна, только если в дне есть ваши добавленные окна
