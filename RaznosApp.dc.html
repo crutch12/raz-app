@@ -4792,6 +4792,8 @@
           ];
           const TOUR_SCREENS = ['courier-empty', 'courier-home', 'work-hub', 'stats', 'market', 'profile'];
           const tourStep = st.tourStep == null ? null : (st.tourStep === 0 && demoOn ? 1 : st.tourStep);
+          // вкладка продвигает тур, только если подсказка на экране видна
+          const tourVisible = tourStep != null && role === 'courier' && TOUR_SCREENS.indexOf(s) !== -1 && (tourStep > 0 || s === 'courier-empty');
           const homePre = role === 'courier' && (st.homeDay === 'before' || st.homeDay === 'off') ? st.homeDay : '';
           const homeShifts = SHIFTS_WEEK.filter((sh) => sh.status !== 'cancelled' && sh.status !== 'completed' || (homePre === 'before' && sh.iso === TODAY_ISO && sh.status !== 'cancelled'));
           const homePreShift = homePre === 'before'
@@ -7635,9 +7637,10 @@
             // подсказки: тур по разделам при первом входе, в Настройках можно выключить или пройти снова
             tips_on: st.tipsOn !== false, tips_box: st.tipsOn !== false ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', tips_mark: st.tipsOn !== false ? '✓' : '',
             toggle_tips: () => set({ tipsOn: st.tipsOn === false }),
-            toggle_tips_settings: () => set(st.tipsOn === false ? { tipsOn: true, tourDone: false, tourStep: demoOn ? 1 : 0 } : { tipsOn: false, tourStep: null }),
-            tour_show: tourStep != null && role === 'courier' && TOUR_SCREENS.indexOf(s) !== -1 && (tourStep > 0 || s === 'courier-empty'),
-            tour_step: tourStep != null ? tourStep : '', tour_num: (tourStep || 0) + 1, tour_total: TOUR.length,
+            // включили снова: тур стартует с начала на Сегодня, где его видно
+            toggle_tips_settings: () => set(st.tipsOn === false ? { tipsOn: true, tourDone: false, tourStep: demoOn ? 1 : 0, s: readyHome ? 'courier-home' : 'courier-empty' } : { tipsOn: false, tourStep: null }),
+            tour_show: tourVisible,
+            tour_step: tourStep != null ? tourStep : '', tour_num: (tourStep || 0) + (demoOn ? 0 : 1), tour_total: TOUR.length - (demoOn ? 1 : 0),
             tour_title: tourStep != null ? TOUR[tourStep].title : '', tour_text: tourStep != null ? TOUR[tourStep].text : '', tour_below: false,
             tour_prev: () => { if (tourStep > (demoOn ? 1 : 0)) set({ tourStep: tourStep - 1 }); },
             tour_next: () => set(tourStep >= TOUR.length - 1 ? { tourStep: null, tourDone: true } : { tourStep: tourStep + 1 }),
@@ -8109,7 +8112,7 @@
             plan_change_hide: () => set({ planChangeHidden: true }),
             on_navigate: (key) => {
               // нажали вкладку, на которую показывает подсказка: открываем экран и переходим к следующей подсказке
-              if (tourStep != null && tourStep >= 1 && TOUR[tourStep].tab === key) set(tourStep >= TOUR.length - 1 ? { tourStep: null, tourDone: true } : { tourStep: tourStep + 1 });
+              if (tourVisible && tourStep >= 1 && TOUR[tourStep].tab === key) set(tourStep >= TOUR.length - 1 ? { tourStep: null, tourDone: true } : { tourStep: tourStep + 1 });
               if (role === 'user') {
                 if (key === 'home') return set({ s: 'user-home' });
                 if (key === 'market') return set({ s: 'market' });
