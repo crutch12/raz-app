@@ -19,7 +19,7 @@
   <div class="rsr">
     <span class="rsr-title">Сравнение сервисов</span>
     <span class="raznos-list-title">{{ no_data_title }}</span>
-    <span class="raznos-text-small">Сравнения для этого города пока нет, цифры других городов не показываем</span>
+    <span class="raznos-text-small">{{ no_data_text }}</span>
   </div>
 </sc-if>
 
@@ -51,7 +51,7 @@
     <p class="raznos-text-tiny">{{ source_note }}</p>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"open":{"editor":null},"connected":{"editor":null},"onConnect":{"editor":null},"onOpenService":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"$preview":{"width":390,"height":340}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"few":{"editor":"boolean","default":false},"mode":{"editor":"text","default":"card"},"open":{"editor":null},"connected":{"editor":null},"onConnect":{"editor":null},"onOpenService":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"$preview":{"width":390,"height":340}}'>
 // сравнение сервисов по мотивам Gridwise Compare Companies и Solo Jobs: доход по сервисам города, тренд, горячие дни
 // hot: индексы дней Пн=0, tod: утро, день, вечер, ночь, демо
 const RSR_SERVICES = [
@@ -179,7 +179,7 @@ class Component extends DCLogic {
     const mineCount = RSR_SERVICES.filter((x) => isMine(x.k)).length;
 
     return {
-      no_data: !hasData, no_data_title: 'Нет данных по городу ' + city,
+      no_data: !hasData, no_data_title: p.few ? 'Мало данных по городу' : 'Нет данных по городу ' + city, no_data_text: p.few ? 'Цифры появятся, когда в городе будет больше заказов' : 'Сравнения для этого города пока нет, цифры других городов не показываем',
       is_card: !full && hasData, is_full: full && hasData,
       card_sub: city + ' · ₽ в час · вся неделя',
       card_rows: cardRows,

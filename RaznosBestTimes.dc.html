@@ -61,7 +61,7 @@
   <div class="rbt">
     <span class="rbt-title">Когда выгоднее</span>
     <span class="raznos-list-title">{{ no_data_title }}</span>
-    <span class="raznos-text-small">Советов по времени для этого города пока нет, их не переносим из других городов</span>
+    <span class="raznos-text-small">{{ no_data_text }}</span>
   </div>
 </sc-if>
 
@@ -112,7 +112,7 @@
     <p class="raznos-text-tiny">{{ source_note }}</p>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"initialView":{"editor":"text","default":"week"},"open":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"workStart":{"editor":"number","default":9},"workEnd":{"editor":"number","default":18},"$preview":{"width":390,"height":250}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"few":{"editor":"boolean","default":false},"mode":{"editor":"text","default":"card"},"initialView":{"editor":"text","default":"week"},"open":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"workStart":{"editor":"number","default":9},"workEnd":{"editor":"number","default":18},"$preview":{"width":390,"height":250}}'>
 // когда выгоднее по мотивам Gridwise When to Work, два представления: день по часам и неделя по дням
 // один компонент на карточку хаба Работа и экран, чтобы цифры совпадали
 const RBT_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -269,7 +269,7 @@ class Component extends DCLogic {
     if (this._scrollKey && this._scrollKey !== this._scrolledKey) setTimeout(() => this.syncScroll(), 0);
 
     return {
-      no_data: !hasData, no_data_title: 'Нет данных по городу ' + (p.cityTitle || ''), basis: basisText,
+      no_data: !hasData, no_data_title: p.few ? 'Мало данных по городу' : 'Нет данных по городу ' + (p.cityTitle || ''), no_data_text: p.few ? 'Цифры появятся, когда в городе будет больше заказов' : 'Советов по времени для этого города пока нет, их не переносим из других городов', basis: basisText,
       is_card: !full && hasData, is_full: full && hasData, is_day: isDay,
       seg_day_cls: 'rbt-seg-btn' + (isDay ? ' raznos-is-active' : ''),
       seg_week_cls: 'rbt-seg-btn' + (!isDay ? ' raznos-is-active' : ''),

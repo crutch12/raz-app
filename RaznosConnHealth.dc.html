@@ -7,6 +7,11 @@
       <div class="raznos-conn-problem"><span class="raznos-conn-device-icons"><sc-for list="{{ device }}" as="dv" hint-placeholder-count="2"><dc-import name="RaznosIcon" svc="{{ dv.key }}" alt="{{ dv.title }}" size="sm"></dc-import></sc-for></span><div class="raznos-list-main"><span class="raznos-notice-title">{{ device_title }}</span><span class="raznos-text-small">{{ device_note }}</span></div><button type="button" class="raznos-btn raznos-btn-primary raznos-btn-small" onClick="{{ device_tap }}">Войти</button></div>
     </div>
   </sc-if>
+  <sc-for list="{{ first }}" as="fl" hint-placeholder-count="1">
+    <div class="raznos-notice raznos-notice-info">
+      <div class="raznos-conn-problem"><dc-import name="RaznosIcon" svc="{{ fl.key }}" alt="{{ fl.title }}" size="sm"></dc-import><div class="raznos-list-main"><span class="raznos-notice-title">{{ fl.headline }}</span><span class="raznos-text-small">{{ fl.note }}</span></div></div>
+    </div>
+  </sc-for>
   <sc-if value="{{ all_ok }}" hint-placeholder-val="{{ true }}">
     <button type="button" class="raznos-conn-health-ok" onClick="{{ open_list }}"><span class="raznos-conn-dot"></span><span class="raznos-list-main">{{ ok_label }}</span><span class="raznos-row-chevron">›</span></button>
   </sc-if>
@@ -44,11 +49,14 @@ class Component extends DCLogic {
     const problems = netOffline ? [] : active.filter((i) => CH_PROBLEM[i.state]);
     // вошли с нового телефона: сервис подключён, данные видны, но токена на этом устройстве нет
     const device = netOffline ? [] : active.filter((i) => i.state === 'device');
-    const okCount = active.length - problems.length - device.length;
+    // только подключили: данные ещё едут, это не ошибка
+    const first = netOffline ? [] : active.filter((i) => i.state === 'first');
+    const okCount = active.length - problems.length - device.length - first.length;
     const offNote = off.length ? ' · ' + off.map((i) => i.title).join(', ') + ' ' + (off.length === 1 ? 'выключен' : 'выключены') + ' вами' : '';
     return {
       visible: items.length > 0 || netOffline,
       all_ok: !netOffline && problems.length === 0 && okCount > 0,
+      first: first.map((i) => ({ key: i.key, title: i.title, headline: i.title + ': первая загрузка', note: i.note })),
       has_device: device.length > 0, device: device.map((i) => ({ key: i.key, title: i.title })),
       device_title: 'Новый телефон: войдите в ' + device.map((i) => i.title).join(', '),
       device_note: 'Загруженное раньше видно, новые данные придут после входа',
@@ -67,7 +75,7 @@ class Component extends DCLogic {
         tap: () => onAction(i.key, i.state)
       })),
       has_rest: !netOffline && problems.length > 0 && okCount > 0,
-      rest_label: (okCount === 1 ? 'Работает ' : 'Работают ') + active.filter((i) => !CH_PROBLEM[i.state] && i.state !== 'device').map((i) => i.title).join(', ') + ', активный заказ не теряется'
+      rest_label: (okCount === 1 ? 'Работает ' : 'Работают ') + active.filter((i) => !CH_PROBLEM[i.state] && i.state !== 'device' && i.state !== 'first').map((i) => i.title).join(', ') + ', активный заказ не теряется'
     };
   }
 }

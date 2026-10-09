@@ -30,7 +30,7 @@
   <div class="rhs">
     <span class="rhs-title">Где выгоднее</span>
     <span class="raznos-list-title">{{ no_data_title }}</span>
-    <span class="raznos-text-small">Рейтинга районов для этого города пока нет, районы других городов не показываем</span>
+    <span class="raznos-text-small">{{ no_data_text }}</span>
   </div>
 </sc-if>
 
@@ -73,7 +73,7 @@
     <p class="raznos-text-tiny">{{ source_note }}</p>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"open":{"editor":null},"initialView":{"editor":"text","default":"list"},"initialPick":{"editor":"text","default":""},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"$preview":{"width":390,"height":330}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"few":{"editor":"boolean","default":false},"mode":{"editor":"text","default":"card"},"open":{"editor":null},"initialView":{"editor":"text","default":"list"},"initialPick":{"editor":"text","default":""},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"$preview":{"width":390,"height":330}}'>
 // где выгоднее по мотивам Gridwise Where to Work: районы по доходу, полоса от лучшего, тренд за 4 недели
 // один компонент на карточку хаба Работа и экран, чтобы цифры совпадали
 // районы те же, что в фильтре Когда выгоднее, демо
@@ -184,7 +184,7 @@ class Component extends DCLogic {
     ];
 
     return {
-      no_data: !hasData, no_data_title: 'Нет данных по городу ' + city,
+      no_data: !hasData, no_data_title: p.few ? 'Мало данных по городу' : 'Нет данных по городу ' + city, no_data_text: p.few ? 'Цифры появятся, когда в городе будет больше заказов' : 'Рейтинга районов для этого города пока нет, районы других городов не показываем',
       is_card: !full && hasData, is_full: full && hasData,
       card_sub: city + ' · ₽ в час · район за всю неделю',
       // растущий район отделяем чертой от топа

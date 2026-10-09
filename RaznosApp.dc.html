@@ -61,6 +61,7 @@
         <sc-if value="{{ ux_toast_visible }}" hint-placeholder-val="{{ false }}">
           <div style="position:absolute;left:12px;right:12px;bottom:76px;z-index:80"><dc-import name="RaznosUndoToast" toastId="{{ ux_toast_id }}" text="{{ ux_toast_text }}" actionLabel="{{ ux_toast_label }}" onAction="{{ ux_toast_action }}" onClose="{{ ux_toast_close }}"></dc-import></div>
         </sc-if>
+        <sc-if value="{{ tour_show }}" hint-placeholder-val="{{ false }}"><div class="raznos-tour-layer" data-tour-step="{{ tour_step }}"><div class="raznos-tour-tip"><dc-import name="RaznosTourTip" step="{{ tour_num }}" total="{{ tour_total }}" title="{{ tour_title }}" text="{{ tour_text }}" below="{{ tour_below }}" onPrev="{{ tour_prev }}" onNext="{{ tour_next }}" onSkip="{{ tour_skip }}"></dc-import></div></div></sc-if>
         <!-- потянуть вниз от верха главного экрана вкладки: обновить данные сервисов -->
         <div class="raznos-ptr" aria-hidden="true"><span class="raznos-ptr-mark">Р</span></div>
         <div class="raznos-phone-scroll">
@@ -143,6 +144,7 @@
                   <span class="raznos-text-small">{{ transport_hint }}</span>
                 </div>
               </sc-if>
+              <button type="button" class="raznos-consent-row" role="checkbox" aria-checked="{{ tips_on }}" onClick="{{ toggle_tips }}"><span class="{{ tips_box }}">{{ tips_mark }}</span><span class="raznos-text-body">Показывать подсказки</span></button>
               <div class="raznos-sticky-actions"><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ confirm_city }}">Готово</button></div>
             </div>
           </sc-if>
@@ -163,7 +165,7 @@
                   </div>
                 </sc-if>
                 <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ ready_cta_action }}">{{ ready_cta_label }}</button>
-                <button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ start_demo }}">Посмотреть демо</button>
+                <button type="button" class="raznos-btn raznos-btn-ghost" data-tour="demo" onClick="{{ start_demo }}">Посмотреть демо</button>
               </div>
               <sc-if value="{{ empty_orders_pulled }}" hint-placeholder-val="{{ false }}">
                 <button type="button" class="raznos-card" style="padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;cursor:pointer" onClick="{{ go_history }}"><span class="raznos-fx raznos-col raznos-gap4"><span style="font:700 16px var(--raznos-font);color:var(--raznos-ink)">История заказов</span><span class="raznos-text-small">{{ pulled_orders_note }}</span></span><span class="raznos-row-chevron">›</span></button>
@@ -246,7 +248,7 @@
                 </div>
               </sc-if>
               <sc-if value="{{ home_nudge_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosPlanNudge" icon="{{ home_nudge_icon }}" title="{{ home_nudge_title }}" onTitle="{{ home_nudge_title_tap }}" text="{{ home_nudge_text }}" meta="{{ home_nudge_meta }}" action="{{ home_nudge_action }}" dismiss="{{ home_nudge_dismiss }}" onAction="{{ home_nudge_accept }}" onDismiss="{{ home_nudge_close }}"></dc-import></sc-if>
-              <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" dayLabel="{{ recent_day_label }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onOpenTrip="{{ open_recent_trip }}"onAddExpense="{{ go_expense_form_from_home }}" onSaveTip="{{ save_recent_tip }}" onNote="{{ open_recent_note }}"></dc-import>
+              <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" empty="{{ recent_empty }}" onEmpty="{{ go_zones }}" dayLabel="{{ recent_day_label }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onOpenTrip="{{ open_recent_trip }}"onAddExpense="{{ go_expense_form_from_home }}" onSaveTip="{{ save_recent_tip }}" onNote="{{ open_recent_note }}"></dc-import>
 
               <h2 class="raznos-home-group">Вокруг</h2>
               <dc-import name="RaznosLiveToday" items="{{ live_today_items }}" cityTitle="{{ city_title }}" onAll="{{ live_go_feed_home }}" onWrite="{{ live_go_compose_home }}"></dc-import>
@@ -287,7 +289,7 @@
             </div>
           </sc-if>
 
-          <sc-if value="{{ is_top }}"><dc-import name="RaznosTopCouriers" me="{{ top_me }}" onBack="{{ top_back }}" onOpenAnon="{{ top_open_anon }}"></dc-import></sc-if>
+          <sc-if value="{{ is_top }}"><dc-import name="RaznosTopCouriers" me="{{ top_me }}" edge="{{ top_edge }}" onPlan="{{ go_smart }}" onBack="{{ top_back }}" onOpenAnon="{{ top_open_anon }}"></dc-import></sc-if>
           <sc-if value="{{ is_stats }}">
             <div class="raznos-phone-body raznos-stats-screen" data-screen-label="7 Stats">
               <sc-if value="{{ stats_detail_open }}" hint-placeholder-val="{{ false }}">
@@ -338,6 +340,7 @@
                   <dc-import name="RaznosStatsMoney" title="{{ stats_money_title }}" accent="{{ stats_money_accent }}" sub="{{ stats_payout_sub }}" rows="{{ stats_money_rows }}" only="{{ stats_payout_kinds }}" finesLabel="" expensesLabel="{{ stats_expenses_link }}" viaLabel="{{ stats_via_link }}" onFines="{{ stats_detail_go_fines }}" onOpen="{{ stats_detail_go_money }}" onExpenses="{{ go_expenses_from_stats }}" taxValue="{{ stats_tax_card_value }}" taxSub="{{ stats_tax_card_sub }}" onTax="{{ stats_detail_go_taxes }}"></dc-import>
                   <dc-import name="RaznosStatsOrdersLink" caption="{{ stats_orders_caption }}" onOpen="{{ stats_history_open }}"></dc-import>
                 </sc-if>
+                <sc-if value="{{ stats_edge_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" glyph="₽" title="За этот период заказов нет" text="Итоги появятся после первого заказа" actionLabel="{{ stats_edge_prev_label }}" onAction="{{ stats_edge_prev }}"></dc-import></sc-if>
                 <sc-if value="{{ stats_no_data }}"><div class="raznos-empty-state"><span class="raznos-text-h3">Пока нет данных</span><p class="raznos-text-small">Подключите сервис или посмотрите демо</p><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ go_integrations }}">Подключить сервис</button><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ stats_start_demo }}">Посмотреть демо</button></div></sc-if>
               </sc-if>
               <sc-if value="{{ stats_filter_sheet_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosStatsFilterSheet" groups="{{ stats_filter_groups }}" active="{{ stats_filters_active }}" onReset="{{ stats_filters_reset }}" onClose="{{ stats_filter_close }}"></dc-import></sc-if>
@@ -576,19 +579,10 @@
             <div class="raznos-phone-body" data-screen-label="20 History">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ hist_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">История заказов</h1></div>
               <sc-if value="{{ hist_hidden_by_privacy }}" hint-placeholder-val="{{ false }}">
-                <div class="raznos-empty-state">
-                  <span class="raznos-empty-glyph">☆</span>
-                  <span class="raznos-text-h3">История скрыта</span>
-                  <p class="raznos-text-small">Вы скрыли историю заказов в Приватности, начисления и статистика при этом не меняются</p>
-                  <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ hist_unhide }}">Показать историю снова</button>
-                </div>
+                <dc-import name="RaznosEmptyState" glyph="☆" title="История скрыта" text="Вы скрыли историю заказов в Приватности, начисления и статистика при этом не меняются" actionLabel="Показать историю снова" onAction="{{ hist_unhide }}"></dc-import>
               </sc-if>
               <sc-if value="{{ hist_show_empty }}" hint-placeholder-val="{{ false }}">
-                <div class="raznos-empty-state">
-                  <span class="raznos-empty-glyph">₽</span>
-                  <span class="raznos-text-h3">Заказов пока нет</span>
-                  <p class="raznos-text-small">История появится после подключения сервиса или в демо</p>
-                </div>
+                <dc-import name="RaznosEmptyState" glyph="₽" title="Заказов пока нет" text="{{ hist_empty_text }}" actionLabel="{{ hist_empty_action }}" onAction="{{ hist_empty_go }}"></dc-import>
               </sc-if>
               <sc-if value="{{ hist_show_list }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-col raznos-gap16">
               <dc-import name="RaznosFilterChips" filters="{{ hist_filters }}" onChange="{{ hist_set_filter }}"></dc-import>
@@ -602,7 +596,7 @@
               <sc-if value="{{ hist_district_active }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-chip raznos-is-active" onClick="{{ hist_clear_district }}">{{ hist_district_label }} · убрать фильтр</button></sc-if>
               <div class="raznos-fx raznos-col raznos-gap12">
                 <sc-if value="{{ hist_partial_data }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">По датам раньше {{ hist_itemized_label }} подробная история ещё не загружена, показаны только доступные заказы</p></sc-if>
-                <sc-if value="{{ hist_range_empty }}" hint-placeholder-val="{{ false }}"><div class="raznos-empty-state"><span class="raznos-empty-glyph">₽</span><span class="raznos-text-h3">Нет заказов за выбранные даты</span></div></sc-if>
+                <sc-if value="{{ hist_range_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" glyph="₽" title="Нет заказов за выбранные даты"></dc-import></sc-if>
                 <sc-if value="{{ hist_range_has_rows }}" hint-placeholder-val="{{ true }}">
                   <p class="raznos-text-small">{{ hist_summary }}</p>
                   <sc-if value="{{ hist_multi_day }}" hint-placeholder-val="{{ false }}">
@@ -750,9 +744,9 @@
             <div class="raznos-phone-body" data-screen-label="22 Market">
               <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Рынок сервисов</h1></div>
               <button type="button" class="raznos-card" style="padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;cursor:pointer" onClick="{{ go_job_guide }}"><span class="raznos-fx raznos-col raznos-gap4"><span style="font:700 16px var(--raznos-font);color:var(--raznos-ink)">Подобрать работу</span><span class="raznos-text-small">Что получают новички и сколько стоит старт</span></span><span style="flex:none;line-height:0"><svg width="58" height="48" viewBox="0 0 58 48" fill="none"><rect x="27" y="5" width="4" height="39" rx="2" fill="var(--raznos-ink-3)"/><path d="M6 11 H37 l7 6 -7 6 H6 z" fill="var(--raznos-green)"/><path d="M52 25 H21 l-7 5 7 5 H52 z" fill="var(--raznos-ink-2)"/></svg></span><span class="raznos-row-chevron">›</span></button>
-              <dc-import name="RaznosBestTimes" open="{{ go_best_times }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}"></dc-import>
-              <dc-import name="RaznosHotspots" open="{{ go_best_places }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}"></dc-import>
-              <dc-import name="RaznosServiceRank" open="{{ go_services_compare }}" onOpenService="{{ mk_open_service }}" connected="{{ svc_connected }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}"></dc-import>
+              <dc-import name="RaznosBestTimes" open="{{ go_best_times }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
+              <dc-import name="RaznosHotspots" open="{{ go_best_places }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
+              <dc-import name="RaznosServiceRank" open="{{ go_services_compare }}" onOpenService="{{ mk_open_service }}" connected="{{ svc_connected }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
               <button type="button" class="raznos-card raznos-card-pad" style="width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit" onClick="{{ go_market_services }}" aria-label="Все сервисы, {{ mk_count }}">
                 <span class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="raznos-text-h3">Все сервисы</span><span class="raznos-row-chevron">›</span></span>
                 <span class="raznos-text-small">Карточки сервисов, доход, ожидание и отзывы курьеров</span>
@@ -767,6 +761,7 @@
               <dc-import name="RaznosCitySelect" value="{{ mkCity }}" onChange="{{ set_mk_city }}"></dc-import>
               <sc-if value="{{ mk_has_data }}" hint-placeholder-val="{{ true }}">
               <dc-import name="RaznosFilterChips" filters="{{ mk_filters }}" onChange="{{ set_mk_filter }}"></dc-import>
+              <sc-if value="{{ mk_few }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Мало данных по городу</span><span class="raznos-text-small">Доход в час пока есть только у двух сервисов</span></div></sc-if>
               <p class="raznos-text-tiny">Доход в час · {{ mk_sample }}</p>
               <div class="raznos-fx raznos-col raznos-gap8">
                 <sc-for list="{{ mk_rows }}" as="row" hint-placeholder-count="11">
@@ -831,6 +826,7 @@
               </div>
               <sc-if value="{{ sv_review_insufficient }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Меньше 5 отзывов группы, надёжной оценки пока нет</p></sc-if>
               <div class="raznos-fx raznos-col raznos-gap8">
+                <sc-if value="{{ sv_reviews_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" glyph="☆" title="Отзывов пока нет" text="{{ sv_reviews_empty_text }}" actionLabel="{{ sv_empty_action }}" actionKind="primary" onAction="{{ go_form_review }}"></dc-import></sc-if>
                 <sc-for list="{{ sv_reviews }}" as="rv" hint-placeholder-count="2">
                   <dc-import name="RaznosReviewCard" category="{{ rv.category }}" anonNick="{{ rv.anonNick }}" anonHue="{{ rv.anonHue }}" authorCity="{{ rv.city }}" rating="{{ rv.rating }}" confirmed="{{ rv.confirmed }}" text="{{ rv.text }}" date="{{ rv.date }}" ordersLabel="{{ rv.ordersLabel }}" mine="{{ rv.mine }}" ownNote="{{ rv.ownNote }}" canEdit="{{ sv_can_edit }}" onEdit="{{ go_form_review }}" onDelete="{{ sv_delete_review }}" onAuthorTap="{{ rv.onAuthorTap }}" courierLikes="{{ rv.courierLikes }}" courierDislikes="{{ rv.courierDislikes }}" userLikes="{{ rv.userLikes }}" userDislikes="{{ rv.userDislikes }}" myCategory="{{ rv.myCategory }}" myVote="{{ rv.myVote }}" canVote="{{ rv.canVote }}" onLike="{{ rv.onLike }}" onDislike="{{ rv.onDislike }}" showComplain="{{ rv.showComplain }}" complained="{{ rv.complained }}" onComplain="{{ rv.onComplain }}"></dc-import>
                 </sc-for>
@@ -841,7 +837,7 @@
                   <sc-if value="{{ sv_can_edit }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">Редактирование доступно до {{ sv_edit_deadline_label }}</p></sc-if>
                   <sc-if value="{{ sv_edit_expired }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">Изменить отзыв можно только в первые 24 часа, срок закончился {{ sv_edit_deadline_label }}. Удалить можно в любой момент</p></sc-if>
                 </sc-if>
-                <sc-if value="{{ sv_can_create }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ go_form_review }}">Написать отзыв</button></sc-if>
+                <sc-if value="{{ sv_can_create_below }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ go_form_review }}">Написать отзыв</button></sc-if>
                 <sc-if value="{{ sv_review_reason }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">{{ sv_review_reason }}</p></sc-if>
               </div>
             </div>
@@ -941,8 +937,9 @@
 
           <sc-if value="{{ is_questions }}">
             <div class="raznos-phone-body" data-screen-label="23h Questions">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_service }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Вопросы к {{ sv_title_dat }}</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ questions_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Вопросы к {{ sv_title_dat }}</h1></div>
               <p class="raznos-text-tiny">Отвечают курьеры {{ sv_title_gen }}</p>
+              <sc-if value="{{ q_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" glyph="?" title="Вопросов пока нет" text="{{ q_empty_text }}"></dc-import></sc-if>
               <div class="raznos-fx raznos-col raznos-gap12">
                 <sc-for list="{{ sv_questions }}" as="q" hint-placeholder-count="1">
                   <div class="{{ q.cardClass }}">
@@ -1017,10 +1014,13 @@
               <sc-if value="{{ live_from_work }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">{{ live_work_note }}</span></div></sc-if>
               <div class="raznos-fx raznos-ac raznos-gap8"><div style="flex:1;min-width:0"><dc-import name="RaznosFilterChips" filters="{{ live_filters }}" onChange="{{ live_set_filter }}"></dc-import></div><button type="button" class="raznos-chip" style="flex:none;min-height:44px" onClick="{{ live_go_mine }}">Мои</button></div>
               <sc-if value="{{ live_empty_no_integrations }}" hint-placeholder-val="{{ false }}">
-                <div class="raznos-empty-state"><span class="raznos-text-h3">Нет подключённых сервисов</span><p class="raznos-text-small">Фильтр Все мои сервисы показывает сообщения только по вашим подключениям. Можно посмотреть сообщения всех сервисов</p><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ live_show_all_services }}">Показать Все сервисы</button></div>
+                <dc-import name="RaznosEmptyState" title="Нет подключённых сервисов" text="Фильтр Все мои сервисы показывает сообщения только по вашим подключениям. Можно посмотреть сообщения всех сервисов" actionLabel="Показать Все сервисы" actionSmall="{{ true }}" onAction="{{ live_show_all_services }}"></dc-import>
               </sc-if>
-              <sc-if value="{{ live_empty_other }}" hint-placeholder-val="{{ false }}">
-                <div class="raznos-empty-state"><span class="raznos-text-h3">Сообщений нет</span><p class="raznos-text-small">По выбранному сервису и городу сейчас ничего не пишут. Сообщения старше суток без ответов уходят в архив</p><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ live_show_all_cities }}">Показать все города</button></div>
+              <sc-if value="{{ live_empty_city }}" hint-placeholder-val="{{ false }}">
+                <dc-import name="RaznosEmptyState" title="Сообщений нет" text="По этому сервису и городу сейчас тихо" actionLabel="Показать все города" actionSmall="{{ true }}" onAction="{{ live_show_all_cities }}"></dc-import>
+              </sc-if>
+              <sc-if value="{{ live_empty_quiet }}" hint-placeholder-val="{{ false }}">
+                <dc-import name="RaznosEmptyState" glyph="!" title="Пока тихо" text="Что-то случилось в пути? Напишите первым" actionLabel="Написать" actionKind="primary" onAction="{{ live_go_compose }}"></dc-import>
               </sc-if>
               <div class="raznos-fx raznos-col raznos-gap8">
                 <sc-for list="{{ live_list }}" as="m" hint-placeholder-count="3">
@@ -1115,7 +1115,7 @@
                 <button type="button" class="{{ live_mine_tab_replies_class }}" onClick="{{ live_mine_set_replies }}">Ответы</button>
                 <button type="button" class="{{ live_mine_tab_archive_class }}" onClick="{{ live_mine_set_archive }}">Архив</button>
               </div>
-              <sc-if value="{{ live_mine_empty }}" hint-placeholder-val="{{ false }}"><div class="raznos-empty-state"><span class="raznos-text-h3">Пока пусто</span><p class="raznos-text-small">Здесь появятся ваши сообщения, ответы и архив</p></div></sc-if>
+              <sc-if value="{{ live_mine_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" title="Пока пусто" text="Здесь появятся ваши сообщения, ответы и архив"></dc-import></sc-if>
               <sc-if value="{{ live_mine_is_posts }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-col raznos-gap8"><sc-for list="{{ live_mine_posts }}" as="m" hint-placeholder-count="2"><dc-import name="RaznosLiveCard" svcs="{{ m.svcs }}" svcsLabel="{{ m.svcsLabel }}" cityLabel="{{ m.cityLabel }}" timeLabel="{{ m.timeLabel }}" text="{{ m.text }}" repliesCount="{{ m.repliesCount }}" likes="{{ m.likes }}" dislikes="{{ m.dislikes }}" myVote="{{ m.myVote }}" mine="{{ m.mine }}" status="{{ m.status }}" photoSrc="{{ m.photoSrc }}" placeLabel="{{ m.placeLabel }}" note="{{ m.note }}" onOpen="{{ m.onOpen }}" onLike="{{ m.onLike }}" onDislike="{{ m.onDislike }}" onPhoto="{{ m.onPhoto }}" onPlace="{{ m.onPlace }}" onAuthor="{{ m.onAuthor }}" onReport="{{ m.onReport }}" onDelete="{{ m.onDelete }}"></dc-import></sc-for></div></sc-if>
               <sc-if value="{{ live_mine_is_archive }}" hint-placeholder-val="{{ false }}"><div class="raznos-fx raznos-col raznos-gap8"><sc-for list="{{ live_mine_archive }}" as="m" hint-placeholder-count="1"><dc-import name="RaznosLiveCard" svcs="{{ m.svcs }}" svcsLabel="{{ m.svcsLabel }}" cityLabel="{{ m.cityLabel }}" timeLabel="{{ m.timeLabel }}" text="{{ m.text }}" repliesCount="{{ m.repliesCount }}" likes="{{ m.likes }}" dislikes="{{ m.dislikes }}" myVote="{{ m.myVote }}" mine="{{ m.mine }}" status="{{ m.status }}" photoSrc="{{ m.photoSrc }}" placeLabel="{{ m.placeLabel }}" note="{{ m.note }}" onOpen="{{ m.onOpen }}" onLike="{{ m.onLike }}" onDislike="{{ m.onDislike }}" onPhoto="{{ m.onPhoto }}" onPlace="{{ m.onPlace }}" onAuthor="{{ m.onAuthor }}" onReport="{{ m.onReport }}" onDelete="{{ m.onDelete }}"></dc-import></sc-for></div></sc-if>
               <sc-if value="{{ live_mine_is_replies }}" hint-placeholder-val="{{ false }}">
@@ -1132,7 +1132,7 @@
             <div class="raznos-phone-body" data-screen-label="24c Imported reviews history">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">История отзывов</h1></div>
               <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosImportedReviews" courierId="c1" full="{{ true }}"></dc-import></sc-if>
-              <sc-if value="{{ has_no_data }}"><div class="raznos-empty-state"><span class="raznos-text-h3">История отзывов пуста</span><p class="raznos-text-small">Отзывы появятся после подключения сервиса, который их передаёт</p></div></sc-if>
+              <sc-if value="{{ has_no_data }}"><dc-import name="RaznosEmptyState" title="История отзывов пуста" text="Отзывы появятся после подключения сервиса, который их передаёт"></dc-import></sc-if>
             </div>
           </sc-if>
 
@@ -1260,6 +1260,9 @@
               <dc-import name="RaznosAppSettings" theme="{{ app_theme }}" systemIsDark="{{ app_system_dark }}" notificationsSummary="{{ notif_summary }}" onTheme="{{ set_app_theme }}" onNotifications="{{ go_notifications }}"></dc-import>
               <dc-import name="RaznosCitySelect" value="{{ city }}" onChange="{{ set_city }}" label="Город"></dc-import>
               <dc-import name="RaznosLanguagePicker" value="{{ language }}" onChange="{{ change_language }}"></dc-import>
+              <div class="raznos-card raznos-card-pad">
+                <button type="button" class="raznos-consent-row" role="checkbox" aria-checked="{{ tips_on }}" onClick="{{ toggle_tips_settings }}"><span class="{{ tips_box }}">{{ tips_mark }}</span><span class="raznos-fx raznos-col raznos-gap4"><span class="raznos-text-body">Показывать подсказки</span><span class="raznos-text-small">Короткий тур по разделам, включите, чтобы пройти его снова</span></span></button>
+              </div>
               <!-- туннелирование: запросы к сервисам идут с IP телефона, содержимое телефон не видит, по умолчанию выключено -->
               <div class="raznos-card raznos-card-pad">
                 <button type="button" class="raznos-consent-row" role="checkbox" aria-checked="{{ tunnel_on }}" onClick="{{ toggle_tunnel }}"><span class="{{ tunnel_box }}">{{ tunnel_mark }}</span><span class="raznos-fx raznos-col raznos-gap4"><span class="raznos-text-body">Разрешить туннелирование через устройство</span><span class="raznos-text-small">Разнос обращается к сервисам через ваш интернет, так сервисы реже ограничивают доступ</span></span></button>
@@ -1278,6 +1281,12 @@
               <div class="raznos-card raznos-card-pad raznos-demo-toggles">
                 <sc-for list="{{ demo_toggles }}" as="tg" hint-placeholder-count="5">
                   <div class="raznos-demo-toggle"><span class="raznos-demo-toggle-title">{{ tg.title }}</span><div class="raznos-chip-row"><sc-for list="{{ tg.opts }}" as="o" hint-placeholder-count="3"><button type="button" class="{{ o.cls }}" aria-pressed="{{ o.on }}" onClick="{{ o.tap }}">{{ o.label }}</button></sc-for></div></div>
+                </sc-for>
+              </div>
+              <span class="raznos-text-h3">Пустые и крайние случаи</span>
+              <div class="raznos-card raznos-card-pad raznos-demo-toggles">
+                <sc-for list="{{ demo_edge_toggles }}" as="tg" hint-placeholder-count="5">
+                  <div class="raznos-demo-toggle"><div class="raznos-demo-toggle-head"><span class="raznos-demo-toggle-title">{{ tg.title }}</span><button type="button" class="raznos-demo-toggle-go" onClick="{{ tg.go }}">Открыть ›</button></div><div class="raznos-chip-row"><sc-for list="{{ tg.opts }}" as="o" hint-placeholder-count="3"><button type="button" class="{{ o.cls }}" aria-pressed="{{ o.on }}" onClick="{{ o.tap }}">{{ o.label }}</button></sc-for></div></div>
                 </sc-for>
               </div>
               <sc-for list="{{ demo_groups }}" as="gr" hint-placeholder-count="4">
@@ -1310,7 +1319,7 @@
             <div class="raznos-phone-body" data-screen-label="Services compare">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ services_compare_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Сравнение сервисов</h1></div>
               <span class="raznos-text-small" style="margin-top:-4px">{{ city_title }}</span>
-              <dc-import name="RaznosServiceRank" mode="full" connected="{{ svc_connected }}" onConnect="{{ svc_compare_connect }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}"></dc-import>
+              <dc-import name="RaznosServiceRank" mode="full" connected="{{ svc_connected }}" onConnect="{{ svc_compare_connect }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
             </div>
           </sc-if>
 
@@ -1318,7 +1327,7 @@
             <div class="raznos-phone-body" data-screen-label="Best places">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ best_places_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Где выгоднее</h1></div>
               <span class="raznos-text-small" style="margin-top:-4px">{{ city_title }}</span>
-              <dc-import name="RaznosHotspots" mode="full" initialView="{{ bp_view }}" initialPick="{{ bp_pick }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}"></dc-import>
+              <dc-import name="RaznosHotspots" mode="full" initialView="{{ bp_view }}" initialPick="{{ bp_pick }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
             </div>
           </sc-if>
 
@@ -1326,7 +1335,7 @@
             <div class="raznos-phone-body" data-screen-label="Best times">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ best_times_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Когда выгоднее</h1></div>
               <span class="raznos-text-small" style="margin-top:-4px">{{ city_title }}</span>
-              <dc-import name="RaznosBestTimes" mode="full" initialView="{{ bt_view }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}"></dc-import>
+              <dc-import name="RaznosBestTimes" mode="full" initialView="{{ bt_view }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
             </div>
           </sc-if>
 
@@ -1449,7 +1458,7 @@
                 <div class="raznos-card" style="overflow:hidden"><sc-for list="{{ inbox_earlier }}" as="n" hint-placeholder-count="3"><dc-import name="RaznosNotifRow" item="{{ n }}" onOpen="{{ inbox_open }}" onHide="{{ inbox_hide }}"></dc-import></sc-for></div>
               </sc-if>
               <sc-if value="{{ inbox_empty }}" hint-placeholder-val="{{ false }}">
-                <div class="raznos-empty-state"><span class="raznos-empty-glyph" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span><span class="raznos-text-h3">Новых уведомлений нет</span></div>
+                <dc-import name="RaznosEmptyState" glyph="bell" title="Новых уведомлений нет" text="Напомним о сменах, выплатах и входе в сервисы"></dc-import>
               </sc-if>
               </sc-if>
               <sc-if value="{{ inbox_not_archive }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-card raznos-list-row" style="width:100%" onClick="{{ inbox_go_archive }}"><div class="raznos-list-main"><span class="raznos-list-title">Архив</span><span class="raznos-text-small">{{ inbox_archive_note }}</span></div><span class="raznos-row-chevron">›</span></button>
@@ -1472,7 +1481,7 @@
               </div>
               <button type="button" class="raznos-list-row raznos-card" onClick="{{ go_recurring_from_expenses }}"><div class="raznos-list-main"><span class="raznos-text-h3">Регулярные</span><span class="raznos-text-small">{{ exp_recurring_summary }}</span></div><span class="raznos-row-chevron">›</span></button>
               <sc-if value="{{ exp_is_empty }}" hint-placeholder-val="{{ false }}">
-                <div class="raznos-empty-state"><span class="raznos-empty-glyph">₽</span><span class="raznos-text-h3">Расходов пока нет</span></div>
+                <dc-import name="RaznosEmptyState" glyph="₽" title="Расходов пока нет" text="Добавьте первый, чтобы видеть доход чистыми"></dc-import>
               </sc-if>
               <sc-if value="{{ exp_has_days }}" hint-placeholder-val="{{ true }}">
                 <sc-for list="{{ exp_day_groups }}" as="dg" hint-placeholder-count="3">
@@ -1517,7 +1526,7 @@
             <div class="raznos-phone-body" data-screen-label="36 Recurring">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ rec_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Регулярные расходы</h1></div>
               <p class="raznos-text-tiny">Делится поровну на дни периода</p>
-              <sc-if value="{{ rec_is_empty }}" hint-placeholder-val="{{ false }}"><div class="raznos-empty-state"><span class="raznos-empty-glyph">₽</span><span class="raznos-text-h3">Регулярных расходов нет</span></div></sc-if>
+              <sc-if value="{{ rec_is_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" glyph="₽" title="Регулярных расходов нет"></dc-import></sc-if>
               <div class="raznos-card">
                 <sc-for list="{{ rec_list }}" as="r" hint-placeholder-count="2">
                   <button type="button" class="raznos-list-row" onClick="{{ r.onTap }}"><div class="raznos-list-main"><span class="raznos-list-title">{{ r.title }}</span><span class="raznos-text-small">{{ r.subtitle }}</span></div><span class="{{ r.pillClass }}">{{ r.pillLabel }}</span></button>
@@ -1711,7 +1720,7 @@
             <div class="raznos-phone-body" data-screen-label="28 Favorites">
               <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Избранное</h1></div>
               <sc-if value="{{ fav_empty }}" hint-placeholder-val="{{ false }}">
-                <div class="raznos-empty-state"><span class="raznos-empty-glyph">☆</span><span class="raznos-text-h3">Пока пусто</span><p class="raznos-text-small">Добавляйте курьеров в избранное из их профиля</p></div>
+                <dc-import name="RaznosEmptyState" glyph="☆" title="Пока пусто" text="Добавляйте курьеров в избранное из их профиля"></dc-import>
               </sc-if>
               <sc-if value="{{ fav_has_couriers }}">
                 <span class="raznos-text-h3">Курьеры</span>
@@ -1804,7 +1813,7 @@
           <sc-if value="{{ is_tips_sent }}">
             <div class="raznos-phone-body" data-screen-label="30b Sent tips">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Отправленные чаевые</h1></div>
-              <sc-if value="{{ ts_empty }}" hint-placeholder-val="{{ false }}"><div class="raznos-empty-state"><span class="raznos-text-h3">Вы пока не отправляли чаевые</span><p class="raznos-text-small">Откройте публичный профиль курьера и нажмите Отправить чаевые</p></div></sc-if>
+              <sc-if value="{{ ts_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" title="Вы пока не отправляли чаевые" text="Откройте публичный профиль курьера и нажмите Отправить чаевые"></dc-import></sc-if>
               <sc-for list="{{ ts_list }}" as="r" hint-placeholder-count="2">
                 <div class="raznos-card raznos-card-pad">
                   <div class="raznos-fx raznos-ac raznos-gap8">
@@ -1827,7 +1836,7 @@
 
           <sc-if value="{{ is_wallet }}">
             <div class="raznos-phone-body" data-screen-label="30c Wallet">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Баланс</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ wallet_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Баланс</h1></div>
               <div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Только чаевые через Разнос</span></div>
               <div class="raznos-metric-grid">
                 <dc-import name="RaznosMetric" label="Доступно" value="{{ w_available }}" unit="₽"></dc-import>
@@ -1837,8 +1846,10 @@
               <sc-if value="{{ w_can_withdraw }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ go_wallet_withdraw }}">Вывести</button></sc-if>
               <sc-if value="{{ w_can_withdraw_disabled }}" hint-placeholder-val="{{ false }}">
                 <button type="button" class="raznos-btn-disabled" disabled="{{ true }}">Вывести</button>
-                <p class="raznos-text-small">Пока баланс пуст, выводить нечего, дождитесь чаевых через Разнос</p>
+                <sc-if value="{{ w_has_history }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Пока баланс пуст, выводить нечего, дождитесь чаевых через Разнос</p></sc-if>
               </sc-if>
+              <sc-if value="{{ w_empty_all }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" glyph="₽" title="Чаевых пока нет" text="Их присылают по ссылке на ваш профиль" actionLabel="Поделиться профилем" onAction="{{ go_share }}"></dc-import></sc-if>
+              <sc-if value="{{ w_has_history }}" hint-placeholder-val="{{ true }}">
               <span class="raznos-text-h3">Последние поступления</span>
               <sc-if value="{{ wi_empty }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Поступлений пока нет</p></sc-if>
               <sc-for list="{{ w_income_preview }}" as="r" hint-placeholder-count="2">
@@ -1846,13 +1857,14 @@
               </sc-for>
               <button type="button" class="raznos-list-row" onClick="{{ go_wallet_income }}"><div class="raznos-list-main"><span class="raznos-list-title">История поступлений</span></div><span class="raznos-row-chevron">›</span></button>
               <button type="button" class="raznos-list-row" onClick="{{ go_wallet_withdraw_history }}"><div class="raznos-list-main"><span class="raznos-list-title">История выводов</span></div><span class="raznos-row-chevron">›</span></button>
+              </sc-if>
             </div>
           </sc-if>
 
           <sc-if value="{{ is_wallet_income }}">
             <div class="raznos-phone-body" data-screen-label="30d Wallet income">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ back_to_wallet }}">‹</button><h1 class="raznos-text-h1" style="margin:0">История поступлений</h1></div>
-              <sc-if value="{{ wi_empty }}" hint-placeholder-val="{{ false }}"><div class="raznos-empty-state"><span class="raznos-text-h3">Поступлений пока нет</span><p class="raznos-text-small">Чаевые появятся здесь после первого платежа через Разнос</p></div></sc-if>
+              <sc-if value="{{ wi_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" title="Поступлений пока нет" text="Чаевые появятся здесь после первого платежа через Разнос"></dc-import></sc-if>
               <sc-for list="{{ wi_list }}" as="r" hint-placeholder-count="2">
                 <div class="raznos-card raznos-card-pad">
                   <div class="raznos-fx raznos-jb"><span class="raznos-list-main"><span class="raznos-list-title">{{ r.senderLabel }}</span><span class="raznos-text-tiny">{{ r.date }}</span></span><strong class="raznos-num">{{ r.net }} ₽</strong></div>
@@ -1904,7 +1916,7 @@
           <sc-if value="{{ is_wallet_withdraw_history }}">
             <div class="raznos-phone-body" data-screen-label="30f Withdraw history">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ back_to_wallet }}">‹</button><h1 class="raznos-text-h1" style="margin:0">История выводов</h1></div>
-              <sc-if value="{{ wh_empty }}" hint-placeholder-val="{{ false }}"><div class="raznos-empty-state"><span class="raznos-text-h3">Выводов пока не было</span><p class="raznos-text-small">Заявки на вывод появятся здесь после первого запроса</p></div></sc-if>
+              <sc-if value="{{ wh_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" title="Выводов пока не было" text="Заявки на вывод появятся здесь после первого запроса"></dc-import></sc-if>
               <sc-for list="{{ wh_list }}" as="w" hint-placeholder-count="2">
                 <div class="raznos-card raznos-card-pad">
                   <div class="raznos-fx raznos-jb"><span class="raznos-list-main"><span class="raznos-list-title">{{ w.methodLabel }}</span><span class="raznos-text-tiny">{{ w.date }}</span></span><strong class="raznos-num">{{ w.amount }} ₽</strong></div>
@@ -3891,6 +3903,7 @@
           }
           this._syncToastSound();
           this._keepScroll();
+          this._tourPlace();
           this._moScreen();
           this._focusLiveMessage();
         }
@@ -4038,6 +4051,28 @@
           const queue = () => { if (!queued) { queued = true; requestAnimationFrame(sync); } };
           new MutationObserver(queue).observe(document.body, { subtree: true, childList: true });
           window.addEventListener('resize', queue);
+        }
+        // подсказка тура встаёт над своей целью, хвостик смотрит в её центр, между вкладками переезжает плавно
+        _tourPlace() {
+          if (typeof document === 'undefined') return;
+          requestAnimationFrame(() => document.querySelectorAll('.raznos-tour-layer').forEach((layer) => {
+            const frame = layer.closest('.raznos-phone-frame');
+            const tip = layer.querySelector('.raznos-tour-tip');
+            if (!frame || !tip) return;
+            document.querySelectorAll('.raznos-tour-target').forEach((x) => x.classList.remove('raznos-tour-target'));
+            const step = Number(layer.getAttribute('data-tour-step'));
+            const target = step === 0 ? frame.querySelector('[data-tour="demo"]') : frame.querySelectorAll('.raznos-bottom-nav > .raznos-nav-tab')[step - 1];
+            if (!target) { tip.style.opacity = '0'; return; }
+            target.classList.add('raznos-tour-target');
+            if (step === 0) target.scrollIntoView({ block: 'center' });
+            const fr = frame.getBoundingClientRect(), tr = target.getBoundingClientRect();
+            const w = Math.min(300, fr.width - 24), h = tip.offsetHeight, cx = tr.left + tr.width / 2 - fr.left;
+            const left = Math.max(12, Math.min(fr.width - w - 12, cx - w / 2));
+            const below = step === 0 && tr.top - fr.top < h + 80;
+            const top = below ? tr.bottom - fr.top + 12 : tr.top - fr.top - h - 12;
+            Object.assign(tip.style, { width: w + 'px', left: left + 'px', top: top + 'px', opacity: '1' });
+            tip.style.setProperty('--rtt-arrow', Math.round(cx - left) + 'px');
+          }));
         }
         _ptrReplay(box) {
           const M = this._mo;
@@ -4403,6 +4438,9 @@
           }
           const role = st.role || props.initialRole || 'courier';
           const demoOn = st.demoOn != null ? st.demoOn : !!props.initialDemo;
+          // пустые и крайние случаи из Настроек демо, без переключателя демо заполнено
+          const edge = demoOn ? (st.demoEdge || {}) : {};
+          const edgeKeepOrder = (o) => edge.history !== 'empty' && !(edge.today === 'zero' && o.dateISO === TODAY_ISO);
           const city = st.city || 'moscow';
           const transport = st.transport || 'bike';
           const firstName = st.firstName != null ? st.firstName : '';
@@ -4578,8 +4616,8 @@
           const acctRestrictionAppealPending = !!st.acctRestrictionAppealPending;
           const acctRestrictionAppealText = st.acctRestrictionAppealText != null ? st.acctRestrictionAppealText : '';
 
-          const expManual = st.expManual != null ? st.expManual : (demoOn ? buildSeedManualExpenses() : []);
-          const expRecurring = st.expRecurring != null ? st.expRecurring : (demoOn ? buildSeedRecurringExpenses() : []);
+          const expManual = st.expManual != null ? st.expManual : (demoOn && edge.expenses !== 'none' ? buildSeedManualExpenses() : []);
+          const expRecurring = st.expRecurring != null ? st.expRecurring : (demoOn && edge.expenses !== 'none' ? buildSeedRecurringExpenses() : []);
           const expTemplates = st.expTemplates != null ? st.expTemplates : (demoOn ? [{ id: 'tpl-seed-metro', cat: 'metro', note: 'Проезд' }] : []);
           const expBack = st.expBack || 'courier-home';
           // форма расхода, открытая с Сегодня, после сохранения и назад возвращает на Сегодня
@@ -4706,18 +4744,22 @@
             });
           };
 
-          const today = scopeStat(STATS.today);
+          // смена идёт, а заказов ещё нет: полчаса на линии и ноль
+          const edgeTodayZero = edge.today === 'zero' || edge.history === 'empty';
+          const today = edgeTodayZero
+            ? Object.assign({}, scopeStat(STATS.today), { earn: 0, orders: 0, payout: 0, prevEarn: 0, hours: 0.5, withOrderHours: 0, km: 0, packages: 0, weightKg: 0, vvEarn: 0, vvOrders: 0, vvHours: 0.5, samokatEarn: 0, samokatOrders: 0, samokatHours: 0 })
+            : scopeStat(STATS.today);
           const todayEarn = today.earn, todayExpenses = computeExpensesFor(TODAY_ISO, TODAY_ISO).total, todayHours = today.hours, todayOrders = today.orders;
           const vvEarn = today.vvEarn, samokatEarn = today.samokatEarn;
           // доход в час везде до расходов, чистыми показываем отдельно, когда расходы известны
           const todayHourly = todayHours ? Math.round(todayEarn / todayHours) : 0;
           // чистыми как в Результатах: начислено минус удержания минус расходы
-          const todayFines = STATS_FINES.filter((row) => row.date === TODAY_ISO && (demoOn || activeDataSvcs.indexOf(row.svc) !== -1)).reduce((sum, row) => sum + row.amount, 0);
+          const todayFines = STATS_FINES.filter((row) => row.date === TODAY_ISO && !edgeTodayZero && (demoOn || activeDataSvcs.indexOf(row.svc) !== -1)).reduce((sum, row) => sum + row.amount, 0);
           const todayNetHourly = todayHours ? Math.round((todayEarn - todayFines - todayExpenses) / todayHours) : 0;
           const todayDeltaPct = today.prevEarn ? Math.round((todayEarn - today.prevEarn) * 100 / today.prevEarn) : null;
           const todayVvHourly = today.vvHours ? Math.round(vvEarn / today.vvHours) : 0;
           const todaySamokatHourly = today.samokatHours ? Math.round(samokatEarn / today.samokatHours) : 0;
-          const todayHistory = HISTORY.filter((o) => o.dateISO === TODAY_ISO && (demoOn || activeDataSvcs.indexOf(o.svc) !== -1));
+          const todayHistory = HISTORY.filter((o) => o.dateISO === TODAY_ISO && edgeKeepOrder(o) && (demoOn || activeDataSvcs.indexOf(o.svc) !== -1));
           const todayTipsDigital = todayHistory.reduce((sum, o) => sum + o.tipDigital, 0);
           const todayPaidOutSum = todayHistory.filter((o) => o.money === 'Выплачено').reduce((sum, o) => sum + o.pay, 0);
           const todayRemain = todayEarn - todayFines - todayExpenses;
@@ -4727,6 +4769,17 @@
           // темп дня: доля недельной цели из Работы на один день
           const todayTarget = workGoalFor(1, st.workGoal);
           // день ещё не начался или выходной: в демо задаётся сценарием, ближайшая смена берётся из броней
+          // тур подсказок: шаг 0 про демо, дальше пять вкладок; если демо уже включено, нулевой шаг пропускаем
+          const TOUR = [
+            { tab: '', title: 'Демо', text: 'Посмотрите приложение на примере: данные вымышленные, всё можно нажимать' },
+            { tab: 'home', title: 'Сегодня', text: 'Сколько заработали сегодня и что дальше по сменам' },
+            { tab: 'work', title: 'План', text: 'Цель недели и смены: где и когда выйти, чтобы успеть' },
+            { tab: 'stats', title: 'Результаты', text: 'Итоги за неделю, месяц и год и сравнение с курьерами города' },
+            { tab: 'market', title: 'Рынок', text: 'Где и в каком сервисе платят больше и как начать работать' },
+            { tab: 'profile', title: 'Профиль', text: 'Баланс, уведомления, настройки и ваш профиль для других' }
+          ];
+          const TOUR_SCREENS = ['courier-empty', 'courier-home', 'work-hub', 'stats', 'market', 'profile'];
+          const tourStep = st.tourStep == null ? null : (st.tourStep === 0 && demoOn ? 1 : st.tourStep);
           const homePre = role === 'courier' && (st.homeDay === 'before' || st.homeDay === 'off') ? st.homeDay : '';
           const homeShifts = SHIFTS_WEEK.filter((sh) => sh.status !== 'cancelled' && sh.status !== 'completed' || (homePre === 'before' && sh.iso === TODAY_ISO && sh.status !== 'cancelled'));
           const homePreShift = homePre === 'before'
@@ -4800,10 +4853,12 @@
           const statsPeriod = ['today', 'week', 'month', 'year', 'custom'].indexOf(st.statsPeriod) !== -1 ? st.statsPeriod : 'week';
           const statsStep = statsPeriod === 'custom' ? 0 : Math.min(0, st.statsStep || 0);
           const statsRange = statsCalendarRange(statsPeriod, statsFrom, statsTo, statsStep);
-          const statsBaseSource = statsRecapSource(statsPeriod, statsRange, statsMonths, statsStep);
+          // первая неделя работы: данные есть только за вчера и сегодня
+          const edgeStatsFrom = edge.stats === 'first' ? isoAt(-1) : '';
+          const statsBaseSource = edgeStatsFrom ? statsDaysSource(statsPeriod, [statsRange[0] > edgeStatsFrom ? statsRange[0] : edgeStatsFrom, statsRange[1]], false) : statsRecapSource(statsPeriod, statsRange, statsMonths, statsStep);
           const statsPrevRange = statsPeriod === 'custom' ? null : statsCalendarRange(statsPeriod, '', '', statsStep - 1);
           const statsCanStepBack = !!statsPrevRange && (statsPeriod === 'year' ? statsPrevRange[0] >= (CUR_YEAR - 1) + '-01-01' :
-            (statsPeriod === 'month' ? statsPrevRange[0] >= STATS_DEMO_FROM : statsPrevRange[0] >= STATS_DEMO_FROM));
+            (statsPeriod === 'month' ? statsPrevRange[0] >= STATS_DEMO_FROM : statsPrevRange[0] >= STATS_DEMO_FROM)) && !(edgeStatsFrom && statsPrevRange[1] < edgeStatsFrom);
           const statsSource = demoOn ? statsBaseSource : Object.assign({}, statsBaseSource, {
             earn: statsBaseSource.earn == null ? null :
               (statsSavedServices.indexOf('vkusvill') !== -1 ? statsBaseSource.vvEarn || 0 : 0) +
@@ -4850,7 +4905,7 @@
           ];
           const statsCohortService = st.statsCohortService || 'all';
           const statsCohortDistrict = st.statsCohortDistrict || 'all';
-          const statsHistory = HISTORY.filter((o) => o.dateISO >= statsRange[0] && o.dateISO <= statsRange[1] &&
+          const statsHistory = HISTORY.filter((o) => o.dateISO >= statsRange[0] && o.dateISO <= statsRange[1] && (!edgeStatsFrom || o.dateISO >= edgeStatsFrom) &&
             (demoOn || statsSavedServices.indexOf(o.svc) !== -1));
           const statsPersonalOrders = statsHistory.filter((o) => (statsSvcFilterNow === 'all' || o.svc === statsSvcFilterNow) &&
             (statsDistrictNow === 'all' || statsPickupDistrict(o.pickupAddr) === statsDistrictNow));
@@ -4913,7 +4968,7 @@
               ordersPerHour: orders != null && hours > 0 ? Math.round(orders / hours * 10) / 10 : null };
           };
           const statsPrevValues = (() => {
-            if (statsPeriod === 'custom' || statsByDistrict || statsNoGranularData) return {};
+            if (statsPeriod === 'custom' || statsByDistrict || statsNoGranularData || edgeStatsFrom) return {};
             const running = statsRange[0] <= TODAY_ISO && statsRange[1] >= TODAY_ISO;
             let src;
             if (running) {
@@ -5134,6 +5189,7 @@
             const points = [];
             for (let k = statsStep - 5; k <= statsStep; k++) {
               const range = statsPeriod === 'custom' ? [statsShiftISO(statsRangeLo, (k - statsStep) * customDays), statsShiftISO(statsRangeHi, (k - statsStep) * customDays)] : statsCalendarRange(statsPeriod, '', '', k);
+              if (edgeStatsFrom && k !== statsStep && range[1] < edgeStatsFrom) continue;
               const src = k === statsStep ? statsSource : (statsPeriod === 'custom' ? statsDaysSource('custom', range, false) : statsRecapSource(statsPeriod, range, statsMonths, k));
               // срез по сервису и сохранённым сервисам тот же, что у итога
               const values = statsTrendValuesFor(src, statsSvcFilterNow);
@@ -5182,13 +5238,16 @@
           const syncRun = st.syncRun || null;
           const healthKeys = Object.keys(integrationStatus).filter((k) => SERVICES[k] && ['connected', 'limited', 'disabled'].indexOf(integrationStatus[k]) !== -1);
           const syncTargets = healthKeys.filter((k) => integrationStatus[k] !== 'disabled');
-          const healthOf = (k) => (integrationStatus[k] === 'disabled' ? 'off' : (netOffline ? 'offline' : (svcHealth[k] || 'ok')));
+          // первая загрузка после подключения: в демо у X5, если он подключён, иначе у последнего подключённого
+          const edgeFirstKey = edge.firstLoad ? (syncTargets.indexOf('x5') !== -1 ? 'x5' : syncTargets[syncTargets.length - 1] || '') : '';
+          const healthOf = (k) => (integrationStatus[k] === 'disabled' ? 'off' : (netOffline ? 'offline' : (svcHealth[k] || (k === edgeFirstKey ? 'first' : 'ok'))));
           const syncLabelOf = (k) => (k in syncPartial
             ? 'Заказы: ' + syncAgoLabel(syncAgo[k]).replace('Обновлено ', '').replace('Данные ещё не получены', 'ещё не получены') + ' · выплаты: ' + syncAgoLabel(syncPartial[k]).replace('Обновлено ', '').replace('Данные ещё не получены', 'ещё не получены')
             : syncAgoLabel(syncAgo[k]));
           const healthNoteOf = (k, state) => {
             if (state === 'relogin') return 'Последние данные: ' + syncAgoLabel(syncAgo[k]).replace('Обновлено ', '') + ', новые не приходят';
             if (state === 'device') return 'Войдите заново, прошлые данные на месте';
+            if (state === 'first') return 'Это до 10 минут';
             if (state === 'offline') return syncLabelOf(k) + ', повторяем с паузой';
             if (state === 'rate') return syncLabelOf(k) + ', повторим в 15:52';
             if (state === 'error') return 'Повторим автоматически, команды заказа доступны в приложении сервиса';
@@ -5211,7 +5270,7 @@
           const inboxSeen = st.inboxSeen || {};
           const connAskKeys = connHealthItems.filter((i) => i.state === 'device' || i.state === 'relogin').map((i) => i.key);
           const connAskDevice = connHealthItems.some((i) => i.state === 'device');
-          const INBOX_SEED = (demoOn && role === 'courier') ? [
+          const INBOX_SEED = (demoOn && role === 'courier' && edge.inbox !== 'none') ? [
             // как только вошли в сервис, строка пропадает сама
             connAskKeys.length ? { id: 'n-conn', cat: 'conn', day: 'today', at: '15:02', need: true, to: 'integrations',
               title: connAskDevice ? 'Войдите в сервисы на этом телефоне' : connAskKeys.map((k) => SERVICES[k].title).join(' и ') + (connAskKeys.length > 1 ? ' просят войти снова' : ' просит войти снова'),
@@ -5289,12 +5348,12 @@
             const isCurrent = inQueue && syncRun.keys[syncRun.done] === key;
             const resultNote = res === 'relogin' ? ', не запрашивали без входа' : (res === 'offline' ? ', прежние данные сохранены' : '');
             const note = isLinked
-              ? (HEALTH_PILL[health] ? healthNoteOf(key, health) : syncLabelOf(key)) + resultNote
+              ? (HEALTH_PILL[health] || health === 'first' ? healthNoteOf(key, health) : syncLabelOf(key)) + resultNote
               : (status === 'exited'
                 ? ('Вы вышли ' + (((st.connExitedAt || {})[key]) || DEMO_NOW_LABEL) + ', история и последнее обновление сохранены')
                 : (status === 'disabled' ? 'Выключено вами, не обновляем' : passwordNote));
             const pill = inQueue ? [isCurrent ? 'Запрос…' : 'В очереди', 'disabled']
-              : (res && SYNC_RESULT_LABELS[res] ? SYNC_RESULT_LABELS[res] : (HEALTH_PILL[health] ? [HEALTH_PILL[health], health === 'rate' ? 'rate' : 'relogin'] : null));
+              : (res && SYNC_RESULT_LABELS[res] ? SYNC_RESULT_LABELS[res] : (HEALTH_PILL[health] ? [HEALTH_PILL[health], health === 'rate' ? 'rate' : 'relogin'] : (health === 'first' ? ['Первая загрузка', 'disabled'] : null)));
             return {
               key, title: svc.title, note,
               status: pill ? pill[1] : (status === 'connected' ? 'connected' : (status === 'limited' ? 'connected' : (status === 'exited' ? 'exited' : (status === 'disabled' ? 'disabled' : (svc.method === 'unsupported' && !svc.catalogNote ? 'unsupported' : 'none'))))),
@@ -5383,7 +5442,7 @@
           const histRange = histPeriodRange(histPeriod, histFrom, histTo);
           const histRangeFrom = histRange[0], histRangeTo = histRange[1];
           const savedHistoryServices = Object.keys(integrationStatus).filter((key) => ['connected', 'limited', 'disabled', 'exited'].indexOf(integrationStatus[key]) !== -1);
-          const histSourceList = pvHideHistory ? [] : (demoOn ? HISTORY : HISTORY.filter((o) => savedHistoryServices.indexOf(o.svc) !== -1));
+          const histSourceList = pvHideHistory ? [] : (demoOn ? HISTORY.filter(edgeKeepOrder) : HISTORY.filter((o) => savedHistoryServices.indexOf(o.svc) !== -1));
           const histInRange = histSourceList.filter((o) => o.dateISO >= histRangeFrom && o.dateISO <= histRangeTo);
           const histFiltered = histInRange.filter((o) => (histSvc === 'all' || o.svc === histSvc) &&
             (histDistrict === 'all' || statsPickupDistrict(o.pickupAddr) === histDistrict) &&
@@ -5526,6 +5585,9 @@
           const myAccountRestricted = restrictedAuthors.indexOf(myName) !== -1;
           const mkCityShort = cityTitleOf(mkCity);
           const mkHasData = mkCity === 'moscow' || mkCity === 'spb';
+          // мало данных по городу: цифры хватает только у ВкусВилла и Самоката
+          const mkFew = mkHasData && edge.market === 'few';
+          const mkFewOk = (key) => !mkFew || key === 'vkusvill' || key === 'samokat';
           const EMPTY_REACTIONS = { courierLikes: 0, courierDislikes: 0, userLikes: 0, userDislikes: 0 };
           function uniqueAuthorRows(list) {
             const seen = []; const out = [];
@@ -5587,7 +5649,7 @@
           const cityFactor = mkCity === 'spb' ? 0.93 : 1;
           let mkRowsData = !mkHasData ? [] : Object.keys(MARKET_BASE).map((key) => {
             const b = MARKET_BASE[key];
-            const sufficient = b.couriers >= 30 && b.orders >= 100;
+            const sufficient = b.couriers >= 30 && b.orders >= 100 && mkFewOk(key);
             const hourly = b.hourly ? Math.round(b.hourly * cityFactor) : 0;
             const orderPay = b.orderPay ? Math.round(b.orderPay * cityFactor) : 0;
             const orders = b.orders;
@@ -5616,10 +5678,11 @@
 
           // Сервис и отзывы
           const svBase = MARKET_BASE[svKey];
-          const svSufficient = svBase.couriers > 0 && svBase.orders > 0;
+          const svSufficient = svBase.couriers > 0 && svBase.orders > 0 && mkFewOk(svKey);
           const svConnected = ['connected', 'limited'].indexOf(integrationStatus[svKey] || 'none') !== -1;
           const svVoterCategory = reviewCategoryFor(svConnected);
-          const svReviewsAll = reviewsWithMineFor(svKey, svConnected);
+          // в демо можно показать сервис без отзывов или с тремя
+          const svReviewsAll = edge.reviews === 'none' ? [] : edge.reviews === 'few' ? reviewsWithMineFor(svKey, svConnected).filter((r) => !r.mine).slice(0, 3) : reviewsWithMineFor(svKey, svConnected);
           const svReviewsFiltered = svGeoAll ? svReviewsAll : svReviewsAll.filter((r) => r.city === mkCityShort);
           const svReviewsConfirmed = svReviewsFiltered.filter((r) => r.category === 'courier' && r.confirmed);
           const svReviewsConfirmedAuthors = uniqueAuthorRows(svReviewsConfirmed);
@@ -5646,15 +5709,16 @@
           const svUserAuthors = uniqueAuthorRows(svReviewsFiltered.filter((r) => r.category === 'user'));
           const svUserAvg = avgRating(svReviewsFiltered.filter((r) => r.category === 'user'));
           const svReviews = svReviewTab === 'user' ? svReviewsUser : svReviewsCourier;
-          const myReviewForSv = courierReviews[svKey];
+          const myReviewForSv = edge.reviews ? null : courierReviews[svKey];
           const nowTs = appNow();
           const svCanCreate = canCreateOwnReview(myAccountRestricted, myReviewForSv);
           const svCanEdit = canEditOwnReview(svConnected, myAccountRestricted, myReviewForSv, nowTs);
           const svCanDelete = canDeleteOwnReview(myReviewForSv);
           const svEditDeadline = myReviewForSv ? new Date(myReviewForSv.createdAt + REVIEW_EDIT_WINDOW_MS) : null;
           // Вопросы к сервису
-          const svQAll = (svcQuestions[svKey] || []).filter((q) => !q.deletedAt);
-          const svQAskedCount = questionAskCounts[svKey] || 0;
+          // без вопросов в демо остаются только заданные сейчас
+          const svQAll = (svcQuestions[svKey] || []).filter((q) => !q.deletedAt && (edge.questions !== 'none' || String(q.id).indexOf(svKey + '-q-') === 0));
+          const svQAskedCount = edge.questions === 'none' ? svQAll.length : questionAskCounts[svKey] || 0;
           const svQRemaining = Math.max(0, 3 - svQAskedCount);
           const isRaznosierRole = role === 'courier';
           // мягкое удаление своего вопроса или ответа, попытка вопроса при этом не возвращается
@@ -5792,7 +5856,8 @@
 
           // Что происходит: фильтры сервисов и города, сортировка, архив через 24 часа без видимых ответов
           const liveNow = appNow();
-          const liveMsgs = st.liveMsgs || [];
+          // пустая лента в демо: убираем заготовки, написанное сейчас остаётся
+          const liveMsgs = (st.liveMsgs || []).filter((m) => edge.live !== 'empty' || String(m.id).indexOf('lm-') !== 0);
           const liveVotes = st.liveVotes || {};
           const liveReports = st.liveReports || {};
           const liveSvc = st.liveSvc || (connectedKeys.length ? 'mine' : 'all');
@@ -5969,7 +6034,7 @@
             is_role_courier: role === 'courier', is_role_user: role === 'user',
             set_city: (nextCity) => set({ city: nextCity, mkCity: nextCity }),
             transport_options: transportOptions, transport_hint: transportHint,
-            confirm_city: () => set({ s: role === 'courier' ? 'courier-empty' : 'user-home', demoOn: false, expManual: null, expRecurring: null, expTemplates: null, expFormId: '', expFormDraft: null, recFormId: '', recFormDraft: null }),
+            confirm_city: () => set({ s: role === 'courier' ? 'courier-empty' : 'user-home', tourStep: role === 'courier' && st.tipsOn !== false && !st.tourDone ? 0 : null, demoOn: false, expManual: null, expRecurring: null, expTemplates: null, expFormId: '', expFormDraft: null, recFormId: '', recFormDraft: null }),
 
             go_integrations: () => { if (role === 'courier') set({ s: 'integrations' }); }, start_demo: () => set(Object.assign(buildDemoSeed(), connectedKeys.length ? { integrationStatus } : {}, { s: 'courier-home', demoReturnState: Object.assign({}, this.state, { demoReturnState: null }), demoOn: true, expManual: null, expRecurring: null, expTemplates: null, expFormId: '', expFormDraft: null, recFormId: '', recFormDraft: null })), demo_close: () => { const cur2 = this.state; this._stateGen = (this._stateGen || 0) + 1; clearTimeout(this._acceptTimer); this._acceptTimer = null; const snap = cur2.demoReturnState; const base = snap || Object.assign({}, this.buildInitialState({ fresh: true }), { phoneInput: cur2.phoneInput, city: cur2.city, mkCity: cur2.mkCity }); this.setState(Object.assign({}, base, { s: cur2.role === 'user' ? 'user-home' : 'courier-empty', role: cur2.role, language: cur2.language, demoOn: false, demoReturnState: null, workOn: false, activeAccepted: false, workPaused: false, acceptStage: 'idle' })); },
 
@@ -6162,8 +6227,9 @@
             conn_back: navBack(() => { if (st.connFrom === 'job-guide') return set({ s: 'job-guide', connFrom: '' }); if (role === 'courier') set({ s: 'integrations' }); }),
             go_history: () => { if (role === 'courier') set({ s: 'history', histBack: '', histSvc: 'all', histDistrict: 'all' }); },
             // до первой смены и в выходной сегодняшних заказов нет: берём последний рабочий день
+            recent_empty: demoOn && !HISTORY.some((o) => o.dateISO === recentDay && edgeKeepOrder(o)),
             recent_day_label: recentDay === TODAY_ISO ? '' : Number(recentDay.slice(8)) + ' ' + RU_MONTHS_GEN[Number(recentDay.slice(5, 7)) - 1],
-            recent_orders: HISTORY.filter((o) => o.dateISO === recentDay && (demoOn || activeDataSvcs.indexOf(o.svc) !== -1)).slice().sort((a, b) => (a.date < b.date ? 1 : -1)).filter((o, i, arr) => !o.tripId || arr.findIndex((x) => x.tripId === o.tripId) === i).slice(0, 3).map((o) => o.tripId ? (() => {
+            recent_orders: HISTORY.filter((o) => o.dateISO === recentDay && edgeKeepOrder(o) && (demoOn || activeDataSvcs.indexOf(o.svc) !== -1)).slice().sort((a, b) => (a.date < b.date ? 1 : -1)).filter((o, i, arr) => !o.tripId || arr.findIndex((x) => x.tripId === o.tripId) === i).slice(0, 3).map((o) => o.tripId ? (() => {
               const ti = tripInfo(o.tripId);
               return { id: o.tripId, isTrip: true, svc: ti.t.svc, route: ti.title, count: ti.count, meta: ti.time + (ti.status === 'Доставлен' ? '' : ' · ' + ti.status.toLowerCase()) + ' · ' + ti.orders.map((x) => x.dropAddr.split(',')[0].replace(/ (ул\.|пер\.|пр-т)$/, '')).join(', '), pay: formatMoney(ti.total), tip: 0, tipDigital: 0 };
             })() : ({
@@ -6311,7 +6377,11 @@
             stats_vv_orders: stat.vvOrders, stats_vv_wait: stat.vvWait, stats_vv_duration: stat.vvDuration, stats_vv_hourly: statVvHourly, stats_vv_earn: stat.vvEarn,
             stats_sk_orders: stat.samokatOrders, stats_sk_wait: stat.samokatWait, stats_sk_duration: stat.samokatDuration, stats_sk_hourly: statSamokatHourly, stats_sk_earn: stat.samokatEarn,
             stats_range: statsRange, stats_range_label: statsSource.title, stats_recap: statsRecap, stats_trend_current: statsTrendCurrent,
-            stats_has_data: demoOn || statsSavedServices.length > 0, stats_no_data: !demoOn && statsSavedServices.length === 0,
+            stats_has_data: (demoOn || statsSavedServices.length > 0) && !(edge.stats === 'none' && statsStep === 0), stats_no_data: !demoOn && statsSavedServices.length === 0,
+            // за текущий период заказов не было, прошлые на месте
+            stats_edge_empty: edge.stats === 'none' && statsStep === 0,
+            stats_edge_prev_label: statsPeriod === 'custom' ? 'Прошлая неделя' : 'Прошлый период',
+            stats_edge_prev: () => set(statsPeriod === 'custom' ? { statsPeriod: 'week', statsStep: -1, statsRet: null } : { statsStep: -1, statsRet: null }),
             stats_main_label: statsRecap.mainLabel, stats_main_value: statsRecap.mainValue == null ? 'Нет данных' : (statsRecap.mainValue >= 100000 ? statsShortMoney(statsRecap.mainValue) : formatMoney(Math.round(statsRecap.mainValue)) + ' ₽'),
             stats_hours_label: statsHours == null ? 'Нет данных' : String(statsHours).replace('.', ',') + ' ч',
             stats_orders_label: statsOrdersCount == null ? 'Нет данных' : String(statsOrdersCount),
@@ -6495,8 +6565,8 @@
             stats_rate_label: statsRecap.rate == null ? 'Нет данных' : formatMoney(statsRecap.rate) + ' ₽/ч',
             stats_preliminary: statsRecap.preliminary,
             stats_preliminary_note: statsCurrentPeriod ? 'Период ещё идёт' : 'Финальная сумма заказа пока неизвестна',
-            stats_has_missing: statsRecap.missing.length > 0 || statsNoGranularData,
-            stats_missing_note: statsNoGranularData ? 'По способу доставки и смене данных для расчёта пока нет' :
+            stats_has_missing: statsRecap.missing.length > 0 || statsNoGranularData || !!edgeStatsFrom,
+            stats_missing_note: edgeStatsFrom ? 'Первая неделя: данные за 2 дня, сравнение появится через неделю' : statsNoGranularData ? 'По способу доставки и смене данных для расчёта пока нет' :
               (statsRecap.missing.length ? 'Пропуски: ' + statsRecap.missing.join(', ') : ''),
             stats_period_is_custom: statsPeriod === 'custom', stats_from_day: st.statsFromRaw != null ? st.statsFromRaw : statsRange[0], stats_to_day: st.statsToRaw != null ? st.statsToRaw : statsRange[1], stats_max_day: TODAY_ISO,
             // в состояние уходит только полная дата, пока человек вводит, поле показывает сырое значение
@@ -6707,7 +6777,7 @@
           open_demo_note: APP_SECTIONS[st.openDemoSection] ? 'Сам раздел Разнос открыть не может, ссылка на него не подтверждена. В прототипе переход не выполняется' : demoSlot ? 'Когда вернётесь, бронь появится в Разносе после синхронизации с сервисом, до этого слот остаётся свободным. В прототипе переход не выполняется, выберите, чем всё закончилось' : 'В прототипе переход не выполняется',
           open_demo_took_label: demoSlot && demoSlot.apply ? 'Я откликнулся' : 'Я взял смену',
           open_demo_took: () => set({ takenSlots: Object.assign({}, st.takenSlots || {}, st.openDemoSlot ? { [st.openDemoSlot]: true } : {}), s: st.openDemoFrom || 'slots', openDemoShift: '', openDemoSlot: '' }),
-          open_demo_failed: () => set({ s: st.openDemoFrom || 'slots', openDemoShift: '', openDemoSlot: '' }), work_hub_goal: 60000, work_hub_planned: 54800, work_hub_nudge: 'Добавьте пару вечерних часов в Центре, там платят больше', go_top: () => set({ s: 'top' }), top_back: navBack(() => set({ s: 'profile' })), top_open_anon: () => set({ s: 'anon-courier', anonSvcKey: 'samokat', anonAuthor: 'Курьер', anonBack: 'top', pvPreview: '' }),
+          open_demo_failed: () => set({ s: st.openDemoFrom || 'slots', openDemoShift: '', openDemoSlot: '' }), work_hub_goal: 60000, work_hub_planned: 54800, work_hub_nudge: 'Добавьте пару вечерних часов в Центре, там платят больше', go_top: () => set({ s: 'top' }), top_edge: edge.top || '', top_back: navBack(() => set({ s: 'profile' })), top_open_anon: () => set({ s: 'anon-courier', anonSvcKey: 'samokat', anonAuthor: 'Курьер', anonBack: 'top', pvPreview: '' }),
             active_filter: st.activeFilter || '', set_active_filter: (name) => set({ activeFilter: name || '' }),
             active_filter_label: (st.activeFilter ? 'Фильтр: ' + st.activeFilter : 'Без фильтра'),
             active_filter_pill_class: 'raznos-status-pill ' + (st.activeFilter ? 'raznos-pill-ok' : 'raznos-pill-muted'),
@@ -7224,6 +7294,7 @@
             // Рынок
             set_mk_city: (nextCity) => set({ mkCity: nextCity }),
             mk_has_data: mkHasData, mk_no_data: !mkHasData, mk_city_label: mkCityShort,
+            mk_few: mkFew, mk_cards_data: mkHasData && !mkFew,
             // фильтры списка сервисов чипами со шторкой, как в карточках рынка
             mk_filters: [
               { key: 'mkSort', title: 'Сортировка', value: mkSort, def: 'hourly', options: [{ k: 'hourly', label: 'Доход в час' }, { k: 'pay', label: 'Оплата заказа' }, { k: 'rating', label: 'Оценки' }, { k: 'wait', label: 'Ожидание' }] },
@@ -7231,7 +7302,7 @@
             ],
             mk_method_open: !!st.mkMethodOpen, mk_method_toggle: () => set({ mkMethodOpen: !st.mkMethodOpen }),
             set_mk_filter: (key, v) => set({ [key]: v }),
-            mk_sample: (() => { const m = MARKET_SAMPLE[mkCity] || MARKET_SAMPLE.moscow; return m.couriers + ' ' + ruPlural(m.couriers, 'курьер', 'курьера', 'курьеров') + ' · ' + formatMoney(m.orders) + ' ' + ruPlural(m.orders, 'заказ', 'заказа', 'заказов') + ' · ' + MARKET_PERIOD; })(),
+            mk_sample: (() => { const m = mkFew ? { couriers: 9, orders: 140 } : MARKET_SAMPLE[mkCity] || MARKET_SAMPLE.moscow; return m.couriers + ' ' + ruPlural(m.couriers, 'курьер', 'курьера', 'курьеров') + ' · ' + formatMoney(m.orders) + ' ' + ruPlural(m.orders, 'заказ', 'заказа', 'заказов') + ' · ' + MARKET_PERIOD; })(),
             mk_rows: mkTransport === 'any' ? mkRowsData : mkRowsData.filter((r) => { const c = SERVICE_CAPS[r.key]; if (!c || !c.transport) return true; return c.transport.some((t) => t === mkTransport || (mkTransport === 'bike' && t === 'ebike')); }), mk_top: mkRowsData.slice(0, 4), mk_count_label: mkRowsData.length + ' ' + ruPlural(mkRowsData.length, 'сервис', 'сервиса', 'сервисов') + ' в городе',
 
             // Сервис / отзывы
@@ -7268,6 +7339,11 @@
             sv_set_tab_courier: () => set({ svReviewTab: 'courier' }),
             sv_set_tab_user: () => set({ svReviewTab: 'user' }),
             sv_reviews: svReviews,
+            // пустой список: заголовок, строка и сразу кнопка написать, нижнюю тогда прячем
+            sv_reviews_empty: svReviews.length === 0,
+            sv_reviews_empty_text: svReviewTab === 'user' ? 'Пользователи ещё не оценивали этот сервис' : 'Расскажите первым, как здесь работается',
+            sv_empty_action: svReviews.length === 0 && svReviewTab !== 'user' && svCanCreate ? 'Написать отзыв' : '',
+            sv_can_create_below: svCanCreate && !(svReviews.length === 0 && svReviewTab !== 'user'),
             sv_has_own_review: !!myReviewForSv && !myReviewForSv.deletedAt,
                         sv_can_create: svCanCreate,
             sv_can_edit: svCanEdit, sv_edit_expired: svEditExpired,
@@ -7301,6 +7377,7 @@
               });
             },
             go_questions: () => set({ s: 'questions', qFocusId: '' }),
+            questions_back: navBack(() => set({ s: 'service' })), q_empty: svQuestions.length === 0, q_empty_text: 'Задайте первый, ответят курьеры ' + svcGen(svKey),
             sv_questions_summary: (() => { const qn = svQAll.length; const an = svQAll.reduce((sum, q) => sum + (q.answers || []).filter((a) => !a.deletedAt).length, 0); return qn === 0 ? 'Вопросов пока нет' : ('Вопросы к сервису · ' + qn + ' ' + ruPlural(qn, 'вопрос', 'вопроса', 'вопросов') + ' · ' + an + ' ' + ruPlural(an, 'ответ', 'ответа', 'ответов')); })(),
             sv_questions: svQuestions,
             q_asked_count: svQAskedCount,
@@ -7444,8 +7521,12 @@
             // Профиль
             has_data: hasData, has_no_data: !hasData,
             hist_hidden_by_privacy: pvHideHistory,
-            hist_show_empty: !histHasData && !pvHideHistory,
-            hist_show_list: histHasData && !pvHideHistory,
+            hist_show_empty: (!histHasData || edge.history === 'empty') && !pvHideHistory,
+            hist_show_list: histHasData && edge.history !== 'empty' && !pvHideHistory,
+            // сервис подключён, а заказов ещё не было: ведём туда, где сейчас платят больше
+            hist_empty_text: histHasData ? 'Первый заказ появится здесь сразу после доставки' : 'Подключите сервис, и заказы появятся здесь',
+            hist_empty_action: histHasData ? 'Где сейчас выгоднее' : 'Подключить сервис',
+            hist_empty_go: () => set(histHasData ? { s: 'zones' } : { s: 'integrations' }),
             hist_unhide: () => set({ pvHideHistory: false }),
             // оценки из сервиса: крупное значение со шкалой, сервисы без данных одной строкой
             pf_scores: connectedKeys.filter((k) => SERVICE_SCORES[k]).map((k) => {
@@ -7473,7 +7554,7 @@
             demo_go_settings: () => set({ s: 'demo-settings' }),
             demo_settings_back: navBack(() => set({ s: role === 'courier' ? 'courier-home' : 'user-home' })),
             // сброс: все данные и переключатели демо как при первом входе, остаёмся в настройках
-            demo_reset: () => { this.setState(Object.assign({}, this.buildInitialState({ fresh: true }), buildDemoSeed(), { s: 'demo-settings', demoOn: true, role: 'courier', language: st.language, homeDay: '', homeShiftOn: true, netOffline: false, svcHealth: {}, planChangeHidden: false, pvPublic: true, appTheme: '', city: 'moscow', mkCity: 'moscow', transport: 'bike', workGoal: null })); uxShowToast('Демо сброшено', '', null); },
+            demo_reset: () => { this.setState(Object.assign({}, this.buildInitialState({ fresh: true }), buildDemoSeed(), { s: 'demo-settings', demoOn: true, role: 'courier', language: st.language, homeDay: '', homeShiftOn: true, netOffline: false, svcHealth: {}, planChangeHidden: false, pvPublic: true, appTheme: '', city: 'moscow', mkCity: 'moscow', transport: 'bike', workGoal: null, demoEdge: {} })); uxShowToast('Демо сброшено', '', null); },
             demo_toggles: (() => {
               const health = st.svcHealth || {};
               const hv = Object.keys(health).map((k) => health[k]);
@@ -7491,6 +7572,30 @@
                 row('Цель недели', !st.workGoal || st.workGoal === WORK_WEEK_GOAL ? 'plan' : st.workGoal < WORK_WEEK_GOAL ? 'done' : 'behind', [['done', 'Выполнена', { workGoal: 15000 }], ['plan', 'Идёт по плану', { workGoal: WORK_WEEK_GOAL }], ['behind', 'Сильно отстаёт', { workGoal: 60000 }]]),
                 row('Роль', role, [['courier', 'Курьер', { role: 'courier' }], ['user', 'Ищу работу', { role: 'user' }]]),
                 row('Тема', st.appTheme || '', [['', 'Как в системе', { appTheme: '' }], ['light', 'Светлая', { appTheme: 'light' }], ['dark', 'Тёмная', { appTheme: 'dark' }]])
+              ];
+            })(),
+            // пустые и крайние случаи: флаг в demoEdge, Открыть ведёт на экран, где это видно
+            demo_edge_toggles: (() => {
+              const row = (title, key, go, opts, extra) => ({ title, go: () => set(Object.assign({}, go)), opts: opts.map(([v, label]) => ({ label, on: (edge[key] || '') === v, cls: 'raznos-chip' + ((edge[key] || '') === v ? ' raznos-is-active' : ''), tap: () => set(Object.assign({ demoEdge: Object.assign({}, edge, { [key]: v }) }, extra || {})) })) });
+              // баланс берём из самих данных: пусто, если не было ни чаевых, ни выводов
+              const walletCur = (st.walletIncome || []).length || (st.walletWithdrawals || []).length ? 'has' : 'zero';
+              const walletRow = { title: 'Баланс', go: () => set({ s: 'wallet' }), opts: [['has', 'Есть чаевые', { walletIncome: buildSeedWalletIncome(), walletWithdrawals: buildSeedWalletWithdrawals() }], ['zero', 'Ноль, выводов не было', { walletIncome: [], walletWithdrawals: [] }]].map(([v, label, patch]) => ({ label, on: walletCur === v, cls: 'raznos-chip' + (walletCur === v ? ' raznos-is-active' : ''), tap: () => set(patch) })) };
+              // пустая история значит заказов нет совсем, сегодня тоже: чип показывает Ноль, а Есть возвращает и историю
+              const todayCur = edge.history === 'empty' ? 'zero' : (edge.today || '');
+              const todayRow = { title: 'Заказы сегодня', go: () => set({ s: 'courier-home', homeDay: '' }), opts: [['', 'Есть', { today: '', history: '' }], ['zero', 'Ноль', { today: 'zero' }]].map(([v, label, patch]) => ({ label, on: todayCur === v, cls: 'raznos-chip' + (todayCur === v ? ' raznos-is-active' : ''), tap: () => set({ demoEdge: Object.assign({}, edge, patch) }) })) };
+              return [
+                row('Сервис только подключили', 'firstLoad', { s: 'integrations' }, [['', 'Нет'], ['on', 'Данные грузятся']]),
+                todayRow,
+                row('История заказов', 'history', { s: 'history' }, [['', 'Есть'], ['empty', 'Пусто']]),
+                row('Результаты', 'stats', { s: 'stats', statsPeriod: 'week', statsStep: 0, statsDetail: '' }, [['', 'Обычно'], ['first', 'Первая неделя'], ['none', 'Нет за период']]),
+                row('Отзывы о сервисе', 'reviews', { s: 'service', svKey: 'vkusvill', svFrom: 'market', svReviewTab: 'courier' }, [['', 'Много'], ['few', 'Мало'], ['none', 'Нет']]),
+                row('Вопросы о сервисе', 'questions', { s: 'questions', svKey: 'vkusvill', qFocusId: '' }, [['', 'Есть'], ['none', 'Нет']]),
+                row('Что происходит', 'live', { s: 'live-feed' }, [['', 'Есть'], ['empty', 'Пусто']]),
+                row('Расходы', 'expenses', { s: 'expenses' }, [['', 'Есть'], ['none', 'Нет']], { expManual: null, expRecurring: null }),
+                walletRow,
+                row('Уведомления', 'inbox', { s: 'inbox', inboxArchive: false }, [['', 'Есть'], ['none', 'Нет']]),
+                row('Топ курьеров', 'top', { s: 'top' }, [['', 'Вы в топе'], ['out', 'Вас нет'], ['few', 'Мало участников']]),
+                row('Рынок', 'market', { s: 'market' }, [['', 'Данных хватает'], ['few', 'Мало данных']])
               ];
             })(),
             demo_groups: (() => {
@@ -7514,6 +7619,16 @@
                 G('Сообщество и профиль', 'Любой курьер', [['live-feed', 'Что происходит'], ['live-thread', 'Обсуждение сообщения'], ['live-mine', 'Мои сообщения'], ['live-limit', 'Лимит сообщений'], ['user-questions', 'Вопросы о сервисе'], ['anon-unknown-orders', 'Обезличенный профиль автора'], ['preview-anon', 'Как видят другие: обезличенно'], ['preview-named', 'Как видят другие: с именем'], ['preview-hidden-fields', 'Профиль со скрытыми полями'], ['top', 'Топ курьеров'], ['inbox', 'Уведомления'], ['notifications-some-off', 'Часть уведомлений выключена'], ['worker-data-vv', 'Данные работника']])
               ];
             })(),
+            // подсказки: тур по разделам при первом входе, в Настройках можно выключить или пройти снова
+            tips_on: st.tipsOn !== false, tips_box: st.tipsOn !== false ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', tips_mark: st.tipsOn !== false ? '✓' : '',
+            toggle_tips: () => set({ tipsOn: st.tipsOn === false }),
+            toggle_tips_settings: () => set(st.tipsOn === false ? { tipsOn: true, tourDone: false, tourStep: demoOn ? 1 : 0 } : { tipsOn: false, tourStep: null }),
+            tour_show: tourStep != null && role === 'courier' && TOUR_SCREENS.indexOf(s) !== -1 && (tourStep > 0 || s === 'courier-empty'),
+            tour_step: tourStep != null ? tourStep : '', tour_num: (tourStep || 0) + 1, tour_total: TOUR.length,
+            tour_title: tourStep != null ? TOUR[tourStep].title : '', tour_text: tourStep != null ? TOUR[tourStep].text : '', tour_below: tourStep === 0,
+            tour_prev: () => { if (tourStep > (demoOn ? 1 : 0)) set({ tourStep: tourStep - 1 }); },
+            tour_next: () => set(tourStep >= TOUR.length - 1 ? { tourStep: null, tourDone: true } : { tourStep: tourStep + 1 }),
+            tour_skip: () => set({ tourStep: null, tourDone: true }),
             tunnel_on: !!st.deviceTunnel, toggle_tunnel: () => set({ deviceTunnel: !st.deviceTunnel }),
             tunnel_box: st.deviceTunnel ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', tunnel_mark: st.deviceTunnel ? '✓' : '',
 
@@ -7598,10 +7713,12 @@
             live_set_filter: (key, v) => set({ [key]: v }),
             live_list: liveSorted.map((m) => liveCardProps(m, 'live-feed')),
             live_empty_no_integrations: liveSorted.length === 0 && liveSvc === 'mine' && connectedKeys.length === 0,
-            live_empty_other: liveSorted.length === 0 && !(liveSvc === 'mine' && connectedKeys.length === 0),
             live_show_all_services: () => set({ liveSvc: 'all' }),
             live_show_all_cities: () => set({ liveCity: 'all' }),
-            live_can_write: connectedKeys.length > 0,
+            live_can_write: connectedKeys.length > 0 && !(edge.live === 'empty' && liveSorted.length === 0),
+            // в пустой ленте другие города не помогут, зовём написать первым
+            live_empty_city: liveSorted.length === 0 && !(liveSvc === 'mine' && connectedKeys.length === 0) && edge.live !== 'empty',
+            live_empty_quiet: liveSorted.length === 0 && !(liveSvc === 'mine' && connectedKeys.length === 0) && edge.live === 'empty',
 
             // обсуждение
             live_thread: liveThread ? liveCardProps(liveThread, st.liveThreadBack || 'live-feed') : { text: '' },
@@ -7907,13 +8024,15 @@
             })),
 
             // Профиль курьера · баланс и выводы
-            go_wallet: () => set({ s: 'wallet' }),
+            go_wallet: () => set({ s: 'wallet' }), wallet_back: navBack(() => set({ s: 'profile' })),
             go_wallet_income: () => set({ s: 'wallet-income' }),
             go_wallet_withdraw_history: () => set({ s: 'wallet-withdraw-history' }),
             go_wallet_withdraw: () => set({ s: 'wallet-withdraw', wdStage: 'form', wdTouched: false, wdAmount: 0, wdForceFail: false, wdPendingId: '' }),
             back_to_wallet: backToInbox(() => set({ s: 'wallet' })),
             w_available: wallet.available, w_pending: wallet.pending, w_reserved: wallet.reserved,
             w_can_withdraw: wallet.available > 0, w_can_withdraw_disabled: wallet.available <= 0,
+            // чаевых и выводов ещё не было: одно действие, поделиться профилем
+            w_empty_all: walletIncome.length === 0 && walletWithdrawals.length === 0, w_has_history: walletIncome.length > 0 || walletWithdrawals.length > 0,
             w_income_preview: walletIncome.slice(0, 3).map((r) => ({
               id: r.id, senderLabel: r.senderName || 'Без имени', date: r.date, net: r.net,
               statusLabel: r.status === 'pending' ? 'Ожидает зачисления' : 'Зачислено',
@@ -7976,6 +8095,8 @@
             plan_change_iso: planChangeOn ? isoAt(planChangeK) : '', plan_change_key: planChangeOn ? 'p:' + isoAt(planChangeK) + ':' + Math.round(planChangeStart) : '',
             plan_change_hide: () => set({ planChangeHidden: true }),
             on_navigate: (key) => {
+              // нажали вкладку, на которую показывает подсказка: открываем экран и переходим к следующей подсказке
+              if (tourStep != null && tourStep >= 1 && TOUR[tourStep].tab === key) set(tourStep >= TOUR.length - 1 ? { tourStep: null, tourDone: true } : { tourStep: tourStep + 1 });
               if (role === 'user') {
                 if (key === 'home') return set({ s: 'user-home' });
                 if (key === 'market') return set({ s: 'market' });

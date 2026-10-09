@@ -15,7 +15,7 @@
 </sc-if>
 <p class="raznos-text-small">{{ range_label }}</p>
 <div class="raznos-chip-row"><sc-for list="{{ tabs }}" as="t"><button type="button" class="{{ t.cls }}" onClick="{{ t.tap }}">{{ t.label }}</button></sc-for></div>
-<sc-if value="{{ empty }}"><div class="raznos-empty-state"><span class="raznos-text-h3">Нет предложений за выбранные даты</span><p class="raznos-text-small">Решения появятся здесь после того, как вы примете, отклоните или пропустите предложение</p></div></sc-if>
+<sc-if value="{{ empty }}"><dc-import name="RaznosEmptyState" title="Нет предложений за выбранные даты" text="Решения появятся здесь после того, как вы примете, отклоните или пропустите предложение"></dc-import></sc-if>
 <sc-for list="{{ rows }}" as="r"><div class="raznos-card raznos-opportunity-log"><div class="raznos-fx raznos-ac raznos-gap8"><dc-import name="RaznosIcon" svc="{{ r.svc }}" size="sm"></dc-import><span class="raznos-list-main"><span class="raznos-list-title">{{ r.title }}</span><span class="raznos-text-tiny">{{ r.date }}</span></span><strong class="raznos-num">{{ r.pay }} ₽</strong></div><span class="raznos-status-pill raznos-pill-muted" style="align-self:flex-start">{{ r.label }}</span><span class="raznos-text-body">{{ r.reason }}</span><details><summary>Как принято решение</summary><p class="raznos-text-small">{{ r.details }}</p></details></div></sc-for>
 </div></x-dc><script type="text/x-dc" data-dc-script data-props='{"items":{"editor":null},"onBack":{"editor":null}}'>
 // демо-сегодня: реальная дата устройства

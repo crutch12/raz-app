@@ -39,7 +39,7 @@
   </div>
 
   <sc-if value="{{ no_data }}" hint-placeholder-val="{{ false }}">
-    <div class="raznos-empty-state"><span class="raznos-empty-glyph">?</span><span class="raznos-text-h3">По этому городу данных пока нет</span><p class="raznos-text-small">Город меняется в профиле. Покажем цифры, когда в городе появятся курьеры Разноса</p></div>
+    <dc-import name="RaznosEmptyState" glyph="?" title="По этому городу данных пока нет" text="Город меняется в профиле. Покажем цифры, когда в городе появятся курьеры Разноса"></dc-import>
   </sc-if>
 
   <sc-if value="{{ is_newbies }}" hint-placeholder-val="{{ true }}">

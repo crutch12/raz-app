@@ -20,6 +20,9 @@
     .rtc-row { display: grid; grid-template-columns: 26px 1fr; align-items: center; gap: 12px; padding: 12px 4px; border-bottom: 1px solid var(--raznos-line); }
     .rtc-rank { font: 700 14px var(--raznos-mono); color: var(--raznos-ink-2); text-align: center; }
     .rtc-row .rtc-val { text-align: right; }
+    .rtc-row.rtc-is-me { margin: 0 -10px; padding: 12px 14px; border-radius: 10px; border-bottom-color: transparent; background: color-mix(in oklab, var(--raznos-green) 16%, var(--raznos-surface)); }
+    .rtc-row.rtc-is-me .rtc-rank, .rtc-row.rtc-is-me .rtc-val { font-weight: 800; color: var(--raznos-green-deep); }
+    .rtc-out-plan { align-self: flex-start; margin: 4px 0 8px; }
     .rtc-val { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
   </style>
 </helmet>
@@ -36,24 +39,28 @@
     <div class="rtc-me-end"><span class="rtc-me-val">{{ my_val }}</span><span class="rtc-me-metric">{{ my_metric }}</span></div>
   </div>
 
+  <sc-if value="{{ show_near }}" hint-placeholder-val="{{ true }}">
   <div class="rtc-near">
     <span class="rtc-near-gap"><i class="raznos-hex-mark" aria-hidden="true"></i>{{ gap_label }}</span>
     <sc-for list="{{ near }}" as="n" hint-placeholder-count="3">
       <div class="{{ n.cls }}"><span class="rtc-rank">{{ n.rank }}</span><span class="rtc-near-name">{{ n.name }}</span><span class="rtc-val">{{ n.val }}</span></div>
     </sc-for>
+    <sc-if value="{{ out }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small rtc-out-plan" onClick="{{ on_plan }}">Открыть План</button></sc-if>
   </div>
+  </sc-if>
 
-  <span class="raznos-text-h3">Лидеры · {{ scope_label }}</span>
+  <span class="raznos-text-h3">{{ list_title }}</span>
   <div class="rtc-list">
     <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
-      <div class="rtc-row">
+      <div class="{{ r.cls }}">
         <span class="rtc-rank">{{ r.rank }}</span>
         <span class="rtc-val">{{ r.val }}</span>
       </div>
     </sc-for>
   </div>
+  <sc-if value="{{ few }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ show_all }}">Топ по всем городам</button></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"onBack":{"editor":null},"onOpenAnon":{"editor":null},"me":{"editor":null},"$preview":{"width":390,"height":760}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"edge":{"editor":"enum","default":"","options":["","out","few"]},"onPlan":{"editor":null},"onBack":{"editor":null},"onOpenAnon":{"editor":null},"me":{"editor":null},"$preview":{"width":390,"height":760}}'>
 const RTC_METRICS = [
   { key: 'money', label: 'Заработок', unit: 'money' },
   { key: 'orders', label: 'Заказы', unit: 'plain' },
@@ -73,6 +80,8 @@ const RTC_COURIERS = [
 // демо-цифры за прошлую неделю
 const RTC_ME = { money: 27240, orders: 92, tips: 105, hour: 650, dist: 210 };
 // демо-место среди всех участников города по каждому показателю
+const RTC_ME_OUT = { money: 1840, orders: 6, tips: 0, hour: 460, dist: 24 };
+const RTC_TOP_MIN_ORDERS = 20;
 const RTC_MY_RANK = { money: 28, orders: 64, tips: 118, hour: 71, dist: 56 };
 // прошлая неделя пн–вс и прошлый месяц от сегодня
 const RTC_PERIODS = (() => {
@@ -98,13 +107,23 @@ class Component extends DCLogic {
     const scaled = (o) => Object.keys(o).reduce((a, m) => Object.assign(a, { [m]: Math.round(o[m] * k(m)) }), {});
     const couriers = RTC_COURIERS.map(scaled);
     // свои цифры за прошлую неделю приходят из приложения, те же, что в профиле
-    const meWeek = Object.assign({}, RTC_ME, p.me || {});
+    // в демо: мало заказов, чтобы попасть в топ, или в городе всего четыре участника
+    const out = p.edge === 'out';
+    const few = p.edge === 'few' && scope === 'city';
+    const meWeek = out ? Object.assign({}, RTC_ME_OUT) : Object.assign({}, RTC_ME, p.me || {});
     const me = Object.keys(meWeek).reduce((a, m) => Object.assign(a, { [m]: Math.round(meWeek[m] * (period === 'month' && m !== 'hour' ? 4.2 : 1)) }), {});
     const myRank = Object.keys(RTC_MY_RANK).reduce((a, m) => Object.assign(a, { [m]: RTC_MY_RANK[m] * (scope === 'all' ? 9 : 1) + (period === 'month' ? 3 : 0) }), {});
     const ranked = couriers.slice().sort((a, b) => b[metric] - a[metric]);
     const scopeLabel = scope === 'all' ? 'Все города' : 'Москва';
+    // мало участников: весь город одним списком, вы в нём же
+    const fewList = few ? couriers.slice(0, 3).map((c) => ({ c, me: false })).concat([{ c: me, me: true }]).sort((a, b) => b.c[metric] - a.c[metric]) : [];
+    const fewRank = fewList.findIndex((x) => x.me) + 1;
     return {
       onBack: p.onBack || (() => {}),
+      out, few, show_near: !few,
+      on_plan: p.onPlan || (() => {}),
+      show_all: () => set({ scope: 'all' }),
+      list_title: few ? 'Всего ' + fewList.length + ' участника · ' + scopeLabel : 'Лидеры · ' + scopeLabel,
       scope_label: scopeLabel,
       // показатель, охват и период чипами со шторкой, как на остальных экранах
       filters: [
@@ -114,19 +133,19 @@ class Component extends DCLogic {
       ],
       set_filter: (key, v) => set({ [key]: v }),
       // размер выборки: все участники города, по всем городам в девять раз больше
-      my_place: myRank[metric] + ' из ' + rtcFmt(scope === 'all' ? 11160 : 1240),
+      my_place: out ? 'Вне топа' : few ? fewRank + ' из ' + fewList.length : myRank[metric] + ' из ' + rtcFmt(scope === 'all' ? 11160 : 1240),
       // соседи по месту в демо на 4% выше и 3% ниже вас
-      gap_label: (() => { const up = Math.max(1, Math.round(me[metric] * 0.043)); return 'До ' + (myRank[metric] - 1) + ' места ещё ' + rtcVal(up, md.unit); })(),
-      near: [
+      gap_label: out ? 'Ещё ' + (RTC_TOP_MIN_ORDERS - RTC_ME_OUT.orders) + ' заказов, и вы в топе' : (() => { const up = Math.max(1, Math.round(me[metric] * 0.043)); return 'До ' + (myRank[metric] - 1) + ' места ещё ' + rtcVal(up, md.unit); })(),
+      near: out ? [] : [
         { rank: myRank[metric] - 1, name: 'Курьер', val: rtcVal(me[metric] + Math.max(1, Math.round(me[metric] * 0.043)), md.unit), cls: 'rtc-near-row' },
         { rank: myRank[metric], name: 'Вы', val: rtcVal(me[metric], md.unit), cls: 'rtc-near-row rtc-is-me' },
         { rank: myRank[metric] + 1, name: 'Курьер', val: rtcVal(Math.round(me[metric] * 0.97), md.unit), cls: 'rtc-near-row' }
       ].map((n) => Object.assign(n, { rank: String(n.rank) })),
-      my_sub: 'Вы · ' + scopeLabel + ' · велосипед',
+      my_sub: out ? 'В топе от ' + RTC_TOP_MIN_ORDERS + ' заказов за неделю' : 'Вы · ' + scopeLabel + ' · велосипед',
       my_val: rtcVal(me[metric], md.unit),
       my_metric: md.label,
-      rows: ranked.map((c, i) => ({
-        rank: String(i + 1),
+      rows: few ? fewList.map((x, i) => ({ rank: String(i + 1), cls: x.me ? 'rtc-row rtc-is-me' : 'rtc-row', val: (x.me ? 'Вы · ' : '') + rtcVal(x.c[metric], md.unit) })) : ranked.map((c, i) => ({
+        rank: String(i + 1), cls: 'rtc-row',
         val: rtcVal(c[metric], md.unit)
       })),
     };

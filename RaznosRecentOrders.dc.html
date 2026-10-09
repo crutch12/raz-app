@@ -38,6 +38,7 @@
 </helmet>
 <div class="rro">
   <div class="rro-head"><span class="rro-title">{{ title }}</span><button type="button" class="rro-all" onClick="{{ on_all }}">Показать все</button></div>
+  <sc-if value="{{ is_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" glyph="₽" title="Заказов пока нет" text="Первый появится здесь сразу после доставки" actionLabel="Где сейчас выгоднее" actionSmall="{{ true }}" onAction="{{ on_empty }}" compact="{{ true }}"></dc-import></sc-if>
   <sc-for list="{{ rows }}" as="o" hint-placeholder-count="3">
     <div class="rro-row">
       <button type="button" class="{{ o.openClass }}" onClick="{{ o.openOrder }}">
@@ -130,7 +131,7 @@
   </sc-if>
 
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"onAll":{"editor":null},"onOpenOrder":{"editor":null},"onOpenTrip":{"editor":null},"onAddExpense":{"editor":null},"onSaveTip":{"editor":null},"$preview":{"width":390,"height":260}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"empty":{"editor":"boolean","default":false},"onEmpty":{"editor":null},"onAll":{"editor":null},"onOpenOrder":{"editor":null},"onOpenTrip":{"editor":null},"onAddExpense":{"editor":null},"onSaveTip":{"editor":null},"$preview":{"width":390,"height":260}}'>
 // последние заказы для раздела Сегодня, плюс у заказа открывает меню: чаевые, расход, отзыв, заметка
 const RRO_SVC = { samokat: 'Самокат', vkusvill: 'ВкусВилл', 'yandex-eda': 'Яндекс Еда' };
 const RRO_DEMO = [
@@ -152,7 +153,8 @@ class Component extends DCLogic {
     const onOpenTrip = typeof p.onOpenTrip === 'function' ? p.onOpenTrip : (() => {});
     const onAddExpense =typeof p.onAddExpense === 'function' ? p.onAddExpense : null;
     const onSaveTip = typeof p.onSaveTip === 'function' ? p.onSaveTip : (() => {});
-    const src = (p.orders && p.orders.length) ? p.orders : RRO_DEMO;
+    // пустой день показываем честно, без подстановки демо-заказов
+    const src = p.empty ? [] : (p.orders && p.orders.length) ? p.orders : RRO_DEMO;
     const amt = st.amt == null ? 100 : st.amt;
     const menuId = st.menuId || null;
     const openId = st.openId || null;
@@ -200,6 +202,7 @@ class Component extends DCLogic {
       // до смены и в выходной показываем прошлый рабочий день, дата в заголовке
       title: p.dayLabel ? 'Последние заказы · ' + p.dayLabel : 'Последние заказы',
       on_all: onAll,
+      is_empty: !!p.empty, on_empty: typeof p.onEmpty === 'function' ? p.onEmpty : (() => {}),
       rows,
       menu_items: RRO_ORDER_MENU,
       menu_pick: menuPick,

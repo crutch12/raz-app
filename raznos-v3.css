@@ -115,6 +115,8 @@ a:hover { color: var(--raznos-ink); }
 .raznos-demo-toggles { display: flex; flex-direction: column; gap: 14px; }
 .raznos-demo-toggle { display: flex; flex-direction: column; gap: 8px; }
 .raznos-demo-toggle-title { font: 650 14px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-demo-toggle-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.raznos-demo-toggle-go { flex: none; min-height: 44px; margin: -10px -4px -10px 0; padding: 0 4px 0 12px; background: none; border: 0; cursor: pointer; font: 600 14px var(--raznos-font); color: var(--raznos-green-deep); }
 .raznos-demo-ribbon-close:focus { outline: 2px solid var(--raznos-on-dark); outline-offset: 2px; }
 .raznos-phone-scroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; overscroll-behavior-x: none; overscroll-behavior-y: contain; }
 /* потянуть, чтобы обновить: фирменная Р крутится вслед за пальцем, после порога зеленеет, при обновлении вращается, в конце галочка */
@@ -230,6 +232,8 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 .raznos-status-pill { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font: 600 14px var(--raznos-font); white-space: nowrap; flex: none; max-width: 45%; overflow: hidden; text-overflow: ellipsis; } /* статус не сжимает название сервиса */
 .raznos-list-row .raznos-status-pill { white-space: normal; text-align: center; }
 .raznos-market-row { row-gap: 6px; }
+/* плашка под названием сервиса, а не рядом, ограничение ширины ей не нужно */
+.raznos-market-row .raznos-status-pill { max-width: 100%; }
 .raznos-pill-ok { background: var(--raznos-green-tint); color: var(--raznos-green-deep); }
 .raznos-pill-warn { background: var(--raznos-amber-tint); color: var(--raznos-amber); }
 .raznos-pill-error { background: var(--raznos-red-tint); color: var(--raznos-red); }
@@ -347,6 +351,7 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 
 /* Пусто/состав */
 .raznos-empty-state { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 36px 16px; }
+.raznos-empty-state-compact { padding: 12px 8px 4px; }
 .raznos-empty-glyph { width: 56px; height: 62px; clip-path: var(--raznos-hex); background: var(--raznos-surface-2); border: 1px solid var(--raznos-line); display: flex; align-items: center; justify-content: center; font: 700 24px var(--raznos-font); font-variant-numeric: tabular-nums; color: var(--raznos-ink-2); }
 .raznos-breakdown-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--raznos-line); font: 500 14px var(--raznos-font); }
 .raznos-breakdown-row:last-child { border-bottom: 0; }
@@ -537,6 +542,11 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 /* Блокирующий вопрос поверх экрана: уход с изменённой формы */
 /* обёртка шторки не занимает место в колонке экрана, иначе при открытии блоки ниже съезжают на отступ */
 .sc-host:has(> .raznos-dialog-layer:only-child) { display: contents; }
+/* тур подсказок: слой не мешает нажимать экран, тултип переезжает между целями */
+.raznos-tour-layer { position: absolute; inset: 0; z-index: 70; pointer-events: none; }
+.raznos-tour-tip { position: absolute; left: 12px; top: 0; width: 300px; pointer-events: auto; opacity: 0; }
+@media (prefers-reduced-motion: no-preference) { .raznos-tour-tip { transition: left .32s cubic-bezier(.16, 1, .3, 1), top .32s cubic-bezier(.16, 1, .3, 1), opacity .2s ease; } }
+.raznos-tour-target { position: relative; z-index: 1; box-shadow: 0 0 0 3px color-mix(in oklab, var(--raznos-green) 60%, transparent); border-radius: 12px; }
 .raznos-dialog-layer { position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 24px; background: oklch(0.22 0.012 250 / 0.42); }
 .raznos-dialog { width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 18px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); box-shadow: 0 18px 44px rgba(20, 25, 40, 0.28); }
 .raznos-dialog .raznos-btn-row { gap: 8px; }

@@ -1,0 +1,56 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* подсказка тура: тёмный тултип с хвостиком, хвостик смотрит на элемент через --rtt-arrow */
+    .rtt { position: relative; box-sizing: border-box; width: 100%; display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 12px; border-radius: 16px; background: var(--raznos-dark); color: var(--raznos-on-dark); box-shadow: 0 12px 30px rgba(20, 25, 40, 0.28); font-family: var(--raznos-font); }
+    .rtt-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .rtt-step { font: 600 12px var(--raznos-font); opacity: 0.7; font-variant-numeric: tabular-nums; }
+    .rtt-skip { min-height: 32px; padding: 0 2px; border: 0; background: none; font: 600 13px var(--raznos-font); color: var(--raznos-on-dark); opacity: 0.75; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+    .rtt-title { font: 750 16px var(--raznos-font); }
+    .rtt-text { margin: 0; font: 500 14px/1.4 var(--raznos-font); opacity: 0.9; }
+    .rtt-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+    .rtt-btn { min-height: 40px; padding: 0 16px; border-radius: 999px; border: 0; font: 650 14px var(--raznos-font); cursor: pointer; }
+    .rtt-btn-ghost { background: transparent; color: var(--raznos-on-dark); }
+    .rtt-btn-main { background: #fff; color: var(--raznos-dark); }
+    .rtt-btn:focus-visible, .rtt-skip:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+    .rtt-arrow { position: absolute; left: var(--rtt-arrow, 50%); bottom: -7px; width: 14px; height: 14px; background: var(--raznos-dark); transform: translateX(-50%) rotate(45deg); border-radius: 2px; }
+    .rtt.rtt-below .rtt-arrow { bottom: auto; top: -7px; }
+  </style>
+</helmet>
+<div class="{{ cls }}" role="dialog" aria-label="{{ aria }}">
+  <div class="rtt-head"><span class="rtt-step">{{ step_label }}</span><button type="button" class="rtt-skip" onClick="{{ skip }}">Пропустить</button></div>
+  <b class="rtt-title">{{ title }}</b>
+  <p class="rtt-text">{{ text }}</p>
+  <div class="rtt-actions">
+    <sc-if value="{{ has_prev }}" hint-placeholder-val="{{ true }}"><button type="button" class="rtt-btn rtt-btn-ghost" onClick="{{ prev }}">Назад</button></sc-if>
+    <button type="button" class="rtt-btn rtt-btn-main" onClick="{{ next }}">{{ next_label }}</button>
+  </div>
+  <i class="rtt-arrow" aria-hidden="true"></i>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "step": { "editor": "int", "default": 1 },
+  "total": { "editor": "int", "default": 6 },
+  "title": { "editor": "text", "default": "Сегодня" },
+  "text": { "editor": "text", "default": "Сколько заработали сегодня и что дальше по сменам" },
+  "below": { "editor": "boolean", "default": false },
+  "onPrev": { "editor": null },
+  "onNext": { "editor": null },
+  "onSkip": { "editor": null },
+  "$preview": { "width": 320, "height": 190 }
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const step = p.step || 1, total = p.total || 1;
+    const fn = (f) => (typeof f === 'function' ? f : () => {});
+    return {
+      cls: 'rtt' + (p.below ? ' rtt-below' : ''),
+      aria: 'Подсказка ' + step + ' из ' + total,
+      step_label: step + ' из ' + total,
+      title: p.title || '', text: p.text || '',
+      has_prev: step > 1, prev: fn(p.onPrev), next: fn(p.onNext), skip: fn(p.onSkip),
+      next_label: step >= total ? 'Готово' : 'Дальше'
+    };
+  }
+}
+</script></body></html>

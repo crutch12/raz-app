@@ -6,11 +6,7 @@
     <sc-for list="{{ transports }}" as="t" hint-placeholder-count="5"><button type="button" class="{{ t.cls }}" onClick="{{ t.tap }}">{{ t.label }}</button></sc-for>
   </div>
   <sc-if value="{{ no_city_data }}" hint-placeholder-val="{{ false }}">
-    <div class="raznos-empty-state">
-      <span class="raznos-empty-glyph">?</span>
-      <span class="raznos-text-h3">По этому городу статистики пока нет</span>
-      <p class="raznos-text-small">Покажем медианы, когда в городе появятся курьеры Разноса</p>
-    </div>
+    <dc-import name="RaznosEmptyState" glyph="?" title="По этому городу статистики пока нет" text="Покажем медианы, когда в городе появятся курьеры Разноса"></dc-import>
   </sc-if>
   <sc-if value="{{ has_city_data }}" hint-placeholder-val="{{ true }}">
     <dc-import name="RaznosCohortCompare" city="{{ city }}" mineCity="{{ mineCity }}" transport="{{ transport }}" period="{{ period }}" svc="all" mine="{{ mine }}" title="{{ compare_title }}"></dc-import>
