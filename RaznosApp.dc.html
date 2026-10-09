@@ -3666,7 +3666,8 @@
           const fresh = !!(opts && opts.fresh);
           const p = fresh ? {} : (this.props || {});
           const hashState = !fresh && (!p.initialScreen || p.initialScreen === 'welcome') && typeof window !== 'undefined' && window.location ? routeStateOf(window.location.hash) : null;
-          const demoOn = hashState ? true : !!p.initialDemo;
+          // со старта на онбординге демо выключено, его включают кнопкой Посмотреть демо; глубокие ссылки и экраны прототипа в демо как раньше
+          const demoOn = hashState ? true : (!!p.initialDemo && !!p.initialScreen && p.initialScreen !== 'welcome');
           const prevLanguage = fresh && this.state ? this.state.language : null;
           const patch = {
             s: fresh ? 'auth' : (hashState ? hashState.s : (p.initialScreen || 'welcome')),
@@ -4448,7 +4449,7 @@
             }
           }
           const role = st.role || props.initialRole || 'courier';
-          const demoOn = st.demoOn != null ? st.demoOn : !!props.initialDemo;
+          const demoOn = st.demoOn != null ? st.demoOn : (!!props.initialDemo && !!props.initialScreen && props.initialScreen !== 'welcome');
           // пустые и крайние случаи из Настроек демо, без переключателя демо заполнено
           const edge = demoOn ? (st.demoEdge || {}) : {};
           const edgeKeepOrder = (o) => edge.history !== 'empty' && !(edge.today === 'zero' && o.dateISO === TODAY_ISO);
