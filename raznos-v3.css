@@ -227,7 +227,7 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 .raznos-head-side { flex: none; white-space: nowrap; }
 
 /* Статус-плашки */
-.raznos-status-pill { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font: 600 14px var(--raznos-font); white-space: nowrap; flex: none; }
+.raznos-status-pill { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font: 600 14px var(--raznos-font); white-space: nowrap; flex: none; max-width: 45%; overflow: hidden; text-overflow: ellipsis; } /* статус не сжимает название сервиса */
 .raznos-list-row .raznos-status-pill { white-space: normal; text-align: center; }
 .raznos-market-row { row-gap: 6px; }
 .raznos-pill-ok { background: var(--raznos-green-tint); color: var(--raznos-green-deep); }

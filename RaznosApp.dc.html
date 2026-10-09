@@ -1273,6 +1273,7 @@
             <div class="raznos-phone-body" data-screen-label="Demo settings">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ demo_settings_back }}" aria-label="Назад">‹</button><h1 class="raznos-text-h1" style="margin:0">Настройки демо</h1></div>
               <p class="raznos-text-small">Переключатели меняют данные на месте, сценарии открывают нужный экран. Назад возвращает сюда</p>
+              <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ demo_reset }}">Сбросить демо</button>
               <span class="raznos-text-h3">Состояние</span>
               <div class="raznos-card raznos-card-pad raznos-demo-toggles">
                 <sc-for list="{{ demo_toggles }}" as="tg" hint-placeholder-count="5">
@@ -2979,7 +2980,7 @@
       const SYNC_RESULT_LABELS = { ok: ['Обновлено', 'connected'], partial: ['Частично', 'rate'], offline: ['Нет связи', 'relogin'], relogin: ['Нужен вход', 'relogin'], rate: ['Ограничение', 'rate'] };
       // демо: комментарии клиентов к заказам, в реальности текст приходит из сервиса
       const DEMO_CLIENT_NOTES = ['Подъезд 2, код 45К, позвоните за 5 минут', 'Оставьте у двери, ребёнок спит', 'Домофон не работает, наберите на телефон', 'Этаж 7, лифт только грузовой', 'Встречу у шлагбаума'];
-      const HEALTH_PILL = { device: 'Войдите на этом телефоне', relogin: 'Нужен вход', offline: 'Нет связи', rate: 'Ограничение', error: 'Ошибка сервиса' };
+      const HEALTH_PILL = { device: 'Новый телефон', relogin: 'Нужен вход', offline: 'Нет связи', rate: 'Ограничение', error: 'Ошибка сервиса' };
       function ruPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
       // демо-время сегодня 15:40, давние обновления показываем датой и временем
       function syncAgoLabel(min) {
@@ -5187,7 +5188,7 @@
             : syncAgoLabel(syncAgo[k]));
           const healthNoteOf = (k, state) => {
             if (state === 'relogin') return 'Последние данные: ' + syncAgoLabel(syncAgo[k]).replace('Обновлено ', '') + ', новые не приходят';
-            if (state === 'device') return 'На этом телефоне ещё не входили, загруженное раньше видно';
+            if (state === 'device') return 'Войдите заново, прошлые данные на месте';
             if (state === 'offline') return syncLabelOf(k) + ', повторяем с паузой';
             if (state === 'rate') return syncLabelOf(k) + ', повторим в 15:52';
             if (state === 'error') return 'Повторим автоматически, команды заказа доступны в приложении сервиса';
@@ -7471,6 +7472,8 @@
             // Настройки демо: переключатели состояния и сценарии по разделам, описание в artifacts/design/DEMO-SCENARIOS.md
             demo_go_settings: () => set({ s: 'demo-settings' }),
             demo_settings_back: navBack(() => set({ s: role === 'courier' ? 'courier-home' : 'user-home' })),
+            // сброс: все данные и переключатели демо как при первом входе, остаёмся в настройках
+            demo_reset: () => { this.setState(Object.assign({}, this.buildInitialState({ fresh: true }), buildDemoSeed(), { s: 'demo-settings', demoOn: true, role: 'courier', language: st.language, homeDay: '', homeShiftOn: true, netOffline: false, svcHealth: {}, planChangeHidden: false, pvPublic: true, appTheme: '', city: 'moscow', mkCity: 'moscow', transport: 'bike', workGoal: null })); uxShowToast('Демо сброшено', '', null); },
             demo_toggles: (() => {
               const health = st.svcHealth || {};
               const hv = Object.keys(health).map((k) => health[k]);
@@ -7482,6 +7485,11 @@
                 row('Связь с сервисами', conn, [['ok', 'Всё работает', { netOffline: false, svcHealth: {} }], ['net', 'Нет интернета', { netOffline: true, svcHealth: {} }], ['svc', 'Сервис не отвечает', { netOffline: false, svcHealth: { vkusvill: 'offline' } }], ['relogin', 'Войти заново', { netOffline: false, svcHealth: { samokat: 'relogin' } }], ['device', 'Новый телефон', { netOffline: false, svcHealth: { samokat: 'device', vkusvill: 'device' } }]]),
                 row('Изменилось без вас', st.planChangeHidden ? 'no' : 'yes', [['yes', 'Показывать', { planChangeHidden: false }], ['no', 'Нет', { planChangeHidden: true }]]),
                 row('Профиль опубликован', st.pvPublic === false ? 'no' : 'yes', [['yes', 'Да', { pvPublic: true }], ['no', 'Нет', { pvPublic: false }]]),
+                row('Подключено сервисов', !st.integrationStatus || Object.keys(st.integrationStatus).length >= 3 ? 'all' : Object.keys(st.integrationStatus).length === 1 ? 'one' : Object.keys(st.integrationStatus).length === 0 ? 'none' : 'all', [['all', 'Пять', { integrationStatus: buildDemoSeed().integrationStatus }], ['one', 'Один', { integrationStatus: { vkusvill: 'connected' } }]]),
+                row('Город', st.city === 'spb' ? 'spb' : 'moscow', [['moscow', 'Москва', { city: 'moscow', mkCity: 'moscow' }], ['spb', 'Петербург', { city: 'spb', mkCity: 'spb' }]]),
+                row('Транспорт', st.transport || 'bike', [['foot', 'Пешком', { transport: 'foot' }], ['bike', 'Велосипед', { transport: 'bike' }], ['car', 'Авто', { transport: 'car' }]]),
+                row('Цель недели', !st.workGoal || st.workGoal === WORK_WEEK_GOAL ? 'plan' : st.workGoal < WORK_WEEK_GOAL ? 'done' : 'behind', [['done', 'Выполнена', { workGoal: 15000 }], ['plan', 'Идёт по плану', { workGoal: WORK_WEEK_GOAL }], ['behind', 'Сильно отстаёт', { workGoal: 60000 }]]),
+                row('Роль', role, [['courier', 'Курьер', { role: 'courier' }], ['user', 'Ищу работу', { role: 'user' }]]),
                 row('Тема', st.appTheme || '', [['', 'Как в системе', { appTheme: '' }], ['light', 'Светлая', { appTheme: 'light' }], ['dark', 'Тёмная', { appTheme: 'dark' }]])
               ];
             })(),
