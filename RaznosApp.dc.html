@@ -215,20 +215,30 @@
                       <sc-for list="{{ today_sheet_svcs }}" as="sv" hint-placeholder-count="2"><button type="button" class="raznos-day-svc" onClick="{{ sv.tap }}"><dc-import name="RaznosIcon" svc="{{ sv.key }}" alt="{{ sv.title }}" size="sm"></dc-import><span class="raznos-day-svc-main"><span class="raznos-day-svc-top"><span class="raznos-day-svc-name">{{ sv.title }}<small>{{ sv.count }}</small></span><b>{{ sv.sum }} ₽</b></span><i class="raznos-day-bar" aria-hidden="true"><i style="{{ sv.bar }}"></i></i></span><span class="raznos-row-chevron" aria-hidden="true">›</span></button></sc-for>
                       <sc-if value="{{ today_fines_show }}" hint-placeholder-val="{{ true }}"><div class="raznos-day-line raznos-day-fines"><span>Удержано сервисами</span><b class="raznos-day-minus">{{ today_fines_label }}</b></div></sc-if>
                       <div class="raznos-day-exp"><button type="button" class="raznos-day-exp-open" onClick="{{ today_sheet_expenses }}"><span class="raznos-day-exp-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 14.5h2"/></svg></span><span class="raznos-day-svc-name">Расходы<small>{{ today_exp_sub }}</small></span><b class="{{ today_exp_cls }}">{{ today_exp_sum }}</b><span class="raznos-row-chevron" aria-hidden="true">›</span></button><button type="button" class="raznos-day-exp-add" onClick="{{ today_sheet_add_expense }}" aria-label="Добавить расход"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
+                      <!-- чаевые такой же строкой, как расходы: нажатие открывает разбивку, плюс добавляет наличные -->
+                      <div class="raznos-day-exp raznos-day-tips"><button type="button" class="raznos-day-exp-open" onClick="{{ today_tips_open }}"><span class="raznos-day-exp-ico raznos-day-tips-ico" aria-hidden="true">₽</span><span class="raznos-day-svc-name">Чаевые<small>за сегодня</small></span><b>{{ today_tips_sheet_value }}</b><span class="raznos-row-chevron" aria-hidden="true">›</span></button><button type="button" class="raznos-day-exp-add" onClick="{{ qt_open_tap }}" aria-label="Добавить наличные чаевые"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
                       <div class="raznos-day-line raznos-day-line-head"><span>Чистыми</span><b>{{ today_remain_label }} ₽</b></div>
                     </div>
-                    <!-- чаевые сразу под деньгами, видны без прокрутки, плюс добавляет наличные -->
-                    <sc-if value="{{ today_tips_block }}" hint-placeholder-val="{{ true }}"><div class="raznos-day-card">
-                      <div class="raznos-day-line raznos-day-line-head"><span>Чаевые</span><span class="raznos-fx raznos-ac raznos-gap8"><b>{{ today_tips_sheet_value }}</b><button type="button" class="raznos-day-exp-add" onClick="{{ qt_open_tap }}" aria-label="Добавить наличные чаевые"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></span></div>
-                      <sc-for list="{{ today_tips_rows }}" as="tr" hint-placeholder-count="2"><div class="raznos-day-tip"><sc-if value="{{ tr.svc }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosIcon" svc="{{ tr.key }}" alt="{{ tr.title }}" size="sm"></dc-import></sc-if><sc-if value="{{ tr.cash }}" hint-placeholder-val="{{ false }}"><span class="raznos-day-tip-cash" aria-hidden="true">₽</span></sc-if><span class="raznos-day-svc-name">{{ tr.title }}<small>{{ tr.src }}</small></span><b>{{ tr.sum }}</b></div></sc-for>
-                      <sc-if value="{{ today_tips_none_show }}" hint-placeholder-val="{{ true }}"><div class="raznos-day-tip-none"><span class="raznos-day-tip-none-icons"><sc-for list="{{ today_tips_none }}" as="tz" hint-placeholder-count="2"><dc-import name="RaznosIcon" svc="{{ tz.key }}" alt="{{ tz.title }}" size="sm"></dc-import></sc-for></span><span>{{ today_tips_none_text }}</span></div></sc-if>
-                    </div></sc-if>
                     <div class="raznos-day-card raznos-day-goal">
                       <div class="raznos-day-line raznos-day-line-head"><span>Цель на сегодня</span><b>{{ today_earn_label }} из {{ today_target }} ₽</b></div>
                       <i class="raznos-day-bar raznos-day-bar-goal" aria-hidden="true"><i style="{{ today_pace_style }}"></i></i>
                       <span class="raznos-day-note">{{ today_goal_short }}</span>
                     </div>
                     <div class="raznos-day-foot"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ today_sheet_recap }}">Предварительный итог дня</button></div>
+                  </div>
+                </div>
+              </sc-if>
+              <!-- чаевые за сегодня: разбивка по сервисам и наличным поверх шторки дня, закрытие возвращает в неё -->
+              <sc-if value="{{ tips_day_sheet }}" hint-placeholder-val="{{ false }}">
+                <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Чаевые за сегодня">
+                  <div class="raznos-dialog raznos-day-sheet">
+                    <div class="raznos-day-head"><span class="raznos-text-h3">Чаевые за сегодня</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ today_tips_close }}" aria-label="Закрыть">×</button></div>
+                    <div class="raznos-day-card">
+                      <div class="raznos-day-line raznos-day-line-head"><span>Всего</span><b>{{ today_tips_sheet_value }}</b></div>
+                      <sc-for list="{{ today_tips_rows }}" as="tr" hint-placeholder-count="2"><div class="raznos-day-tip"><sc-if value="{{ tr.svc }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosIcon" svc="{{ tr.key }}" alt="{{ tr.title }}" size="sm"></dc-import></sc-if><sc-if value="{{ tr.cash }}" hint-placeholder-val="{{ false }}"><span class="raznos-day-tip-cash" aria-hidden="true">₽</span></sc-if><span class="raznos-day-svc-name">{{ tr.title }}<small>{{ tr.src }}</small></span><b>{{ tr.sum }}</b></div></sc-for>
+                      <sc-if value="{{ today_tips_none_show }}" hint-placeholder-val="{{ true }}"><div class="raznos-day-tip-none"><span class="raznos-day-tip-none-icons"><sc-for list="{{ today_tips_none }}" as="tz" hint-placeholder-count="2"><dc-import name="RaznosIcon" svc="{{ tz.key }}" alt="{{ tz.title }}" size="sm"></dc-import></sc-for></span><span>{{ today_tips_none_text }}</span></div></sc-if>
+                    </div>
+                    <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ qt_open_tap }}">Добавить наличные</button>
                   </div>
                 </div>
               </sc-if>
@@ -722,7 +732,7 @@
                 <span class="raznos-text-small">Итого за маршрут</span>
                 <span class="raznos-metric-value">{{ trip_total }} ₽</span>
                 <div class="raznos-fx raznos-ac raznos-gap8 raznos-wrap"><span class="{{ trip_status_pill_class }}">{{ trip_status }}</span><span class="raznos-text-tiny">{{ trip_money }}</span></div>
-                <p class="raznos-text-tiny">{{ trip_pay_note }}</p>
+                <sc-if value="{{ trip_pay_whole }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">Оплата за маршрут целиком, по заказам сервис её не делит</p></sc-if>
                 <sc-if value="{{ trip_distance_known }}" hint-placeholder-val="{{ false }}"><div class="raznos-breakdown-row"><span>Расстояние маршрута</span><span class="raznos-num">{{ trip_distance }}</span></div></sc-if>
               </div>
               <dc-import name="RaznosOrderLink" svc="{{ trip_svc }}" svcTitle="{{ trip_svc_title }}" orderNo="{{ trip_title }}" orderRef="{{ trip_link_ref }}" orderState="done" app="{{ order_link_app }}" launch="{{ order_link_launch }}" resetKey="{{ state_gen }}"></dc-import>
@@ -4057,6 +4067,8 @@
         // подсказка тура встаёт над своей целью, хвостик смотрит в её центр, между вкладками переезжает плавно
         _tourPlace() {
           if (typeof document === 'undefined') return;
+          // тур закончился или его пропустили: снимаем подсветку цели
+          requestAnimationFrame(() => { if (!document.querySelector('.raznos-tour-layer')) document.querySelectorAll('.raznos-tour-target').forEach((x) => x.classList.remove('raznos-tour-target')); });
           requestAnimationFrame(() => document.querySelectorAll('.raznos-tour-layer').forEach((layer) => {
             const frame = layer.closest('.raznos-phone-frame');
             const tip = layer.querySelector('.raznos-tour-tip');
@@ -4080,6 +4092,8 @@
             const left = Math.max(12, Math.min(fr.width - w - 12, cx - w / 2));
             const below = step === 0 && tr.top - fr.top < h + 80;
             const top = below ? tr.bottom - fr.top + 12 : tr.top - fr.top - h - 12;
+            // первый показ сразу на месте, без переезда из угла; дальше между шагами плавно
+            if (!tip.__placed) { tip.style.transition = 'none'; Object.assign(tip.style, { width: w + 'px', left: left + 'px', top: top + 'px' }); void tip.offsetWidth; tip.style.transition = ''; tip.__placed = true; }
             Object.assign(tip.style, { width: w + 'px', left: left + 'px', top: top + 'px', opacity: '1' });
             // хвостик с той стороны, где на самом деле цель
             const tipBox = tip.querySelector('.rtt'); if (tipBox) tipBox.classList.toggle('rtt-below', below);
@@ -6050,7 +6064,7 @@
             transport_options: transportOptions, transport_hint: transportHint,
             confirm_city: () => set({ s: role === 'courier' ? 'courier-empty' : 'user-home', tourStep: role === 'courier' && st.tipsOn !== false && !st.tourDone ? 0 : null, demoOn: false, expManual: null, expRecurring: null, expTemplates: null, expFormId: '', expFormDraft: null, recFormId: '', recFormDraft: null }),
 
-            go_integrations: () => { if (role === 'courier') set({ s: 'integrations' }); }, start_demo: () => set(Object.assign(buildDemoSeed(), connectedKeys.length ? { integrationStatus } : {}, { s: 'courier-home', demoReturnState: Object.assign({}, this.state, { demoReturnState: null }), demoOn: true, expManual: null, expRecurring: null, expTemplates: null, expFormId: '', expFormDraft: null, recFormId: '', recFormDraft: null })), demo_close: () => { const cur2 = this.state; this._stateGen = (this._stateGen || 0) + 1; clearTimeout(this._acceptTimer); this._acceptTimer = null; const snap = cur2.demoReturnState; const base = snap || Object.assign({}, this.buildInitialState({ fresh: true }), { phoneInput: cur2.phoneInput, city: cur2.city, mkCity: cur2.mkCity }); this.setState(Object.assign({}, base, { s: cur2.role === 'user' ? 'user-home' : 'courier-empty', role: cur2.role, language: cur2.language, demoOn: false, demoReturnState: null, workOn: false, activeAccepted: false, workPaused: false, acceptStage: 'idle' })); },
+            go_integrations: () => { if (role === 'courier') set({ s: 'integrations' }); }, start_demo: () => set(Object.assign(buildDemoSeed(), connectedKeys.length ? { integrationStatus } : {}, { s: 'courier-home', demoReturnState: Object.assign({}, this.state, { demoReturnState: null }), demoOn: true, expManual: null, expRecurring: null, expTemplates: null, expFormId: '', expFormDraft: null, recFormId: '', recFormDraft: null })), demo_close: () => { const cur2 = this.state; this._stateGen = (this._stateGen || 0) + 1; clearTimeout(this._acceptTimer); this._acceptTimer = null; const snap = cur2.demoReturnState; const base = snap || Object.assign({}, this.buildInitialState({ fresh: true }), { phoneInput: cur2.phoneInput, city: cur2.city, mkCity: cur2.mkCity }); this.setState(Object.assign({}, base, { s: cur2.role === 'user' ? 'user-home' : 'courier-empty', role: cur2.role, language: cur2.language, demoOn: false, demoReturnState: null, tipsOn: cur2.tipsOn, tourDone: cur2.tourDone, tourStep: cur2.tourDone ? null : cur2.tourStep, workOn: false, activeAccepted: false, workPaused: false, acceptStage: 'idle' })); },
 
             today_earn: todayEarn, today_expenses: formatMoney(todayExpenses), today_hours: todayHours, today_orders: todayOrders,
             today_hourly: todayHourly, vv_earn: vvEarn, samokat_earn: samokatEarn, today_tips_digital: todayTipsDigital,
@@ -7213,7 +7227,7 @@
             ord_delivery: ordSource.delivery, ord_delivery_pill_class: ordSource.delivery === 'Возврат' ? 'raznos-status-pill raznos-pill-warn' : (ordSource.delivery === 'Отменён' ? 'raznos-status-pill raznos-pill-error' : 'raznos-status-pill raznos-pill-ok'),
             trip_link_ref: (tripSel.orders[0] || { orderNo: '' }).orderNo.replace('№', ''), trip_svc: tripSel.t.svc, trip_svc_title: tripSel.t.svcTitle, trip_title: tripSel.title, trip_when: tripSel.day + ', ' + tripSel.time,
             trip_total: formatMoney(tripSel.total), trip_status: tripSel.status, trip_status_pill_class: tripSel.partial ? 'raznos-status-pill raznos-pill-warn' : 'raznos-status-pill raznos-pill-ok',
-            trip_money: tripSel.money, trip_pay_note: tripSel.t.breakdown ? 'Сервис отдаёт разбивку по заказам' : 'Оплата за маршрут целиком, по заказам сервис её не делит',
+            trip_money: tripSel.money, trip_pay_whole: !tripSel.t.breakdown,
             trip_distance_known: !!tripSel.t.distance, trip_distance: tripSel.t.distance, trip_stops: tripStops,
             trip_back: navBack(() => set(st.tripBack === 'home' ? { s: readyHome ? 'courier-home' : 'courier-empty' } : { s: 'history', histBack: '', histSvc: 'all', histDistrict: 'all' })),
             ord_in_trip:!!ordTrip, ord_trip_label: ordTrip ? 'Часть маршрута из ' + ordTrip.count + ' ' + ruPlural(ordTrip.count, 'заказа', 'заказов', 'заказов') : '',
@@ -8197,7 +8211,8 @@
             // расход сейчас: быстрая шторка на Сегодня вместо полной формы
             go_expense_form_from_home: (e) => { if (e && e.stopPropagation) e.stopPropagation(); set({ quickExp: true, todaySheet: false }); },
             // чаевые наличными сейчас: шторка с суммой в фокусе, чипы трёх последних заказов
-            qt_open_tap: (e) => { if (e && e.stopPropagation) e.stopPropagation(); set({ qtOpen: true, todaySheet: false }); },
+            qt_open_tap: (e) => { if (e && e.stopPropagation) e.stopPropagation(); set({ qtOpen: true, todaySheet: false, tipsDaySheet: false }); },
+            tips_day_sheet: !!st.tipsDaySheet, today_tips_open: () => set({ tipsDaySheet: true }), today_tips_close: () => set({ tipsDaySheet: false }),
             qt_open: !!st.qtOpen,
             qt_orders: qtDelivered.slice(0, 3).map((o) => ({ id: o.id, label: o.date.replace(/^\d+ \S+, /, '') + ' · ' + o.dropAddr.split(',')[0] })),
             qt_default: (qtDelivered[0] || {}).id || '',
