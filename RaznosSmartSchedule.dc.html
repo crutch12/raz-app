@@ -80,7 +80,8 @@
     .rss-total-btn:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 6px; }
     .rss-total-cap { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); text-decoration: underline dotted; text-underline-offset: 3px; }
     .rss-list { display: flex; flex-direction: column; gap: 8px; }
-    .rss-goal.rss-goal-sticky { position: sticky; top: 0; z-index: 4; }
+    /* прилипая сверху, карточка отделяется тенью от экрана */
+    .rss-goal.rss-goal-sticky { position: sticky; top: 4px; z-index: 4; box-shadow: 0 6px 16px rgba(20, 25, 40, 0.1); }
     /* план недели изменился: карточка пружинит и подсвечивается, дельта всплывает, по полосе проходит блик */
     .rss-goal { position: relative; }
     /* сумма дня: подсветка и дельта, как у цели недели */
@@ -105,7 +106,7 @@
     .rss-goal.rss-goal-up-a, .rss-goal.rss-goal-up-b { animation: rss-goal-flash-up 2.6s ease-out; }
     .rss-goal.rss-goal-down-a, .rss-goal.rss-goal-down-b { animation: rss-goal-flash-down 2.6s ease-out; }
     @keyframes rss-goal-flash-up { 0%, 100% { box-shadow: 0 6px 16px rgba(20, 25, 40, .08), 0 0 0 0 transparent; background: var(--raznos-surface); } 10%, 70% { box-shadow: 0 6px 16px rgba(20, 25, 40, .08), 0 0 0 2px var(--raznos-green); background: color-mix(in oklab, var(--raznos-green) 10%, var(--raznos-surface)); } }
-    @keyframes rss-goal-flash-down { 0%, 100% { box-shadow: 0 6px 16px rgba(20, 25, 40, .08), 0 0 0 0 transparent; background: var(--raznos-surface); } 10%, 70% { box-shadow: 0 6px 16px rgba(20, 25, 40, .08), 0 0 0 2px var(--raznos-amber); background: color-mix(in oklab, var(--raznos-amber) 14%, var(--raznos-surface)); } }
+    @keyframes rss-goal-flash-down { 0%, 100% { box-shadow: 0 6px 16px rgba(20, 25, 40, .08), 0 0 0 0 transparent; background: var(--raznos-surface); } 10%, 70% { box-shadow: 0 6px 16px rgba(20, 25, 40, .08), 0 0 0 2px var(--raznos-red); background: color-mix(in oklab, var(--raznos-red) 10%, var(--raznos-surface)); } }
     /* дельта в рублях видна всегда, при уменьшенном движении просто проявляется и гаснет */
     .rss-goal-up-a .rss-goal-delta, .rss-goal-up-b .rss-goal-delta, .rss-goal-down-a .rss-goal-delta, .rss-goal-down-b .rss-goal-delta { animation: rss-goal-fade 3.2s ease-out; }
     @keyframes rss-goal-fade { 0% { opacity: 0; } 8%, 85% { opacity: 1; } 100% { opacity: 0; } }
@@ -129,7 +130,7 @@
     .rss-settings { max-width: 330px; gap: 12px; }
     .rss-settings-group { display: flex; flex-direction: column; gap: 6px; }
     .rss-settings-label { font: 650 13px var(--raznos-font); color: var(--raznos-ink); }
-    .rss-goal { display: flex; flex-direction: column; gap: 6px; width: 100%; padding: 6px 2px 8px; border: 0; border-radius: 0; background: var(--raznos-bg, var(--raznos-surface-2)); text-align: left; font: inherit; color: var(--raznos-ink); cursor: pointer; }
+    .rss-goal { display: flex; flex-direction: column; gap: 6px; width: 100%; padding: 8px 12px 10px; border: 0; border-radius: 14px; background: var(--raznos-surface); text-align: left; font: inherit; color: var(--raznos-ink); cursor: pointer; }
     .rss-goal:focus-visible, .rss-shifts-btn:focus-visible, .rss-week-step:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
     .rss-goal-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
     .rss-goal-top > b { font: 700 15px var(--raznos-font); font-variant-numeric: tabular-nums; }
@@ -1370,7 +1371,7 @@ class Component extends DCLogic {
       show_empty: !realWins.length,
       empty_title: isWorkDay(selDate) ? 'Пока пусто' : 'Выходной по графику',
       empty_text: isWorkDay(selDate) ? 'Соберём день из лучших вариантов, лишнее потом уберёте' : 'Если захотите поработать, соберём план из лучших вариантов этого дня',
-      can_assemble: selIso >= RSS_TODAY_ISO, assemble_label: 'Собрать план на ' + RSS_WD_FULL[selDate.getDay()].toLowerCase(), assemble: assembleDay,
+      can_assemble: selIso >= RSS_TODAY_ISO, assemble_label: 'Собрать план на ' + ['воскресенье', 'понедельник', 'вторник', 'среду', 'четверг', 'пятницу', 'субботу'][selDate.getDay()], assemble: assembleDay,
       // итог прошедшего дня открывается в Результатах на этом же дне
       has_result_link: selIso < RSS_TODAY_ISO && realWins.length > 0, open_result: () => { if (typeof p.onOpenResult === 'function') p.onOpenResult(selIso); },
       can_rebuild: selIso >= RSS_TODAY_ISO && realWins.length > 0,

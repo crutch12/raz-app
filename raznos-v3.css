@@ -110,6 +110,11 @@ a:hover { color: var(--raznos-ink); }
 .raznos-demo-ribbon-text { flex: 1; min-width: 0; }
 .raznos-demo-ribbon-close { position: relative; flex: 0 0 auto; width: 20px; height: 20px; padding: 0; background: rgba(255, 255, 255, 0.18); border: 0; border-radius: 999px; color: var(--raznos-on-dark); font: 700 13px/20px var(--raznos-font); text-align: center; }
 .raznos-demo-ribbon-close::before { content: ""; position: absolute; inset: -12px; }
+.raznos-demo-ribbon-gear { display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; }
+/* Настройки демо: заголовок переключателя над рядом чипов */
+.raznos-demo-toggles { display: flex; flex-direction: column; gap: 14px; }
+.raznos-demo-toggle { display: flex; flex-direction: column; gap: 8px; }
+.raznos-demo-toggle-title { font: 650 14px var(--raznos-font); color: var(--raznos-ink); }
 .raznos-demo-ribbon-close:focus { outline: 2px solid var(--raznos-on-dark); outline-offset: 2px; }
 .raznos-phone-scroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; overscroll-behavior-x: none; overscroll-behavior-y: contain; }
 /* потянуть, чтобы обновить: фирменная Р крутится вслед за пальцем, после порога зеленеет, при обновлении вращается, в конце галочка */

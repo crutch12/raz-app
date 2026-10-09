@@ -11,7 +11,7 @@
       <dc-import name="RaznosTabMotion"></dc-import>
       <div class="{{ frame_class }}" data-screen-label="Ð Ð°Ð·Ð½Ð¾Ñ">
         <div class="raznos-phone-status"><span>15:40</span><span>5G 64%</span></div>
-        <sc-if value="{{ demo_on }}" hint-placeholder-val="{{ false }}"><div class="raznos-demo-ribbon"><span class="raznos-demo-ribbon-text">Демо · все данные вымышленные</span><button type="button" class="raznos-demo-ribbon-close" aria-label="Закрыть демо" onClick="{{ demo_close }}">×</button></div></sc-if>
+        <sc-if value="{{ demo_on }}" hint-placeholder-val="{{ false }}"><div class="raznos-demo-ribbon"><span class="raznos-demo-ribbon-text">Демо · все данные вымышленные</span><button type="button" class="raznos-demo-ribbon-close raznos-demo-ribbon-gear" aria-label="Настройки демо" onClick="{{ demo_go_settings }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><button type="button" class="raznos-demo-ribbon-close" aria-label="Закрыть демо" onClick="{{ demo_close }}">×</button></div></sc-if>
         <sc-if value="{{ work_bar_visible }}"><button type="button" class="{{ work_bar_class }}" onClick="{{ work_bar_tap }}"><span class="raznos-work-bar-label">{{ work_bar_label }}</span></button></sc-if>
         <sc-if value="{{ toast_stack_visible }}" hint-placeholder-val="{{ false }}">
           <div class="{{ toast_layer_class }}">
@@ -1266,6 +1266,26 @@
               </div>
               <sc-if value="{{ demo_on }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Демо-режим включён</span><span class="raznos-text-small">Данные вымышленные. Выключить можно кнопкой × на плашке вверху</span></div></sc-if>
               <sc-if value="{{ demo_off }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ start_demo }}">Включить демо-режим</button></sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ is_demo_settings }}">
+            <div class="raznos-phone-body" data-screen-label="Demo settings">
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ demo_settings_back }}" aria-label="Назад">‹</button><h1 class="raznos-text-h1" style="margin:0">Настройки демо</h1></div>
+              <p class="raznos-text-small">Переключатели меняют данные на месте, сценарии открывают нужный экран. Назад возвращает сюда</p>
+              <span class="raznos-text-h3">Состояние</span>
+              <div class="raznos-card raznos-card-pad raznos-demo-toggles">
+                <sc-for list="{{ demo_toggles }}" as="tg" hint-placeholder-count="5">
+                  <div class="raznos-demo-toggle"><span class="raznos-demo-toggle-title">{{ tg.title }}</span><div class="raznos-chip-row"><sc-for list="{{ tg.opts }}" as="o" hint-placeholder-count="3"><button type="button" class="{{ o.cls }}" aria-pressed="{{ o.on }}" onClick="{{ o.tap }}">{{ o.label }}</button></sc-for></div></div>
+                </sc-for>
+              </div>
+              <sc-for list="{{ demo_groups }}" as="gr" hint-placeholder-count="4">
+                <span class="raznos-text-h3">{{ gr.title }}</span>
+                <span class="raznos-text-small">{{ gr.who }}</span>
+                <div class="raznos-card">
+                  <sc-for list="{{ gr.items }}" as="it" hint-placeholder-count="3"><button type="button" class="raznos-list-row" onClick="{{ it.tap }}"><div class="raznos-list-main"><span class="raznos-list-title">{{ it.label }}</span></div><span class="raznos-row-chevron">›</span></button></sc-for>
+                </div>
+              </sc-for>
             </div>
           </sc-if>
 
@@ -2644,6 +2664,8 @@
       Object.keys(SERVICE_CAPS).forEach((k) => { SHIFT_TITLES[k] = SERVICE_CAPS[k].title; });
       const SHIFT_RATES = { samokat: 370, vkusvill: 400, 'yandex-eda': 390, x5: 380, dodo: 320 };
       const shiftRow = (id, iso, svc, from, to, status, extra) => Object.assign({ id, iso, svc, title: SHIFT_TITLES[svc], place: SHIFT_PLACES[svc], from: from * 60, to: to * 60, status, rate: SHIFT_RATES[svc], rateVerified: SERVICE_CAPS[svc].rate === 'known' }, extra || {});
+      // в демо один выходной на следующей неделе без смен, чтобы был пример пустого дня в Плане
+      const DEMO_EMPTY_ISO = (() => { for (let k = 6; k <= 12; k++) { const g = dayAt(k).getDay(); if (g === 0 || g === 6) return isoAt(k); } return ''; })();
       const SHIFTS_WEEK = [
         shiftRow('s1', isoAt(-1), 'samokat', 9, 13, 'completed'), shiftRow('s2', isoAt(-1), 'vkusvill', 14, 18, 'completed'),
         shiftRow('s3', isoAt(0), 'samokat', 9, 12, 'completed'), shiftRow('s4', isoAt(0), 'vkusvill', 14, 17, 'active'),
@@ -2665,7 +2687,7 @@
         shiftRow('n1', isoAt(7), 'yandex-eda', 12, 16, 'confirmed'), shiftRow('n2', isoAt(9), 'x5', 11, 17, 'confirmed'),
         shiftRow('n5', isoAt(6), 'samokat', 9, 13, 'confirmed'), shiftRow('n6', isoAt(8), 'vkusvill', 14, 18, 'confirmed'),
         shiftRow('n7', isoAt(11), 'samokat', 12, 16, 'requested')
-      ];
+      ].filter((sh) => sh.iso !== DEMO_EMPTY_ISO);
       // числа мест у слотов нет, gone: слот пропал из списка сервиса, где слежение разрешено, можно следить за возвращением
       // apply и подпись приложения идут из профиля сервиса: у Самоката и ВкусВилла отклик это заявка
       const slotRow = (id, iso, svc, from, to, extra) => Object.assign({ id, iso, svc, title: SHIFT_TITLES[svc], place: SHIFT_PLACES[svc], from: from * 60, to: to * 60, apply: SERVICE_CAPS[svc].status === 'zayavka', rate: SHIFT_RATES[svc], rateVerified: SERVICE_CAPS[svc].rate === 'known', appName: SERVICE_CAPS[svc].app }, extra || {});
@@ -4616,7 +4638,7 @@
             'favorites', 'couriers', 'public-profile', 'tips', 'tips-sent', 'contest',
             'expenses', 'expense-form', 'recurring', 'recurring-form', 'my-activity', 'imported-reviews', 'live-feed', 'live-thread', 'live-compose', 'live-place-pick', 'live-photo', 'live-place', 'live-report', 'live-mine',
             'wallet', 'wallet-income', 'wallet-withdraw', 'wallet-withdraw-history', 'work-hub', 'slots', 'smart', 'work-schedule', 'job-guide', 'tax-forms', 'settings',
-            'notifications', 'inbox', 'worker-data', 'common-states', 'work-tasks', 'faq', 'best-times', 'best-places', 'services-compare'
+            'notifications', 'inbox', 'worker-data', 'common-states', 'work-tasks', 'faq', 'best-times', 'best-places', 'services-compare', 'demo-settings'
           ];
           const vals = {};
           screens.forEach((name) => { vals['is_' + name.replace(/-/g, '_')] = s === name; });
@@ -5224,7 +5246,17 @@
           // Изменилось без вас: то же событие, что в уведомлениях, даёт точку на Плане, пока План не открыли
           if (s === 'work-hub') this._planSeen = true;
           const planChangeOn = demoOn && role === 'courier' && !st.planChangeHidden;
-          const planChangeStart = st.graphPerDay && st.graphWeek && st.graphWeek[2] ? st.graphWeek[2].from : (st.graphStart != null ? st.graphStart : 9) * 60;
+          // замена ставится на ближайший рабочий день по графику, иначе в выходном её не видно и подсвечивать нечего
+          const planChangeK = (() => {
+            for (let k = 1; k <= 7; k++) {
+              const wd = (dayAt(k).getDay() + 6) % 7;
+              const on = st.graphPerDay && st.graphWeek ? !!(st.graphWeek[wd] && st.graphWeek[wd].on) : (st.graphDays ? !!st.graphDays[wd] : wd < 5);
+              if (on) return k;
+            }
+            return 1;
+          })();
+          const planChangeWd = (dayAt(planChangeK).getDay() + 6) % 7;
+          const planChangeStart = st.graphPerDay && st.graphWeek && st.graphWeek[planChangeWd] ? st.graphWeek[planChangeWd].from : (st.graphStart != null ? st.graphStart : 9) * 60;
           const planDot = demoOn && role === 'courier' && !this._planSeen;
           // потянуть вниз: общее время случайное 0,5–1,5 с, делится между сервисами
           const requestSync = (opts) => {
@@ -5859,7 +5891,7 @@
           liveMineReplies.sort((a, b) => b.r.createdAt - a.r.createdAt);
 
           const navRole = role;
-          const tabOf = { 'profile-edit': 'profile', 'courier-home': 'home', 'courier-empty': 'home', 'work-hub': 'work', 'work-setup': 'work', offers: 'work', 'offer-detail': 'work', 'active-order': st.activeFrom || 'work', 'confirm-decline': 'work', 'offer-result': 'work', 'service-open-demo': st.openDemoFrom === 'courier-home' ? 'home' : 'work', 'work-summary': 'work', slots: 'work', 'job-guide': 'market', 'tax-forms': 'profile', stats: 'stats', market: 'market', 'market-services': 'market', profile: 'profile', history: 'home', order: 'home', integrations: 'home', 'integration-connect': 'home', zones: 'home', service: 'market', 'form-review': 'market', questions: 'market', 'anon-courier': 'market', top: 'profile', photo: 'profile', share: 'profile', privacy: 'profile', contest: 'profile', 'my-activity': 'profile', 'imported-reviews': 'profile', 'live-feed': 'home', 'live-mine': 'profile', 'user-home': 'home', favorites: 'favorites', couriers: 'couriers', 'public-profile': 'couriers', tips: 'market', 'tips-sent': 'profile', expenses: st.expBack === 'profile' ? 'profile' : 'home', 'expense-form': 'home', recurring: 'profile', 'recurring-form': 'profile', wallet: 'profile', 'wallet-income': 'profile', 'wallet-withdraw': 'profile', 'wallet-withdraw-history': 'profile', notifications: 'profile', inbox: 'profile', support: 'profile', settings: 'profile', faq: 'profile', 'worker-data': 'home', 'common-states': 'home', 'work-tasks': 'work' };
+          const tabOf = { 'profile-edit': 'profile', 'courier-home': 'home', 'courier-empty': 'home', 'work-hub': 'work', 'work-setup': 'work', offers: 'work', 'offer-detail': 'work', 'active-order': st.activeFrom || 'work', 'confirm-decline': 'work', 'offer-result': 'work', 'service-open-demo': st.openDemoFrom === 'courier-home' ? 'home' : 'work', 'work-summary': 'work', slots: 'work', 'job-guide': 'market', 'tax-forms': 'profile', stats: 'stats', market: 'market', 'market-services': 'market', profile: 'profile', history: 'home', order: 'home', integrations: 'home', 'integration-connect': 'home', zones: 'home', service: 'market', 'form-review': 'market', questions: 'market', 'anon-courier': 'market', top: 'profile', photo: 'profile', share: 'profile', privacy: 'profile', contest: 'profile', 'my-activity': 'profile', 'imported-reviews': 'profile', 'live-feed': 'home', 'live-mine': 'profile', 'user-home': 'home', favorites: 'favorites', couriers: 'couriers', 'public-profile': 'couriers', tips: 'market', 'tips-sent': 'profile', expenses: st.expBack === 'profile' ? 'profile' : 'home', 'expense-form': 'home', recurring: 'profile', 'recurring-form': 'profile', wallet: 'profile', 'wallet-income': 'profile', 'wallet-withdraw': 'profile', 'wallet-withdraw-history': 'profile', notifications: 'profile', inbox: 'profile', support: 'profile', settings: 'profile', faq: 'profile', 'worker-data': 'home', 'common-states': 'home', 'work-tasks': 'work', 'demo-settings': 'profile' };
           const activeTab = tabOf[s];
           const showNav = (role === 'courier' && !!activeTab && s !== 'history' && s !== 'order' && s !== 'integrations' && s !== 'integration-connect' && s !== 'zones' && s !== 'courier-map' && s !== 'photo' && s !== 'service' && s !== 'form-review' && s !== 'questions' && s !== 'anon-courier' && !(s === 'expenses' && st.expBack !== 'profile') && s !== 'expense-form' && s !== 'recurring-form' && s !== 'worker-data' && s !== 'common-states') || (role === 'user' && !!activeTab && s !== 'privacy' && s !== 'notifications' && s !== 'support');
           const showNavFinal = showNav && !st.pvPreview && (s.indexOf('live-') !== 0 || s === 'live-feed' || s === 'live-mine');
@@ -7436,6 +7468,44 @@
             go_share: () => { if (role === 'courier') set({ s: 'share' }); },
             go_contest: () => { if (role === 'courier') set({ s: 'contest' }); },
             go_privacy: () => set({ s: 'privacy', subFrom: s }),
+            // Настройки демо: переключатели состояния и сценарии по разделам, описание в artifacts/design/DEMO-SCENARIOS.md
+            demo_go_settings: () => set({ s: 'demo-settings' }),
+            demo_settings_back: navBack(() => set({ s: role === 'courier' ? 'courier-home' : 'user-home' })),
+            demo_toggles: (() => {
+              const health = st.svcHealth || {};
+              const hv = Object.keys(health).map((k) => health[k]);
+              const conn = st.netOffline ? 'net' : hv.indexOf('device') !== -1 ? 'device' : hv.indexOf('relogin') !== -1 ? 'relogin' : hv.indexOf('offline') !== -1 ? 'svc' : 'ok';
+              const row = (title, cur, opts) => ({ title, opts: opts.map(([v, label, patch]) => ({ label, on: cur === v, cls: 'raznos-chip' + (cur === v ? ' raznos-is-active' : ''), tap: () => set(patch) })) });
+              return [
+                row('День', st.homeDay || '', [['', 'Идёт смена', { homeDay: '' }], ['before', 'До первой смены', { homeDay: 'before' }], ['off', 'Выходной', { homeDay: 'off' }]]),
+                row('Ведёте заказ', st.homeShiftOn === false ? 'no' : 'yes', [['yes', 'Да', { homeShiftOn: true }], ['no', 'Нет', { homeShiftOn: false }]]),
+                row('Связь с сервисами', conn, [['ok', 'Всё работает', { netOffline: false, svcHealth: {} }], ['net', 'Нет интернета', { netOffline: true, svcHealth: {} }], ['svc', 'Сервис не отвечает', { netOffline: false, svcHealth: { vkusvill: 'offline' } }], ['relogin', 'Войти заново', { netOffline: false, svcHealth: { samokat: 'relogin' } }], ['device', 'Новый телефон', { netOffline: false, svcHealth: { samokat: 'device', vkusvill: 'device' } }]]),
+                row('Изменилось без вас', st.planChangeHidden ? 'no' : 'yes', [['yes', 'Показывать', { planChangeHidden: false }], ['no', 'Нет', { planChangeHidden: true }]]),
+                row('Профиль опубликован', st.pvPublic === false ? 'no' : 'yes', [['yes', 'Да', { pvPublic: true }], ['no', 'Нет', { pvPublic: false }]]),
+                row('Тема', st.appTheme || '', [['', 'Как в системе', { appTheme: '' }], ['light', 'Светлая', { appTheme: 'light' }], ['dark', 'Тёмная', { appTheme: 'dark' }]])
+              ];
+            })(),
+            demo_groups: (() => {
+              const extra = {
+                'ob': { s: 'welcome' }, 'empty-home': { s: 'courier-empty' }, 'guide': { s: 'job-guide' },
+                'home': { s: 'courier-home', homeDay: '', homeShiftOn: true }, 'plan': { s: 'work-hub', smartFocusIso: TODAY_ISO, smartFocusKey: '' },
+                'plan-empty': { s: 'work-hub', smartFocusIso: DEMO_EMPTY_ISO, smartFocusKey: '' }, 'plan-change': { s: 'work-hub', planChangeHidden: false },
+                'best-places': { s: 'best-places' }, 'best-times': { s: 'best-times' }, 'svc-compare': { s: 'services-compare' },
+                'stats-week': { s: 'stats', statsPeriod: 'week', statsStep: 0, statsDetail: '' }, 'stats-year': { s: 'stats', statsPeriod: 'year', statsStep: 0, statsDetail: '' },
+                'live-feed': { s: 'live-feed' }, 'top': { s: 'top' }, 'inbox': { s: 'inbox' }, 'history': { s: 'history' }, 'expenses': { s: 'expenses' }
+              };
+              const go = (key) => () => { const patch = extra[key] || DEMO_SCENARIOS[key]; if (patch) set(Object.assign({}, patch)); };
+              const G = (title, who, items) => ({ title, who, items: items.map(([key, label]) => ({ label, tap: go(key) })) });
+              return [
+                G('Первый вход', 'Новичок', [['ob', 'Онбординг с начала'], ['empty-home', 'Сегодня без подключённых сервисов'], ['guide', 'Подобрать работу']]),
+                G('Обычный рабочий день', 'Постоянный и автопилот', [['home', 'Сегодня во время смены'], ['plan', 'План на сегодня: смена, бронь, конфликт'], ['plan-change', 'Изменилось без вас'], ['plan-empty', 'Пустой выходной следующей недели'], ['history', 'История заказов'], ['expenses', 'Расходы']]),
+                G('Больше денег', 'Охотник за сменами и максималист', [['slots', 'Слоты: брони, заявки, требует внимания'], ['best-places', 'Где выгоднее'], ['best-times', 'Когда выгоднее'], ['svc-compare', 'Сравнение сервисов']]),
+                G('Дойти до цели', 'Целевой', [['stats-week', 'Результаты за неделю'], ['stats-year', 'Результаты за год'], ['stats-money', 'Деньги'], ['stats-time', 'Время'], ['stats-services', 'Сервисы'], ['stats-compare', 'Сравнение с городом'], ['stats-taxes', 'Налог'], ['stats-fines', 'Удержано']]),
+                G('Редкие выходы', 'Подработчик', [['before-shift', 'Сегодня до первой смены'], ['day-off', 'Сегодня выходной']]),
+                G('Когда что-то пошло не так', 'Любой курьер', [['new-device', 'Новый телефон: войти в сервисы'], ['net-offline', 'Нет интернета'], ['conn-loss', 'Сервис отключился'], ['integrations-exited', 'Вышли из сервиса'], ['conn-exited', 'Подключение заново'], ['link-missing-app', 'Нет приложения сервиса'], ['link-no-id', 'Нет номера заказа'], ['link-fail', 'Приложение не открылось'], ['withdraw-payment-fail', 'Отказ вывода'], ['tips-payment-fail', 'Чаевые не прошли'], ['states-ban', 'Ограничение аккаунта'], ['states-loading', 'Загрузка'], ['states-alerts', 'Сообщения и плановые работы'], ['states-config', 'Обязательное обновление']]),
+                G('Сообщество и профиль', 'Любой курьер', [['live-feed', 'Что происходит'], ['live-thread', 'Обсуждение сообщения'], ['live-mine', 'Мои сообщения'], ['live-limit', 'Лимит сообщений'], ['user-questions', 'Вопросы о сервисе'], ['anon-unknown-orders', 'Обезличенный профиль автора'], ['preview-anon', 'Как видят другие: обезличенно'], ['preview-named', 'Как видят другие: с именем'], ['preview-hidden-fields', 'Профиль со скрытыми полями'], ['top', 'Топ курьеров'], ['inbox', 'Уведомления'], ['notifications-some-off', 'Часть уведомлений выключена'], ['worker-data-vv', 'Данные работника']])
+              ];
+            })(),
             tunnel_on: !!st.deviceTunnel, toggle_tunnel: () => set({ deviceTunnel: !st.deviceTunnel }),
             tunnel_box: st.deviceTunnel ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', tunnel_mark: st.deviceTunnel ? '✓' : '',
 
@@ -7465,7 +7535,7 @@
               const n = inboxItems.find((x) => x.id === id);
               if (!n) return;
               const read = Object.assign({}, inboxRead, { [id]: true });
-              if (n.to === 'work-hub') return set({ inboxRead: read, s: 'work-hub', smartFocusAdded: false, smartFocusIso: isoAt(1), smartFocusKey: '', smartOpenKey: '' });
+              if (n.to === 'work-hub') return set({ inboxRead: read, s: 'work-hub', smartFocusAdded: false, smartFocusIso: isoAt(planChangeK), smartFocusKey: 'p:' + isoAt(planChangeK) + ':' + Math.round(planChangeStart), smartOpenKey: '' });
               if (n.to === 'slots') return set({ inboxRead: read, s: 'slots', slotsTab: '', slotsDay: '', slotsSvc: '', slotsWeek: null, slotsFrom: 'profile', inboxRet: 'slots' });
               if (n.to === 'stats-taxes') return set({ inboxRead: read, s: 'stats', statsDetail: 'taxes', statsDetailBack: '', inboxRet: 'stats' });
               set({ inboxRead: read, s: n.to, inboxRet: n.to });
@@ -7894,8 +7964,8 @@
             contest_status_label: contestDisputeStage === 'disputed' ? 'Проверка спорного заказа идёт' : 'Место подтверждено',
 
             nav_role: navRole, nav_active: (s === 'slots' && st.slotsFrom === 'profile' ? 'profile' : activeTab) || 'home', show_nav: showNavFinal, nav_dot: [inboxBadge > 0 ? 'profile' : '', planDot ? 'work' : ''].filter(Boolean).join(','),
-            plan_change_note: planChangeOn ? ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][dayAt(1).getDay()] + ': Самокат отменил, поставили Яндекс Еду' : '',
-            plan_change_iso: planChangeOn ? isoAt(1) : '', plan_change_key: planChangeOn ? 'p:' + isoAt(1) + ':' + Math.round(planChangeStart) : '',
+            plan_change_note: planChangeOn ? ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][dayAt(planChangeK).getDay()] + ': Самокат отменил, поставили Яндекс Еду' : '',
+            plan_change_iso: planChangeOn ? isoAt(planChangeK) : '', plan_change_key: planChangeOn ? 'p:' + isoAt(planChangeK) + ':' + Math.round(planChangeStart) : '',
             plan_change_hide: () => set({ planChangeHidden: true }),
             on_navigate: (key) => {
               if (role === 'user') {
