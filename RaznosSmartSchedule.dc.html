@@ -191,7 +191,7 @@
 
   <sc-if value="{{ is_mine }}" hint-placeholder-val="{{ true }}">
     <div class="rss-head">
-      <span class="rss-head-copy"><h2 class="rss-head-title">{{ day_title }}</h2><span class="rss-head-sub">{{ day_sub }}<sc-if value="{{ has_result_link }}" hint-placeholder-val="{{ false }}">, <button type="button" class="rss-head-link" onClick="{{ open_result }}">итог дня в Результатах</button></sc-if></span></span>
+      <span class="rss-head-copy"><h2 class="rss-head-title">{{ day_title }}</h2><span class="rss-head-sub">{{ day_sub }}<sc-if value="{{ has_result_link }}" hint-placeholder-val="{{ false }}">, <button type="button" class="rss-head-link" onClick="{{ open_result }}">итог дня в Результатах</button></sc-if><sc-if value="{{ hours_link }}" hint-placeholder-val="{{ true }}"> · <button type="button" class="rss-head-link" onClick="{{ open_hours }}">{{ hours_link_label }}</button></sc-if></span></span>
       <sc-if value="{{ has_total }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ total_cls }}" onClick="{{ open_forecast }}" aria-label="{{ total_aria }}"><span class="rss-total-cap">{{ total_cap }}</span><span class="rss-total">≈ <span class="rss-total-num">{{ day_total_num }}</span> ₽</span><sc-if value="{{ total_delta_show }}" hint-placeholder-val="{{ false }}"><span class="{{ total_delta_cls }}" aria-hidden="true">{{ total_delta }}</span></sc-if></button></sc-if>
     </div>
     <sc-if value="{{ can_rebuild }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ rb_cls }}" onClick="{{ open_rebuild }}" aria-label="{{ rb_aria }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>{{ rb_label }}<sc-if value="{{ rb_has_gain }}" hint-placeholder-val="{{ true }}"><b class="rss-rebuild-gain">{{ rb_gain }}</b></sc-if><svg class="rss-rebuild-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></sc-if>
@@ -265,6 +265,9 @@
   </sc-if>
   <sc-if value="{{ show_fix }}" hint-placeholder-val="{{ false }}">
     <dc-import name="RaznosConflictSheet" aSvc="{{ fx.aSvc }}" aTitle="{{ fx.aTitle }}" aTo="{{ fx.aTo }}" bSvc="{{ fx.bSvc }}" bTitle="{{ fx.bTitle }}" bFrom="{{ fx.bFrom }}" travel="{{ fx.travel }}" rate="{{ fx.rate }}" onLeave="{{ fx.leave }}" onLate="{{ fx.late }}" onClose="{{ fix_close }}"></dc-import>
+  </sc-if>
+  <sc-if value="{{ show_hours }}" hint-placeholder-val="{{ false }}">
+    <dc-import name="RaznosDayHoursSheet" title="{{ hs_title }}" from="{{ hs_from }}" to="{{ hs_to }}" min="{{ hs_min }}" note="{{ hs_note }}" custom="{{ hs_custom }}" warn="{{ hs_warn }}" onHours="{{ rb_set_hours }}" onClose="{{ close_hours }}"></dc-import>
   </sc-if>
   <sc-if value="{{ show_rebuild }}" hint-placeholder-val="{{ false }}">
     <dc-import name="RaznosDayCompareSheet" title="{{ rb_title }}" quiet="{{ rb_quiet }}" openRules="{{ true }}" sub="{{ rb_sub }}" verdict="{{ rb_verdict }}" a="{{ rb_a }}" b="{{ rb_b }}" same="{{ rb_same }}" modes="{{ rb_modes }}" modeWhy="{{ rb_why }}" hoursFrom="{{ rb_from }}" hoursTo="{{ rb_to }}" hoursMin="{{ rb_min }}" hoursMax="{{ rb_max }}" hoursMinNote="{{ rb_min_note }}" hoursWarn="{{ rb_hours_warn }}" hoursCustom="{{ rb_custom }}" onHours="{{ rb_set_hours }}" svcs="{{ rb_svcs }}" checkLabel="{{ rb_check_label }}" checkOn="{{ rb_keep }}" onCheck="{{ rb_toggle_keep }}" primaryLabel="Применить" secondaryLabel="Отмена" onPrimary="{{ rb_apply }}" onClose="{{ rb_close }}"></dc-import>
@@ -573,7 +576,9 @@ class Component extends DCLogic {
     const workStart = (p.workStart != null ? p.workStart : 9) * 60, workEnd = (p.workEnd != null ? p.workEnd : 18) * 60;
     // график по дням недели (пн=0), если курьер задал разные часы, иначе пн–пт с общими часами
     const workWeek = Array.isArray(p.workWeek) && p.workWeek.length === 7 ? p.workWeek : null;
-    const hoursOf = (d) => { const h = workWeek && workWeek[(d.getDay() + 6) % 7]; return h ? { on: !!h.on, from: h.from, to: h.to } : { on: d.getDay() >= 1 && d.getDay() <= 5, from: workStart, to: workEnd }; };
+    const graphHoursOf = (d) => { const h = workWeek && workWeek[(d.getDay() + 6) % 7]; return h ? { on: !!h.on, from: h.from, to: h.to } : { on: d.getDay() >= 1 && d.getDay() <= 5, from: workStart, to: workEnd }; };
+    // часы, поставленные на конкретный день, важнее графика, выходной так становится рабочим днём
+    const hoursOf = (d) => { const o = (st.dayHours || {})[rssIso(d)]; return o ? { on: true, from: o.from, to: o.to } : graphHoursOf(d); };
     const isWorkDay = (d) => hoursOf(d).on;
     const booked = (p.booked || RSS_DEMO_BOOKED.concat(RSS_EXTRA_BOOKED)).filter((b) => b.status !== 'cancelled' && b.status !== 'missed');
     const slots = (p.slots || RSS_DEMO_SLOTS.concat(RSS_EXTRA_SLOTS)).filter((sl) => !sl.taken);
@@ -1052,6 +1057,26 @@ class Component extends DCLogic {
     // пересобираем в ваших рабочих часах: график и то, что уже стоит в дне
     // часы можно поменять только на этот день прямо в шторке, график при этом не трогаем
     const dayHours = (st.dayHours || {})[selIso] || null;
+    // часы дня в шторке: свои на этот день или по графику
+    const hsBase = dayHours || graphHoursOf(selDate);
+    // часы на день: ваши окна целиком вне новых часов убираем, тост с Вернуть возвращает и часы, и окна
+    const setDayHours = (which, v) => {
+      const all = Object.assign({}, st.dayHours || {});
+      if (which === 'reset') delete all[selIso];
+      else {
+        const [h, m] = String(v || '').split(':').map(Number);
+        if (isNaN(h)) return;
+        const t = Math.round((h * 60 + (m || 0)) / 30) * 30;
+        const cur = all[selIso] || { from: Math.max(dayFrom, hsBase.from), to: hsBase.to };
+        all[selIso] = which === 'from' ? { from: Math.max(dayFrom, Math.min(t, cur.to - 60)), to: cur.to } : { from: cur.from, to: Math.min(1440, Math.max(t === 0 ? 1440 : t, cur.from + 60)) };
+      }
+      const hrs = all[selIso] || graphHoursOf(selDate);
+      const mine = added[selIso] || [];
+      const out = mine.filter((a) => !hrs.on && !all[selIso] ? false : a.to <= hrs.from || a.from >= hrs.to);
+      if (!out.length) { set({ dayHours: all }); return; }
+      set({ dayHours: all, added: Object.assign({}, added, { [selIso]: mine.filter((a) => out.indexOf(a) === -1) }) });
+      flashUndo(out.length === 1 ? 'Убрали ваше окно вне этих часов' : 'Убрали ваши окна вне этих часов', { dayHours: st.dayHours || {}, added });
+    };
     const spanFrom = Math.ceil(Math.max(dayFrom, dayHours ? dayHours.from : Math.min.apply(null, (dayOff ? [] : [selHours.from]).concat(planWins.map((w) => w.from)))) / 30) * 30;
     const spanTo = Math.min(1440, dayHours ? dayHours.to : Math.max.apply(null, (dayOff ? [] : [selHours.to]).concat(planWins.map((w) => w.to))));
     const tagOf = (w) => (w.source === 'booking' ? (w.status === 'requested' ? 'заявка' : (w.status === 'tentative' ? 'предварительная' : 'бронь')) : (w.source === 'added' ? 'ваше' : (w.source === 'plan' ? 'план' : 'новое')));
@@ -1400,16 +1425,14 @@ class Component extends DCLogic {
       // бронь вне новых часов не трогаем, но говорим об этом сразу под часами
       rb_hours_warn: liveWins.filter((w) => w.source === 'booking' && (Math.max(w.from, dayFrom) < spanFrom || w.to > spanTo)).map((w) => 'Бронь ' + rssTime(w.from) + '–' + rssTime(w.to) + ' · ' + RSS_SVC[w.svc].title + ' выходит за ваши часы. План её не трогает, отменить можно только в сервисе').join('. '),
       rb_min: rssTime(dayFrom), rb_max: '23:59', rb_min_note: isToday ? 'Сегодня не раньше ' + rssTime(dayFrom) : '',
-      rb_set_hours: (which, v) => {
-        const all = Object.assign({}, st.dayHours || {});
-        if (which === 'reset') { delete all[selIso]; set({ dayHours: all }); return; }
-        const [h, m] = String(v || '').split(':').map(Number);
-        if (isNaN(h)) return;
-        const t = Math.round((h * 60 + (m || 0)) / 30) * 30;
-        const cur = all[selIso] || { from: spanFrom, to: spanTo };
-        const next = which === 'from' ? { from: Math.max(dayFrom, Math.min(t, cur.to - 60)), to: cur.to } : { from: cur.from, to: Math.min(1440, Math.max(t === 0 ? 1440 : t, cur.from + 60)) };
-        all[selIso] = next; set({ dayHours: all });
-      },
+      rb_set_hours: setDayHours,
+      // часы дня прямо из заголовка, без пересборки плана
+      hours_link: selIso >= RSS_TODAY_ISO, hours_link_label: dayHours ? 'часы ' + rssTime(dayHours.from) + '–' + (dayHours.to >= 1440 ? '24:00' : rssTime(dayHours.to)) : 'часы дня',
+      open_hours: () => set({ hoursSheet: true }), show_hours: !!st.hoursSheet && selIso >= RSS_TODAY_ISO, close_hours: () => set({ hoursSheet: false }),
+      hs_title: 'Часы на ' + (isToday ? 'сегодня' : selDate.getDate() + ' ' + RSS_MONTHS[selDate.getMonth()]),
+      hs_from: rssTime(hsBase.from), hs_to: hsBase.to >= 1440 ? '23:59' : rssTime(hsBase.to), hs_min: rssTime(dayFrom), hs_custom: !!dayHours,
+      hs_note: dayHours ? 'Только на этот день, график не меняем' : (graphHoursOf(selDate).on ? 'Как в вашем графике' : 'По графику выходной, поставьте часы, если выйдете'),
+      hs_warn: liveWins.filter((w) => w.source === 'booking' && (Math.max(w.from, dayFrom) < hsBase.from || w.to > hsBase.to)).map((w) => 'Бронь ' + rssTime(w.from) + '–' + rssTime(w.to) + ' · ' + RSS_SVC[w.svc].title + ' вне этих часов, она остаётся').join('. '),
       rb_svcs: ['yandex-eda', 'samokat', 'vkusvill', 'x5'].map((k) => ({ svc: k, label: RSS_SVC[k].title, on: rbAllow[k] !== false, tap: () => set({ rbAllow: Object.assign({}, rbAllow, { [k]: rbAllow[k] === false }) }) })),
       rb_a: rb ? optionOf('Сейчас', liveWins, rb.after, 'out') : null, rb_b: rb ? optionOf('Станет', rb.after, liveWins, 'in') : null,
       // сброс сразу, без вопроса: тост с Вернуть
@@ -1431,18 +1454,12 @@ class Component extends DCLogic {
       // смена режима не трогает уже собранный план: при переходе на Сам окна автоплана становятся вашими
       set_build: [['auto', 'Разнос сам'], ['manual', 'Сам']].map(([k, label]) => ({ label, cls: 'raznos-segment' + (build === k ? ' raznos-is-active' : ''), tap: () => {
         if (k === build) return;
-        if (k === 'manual') {
-          const nx = Object.assign({}, added);
-          weekDays.map(rssIso).filter((iso) => iso >= RSS_TODAY_ISO).forEach((iso) => {
-            const keep = windowsOf(iso).filter((w) => w.source === 'plan' && w.to > (iso === RSS_TODAY_ISO ? RSS_NOW : 0));
-            if (keep.length) nx[iso] = (nx[iso] || []).concat(keep.map((w) => ({ key: 'a:fz:' + iso + ':' + w.from, svc: w.svc, from: w.from, to: w.to, zone: w.zone, source: 'added', slot: w.slot })));
-          });
-          set({ added: nx });
-        }
+        // в режиме Сам свободные часы пустые, план Разноса из них уходит, ваши окна и брони остаются
         saveSettings({ build: k });
-        flash(k === 'manual' ? 'Собранный план оставили, новые окна сами не подставляем' : 'Ваши окна не трогаем, свободные часы графика заполним сами');
+        const back = build;
+        flashUndo(k === 'manual' ? 'Свободные часы теперь пустые, заполняете сами' : 'Ваши окна не трогаем, свободные часы графика заполним сами', { build: back, _do: () => { if (typeof p.onSettings === 'function') p.onSettings({ build: back }); } });
       } })),
-      set_build_note: auto ? 'Каждое утро заполняем свободные часы графика, ваши окна и брони не трогаем. Если бронь отменят, подставим другую смену' : 'Новые окна сами не подставляем, свободные часы показываем с советом, уже собранный план остаётся',
+      set_build_note: auto ? 'Каждое утро заполняем свободные часы графика, ваши окна и брони не трогаем. Если бронь отменят, подставим другую смену' : 'Свободные часы оставляем пустыми и подсказываем, чем их занять, ваши окна и брони не трогаем',
       graph_label: workWeek ? (workWeek.every((h) => !h.on || (h.from === workWeek.find((x) => x.on).from && h.to === workWeek.find((x) => x.on).to)) && workWeek.some((h) => h.on) ? workWeek.filter((h) => h.on).length + ' дн. ' + rssTime(workWeek.find((x) => x.on).from) + '–' + rssTime(workWeek.find((x) => x.on).to) : 'Свои часы по дням') : 'Пн–пт ' + rssTime(workStart) + '–' + rssTime(workEnd),
       edit_graph: () => { set({ settings: false }); if (typeof p.onEditGraph === 'function') p.onEditGraph(true); },
       toast: st.toast || '', toast_has_act: !!st.toastShow, toast_close: () => set({ toast: '' }),

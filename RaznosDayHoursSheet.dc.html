@@ -1,0 +1,66 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* часы одного дня: меняются только для этого дня, график не трогаем, вернуть можно одной кнопкой */
+    .rdh-layer { align-items: flex-end; padding: 0; }
+    .rdh-sheet { box-sizing: border-box; width: 100%; display: flex; flex-direction: column; gap: 14px; padding: 8px 20px 18px; border-radius: 22px 22px 0 0; background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 -18px 48px rgba(20, 25, 40, 0.18); font-family: var(--raznos-font); }
+    .rdh-handle { width: 38px; height: 4px; align-self: center; flex: none; border-radius: 999px; background: var(--raznos-line-strong); }
+    .rdh-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: -6px; }
+    .rdh-head h2 { margin: 0; font: 700 20px/1.2 var(--raznos-font); letter-spacing: -0.02em; }
+    .rdh-close { width: 44px; height: 44px; flex: none; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 12px; background: var(--raznos-surface-2); color: var(--raznos-ink); cursor: pointer; }
+    .rdh-row { display: flex; align-items: center; gap: 10px; }
+    .rdh-row > i { font-style: normal; color: var(--raznos-ink-3); }
+    .rdh-time { flex: 1; min-width: 0; }
+    .rdh-time input { box-sizing: border-box; width: 100%; min-height: 48px; padding: 0 12px; border: 1px solid var(--raznos-line-strong); border-radius: 12px; background: var(--raznos-surface); font: 700 17px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rdh-note { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: -4px; font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rdh-reset { min-height: 36px; padding: 0 2px; border: 0; background: none; font: 650 13.5px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; white-space: nowrap; }
+    .rdh-warn { margin: 0; padding: 8px 10px; border-radius: 10px; background: var(--raznos-amber-tint); color: var(--raznos-ink); font: 600 13px/1.35 var(--raznos-font); }
+    .rdh-time input:focus-visible, .rdh-reset:focus-visible, .rdh-close:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    @media (prefers-reduced-motion: no-preference) {
+      .rdh-sheet { animation: rdh-in .24s cubic-bezier(.16, 1, .3, 1) both; }
+      @keyframes rdh-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+    }
+  </style>
+</helmet>
+<div class="raznos-dialog-layer rdh-layer" onClick="{{ close }}">
+  <section class="rdh-sheet" role="dialog" aria-modal="true" aria-label="{{ title }}" onClick="{{ stop }}">
+    <span class="rdh-handle" aria-hidden="true"></span>
+    <div class="rdh-head"><h2>{{ title }}</h2><button type="button" class="rdh-close" onClick="{{ close }}" aria-label="Закрыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="rdh-row">
+      <label class="rdh-time"><input type="time" step="1800" min="{{ min }}" value="{{ from }}" onChange="{{ set_from }}" aria-label="С какого времени" /></label>
+      <i aria-hidden="true">–</i>
+      <label class="rdh-time"><input type="time" step="1800" value="{{ to }}" onChange="{{ set_to }}" aria-label="До какого времени" /></label>
+    </div>
+    <div class="rdh-note"><span>{{ note }}</span><sc-if value="{{ custom }}" hint-placeholder-val="{{ false }}"><button type="button" class="rdh-reset" onClick="{{ reset }}">Как в графике</button></sc-if></div>
+    <sc-if value="{{ has_warn }}" hint-placeholder-val="{{ false }}"><p class="rdh-warn" role="status">{{ warn }}</p></sc-if>
+    <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ close }}">Готово</button>
+  </section>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "title": { "editor": "text", "default": "Часы на вторник" },
+  "from": { "editor": "text", "default": "09:00" },
+  "to": { "editor": "text", "default": "18:00" },
+  "min": { "editor": "text", "default": "" },
+  "note": { "editor": "text", "default": "" },
+  "custom": { "editor": "boolean", "default": false },
+  "warn": { "editor": "text", "default": "" },
+  "onHours": { "editor": null },
+  "onClose": { "editor": null },
+  "$preview": { "width": 380, "height": 300 }
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const hours = (which, e) => { if (typeof p.onHours === 'function') p.onHours(which, e && e.target ? e.target.value : e); };
+    return {
+      title: p.title || 'Часы на день', from: p.from || '09:00', to: p.to || '18:00', min: p.min || '',
+      custom: !!p.custom,
+      note: p.note || (p.custom ? 'Только на этот день, график не меняем' : 'Как в вашем графике'),
+      warn: p.warn || '', has_warn: !!p.warn,
+      set_from: (e) => hours('from', e), set_to: (e) => hours('to', e), reset: () => hours('reset'),
+      close: () => { if (typeof p.onClose === 'function') p.onClose(); },
+      stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
+    };
+  }
+}
+</script></body></html>

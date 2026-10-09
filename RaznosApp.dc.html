@@ -7593,6 +7593,7 @@
                 row('День', st.homeDay || '', [['', 'Идёт смена', { homeDay: '' }], ['before', 'До первой смены', { homeDay: 'before' }], ['off', 'Выходной', { homeDay: 'off' }]]),
                 row('Ведёте заказ', st.homeShiftOn === false ? 'no' : 'yes', [['yes', 'Да', { homeShiftOn: true }], ['no', 'Нет', { homeShiftOn: false }]]),
                 row('Связь с сервисами', conn, [['ok', 'Всё работает', { netOffline: false, svcHealth: {} }], ['net', 'Нет интернета', { netOffline: true, svcHealth: {} }], ['svc', 'Сервис не отвечает', { netOffline: false, svcHealth: { vkusvill: 'offline' } }], ['relogin', 'Войти заново', { netOffline: false, svcHealth: { samokat: 'relogin' } }], ['device', 'Новый телефон', { netOffline: false, svcHealth: { samokat: 'device', vkusvill: 'device' } }]]),
+                row('План собирает', st.smartBuild === 'manual' ? 'manual' : 'auto', [['auto', 'Разнос', { smartBuild: 'auto', planOnboarded: true }], ['manual', 'Сам', { smartBuild: 'manual', planOnboarded: true }]]),
                 row('Изменилось без вас', st.planChangeHidden ? 'no' : 'yes', [['yes', 'Показывать', { planChangeHidden: false }], ['no', 'Нет', { planChangeHidden: true }]]),
                 row('Профиль опубликован', st.pvPublic === false ? 'no' : 'yes', [['yes', 'Да', { pvPublic: true }], ['no', 'Нет', { pvPublic: false }]]),
                 row('Подключено сервисов', !st.integrationStatus || Object.keys(st.integrationStatus).length >= 3 ? 'all' : Object.keys(st.integrationStatus).length === 1 ? 'one' : Object.keys(st.integrationStatus).length === 0 ? 'none' : 'all', [['all', 'Пять', { integrationStatus: buildDemoSeed().integrationStatus }], ['one', 'Один', { integrationStatus: { vkusvill: 'connected' } }]]),
@@ -7632,6 +7633,7 @@
                 'ob': { s: 'welcome' }, 'empty-home': { s: 'courier-empty' }, 'guide': { s: 'job-guide' },
                 'home': { s: 'courier-home', homeDay: '', homeShiftOn: true }, 'plan': { s: 'work-hub', smartFocusIso: TODAY_ISO, smartFocusKey: '' },
                 'plan-empty': { s: 'work-hub', smartFocusIso: DEMO_EMPTY_ISO, smartFocusKey: '' }, 'plan-change': { s: 'work-hub', planChangeHidden: false },
+                'plan-self': { s: 'work-hub', smartBuild: 'manual', planOnboarded: true, smartFocusIso: isoAt(2), smartFocusKey: '' },
                 'best-places': { s: 'best-places' }, 'best-times': { s: 'best-times' }, 'svc-compare': { s: 'services-compare' },
                 'stats-week': { s: 'stats', statsPeriod: 'week', statsStep: 0, statsDetail: '' }, 'stats-year': { s: 'stats', statsPeriod: 'year', statsStep: 0, statsDetail: '' },
                 'live-feed': { s: 'live-feed' }, 'top': { s: 'top' }, 'inbox': { s: 'inbox' }, 'history': { s: 'history' }, 'expenses': { s: 'expenses' }
@@ -7641,7 +7643,7 @@
               return [
                 G('Первый вход', 'Новичок', [['ob', 'Онбординг с начала'], ['empty-home', 'Сегодня без подключённых сервисов'], ['guide', 'Подобрать работу']]),
                 G('Обычный рабочий день', 'Постоянный и автопилот', [['home', 'Сегодня во время смены'], ['plan', 'План на сегодня: смена, бронь, конфликт'], ['plan-change', 'Изменилось без вас'], ['plan-empty', 'Пустой выходной следующей недели'], ['history', 'История заказов'], ['expenses', 'Расходы']]),
-                G('Больше денег', 'Охотник за сменами и максималист', [['slots', 'Слоты: брони, заявки, требует внимания'], ['best-places', 'Где выгоднее'], ['best-times', 'Когда выгоднее'], ['svc-compare', 'Сравнение сервисов']]),
+                G('Больше денег', 'Охотник за сменами и максималист', [['plan-self', 'План сам: пустые часы и чем их занять'], ['slots', 'Слоты: брони, заявки, требует внимания'], ['best-places', 'Где выгоднее'], ['best-times', 'Когда выгоднее'], ['svc-compare', 'Сравнение сервисов']]),
                 G('Дойти до цели', 'Целевой', [['stats-week', 'Результаты за неделю'], ['stats-year', 'Результаты за год'], ['stats-money', 'Деньги'], ['stats-time', 'Время'], ['stats-services', 'Сервисы'], ['stats-compare', 'Сравнение с городом'], ['stats-taxes', 'Налог'], ['stats-fines', 'Удержано']]),
                 G('Редкие выходы', 'Подработчик', [['before-shift', 'Сегодня до первой смены'], ['day-off', 'Сегодня выходной']]),
                 G('Когда что-то пошло не так', 'Любой курьер', [['new-device', 'Новый телефон: войти в сервисы'], ['net-offline', 'Нет интернета'], ['conn-loss', 'Сервис отключился'], ['integrations-exited', 'Вышли из сервиса'], ['conn-exited', 'Подключение заново'], ['link-missing-app', 'Нет приложения сервиса'], ['link-no-id', 'Нет номера заказа'], ['link-fail', 'Приложение не открылось'], ['withdraw-payment-fail', 'Отказ вывода'], ['tips-payment-fail', 'Чаевые не прошли'], ['states-ban', 'Ограничение аккаунта'], ['states-loading', 'Загрузка'], ['states-alerts', 'Сообщения и плановые работы'], ['states-config', 'Обязательное обновление']]),
