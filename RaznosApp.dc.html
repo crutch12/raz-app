@@ -4071,6 +4071,8 @@
             const below = step === 0 && tr.top - fr.top < h + 80;
             const top = below ? tr.bottom - fr.top + 12 : tr.top - fr.top - h - 12;
             Object.assign(tip.style, { width: w + 'px', left: left + 'px', top: top + 'px', opacity: '1' });
+            // хвостик с той стороны, где на самом деле цель
+            const box = tip.querySelector('.rtt'); if (box) box.classList.toggle('rtt-below', below);
             tip.style.setProperty('--rtt-arrow', Math.round(cx - left) + 'px');
           }));
         }
@@ -7625,7 +7627,7 @@
             toggle_tips_settings: () => set(st.tipsOn === false ? { tipsOn: true, tourDone: false, tourStep: demoOn ? 1 : 0 } : { tipsOn: false, tourStep: null }),
             tour_show: tourStep != null && role === 'courier' && TOUR_SCREENS.indexOf(s) !== -1 && (tourStep > 0 || s === 'courier-empty'),
             tour_step: tourStep != null ? tourStep : '', tour_num: (tourStep || 0) + 1, tour_total: TOUR.length,
-            tour_title: tourStep != null ? TOUR[tourStep].title : '', tour_text: tourStep != null ? TOUR[tourStep].text : '', tour_below: tourStep === 0,
+            tour_title: tourStep != null ? TOUR[tourStep].title : '', tour_text: tourStep != null ? TOUR[tourStep].text : '', tour_below: false,
             tour_prev: () => { if (tourStep > (demoOn ? 1 : 0)) set({ tourStep: tourStep - 1 }); },
             tour_next: () => set(tourStep >= TOUR.length - 1 ? { tourStep: null, tourDone: true } : { tourStep: tourStep + 1 }),
             tour_skip: () => set({ tourStep: null, tourDone: true }),
