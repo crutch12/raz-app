@@ -173,6 +173,7 @@
 .raznos-stats-money-bar.raznos-is-payout .raznos-stats-money-bar-track i { background: var(--raznos-dark); }
 .raznos-stats-money-bar.raznos-is-pending .raznos-stats-money-bar-track i { background: var(--raznos-amber); }
 .raznos-stats-money-bar.raznos-is-expenses .raznos-stats-money-bar-track i { background: var(--raznos-red); }
+.raznos-stats-money-bar.raznos-is-cash .raznos-stats-money-bar-track i { background: var(--raznos-green); }
 .raznos-stats-money-bar.raznos-is-unknown strong { color: var(--stats-muted); font-weight: 600; }
 .raznos-stats-inline-link { width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: -4px 0 -8px; padding: 12px 0 0; border: 0; border-top: 1px solid var(--stats-track); background: transparent; color: var(--stats-ink); font: 600 14px var(--raznos-font); text-align: left; cursor: pointer; }
 .raznos-stats-ret { min-height: 44px; display: inline-flex; align-items: center; gap: 4px; margin: 0 0 4px -6px; padding: 0 10px 0 6px; border: 0; border-radius: 999px; background: transparent; color: var(--stats-ink); font: 600 14px var(--raznos-font); cursor: pointer; }

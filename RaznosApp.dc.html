@@ -214,17 +214,34 @@
                     <div class="raznos-day-card">
                       <sc-for list="{{ today_sheet_svcs }}" as="sv" hint-placeholder-count="2"><button type="button" class="raznos-day-svc" onClick="{{ sv.tap }}"><dc-import name="RaznosIcon" svc="{{ sv.key }}" alt="{{ sv.title }}" size="sm"></dc-import><span class="raznos-day-svc-main"><span class="raznos-day-svc-top"><span class="raznos-day-svc-name">{{ sv.title }}<small>{{ sv.count }}</small></span><b>{{ sv.sum }} ₽</b></span><i class="raznos-day-bar" aria-hidden="true"><i style="{{ sv.bar }}"></i></i></span><span class="raznos-row-chevron" aria-hidden="true">›</span></button></sc-for>
                       <sc-if value="{{ today_fines_show }}" hint-placeholder-val="{{ true }}"><div class="raznos-day-line raznos-day-fines"><span>Удержано сервисами</span><b class="raznos-day-minus">{{ today_fines_label }}</b></div></sc-if>
-                      <div class="raznos-day-exp"><button type="button" class="raznos-day-exp-open" onClick="{{ today_sheet_expenses }}"><span class="raznos-day-exp-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 14.5h2"/></svg></span><span class="raznos-day-svc-name">Расходы<small>{{ today_exp_sub }}</small></span><b class="{{ today_exp_cls }}">{{ today_exp_sum }}</b><span class="raznos-row-chevron" aria-hidden="true">›</span></button><button type="button" class="raznos-day-exp-add" onClick="{{ today_sheet_add_expense }}" aria-label="Добавить расход"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
-                      <!-- чаевые такой же строкой, как расходы: нажатие открывает разбивку, плюс добавляет наличные -->
+                      <!-- чаевые такой же строкой, как расходы, над ними: нажатие открывает разбивку, плюс добавляет наличные -->
                       <div class="raznos-day-exp raznos-day-tips"><button type="button" class="raznos-day-exp-open" onClick="{{ today_tips_open }}"><span class="raznos-day-exp-ico raznos-day-tips-ico" aria-hidden="true">₽</span><span class="raznos-day-svc-name">Чаевые<small>за сегодня</small></span><b>{{ today_tips_sheet_value }}</b><span class="raznos-row-chevron" aria-hidden="true">›</span></button><button type="button" class="raznos-day-exp-add" onClick="{{ qt_open_tap }}" aria-label="Добавить наличные чаевые"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
+                      <div class="raznos-day-exp"><button type="button" class="raznos-day-exp-open" onClick="{{ today_sheet_expenses }}"><span class="raznos-day-exp-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 14.5h2"/></svg></span><span class="raznos-day-svc-name">Расходы<small>{{ today_exp_sub }}</small></span><b class="{{ today_exp_cls }}">{{ today_exp_sum }}</b><span class="raznos-row-chevron" aria-hidden="true">›</span></button><button type="button" class="raznos-day-exp-add" onClick="{{ today_sheet_add_expense }}" aria-label="Добавить расход"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
                       <div class="raznos-day-line raznos-day-line-head"><span>Чистыми</span><b>{{ today_remain_label }} ₽</b></div>
                     </div>
-                    <div class="raznos-day-card raznos-day-goal">
-                      <div class="raznos-day-line raznos-day-line-head"><span>Цель на сегодня</span><b>{{ today_earn_label }} из {{ today_target }} ₽</b></div>
+                    <sc-if value="{{ today_goal_show }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-day-card raznos-day-goal" onClick="{{ goal_day_open }}" aria-label="Цель на сегодня, как посчитана">
+                      <span class="raznos-day-line raznos-day-line-head"><span>Цель на сегодня</span><b>{{ today_earn_label }} из {{ today_target }} ₽ ›</b></span>
                       <i class="raznos-day-bar raznos-day-bar-goal" aria-hidden="true"><i style="{{ today_pace_style }}"></i></i>
                       <span class="raznos-day-note">{{ today_goal_short }}</span>
-                    </div>
+                    </button></sc-if>
                     <div class="raznos-day-foot"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ today_sheet_recap }}">Предварительный итог дня</button></div>
+                  </div>
+                </div>
+              </sc-if>
+              <!-- как посчитана цель дня: поверх шторки дня, закрытие возвращает в неё -->
+              <sc-if value="{{ goal_day_sheet }}" hint-placeholder-val="{{ false }}">
+                <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Цель на сегодня">
+                  <div class="raznos-dialog raznos-day-sheet">
+                    <div class="raznos-day-head"><span class="raznos-text-h3">Цель на сегодня</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ goal_day_close }}" aria-label="Закрыть">×</button></div>
+                    <div class="raznos-day-net"><span class="raznos-day-net-label">{{ goal_day_caption }}</span><b class="raznos-day-net-value">{{ today_target }} ₽</b></div>
+                    <div class="raznos-day-card">
+                      <div class="raznos-day-line"><span>Цель недели</span><b>{{ goal_day_week }} ₽</b></div>
+                      <div class="raznos-day-line"><span>{{ goal_day_before_label }}</span><b>−{{ goal_day_before }} ₽</b></div>
+                      <div class="raznos-day-line raznos-day-line-head"><span>Осталось</span><b>{{ goal_day_left }} ₽</b></div>
+                      <div class="raznos-day-line"><span>Рабочих дней</span><b>{{ goal_day_days }}</b></div>
+                    </div>
+                    <span class="raznos-day-note">{{ goal_day_note }}</span>
+                    <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ goal_day_plan }}">План на сегодня</button>
                   </div>
                 </div>
               </sc-if>
@@ -380,7 +397,7 @@
                 </div>
             </div>
             </sc-if>
-            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" caps="{{ shifts_caps }}" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ plan_edit_graph }}" reopenSettings="{{ plan_reopen_settings }}" onReopened="{{ plan_reopened }}" dayFacts="{{ smart_day_facts }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" changeNote="{{ plan_change_note }}" changeIso="{{ plan_change_iso }}" changeKey="{{ plan_change_key }}" onChangeHide="{{ plan_change_hide }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
+            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" caps="{{ shifts_caps }}" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ plan_edit_graph }}" reopenSettings="{{ plan_reopen_settings }}" onReopened="{{ plan_reopened }}" dayFacts="{{ smart_day_facts }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" changeNote="{{ plan_change_note }}" changeIso="{{ plan_change_iso }}" changeKey="{{ plan_change_key }}" onChangeHide="{{ plan_change_hide }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onDay="{{ plan_day_seen }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
           </sc-if>
 
           <sc-if value="{{ is_active_order }}">
@@ -410,6 +427,7 @@
 
           <sc-if value="{{ is_service_open_demo }}">
             <div class="raznos-phone-body" data-screen-label="15b Service open demo">
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ open_demo_back }}" aria-label="Назад">‹</button></div>
               <h1 class="raznos-text-h1">Открываем {{ open_demo_label }}</h1>
               <p class="raznos-text-body">{{ open_demo_text }}</p>
               <sc-if value="{{ open_demo_has_note }}"><p class="raznos-text-body">{{ open_demo_note }}</p></sc-if>
@@ -654,7 +672,7 @@
             <div class="raznos-phone-body" data-screen-label="21 Order">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ ord_back }}">‹</button><dc-import name="RaznosIcon" svc="{{ ord_svc }}" alt="{{ ord_svc_title }}" size="sm"></dc-import><h1 class="raznos-text-h1" style="margin:0">{{ ord_svc_title }} · {{ ord_no }}</h1></div>
               <p class="raznos-text-small" style="margin-top:-4px">{{ ord_date }}</p>
-              <div class="raznos-fx raznos-jb raznos-ac"><span class="raznos-fx raznos-col raznos-gap4"><sc-if value="{{ ord_pay_known }}" hint-placeholder-val="{{ true }}"><span class="raznos-num" style="font-size:34px;line-height:1.1;font-weight:800">{{ ord_pay }} ₽</span></sc-if><sc-if value="{{ ord_pay_unknown }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-small">в оплате маршрута</span></sc-if><span class="{{ ord_money_pill_class }}" style="align-self:flex-start">{{ ord_money }}</span></span><span class="{{ ord_delivery_pill_class }}">{{ ord_delivery }}</span></div>
+              <div class="raznos-fx raznos-jb raznos-ac"><span class="raznos-fx raznos-col raznos-gap4"><sc-if value="{{ ord_pay_known }}" hint-placeholder-val="{{ true }}"><span class="raznos-num" style="font-size:34px;line-height:1.1;font-weight:800">{{ ord_pay }} ₽</span></sc-if><sc-if value="{{ ord_pay_unknown }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-small">в оплате маршрута</span></sc-if><span class="{{ ord_money_pill_class }}" style="align-self:flex-start;max-width:none">{{ ord_money }}</span></span><span class="{{ ord_delivery_pill_class }}">{{ ord_delivery }}</span></div>
               <sc-if value="{{ ord_in_trip }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-trip-plate" onClick="{{ ord_trip_open }}"><span>{{ ord_trip_label }} · {{ ord_trip_of }}</span><span aria-hidden="true">›</span></button></sc-if>
               <dc-import name="RaznosRouteMap" pickupAddr="{{ ord_pickup }}" dropAddr="{{ ord_drop }}" distance="{{ ord_distance }}"></dc-import>
               <dc-import name="RaznosOrderLink" svc="{{ ord_svc }}" svcTitle="{{ ord_svc_title }}" orderNo="{{ ord_no }}" orderRef="{{ ord_link_ref }}" orderState="done" app="{{ order_link_app }}" launch="{{ order_link_launch }}" resetKey="{{ state_gen }}"></dc-import>
@@ -668,9 +686,6 @@
                   <button type="button" class="raznos-addr-note-btn" onClick="{{ an_open }}"><span class="raznos-list-main"><span class="raznos-text-small">Моя заметка к адресу · видна только вам</span><span class="{{ an_text_cls }}">{{ an_text }}</span></span><span class="raznos-row-chevron" aria-hidden="true">{{ an_icon }}</span></button>
                 </sc-if>
               </div>
-              <sc-for list="{{ ord_problems }}" as="pr" hint-placeholder-count="1"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Зафиксировано {{ pr.time }} · {{ pr.reason }}</span><span class="raznos-text-small">{{ pr.place }}{{ pr.photo }}</span></div></sc-for>
-              <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" style="align-self:flex-start" onClick="{{ op_open_tap }}">Зафиксировать проблему</button>
-              <sc-if value="{{ op_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosOrderProblem" reasons="{{ op_reasons }}" timeLabel="{{ op_time }}" photoSrc="{{ op_photo_src }}" onPhoto="{{ op_photo }}" onSave="{{ op_save }}" onClose="{{ op_close }}"></dc-import></sc-if>
               <sc-if value="{{ ord_promised_shown }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosOfferVsFact" promised="{{ ord_promised }}" accrued="{{ ord_pay }}" payout="{{ ord_money }}"></dc-import></sc-if>
               <div class="raznos-card raznos-card-pad">
                 <span class="raznos-text-h3">Начисление</span>
@@ -678,6 +693,14 @@
                 <sc-if value="{{ ord_pay_known }}" hint-placeholder-val="{{ true }}"><div class="raznos-breakdown-row"><span>Оплата доставки</span><span class="raznos-num">{{ ord_pay }} ₽</span></div></sc-if>
                 <sc-if value="{{ ord_pay_unknown }}" hint-placeholder-val="{{ false }}"><div class="raznos-breakdown-row"><span>Оплата доставки</span><span class="raznos-text-small">в оплате маршрута</span></div></sc-if>
                 <div class="raznos-breakdown-row"><span>Безналичные чаевые</span><span class="raznos-num">{{ ord_tip_digital }}</span></div>
+                <!-- наличные чаевые вносит сам курьер: строка как остальные, нажатие открывает правку на месте -->
+                <sc-if value="{{ ord_cash_view }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-ord-cash" onClick="{{ ord_cash_edit }}"><span class="raznos-ord-cash-main"><span>Наличные чаевые</span><span class="raznos-ord-cash-sub">{{ ord_cash_sub }}</span></span><span class="{{ ord_cash_val_cls }}">{{ ord_cash_label }}</span></button></sc-if>
+                <sc-if value="{{ ord_cash_editing }}" hint-placeholder-val="{{ false }}">
+                  <div class="raznos-ord-cash-edit">
+                    <label class="raznos-ord-cash-field"><span>Наличные чаевые</span><span class="raznos-fx raznos-ac raznos-gap8"><input class="raznos-input raznos-ord-cash-input" type="number" inputmode="numeric" min="0" value="{{ ord_cash_value }}" onChange="{{ ord_cash_change }}" aria-label="Сумма наличными" /><b>₽</b></span></label>
+                    <div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-primary raznos-btn-small" onClick="{{ ord_cash_save }}">Сохранить</button><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ ord_cash_cancel }}">Отмена</button><sc-if value="{{ ord_cash_has }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small raznos-ord-cash-del" onClick="{{ ord_cash_delete }}">Удалить</button></sc-if></div>
+                  </div>
+                </sc-if>
               </div>
               <div class="raznos-card raznos-card-pad">
                 <span class="raznos-text-h3">Что вёз</span>
@@ -686,40 +709,11 @@
                 <div class="raznos-breakdown-row"><span>Ожидание / выполнение</span><span class="raznos-num">{{ ord_wait }} / {{ ord_duration }}</span></div>
                 <div class="raznos-breakdown-row"><span>Расстояние</span><span class="raznos-num">{{ ord_distance }}</span></div>
               </div>
-              <div class="raznos-card raznos-card-pad">
+              <div class="raznos-card raznos-card-pad raznos-ord-review">
                 <span class="raznos-text-h3">Отзыв о заказе</span>
-                <div class="raznos-review-block">
-                  <div class="raznos-fx raznos-jb raznos-ac"><span class="raznos-text-small raznos-review-label">Место доставки</span><span class="raznos-status-pill raznos-pill-ok">Видно всем</span></div>
-                  <div class="raznos-rate" role="group" aria-label="{{ rv_place_label }}">
-                    <button type="button" class="{{ pr_s1 }}" onClick="{{ set_place_1 }}" aria-label="1 звезда"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
-                    <button type="button" class="{{ pr_s2 }}" onClick="{{ set_place_2 }}" aria-label="2 звезды"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
-                    <button type="button" class="{{ pr_s3 }}" onClick="{{ set_place_3 }}" aria-label="3 звезды"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
-                    <button type="button" class="{{ pr_s4 }}" onClick="{{ set_place_4 }}" aria-label="4 звезды"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
-                    <button type="button" class="{{ pr_s5 }}" onClick="{{ set_place_5 }}" aria-label="5 звёзд"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
-                  </div>
-                </div>
-                <div class="raznos-review-block">
-                  <div class="raznos-fx raznos-jb raznos-ac"><span class="raznos-text-small raznos-review-label">Получатель</span><span class="raznos-status-pill raznos-pill-concept">Только вам</span></div>
-                  <div class="raznos-rate" role="group" aria-label="{{ rv_rec_label }}">
-                    <button type="button" class="{{ rr_s1 }}" onClick="{{ set_rec_1 }}" aria-label="1 звезда"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
-                    <button type="button" class="{{ rr_s2 }}" onClick="{{ set_rec_2 }}" aria-label="2 звезды"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
-                    <button type="button" class="{{ rr_s3 }}" onClick="{{ set_rec_3 }}" aria-label="3 звезды"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
-                    <button type="button" class="{{ rr_s4 }}" onClick="{{ set_rec_4 }}" aria-label="4 звезды"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
-                    <button type="button" class="{{ rr_s5 }}" onClick="{{ set_rec_5 }}" aria-label="5 звёзд"><svg class="raznos-rate-star" viewBox="0 0 20 20"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button>
-                  </div>
-                </div>
-              </div>
-              <div class="raznos-card raznos-card-pad">
-                <div class="raznos-fx raznos-jb raznos-ac"><span class="raznos-text-h3">Наличные чаевые</span><sc-if value="{{ ord_cash_has }}" hint-placeholder-val="{{ false }}"><span class="raznos-status-pill raznos-pill-warn">Не подтверждено</span></sc-if></div>
-                <sc-if value="{{ ord_cash_hidden }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Скрыто из статистики</p><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ ord_cash_unhide }}">Показать снова</button></sc-if>
-                <sc-if value="{{ ord_cash_visible }}">
-                  <div class="raznos-fx raznos-ac raznos-gap8"><input class="raznos-input" style="max-width:120px" type="number" min="0" value="{{ ord_cash_value }}" onChange="{{ ord_cash_change }}" /><span class="raznos-text-small">₽ наличными</span></div>
-                  <div class="raznos-btn-row">
-                    <button type="button" class="{{ ord_cash_save_class }}" onClick="{{ ord_cash_save }}" disabled="{{ ord_cash_save_disabled }}">Сохранить</button>
-                    <sc-if value="{{ ord_cash_dirty }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ ord_cash_cancel }}">Отмена</button></sc-if>
-                    <button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ ord_cash_hide }}">Скрыть</button>
-                  </div>
-                </sc-if>
+                <dc-import name="RaznosReviewBlock" title="{{ rv_svc_title }}" pill="Только вам" pillTone="private" stars="{{ false }}" tags="{{ rv_svc_tags }}" selected="{{ rv_svc_sel }}" text="{{ rv_svc_text }}" placeholder="Что было на выдаче" onTag="{{ rv_svc_tag }}" onText="{{ rv_svc_set_text }}" onClear="{{ rv_svc_clear }}"></dc-import>
+                <dc-import name="RaznosReviewBlock" title="Место доставки" pill="Видно всем" pillTone="ok" rating="{{ rv_place_rating }}" tags="{{ rv_place_tags }}" selected="{{ rv_place_sel }}" text="{{ rv_place_text }}" placeholder="Подъезд, домофон, где оставить" foot="Другим курьерам без вашего имени" onRate="{{ rv_place_rate }}" onTag="{{ rv_place_tag }}" onText="{{ rv_place_set_text }}" onClear="{{ rv_place_clear }}"></dc-import>
+                <dc-import name="RaznosReviewBlock" title="Получатель" pill="Только вам" pillTone="private" rating="{{ rv_rec_rating }}" tags="{{ rv_rec_tags }}" selected="{{ rv_rec_sel }}" text="{{ rv_rec_text }}" placeholder="Что запомнить про получателя" onRate="{{ rv_rec_rate }}" onTag="{{ rv_rec_tag }}" onText="{{ rv_rec_set_text }}" onClear="{{ rv_rec_clear }}"></dc-import>
               </div>
             </div>
           </sc-if>
@@ -3667,7 +3661,8 @@
         'anonSvcKey', 'anonAuthor', 'anonBack', 'anonCtx', 'anonOrders', 'liveThreadId', 'liveThreadBack', 'liveBack', 'liveViewBack', 'liveReportId', 'liveReportBack',
         'lcBack', 'cmapBack', 'cmapFocus', 'subFrom', 'wsFrom', 'expBack', 'recBack', 'slotsFrom', 'bpFrom', 'btFrom', 'scFrom', 'guideSvc', 'guideSection',
         'ppSelectedId', 'shViewLinkId', 'openDemoFrom', 'openDemoLabel', 'openDemoSection', 'openDemoShift', 'openDemoSlot', 'openDemoKind', 'pvPreview',
-        'activeFrom', 'selectedOfferId', 'tipRecipientId', 'statsDetailBack', 'inboxRet', 'smartFocusIso', 'smartFocusKey'];
+        'activeFrom', 'selectedOfferId', 'tipRecipientId', 'statsDetailBack', 'inboxRet'];
+      // день Плана сюда не входит: План сам передаёт его при уходе, и возврат открывает тот же день
       // какой объект открыт на экране, по нему отличаем один заказ от другого в стеке назад
       const NAV_ID = { order: ['histSelectedId'], trip: ['tripSelectedId'], service: ['svKey'], questions: ['svKey'], 'integration-connect': ['connKey'], 'worker-data': ['connKey'],
         'live-thread': ['liveThreadId'], 'live-report': ['liveReportId'], 'public-profile': ['ppSelectedId'], 'share-link-view': ['shViewLinkId'], 'anon-courier': ['anonSvcKey', 'anonAuthor'] };
@@ -3793,6 +3788,7 @@
           this._bindMotion();
           this._bindPullRefresh();
           this._bindToastStack();
+          this._bindSheetSwipe();
           // клик по затемнению у шторок без своего обработчика жмёт их кнопку отмены
           document.addEventListener('click', (e) => {
             const el = e.target;
@@ -3929,6 +3925,77 @@
           this._focusLiveMessage();
         }
         // Esc закрывает верхнюю открытую шторку или модалку, как клик по затемнению
+        // шторку снизу закрываем свайпом вниз, когда её содержимое прокручено до верха; тянется только верхняя из вложенных
+        _bindSheetSwipe() {
+          if (typeof document === 'undefined' || window.__rznSheetSwipe) return;
+          window.__rznSheetSwipe = true;
+          const reduce = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          const isBottomSheet = (layer, sheet) => {
+            const lr = layer.getBoundingClientRect(), sr = sheet.getBoundingClientRect();
+            return sr.bottom >= lr.bottom - 2 && sr.height < lr.height - 8;
+          };
+          const closeLayer = (layer) => {
+            const c = layer.querySelector('[data-cancel]') || layer.querySelector('button[aria-label="Закрыть"]');
+            if (c) c.click(); else layer.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+          };
+          let drag = null;
+          const start = (target, y, mouse) => {
+            const layers = Array.from(document.querySelectorAll('.raznos-dialog-layer')).filter((el) => el.getClientRects().length > 0);
+            const layer = layers[layers.length - 1];
+            if (!layer || !layer.contains(target)) return;
+            const sheet = layer.firstElementChild;
+            if (!sheet || !sheet.contains(target) || !isBottomSheet(layer, sheet)) return;
+            // в поле ввода жест его, а не шторки; ищем только внутри шторки
+            const field = target.closest('input, textarea, select, [contenteditable="true"]');
+            if (field && sheet.contains(field)) return;
+            // мышью тянем только за верх шторки, пальцем откуда угодно
+            if (mouse && y - sheet.getBoundingClientRect().top > 40) return;
+            // пока что-то внутри прокручено вниз, жест отдаём прокрутке
+            for (let el = target; el && el !== layer; el = el.parentElement) { if (el.scrollTop > 0) return; }
+            drag = { layer, sheet, y0: y, t0: performance.now(), dy: 0, on: false, mouse };
+          };
+          const move = (y, e) => {
+            if (!drag) return;
+            const dy = y - drag.y0;
+            if (!drag.on) {
+              if (dy < -4) { drag = null; return; }
+              if (dy < 8) return;
+              drag.on = true;
+              drag.sheet.style.transition = 'none';
+            }
+            drag.dy = Math.max(0, dy);
+            drag.sheet.style.transform = 'translateY(' + drag.dy + 'px)';
+            if (e.cancelable) e.preventDefault();
+          };
+          const end = () => {
+            const d = drag; drag = null;
+            if (!d || !d.on) return;
+            if (d.mouse) {
+              // свайп мышью не должен ещё и нажать то, на чём начался
+              const eat = (ev) => { ev.stopPropagation(); ev.preventDefault(); };
+              document.addEventListener('click', eat, { capture: true, once: true });
+              setTimeout(() => document.removeEventListener('click', eat, { capture: true }), 0);
+            }
+            const fast = d.dy / Math.max(1, performance.now() - d.t0) > 0.6;
+            if (d.dy > Math.min(120, d.sheet.offsetHeight * 0.3) || (fast && d.dy > 30)) {
+              if (reduce()) { d.sheet.style.transform = ''; closeLayer(d.layer); return; }
+              d.sheet.style.transition = 'transform .18s cubic-bezier(.4, 0, 1, 1)';
+              d.sheet.style.transform = 'translateY(' + d.sheet.offsetHeight + 'px)';
+              setTimeout(() => { d.sheet.style.transform = ''; d.sheet.style.transition = ''; closeLayer(d.layer); }, 170);
+            } else {
+              d.sheet.style.transition = 'transform .22s cubic-bezier(.16, 1, .3, 1)';
+              d.sheet.style.transform = '';
+              setTimeout(() => { d.sheet.style.transition = ''; }, 240);
+            }
+          };
+          document.addEventListener('touchstart', (e) => { if (e.touches.length === 1) start(e.target, e.touches[0].clientY, false); else drag = null; }, { capture: true, passive: true });
+          document.addEventListener('touchmove', (e) => { if (drag && e.touches.length === 1) move(e.touches[0].clientY, e); }, { capture: true, passive: false });
+          document.addEventListener('touchend', end, true);
+          document.addEventListener('touchcancel', end, true);
+          document.addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse' && e.button === 0) start(e.target, e.clientY, true); }, true);
+          document.addEventListener('pointermove', (e) => { if (drag && drag.mouse) move(e.clientY, e); }, true);
+          document.addEventListener('pointerup', (e) => { if (drag && drag.mouse) end(); }, true);
+        }
         _bindEscClose() {
           if (typeof document === 'undefined') return;
           document.addEventListener('keydown', (e) => {
@@ -4123,6 +4190,8 @@
           const btn = Array.from(document.querySelectorAll('.raznos-phone-body button'))
             .find((x) => shown(x) && (x.getAttribute('aria-label') === 'Назад' || x.classList.contains('raznos-profile-preview-bar-back') || (x.classList.contains('raznos-icon-btn') && (x.textContent || '').trim().charAt(0) === '‹')));
           if (btn) { btn.click(); return; }
+          // на экране без кнопки назад идём по стеку, на корень вкладки только если идти некуда
+          if (this._nav && this._nav.stack.length && this._stackBack) { this._stackBack(); return; }
           const st = this.state || {};
           const home = st.role === 'user' ? 'user-home' : 'courier-home';
           if (st.s && st.s !== home && st.s !== 'courier-empty' && st.s !== 'welcome') { if (this._nav) this._nav.tab = true; this.setState({ s: home }); }
@@ -4467,7 +4536,7 @@
             if (nav.back) {} else if (at !== -1) nav.stack.length = at;
             else if (nav.tab) nav.stack = [];
             else if (nav.swap) {}
-            else { nav.stack.push({ k: nav.cur, s: nav.s, d: nav.d, sh: !!this._navSheet, p: nav.p }); this._navSheet = false; if (nav.stack.length > 40) nav.stack.shift(); }
+            else { nav.stack.push({ k: nav.cur, s: nav.s, d: nav.d, sh: !!this._navSheet, p: nav.s === 'work-hub' && this._planDay ? Object.assign({}, nav.p, { smartFocusIso: this._planDay, smartFocusKey: '' }) : nav.p }); this._navSheet = false; if (nav.stack.length > 40) nav.stack.shift(); }
             nav.back = false; nav.tab = false; nav.swap = false; nav.cur = navId; nav.s = s; nav.d = st.statsDetail || '';
           }
           // параметры экрана (какой заказ, сервис, откуда пришли) запоминаем вместе с ним, назад открывает тот же самый
@@ -4564,11 +4633,8 @@
           const histSelectedId = st.histSelectedId || HISTORY[0].id;
           const cashTips = st.cashTips || {};
           const addrNotes = st.addrNotes || {};
-          const orderProblems = st.orderProblems || {};
           const cashDrafts = st.cashDrafts || {};
           const orderReviews = st.orderReviews || {};
-          const reviewTextEditing = st.reviewTextEditing || '';
-          const reviewTextDraft = st.reviewTextDraft != null ? st.reviewTextDraft : '';
 
           const mkCity = st.mkCity || city;
           const mkSort = st.mkSort || 'hourly';
@@ -4714,6 +4780,7 @@
           const birthMask = (raw) => { const d = String(raw || '').replace(/\D/g, '').slice(0, 8); return d.length > 4 ? d.slice(0, 2) + '.' + d.slice(2, 4) + '.' + d.slice(4) : (d.length > 2 ? d.slice(0, 2) + '.' + d.slice(2) : d); };
           const birthIso = (t) => { const m = /^(\d\d)\.(\d\d)\.(\d{4})$/.exec(t || ''); if (!m) return ''; const iso = m[3] + '-' + m[2] + '-' + m[1]; const dt = new Date(iso + 'T00:00:00'); return !isNaN(dt) && dt.getDate() === +m[1] && +m[3] > 1900 && iso <= TODAY_ISO ? iso : ''; };
           const birthShown = (iso, text) => (text != null && birthIso(text) === (iso || '') ? text : (iso ? iso.slice(8) + '.' + iso.slice(5, 7) + '.' + iso.slice(0, 4) : ''));
+          this._stackBack = navBack(() => {});
           const withoutScreen = (patch) => { const o = Object.assign({}, patch); delete o.s; return o; };
           // назад из формы: с правками сначала спрашиваем
           const guardBack = (dirty, patch) => (dirty ? set({ leavePatch: Object.assign({ navBack: true }, patch) }) : navBack(() => set(patch), withoutScreen(patch))());
@@ -4817,19 +4884,35 @@
           const todayHourly = todayHours ? Math.round(todayEarn / todayHours) : 0;
           // чистыми как в Результатах: начислено минус удержания минус расходы
           const todayFines = STATS_FINES.filter((row) => row.date === TODAY_ISO && !edgeTodayZero && (demoOn || activeDataSvcs.indexOf(row.svc) !== -1)).reduce((sum, row) => sum + row.amount, 0);
-          const todayNetHourly = todayHours ? Math.round((todayEarn - todayFines - todayExpenses) / todayHours) : 0;
           const todayDeltaPct = today.prevEarn ? Math.round((todayEarn - today.prevEarn) * 100 / today.prevEarn) : null;
           const todayVvHourly = today.vvHours ? Math.round(vvEarn / today.vvHours) : 0;
           const todaySamokatHourly = today.samokatHours ? Math.round(samokatEarn / today.samokatHours) : 0;
           const todayHistory = HISTORY.filter((o) => o.dateISO === TODAY_ISO && edgeKeepOrder(o) && (demoOn || activeDataSvcs.indexOf(o.svc) !== -1));
           const todayTipsDigital = todayHistory.reduce((sum, o) => sum + o.tipDigital, 0);
           const todayPaidOutSum = todayHistory.filter((o) => o.money === 'Выплачено').reduce((sum, o) => sum + o.pay, 0);
-          const todayRemain = todayEarn - todayFines - todayExpenses;
           const qtDelivered = todayHistory.filter((o) => o.delivery === 'Доставлен').slice().sort((a, b) => (a.date < b.date ? 1 : -1));
           const recentTipOf = (o) => { const e = cashTips[o.id] || { amount: o.cashTip || 0, hidden: false }; return e.hidden ? 0 : e.amount; };
           const todayTipsCash = todayHistory.reduce((sum, o) => { const e = cashTips[o.id] || { amount: o.cashTip || 0, hidden: false }; return sum + (e.hidden ? 0 : e.amount); }, 0);
-          // темп дня: доля недельной цели из Работы на один день
-          const todayTarget = workGoalFor(1, st.workGoal);
+          // чистыми: начислено плюс наличные чаевые, которые внёс курьер, минус удержания и расходы
+          // в общей статистике города ручные записи не участвуют, это только для самого курьера
+          const todayRemain = todayEarn + todayTipsCash - todayFines - todayExpenses;
+          const todayNetHourly = todayHours ? Math.round(todayRemain / todayHours) : 0;
+          // цель дня: что осталось до цели недели, поровну на оставшиеся рабочие дни, сегодня включительно
+          // рабочий день это день графика или день с бронью, в выходной без броней цели нет
+          const goalWeek = st.workGoal || WORK_WEEK_GOAL;
+          const goalGraphOn = (iso) => {
+            const wd = (new Date(iso + 'T00:00:00').getDay() + 6) % 7;
+            if (st.graphPerDay && st.graphWeek) return !!(st.graphWeek[wd] && st.graphWeek[wd].on);
+            if (st.graphDays) return !!st.graphDays[wd];
+            return wd < 5;
+          };
+          const goalHasShift = (iso) => SHIFTS_WEEK.some((sh) => sh.iso === iso && sh.status !== 'cancelled');
+          const goalWeekDays = Array.from({ length: 7 }, (_, i) => isoAt(WEEK_MON_OFF + i));
+          const goalEarnedBefore = goalWeekDays.filter((iso) => iso < TODAY_ISO).reduce((sum, iso) => { const d = statsDaysSource('today', [iso, iso], false); return sum + (d && d.earn ? d.earn : 0); }, 0);
+          const goalDaysLeft = goalWeekDays.filter((iso) => iso >= TODAY_ISO && (goalGraphOn(iso) || goalHasShift(iso)));
+          const goalTodayOn = goalDaysLeft.indexOf(TODAY_ISO) !== -1;
+          const goalLeft = Math.max(0, goalWeek - goalEarnedBefore);
+          const todayTarget = goalTodayOn ? Math.round(goalLeft / goalDaysLeft.length / 100) * 100 : 0;
           // день ещё не начался или выходной: в демо задаётся сценарием, ближайшая смена берётся из броней
           // тур подсказок: шаг 0 про демо, дальше пять вкладок; если демо уже включено, нулевой шаг пропускаем
           const TOUR = [
@@ -4996,7 +5079,9 @@
             computeExpensesFor(statsRange[0], statsRange[1] < TODAY_ISO ? statsRange[1] : TODAY_ISO).total;
           const statsExpensesKnown = st.statsExpensesComplete !== false && statsSvcFilterNow === 'all' && !statsByDistrict &&
             !statsNoGranularData && (statsSource.expensesComplete !== false) && !statsSource.missing.length;
-          let statsNet = statsGross != null && statsExpensesKnown ? statsGross - statsExpensesValue : null;
+          // наличные чаевые курьер внёс сам: в чистые входят, в начислено и в сравнение с городом нет
+          const statsCashTips = statsFullOrderCoverage ? statsVisibleOrders.reduce((sum, o) => { const e = cashTips[o.id] || { amount: o.cashTip || 0, hidden: false }; return sum + (e.hidden ? 0 : e.amount); }, 0) : 0;
+          let statsNet = statsGross != null && statsExpensesKnown ? statsGross + statsCashTips - statsExpensesValue : null;
           // прошлый период для сравнения: у идущего периода столько же дней с начала, у завершённого весь предыдущий
           const statsPickSvc = (src, allKey, vvKey, skKey) => {
             if (!src) return null;
@@ -6126,7 +6211,7 @@
             // чаевые строками: сервис, откуда данные, сумма; наличные отдельно; без данных одной строкой с иконками
             today_tips_rows: Object.entries(todayHistory.reduce((acc, o) => { if (o.tipDigital > 0) acc[o.svc] = (acc[o.svc] || 0) + o.tipDigital; return acc; }, {}))
               .map(([k, v]) => ({ key: k, svc: true, cash: false, title: SERVICES[k] ? SERVICES[k].title : k, src: tipSrcOf(k) || 'через сервис', sum: formatMoney(v) + ' ₽' }))
-              .concat(todayTipsCash > 0 ? [{ key: 'cash', svc: false, cash: true, title: 'Вне сервиса', src: 'наличные, в заработок не входят', sum: formatMoney(todayTipsCash) + ' ₽' }] : []),
+              .concat(todayTipsCash > 0 ? [{ key: 'cash', svc: false, cash: true, title: 'Вне сервиса', src: 'наличные, входят в чистые', sum: formatMoney(todayTipsCash) + ' ₽' }] : []),
             today_tips_none: connectedKeys.filter((k) => !tipSrcOf(k)).map((k) => ({ key: k, title: SERVICES[k] ? SERVICES[k].title : k })),
             today_tips_none_show: connectedKeys.some((k) => !tipSrcOf(k)),
             today_tips_none_text: 'Нет данных: ' + connectedKeys.filter((k) => !tipSrcOf(k)).map((k) => SERVICES[k] ? SERVICES[k].title : k).join(', '),
@@ -6137,8 +6222,7 @@
             today_add_label: todayExpenses <= 0, today_exp_show: todayExpenses > 0, today_exp_label: '−' + formatMoney(Math.round(todayExpenses)) + ' ₽',
             today_hero_note: [
               todayTipsDigital > 0 ? ('чаевые ' + formatMoney(todayTipsDigital) + ' ₽ уже в сумме') : '',
-              todayTipsCash > 0 ? ('чаевые вне сервиса ' + formatMoney(todayTipsCash) + ' ₽ не входят в сумму') : '',
-              (todayExpenses > 0 || todayFines > 0) ? ('после ' + (todayFines > 0 && todayExpenses > 0 ? 'удержаний и расходов' : (todayFines > 0 ? 'удержаний' : 'расходов')) + ' ' + formatMoney(todayRemain) + ' ₽, чистыми ' + formatMoney(todayNetHourly) + ' ₽/ч') : ''
+              (todayExpenses > 0 || todayFines > 0 || todayTipsCash > 0) ? ('чистыми ' + formatMoney(todayRemain) + ' ₽, ' + formatMoney(todayNetHourly) + ' ₽/ч') : ''
             ].filter(Boolean).join(' · '),
             today_target: formatMoney(todayTarget), today_delta_pct: todayDeltaPct,
             work_week_goal: st.workGoal || WORK_WEEK_GOAL, set_work_goal: (v) => set({ workGoal: v }), work_week_earned: STATS_CALENDAR_WEEK.earn,
@@ -6164,6 +6248,8 @@
             // итоги прошедших дней те же, что в Результатах, План делит их между сменами
             smart_day_facts: (() => { const out = {}; for (let i = -14; i <= -1; i++) { const iso = isoAt(i), d = statsDaysSource('today', [iso, iso], false); if (d.earn != null) out[iso] = { earn: d.earn, orders: d.orders, vvEarn: d.vvEarn, vvOrders: d.vvOrders, samokatEarn: d.samokatEarn, samokatOrders: d.samokatOrders }; } return out; })(),
             // график из шторки настроек плана: назад возвращаемся в эту же шторку
+            // выбранный день Плана держим без перерисовки, чтобы назад вернул на него
+            plan_day_seen: (iso) => { this._planDay = iso; },
             plan_edit_graph: (fromSettings) => set({ s: 'work-schedule', wsFrom: s, planSettingsOpen: fromSettings === true }),
             plan_reopen_settings: !!st.planSettingsOpen && s === 'work-hub', plan_reopened: () => set({ planSettingsOpen: false }),
             ...(() => {
@@ -6523,14 +6609,15 @@
               return {
                 // деньги в подробном экране: одна полоса на цифру, чаевые и бонусы строкой под начислено
                 stats_money_detail_rows: [
-                  { label: 'Начислено', kind: 'earn', amount: statsGross, note: [tipsConfirmed > 0 ? 'чаевые ' + formatMoney(tipsConfirmed) + ' ₽' : '', tipsCash > 0 ? 'наличные ' + formatMoney(tipsCash) + ' ₽' : '', statsBonuses > 0 ? 'бонусы ' + formatMoney(statsBonuses) + ' ₽' : ''].filter(Boolean).join(', ').replace(/^./, (c) => 'В том числе ' + c) + (noTipSvcs.length ? (tipsConfirmed > 0 || tipsCash > 0 || statsBonuses > 0 ? '. ' : '') + 'Нет данных из сервиса: ' + noTipSvcs.join(', ') : '') },
+                  { label: 'Начислено', kind: 'earn', amount: statsGross, note: [tipsConfirmed > 0 ? 'чаевые ' + formatMoney(tipsConfirmed) + ' ₽' : '', statsBonuses > 0 ? 'бонусы ' + formatMoney(statsBonuses) + ' ₽' : ''].filter(Boolean).join(', ').replace(/^./, (c) => 'В том числе ' + c) + (noTipSvcs.length ? (tipsConfirmed > 0 || tipsCash > 0 || statsBonuses > 0 ? '. ' : '') + 'Нет данных из сервиса: ' + noTipSvcs.join(', ') : '') },
+                  ...(tipsCash > 0 ? [{ label: 'Чаевые наличными', kind: 'cash', amount: tipsCash, note: 'Внесли вы, в сравнение с городом не входят' }] : []),
                   { label: 'Расходы', kind: 'expenses', amount: statsExpensesKnown ? statsExpensesValue : null, note: statsExpensesKnown ? '' : 'Внесены не за все месяцы' },
                   { label: 'Чистыми', kind: 'net', amount: statsNet },
                   { label: 'Выплачено', kind: 'payout', amount: statsPayout },
                   { label: 'Ждёт выплаты', kind: 'pending', amount: statsPending }
                 ].map((row) => ({
                   label: row.label, kind: row.kind, note: row.note || '', cls: 'raznos-stats-money-bar raznos-is-' + row.kind + (row.amount == null ? ' raznos-is-unknown' : ''),
-                  value: row.amount == null ? (row.kind === 'expenses' ? (statsExpensesValue > 0 ? '−' + formatMoney(Math.round(statsExpensesValue)) + ' ₽, не все' : 'Не внесены') : 'Нет данных') : (row.kind === 'expenses' ? '−' : '') + formatMoney(Math.round(row.amount)) + ' ₽',
+                  value: row.amount == null ? (row.kind === 'expenses' ? (statsExpensesValue > 0 ? '−' + formatMoney(Math.round(statsExpensesValue)) + ' ₽, не все' : 'Не внесены') : 'Нет данных') : (row.kind === 'expenses' ? '−' : (row.kind === 'cash' ? '+' : '')) + formatMoney(Math.round(row.amount)) + ' ₽',
                   style: 'width:' + (row.amount == null || !statsGross ? 0 : Math.max(row.amount > 0 ? 3 : 0, Math.min(100, Math.round(row.amount * 100 / statsGross)))) + '%'
                 })).concat([
                   { label: 'Доход в час', kind: 'rate', plain: true, cls: 'raznos-stats-money-bar raznos-is-rate', value: statsRecap.rate == null ? 'Нет данных' : formatMoney(statsRecap.rate) + ' ₽/ч', note: '' },
@@ -7300,61 +7387,47 @@
               if (e && e.key === 'Enter') { set({ anDraft: e.target ? e.target.value : '' }); anSave(); }
               if (e && e.key === 'Escape') set({ anEdit: false });
             },
-            // проблема с заказом: причина чипом, время и место подставляются сами
-            ord_problems: (orderProblems[ordSource.id] || []).map((x) => ({ time: x.time, reason: x.reason, place: x.place, photo: x.photo ? ' · с фото' : '' })),
-            op_open_tap: () => set({ opOpen: true, opPhoto: false }),
-            op_open: !!st.opOpen,
-            op_time: nowHHMM(),
-            op_reasons: [['wait', 'Долго ждал на выдаче', ordSource.pickupAddr], ['door', 'Клиент не открыл', ordSource.dropAddr], ['damaged', 'Товар повреждён', ordSource.dropAddr], ['other', 'Другое', ordSource.dropAddr]].map((r) => ({ k: r[0], label: r[1], place: r[2] })),
-            op_photo_src: st.opPhoto ? LIVE_PHOTOS.queue : '',
-            op_photo: (remove) => set({ opPhoto: remove !== true }),
-            op_close: () => set({ opOpen: false }),
-            op_save: (k, label, place) => {
-              const id = ordSource.id;
-              const pid = 'pr-' + Date.now();
-              const rec = { id: pid, time: nowHHMM(), reason: label, place, photo: !!this.state.opPhoto };
-              const cur = this.state.orderProblems || {};
-              set({ opOpen: false, opPhoto: false, orderProblems: Object.assign({}, cur, { [id]: (cur[id] || []).concat([rec]) }) });
-              uxShowToast('Проблема зафиксирована', 'Отменить', () => {
-                const now = this.state.orderProblems || {};
-                set({ orderProblems: Object.assign({}, now, { [id]: (now[id] || []).filter((x) => x.id !== pid) }) });
-              });
-            },
-            rv_place_label: 'Оценка места ' + ordReview.placeRating + ' из 5',
-            rv_rec_label: 'Оценка получателя ' + ordReview.recRating + ' из 5',
-            pr_s1: rateStar(1, ordReview.placeRating), pr_s2: rateStar(2, ordReview.placeRating), pr_s3: rateStar(3, ordReview.placeRating), pr_s4: rateStar(4, ordReview.placeRating), pr_s5: rateStar(5, ordReview.placeRating),
-            rr_s1: rateStar(1, ordReview.recRating), rr_s2: rateStar(2, ordReview.recRating), rr_s3: rateStar(3, ordReview.recRating), rr_s4: rateStar(4, ordReview.recRating), rr_s5: rateStar(5, ordReview.recRating),
-            set_place_1: () => putReview({ placeRating: 1 }), set_place_2: () => putReview({ placeRating: 2 }), set_place_3: () => putReview({ placeRating: 3 }), set_place_4: () => putReview({ placeRating: 4 }), set_place_5: () => putReview({ placeRating: 5 }),
-            set_rec_1: () => putReview({ recRating: 1 }), set_rec_2: () => putReview({ recRating: 2 }), set_rec_3: () => putReview({ recRating: 3 }), set_rec_4: () => putReview({ recRating: 4 }), set_rec_5: () => putReview({ recRating: 5 }),
-            rv_place_editing: reviewTextEditing === 'place', rv_place_view: reviewTextEditing !== 'place',
-            rv_place_text: ordReview.placeText || 'Заметки о месте пока нет',
-            rv_place_draft: reviewTextEditing === 'place' ? reviewTextDraft : (ordReview.placeText || ''),
-            rv_place_btn_label: ordReview.placeText ? 'Изменить заметку' : 'Добавить заметку',
-            rv_place_edit: () => set({ reviewTextEditing: 'place', reviewTextDraft: ordReview.placeText || '' }),
-            rv_place_change: (e) => set({ reviewTextDraft: e && e.target ? e.target.value : reviewTextDraft }),
-            rv_place_save: () => putReview({ placeText: reviewTextDraft }, { reviewTextEditing: '' }),
-            rv_place_cancel: () => set({ reviewTextEditing: '' }),
-            rv_rec_editing: reviewTextEditing === 'recipient', rv_rec_view: reviewTextEditing !== 'recipient',
-            rv_rec_text: ordReview.recText || 'Заметки о получателе пока нет',
-            rv_rec_draft: reviewTextEditing === 'recipient' ? reviewTextDraft : (ordReview.recText || ''),
-            rv_rec_btn_label: ordReview.recText ? 'Изменить заметку' : 'Добавить заметку',
-            rv_rec_edit: () => set({ reviewTextEditing: 'recipient', reviewTextDraft: ordReview.recText || '' }),
-            rv_rec_change: (e) => set({ reviewTextDraft: e && e.target ? e.target.value : reviewTextDraft }),
-            rv_rec_save: () => putReview({ recText: reviewTextDraft }, { reviewTextEditing: '' }),
-            rv_rec_cancel: () => set({ reviewTextEditing: '' }),
-            rv_place_has: ordReview.placeRating > 0 || !!ordReview.placeText,
-            rv_rec_has: ordReview.recRating > 0 || !!ordReview.recText,
-            rv_place_clear: () => putReview({ placeRating: 0, placeText: '' }, { reviewTextEditing: '' }),
-            rv_rec_clear: () => putReview({ recRating: 0, recText: '' }, { reviewTextEditing: '' }),
-            ord_cash_has: !ordCash.hidden && ordCashDraftAmount > 0, ord_cash_hidden: ordCash.hidden, ord_cash_visible: !ordCash.hidden, ord_cash_value: ordCashDraftAmount,
-            ord_cash_dirty: ordCashDraftAmount !== ordCash.amount,
-            ord_cash_save_class: ordCashDraftAmount !== ordCash.amount ? 'raznos-btn raznos-btn-secondary raznos-btn-small' : 'raznos-btn-disabled raznos-btn-small',
-            ord_cash_save_disabled: ordCashDraftAmount === ordCash.amount,
+            // отзыв о заказе: у сервиса, места и получателя свои причины, текст сохраняется сразу
+            ...(() => {
+              const tagsOf = (key) => ordReview[key] || [];
+              const toggle = (key) => (label) => { const cur = tagsOf(key); putReview({ [key]: cur.indexOf(label) !== -1 ? cur.filter((x) => x !== label) : cur.concat([label]) }); };
+              const clearer = (patch, label) => () => {
+                const before = Object.assign({}, ordReview);
+                putReview(patch);
+                uxShowToast(label + ' очищен', 'Вернуть', () => putReview(before));
+              };
+              return {
+                rv_svc_title: 'Сервис · ' + ordSource.svcTitle,
+                rv_svc_tags: ['Долго ждал на выдаче', 'Заказ не собран', 'Товар повреждён', 'Тяжёлый заказ', 'Ошибка в оплате', 'Другое'],
+                rv_svc_sel: tagsOf('svcTags'), rv_svc_text: ordReview.svcText || '',
+                rv_svc_tag: toggle('svcTags'), rv_svc_set_text: (v) => putReview({ svcText: v }), rv_svc_clear: clearer({ svcTags: [], svcText: '' }, 'Отзыв о сервисе'),
+                rv_place_rating: ordReview.placeRating || 0,
+                rv_place_tags: ['Не работает домофон', 'Нет лифта', 'Сложно найти вход', 'Неверный адрес', 'Негде оставить транспорт', 'Другое'],
+                rv_place_sel: tagsOf('placeTags'), rv_place_text: ordReview.placeText || '',
+                rv_place_rate: (n) => putReview({ placeRating: n }), rv_place_tag: toggle('placeTags'), rv_place_set_text: (v) => putReview({ placeText: v }),
+                rv_place_clear: clearer({ placeRating: 0, placeTags: [], placeText: '' }, 'Отзыв о месте'),
+                rv_rec_rating: ordReview.recRating || 0,
+                rv_rec_tags: ['Не отвечал', 'Долго ждал у двери', 'Не открыл', 'Отказался от заказа', 'Грубил', 'Другое'],
+                rv_rec_sel: tagsOf('recTags'), rv_rec_text: ordReview.recText || '',
+                rv_rec_rate: (n) => putReview({ recRating: n }), rv_rec_tag: toggle('recTags'), rv_rec_set_text: (v) => putReview({ recText: v }),
+                rv_rec_clear: clearer({ recRating: 0, recTags: [], recText: '' }, 'Отзыв о получателе')
+              };
+            })(),
+            ord_cash_has: !ordCash.hidden && ordCash.amount > 0,
+            ord_cash_editing: st.ordCashEdit === ordSource.id, ord_cash_view: st.ordCashEdit !== ordSource.id,
+            ord_cash_label: !ordCash.hidden && ordCash.amount > 0 ? '+' + formatMoney(ordCash.amount) + ' ₽' : 'Добавить',
+            ord_cash_val_cls: !ordCash.hidden && ordCash.amount > 0 ? 'raznos-num' : 'raznos-ord-cash-add',
+            ord_cash_sub: !ordCash.hidden && ordCash.amount > 0 ? 'внесли вы, входят в чистые' : 'если дали наличными',
+            ord_cash_value: ordCashDraftAmount || '',
+            ord_cash_edit: () => set({ ordCashEdit: ordSource.id, cashDrafts: Object.assign({}, cashDrafts, { [ordSource.id]: undefined }) }),
             ord_cash_change: (e) => { const v = e && e.target ? Math.max(0, parseInt(e.target.value) || 0) : ordCashDraftAmount; set({ cashDrafts: Object.assign({}, cashDrafts, { [ordSource.id]: v }) }); },
-            ord_cash_save: () => set({ cashTips: Object.assign({}, cashTips, { [ordSource.id]: Object.assign({}, ordCash, { amount: ordCashDraftAmount }) }), cashDrafts: Object.assign({}, cashDrafts, { [ordSource.id]: undefined }) }),
-            ord_cash_cancel: () => set({ cashDrafts: Object.assign({}, cashDrafts, { [ordSource.id]: undefined }) }),
-            ord_cash_hide: () => set({ cashTips: Object.assign({}, cashTips, { [ordSource.id]: Object.assign({}, ordCash, { hidden: true }) }) }),
-            ord_cash_unhide: () => set({ cashTips: Object.assign({}, cashTips, { [ordSource.id]: Object.assign({}, ordCash, { hidden: false }) }) }),
+            ord_cash_save: () => set({ ordCashEdit: '', cashTips: Object.assign({}, cashTips, { [ordSource.id]: Object.assign({}, ordCash, { amount: ordCashDraftAmount, hidden: false }) }), cashDrafts: Object.assign({}, cashDrafts, { [ordSource.id]: undefined }) }),
+            ord_cash_cancel: () => set({ ordCashEdit: '', cashDrafts: Object.assign({}, cashDrafts, { [ordSource.id]: undefined }) }),
+            ord_cash_delete: () => {
+              const prev = cashTips[ordSource.id], id = ordSource.id;
+              set({ ordCashEdit: '', cashTips: Object.assign({}, cashTips, { [id]: Object.assign({}, ordCash, { amount: 0, hidden: false }) }), cashDrafts: Object.assign({}, cashDrafts, { [id]: undefined }) });
+              uxShowToast('Чаевые удалены', 'Вернуть', () => { const now = Object.assign({}, this.state.cashTips || {}); if (prev) now[id] = prev; else delete now[id]; set({ cashTips: now }); });
+            },
 
             // Рынок
             set_mk_city: (nextCity) => set({ mkCity: nextCity }),
@@ -8254,6 +8327,15 @@
             go_expense_form_from_home: (e) => { if (e && e.stopPropagation) e.stopPropagation(); set({ quickExp: true, todaySheet: false }); },
             // чаевые наличными сейчас: шторка с суммой в фокусе, чипы трёх последних заказов
             qt_open_tap: (e) => { if (e && e.stopPropagation) e.stopPropagation(); set({ qtOpen: true, todaySheet: false, tipsDaySheet: false }); },
+            // цель дня: остаток до цели недели на оставшиеся рабочие дни
+            today_goal_show: goalTodayOn,
+            goal_day_sheet: !!st.goalDaySheet, goal_day_open: () => set({ goalDaySheet: true }), goal_day_close: () => set({ goalDaySheet: false }),
+            goal_day_caption: goalLeft <= 0 ? 'Цель недели уже выполнена' : (goalDaysLeft.length === 1 ? 'Последний рабочий день недели' : 'Остаток недели поровну на ' + goalDaysLeft.length + ' ' + ruPlural(goalDaysLeft.length, 'день', 'дня', 'дней')),
+            goal_day_week: formatMoney(goalWeek), goal_day_before: formatMoney(goalEarnedBefore), goal_day_left: formatMoney(goalLeft),
+            goal_day_before_label: goalWeekDays[0] < TODAY_ISO ? 'Заработали до сегодня' : 'Заработали до сегодня, неделя только началась',
+            goal_day_days: goalDaysLeft.map((iso) => iso === TODAY_ISO ? 'сегодня' : ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][new Date(iso + 'T00:00:00').getDay()]).join(', '),
+            goal_day_note: 'Рабочие дни по графику и дни с бронями' + (goalDaysLeft.length > 1 ? '. Отстанете сегодня, цель следующих дней вырастет' : ''),
+            goal_day_plan: () => set({ goalDaySheet: false, todaySheet: false, s: 'work-hub', smartFocusIso: TODAY_ISO, smartFocusKey: '' }),
             tips_day_sheet: !!st.tipsDaySheet, today_tips_open: () => set({ tipsDaySheet: true }), today_tips_close: () => set({ tipsDaySheet: false }),
             qt_open: !!st.qtOpen,
             qt_orders: qtDelivered.slice(0, 3).map((o) => ({ id: o.id, label: o.date.replace(/^\d+ \S+, /, '') + ' · ' + o.dropAddr.split(',')[0] })),

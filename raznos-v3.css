@@ -303,6 +303,8 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 .raznos-day-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--raznos-green); }
 .raznos-day-bar-goal { height: 8px; }
 .raznos-day-goal { gap: 8px; padding-bottom: 12px; }
+button.raznos-day-goal { width: 100%; border: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+button.raznos-day-goal:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
 .raznos-day-goal .raznos-day-line { min-height: 36px; }
 .raznos-day-note { font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
 .raznos-day-fines, .raznos-day-exp { border-top: 1px solid var(--raznos-line); }
@@ -418,6 +420,18 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-review-block { display: flex; flex-direction: column; gap: 6px; padding-top: 12px; }
 .raznos-review-block + .raznos-review-block { border-top: 1px solid var(--raznos-line); margin-top: 4px; }
 .raznos-review-label { font-weight: 600; }
+/* отзыв о заказе: части разделены линией, у каждой свой отступ сверху */
+.raznos-ord-review .rrb { border-top: 1px solid var(--raznos-line); margin-top: 4px; }
+/* наличные чаевые строкой в начислении: нажатие открывает правку на месте */
+.raznos-ord-cash { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 52px; margin-top: 2px; padding: 8px 0 0; border: 0; border-top: 1px solid var(--raznos-line); background: none; font: inherit; color: var(--raznos-ink); text-align: left; cursor: pointer; }
+.raznos-ord-cash-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.raznos-ord-cash-sub { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-ord-cash-add { font: 650 14px var(--raznos-font); color: var(--raznos-green-deep); }
+.raznos-ord-cash:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 8px; }
+.raznos-ord-cash-edit { display: flex; flex-direction: column; gap: 10px; margin-top: 2px; padding-top: 10px; border-top: 1px solid var(--raznos-line); }
+.raznos-ord-cash-field { display: flex; align-items: center; justify-content: space-between; gap: 12px; font: 500 15px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-ord-cash-input { width: 110px; text-align: right; font: 700 17px var(--raznos-mono); font-variant-numeric: tabular-nums; }
+.raznos-ord-cash-del { margin-left: auto; color: var(--raznos-red); }
 .raznos-focus-card { box-shadow: 0 0 0 2px var(--raznos-green-deep); }
 .raznos-order-card { border-left-width: 4px; border-left-style: solid; }
 
