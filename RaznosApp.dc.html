@@ -429,7 +429,7 @@
 
           <sc-if value="{{ is_tax_forms }}">
             <div class="raznos-phone-body" data-screen-label="Tax forms">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Налоги по сервисам</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ nav_back_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Налоги по сервисам</h1></div>
               <p class="raznos-text-small">От оформления зависит, считаем ли мы налог. Где сервис отдаёт его сам, берём оттуда</p>
               <sc-for list="{{ tax_forms_rows }}" as="tf" hint-placeholder-count="2">
                 <div class="raznos-card raznos-card-pad raznos-fx raznos-col raznos-gap8">
@@ -1083,7 +1083,7 @@
 
           <sc-if value="{{ is_live_place_pick }}">
             <div class="raznos-phone-body" data-screen-label="42b Live place pick">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ lp_done }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Где это происходит</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ nav_back_live_compose }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Где это происходит</h1></div>
               <dc-import name="RaznosLivePlace" mode="pick" spots="{{ lp_spots }}" selectedId="{{ lp_selected }}" onPick="{{ lp_pick }}"></dc-import>
               <div class="raznos-sticky-actions"><button type="button" class="{{ lp_done_class }}" disabled="{{ lp_done_disabled }}" onClick="{{ lp_done }}">Подтвердить место</button></div>
             </div>
@@ -1141,7 +1141,7 @@
 
           <sc-if value="{{ is_imported_reviews }}">
             <div class="raznos-phone-body" data-screen-label="24c Imported reviews history">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">История отзывов</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ nav_back_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">История отзывов</h1></div>
               <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosImportedReviews" courierId="c1" full="{{ true }}"></dc-import></sc-if>
               <sc-if value="{{ has_no_data }}"><dc-import name="RaznosEmptyState" title="История отзывов пуста" text="Отзывы появятся после подключения сервиса, который их передаёт"></dc-import></sc-if>
             </div>
@@ -1149,7 +1149,7 @@
 
           <sc-if value="{{ is_my_activity }}">
             <div class="raznos-phone-body" data-screen-label="24a My activity">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Мои отзывы, вопросы и ответы</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ nav_back_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Мои отзывы, вопросы и ответы</h1></div>
               <p class="raznos-text-tiny">Виден только вам</p>
               <sc-if value="{{ my_activity_has }}" hint-placeholder-val="{{ true }}"><div class="raznos-badge-row"><span class="raznos-badge">{{ my_activity_reviews_label }}</span><span class="raznos-badge">{{ my_activity_questions_label }}</span><span class="raznos-badge">{{ my_activity_answers_label }}</span></div></sc-if>
               <sc-if value="{{ my_activity_empty }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Пока пусто: отзывов, вопросов и ответов от вашего аккаунта нет</p></sc-if>
@@ -1263,7 +1263,7 @@
 
           <sc-if value="{{ is_settings }}">
             <div class="raznos-phone-body" data-screen-label="24.2 Settings">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Настройки</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ nav_back_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Настройки</h1></div>
               <div class="raznos-card">
                 <button type="button" class="raznos-list-row" onClick="{{ go_profile_edit }}"><div class="raznos-list-main"><span class="raznos-list-title">Редактировать профиль</span><span class="raznos-text-small">{{ pf_my_name }}</span></div><span class="raznos-row-chevron">›</span></button>
                 <button type="button" class="raznos-list-row" onClick="{{ go_photo }}" style="border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">Изменить фото</span></div><span class="raznos-row-chevron">›</span></button>
@@ -1416,7 +1416,7 @@
 
           <sc-if value="{{ is_worker_data }}">
             <div class="raznos-phone-body" data-screen-label="47 Worker data">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_integrations }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Данные работника</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ nav_back_integrations }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Данные работника</h1></div>
               <div class="raznos-card">
                 <sc-for list="{{ wk_rows }}" as="w" hint-placeholder-count="5">
                   <div class="raznos-list-row">
@@ -1591,7 +1591,7 @@
 
           <sc-if value="{{ is_share }}">
             <div class="raznos-phone-body" data-screen-label="26 Share">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Поделиться профилем</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ nav_back_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Поделиться профилем</h1></div>
               <div class="raznos-segmented">
                 <button type="button" class="{{ sh_mode_public_class }}" onClick="{{ sh_set_mode_public }}">Публичный профиль</button>
                 <button type="button" class="{{ sh_mode_employer_class }}" onClick="{{ sh_set_mode_employer }}">Ссылка работодателю</button>
@@ -1666,7 +1666,7 @@
 
           <sc-if value="{{ is_share_link_view }}">
             <div class="raznos-phone-body" data-screen-label="26b Share link view">
-              <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ go_share }}">‹</button><span></span></div>
+              <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ nav_back_share }}">‹</button><span></span></div>
               <sc-if value="{{ shv_unavailable }}" hint-placeholder-val="{{ false }}">
                 <span class="raznos-status-pill raznos-pill-muted">Недоступна</span>
                 <h1 class="raznos-text-h1">{{ shv_unavailable_reason }}</h1>
@@ -1764,7 +1764,7 @@
 
           <sc-if value="{{ is_public_profile }}">
             <div class="raznos-phone-body" data-screen-label="29b Public profile">
-              <sc-if value="{{ pv_preview_off }}" hint-placeholder-val="{{ true }}"><div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ go_couriers }}">‹</button><span></span></div></sc-if>
+              <sc-if value="{{ pv_preview_off }}" hint-placeholder-val="{{ true }}"><div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ nav_back_couriers }}">‹</button><span></span></div></sc-if>
               <sc-if value="{{ pv_preview_on }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosProfilePreviewBar" mode="public" canNamed="{{ true }}" onMode="{{ pv_preview_mode }}" onBack="{{ pv_preview_back }}"></dc-import></sc-if>
               <div class="raznos-profile-head">
                 <dc-import name="RaznosAvatar" kind="{{ pp_photo_kind }}" uploadedSrc="{{ pp_uploaded_src }}" alt="{{ pp_name }}"></dc-import>
@@ -1823,7 +1823,7 @@
 
           <sc-if value="{{ is_tips_sent }}">
             <div class="raznos-phone-body" data-screen-label="30b Sent tips">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Отправленные чаевые</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ nav_back_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Отправленные чаевые</h1></div>
               <sc-if value="{{ ts_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" title="Вы пока не отправляли чаевые" text="Откройте публичный профиль курьера и нажмите Отправить чаевые"></dc-import></sc-if>
               <sc-for list="{{ ts_list }}" as="r" hint-placeholder-count="2">
                 <div class="raznos-card raznos-card-pad">
@@ -1874,7 +1874,7 @@
 
           <sc-if value="{{ is_wallet_income }}">
             <div class="raznos-phone-body" data-screen-label="30d Wallet income">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ back_to_wallet }}">‹</button><h1 class="raznos-text-h1" style="margin:0">История поступлений</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ nav_back_wallet }}">‹</button><h1 class="raznos-text-h1" style="margin:0">История поступлений</h1></div>
               <sc-if value="{{ wi_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" title="Поступлений пока нет" text="Чаевые появятся здесь после первого платежа через Разнос"></dc-import></sc-if>
               <sc-for list="{{ wi_list }}" as="r" hint-placeholder-count="2">
                 <div class="raznos-card raznos-card-pad">
@@ -1893,7 +1893,7 @@
 
           <sc-if value="{{ is_wallet_withdraw }}">
             <div class="raznos-phone-body" data-screen-label="30e Withdraw">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ back_to_wallet }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Вывод средств</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ nav_back_wallet }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Вывод средств</h1></div>
               <sc-if value="{{ wd_is_form }}" hint-placeholder-val="{{ true }}">
                 <div class="raznos-field"><span class="raznos-field-label">Сумма, доступно {{ wd_available }} ₽</span><input class="raznos-input" type="number" min="0" max="{{ wd_available }}" value="{{ wd_amount_value }}" placeholder="Сколько вывести" onChange="{{ wd_amount_change }}" /></div>
                 <sc-if value="{{ wd_amount_invalid }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small" style="color:var(--raznos-red)">Введите сумму от 1 до {{ wd_available }} ₽</p></sc-if>
@@ -1926,7 +1926,7 @@
 
           <sc-if value="{{ is_wallet_withdraw_history }}">
             <div class="raznos-phone-body" data-screen-label="30f Withdraw history">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ back_to_wallet }}">‹</button><h1 class="raznos-text-h1" style="margin:0">История выводов</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ nav_back_wallet }}">‹</button><h1 class="raznos-text-h1" style="margin:0">История выводов</h1></div>
               <sc-if value="{{ wh_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" title="Выводов пока не было" text="Заявки на вывод появятся здесь после первого запроса"></dc-import></sc-if>
               <sc-for list="{{ wh_list }}" as="w" hint-placeholder-count="2">
                 <div class="raznos-card raznos-card-pad">
@@ -1940,7 +1940,7 @@
 
           <sc-if value="{{ is_contest }}">
             <div class="raznos-phone-body" data-screen-label="31 Contest">
-              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ go_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Городской конкурс · {{ city_title }}</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ nav_back_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Городской конкурс · {{ city_title }}</h1></div>
               <p class="raznos-text-small">Больше всего подтверждённых доставок за {{ cur_month_word }}, из данных подключённых сервисов этого города</p>
               <div class="raznos-metric-grid">
                 <div class="raznos-metric-card"><span class="raznos-text-small">Начислено за {{ pf_week_range }}, справочно</span><span class="raznos-metric-value">{{ pf_week_earn }} ₽</span></div>
@@ -3662,6 +3662,15 @@
         if (screen === 'stats' && STATS_DETAIL_ROUTES.indexOf(statsDetail) !== -1) return 'stats-' + statsDetail;
         return screen || 'welcome';
       }
+      // что запоминаем вместе с экраном в стеке назад: выбранный объект и откуда на него пришли
+      const NAV_PARAMS = ['histSelectedId', 'ordBack', 'tripSelectedId', 'tripBack', 'histBack', 'svKey', 'svFrom', 'svReviewTab', 'connKey', 'connFrom',
+        'anonSvcKey', 'anonAuthor', 'anonBack', 'anonCtx', 'anonOrders', 'liveThreadId', 'liveThreadBack', 'liveBack', 'liveViewBack', 'liveReportId', 'liveReportBack',
+        'lcBack', 'cmapBack', 'cmapFocus', 'subFrom', 'wsFrom', 'expBack', 'recBack', 'slotsFrom', 'bpFrom', 'btFrom', 'scFrom', 'guideSvc', 'guideSection',
+        'ppSelectedId', 'shViewLinkId', 'openDemoFrom', 'openDemoLabel', 'openDemoSection', 'openDemoShift', 'openDemoSlot', 'openDemoKind', 'pvPreview',
+        'activeFrom', 'selectedOfferId', 'tipRecipientId', 'statsDetailBack', 'inboxRet', 'smartFocusIso', 'smartFocusKey'];
+      // какой объект открыт на экране, по нему отличаем один заказ от другого в стеке назад
+      const NAV_ID = { order: ['histSelectedId'], trip: ['tripSelectedId'], service: ['svKey'], questions: ['svKey'], 'integration-connect': ['connKey'], 'worker-data': ['connKey'],
+        'live-thread': ['liveThreadId'], 'live-report': ['liveReportId'], 'public-profile': ['ppSelectedId'], 'share-link-view': ['shViewLinkId'], 'anon-courier': ['anonSvcKey', 'anonAuthor'] };
       function routeStateOf(key) {
         const route = String(key || '').replace(/^#/, '');
         if (route === 'stats') return { s: 'stats', statsDetail: '' };
@@ -4100,6 +4109,24 @@
             tip.style.setProperty('--rtt-arrow', Math.round(cx - left) + 'px');
           }));
         }
+        // назад браузера или телефона: закрываем верхнюю шторку, иначе жмём назад текущего экрана, на корне вкладки идём на главную
+        _hardwareBack() {
+          if (typeof document === 'undefined') return;
+          const shown = (el) => !!el && el.offsetParent !== null;
+          const layers = Array.from(document.querySelectorAll('.raznos-dialog-layer')).filter(shown);
+          if (layers.length) {
+            const top = layers[layers.length - 1];
+            const close = Array.from(top.querySelectorAll('[aria-label="Закрыть"]')).find(shown);
+            if (close) close.click(); else top.click();
+            return;
+          }
+          const btn = Array.from(document.querySelectorAll('.raznos-phone-body button'))
+            .find((x) => shown(x) && (x.getAttribute('aria-label') === 'Назад' || x.classList.contains('raznos-profile-preview-bar-back') || (x.classList.contains('raznos-icon-btn') && (x.textContent || '').trim().charAt(0) === '‹')));
+          if (btn) { btn.click(); return; }
+          const st = this.state || {};
+          const home = st.role === 'user' ? 'user-home' : 'courier-home';
+          if (st.s && st.s !== home && st.s !== 'courier-empty' && st.s !== 'welcome') { if (this._nav) this._nav.tab = true; this.setState({ s: home }); }
+        }
         _ptrReplay(box) {
           const M = this._mo;
           box.classList.add('raznos-ptr-replay');
@@ -4431,35 +4458,44 @@
           const demoSlot = st.openDemoSlot ? SHIFT_SLOTS.find((x) => x.id === st.openDemoSlot) : null;
           const routeKey = routeKeyOf(s, st.statsDetail);
           // стек экранов для кнопки назад: возврат к уже открытому экрану срезает стек, нижнее меню начинает его заново
-          const nav = this._nav || (this._nav = { stack: [], cur: routeKey, s, d: st.statsDetail || '', back: false, tab: false });
-          if (nav.cur !== routeKey) {
-            const at = nav.stack.findIndex((e) => e.k === routeKey);
+          // экран в стеке это экран и открытый на нём объект: другой заказ или сервис это новый шаг, а не возврат
+          const navId = NAV_ID[s] ? routeKey + ':' + (NAV_ID[s].map((k) => st[k] == null ? '' : st[k]).join(',')) : routeKey;
+          const nav = this._nav || (this._nav = { stack: [], cur: navId, s, d: st.statsDetail || '', back: false, tab: false, p: {} });
+          if (nav.cur !== navId) {
+            const at = nav.stack.findIndex((e) => e.k === navId);
             nav.wasBack = nav.back || at !== -1;
             if (nav.back) {} else if (at !== -1) nav.stack.length = at;
             else if (nav.tab) nav.stack = [];
             else if (nav.swap) {}
-            else { nav.stack.push({ k: nav.cur, s: nav.s, d: nav.d, sh: !!this._navSheet }); this._navSheet = false; if (nav.stack.length > 40) nav.stack.shift(); }
-            nav.back = false; nav.tab = false; nav.swap = false; nav.cur = routeKey; nav.s = s; nav.d = st.statsDetail || '';
+            else { nav.stack.push({ k: nav.cur, s: nav.s, d: nav.d, sh: !!this._navSheet, p: nav.p }); this._navSheet = false; if (nav.stack.length > 40) nav.stack.shift(); }
+            nav.back = false; nav.tab = false; nav.swap = false; nav.cur = navId; nav.s = s; nav.d = st.statsDetail || '';
           }
-          // синхронизация экрана с историей браузера, чтобы работала кнопка назад
+          // параметры экрана (какой заказ, сервис, откуда пришли) запоминаем вместе с ним, назад открывает тот же самый
+          nav.p = {}; NAV_PARAMS.forEach((k) => { nav.p[k] = st[k]; });
+          // назад браузера и телефона работает как кнопка назад в приложении: сверху в истории всегда запись-страж,
+          // назад снимает её, мы делаем шаг назад в приложении и ставим стража снова, адрес при переходах только заменяем
           if (typeof window !== 'undefined' && window.history) {
+            const hstate = { rznS: s, rznStatsDetail: st.statsDetail || '', rznRoute: routeKey, rznGuard: true };
             if (!this._histInit) {
               this._histInit = true;
               this._lastRoutedKey = routeKey;
-              try { history.replaceState({ rznS: s, rznStatsDetail: st.statsDetail || '', rznRoute: routeKey }, '', '#' + routeKey); } catch (e) {}
-              window.addEventListener('popstate', (e) => {
-                const saved = e && e.state && e.state.rznS ? { s: e.state.rznS, statsDetail: e.state.rznStatsDetail || '' } : routeStateOf(window.location && window.location.hash);
-                if (saved && this.state && routeKeyOf(saved.s, saved.statsDetail) !== routeKeyOf(this.state.s, this.state.statsDetail)) {
-                  this._fromPop = true;
-                  // назад и вперёд браузера: свою анимацию экрана не играем, браузер показал свою
+              // на странице с несколькими приложениями историей управляет только первое
+              this._histOwner = !window.__rznHistOwner;
+              if (this._histOwner) {
+                window.__rznHistOwner = true;
+                try { history.replaceState({ rznS: s, rznStatsDetail: st.statsDetail || '', rznRoute: routeKey }, '', '#' + routeKey); history.pushState(hstate, '', '#' + routeKey); } catch (e) {}
+                window.addEventListener('popstate', (e) => {
+                  if (e && e.state && e.state.rznGuard) return;
+                  const cur = this.state || {};
+                  try { history.pushState({ rznS: cur.s, rznStatsDetail: cur.statsDetail || '', rznRoute: this._lastRoutedKey, rznGuard: true }, '', '#' + this._lastRoutedKey); } catch (err) {}
+                  // жест и кнопка назад браузера: свою анимацию экрана не играем
                   if (this._moNav) this._moNav.fromPop = true;
-                  this.setState({ s: saved.s, statsDetail: saved.statsDetail });
-                }
-              });
-            } else if (routeKey !== this._lastRoutedKey) {
+                  this._hardwareBack();
+                });
+              }
+            } else if (this._histOwner && routeKey !== this._lastRoutedKey) {
               this._lastRoutedKey = routeKey;
-              if (this._fromPop) { this._fromPop = false; }
-              else { try { history.pushState({ rznS: s, rznStatsDetail: st.statsDetail || '', rznRoute: routeKey }, '', '#' + routeKey); } catch (e) {} }
+              try { history.replaceState(hstate, '', '#' + routeKey); } catch (e) {}
             }
           }
           const role = st.role || props.initialRole || 'courier';
@@ -4672,7 +4708,7 @@
             const n = this._nav, t = n && n.stack.length ? n.stack[n.stack.length - 1] : null;
             if (!t) return fallback();
             n.stack.pop(); n.back = true;
-            set(Object.assign({}, extra || {}, { s: t.s, statsDetail: t.d }, t.sh ? { todaySheet: true } : {}));
+            set(Object.assign({}, t.p || {}, extra || {}, { s: t.s, statsDetail: t.d }, t.sh ? { todaySheet: true } : {}));
           };
           // маска даты рождения дд.мм.гггг, ISO только для настоящей даты не позже сегодня
           const birthMask = (raw) => { const d = String(raw || '').replace(/\D/g, '').slice(0, 8); return d.length > 4 ? d.slice(0, 2) + '.' + d.slice(2, 4) + '.' + d.slice(4) : (d.length > 2 ? d.slice(0, 2) + '.' + d.slice(2) : d); };
@@ -8061,6 +8097,10 @@
             go_wallet_withdraw_history: () => set({ s: 'wallet-withdraw-history' }),
             go_wallet_withdraw: () => set({ s: 'wallet-withdraw', wdStage: 'form', wdTouched: false, wdAmount: 0, wdForceFail: false, wdPendingId: '' }),
             back_to_wallet: backToInbox(() => set({ s: 'wallet' })),
+            // кнопки назад идут по стеку экранов, старый переход остаётся запасным, если экран открыли напрямую
+            nav_back_wallet: navBack(backToInbox(() => set({ s: 'wallet' }))), nav_back_profile: navBack(backToInbox(() => set({ s: 'profile' }))),
+            nav_back_couriers: navBack(() => set({ s: 'couriers' })), nav_back_share: navBack(() => { if (role === 'courier') set({ s: 'share' }); }),
+            nav_back_integrations: navBack(() => { if (role === 'courier') set({ s: 'integrations' }); }), nav_back_live_compose: navBack(() => set({ s: 'live-compose' })),
             w_available: wallet.available, w_pending: wallet.pending, w_reserved: wallet.reserved,
             w_can_withdraw: wallet.available > 0, w_can_withdraw_disabled: wallet.available <= 0,
             // чаевых и выводов ещё не было: одно действие, поделиться профилем
