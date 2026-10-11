@@ -157,6 +157,9 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 .raznos-onboarding-top .raznos-btn-ghost { color: var(--raznos-ink-2); text-decoration: underline; text-underline-offset: 3px; }
 .raznos-btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
 .raznos-sticky-actions { position: sticky; bottom: 0; display: flex; flex-direction: column; gap: 8px; padding: 12px 0 4px; background: linear-gradient(to top, var(--raznos-bg) 70%, transparent); margin-top: auto; }
+/* экран без нижнего меню доходит до края телефона: кнопкам и концу прокрутки нужна зона жеста домой */
+.raznos-phone-frame:not(:has(.raznos-bottom-nav)) .raznos-sticky-actions { padding-bottom: calc(4px + env(safe-area-inset-bottom, 0px)); }
+.raznos-phone-frame:not(:has(.raznos-bottom-nav)) .raznos-phone-body { padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
 /* строка под основной кнопкой входа и онбординга одной высоты, чтобы кнопка не прыгала между шагами */
 .raznos-sticky-actions > .raznos-entry-foot { min-height: 72px; box-sizing: border-box; }
 /* онбординг на всю высоту экрана, как экраны входа */
@@ -189,12 +192,13 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 
 .raznos-chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .raznos-chip { min-height: 44px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--raznos-line-strong); font: 600 14px var(--raznos-font); color: var(--raznos-ink-2); background: var(--raznos-surface); }
-/* выбор чипа: тёмный круг растекается из точки нажатия, при снятии стягивается в неё; точку и радиус ставит RaznosTabMotion */
+/* выбор чипа: тёмный круг растекается из точки нажатия, при снятии стягивается в неё; точку и радиус ставит RaznosTabMotion
+   raznos-chip-ink даёт тот же эффект чипам компонентов со своей формой */
 @property --raznos-chip-r { syntax: '<length>'; inherits: false; initial-value: 0px; }
-.raznos-chip { background-image: radial-gradient(circle at var(--raznos-chip-x, 50%) var(--raznos-chip-y, 50%), var(--raznos-dark) calc(var(--raznos-chip-r) - .5px), transparent var(--raznos-chip-r)); }
-.raznos-chip.raznos-is-active { --raznos-chip-r: var(--raznos-chip-max, 120px); color: var(--raznos-on-dark); border-color: var(--raznos-dark); }
+.raznos-chip, .raznos-chip-ink { background-image: radial-gradient(circle at var(--raznos-chip-x, 50%) var(--raznos-chip-y, 50%), var(--raznos-dark) calc(var(--raznos-chip-r) - .5px), transparent var(--raznos-chip-r)); }
+.raznos-chip.raznos-is-active, .raznos-chip-ink.raznos-is-active { --raznos-chip-r: var(--raznos-chip-max, 120px); color: var(--raznos-on-dark); border-color: var(--raznos-dark); }
 @media (prefers-reduced-motion: no-preference) {
-  .raznos-chip { transition: --raznos-chip-r .42s cubic-bezier(.3, .6, .2, 1), color .2s ease .08s, border-color .2s ease; }
+  .raznos-chip, .raznos-chip-ink { transition: --raznos-chip-r .42s cubic-bezier(.3, .6, .2, 1), color .2s ease .08s, border-color .2s ease; }
 }
 
 /* Карточки и списки */
@@ -278,7 +282,9 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 .raznos-conn-device-icons > * + * { margin-left: -8px; }
 .raznos-client-note { display: flex; flex-direction: column; gap: 2px; padding-bottom: 10px; margin-bottom: 4px; border-bottom: 1px solid var(--raznos-line); }
 /* шторка Сегодня: ответ сверху, карточки ниже, суммы одной гарнитурой */
-.raznos-dialog-bottom > .raznos-dialog.raznos-day-sheet { max-height: 86%; gap: 12px; padding: 8px 16px 0; background: var(--raznos-bg); }
+.raznos-dialog-bottom > .raznos-dialog.raznos-day-sheet { max-height: 86%; gap: 12px; padding: 8px 16px calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--raznos-bg); }
+/* с липким подвалом отступ уходит в подвал, иначе он двоится */
+.raznos-dialog-bottom > .raznos-dialog.raznos-day-sheet:has(> .raznos-day-foot) { padding-bottom: 0; }
 .raznos-day-handle { align-self: center; width: 40px; height: 4px; border-radius: 999px; background: var(--raznos-line-strong); }
 .raznos-day-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -2px -4px -6px 4px; }
 .raznos-day-close { font-size: 24px; line-height: 1; }
@@ -318,7 +324,7 @@ button.raznos-day-goal:focus-visible { outline: 2px solid var(--raznos-green); o
 .raznos-day-tip-cash { width: 32px; height: 32px; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: color-mix(in oklab, var(--raznos-green) 16%, var(--raznos-surface)); color: var(--raznos-green-deep); font: 800 15px var(--raznos-font); }
 .raznos-day-tip-none { display: flex; align-items: center; gap: 10px; padding: 10px 0 8px; border-top: 1px solid var(--raznos-line); font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
 .raznos-day-tip-none-icons { display: inline-flex; flex: none; gap: 4px; opacity: 0.7; }
-.raznos-day-foot { position: sticky; bottom: 0; margin: 0 -16px; padding: 10px 16px 16px; background: linear-gradient(to bottom, transparent, var(--raznos-bg) 30%); }
+.raznos-day-foot { position: sticky; bottom: 0; margin: 0 -16px; padding: 10px 16px calc(16px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to bottom, transparent, var(--raznos-bg) 30%); }
 .raznos-day-foot > .raznos-btn { width: 100%; }
 .raznos-hero-today { cursor: pointer; }
 .raznos-hero-today:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 3px; }
@@ -576,7 +582,7 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-city-trigger-icon { flex: 0 0 auto; color: var(--raznos-ink-2); display: block; }
 .raznos-city-modal-layer { position: absolute; inset: 0; z-index: 70; display: flex; flex-direction: column; justify-content: flex-end; background: oklch(0.22 0.012 250 / 0.42); }
 .raznos-city-modal-backdrop { position: absolute; inset: 0; padding: 0; border: 0; background: transparent; cursor: pointer; }
-.raznos-city-modal { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; max-height: 76%; padding: 16px 16px 8px; border-radius: 20px 20px 0 0; background: var(--raznos-surface); border: 1px solid var(--raznos-line); box-shadow: 0 -12px 40px rgba(20, 25, 40, 0.22); }
+.raznos-city-modal { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; max-height: 76%; padding: 16px 16px calc(8px + env(safe-area-inset-bottom, 0px)); border-radius: 20px 20px 0 0; background: var(--raznos-surface); border: 1px solid var(--raznos-line); box-shadow: 0 -12px 40px rgba(20, 25, 40, 0.22); }
 .raznos-city-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .raznos-city-search-box { min-height: 46px; border-radius: 12px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-bg); display: flex; align-items: center; gap: 8px; padding: 0 12px; }
 .raznos-city-search-box:focus-within { border-color: var(--raznos-ink); border-width: 2px; padding: 0 11px; }
@@ -664,7 +670,12 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-theme-dark .raznos-icon-bordered { background: oklch(0.95 0.004 250); }
 .raznos-phone-frame.raznos-theme-dark .raznos-demo-ribbon { background: oklch(0.34 0.016 250); color: var(--raznos-ink); }
 .raznos-dialog-layer.raznos-dialog-bottom { align-items: flex-end; padding: 0; }
-.raznos-dialog-bottom > .raznos-dialog { max-width: none; max-height: 92%; overflow-y: auto; padding: 18px 20px 20px; border: 0; border-radius: 22px 22px 0 0; box-shadow: 0 -18px 44px rgba(20, 25, 40, .18); }
+/* нижние шторки: под последней кнопкой обычный отступ плюс зона жеста домой на телефоне */
+.raznos-dialog-bottom > .raznos-dialog { max-width: none; max-height: 92%; overflow-y: auto; padding: 18px 20px calc(20px + env(safe-area-inset-bottom, 0px)); border: 0; border-radius: 22px 22px 0 0; box-shadow: 0 -18px 44px rgba(20, 25, 40, .18); }
+/* ручка сверху у каждой шторки снизу: говорит, что её можно смахнуть; у шторок со своей ручкой второй не рисуем */
+.raznos-dialog-bottom > .raznos-dialog:not(:has(> [class*="handle"]))::before, .raznos-city-modal::before { content: ''; flex: none; align-self: center; width: 38px; height: 4px; margin: -8px 0 2px; border-radius: 999px; background: var(--raznos-line-strong); }
+/* у шторок дня верхний отступ и так маленький, ручку не поднимаем */
+.raznos-dialog-bottom > .raznos-dialog.raznos-day-sheet::before { margin-top: 0; }
 @media (prefers-reduced-motion: no-preference) {
   .raznos-dialog-bottom > .raznos-dialog { animation: raznos-sheet-up .24s cubic-bezier(.16, 1, .3, 1) both; }
   @keyframes raznos-sheet-up { from { transform: translateY(100%); } to { transform: none; } }

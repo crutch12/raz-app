@@ -6,7 +6,7 @@
     .rsp-field-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .rsp-arrow { flex: none; color: var(--raznos-ink-3); }
     .rsp-layer { align-items: flex-end; padding: 0; }
-    .rsp-sheet { box-sizing: border-box; width: 100%; max-height: 78%; display: flex; flex-direction: column; gap: 8px; padding: 8px 16px 16px; border-radius: 22px 22px 0 0; background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 -18px 48px rgba(20, 25, 40, .2); }
+    .rsp-sheet { box-sizing: border-box; width: 100%; max-height: 78%; display: flex; flex-direction: column; gap: 8px; padding: 8px 16px calc(16px + env(safe-area-inset-bottom, 0px)); border-radius: 22px 22px 0 0; background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 -18px 48px rgba(20, 25, 40, .2); }
     .rsp-handle { width: 40px; height: 4px; align-self: center; border-radius: 999px; background: var(--raznos-line-strong); }
     .rsp-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .rsp-head h2 { margin: 0; font: 700 18px var(--raznos-font); }

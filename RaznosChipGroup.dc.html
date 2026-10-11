@@ -1,0 +1,63 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* группа чипов выбора: один или несколько, можно ли снять выбор; заливка кругом из точки нажатия общая, raznos-chip */
+    .rcg { display: flex; flex-wrap: wrap; gap: 8px; }
+    .rcg.rcg-scroll { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+    .rcg.rcg-scroll::-webkit-scrollbar { display: none; }
+    .rcg .raznos-chip { flex: none; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
+    .rcg.rcg-sm { gap: 6px; }
+    .rcg.rcg-sm .raznos-chip { min-height: 36px; padding: 0 12px; font-size: 13px; }
+    .rcg-dot { width: 8px; height: 8px; flex: none; border-radius: 50%; }
+    .rcg .raznos-chip:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+  </style>
+</helmet>
+<div class="{{ cls }}" role="{{ role }}" aria-label="{{ label }}">
+  <sc-for list="{{ items }}" as="it" hint-placeholder-count="4"><button type="button" class="{{ it.cls }}" role="{{ it.role }}" aria-pressed="{{ it.pressed }}" aria-checked="{{ it.checked }}" onClick="{{ it.tap }}"><sc-if value="{{ it.has_dot }}" hint-placeholder-val="{{ false }}"><i class="rcg-dot" style="{{ it.dot }}" aria-hidden="true"></i></sc-if>{{ it.label }}</button></sc-for>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "options": { "editor": null },
+  "value": { "editor": null },
+  "multi": { "editor": "boolean", "default": false },
+  "nullable": { "editor": "boolean" },
+  "size": { "editor": "text", "default": "md" },
+  "layout": { "editor": "text", "default": "wrap" },
+  "label": { "editor": "text", "default": "" },
+  "onChange": { "editor": null },
+  "$preview": { "width": 360, "height": 120 }
+}'>
+// варианты строками или { key, label, dot }; value: ключ, массив ключей в multi, null если ничего
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const multi = !!p.multi;
+    // по умолчанию в multi снять можно всё, в single выбор обязателен
+    const nullable = p.nullable != null ? !!p.nullable : multi;
+    const opts = (Array.isArray(p.options) ? p.options : ['Утро', 'День', 'Вечер', 'Ночь']).map((o) => (typeof o === 'string' ? { key: o, label: o } : o));
+    // без внешнего value группа держит выбор сама, так её можно смотреть в дизайн-системе
+    const controlled = p.value !== undefined && typeof p.onChange === 'function';
+    const raw = controlled ? p.value : (st.v !== undefined ? st.v : p.value);
+    const sel = multi ? (Array.isArray(raw) ? raw : (raw == null ? [] : [raw])) : (raw == null ? null : raw);
+    const isOn = (k) => (multi ? sel.indexOf(k) !== -1 : sel === k);
+    const emit = (v) => { if (controlled) p.onChange(v); else { this.setState({ v }); if (typeof p.onChange === 'function') p.onChange(v); } };
+    const tap = (k) => () => {
+      if (multi) {
+        const next = isOn(k) ? sel.filter((x) => x !== k) : sel.concat([k]);
+        if (!next.length && !nullable) return;
+        emit(next);
+      } else if (isOn(k)) { if (nullable) emit(null); }
+      else emit(k);
+    };
+    return {
+      cls: 'rcg' + (p.layout === 'scroll' ? ' rcg-scroll' : '') + (p.size === 'sm' ? ' rcg-sm' : ''),
+      role: multi ? 'group' : 'radiogroup', label: p.label || '',
+      items: opts.map((o) => ({
+        label: o.label, cls: 'raznos-chip' + (isOn(o.key) ? ' raznos-is-active' : ''),
+        role: multi ? null : 'radio', pressed: multi ? isOn(o.key) : null, checked: multi ? null : isOn(o.key),
+        has_dot: !!o.dot, dot: o.dot ? 'background:' + o.dot : '', tap: tap(o.key)
+      }))
+    };
+  }
+}
+</script></body></html>

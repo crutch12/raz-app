@@ -59,8 +59,10 @@
         </sc-if>
         <sc-if value="{{ via_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosViaSheet" via="{{ via_data }}" onClose="{{ via_close }}"></dc-import></sc-if>
         <sc-if value="{{ ux_toast_visible }}" hint-placeholder-val="{{ false }}">
-          <div style="position:absolute;left:12px;right:12px;bottom:76px;z-index:80"><dc-import name="RaznosUndoToast" toastId="{{ ux_toast_id }}" text="{{ ux_toast_text }}" actionLabel="{{ ux_toast_label }}" onAction="{{ ux_toast_action }}" onClose="{{ ux_toast_close }}"></dc-import></div>
+          <div style="position:absolute;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom, 0px));z-index:80"><dc-import name="RaznosUndoToast" toastId="{{ ux_toast_id }}" text="{{ ux_toast_text }}" actionLabel="{{ ux_toast_label }}" onAction="{{ ux_toast_action }}" onClose="{{ ux_toast_close }}"></dc-import></div>
         </sc-if>
+        <!-- подсказки на экране после тура: по разу на экран, цель задаётся селектором -->
+        <sc-if value="{{ stip_show }}" hint-placeholder-val="{{ false }}"><div class="raznos-tour-layer" data-tour-step="{{ stip_step }}" data-tip-sel="{{ stip_sel }}" data-tip-all="{{ stip_all }}"><div class="raznos-tour-tip"><dc-import name="RaznosTourTip" step="{{ stip_num }}" total="{{ stip_total }}" title="{{ stip_title }}" text="{{ stip_text }}" below="{{ false }}" onPrev="{{ stip_prev }}" onNext="{{ stip_next }}" onSkip="{{ stip_skip }}"></dc-import></div></div></sc-if>
         <sc-if value="{{ tour_show }}" hint-placeholder-val="{{ false }}"><div class="raznos-tour-layer" data-tour-step="{{ tour_step }}"><div class="raznos-tour-tip"><dc-import name="RaznosTourTip" step="{{ tour_num }}" total="{{ tour_total }}" title="{{ tour_title }}" text="{{ tour_text }}" below="{{ tour_below }}" onPrev="{{ tour_prev }}" onNext="{{ tour_next }}" onSkip="{{ tour_skip }}"></dc-import></div></div></sc-if>
         <!-- потянуть вниз от верха главного экрана вкладки: обновить данные сервисов -->
         <div class="raznos-ptr" aria-hidden="true"><span class="raznos-ptr-mark">Р</span></div>
@@ -711,9 +713,9 @@
               </div>
               <div class="raznos-card raznos-card-pad raznos-ord-review">
                 <span class="raznos-text-h3">Отзыв о заказе</span>
-                <dc-import name="RaznosReviewBlock" title="{{ rv_svc_title }}" pill="Только вам" pillTone="private" stars="{{ false }}" tags="{{ rv_svc_tags }}" selected="{{ rv_svc_sel }}" text="{{ rv_svc_text }}" placeholder="Что было на выдаче" onTag="{{ rv_svc_tag }}" onText="{{ rv_svc_set_text }}" onClear="{{ rv_svc_clear }}"></dc-import>
-                <dc-import name="RaznosReviewBlock" title="Место доставки" pill="Видно всем" pillTone="ok" rating="{{ rv_place_rating }}" tags="{{ rv_place_tags }}" selected="{{ rv_place_sel }}" text="{{ rv_place_text }}" placeholder="Подъезд, домофон, где оставить" foot="Другим курьерам без вашего имени" onRate="{{ rv_place_rate }}" onTag="{{ rv_place_tag }}" onText="{{ rv_place_set_text }}" onClear="{{ rv_place_clear }}"></dc-import>
-                <dc-import name="RaznosReviewBlock" title="Получатель" pill="Только вам" pillTone="private" rating="{{ rv_rec_rating }}" tags="{{ rv_rec_tags }}" selected="{{ rv_rec_sel }}" text="{{ rv_rec_text }}" placeholder="Что запомнить про получателя" onRate="{{ rv_rec_rate }}" onTag="{{ rv_rec_tag }}" onText="{{ rv_rec_set_text }}" onClear="{{ rv_rec_clear }}"></dc-import>
+                <dc-import name="RaznosReviewBlock" title="{{ rv_svc_title }}" pill="Только вам" pillTone="private" stars="{{ false }}" tags="{{ rv_svc_tags }}" selected="{{ rv_svc_sel }}" text="{{ rv_svc_text }}" placeholder="Что было на выдаче" onTags="{{ rv_svc_tag }}" onText="{{ rv_svc_set_text }}" onClear="{{ rv_svc_clear }}"></dc-import>
+                <dc-import name="RaznosReviewBlock" title="Место доставки" pill="Видно всем" pillTone="ok" rating="{{ rv_place_rating }}" tags="{{ rv_place_tags }}" selected="{{ rv_place_sel }}" text="{{ rv_place_text }}" placeholder="Подъезд, домофон, где оставить" foot="Другим курьерам без вашего имени" onRate="{{ rv_place_rate }}" onTags="{{ rv_place_tag }}" onText="{{ rv_place_set_text }}" onClear="{{ rv_place_clear }}"></dc-import>
+                <dc-import name="RaznosReviewBlock" title="Получатель" pill="Только вам" pillTone="private" rating="{{ rv_rec_rating }}" tags="{{ rv_rec_tags }}" selected="{{ rv_rec_sel }}" text="{{ rv_rec_text }}" placeholder="Что запомнить про получателя" onRate="{{ rv_rec_rate }}" onTags="{{ rv_rec_tag }}" onText="{{ rv_rec_set_text }}" onClear="{{ rv_rec_clear }}"></dc-import>
               </div>
             </div>
           </sc-if>
@@ -3926,6 +3928,7 @@
         }
         // Esc закрывает верхнюю открытую шторку или модалку, как клик по затемнению
         // шторку снизу закрываем свайпом вниз, когда её содержимое прокручено до верха; тянется только верхняя из вложенных
+        // шторка идёт за пальцем, затемнение бледнеет вместе с ней, решение по пройденному пути и скорости в конце жеста
         _bindSheetSwipe() {
           if (typeof document === 'undefined' || window.__rznSheetSwipe) return;
           window.__rznSheetSwipe = true;
@@ -3938,7 +3941,15 @@
             const c = layer.querySelector('[data-cancel]') || layer.querySelector('button[aria-label="Закрыть"]');
             if (c) c.click(); else layer.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
           };
+          // вверх шторка почти не идёт, как резинка
+          const rubber = (dy) => (dy >= 0 ? dy : -Math.min(24, Math.sqrt(-dy) * 2.2));
           let drag = null;
+          const paint = (d) => {
+            const y = rubber(d.dy);
+            d.sheet.style.transform = 'translateY(' + y + 'px)';
+            const k = Math.max(0, Math.min(1, y / d.h));
+            d.layer.style.backgroundColor = 'color-mix(in srgb, ' + d.bg + ' ' + Math.round((1 - k) * 100) + '%, transparent)';
+          };
           const start = (target, y, mouse) => {
             const layers = Array.from(document.querySelectorAll('.raznos-dialog-layer')).filter((el) => el.getClientRects().length > 0);
             const layer = layers[layers.length - 1];
@@ -3952,19 +3963,26 @@
             if (mouse && y - sheet.getBoundingClientRect().top > 40) return;
             // пока что-то внутри прокручено вниз, жест отдаём прокрутке
             for (let el = target; el && el !== layer; el = el.parentElement) { if (el.scrollTop > 0) return; }
-            drag = { layer, sheet, y0: y, t0: performance.now(), dy: 0, on: false, mouse };
+            drag = { layer, sheet, y0: y, dy: 0, on: false, mouse, h: sheet.offsetHeight, bg: getComputedStyle(layer).backgroundColor, samples: [] };
           };
           const move = (y, e) => {
             if (!drag) return;
             const dy = y - drag.y0;
             if (!drag.on) {
               if (dy < -4) { drag = null; return; }
-              if (dy < 8) return;
+              if (dy < 6) return;
               drag.on = true;
+              // анимация появления держит transform, на время жеста её снимаем
+              drag.sheet.style.animation = 'none';
               drag.sheet.style.transition = 'none';
+              drag.layer.style.transition = 'none';
+              drag.y0 = y - 6;
             }
-            drag.dy = Math.max(0, dy);
-            drag.sheet.style.transform = 'translateY(' + drag.dy + 'px)';
+            drag.dy = y - drag.y0;
+            const now = performance.now();
+            drag.samples.push([now, drag.dy]);
+            while (drag.samples.length > 2 && now - drag.samples[0][0] > 90) drag.samples.shift();
+            paint(drag);
             if (e.cancelable) e.preventDefault();
           };
           const end = () => {
@@ -3976,25 +3994,35 @@
               document.addEventListener('click', eat, { capture: true, once: true });
               setTimeout(() => document.removeEventListener('click', eat, { capture: true }), 0);
             }
-            const fast = d.dy / Math.max(1, performance.now() - d.t0) > 0.6;
-            if (d.dy > Math.min(120, d.sheet.offsetHeight * 0.3) || (fast && d.dy > 30)) {
-              if (reduce()) { d.sheet.style.transform = ''; closeLayer(d.layer); return; }
-              d.sheet.style.transition = 'transform .18s cubic-bezier(.4, 0, 1, 1)';
-              d.sheet.style.transform = 'translateY(' + d.sheet.offsetHeight + 'px)';
-              setTimeout(() => { d.sheet.style.transform = ''; d.sheet.style.transition = ''; closeLayer(d.layer); }, 170);
+            // скорость по последним ~90 мс, а не средняя с начала: можно передумать и повести палец обратно
+            const sm = d.samples, a = sm[0], z = sm[sm.length - 1];
+            const v = a && z && z[0] > a[0] ? (z[1] - a[1]) / (z[0] - a[0]) : 0;
+            const close = v > 0.45 || (v > -0.2 && d.dy > d.h * 0.35);
+            const ease = 'cubic-bezier(.16, 1, .3, 1)';
+            if (close) {
+              if (reduce()) { closeLayer(d.layer); return; }
+              const left = Math.max(0, d.h - Math.max(0, d.dy));
+              const ms = Math.round(Math.max(120, Math.min(260, left / Math.max(1.2, v))));
+              d.sheet.style.transition = 'transform ' + ms + 'ms cubic-bezier(.3, .6, .4, 1)';
+              d.layer.style.transition = 'background-color ' + ms + 'ms linear';
+              d.sheet.style.transform = 'translateY(' + (d.h + 16) + 'px)';
+              d.layer.style.backgroundColor = 'transparent';
+              setTimeout(() => closeLayer(d.layer), ms);
             } else {
-              d.sheet.style.transition = 'transform .22s cubic-bezier(.16, 1, .3, 1)';
+              d.sheet.style.transition = 'transform .28s ' + ease;
+              d.layer.style.transition = 'background-color .28s ' + ease;
               d.sheet.style.transform = '';
-              setTimeout(() => { d.sheet.style.transition = ''; }, 240);
+              d.layer.style.backgroundColor = '';
+              setTimeout(() => { d.sheet.style.transition = ''; d.layer.style.transition = ''; }, 300);
             }
           };
-          document.addEventListener('touchstart', (e) => { if (e.touches.length === 1) start(e.target, e.touches[0].clientY, false); else drag = null; }, { capture: true, passive: true });
+          document.addEventListener('touchstart', (e) => { if (e.touches.length === 1) start(e.target, e.touches[0].clientY, false); else { if (drag && drag.on) end(); drag = null; } }, { capture: true, passive: true });
           document.addEventListener('touchmove', (e) => { if (drag && e.touches.length === 1) move(e.touches[0].clientY, e); }, { capture: true, passive: false });
           document.addEventListener('touchend', end, true);
           document.addEventListener('touchcancel', end, true);
           document.addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse' && e.button === 0) start(e.target, e.clientY, true); }, true);
           document.addEventListener('pointermove', (e) => { if (drag && drag.mouse) move(e.clientY, e); }, true);
-          document.addEventListener('pointerup', (e) => { if (drag && drag.mouse) end(); }, true);
+          document.addEventListener('pointerup', () => { if (drag && drag.mouse) end(); }, true);
         }
         _bindEscClose() {
           if (typeof document === 'undefined') return;
@@ -4150,9 +4178,26 @@
             const tip = layer.querySelector('.raznos-tour-tip');
             if (!frame || !tip) return;
             document.querySelectorAll('.raznos-tour-target').forEach((x) => x.classList.remove('raznos-tour-target'));
-            const step = Number(layer.getAttribute('data-tour-step'));
-            const target = step === 0 ? frame.querySelector('[data-tour="demo"]') : frame.querySelectorAll('.raznos-bottom-nav > .raznos-nav-tab')[step - 1];
-            if (!target) { tip.style.opacity = '0'; return; }
+            const sel = layer.getAttribute('data-tip-sel') || '';
+            const step = sel ? layer.getAttribute('data-tour-step') : Number(layer.getAttribute('data-tour-step'));
+            const target = sel ? Array.from(frame.querySelectorAll(sel)).find((x) => x.getClientRects().length > 0)
+              : step === 0 ? frame.querySelector('[data-tour="demo"]') : frame.querySelectorAll('.raznos-bottom-nav > .raznos-nav-tab')[step - 1];
+            // открыта шторка: подсказка ждёт, пока её закроют
+            const sheetOpen = Array.from(frame.querySelectorAll('.raznos-dialog-layer')).some((x) => x.getClientRects().length > 0);
+            // все цели серии проверяем сразу, чтобы нумерация с первого шага была без пропавших
+            if (sel && layer.__allChecked !== layer.getAttribute('data-tip-all')) {
+              layer.__allChecked = layer.getAttribute('data-tip-all');
+              setTimeout(() => { const f = layer.closest('.raznos-phone-frame'); if (!f || !this._stipMissing) return; (layer.getAttribute('data-tip-all') || '').split('||').filter(Boolean).forEach((q) => { if (!Array.from(f.querySelectorAll(q)).some((x) => x.getClientRects().length > 0)) this._stipMissing(q); }); }, 350);
+            }
+            // цели нет на экране: даём экрану дорисоваться и, если её так и нет, убираем шаг из серии
+            if (!target && sel && !sheetOpen) {
+              tip.style.opacity = '0';
+              clearTimeout(layer.__miss);
+              layer.__miss = setTimeout(() => { const f = layer.closest('.raznos-phone-frame'); if (f && !Array.from(f.querySelectorAll(sel)).some((x) => x.getClientRects().length > 0) && this._stipMissing) this._stipMissing(sel); }, 350);
+              return;
+            }
+            if (!target || sheetOpen) { tip.style.opacity = '0'; tip.style.pointerEvents = 'none'; if (sheetOpen && !layer.__wait) { layer.__wait = setTimeout(() => { layer.__wait = 0; this._tourPlace(); }, 400); } return; }
+            tip.style.pointerEvents = '';
             target.classList.add('raznos-tour-target');
             // к цели прокручиваем один раз на шаг и плавно, только экран, тултип едет следом за прокруткой
             const box = frame.querySelector('.raznos-phone-scroll');
@@ -4161,12 +4206,12 @@
               layer.__step = step;
               const br = box.getBoundingClientRect(), r0 = target.getBoundingClientRect();
               const off = r0.top - br.top;
-              if (step === 0 && (off < 80 || off + r0.height > box.clientHeight - 240)) box.scrollTo({ top: Math.max(0, box.scrollTop + off - box.clientHeight / 2 + 120), behavior: 'smooth' });
+              if ((step === 0 || sel) && (off < 80 || off + r0.height > box.clientHeight - 240)) box.scrollTo({ top: Math.max(0, box.scrollTop + off - box.clientHeight / 2 + 120), behavior: 'smooth' });
             }
             const fr = frame.getBoundingClientRect(), tr = target.getBoundingClientRect();
             const w = Math.min(300, fr.width - 24), h = tip.offsetHeight, cx = tr.left + tr.width / 2 - fr.left;
             const left = Math.max(12, Math.min(fr.width - w - 12, cx - w / 2));
-            const below = step === 0 && tr.top - fr.top < h + 80;
+            const below = (step === 0 || !!sel) && tr.top - fr.top < h + 80;
             const top = below ? tr.bottom - fr.top + 12 : tr.top - fr.top - h - 12;
             // первый показ сразу на месте, без переезда из угла; дальше между шагами плавно
             if (!tip.__placed) { tip.style.transition = 'none'; Object.assign(tip.style, { width: w + 'px', left: left + 'px', top: top + 'px' }); void tip.offsetWidth; tip.style.transition = ''; tip.__placed = true; }
@@ -4924,6 +4969,47 @@
             { tab: 'profile', title: 'Профиль', text: 'Баланс, уведомления, настройки и ваш профиль для других' }
           ];
           const TOUR_SCREENS = ['courier-empty', 'courier-home', 'work-hub', 'stats', 'market', 'profile'];
+          // после тура короткие серии подсказок к тому, что без них не найти или поймут не так; каждая серия один раз
+          // серия показывается, когда её экран открыт и условие выполнено, элементов, которых сейчас нет, в ней нет
+          const STIP_SERIES = [
+            // демо: шестерёнка единственный вход в сценарии, на любом экране с плашкой
+            { key: 'demo', on: () => demoOn, steps: [
+              { sel: '.raznos-demo-ribbon-gear', title: 'Сценарии демо', text: 'Выходной, нет связи, пустые данные и другие случаи' }
+            ] },
+            { key: 'courier-home', on: () => s === 'courier-home', steps: [
+              { sel: '.raznos-phone-body .raznos-conn-health', title: 'Сервисы на связи', text: 'Откуда приходят заказы и деньги. Потяните экран вниз, чтобы обновить' },
+              { sel: '.raznos-hero-today', title: 'Заработок за день', text: 'Нажмите, чтобы увидеть сервисы, чаевые, расходы и цель на сегодня' }
+            ] },
+            // плюс у заказа отдельной серией: заказов может ещё не быть, покажем, когда появятся
+            { key: 'home-order', on: () => s === 'courier-home', steps: [
+              { sel: '.rro-add', title: 'К заказу', text: 'Наличные чаевые, расход, отзыв и заметка к адресу' }
+            ] },
+            // в Плане сначала ответ на вопрос «Как вы работаете?»
+            { key: 'work-hub', on: () => s === 'work-hub' && !!st.planOnboarded, steps: [
+              { sel: '.rss-shifts-btn', title: 'Слоты', text: 'Свободные смены всех сервисов: где взять и что требует внимания' },
+              { sel: '.rss-goal', title: 'Цель недели', text: 'Сколько хотите заработать за неделю. Нажмите, чтобы поменять' },
+              { sel: '.rss-list .rpw-badge', title: 'Метки', text: 'Нажмите на метку, чтобы узнать, что она значит' }
+            ] },
+            // часы дня только в будущем дне, где их и меняют
+            { key: 'plan-hours', on: () => s === 'work-hub' && !!st.planOnboarded && !!st.planDayIso && st.planDayIso > TODAY_ISO, steps: [
+              { sel: '.rss-head-link', title: 'Часы дня', text: 'Только на этот день, график не меняется' }
+            ] },
+            { key: 'slots', on: () => s === 'slots', steps: [
+              { sel: '.raznos-shifts-tabs > .raznos-shifts-tab:nth-of-type(2)', title: 'Можно взять', text: 'Бронируете в приложении сервиса, потом отметьте здесь, получилось ли' }
+            ] }
+          ];
+          const screenTipsSeen = st.screenTipsSeen || {};
+          // пропавшие цели помним только на этот заход на экран, в следующий раз проверим снова
+          const stipVisit = (this._nav && this._nav.cur) || s;
+          const stipMissing = (st.stipMissing || {})[stipVisit] || {};
+          this._stipMissing = (sel) => { const all = this.state.stipMissing || {}, cur = all[stipVisit] || {}; if (!cur[sel]) this.setState({ stipMissing: Object.assign({}, all, { [stipVisit]: Object.assign({}, cur, { [sel]: true }) }) }); };
+          const stipReady = role === 'courier' && st.tipsOn !== false && !!st.tourDone && st.tourStep == null;
+          const stipSeries = stipReady ? STIP_SERIES.find((x) => !screenTipsSeen[x.key] && x.on() && x.steps.some((t) => !stipMissing[t.sel])) || null : null;
+          const screenTips = stipSeries ? stipSeries.steps.filter((t) => !stipMissing[t.sel]) : null;
+          const stipKey = stipSeries ? stipSeries.key : '';
+          const stipVisible = !!screenTips;
+          const stipIdx = Math.min((st.screenTipStep || {})[stipKey] || 0, screenTips ? screenTips.length - 1 : 0);
+          const stipDone = () => set({ screenTipsSeen: Object.assign({}, screenTipsSeen, { [stipKey]: true }), screenTipStep: Object.assign({}, st.screenTipStep || {}, { [stipKey]: 0 }) });
           const tourStep = st.tourStep == null ? null : (st.tourStep === 0 && demoOn ? 1 : st.tourStep);
           // вкладка продвигает тур, только если подсказка на экране видна
           const tourVisible = tourStep != null && role === 'courier' && TOUR_SCREENS.indexOf(s) !== -1 && (tourStep > 0 || s === 'courier-empty');
@@ -6249,7 +6335,7 @@
             smart_day_facts: (() => { const out = {}; for (let i = -14; i <= -1; i++) { const iso = isoAt(i), d = statsDaysSource('today', [iso, iso], false); if (d.earn != null) out[iso] = { earn: d.earn, orders: d.orders, vvEarn: d.vvEarn, vvOrders: d.vvOrders, samokatEarn: d.samokatEarn, samokatOrders: d.samokatOrders }; } return out; })(),
             // график из шторки настроек плана: назад возвращаемся в эту же шторку
             // выбранный день Плана держим без перерисовки, чтобы назад вернул на него
-            plan_day_seen: (iso) => { this._planDay = iso; },
+            plan_day_seen: (iso) => { this._planDay = iso; const fut = iso > TODAY_ISO; if (fut !== (this._planDayFut || false)) { this._planDayFut = fut; setTimeout(() => this.setState({ planDayIso: iso }), 0); } },
             plan_edit_graph: (fromSettings) => set({ s: 'work-schedule', wsFrom: s, planSettingsOpen: fromSettings === true }),
             plan_reopen_settings: !!st.planSettingsOpen && s === 'work-hub', plan_reopened: () => set({ planSettingsOpen: false }),
             ...(() => {
@@ -7390,7 +7476,7 @@
             // отзыв о заказе: у сервиса, места и получателя свои причины, текст сохраняется сразу
             ...(() => {
               const tagsOf = (key) => ordReview[key] || [];
-              const toggle = (key) => (label) => { const cur = tagsOf(key); putReview({ [key]: cur.indexOf(label) !== -1 ? cur.filter((x) => x !== label) : cur.concat([label]) }); };
+              const setTags = (key) => (arr) => putReview({ [key]: arr });
               const clearer = (patch, label) => () => {
                 const before = Object.assign({}, ordReview);
                 putReview(patch);
@@ -7400,16 +7486,16 @@
                 rv_svc_title: 'Сервис · ' + ordSource.svcTitle,
                 rv_svc_tags: ['Долго ждал на выдаче', 'Заказ не собран', 'Товар повреждён', 'Тяжёлый заказ', 'Ошибка в оплате', 'Другое'],
                 rv_svc_sel: tagsOf('svcTags'), rv_svc_text: ordReview.svcText || '',
-                rv_svc_tag: toggle('svcTags'), rv_svc_set_text: (v) => putReview({ svcText: v }), rv_svc_clear: clearer({ svcTags: [], svcText: '' }, 'Отзыв о сервисе'),
+                rv_svc_tag: setTags('svcTags'), rv_svc_set_text: (v) => putReview({ svcText: v }), rv_svc_clear: clearer({ svcTags: [], svcText: '' }, 'Отзыв о сервисе'),
                 rv_place_rating: ordReview.placeRating || 0,
                 rv_place_tags: ['Не работает домофон', 'Нет лифта', 'Сложно найти вход', 'Неверный адрес', 'Негде оставить транспорт', 'Другое'],
                 rv_place_sel: tagsOf('placeTags'), rv_place_text: ordReview.placeText || '',
-                rv_place_rate: (n) => putReview({ placeRating: n }), rv_place_tag: toggle('placeTags'), rv_place_set_text: (v) => putReview({ placeText: v }),
+                rv_place_rate: (n) => putReview({ placeRating: n }), rv_place_tag: setTags('placeTags'), rv_place_set_text: (v) => putReview({ placeText: v }),
                 rv_place_clear: clearer({ placeRating: 0, placeTags: [], placeText: '' }, 'Отзыв о месте'),
                 rv_rec_rating: ordReview.recRating || 0,
                 rv_rec_tags: ['Не отвечал', 'Долго ждал у двери', 'Не открыл', 'Отказался от заказа', 'Грубил', 'Другое'],
                 rv_rec_sel: tagsOf('recTags'), rv_rec_text: ordReview.recText || '',
-                rv_rec_rate: (n) => putReview({ recRating: n }), rv_rec_tag: toggle('recTags'), rv_rec_set_text: (v) => putReview({ recText: v }),
+                rv_rec_rate: (n) => putReview({ recRating: n }), rv_rec_tag: setTags('recTags'), rv_rec_set_text: (v) => putReview({ recText: v }),
                 rv_rec_clear: clearer({ recRating: 0, recTags: [], recText: '' }, 'Отзыв о получателе')
               };
             })(),
@@ -7763,8 +7849,14 @@
             tips_on: st.tipsOn !== false, tips_box: st.tipsOn !== false ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', tips_mark: st.tipsOn !== false ? '✓' : '',
             toggle_tips: () => set({ tipsOn: st.tipsOn === false }),
             // включили снова: тур стартует с начала на Сегодня, где его видно
-            toggle_tips_settings: () => set(st.tipsOn === false ? { tipsOn: true, tourDone: false, tourStep: demoOn ? 1 : 0, s: readyHome ? 'courier-home' : 'courier-empty' } : { tipsOn: false, tourStep: null }),
+            toggle_tips_settings: () => set(st.tipsOn === false ? { tipsOn: true, tourDone: false, screenTipsSeen: {}, screenTipStep: {}, tourStep: demoOn ? 1 : 0, s: readyHome ? 'courier-home' : 'courier-empty' } : { tipsOn: false, tourStep: null }),
             tour_show: tourVisible,
+            stip_show: stipVisible, stip_step: stipKey + stipIdx, stip_sel: stipVisible ? screenTips[stipIdx].sel : '', stip_all: stipVisible ? screenTips.map((t) => t.sel).join('||') : '',
+            stip_num: stipIdx + 1, stip_total: screenTips ? screenTips.length : 1,
+            stip_title: stipVisible ? screenTips[stipIdx].title : '', stip_text: stipVisible ? screenTips[stipIdx].text : '',
+            stip_prev: () => { if (stipIdx > 0) set({ screenTipStep: Object.assign({}, st.screenTipStep || {}, { [stipKey]: stipIdx - 1 }) }); },
+            stip_next: () => (stipIdx >= screenTips.length - 1 ? stipDone() : set({ screenTipStep: Object.assign({}, st.screenTipStep || {}, { [stipKey]: stipIdx + 1 }) })),
+            stip_skip: () => stipDone(),
             tour_step: tourStep != null ? tourStep : '', tour_num: (tourStep || 0) + (demoOn ? 0 : 1), tour_total: TOUR.length - (demoOn ? 1 : 0),
             tour_title: tourStep != null ? TOUR[tourStep].title : '', tour_text: tourStep != null ? TOUR[tourStep].text : '', tour_below: false,
             tour_prev: () => { if (tourStep > (demoOn ? 1 : 0)) set({ tourStep: tourStep - 1 }); },

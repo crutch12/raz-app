@@ -3,7 +3,7 @@
   <link rel="stylesheet" href="./raznos-v3.css" />
   <style>
     .rvs-layer { align-items: flex-end; padding: 0; }
-    .rvs-sheet { box-sizing: border-box; width: 100%; max-height: 88%; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 8px 16px 16px; border-radius: 22px 22px 0 0; background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 -18px 48px rgba(20, 25, 40, .2); }
+    .rvs-sheet { box-sizing: border-box; width: 100%; max-height: 88%; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 8px 16px calc(16px + env(safe-area-inset-bottom, 0px)); border-radius: 22px 22px 0 0; background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 -18px 48px rgba(20, 25, 40, .2); }
     .rvs-sheet > * { flex: none; }
     .rvs-handle { flex: none; width: 40px; height: 4px; align-self: center; border-radius: 999px; background: var(--raznos-line-strong); }
     .rvs-head { display: flex; align-items: center; gap: 10px; margin-top: -2px; }

@@ -123,7 +123,7 @@ const bind = () => {
   const queue = () => { if (!queued) { queued = true; requestAnimationFrame(sync); } };
   // чипы: заливка выбора растекается из точки нажатия до самого дальнего угла
   document.addEventListener('pointerdown', (e) => {
-    const chip = e.target && e.target.closest ? e.target.closest('.raznos-chip') : null;
+    const chip = e.target && e.target.closest ? e.target.closest('.raznos-chip, .raznos-chip-ink') : null;
     if (!chip) return;
     const rc = chip.getBoundingClientRect(), x = e.clientX - rc.left, y = e.clientY - rc.top;
     const far = Math.ceil(Math.hypot(Math.max(x, rc.width - x), Math.max(y, rc.height - y))) + 1;
