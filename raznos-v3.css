@@ -285,7 +285,7 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 .raznos-dialog-bottom > .raznos-dialog.raznos-day-sheet { max-height: 86%; gap: 12px; padding: 8px 16px calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--raznos-bg); }
 /* с липким подвалом отступ уходит в подвал, иначе он двоится */
 .raznos-dialog-bottom > .raznos-dialog.raznos-day-sheet:has(> .raznos-day-foot) { padding-bottom: 0; }
-.raznos-day-handle { align-self: center; width: 40px; height: 4px; border-radius: 999px; background: var(--raznos-line-strong); }
+.raznos-day-handle { flex: none; align-self: center; width: 40px; height: 4px; border-radius: 999px; background: var(--raznos-line-strong); }
 .raznos-day-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -2px -4px -6px 4px; }
 .raznos-day-close { font-size: 24px; line-height: 1; }
 .raznos-day-net { display: flex; flex-direction: column; gap: 2px; padding: 0 4px; }

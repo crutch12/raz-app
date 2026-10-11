@@ -4000,14 +4000,20 @@
             const close = v > 0.45 || (v > -0.2 && d.dy > d.h * 0.35);
             const ease = 'cubic-bezier(.16, 1, .3, 1)';
             if (close) {
-              if (reduce()) { closeLayer(d.layer); return; }
+              if (reduce()) { d.layer.setAttribute('data-swiped', '1'); closeLayer(d.layer); return; }
               const left = Math.max(0, d.h - Math.max(0, d.dy));
               const ms = Math.round(Math.max(120, Math.min(260, left / Math.max(1.2, v))));
               d.sheet.style.transition = 'transform ' + ms + 'ms cubic-bezier(.3, .6, .4, 1)';
               d.layer.style.transition = 'background-color ' + ms + 'ms linear';
               d.sheet.style.transform = 'translateY(' + (d.h + 16) + 'px)';
               d.layer.style.backgroundColor = 'transparent';
-              setTimeout(() => closeLayer(d.layer), ms);
+              setTimeout(() => {
+                // шторка уже уехала пальцем: копия для анимации ухода не нужна, иначе мелькнёт открытой
+                d.layer.setAttribute('data-swiped', '1');
+                closeLayer(d.layer);
+                // если слой не убрали, а оставили на месте, возвращаем ему вид
+                setTimeout(() => { if (d.layer.isConnected) { d.layer.removeAttribute('data-swiped'); d.sheet.style.transform = ''; d.sheet.style.transition = ''; d.layer.style.backgroundColor = ''; d.layer.style.transition = ''; } }, 60);
+              }, ms);
             } else {
               d.sheet.style.transition = 'transform .28s ' + ease;
               d.layer.style.transition = 'background-color .28s ' + ease;
@@ -4348,6 +4354,8 @@
           if (!el) return;
           // только сам слой или его тонкие обёртки, иначе это перестройка экрана
           for (let a = el; a !== n; ) { a = a.parentElement; if (!a || a.children.length > 2) return; }
+          // смахнутую шторку палец уже увёл, второй раз её не уводим
+          if (el.matches('[data-swiped]')) return;
           const kind = el.matches('.raznos-dialog-layer') ? 'layer' : (el.matches('[data-toast]') ? 'toast' : (el.matches('.ram') ? 'menu' : 'block'));
           if (kind === 'block' && !(M.dismiss && performance.now() - M.dismiss < 1000)) return;
           const c = n.cloneNode(true);
