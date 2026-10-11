@@ -222,7 +222,7 @@
                       <div class="raznos-day-line raznos-day-line-head"><span>Чистыми</span><b>{{ today_remain_label }} ₽</b></div>
                     </div>
                     <sc-if value="{{ today_goal_show }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-day-card raznos-day-goal" onClick="{{ goal_day_open }}" aria-label="Цель на сегодня, как посчитана">
-                      <span class="raznos-day-line raznos-day-line-head"><span>Цель на сегодня</span><b>{{ today_earn_label }} из {{ today_target }} ₽ ›</b></span>
+                      <span class="raznos-day-line raznos-day-line-head"><span>Цель на сегодня</span><b>{{ today_goal_line }} ›</b></span>
                       <i class="raznos-day-bar raznos-day-bar-goal" aria-hidden="true"><i style="{{ today_pace_style }}"></i></i>
                       <span class="raznos-day-note">{{ today_goal_short }}</span>
                     </button></sc-if>
@@ -235,14 +235,7 @@
                 <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Цель на сегодня">
                   <div class="raznos-dialog raznos-day-sheet">
                     <div class="raznos-day-head"><span class="raznos-text-h3">Цель на сегодня</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ goal_day_close }}" aria-label="Закрыть">×</button></div>
-                    <div class="raznos-day-net"><span class="raznos-day-net-label">{{ goal_day_caption }}</span><b class="raznos-day-net-value">{{ today_target }} ₽</b></div>
-                    <div class="raznos-day-card">
-                      <div class="raznos-day-line"><span>Цель недели</span><b>{{ goal_day_week }} ₽</b></div>
-                      <div class="raznos-day-line"><span>{{ goal_day_before_label }}</span><b>−{{ goal_day_before }} ₽</b></div>
-                      <div class="raznos-day-line raznos-day-line-head"><span>Осталось</span><b>{{ goal_day_left }} ₽</b></div>
-                      <div class="raznos-day-line"><span>Рабочих дней</span><b>{{ goal_day_days }}</b></div>
-                    </div>
-                    <span class="raznos-day-note">{{ goal_day_note }}</span>
+                    <dc-import name="RaznosDayGoal" goal="{{ goal_day_week_n }}" earned="{{ goal_day_before_n }}" days="{{ goal_day_days }}"></dc-import>
                     <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ goal_day_plan }}">План на сегодня</button>
                   </div>
                 </div>
@@ -8433,12 +8426,12 @@
             qt_open_tap: (e) => { if (e && e.stopPropagation) e.stopPropagation(); set({ qtOpen: true, todaySheet: false, tipsDaySheet: false }); },
             // цель дня: остаток до цели недели на оставшиеся рабочие дни
             today_goal_show: goalTodayOn,
+            // цель недели уже набрана: вместо «из 0 ₽» так и пишем
+            today_goal_line: goalLeft <= 0 ? 'цель недели есть' : formatMoney(todayEarn) + ' из ' + formatMoney(todayTarget) + ' ₽',
             goal_day_sheet: !!st.goalDaySheet, goal_day_open: () => set({ goalDaySheet: true }), goal_day_close: () => set({ goalDaySheet: false }),
-            goal_day_caption: goalLeft <= 0 ? 'Цель недели уже выполнена' : (goalDaysLeft.length === 1 ? 'Последний рабочий день недели' : 'Остаток недели поровну на ' + goalDaysLeft.length + ' ' + ruPlural(goalDaysLeft.length, 'день', 'дня', 'дней')),
-            goal_day_week: formatMoney(goalWeek), goal_day_before: formatMoney(goalEarnedBefore), goal_day_left: formatMoney(goalLeft),
-            goal_day_before_label: goalWeekDays[0] < TODAY_ISO ? 'Заработали до сегодня' : 'Заработали до сегодня, неделя только началась',
-            goal_day_days: goalDaysLeft.map((iso) => iso === TODAY_ISO ? 'сегодня' : ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][new Date(iso + 'T00:00:00').getDay()]).join(', '),
-            goal_day_note: 'Рабочие дни по графику и дни с бронями' + (goalDaysLeft.length > 1 ? '. Отстанете сегодня, цель следующих дней вырастет' : ''),
+            // в шторку цели числа как есть, подписи и полосу недели собирает RaznosDayGoal
+            goal_day_week_n: goalWeek, goal_day_before_n: goalEarnedBefore,
+            goal_day_days: goalDaysLeft.map((iso) => iso === TODAY_ISO ? 'сегодня' : ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][new Date(iso + 'T00:00:00').getDay()]),
             goal_day_plan: () => set({ goalDaySheet: false, todaySheet: false, s: 'work-hub', smartFocusIso: TODAY_ISO, smartFocusKey: '' }),
             tips_day_sheet: !!st.tipsDaySheet, today_tips_open: () => set({ tipsDaySheet: true }), today_tips_close: () => set({ tipsDaySheet: false }),
             qt_open: !!st.qtOpen,
