@@ -399,7 +399,7 @@
                 </div>
             </div>
             </sc-if>
-            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" caps="{{ shifts_caps }}" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ plan_edit_graph }}" reopenSettings="{{ plan_reopen_settings }}" onReopened="{{ plan_reopened }}" dayFacts="{{ smart_day_facts }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" changeNote="{{ plan_change_note }}" changeIso="{{ plan_change_iso }}" changeKey="{{ plan_change_key }}" onChangeHide="{{ plan_change_hide }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onDay="{{ plan_day_seen }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
+            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" caps="{{ shifts_caps }}" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ plan_edit_graph }}" reopenSettings="{{ plan_reopen_settings }}" onReopened="{{ plan_reopened }}" dayFacts="{{ smart_day_facts }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" changeNote="{{ plan_change_note }}" changeIso="{{ plan_change_iso }}" changeKey="{{ plan_change_key }}" onChangeHide="{{ plan_change_hide }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onDay="{{ plan_day_seen }}" planState="{{ plan_state }}" onPlanState="{{ set_plan_state }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
           </sc-if>
 
           <sc-if value="{{ is_active_order }}">
@@ -3533,6 +3533,8 @@
       function buildDemoSeed() {
         const now = appNow();
         return {
+          // демо начинает с плана по умолчанию, правки дня из прошлого захода не тянем
+          smartPlan: null,
           integrationStatus: { vkusvill: 'connected', samokat: 'connected', 'yandex-eda': 'limited', x5: 'connected', dodo: 'connected' },
           syncAgo: { vkusvill: 3, samokat: 26, 'yandex-eda': 12, x5: 8, dodo: 15 },
           offerLog: [
@@ -3688,7 +3690,7 @@
           const patch = {
             s: fresh ? 'auth' : (hashState ? hashState.s : (p.initialScreen || 'welcome')),
             role: fresh ? 'courier' : (p.initialRole || 'courier'),
-            demoOn, demoReturnState: null, language: prevLanguage || 'ru',
+            demoOn, demoReturnState: null, language: prevLanguage || 'ru', smartPlan: null,
             city: 'moscow', transport: 'bike', channel: 'telegram', phoneInput: '916 555-01-23',
             // имя в прототипе подставлено, но экран имени при первом входе всё равно показываем
             firstName: 'Алексей', lastName: 'Соколов', nameSet: false, gender: '', birthDate: '',
@@ -6343,6 +6345,8 @@
             smart_day_facts: (() => { const out = {}; for (let i = -14; i <= -1; i++) { const iso = isoAt(i), d = statsDaysSource('today', [iso, iso], false); if (d.earn != null) out[iso] = { earn: d.earn, orders: d.orders, vvEarn: d.vvEarn, vvOrders: d.vvOrders, samokatEarn: d.samokatEarn, samokatOrders: d.samokatOrders }; } return out; })(),
             // график из шторки настроек плана: назад возвращаемся в эту же шторку
             // выбранный день Плана держим без перерисовки, чтобы назад вернул на него
+            // собранный день, замены и часы дня храним здесь, иначе после перехода в сервис и назад План их теряет
+            plan_state: st.smartPlan || null, set_plan_state: (patch) => this.setState({ smartPlan: Object.assign({}, (this.state || {}).smartPlan || {}, patch) }),
             plan_day_seen: (iso) => { this._planDay = iso; const fut = iso > TODAY_ISO; if (fut !== (this._planDayFut || false)) { this._planDayFut = fut; setTimeout(() => this.setState({ planDayIso: iso }), 0); } },
             plan_edit_graph: (fromSettings) => set({ s: 'work-schedule', wsFrom: s, planSettingsOpen: fromSettings === true }),
             plan_reopen_settings: !!st.planSettingsOpen && s === 'work-hub', plan_reopened: () => set({ planSettingsOpen: false }),

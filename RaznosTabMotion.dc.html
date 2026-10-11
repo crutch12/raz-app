@@ -128,10 +128,23 @@ const bind = () => {
     const rc = chip.getBoundingClientRect(), x = e.clientX - rc.left, y = e.clientY - rc.top;
     const far = Math.ceil(Math.hypot(Math.max(x, rc.width - x), Math.max(y, rc.height - y))) + 1;
     chip.style.setProperty('--raznos-chip-x', x + 'px'); chip.style.setProperty('--raznos-chip-y', y + 'px'); chip.style.setProperty('--raznos-chip-max', far + 'px');
+    chip.__fitW = rc.width; chip.__fitH = rc.height;
   }, true);
+  // выбранный чип мог вырасти после нажатия (у фильтра меняется подпись): радиус заливки считаем по его размеру сейчас,
+  // иначе круг не дотягивается до края; точку нажатия оставляем, без неё растекаемся из центра
+  const fitChips = () => document.querySelectorAll('.raznos-chip.raznos-is-active, .raznos-chip-ink.raznos-is-active').forEach((chip) => {
+    const w = chip.offsetWidth, h = chip.offsetHeight;
+    if (!w || (chip.__fitW === w && chip.__fitH === h)) return;
+    chip.__fitW = w; chip.__fitH = h;
+    const px = (v, d) => { const n = parseFloat(v); return isNaN(n) || !/px$/.test(String(v).trim()) ? d : n; };
+    const x = Math.min(w, Math.max(0, px(chip.style.getPropertyValue('--raznos-chip-x'), w / 2)));
+    const y = Math.min(h, Math.max(0, px(chip.style.getPropertyValue('--raznos-chip-y'), h / 2)));
+    const far = Math.ceil(Math.hypot(Math.max(x, w - x), Math.max(y, h - y))) + 1;
+    chip.style.setProperty('--raznos-chip-x', x + 'px'); chip.style.setProperty('--raznos-chip-y', y + 'px'); chip.style.setProperty('--raznos-chip-max', far + 'px');
+  });
   // смену выбранного ловим до отрисовки кадра, иначе один кадр новый пункт стоит без плашки
-  new MutationObserver(() => sync()).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
-  window.addEventListener('resize', queue);
+  new MutationObserver(() => { sync(); fitChips(); }).observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class'] });
+  window.addEventListener('resize', () => { queue(); fitChips(); });
   queue();
 };
 return bind;
