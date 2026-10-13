@@ -4948,19 +4948,31 @@
           // цель дня: что осталось до цели недели, поровну на оставшиеся рабочие дни, сегодня включительно
           // рабочий день это день графика или день с бронью, в выходной без броней цели нет
           const goalWeek = st.workGoal || WORK_WEEK_GOAL;
-          const goalGraphOn = (iso) => {
+          // часы дня: окно графика (или часы, поменянные на этот день в Плане) вместе с бронями; выходной без броней не считается
+          const goalGraphOf = (iso) => {
             const wd = (new Date(iso + 'T00:00:00').getDay() + 6) % 7;
-            if (st.graphPerDay && st.graphWeek) return !!(st.graphWeek[wd] && st.graphWeek[wd].on);
-            if (st.graphDays) return !!st.graphDays[wd];
-            return wd < 5;
+            const own = ((st.smartPlan || {}).dayHours || {})[iso];
+            if (own) return { on: true, from: own.from, to: own.to };
+            if (st.graphPerDay && st.graphWeek && st.graphWeek[wd]) return { on: !!st.graphWeek[wd].on, from: st.graphWeek[wd].from, to: st.graphWeek[wd].to };
+            const from = (st.graphStart != null ? st.graphStart : 9) * 60, to = (st.graphEnd != null ? st.graphEnd : 18) * 60;
+            return { on: st.graphDays ? !!st.graphDays[wd] : wd < 5, from, to };
           };
-          const goalHasShift = (iso) => SHIFTS_WEEK.some((sh) => sh.iso === iso && sh.status !== 'cancelled');
+          const goalHoursOf = (iso) => {
+            const g = goalGraphOf(iso);
+            const spans = SHIFTS_WEEK.filter((sh) => sh.iso === iso && sh.status !== 'cancelled').map((sh) => [sh.from, sh.to]).concat(g.on ? [[g.from, g.to]] : []).sort((x, y) => x[0] - y[0]);
+            let mins = 0, cur = -1;
+            spans.forEach(([f, t]) => { const ff = Math.max(f, cur); if (t > ff) { mins += t - ff; cur = t; } });
+            return mins / 60;
+          };
           const goalWeekDays = Array.from({ length: 7 }, (_, i) => isoAt(WEEK_MON_OFF + i));
           const goalEarnedBefore = goalWeekDays.filter((iso) => iso < TODAY_ISO).reduce((sum, iso) => { const d = statsDaysSource('today', [iso, iso], false); return sum + (d && d.earn ? d.earn : 0); }, 0);
-          const goalDaysLeft = goalWeekDays.filter((iso) => iso >= TODAY_ISO && (goalGraphOn(iso) || goalHasShift(iso)));
-          const goalTodayOn = goalDaysLeft.indexOf(TODAY_ISO) !== -1;
+          const goalDaysLeft = goalWeekDays.filter((iso) => iso >= TODAY_ISO).map((iso) => ({ iso, h: goalHoursOf(iso) })).filter((d) => d.h > 0);
+          const goalTodayOn = goalDaysLeft.some((d) => d.iso === TODAY_ISO);
           const goalLeft = Math.max(0, goalWeek - goalEarnedBefore);
-          const todayTarget = goalTodayOn ? Math.round(goalLeft / goalDaysLeft.length / 100) * 100 : 0;
+          // остаток недели делим по часам: длинный день получает больше, короткий меньше
+          const goalHoursLeft = goalDaysLeft.reduce((sum, d) => sum + d.h, 0);
+          const goalTodayH = goalTodayOn ? goalDaysLeft.find((d) => d.iso === TODAY_ISO).h : 0;
+          const todayTarget = goalTodayOn && goalHoursLeft ? Math.round(goalLeft * goalTodayH / goalHoursLeft / 100) * 100 : 0;
           // день ещё не начался или выходной: в демо задаётся сценарием, ближайшая смена берётся из броней
           // тур подсказок: шаг 0 про демо, дальше пять вкладок; если демо уже включено, нулевой шаг пропускаем
           const TOUR = [
@@ -8431,7 +8443,7 @@
             goal_day_sheet: !!st.goalDaySheet, goal_day_open: () => set({ goalDaySheet: true }), goal_day_close: () => set({ goalDaySheet: false }),
             // в шторку цели числа как есть, подписи и полосу недели собирает RaznosDayGoal
             goal_day_week_n: goalWeek, goal_day_before_n: goalEarnedBefore,
-            goal_day_days: goalDaysLeft.map((iso) => iso === TODAY_ISO ? 'сегодня' : ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][new Date(iso + 'T00:00:00').getDay()]),
+            goal_day_days: goalDaysLeft.map((d) => ({ label: d.iso === TODAY_ISO ? 'сегодня' : ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][new Date(d.iso + 'T00:00:00').getDay()], h: d.h })),
             goal_day_plan: () => set({ goalDaySheet: false, todaySheet: false, s: 'work-hub', smartFocusIso: TODAY_ISO, smartFocusKey: '' }),
             tips_day_sheet: !!st.tipsDaySheet, today_tips_open: () => set({ tipsDaySheet: true }), today_tips_close: () => set({ tipsDaySheet: false }),
             qt_open: !!st.qtOpen,

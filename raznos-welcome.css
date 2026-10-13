@@ -28,6 +28,10 @@
 .raznos-ob-hero-sum { font: 700 34px/1.1 var(--raznos-mono); letter-spacing: -0.02em; }
 .raznos-ob-hero-sum small { font-size: 22px; }
 .raznos-ob-hero-meta { font: 500 12px var(--raznos-font); font-variant-numeric: tabular-nums; opacity: .85; margin-bottom: 4px; }
+/* чипы чаевых и расходов как на Сегодня, только мельче под коллаж */
+.raznos-ob-hero-chips { margin: 2px 0 4px; gap: 5px; }
+.raznos-ob-hero-chips .raznos-hero-chip { padding: 4px 9px; font: 500 12px var(--raznos-font); color: var(--raznos-on-dark); }
+.raznos-ob-hero-chips .raznos-hero-chip b { font-weight: 700; font-variant-numeric: tabular-nums; }
 .raznos-ob-hero .raznos-hero-pace-note { font-size: 11.5px; }
 .raznos-ob-share { display: flex; gap: 4px; height: 8px; margin-top: 2px; }
 .raznos-ob-share > span { border-radius: 999px; }

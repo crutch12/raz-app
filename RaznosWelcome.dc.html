@@ -16,12 +16,14 @@
             <div class="raznos-ob-screen raznos-ob-stage-1" aria-hidden="true">
               <div class="raznos-ob-screen-body">
                 <div class="raznos-ob-hero">
-                  <span class="raznos-ob-hero-label">Заработано сегодня</span>
+                  <span class="raznos-ob-hero-label">Начислено сегодня</span>
                   <span class="raznos-ob-hero-sum">4 200 <small>₽</small></span>
                   <span class="raznos-ob-hero-meta">17 заказов · 700 ₽/ч · 6 ч на линии</span>
+                  <!-- как на Сегодня: чаевые и расходы чипами под суммой -->
+                  <div class="raznos-hero-chips raznos-ob-hero-chips"><span class="raznos-hero-chip">Чаевые <b>238 ₽</b> +</span><span class="raznos-hero-chip">Расходы <b>−299 ₽</b> +</span></div>
                   <div class="raznos-hero-pace raznos-pace-play">
-                    <div class="raznos-hero-pace-track"><span class="raznos-hero-pace-fill" style="width:50%"></span><span class="raznos-hero-pace-goal" style="left:52%"></span></div>
-                    <span class="raznos-hero-pace-note">Цель 4 300 ₽ · к концу дня ≈ 8 270 ₽</span>
+                    <div class="raznos-hero-pace-track"><span class="raznos-hero-pace-fill" style="width:51%"></span><span class="raznos-hero-pace-goal" style="left:82%"></span></div>
+                    <span class="raznos-hero-pace-note">Цель 6 800 ₽ · к концу дня ≈ 8 270 ₽</span>
                   </div>
                 </div>
                 <div class="raznos-ob-card raznos-ob-split">
@@ -33,7 +35,7 @@
                 </div>
               </div>
             </div>
-            <div class="raznos-onboarding-copy"><h1>Весь заработок в одном месте</h1><p>Заказы и выплаты подтягиваем из сервисов сами, без ручного ввода</p></div>
+            <div class="raznos-onboarding-copy"><h1>Весь заработок в одном месте</h1><p>Заказы и выплаты подтягиваем из сервисов сами, чаевые и расходы добавите в одно нажатие</p></div>
           </div>
         </sc-if>
 
@@ -73,7 +75,7 @@
             <div class="raznos-ob-screen raznos-ob-stage-3" aria-hidden="true">
               <div class="raznos-ob-screen-body">
                 <div class="raznos-ob-card raznos-ob-result">
-                  <span class="raznos-ob-result-label">Заработали за неделю</span>
+                  <span class="raznos-ob-result-label">Чистыми за неделю</span>
                   <span class="raznos-ob-result-sum">27 367 ₽</span>
                   <div class="raznos-ob-rings">
                     <sc-for list="{{ rings }}" as="r" hint-placeholder-count="7">
