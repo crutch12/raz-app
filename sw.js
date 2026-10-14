@@ -1,4 +1,4 @@
-const CACHE = 'raznos-v1791964872';
+const CACHE = 'raznos-v1791965021';
 
 self.addEventListener('install', () => {
   self.skipWaiting();
