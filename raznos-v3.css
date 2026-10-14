@@ -109,7 +109,11 @@ a:hover { color: var(--raznos-ink); }
 .raznos-demo-ribbon { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: var(--raznos-dark); color: var(--raznos-on-dark); font: 600 14px var(--raznos-font); letter-spacing: 0.02em; }
 .raznos-demo-ribbon-text { flex: 1; min-width: 0; }
 /* помощник раскрывается из кнопки: до начала раскрытия шторка не видна и не выезжает сама */
+/* слот шторки помощника не занимает места: заглушка на время загрузки компонента не сдвигает экран */
+.raznos-ai-slot { position: absolute; inset: 0; z-index: 60; pointer-events: none; }
+.raznos-ai-slot .raznos-dialog-layer { pointer-events: auto; }
 [data-rab-pour] .ras-sheet { visibility: hidden; animation: none !important; }
+[data-rab-pour] .raznos-dialog-layer { background: transparent !important; }
 .raznos-demo-ribbon-close { position: relative; flex: 0 0 auto; width: 20px; height: 20px; padding: 0; background: rgba(255, 255, 255, 0.18); border: 0; border-radius: 999px; color: var(--raznos-on-dark); font: 700 13px/20px var(--raznos-font); text-align: center; }
 .raznos-demo-ribbon-close::before { content: ""; position: absolute; inset: -12px; }
 .raznos-demo-ribbon-gear { display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; }

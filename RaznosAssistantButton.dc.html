@@ -104,7 +104,10 @@ function rabPour(el, go) {
     sheet.style.animation = 'none';
     orb.style.opacity = '0';
     const m = sheet.animate([{ clipPath: from }, { clipPath: to }], { duration: 440, easing: ease });
+    // затемнение проявляется вместе с раскрытием, а не раньше него
+    const layer = sheet.closest('.raznos-dialog-layer');
     frame.removeAttribute('data-rab-pour');
+    if (layer) layer.animate([{ backgroundColor: 'rgba(0, 0, 0, 0)' }, { backgroundColor: getComputedStyle(layer).backgroundColor }], { duration: 320, easing: 'ease-out' });
     sheet.querySelectorAll('.ras-head, .ras-feed, .ras-foot').forEach((x) => x.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 0, transform: 'translateY(8px)', offset: 0.3 }, { opacity: 1, transform: 'none' }], { duration: 440, easing: 'ease-out' }));
     // класс не снимаем: иначе стартовые анимации содержимого сыграют второй раз
     const done = () => { orb.style.opacity = ''; };
