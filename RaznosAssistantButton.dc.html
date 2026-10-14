@@ -88,11 +88,13 @@ function rabPour(el, go) {
   const frame = el.closest('.raznos-phone-frame') || document.body;
   if (!frame || !frame.animate || typeof requestAnimationFrame === 'undefined') return false;
   const br = orb.getBoundingClientRect();
+  // пока идёт раскрытие, шторка скрыта с первого кадра: при первом открытии её компонент ещё грузится и успел бы начать свой выезд
+  frame.setAttribute('data-rab-pour', '1');
   go();
-  let tries = 0;
+  const t0 = Date.now();
   const find = () => {
     const sheet = frame.querySelector('.ras-sheet');
-    if (!sheet) { if (++tries < 12) requestAnimationFrame(find); return; }
+    if (!sheet) { if (Date.now() - t0 < 1500) requestAnimationFrame(find); else frame.removeAttribute('data-rab-pour'); return; }
     const sr = sheet.getBoundingClientRect();
     const clamp = (v) => Math.max(0, v);
     const from = 'inset(' + clamp(br.top - sr.top) + 'px ' + clamp(sr.right - br.right) + 'px ' + clamp(sr.bottom - br.bottom) + 'px ' + clamp(br.left - sr.left) + 'px round 20px 20px 20px 20px)';
@@ -102,6 +104,7 @@ function rabPour(el, go) {
     sheet.style.animation = 'none';
     orb.style.opacity = '0';
     const m = sheet.animate([{ clipPath: from }, { clipPath: to }], { duration: 440, easing: ease });
+    frame.removeAttribute('data-rab-pour');
     sheet.querySelectorAll('.ras-head, .ras-feed, .ras-foot').forEach((x) => x.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 0, transform: 'translateY(8px)', offset: 0.3 }, { opacity: 1, transform: 'none' }], { duration: 440, easing: 'ease-out' }));
     // класс не снимаем: иначе стартовые анимации содержимого сыграют второй раз
     const done = () => { orb.style.opacity = ''; };
@@ -112,7 +115,15 @@ function rabPour(el, go) {
   return true;
 }
 class Component extends DCLogic {
-  componentDidMount() { rabBind(); }
+  componentDidMount() {
+    rabBind();
+    // шторку помощника подгружаем заранее, чтобы первое раскрытие не ждало её файл
+    if (!window.__rabPrefetch && typeof fetch === 'function') {
+      window.__rabPrefetch = true;
+      const warm = () => { fetch('./RaznosAssistantSheet.dc.html').catch(() => {}); fetch('./RaznosAssistantMessage.dc.html').catch(() => {}); };
+      if (typeof requestIdleCallback === 'function') requestIdleCallback(warm, { timeout: 3000 }); else setTimeout(warm, 1500);
+    }
+  }
   componentDidUpdate() { rabBind(); }
   renderVals() {
     const p = this.props || {};

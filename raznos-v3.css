@@ -108,6 +108,8 @@ a:hover { color: var(--raznos-ink); }
 .raznos-phone-status { display: flex; justify-content: space-between; padding: 10px 20px 2px; font: 600 13px var(--raznos-mono); color: var(--raznos-ink-2); }
 .raznos-demo-ribbon { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: var(--raznos-dark); color: var(--raznos-on-dark); font: 600 14px var(--raznos-font); letter-spacing: 0.02em; }
 .raznos-demo-ribbon-text { flex: 1; min-width: 0; }
+/* помощник раскрывается из кнопки: до начала раскрытия шторка не видна и не выезжает сама */
+[data-rab-pour] .ras-sheet { visibility: hidden; animation: none !important; }
 .raznos-demo-ribbon-close { position: relative; flex: 0 0 auto; width: 20px; height: 20px; padding: 0; background: rgba(255, 255, 255, 0.18); border: 0; border-radius: 999px; color: var(--raznos-on-dark); font: 700 13px/20px var(--raznos-font); text-align: center; }
 .raznos-demo-ribbon-close::before { content: ""; position: absolute; inset: -12px; }
 .raznos-demo-ribbon-gear { display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; }
