@@ -194,10 +194,9 @@
           <sc-if value="{{ is_courier_home }}">
             <div class="raznos-phone-body" data-screen-label="6 Courier home">
               <div class="raznos-app-bar" style="justify-content:space-between;gap:10px"><span style="display:flex;flex-direction:column;gap:1px;min-width:0"><h1 class="raznos-text-h1" style="margin:0">Сегодня</h1><span style="white-space:nowrap;font:500 12.5px var(--raznos-font);color:var(--raznos-ink-3)">{{ transport_title }} · {{ today_short_num }}</span></span><sc-if value="{{ ai_on }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAssistantButton" label="Спросить" attention="{{ ai_attention }}" onClick="{{ ai_open_tap }}"></dc-import></sc-if></div>
-              <dc-import name="RaznosConnHealth" items="{{ conn_health_items }}" okNote="{{ conn_health_ok_note }}" netOffline="{{ net_offline }}" onAction="{{ conn_health_action }}"></dc-import>
+              <!-- Важное сейчас: спокойно строка связи, при событии на её месте одна строка, остальное в Ещё N -->
+              <dc-import name="RaznosTodayAlerts" items="{{ ta_items }}" conn="{{ ta_conn }}" onConnAction="{{ conn_health_action }}" onOpen="{{ ta_open }}" onMore="{{ ta_more }}" onHide="{{ ta_hide }}"></dc-import>
               <sc-if value="{{ relogin_visible }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Сервисы нужно подключить заново</span><span class="raznos-text-small">{{ relogin_note }}</span><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" style="align-self:flex-start" onClick="{{ go_integrations }}">Открыть сервисы</button></div></sc-if>
-              <!-- аккаунт в сервисе: плашка только при риске или блокировке, подробно на экране сервиса -->
-              <sc-for list="{{ acc_alerts }}" as="aa" hint-placeholder-count="0"><dc-import name="RaznosAccountState" mode="alert" svc="{{ aa.key }}" title="{{ aa.title }}" state="{{ aa.state }}" onOpen="{{ acc_open }}"></dc-import></sc-for>
 
               <sc-if value="{{ home_shift_ended }}" hint-placeholder-val="{{ false }}">
                 <dc-import name="RaznosDayResult" earn="{{ today_earn }}" orders="{{ today_orders }}" hourly="{{ today_hourly }}" hours="{{ today_hours }}" deltaPct="{{ today_delta_pct }}" open="{{ go_day_recap }}"></dc-import>
@@ -272,8 +271,11 @@
               <sc-if value="{{ qt_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosQuickTip" orders="{{ qt_orders }}" defaultId="{{ qt_default }}" onAdd="{{ qt_add }}" onClose="{{ qt_close }}"></dc-import></sc-if>
               <sc-if value="{{ qe_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosQuickExpense" cats="{{ qe_cats }}" defaultCat="{{ qe_cat }}" recent="{{ qe_recent }}" today="{{ today_iso }}" minDay="{{ ef_day_min }}" onAdd="{{ qe_add }}" onClose="{{ qe_close }}"></dc-import></sc-if>
               </sc-if>
-              <!-- сколько ждёт выплаты по сервисам: одна строка, янтарная только при задержке, подробно в шторке -->
-              <sc-if value="{{ payouts_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosPayouts" mode="line" items="{{ payouts_items }}" onOpen="{{ payouts_open }}"></dc-import></sc-if>
+              <!-- деньги одной карточкой: ждёт выплаты (янтарная при задержке) и итог прошлой недели по понедельникам, крестик прячет итог до следующей недели -->
+              <div class="raznos-row-group raznos-today-money">
+                <sc-if value="{{ payouts_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosPayouts" mode="line" inGroup="{{ true }}" quietLate="{{ ta_payout_in_slot }}" items="{{ payouts_items }}" onOpen="{{ payouts_open }}"></dc-import></sc-if>
+                <sc-if value="{{ week_recap_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosWeekRecap" mode="row" inGroup="{{ true }}" recap="{{ week_recap }}" onOpen="{{ week_recap_detail_open }}" onDismiss="{{ ai_review_dismiss }}"></dc-import></sc-if>
+              </div>
               <sc-if value="{{ payouts_sheet }}" hint-placeholder-val="{{ false }}">
                 <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Выплаты">
                   <div class="raznos-dialog raznos-day-sheet">
@@ -283,8 +285,15 @@
                   </div>
                 </div>
               </sc-if>
-              <!-- итог прошлой недели по понедельникам, работает и без помощника, помощник только добавляет кнопку разбора -->
-              <sc-if value="{{ week_recap_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosWeekRecap" recap="{{ week_recap }}" ai="{{ ai_on }}" onOpen="{{ week_recap_open }}" onShare="{{ week_recap_share }}" onAi="{{ ai_review_open }}" onDismiss="{{ ai_review_dismiss }}"></dc-import></sc-if>
+              <sc-if value="{{ week_recap_detail }}" hint-placeholder-val="{{ false }}">
+                <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Итог недели">
+                  <div class="raznos-dialog raznos-day-sheet">
+                    <span class="raznos-day-handle" aria-hidden="true"></span>
+                    <div class="raznos-day-head"><span class="raznos-text-h3">Итог недели</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ week_recap_detail_close }}" aria-label="Закрыть">×</button></div>
+                    <dc-import name="RaznosWeekRecap" mode="detail" recap="{{ week_recap }}" ai="{{ ai_on }}" onResults="{{ week_recap_open }}" onShare="{{ week_recap_share }}" onAi="{{ week_recap_ai }}" onDismiss="{{ ai_review_dismiss }}"></dc-import>
+                  </div>
+                </div>
+              </sc-if>
               <sc-if value="{{ week_recap_sheet }}" hint-placeholder-val="{{ false }}">
                 <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Поделиться итогом недели">
                   <div class="raznos-dialog raznos-day-sheet">
@@ -295,11 +304,27 @@
                 </div>
               </sc-if>
               <sc-if value="{{ home_shift_group }}" hint-placeholder-val="{{ true }}"><h2 class="raznos-home-group">Смена</h2></sc-if>
-              <sc-if value="{{ home_now_visible }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosNowNext" state="{{ home_now_state }}" dayLine="{{ home_now_day }}" rows="{{ home_now_rows }}" warning="{{ home_now_warning }}" onEnd="{{ end_home_shift }}" onStart="{{ start_home_shift }}" onOpenPlan="{{ go_smart }}" onOpenShift="{{ home_open_shift }}" onWarning="{{ home_open_warning }}"></dc-import></sc-if>
-              <!-- погода только когда поднимает спрос или опасна на смене -->
-              <sc-if value="{{ home_weather_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosWeather" weather="{{ home_weather }}"></dc-import></sc-if>
-              <!-- бонус сервиса только когда почти набран или уже набран, все задания в шторке -->
-              <sc-if value="{{ quests_hot_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosBonusQuests" items="{{ quests_items }}" hotId="{{ quests_hot_id }}" nowMin="{{ 940 }}" onOpen="{{ quests_open }}"></dc-import></sc-if>
+              <sc-if value="{{ home_now_visible }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosNowNext" state="{{ home_now_state }}" dayLine="{{ home_now_day }}" rows="{{ home_now_rows }}" warning="{{ home_now_warning }}" quiet="{{ true }}" onEnd="{{ end_home_shift }}" onStart="{{ start_home_shift }}" onOpenPlan="{{ go_smart }}" onOpenShift="{{ home_open_shift }}" onWarning="{{ home_open_warning }}"></dc-import></sc-if>
+              <!-- шторка Важное сейчас: все пункты слота в полном виде -->
+              <sc-if value="{{ ta_sheet }}" hint-placeholder-val="{{ false }}">
+                <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Важное сейчас">
+                  <div class="raznos-dialog raznos-day-sheet">
+                    <span class="raznos-day-handle" aria-hidden="true"></span>
+                    <div class="raznos-day-head"><span class="raznos-text-h3">Важное сейчас</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ ta_sheet_close }}" aria-label="Закрыть">×</button></div>
+                    <dc-import name="RaznosTodayAlerts" mode="sheet" items="{{ ta_items }}" conn="{{ ta_conn }}" onConnAction="{{ conn_health_action }}" onOpen="{{ ta_sheet_open }}" onContact="{{ acc_contact }}"></dc-import>
+                  </div>
+                </div>
+              </sc-if>
+              <!-- погода подробно: что и когда, советы и источник -->
+              <sc-if value="{{ weather_sheet }}" hint-placeholder-val="{{ false }}">
+                <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Погода">
+                  <div class="raznos-dialog raznos-day-sheet">
+                    <span class="raznos-day-handle" aria-hidden="true"></span>
+                    <div class="raznos-day-head"><span class="raznos-text-h3">Погода на смене</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ weather_sheet_close }}" aria-label="Закрыть">×</button></div>
+                    <dc-import name="RaznosWeather" weather="{{ home_weather }}"></dc-import>
+                  </div>
+                </div>
+              </sc-if>
               <sc-if value="{{ quests_sheet }}" hint-placeholder-val="{{ false }}">
                 <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Бонусы и задания">
                   <div class="raznos-dialog raznos-day-sheet">
@@ -2485,9 +2510,9 @@
         'stats-taxes': { s: 'stats', statsDetail: 'taxes' },
         'stats-fines': { s: 'stats', statsDetail: 'fines' },
         'payouts': { s: 'courier-home', homeDay: '', payoutsSheet: true },
-        'payout-late': { s: 'courier-home', homeDay: '', demoEdge: { payouts: 'late' } },
+        'payout-late': { s: 'courier-home', homeDay: '', demoEdge: { payouts: 'late' }, taSheet: true },
         'bonus-near': { s: 'courier-home', homeDay: '', questsSheet: true },
-        'weather-rain': { s: 'courier-home', homeDay: '', weather: 'rain' },
+        'weather-rain': { s: 'courier-home', homeDay: '', weather: 'rain', weatherSheet: true },
         'weather-frost': { s: 'courier-home', homeDay: '', weather: 'frost' },
         'weather-plan': { s: 'work-hub', planOnboarded: true, smartFocusIso: TODAY_ISO, smartFocusKey: '', weather: 'rain' },
         'alerts': { s: 'notifications', subFrom: 'profile', alertEdit: null },
@@ -2498,7 +2523,7 @@
         'week-recap-share': { s: 'courier-home', homeDay: '', aiReviewAlways: true, aiReviewHidden: '', weekRecapSheet: true },
         'unpaid-fines': { s: 'stats', statsPeriod: 'week', statsStep: 0, statsSvcFilter: 'all', statsDetail: 'fines', demoEdge: {} },
         'unpaid-day': { s: 'stats', statsPeriod: 'today', statsStep: -2, statsSvcFilter: 'all', statsDetail: '', demoEdge: {} },
-        'account-risk': { s: 'courier-home', homeDay: '', demoEdge: { account: 'risk' } },
+        'account-risk': { s: 'courier-home', homeDay: '', demoEdge: { account: 'risk' }, taSheet: true },
         'account-block': { s: 'integration-connect', connKey: 'x5', connStage: 'form', demoEdge: { account: 'block' } },
         'account-vkusvill': { s: 'integration-connect', connKey: 'vkusvill', connStage: 'form' },
         'bonus-plan': { s: 'work-hub', smartFocusIso: TODAY_ISO, smartFocusKey: '' },
@@ -3561,9 +3586,9 @@
       const WEATHER_SOURCE = 'Open-Meteo, почасовой прогноз для Москвы, обновлён в 15:30';
       const WEATHER_DEMO = {
         clear: { kind: 'clear', temp: '+9°', title: 'Ясно до вечера, без осадков', period: null, demand: '', warn: null },
-        rain: { kind: 'rain', temp: '+7°', title: 'Дождь 18:00–22:00, до 6 мм/ч', period: { from: 18 * 60, to: 22 * 60 }, demand: 'Заказов обычно больше на 15–25%, к вечеру ставки выше', tag: 'Дождь 18–22, спрос выше',
+        rain: { kind: 'rain', temp: '+7°', title: 'Дождь 18:00–22:00, до 6 мм/ч', period: { from: 18 * 60, to: 22 * 60 }, demand: 'Заказов обычно больше, к вечеру ставки выше', tag: 'Дождь 18–22, спрос выше',
           warn: { title: 'Сильный дождь на вашей смене', tips: ['Телефон в чехол или пакет, держатель под козырёк', 'На плитке и разметке скользко, тормозите заранее'] } },
-        frost: { kind: 'frost', temp: '−14°', title: 'Мороз до −14 °C вечером, ветер 7 м/с', period: { from: 16 * 60, to: 23 * 60 }, demand: 'Заказов обычно больше на 10–20%, многие курьеры не выходят', tag: 'Мороз −14 °C, спрос выше',
+        frost: { kind: 'frost', temp: '−14°', title: 'Мороз до −14 °C вечером, ветер 7 м/с', period: { from: 16 * 60, to: 23 * 60 }, demand: 'Заказов обычно больше, многие курьеры не выходят', tag: 'Мороз −14 °C, спрос выше',
           warn: { title: 'Мороз на вашей смене', tips: ['Оденьтесь слоями, закройте лицо и руки', 'Телефон во внутренний карман, на холоде батарея садится быстрее, возьмите пауэрбанк', 'Скользко на ступенях и у подъездов'] } }
       };
       // @ai-data-end
@@ -6725,6 +6750,7 @@
                   todayRows.filter((r) => r.from > nowMin).forEach((r) => out.push({ cls: 'raznos-notice raznos-notice-info', title: (SERVICE_CAPS[r.svc].status === 'bron' ? 'Бронь' : 'Смена') + ' в ' + (svcIn[r.svc] || r.title) + ' ' + fmt(r.from) + '–' + fmt(r.to) + ' останется', text: 'Если не выйдете, отмените её в приложении сервиса. ' + ((SHIFT_RULES[r.svc] && (SHIFT_RULES[r.svc].late || SHIFT_RULES[r.svc].note)) || '') }));
                   return out;
                 })(),
+                home_conflict: conflict ? { svc: next.svc, title: next.title, from: fmt(next.from), gap } : null,
                 home_now_warning: gap != null && current.svc !== next.svc && gap < 20 ? 'Не успеете доехать: ' + (gap > 0 ? 'между сменами ' + gap + ' мин' : 'смены встык') + ', дорога ≈ 20 мин' : '',
                 // конфликт решаем шторкой прямо на Сегодня, без перехода в План
                 home_fix_show: !!st.homeFix && gap != null && current.svc !== next.svc && gap < 20,
@@ -7313,7 +7339,7 @@
           today_mix_show: [vvEarn, samokatEarn].filter((v) => v > 0).length > 1,
           // выплаты по подключённым сервисам: строка на Сегодня, шторка и блок в Деньгах
           ...(() => {
-            const items = demoOn && role === 'courier' ? PAYOUTS.concat(edge.payouts === 'late' ? [PAYOUT_LATE] : []).filter((i) => connectedKeys.indexOf(i.key) !== -1) : [];
+            const items = demoOn && role === 'courier' ? PAYOUTS.concat(edge.payouts === 'late' ? [PAYOUT_LATE] : edge.payouts === 'late1' ? [Object.assign({}, PAYOUT_LATE, { off: -1 })] : []).filter((i) => connectedKeys.indexOf(i.key) !== -1) : [];
             return {
               payouts_show: items.length > 0, payouts_items: items,
               payouts_sheet: !!st.payoutsSheet && items.length > 0,
@@ -8188,7 +8214,7 @@
               return [
                 row('Сервис только подключили', 'firstLoad', { s: 'integrations' }, [['', 'Нет'], ['on', 'Данные грузятся']]),
                 todayRow,
-                row('Выплаты', 'payouts', { s: 'courier-home', homeDay: '', payoutsSheet: true }, [['', 'В срок'], ['late', 'X5 задерживает']]),
+                row('Выплаты', 'payouts', { s: 'courier-home', homeDay: '', payoutsSheet: true }, [['', 'В срок'], ['late1', 'Задержка 1 день'], ['late', 'X5 задерживает']]),
                 row('Аккаунт в X5', 'account', { s: 'courier-home', homeDay: '' }, [['', 'Всё в порядке'], ['risk', 'Пауза у лимита'], ['block', 'Приостановлен']]),
                 row('Часы не оплатили', 'unpaid', { s: 'stats', statsPeriod: 'week', statsStep: 0, statsDetail: 'fines' }, [['', 'Есть'], ['none', 'Нет']]),
                 row('Бонус сервиса', 'bonus', { s: 'courier-home', homeDay: '' }, [['', 'Почти набран'], ['far', 'Далеко'], ['done', 'Набран']]),
@@ -8960,6 +8986,76 @@
             rf_back: () => guardBack(rfDirty, { s: 'recurring', recFormId: '', recFormDraft: null, recFormInit: null })
           });
 
+          // ---- Важное сейчас на Сегодня: один слот, приоритет и правила в artifacts/design/TODAY-ATTENTION.md, раздел 4 ----
+          Object.assign(vals, (() => {
+            const fm = (n) => formatMoney(Math.round(n)) + '\u00a0₽';
+            const hidden = st.taHidden || {};
+            const nowMin = DEMO_NOW_MIN;
+            // фаза дня: выходной, до или после смены, на смене
+            const phase = homePre === 'off' ? 'off' : (homePre === 'before' || st.homeShiftEnded ? 'calm' : 'on');
+            const list = [];
+            const home = s === 'courier-home' && role === 'courier';
+            // 1 и 5: блокировка и риск от 80% лимита
+            (home ? vals.acc_alerts || [] : []).forEach((a) => {
+              const st0 = a.state || {};
+              const acc = { svc: a.key, title: a.title, titleIn: SERVICE_CASES[a.key] ? SERVICE_CASES[a.key].prep : a.title, state: st0 };
+              if (a.short.alert === 'block' && st0.block) list.push({ p: 1, id: 'block-' + a.key, kind: 'block', tone: 'red', svc: a.key, word: 'аккаунт', title: 'Аккаунт приостановлен', sub: a.title + ', ' + (st0.block.until || '') + ', ' + (st0.block.reason || '').replace(/^./, (c) => c.toLowerCase()), acc });
+              const r = (st0.risks || []).find((x) => x.value / x.limit >= 0.8 && x.value < x.limit);
+              if (a.short.alert === 'risk' && r) list.push({ p: 5, id: 'risk-' + a.key, kind: 'risk', tone: 'amber', svc: a.key, word: 'аккаунт', hide: true, title: r.label + ' ' + r.value + (r.unit || '') + ' из ' + r.limit + (r.unit || ''), sub: a.title + ', ещё ' + (r.limit - r.value) + (r.unit || '') + ' и могут ограничить слоты', acc });
+            });
+            // 2: сбой связи, строку и кнопки рисует RaznosConnHealth
+            if (home && ((vals.conn_health_problems || []).length || vals.net_offline)) list.push({ p: 2, id: 'conn', kind: 'conn', word: 'связь' });
+            // 3: не успеете доехать между сменами
+            const cf = vals.home_conflict;
+            if (home && cf && phase !== 'off') list.push({ p: 3, id: 'conflict', kind: 'conflict', tone: 'amber', word: 'дорога', title: 'Не успеете доехать к ' + cf.from, sub: cf.title + ', ' + (cf.gap > 0 ? 'между сменами ' + cf.gap + ' мин' : 'смены встык') + ', дорога ≈ 20 мин' });
+            // 4 и 8: погода за 2 ч до окна или во время, опасная янтарная и без крестика
+            const wx = vals.home_weather_show && demoOn ? WEATHER_DEMO[st.weather || 'rain'] : null;
+            if (home && wx && wx.period && phase !== 'off' && nowMin >= wx.period.from - 120 && nowMin < wx.period.to) {
+              if (wx.warn) list.push({ p: 4, id: 'weather', kind: 'weather-danger', tone: 'amber', wx: wx.kind, word: 'погода', title: wx.warn.title, sub: wx.title, weather: vals.home_weather });
+              else list.push({ p: 8, id: 'weather', kind: 'weather', tone: '', wx: wx.kind, word: 'погода', hide: true, title: (wx.tag || wx.title).split(', ')[0] + ', ', titleB: 'спрос выше', sub: wx.demand, weather: vals.home_weather });
+            }
+            // 6 и 9: бонус почти набран или набран сегодня
+            const q = home && phase !== 'off' ? (vals.quests_items || []).find((x) => x.id === vals.quests_hot_id) : null;
+            if (q) {
+              const left = Math.max(0, q.target - (q.done || 0));
+              const timeLeft = q.untilMin - nowMin;
+              const need = left > 0 && timeLeft > 0 ? left / (timeLeft / 60) : null;
+              const tight = need != null && q.pace ? need > q.pace : false;
+              const quests = { items: vals.quests_items, hotId: q.id, nowMin };
+              const pct = Math.round((q.done || 0) * 100 / (q.target || 1));
+              const ordWord = left % 10 === 1 && left % 100 !== 11 ? 'заказ' : (left % 10 >= 2 && left % 10 <= 4 && (left % 100 < 12 || left % 100 > 14) ? 'заказа' : 'заказов');
+              if (!left) list.push({ p: 9, id: 'bonus', kind: 'bonus-done', tone: 'green', svc: q.key, word: 'бонус', hide: true, title: 'Цель набрана, ', titleB: '+' + fm(q.reward), sub: q.title + ' начислит после проверки', pct: 100, quests });
+              else list.push({ p: 6, id: 'bonus', kind: 'bonus', tone: '', svc: q.key, word: 'бонус', hide: true, tight, title: 'Ещё ' + left + ' ' + ordWord + ' до ', titleB: '+' + fm(q.reward), sub: tight ? 'Нужно ' + String(Math.round(need * 10) / 10).replace('.', ',') + ' заказа в час, можно не успеть' : q.title + ', ' + (q.untilLabel || '') + ', ' + (q.done || 0) + ' из ' + q.target, pct, quests });
+            }
+            // 7: задержка выплаты от 2 дней, в первый день хватает точки в денежной карточке
+            const late = home ? (vals.payouts_items || []).filter((i) => i.off <= -2) : [];
+            if (late.length) list.push({ p: 7, id: 'payout', kind: 'late', tone: 'amber', svc: late[0].key, word: 'выплата', hide: true, title: (late[0].short || late[0].title) + ' задерживает ' + fm(late[0].amount), sub: 'Прошло ' + (-late[0].off) + ' ' + (-late[0].off < 5 ? 'дня' : 'дней') + ', напишите в поддержку ' + (late[0].short || late[0].title), payouts: vals.payouts_items });
+            // выходной: только блокировка, связь, риск и выплата. На смене сначала сменное, остальное уходит в Ещё
+            const shiftOk = { 1: 1, 2: 1, 3: 1, 4: 1, 6: 1, 8: 1 };
+            const items = list.filter((i) => !hidden[i.id] && (phase !== 'off' || [1, 2, 5, 7].indexOf(i.p) !== -1))
+              .sort((a, b) => (phase === 'on' ? (shiftOk[b.p] || 0) - (shiftOk[a.p] || 0) : 0) || a.p - b.p);
+            const open = (id, kind, extra) => {
+              const patch = Object.assign({}, extra || {});
+              if (kind === 'block' || kind === 'risk') { if (extra) set(extra); return vals.acc_open(id.replace(/^(block|risk)-/, '')); }
+              if (kind === 'conflict') patch.homeFix = true;
+              if (kind === 'weather' || kind === 'weather-danger') patch.weatherSheet = true;
+              if (kind === 'bonus' || kind === 'bonus-done') patch.questsSheet = true;
+              if (kind === 'late') patch.payoutsSheet = true;
+              set(patch);
+            };
+            return {
+              ta_items: items,
+              ta_conn: { items: vals.conn_health_items, okNote: vals.conn_health_ok_note, netOffline: vals.net_offline, problems: vals.conn_health_problems },
+              ta_payout_in_slot: items.some((i) => i.kind === 'late'),
+              ta_open: (id, kind) => open(id, kind),
+              ta_sheet_open: (id, kind) => open(id, kind, { taSheet: false }),
+              ta_more: () => set({ taSheet: true }),
+              ta_sheet: !!st.taSheet && home && items.length > 0, ta_sheet_close: () => set({ taSheet: false }),
+              ta_hide: (id) => { set({ taHidden: Object.assign({}, hidden, { [id]: true }) }); uxShowToast('Скрыли до конца дня', 'Вернуть', () => set({ taHidden: Object.assign({}, (this.state && this.state.taHidden) || {}, { [id]: false }) })); },
+              weather_sheet: !!st.weatherSheet && home && !!vals.home_weather, weather_sheet_close: () => set({ weatherSheet: false })
+            };
+          })());
+
           // ---- ИИ-помощник: снимок состояния, карточки, действия ----
           const aiFm = (n) => formatMoney(Math.round(n)) + ' ₽';
           const aiWdShort = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
@@ -8980,7 +9076,8 @@
             const minDay = isoAt(-60);
             return {
               v: 1, demoOn,
-              edge: demoOn ? { today: edge.today || null, history: edge.history || null, stats: edge.stats || null, market: edge.market || null, top: edge.top || null } : null,
+              edge: demoOn ? { today: edge.today || null, history: edge.history || null, stats: edge.stats || null, market: edge.market || null, top: edge.top || null, payouts: edge.payouts || null, bonus: edge.bonus || null, unpaid: edge.unpaid || null, account: edge.account || null, alerts: edge.alerts || null, weather: cur.weather || 'rain' } : null,
+              alertRules: alertRules.slice(0, 10), unpaidSaved: cur.unpaidSaved || {},
               profile: { city: cur.city || 'moscow', transport: cur.transport || 'bike' },
               market: { city: cur.mkCity || cur.city || 'moscow', transport: cur.mkTransport || 'any', sort: cur.mkSort || 'hourly' },
               wallet: walletTotals(cur.walletIncome || [], cur.walletWithdrawals || []),
@@ -9247,10 +9344,15 @@
               set(Object.assign({ aiOpen: false, aiOff: false }, map[id] || { s: 'courier-home' }));
             },
             ai_review_open: aiOpenWithPrompt,
-            ai_review_dismiss: () => { set({ aiReviewHidden: aiWeekKey, weekRecapSheet: false }); uxShowToast('Итог недели скрыт', 'Вернуть', () => set({ aiReviewHidden: '' })); },
+            ai_review_dismiss: () => { set({ aiReviewHidden: aiWeekKey, weekRecapSheet: false, weekRecapDetail: false }); uxShowToast('Итог недели скрыт', 'Вернуть', () => set({ aiReviewHidden: '' })); },
             week_recap_show: !!weekRecap && s === 'courier-home', week_recap: weekRecap || {},
-            week_recap_open: () => weekRecap && set({ s: 'stats', statsPeriod: 'week', statsStep: -1, statsSvcFilter: 'all', statsDetail: '' }),
-            week_recap_share: (text) => { this._weekRecapText = text; set({ weekRecapSheet: true }); },
+            week_recap_open: () => weekRecap && set({ s: 'stats', statsPeriod: 'week', statsStep: -1, statsSvcFilter: 'all', statsDetail: '', weekRecapDetail: false }),
+            week_recap_share: (text) => { this._weekRecapText = text; set({ weekRecapSheet: true, weekRecapDetail: false }); },
+            // строка итога недели открывает шторку со всем остальным
+            week_recap_detail: !!weekRecap && !!st.weekRecapDetail && s === 'courier-home',
+            week_recap_detail_open: () => set({ weekRecapDetail: true }),
+            week_recap_detail_close: () => set({ weekRecapDetail: false }),
+            week_recap_ai: () => { set({ weekRecapDetail: false }); aiOpenWithPrompt(); },
             week_recap_sheet: !!weekRecap && !!st.weekRecapSheet && s === 'courier-home',
             week_recap_sheet_close: () => set({ weekRecapSheet: false }),
             // в приложении картинка уходит в системное меню отправки, в прототипе только тост

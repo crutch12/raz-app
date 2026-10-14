@@ -321,7 +321,8 @@ class Component extends DCLogic {
       // слежение только там, где профиль сервиса его разрешает, иначе без кнопки
       if (sl.gone && !watchOk(sl.svc)) return Object.assign(row, { note: 'Слота нет в списке сервиса, слежение для него недоступно', action: '' });
       if (sl.gone) return Object.assign(row, { note: on ? 'Напишем, если слот вернётся' : 'Слота нет в списке сервиса, можно следить', action: on ? 'Слежу' : 'Следить', actionKind: on ? 'watch-on' : 'watch', onAction: toggleWatch });
-      if (clash) return Object.assign(row, { note: rebookOf(sl, clash).line, urgent: false, action: '' });
+      // цена перебронирования в списке только при выгоде от 100 ₽, как в Плане, остальное в шторке слота
+      if (clash) { const rb = rebookOf(sl, clash); return Object.assign(row, { note: rb.net != null && rb.net >= 100 ? rb.line : 'Вместо ' + rb.drop, urgent: false, action: '' }); }
       return Object.assign(row, { gain: true, note: '≈ ' + RSH_FMT(m.rate) + ' ₽/ч' + (rateKnown(sl.svc) ? ', ставка известна заранее' : ', оценка Разноса') + (sl.svc === 'vkusvill' ? ', часы согласует куратор' : (sl.apply && !rateKnown(sl.svc) ? ', смену подтвердит сервис' : '')), action: capOf(sl.svc).take || 'Открыть в сервисе', actionKind: 'primary', onAction: take });
     };
     // слоты, которые пересекаются с вашими сменами, взять нельзя, уносим их в свёрнутый блок внизу

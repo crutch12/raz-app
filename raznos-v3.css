@@ -726,6 +726,9 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-trip-plate { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; padding: 8px 14px; border: 1px solid var(--raznos-line); border-radius: 12px; background: var(--raznos-green-tint); color: var(--raznos-green-deep); font: 600 14px var(--raznos-font); text-align: left; cursor: pointer; width: 100%; box-sizing: border-box; }
 /* группы раздела Сегодня: сейчас, деньги, вокруг */
 .raznos-home-group { margin: 12px 2px -2px; font: 750 18px var(--raznos-font); letter-spacing: -0.01em; color: var(--raznos-ink); }
+/* строки одной карточкой с разделителем: деньги на Сегодня (Ждёт выплаты, Итог недели) */
+.raznos-row-group { display: flex; flex-direction: column; border-radius: 16px; background: var(--raznos-surface); overflow: hidden; }
+.raznos-row-group > * + * { border-top: 1px solid var(--raznos-line); }
 
 /* карта курьеров: карта на весь экран, чипы сервисов сверху, сводка и переключатель снизу */
 .raznos-cmap-screen { padding-bottom: 12px; }

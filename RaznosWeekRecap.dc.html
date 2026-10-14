@@ -31,6 +31,28 @@
     .rwk-fact b span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .rwk-fact em { font: 500 12.5px var(--raznos-font); font-style: normal; color: var(--raznos-ink-2); font-variant-numeric: tabular-nums; }
     .rwk-actions { display: flex; gap: 8px; }
+    /* на Сегодня только строка с суммой: плитка с мини-неделей, лучший день зелёный, крестик прячет до следующей недели */
+    .rwk-row { box-sizing: border-box; width: 100%; min-height: 64px; display: flex; align-items: center; border-radius: 16px; background: var(--raznos-surface); color: var(--raznos-ink); font-family: var(--raznos-font); }
+    .rwk-row.rwk-row-in { border-radius: 0; background: none; }
+    .rwk-row-open { flex: 1; min-width: 0; align-self: stretch; display: flex; align-items: center; gap: 12px; padding: 12px 0 12px 14px; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; border-radius: 16px; }
+    .rwk-row-open:focus-visible, .rwk-row-x:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: -2px; }
+    .rwk-row-ico { flex: none; box-sizing: border-box; width: 40px; height: 40px; display: grid; grid-template-columns: repeat(7, 1fr); align-items: end; gap: 1px; padding: 9px 6px 8px; border-radius: 12px; background: var(--raznos-surface-2); box-shadow: inset 0 0 0 1px var(--raznos-line); }
+    .rwk-row-ico i { display: block; border-radius: 1.5px; background: var(--raznos-line-strong); }
+    .rwk-row-ico i.rwk-is-best { background: var(--raznos-green); }
+    .rwk-row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .rwk-row-main b { font: 650 15px/1.3 var(--raznos-font); white-space: nowrap; }
+    .rwk-row-main span { font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rwk-row-sum { font: 700 16px var(--raznos-font); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rwk-row-x { flex: none; width: 44px; height: 44px; margin: 0 0 0 -2px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 12px; background: none; color: var(--raznos-ink-3); cursor: pointer; }
+    @media (prefers-reduced-motion: no-preference) {
+      .rwk-row-ico i { transform-origin: bottom; animation: rwk-grow 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      .rwk-row-ico i.rwk-is-best { animation-delay: 0.25s; }
+    }
+    /* подробно в шторке: действия в две строки, скрыть тихой ссылкой */
+    .rwk-detail { display: flex; flex-direction: column; gap: 14px; }
+    .rwk-detail .rwk-actions { flex-wrap: wrap; }
+    .rwk-detail .rwk-actions .raznos-btn { flex: 1 1 140px; }
+    .rwk-hide { align-self: center; min-height: 40px; padding: 0 8px; border: 0; background: none; color: var(--raznos-ink-3); font: 600 13px var(--raznos-font); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
     .rwk-actions .raznos-btn { flex: 1 1 0; min-width: 0; padding: 0 12px; }
     @media (prefers-reduced-motion: no-preference) {
       .rwk-bar i { animation: rwk-grow 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
@@ -57,6 +79,27 @@
     .rwk-share-note { margin: 0; font: 500 13px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
   </style>
 </helmet>
+<sc-if value="{{ is_row }}" hint-placeholder-val="{{ false }}">
+<div class="{{ row_cls }}"><button type="button" class="rwk-row-open" onClick="{{ open }}" aria-label="{{ row_aria }}"><span class="rwk-row-ico" aria-hidden="true"><sc-for list="{{ days }}" as="d" hint-placeholder-count="7"><i class="{{ d.mini_cls }}" style="{{ d.mini }}"></i></sc-for></span><span class="rwk-row-main"><b>Итог недели</b><span>{{ range_dates }}</span></span><span class="rwk-row-sum">{{ earn }}</span></button><button type="button" class="rwk-row-x" onClick="{{ dismiss }}" aria-label="Скрыть итог недели до следующей"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+</sc-if>
+<sc-if value="{{ is_detail }}" hint-placeholder-val="{{ false }}">
+<div class="rwk-detail">
+  <div class="rwk-title"><span>{{ range }}</span></div>
+  <span class="rwk-sum"><b>{{ earn }}</b><sc-if value="{{ has_cmp }}" hint-placeholder-val="{{ true }}"><span class="{{ cmp_cls }}">{{ cmp }}</span></sc-if></span>
+  <span class="rwk-meta">{{ meta }}</span>
+  <div class="rwk-week" aria-hidden="true"><sc-for list="{{ days }}" as="d" hint-placeholder-count="7"><span class="{{ d.cls }}"><span class="rwk-bar"><i style="{{ d.style }}"></i></span><span>{{ d.label }}</span></span></sc-for></div>
+  <div class="rwk-facts">
+    <div class="rwk-fact"><small>Лучший день</small><b><span>{{ best_day }}</span></b><em>{{ best_day_sum }}</em></div>
+    <sc-if value="{{ has_svc }}" hint-placeholder-val="{{ true }}"><div class="rwk-fact"><small>Выгоднее в час</small><b><dc-import name="RaznosIcon" svc="{{ svc_key }}" alt="" size="sm"></dc-import><span>{{ svc_title }}</span></b><em>{{ svc_hourly }}</em></div></sc-if>
+  </div>
+  <div class="rwk-actions">
+    <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ share }}">Поделиться</button>
+    <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ results }}">В Результаты</button>
+    <sc-if value="{{ has_ai }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ ai }}">Разобрать с помощником</button></sc-if>
+  </div>
+  <button type="button" class="rwk-hide" onClick="{{ dismiss }}">Скрыть до следующей недели</button>
+</div>
+</sc-if>
 <sc-if value="{{ is_card }}" hint-placeholder-val="{{ true }}">
 <section class="rwk" aria-label="Итог недели">
   <div class="rwk-head">
@@ -95,9 +138,11 @@
 </div>
 </sc-if>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{
-  "mode": { "editor": "enum", "options": ["card", "image", "share"], "default": "card" },
+  "mode": { "editor": "enum", "options": ["row", "detail", "card", "image", "share"], "default": "card" },
+  "onResults": { "editor": null },
   "recap": { "editor": null },
   "ai": { "editor": "bool", "default": true },
+  "inGroup": { "editor": "bool", "default": false },
   "onOpen": { "editor": null },
   "onShare": { "editor": null },
   "onAi": { "editor": null },
@@ -118,11 +163,14 @@ class Component extends DCLogic {
     const p = this.props || {};
     const r = p.recap && p.recap.days ? p.recap : RWK_SAMPLE;
     const max = Math.max.apply(null, r.days.map((d) => d.earn || 0)) || 1;
+    const minOn = Math.min.apply(null, r.days.filter((d) => d.earn).map((d) => d.earn).concat([max]));
     const bestIdx = r.days.reduce((bi, d, i) => ((d.earn || 0) > (r.days[bi].earn || 0) ? i : bi), 0);
     const days = r.days.map((d, i) => ({
       label: d.label,
       cls: 'rwk-day' + (i === bestIdx && d.earn ? ' rwk-is-best' : '') + (!d.earn ? ' rwk-is-off' : ''),
-      style: 'height:' + (d.earn ? Math.max(10, Math.round(d.earn * 100 / max)) : 6) + '%'
+      style: 'height:' + (d.earn ? Math.max(10, Math.round(d.earn * 100 / max)) : 6) + '%',
+      // мини-неделя в плитке строки: разница между днями растянута, чтобы читалась на 22 px, выходной точкой
+      mini_cls: i === bestIdx && d.earn ? 'rwk-is-best' : '', mini: 'height:' + (d.earn ? 7 + Math.round((d.earn - minOn) * 15 / ((max - minOn) || 1)) : 2) + 'px'
     }));
     const diff = r.prevEarn ? Math.round((r.earn - r.prevEarn) * 100 / r.prevEarn) : null;
     const hours = String(r.hours || 0).replace('.', ',') + ' ч';
@@ -133,9 +181,12 @@ class Component extends DCLogic {
     const svc = r.svc || null;
     const shareText = 'Моя неделя в Разносе, ' + (r.rangeShort || '') + ': ' + RWK_FMT(r.earn) + ' за ' + hours + ', лучший день ' + r.bestDay + ' ' + RWK_FMT(best.earn || 0) + (svc ? ', выгоднее в час ' + svc.title + ' ' + RWK_FMT(svc.hourly) + '/ч' : '');
     return {
-      is_card: p.mode !== 'image' && p.mode !== 'share', is_image: p.mode === 'image' || p.mode === 'share', is_share: p.mode === 'share',
+      is_row: p.mode === 'row', is_detail: p.mode === 'detail', row_cls: 'rwk-row' + (p.inGroup ? ' rwk-row-in' : ''),
+      is_card: !p.mode || p.mode === 'card', is_image: p.mode === 'image' || p.mode === 'share', is_share: p.mode === 'share',
+      row_aria: 'Итог недели, ' + r.range + ', ' + RWK_FMT(r.earn) + ', подробнее',
+      results: () => { if (p.onResults) p.onResults(); else if (p.onOpen) p.onOpen(); },
       send: () => { if (p.onSend) p.onSend(shareText); }, copy: () => { if (p.onCopy) p.onCopy(shareText); },
-      range: r.range, range_short: r.rangeShort || r.range, earn: RWK_FMT(r.earn), meta, days,
+      range_dates: String(r.range || '').replace(/^Прошлая неделя,\s*/, ''), range: r.range, range_short: r.rangeShort || r.range, earn: RWK_FMT(r.earn), meta, days,
       has_cmp: diff != null && diff !== 0, cmp: diff == null ? '' : (diff > 0 ? '+' : '−') + Math.abs(diff) + '% к позапрошлой',
       cmp_cls: 'rwk-cmp' + (diff > 0 ? ' rwk-is-up' : ''),
       best_day: r.bestDay, best_day_sum: RWK_FMT(best.earn || 0),

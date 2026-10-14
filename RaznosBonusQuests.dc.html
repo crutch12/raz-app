@@ -12,7 +12,7 @@
     .rbq-is-done .rbq-until { background: var(--raznos-surface); color: var(--raznos-green-deep); }
     .rbq-head { margin: 0; font: 700 18px/1.3 var(--raznos-font); letter-spacing: -0.01em; }
     .rbq-head b { font-weight: 800; color: var(--raznos-green-deep); white-space: nowrap; }
-    /* полоса из делений: один заказ одно деление, у длинных целей сплошная */
+    /* полоса из делений: один заказ одно деление, у длинных целей сплошная. Набранное нейтральным, не цветом сервиса */
     .rbq-segs { display: flex; gap: 3px; height: 12px; }
     .rbq-seg { flex: 1 1 0; min-width: 3px; border-radius: 3px; background: var(--raznos-surface-2); box-shadow: inset 0 0 0 1px var(--raznos-line); }
     .rbq-seg.rbq-seg-on { box-shadow: none; }
@@ -88,7 +88,8 @@ class Component extends DCLogic {
     const p = this.props || {};
     const items = Array.isArray(p.items) ? p.items : RBQ_SAMPLE;
     const nowMin = p.nowMin != null ? p.nowMin : 940;
-    const color = (q) => 'var(--raznos-svc-' + q.key + ', var(--raznos-green))';
+    // набранное нейтральным тёмным: цвет сервиса бывает красно-оранжевым и читается как потеря, у набранной цели зелёный
+    const color = (q) => (q.kind === 'count' && q.target && (q.done || 0) >= q.target ? 'var(--raznos-green)' : 'var(--raznos-ink-2)');
     const segsOf = (q) => {
       const target = q.target || 1, done = Math.min(q.done || 0, target);
       return Array.from({ length: target }, (_, i) => ({ cls: 'rbq-seg' + (i < done ? ' rbq-seg-on' : '') + (i === done - 1 ? ' rbq-seg-last' : ''), style: i < done ? 'background:' + color(q) : '' }));

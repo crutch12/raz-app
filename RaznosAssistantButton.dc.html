@@ -101,6 +101,8 @@ function rabPour(el, go) {
     const to = 'inset(0px 0px 0px 0px round 22px 22px 0px 0px)';
     const ease = 'cubic-bezier(.32, .72, 0, 1)';
     sheet.classList.add('ras-sheet-morph');
+    // уже видимое содержимое проявляется вместе с раскрытием, своя стартовая анимация ему не нужна; пришедшее позже всплывает как обычно
+    sheet.querySelectorAll('.ras-empty b, .ras-empty-sub, .ras-empty-chips .ras-chip').forEach((x) => x.setAttribute('data-ras-still', ''));
     sheet.style.animation = 'none';
     orb.style.opacity = '0';
     const m = sheet.animate([{ clipPath: from }, { clipPath: to }], { duration: 440, easing: ease });

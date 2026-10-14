@@ -51,6 +51,15 @@
     .ras-undo { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 0 6px 0 14px; border-radius: 12px; background: var(--raznos-dark); color: var(--raznos-on-dark); font: 500 14px var(--raznos-font); }
     .ras-undo-btn { min-height: 40px; padding: 0 12px; border: 0; border-radius: 10px; background: none; color: var(--raznos-on-dark); font: 700 14px var(--raznos-font); cursor: pointer; }
     .ras-undo-btn:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    /* заглушка на время ответа сервера: полоски заголовка и карточек переливаются */
+    .ras-skel { display: flex; flex-direction: column; gap: 10px; padding: 26px 2px 6px; }
+    .ras-skel i, .ras-skel-chips i { display: block; border-radius: 10px; background: linear-gradient(90deg, color-mix(in oklab, var(--raznos-ink) 8%, transparent) 0 40%, color-mix(in oklab, var(--raznos-ink) 14%, transparent) 50%, color-mix(in oklab, var(--raznos-ink) 8%, transparent) 60% 100%); background-size: 260% 100%; }
+    .ras-sheet-empty .ras-skel > i { background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.3) 0 40%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0.3) 60% 100%); }
+    .ras-skel-title { height: 30px; width: 78%; }
+    .ras-skel-line { height: 14px; width: 92%; }
+    .ras-skel-short { width: 52%; }
+    .ras-skel-chips { display: flex; flex-direction: column; gap: 8px; margin-top: 26px; }
+    .ras-skel-chips i { height: 54px; border-radius: 14px; }
     .ras-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
     .ras-chips::-webkit-scrollbar { display: none; }
     .ras-chip { flex: none; min-height: 44px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); color: var(--raznos-ink); font: 600 14px var(--raznos-font); cursor: pointer; white-space: nowrap; }
@@ -88,10 +97,11 @@
       @keyframes ras-orb-c { to { transform: translate(30%, -40%) scale(1.1); } }
       .ras-status-text { animation: ras-shimmer 1.8s linear infinite; }
       @keyframes ras-shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+      .ras-skel i, .ras-skel-chips i { animation: ras-shimmer 1.4s linear infinite; }
       /* новые сообщения, карточки и действия мягко всплывают; стартовые вопросы лесенкой */
       .ras-feed .ram-row, .ras-feed .rac-wrap, .ras-feed .raa, .ras-status, .ras-err { animation: ras-rise 0.42s cubic-bezier(.16, 1, .3, 1) both; }
       .ras-empty-chips .ras-chip { animation: ras-rise 0.5s cubic-bezier(.16, 1, .3, 1) both; animation-delay: calc(var(--ras-i, 0) * 70ms + 120ms); }
-      .ras-sheet-morph .ras-empty b, .ras-sheet-morph .ras-empty-sub { animation: none; }
+      [data-ras-still] { animation: none !important; }
       .ras-empty b, .ras-empty-sub { animation: ras-rise 0.5s cubic-bezier(.16, 1, .3, 1) both; }
       @keyframes ras-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
     }
@@ -107,10 +117,12 @@
       <button type="button" class="ras-close" onClick="{{ close }}" aria-label="Закрыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </header>
     <div class="ras-feed" onScroll="{{ feed_scroll }}">
+      <sc-if value="{{ show_skel }}" hint-placeholder-val="{{ false }}"><div class="ras-skel" aria-busy="true" aria-label="Загружаю помощника"><i class="ras-skel-title"></i><i class="ras-skel-title ras-skel-short"></i><i class="ras-skel-line"></i><i class="ras-skel-line ras-skel-short"></i><div class="ras-skel-chips"><i></i><i></i><i></i></div></div></sc-if>
       <sc-if value="{{ show_empty }}" hint-placeholder-val="{{ false }}">
         <div class="ras-empty">
           <b>{{ intro_title }}</b>
           <sc-if value="{{ on }}"><span class="ras-empty-sub">{{ intro_text }}. Менять что-то буду только после вашего согласия</span></sc-if><sc-if value="{{ off }}"><span class="ras-empty-sub">{{ off_note }}</span></sc-if>
+          <sc-if value="{{ prompts_wait }}" hint-placeholder-val="{{ false }}"><div class="ras-skel-chips"><i></i><i></i><i></i></div></sc-if>
           <div class="ras-empty-chips"><sc-for list="{{ prompts }}" as="pc" hint-placeholder-count="3"><button type="button" class="ras-chip" style="{{ pc.style }}" onClick="{{ pc.tap }}">{{ pc.text }}</button></sc-for></div>
         </div>
       </sc-if>
@@ -290,18 +302,18 @@ class Component extends DCLogic {
     const key = (context.screen || '') + ':' + rasHash(JSON.stringify(snapshot) + JSON.stringify(Object.assign({}, context, { nowMin: Math.floor((context.nowMin || 0) / 15) })));
     const c = rasCacheRead();
     const hit = c.prompts && c.prompts[key];
-    if (hit && Date.now() - hit.at < 15 * 60 * 1000) { this._set({ prompts: hit.list }); return; }
+    if (hit && Date.now() - hit.at < 15 * 60 * 1000) { this._set({ prompts: hit.list, promptsDone: true }); return; }
     try {
       const res = await fetch(this._url('/v1/prompts'), { method: 'POST', headers: this._headers(), body: JSON.stringify({ snapshot, context }) });
-      if (!res.ok) return;
+      if (!res.ok) { this._set({ promptsDone: true }); return; }
       const d = await res.json();
-      this._set({ prompts: d.prompts || [] });
+      this._set({ prompts: d.prompts || [], promptsDone: true });
       const c2 = rasCacheRead();
       const all = Object.assign({}, c2.prompts || {}, { [key]: { list: d.prompts || [], at: Date.now() } });
       // храним последние 10 наборов
       c2.prompts = Object.fromEntries(Object.entries(all).sort((a, b) => b[1].at - a[1].at).slice(0, 10));
       rasCacheWrite(c2);
-    } catch (e) {}
+    } catch (e) { this._set({ promptsDone: true }); }
   }
   async _init() {
     const p = this._p();
@@ -528,6 +540,7 @@ class Component extends DCLogic {
       intro_title: (RAS_INTRO[screen] || RAS_INTRO.other)[0], intro_text: (RAS_INTRO[screen] || RAS_INTRO.other)[1],
       sheet_cls: 'ras-sheet' + (!hasUser && items.length === 0 ? ' ras-sheet-empty' : ''),
       show_empty: !!st.restored && !hasUser && !busy && items.length === 0, prompts,
+      show_skel: !st.restored && !off, prompts_wait: !!st.restored && !hasUser && !off && !st.promptsDone && (st.prompts || []).length === 0,
       compose_style: off ? 'display:none' : '', show_chips: chips.length > 0, chips, off, on: !off, off_note: 'Помощник выключен: вы не разрешили передавать данные. Включить можно в Настройках, строка Помощник: разрешить',
       has_error: !!err, error_text: err ? err.text : '', error_retry: !!(err && err.retry), error_new: !!(err && err.fresh),
       retry: () => { const e = (this.state || {}).error; this._set({ error: null }); if (e && e.retry === 'init') { this._init(); return; } const l = this._last || {}; this._send({ text: l.text, events: l.events, again: true }); },
