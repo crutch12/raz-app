@@ -196,6 +196,8 @@
               <div class="raznos-app-bar" style="justify-content:space-between;gap:10px"><span style="display:flex;flex-direction:column;gap:1px;min-width:0"><h1 class="raznos-text-h1" style="margin:0">Сегодня</h1><span style="white-space:nowrap;font:500 12.5px var(--raznos-font);color:var(--raznos-ink-3)">{{ transport_title }} · {{ today_short_num }}</span></span><sc-if value="{{ ai_on }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAssistantButton" label="Спросить" attention="{{ ai_attention }}" onClick="{{ ai_open_tap }}"></dc-import></sc-if></div>
               <dc-import name="RaznosConnHealth" items="{{ conn_health_items }}" okNote="{{ conn_health_ok_note }}" netOffline="{{ net_offline }}" onAction="{{ conn_health_action }}"></dc-import>
               <sc-if value="{{ relogin_visible }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Сервисы нужно подключить заново</span><span class="raznos-text-small">{{ relogin_note }}</span><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" style="align-self:flex-start" onClick="{{ go_integrations }}">Открыть сервисы</button></div></sc-if>
+              <!-- аккаунт в сервисе: плашка только при риске или блокировке, подробно на экране сервиса -->
+              <sc-for list="{{ acc_alerts }}" as="aa" hint-placeholder-count="0"><dc-import name="RaznosAccountState" mode="alert" svc="{{ aa.key }}" title="{{ aa.title }}" state="{{ aa.state }}" onOpen="{{ acc_open }}"></dc-import></sc-for>
 
               <sc-if value="{{ home_shift_ended }}" hint-placeholder-val="{{ false }}">
                 <dc-import name="RaznosDayResult" earn="{{ today_earn }}" orders="{{ today_orders }}" hourly="{{ today_hourly }}" hours="{{ today_hours }}" deltaPct="{{ today_delta_pct }}" open="{{ go_day_recap }}"></dc-import>
@@ -270,9 +272,43 @@
               <sc-if value="{{ qt_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosQuickTip" orders="{{ qt_orders }}" defaultId="{{ qt_default }}" onAdd="{{ qt_add }}" onClose="{{ qt_close }}"></dc-import></sc-if>
               <sc-if value="{{ qe_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosQuickExpense" cats="{{ qe_cats }}" defaultCat="{{ qe_cat }}" recent="{{ qe_recent }}" today="{{ today_iso }}" minDay="{{ ef_day_min }}" onAdd="{{ qe_add }}" onClose="{{ qe_close }}"></dc-import></sc-if>
               </sc-if>
-              <sc-if value="{{ ai_review_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosWeekReview" range="{{ ai_review.range }}" earn="{{ ai_review.earn }}" hours="{{ ai_review.hours }}" hourly="{{ ai_review.hourly }}" goalLine="{{ ai_review.goalLine }}" fix="{{ ai_review.fix }}" onOpen="{{ ai_review_open }}" onDismiss="{{ ai_review_dismiss }}"></dc-import></sc-if>
+              <!-- сколько ждёт выплаты по сервисам: одна строка, янтарная только при задержке, подробно в шторке -->
+              <sc-if value="{{ payouts_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosPayouts" mode="line" items="{{ payouts_items }}" onOpen="{{ payouts_open }}"></dc-import></sc-if>
+              <sc-if value="{{ payouts_sheet }}" hint-placeholder-val="{{ false }}">
+                <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Выплаты">
+                  <div class="raznos-dialog raznos-day-sheet">
+                    <span class="raznos-day-handle" aria-hidden="true"></span>
+                    <div class="raznos-day-head"><span class="raznos-text-h3">Выплаты</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ payouts_close }}" aria-label="Закрыть">×</button></div>
+                    <dc-import name="RaznosPayouts" items="{{ payouts_items }}" onSupport="{{ payouts_support }}"></dc-import>
+                  </div>
+                </div>
+              </sc-if>
+              <!-- итог прошлой недели по понедельникам, работает и без помощника, помощник только добавляет кнопку разбора -->
+              <sc-if value="{{ week_recap_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosWeekRecap" recap="{{ week_recap }}" ai="{{ ai_on }}" onOpen="{{ week_recap_open }}" onShare="{{ week_recap_share }}" onAi="{{ ai_review_open }}" onDismiss="{{ ai_review_dismiss }}"></dc-import></sc-if>
+              <sc-if value="{{ week_recap_sheet }}" hint-placeholder-val="{{ false }}">
+                <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Поделиться итогом недели">
+                  <div class="raznos-dialog raznos-day-sheet">
+                    <span class="raznos-day-handle" aria-hidden="true"></span>
+                    <div class="raznos-day-head"><span class="raznos-text-h3">Поделиться итогом</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ week_recap_sheet_close }}" aria-label="Закрыть">×</button></div>
+                    <dc-import name="RaznosWeekRecap" mode="share" recap="{{ week_recap }}" onSend="{{ week_recap_send }}" onCopy="{{ week_recap_copy }}"></dc-import>
+                  </div>
+                </div>
+              </sc-if>
               <sc-if value="{{ home_shift_group }}" hint-placeholder-val="{{ true }}"><h2 class="raznos-home-group">Смена</h2></sc-if>
               <sc-if value="{{ home_now_visible }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosNowNext" state="{{ home_now_state }}" dayLine="{{ home_now_day }}" rows="{{ home_now_rows }}" warning="{{ home_now_warning }}" onEnd="{{ end_home_shift }}" onStart="{{ start_home_shift }}" onOpenPlan="{{ go_smart }}" onOpenShift="{{ home_open_shift }}" onWarning="{{ home_open_warning }}"></dc-import></sc-if>
+              <!-- погода только когда поднимает спрос или опасна на смене -->
+              <sc-if value="{{ home_weather_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosWeather" weather="{{ home_weather }}"></dc-import></sc-if>
+              <!-- бонус сервиса только когда почти набран или уже набран, все задания в шторке -->
+              <sc-if value="{{ quests_hot_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosBonusQuests" items="{{ quests_items }}" hotId="{{ quests_hot_id }}" nowMin="{{ 940 }}" onOpen="{{ quests_open }}"></dc-import></sc-if>
+              <sc-if value="{{ quests_sheet }}" hint-placeholder-val="{{ false }}">
+                <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Бонусы и задания">
+                  <div class="raznos-dialog raznos-day-sheet">
+                    <span class="raznos-day-handle" aria-hidden="true"></span>
+                    <div class="raznos-day-head"><span class="raznos-text-h3">Бонусы и задания</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ quests_close }}" aria-label="Закрыть">×</button></div>
+                    <dc-import name="RaznosBonusQuests" mode="list" items="{{ quests_items }}" nowMin="{{ 940 }}"></dc-import>
+                  </div>
+                </div>
+              </sc-if>
               <sc-if value="{{ home_fix_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosConflictSheet" aSvc="{{ home_fix.aSvc }}" aTitle="{{ home_fix.aTitle }}" aTo="{{ home_fix.aTo }}" bSvc="{{ home_fix.bSvc }}" bTitle="{{ home_fix.bTitle }}" bFrom="{{ home_fix.bFrom }}" travel="{{ home_fix.travel }}" rate="{{ home_fix.rate }}" onLeave="{{ home_fix.leave }}" onLate="{{ home_fix.late }}" onClose="{{ home_fix_close }}"></dc-import></sc-if>
               <sc-if value="{{ home_end_ask }}" hint-placeholder-val="{{ false }}">
                 <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Завершить рабочий день">
@@ -334,6 +370,7 @@
                 <p class="raznos-stats-range">{{ stats_range_human }}<sc-if value="{{ stats_range_hint }}" hint-placeholder-val="{{ true }}"> · {{ stats_range_hint }}</sc-if></p>
                 <sc-if value="{{ stats_detail_is_money }}">
                   <dc-import name="RaznosStatsMoney" title="{{ stats_money_title }}" accent="{{ stats_money_accent }}" sub="{{ stats_money_sub }}" rows="{{ stats_money_detail_rows }}" finesLabel="{{ stats_fines_link }}" viaLabel="{{ stats_via_link }}" onFines="{{ stats_detail_go_fines }}" onExpenses="{{ go_expenses_from_stats }}"></dc-import>
+                  <sc-if value="{{ payouts_show }}" hint-placeholder-val="{{ true }}"><h3 class="raznos-stats-trend-group">Когда придут деньги</h3><dc-import name="RaznosPayouts" items="{{ payouts_items }}" onSupport="{{ payouts_support }}"></dc-import></sc-if>
                   <sc-if value="{{ stats_sec_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAppSectionLink" svc="{{ stats_sec_svc }}" svcTitle="{{ stats_sec_title }}" section="income" onOpen="{{ stats_sec_income }}"></dc-import></sc-if>
                   <dc-import name="RaznosStatsTaxCard" value="{{ stats_tax_card_value }}" sub="{{ stats_tax_card_sub }}" onOpen="{{ stats_detail_go_taxes }}"></dc-import>
                   <dc-import name="RaznosStatsOrdersLink" caption="{{ stats_orders_caption }}" onOpen="{{ stats_history_open }}"></dc-import>
@@ -356,6 +393,7 @@
                 </sc-if>
                 <sc-if value="{{ stats_detail_is_fines }}">
                   <dc-import name="RaznosStatsFines" title="{{ stats_fines_title }}" accent="{{ stats_fines_accent }}" sub="{{ stats_fines_sub }}" share="{{ stats_fines_share }}" byService="{{ stats_fines_by_service }}" cases="{{ stats_fine_cases }}" via="{{ stats_via }}" casesTitle="{{ stats_fines_cases_title }}" note="{{ stats_fines_note }}"></dc-import>
+                  <sc-if value="{{ unpaid_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosUnpaidHours" cases="{{ unpaid_cases }}" onSave="{{ unpaid_save }}" onSupport="{{ unpaid_support }}"></dc-import></sc-if>
                   <sc-if value="{{ stats_sec_fines_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAppSectionLink" svc="{{ stats_sec_fines_svc }}" svcTitle="{{ stats_sec_fines_title }}" section="fines" onOpen="{{ stats_sec_fines }}"></dc-import></sc-if>
                 </sc-if>
                 <sc-if value="{{ stats_detail_is_trends }}">
@@ -375,6 +413,7 @@
                   <dc-import name="RaznosStatsDistricts" rows="{{ stats_districts }}" onAll="{{ stats_detail_go_districts }}"></dc-import>
                   <sc-if value="{{ stats_work_visible }}"><dc-import name="RaznosStatsWork" work="{{ stats_work }}" onOpenTime="{{ stats_detail_go_time }}"></dc-import></sc-if>
                   <dc-import name="RaznosStatsMoney" title="{{ stats_money_title }}" accent="{{ stats_money_accent }}" sub="{{ stats_payout_sub }}" rows="{{ stats_money_rows }}" only="{{ stats_payout_kinds }}" finesLabel="" expensesLabel="{{ stats_expenses_link }}" viaLabel="{{ stats_via_link }}" onFines="{{ stats_detail_go_fines }}" onOpen="{{ stats_detail_go_money }}" onExpenses="{{ go_expenses_from_stats }}" taxValue="{{ stats_tax_card_value }}" taxSub="{{ stats_tax_card_sub }}" onTax="{{ stats_detail_go_taxes }}"></dc-import>
+                  <sc-if value="{{ unpaid_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosUnpaidHours" mode="link" cases="{{ unpaid_cases }}" onOpen="{{ stats_detail_go_fines }}"></dc-import></sc-if>
                   <dc-import name="RaznosStatsOrdersLink" caption="{{ stats_orders_caption }}" onOpen="{{ stats_history_open }}"></dc-import>
                 </sc-if>
                 <sc-if value="{{ stats_edge_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" glyph="₽" title="За этот период заказов нет" text="Итоги появятся после первого заказа" actionLabel="{{ stats_edge_prev_label }}" onAction="{{ stats_edge_prev }}"></dc-import></sc-if>
@@ -406,7 +445,7 @@
                 </div>
             </div>
             </sc-if>
-            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" caps="{{ shifts_caps }}" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ plan_edit_graph }}" onAssistant="{{ ai_plan_tap }}" assistantAttention="{{ ai_attention }}" reopenSettings="{{ plan_reopen_settings }}" onReopened="{{ plan_reopened }}" dayFacts="{{ smart_day_facts }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" changeNote="{{ plan_change_note }}" changeIso="{{ plan_change_iso }}" changeKey="{{ plan_change_key }}" onChangeHide="{{ plan_change_hide }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onDay="{{ plan_day_seen }}" planState="{{ plan_state }}" onPlanState="{{ set_plan_state }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
+            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" caps="{{ shifts_caps }}" quests="{{ smart_quests }}" weather="{{ smart_weather }}" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ plan_edit_graph }}" onAssistant="{{ ai_plan_tap }}" assistantAttention="{{ ai_attention }}" reopenSettings="{{ plan_reopen_settings }}" onReopened="{{ plan_reopened }}" dayFacts="{{ smart_day_facts }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" changeNote="{{ plan_change_note }}" changeIso="{{ plan_change_iso }}" changeKey="{{ plan_change_key }}" onChangeHide="{{ plan_change_hide }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onDay="{{ plan_day_seen }}" planState="{{ plan_state }}" onPlanState="{{ set_plan_state }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
           </sc-if>
 
           <sc-if value="{{ is_active_order }}">
@@ -507,6 +546,7 @@
               <sc-if value="{{ conn_has_caps }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosServiceCaps" caps="{{ conn_caps }}" compact="{{ true }}" viaMine="{{ conn_via_mine }}" viaSeen="{{ conn_via_seen }}" onVia="{{ conn_via_open }}"></dc-import></sc-if>
 
               <sc-if value="{{ conn_is_connected }}" hint-placeholder-val="{{ false }}">
+                <sc-if value="{{ conn_acc_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAccountState" svc="{{ conn_key }}" title="{{ conn_title }}" titleIn="{{ conn_acc_in }}" state="{{ conn_acc_state }}" updated="{{ conn_acc_updated }}" onContact="{{ acc_contact }}"></dc-import></sc-if>
                 <div class="raznos-notice raznos-notice-ok"><span class="raznos-notice-title">Сервис подключён</span><span class="raznos-text-small">{{ conn_connected_note }}</span></div>
                 <p class="raznos-text-tiny">Мы читаем вашу статистику через тот же вход, что и в приложении курьера {{ conn_title }}. Доступ шифруется и его можно отключить в любой момент</p>
                 <button type="button" class="raznos-btn raznos-btn-danger" onClick="{{ conn_disconnect }}">Отключить сервис</button>
@@ -1446,6 +1486,21 @@
           <sc-if value="{{ is_notifications }}">
             <div class="raznos-phone-body" data-screen-label="45 Notifications">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ sub_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Уведомления</h1></div>
+              <!-- свои оповещения: правила курьера, редактор в шторке -->
+              <sc-if value="{{ is_role_courier }}" hint-placeholder-val="{{ true }}">
+                <span class="raznos-text-h3">Мои оповещения</span>
+                <dc-import name="RaznosAlertRules" rules="{{ ar_rules }}" services="{{ ar_svcs }}" areas="{{ ar_areas }}" onOpen="{{ ar_open }}" onToggle="{{ ar_toggle }}" onAdd="{{ ar_add }}"></dc-import>
+                <sc-if value="{{ ar_sheet }}" hint-placeholder-val="{{ false }}">
+                  <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="{{ ar_sheet_title }}">
+                    <div class="raznos-dialog raznos-day-sheet">
+                      <span class="raznos-day-handle" aria-hidden="true"></span>
+                      <div class="raznos-day-head"><span class="raznos-text-h3">{{ ar_sheet_title }}</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ ar_close }}" aria-label="Закрыть">×</button></div>
+                      <dc-import name="RaznosAlertRules" mode="edit" rule="{{ ar_rule }}" services="{{ ar_svcs }}" areas="{{ ar_areas }}" onSave="{{ ar_save }}" onDelete="{{ ar_delete }}"></dc-import>
+                    </div>
+                  </div>
+                </sc-if>
+                <span class="raznos-text-h3">Категории</span>
+              </sc-if>
               <div class="raznos-card">
                 <sc-for list="{{ notif_rows }}" as="n" hint-placeholder-count="4">
                   <button type="button" class="raznos-list-row" onClick="{{ n.toggle }}" role="switch" aria-checked="{{ n.on }}">
@@ -1501,6 +1556,17 @@
                 <span class="raznos-hero-formula">из них регулярные {{ exp_recurring_total }} ₽, остальное внесено вручную</span>
               </div>
               <button type="button" class="raznos-list-row raznos-card" onClick="{{ go_recurring_from_expenses }}"><div class="raznos-list-main"><span class="raznos-text-h3">Регулярные</span><span class="raznos-text-small">{{ exp_recurring_summary }}</span></div><span class="raznos-row-chevron">›</span></button>
+              <!-- свой транспорт или аренда: одна строка с выводом, калькулятор в шторке -->
+              <sc-if value="{{ tc_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosTransportCalc" own="{{ tc.own }}" hours="{{ tc.hours }}" km="{{ tc.km }}" tariffs="{{ tc.tariffs }}" onOpen="{{ tc_open }}"></dc-import></sc-if>
+              <sc-if value="{{ tc_sheet }}" hint-placeholder-val="{{ false }}">
+                <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Свой транспорт или аренда">
+                  <div class="raznos-dialog raznos-day-sheet">
+                    <span class="raznos-day-handle" aria-hidden="true"></span>
+                    <div class="raznos-day-head"><span class="raznos-text-h3">Свой транспорт или аренда</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ tc_close }}" aria-label="Закрыть">×</button></div>
+                    <dc-import name="RaznosTransportCalc" mode="calc" own="{{ tc.own }}" ownSrc="{{ tc.src }}" hours="{{ tc.hours }}" km="{{ tc.km }}" tariffs="{{ tc.tariffs }}" buyPrice="{{ tc.buy }}"></dc-import>
+                  </div>
+                </div>
+              </sc-if>
               <sc-if value="{{ exp_is_empty }}" hint-placeholder-val="{{ false }}">
                 <dc-import name="RaznosEmptyState" glyph="₽" title="Расходов пока нет" text="Добавьте первый, чтобы видеть доход чистыми"></dc-import>
               </sc-if>
@@ -2418,6 +2484,24 @@
         'stats-filters': { s: 'stats', statsDetail: 'filters' },
         'stats-taxes': { s: 'stats', statsDetail: 'taxes' },
         'stats-fines': { s: 'stats', statsDetail: 'fines' },
+        'payouts': { s: 'courier-home', homeDay: '', payoutsSheet: true },
+        'payout-late': { s: 'courier-home', homeDay: '', demoEdge: { payouts: 'late' } },
+        'bonus-near': { s: 'courier-home', homeDay: '', questsSheet: true },
+        'weather-rain': { s: 'courier-home', homeDay: '', weather: 'rain' },
+        'weather-frost': { s: 'courier-home', homeDay: '', weather: 'frost' },
+        'weather-plan': { s: 'work-hub', planOnboarded: true, smartFocusIso: TODAY_ISO, smartFocusKey: '', weather: 'rain' },
+        'alerts': { s: 'notifications', subFrom: 'profile', alertEdit: null },
+        'alert-edit': { s: 'notifications', subFrom: 'profile', alertEdit: 'r1' },
+        'alert-fired': { s: 'inbox', inboxArchive: false, alertEdit: null },
+        'rebook': { s: 'slots', slotsTab: 'free', slotsDay: '', slotsSvc: '', slotsWeek: null, slotsFrom: 'work-hub' },
+        'week-recap': { s: 'courier-home', homeDay: '', aiReviewAlways: true, aiReviewHidden: '', weekRecapSheet: false },
+        'week-recap-share': { s: 'courier-home', homeDay: '', aiReviewAlways: true, aiReviewHidden: '', weekRecapSheet: true },
+        'unpaid-fines': { s: 'stats', statsPeriod: 'week', statsStep: 0, statsSvcFilter: 'all', statsDetail: 'fines', demoEdge: {} },
+        'unpaid-day': { s: 'stats', statsPeriod: 'today', statsStep: -2, statsSvcFilter: 'all', statsDetail: '', demoEdge: {} },
+        'account-risk': { s: 'courier-home', homeDay: '', demoEdge: { account: 'risk' } },
+        'account-block': { s: 'integration-connect', connKey: 'x5', connStage: 'form', demoEdge: { account: 'block' } },
+        'account-vkusvill': { s: 'integration-connect', connKey: 'vkusvill', connStage: 'form' },
+        'bonus-plan': { s: 'work-hub', smartFocusIso: TODAY_ISO, smartFocusKey: '' },
         'cancel': { s: 'active-order', activeAccepted: true, activeOfferId: 'o1', selectedOfferId: 'o1', orderStage: 'to_pickup', cancelScheduled: true },
         'cancel-paused': { s: 'active-order', activeAccepted: true, activeOfferId: 'o1', selectedOfferId: 'o1', orderStage: 'to_pickup', workPaused: true, cancelScheduled: true },
         'feed-filters': { s: 'offers', feedEmpty: 'filters', workFilters: { vkusvill: { minPay: 1000 }, samokat: { minPay: 1000 }, x5: { minPay: 1000 } } },
@@ -2728,6 +2812,8 @@
       const slotRow = (id, iso, svc, from, to, extra) => Object.assign({ id, iso, svc, title: SHIFT_TITLES[svc], place: SHIFT_PLACES[svc], from: from * 60, to: to * 60, apply: SERVICE_CAPS[svc].status === 'zayavka', rate: SHIFT_RATES[svc], rateVerified: SERVICE_CAPS[svc].rate === 'known', appName: SERVICE_CAPS[svc].app }, extra || {});
       const SHIFT_SLOTS = [
         slotRow('f1', isoAt(0), 'samokat', 18, 22), slotRow('f2', isoAt(0), 'yandex-eda', 19, 23),
+        // вечер X5 длиннее сегодняшней брони Яндекс Еды: пример цены перебронирования после срока бесплатной отмены
+        slotRow('r1', isoAt(0), 'x5', 17.5, 23, { bonus: '+60 ₽/ч вечером' }),
         slotRow('f3', isoAt(1), 'samokat', 18, 22, { rate: 410, bonus: '+50 ₽/ч вечером' }), slotRow('f4', isoAt(1), 'yandex-eda', 11, 15, { gone: true }),
         slotRow('f5', isoAt(1), 'x5', 9, 15), slotRow('f6', isoAt(1), 'vkusvill', 19, 22),
         slotRow('f7', isoAt(2), 'yandex-eda', 17, 21, { bonus: '+15% за пиковые часы' }), slotRow('f8', isoAt(2), 'samokat', 9, 13),
@@ -2776,6 +2862,23 @@
         else if (c.kind === 'hours') SHIFT_RULES[k] = { freeCancel: 'hours', hoursBefore: c.hours, late: c.late, src };
         else SHIFT_RULES[k] = { freeCancel: 'none', note: c.note || c.late, src };
       });
+      // @ai-data-begin
+      // цена перебронирования: что будет, если отменить бронь после срока бесплатной отмены. perHour штраф за час брони, sum фиксированный,
+      // unknown сумму сервис не публикует, other последствие без денег. Суммы примерные, по правилам сервисов из SERVICE_CAPS.cancel, на аккаунтах не проверены
+      const REBOOK_PENALTIES = {
+        'yandex-eda': { perHour: 150, other: '', note: 'невыход, штраф равен минималке за пропущенные часы, в демо 150 ₽/ч' },
+        'yandex-lavka': { unknown: true, other: 'доход за слот могут снизить' },
+        samokat: { sum: 0, other: 'падает рейтинг' },
+        x5: { sum: 0, other: 'будет событие рейтинга' },
+        'ozon-fresh': { sum: 0, other: 'блокировка на 2 дня' },
+        'ozon-courier': { unknown: true },
+        magnit: { unknown: true, other: 'пропуск после 15 минут считается невыходом' },
+        dostavista: { unknown: true, other: 'роялти-штраф считается автоматически' },
+        vkusvill: { sum: 0, other: 'смену согласует куратор даркстора' },
+        dodo: { sum: 0, other: 'уйдёте в конец очереди' }
+      };
+      // @ai-data-end
+      Object.keys(REBOOK_PENALTIES).forEach((k) => { if (SHIFT_RULES[k]) SHIFT_RULES[k].penalty = REBOOK_PENALTIES[k]; });
       // открытие записи показываем только там, где оно связано с уровнем или рейтингом по профилю
       const SHIFT_OPENINGS = [
         { id: 'o1', svc: 'yandex-eda', title: 'Запись в Яндекс на ' + isoRangeLabel(isoAt(WEEK_MON_OFF + 7), isoAt(WEEK_MON_OFF + 13)), text: 'пт ' + SERVICE_CAPS['yandex-eda'].opening.mine.time + ', уровень ' + SERVICE_CAPS['yandex-eda'].opening.mine.level, line: 'пт ' + SERVICE_CAPS['yandex-eda'].opening.mine.time + ' откроется запись на ' + dayAt(WEEK_MON_OFF + 7).getDate() + '–' + dayAt(WEEK_MON_OFF + 13).getDate() + ' ' + RU_MONTHS_SHORT[dayAt(WEEK_MON_OFF + 13).getMonth()], meta: 'Москва, в других городах время другое · правила Яндекс Про', remind: false }
@@ -3063,13 +3166,26 @@
         const cycle = ['metro', 'other'];
         // с начала подробной истории до недели назад суммы идут по кругу, последние 6 дней свои
         const early = [260, 240, 260, 250, 270, 230, 270, 260];
-        isoRange(EXP_MIN_DAY, isoAt(-7)).forEach((day, i) => { list.push({ id: 'exp-seed-' + (i + 1), day, cat: cycle[i % cycle.length], amount: early[i % early.length], note: '', deletedAt: null }); });
+        // у прочих расходов подпись, по ней калькулятор Свой транспорт или аренда находит траты на велосипед
+        const otherNotes = ['Ремонт велосипеда', 'Парковка велосипеда', 'Камера и смазка цепи', 'Перекус на смене'];
+        isoRange(EXP_MIN_DAY, isoAt(-7)).forEach((day, i) => { const cat = cycle[i % cycle.length]; list.push({ id: 'exp-seed-' + (i + 1), day, cat, amount: early[i % early.length], note: cat === 'other' ? otherNotes[Math.floor(i / 2) % otherNotes.length] : '', deletedAt: null }); });
         const mid = [280, 270, 290, 260, 300, 280];
-        mid.forEach((amount, i) => { list.push({ id: 'exp-seed-m' + (i + 1), day: isoAt(i - 6), cat: cycle[i % cycle.length], amount, note: '', deletedAt: null }); });
+        mid.forEach((amount, i) => { const cat = cycle[i % cycle.length]; list.push({ id: 'exp-seed-m' + (i + 1), day: isoAt(i - 6), cat, amount, note: cat === 'other' ? otherNotes[Math.floor(i / 2) % otherNotes.length] : '', deletedAt: null }); });
         list.push({ id: 'exp-seed-today-1', day: TODAY_ISO, cat: 'metro', amount: 250, note: 'Проезд и мелкий ремонт на смену', deletedAt: null });
         list.push({ id: 'exp-seed-today-2', day: TODAY_ISO, cat: 'other', amount: 30, note: 'Парковка велосипеда', deletedAt: null });
         return list;
       }
+      // @ai-data-begin
+      // калькулятор свой транспорт или аренда в Расходах: недельные тарифы аренды электровелосипеда в Москве, примерные, по открытым тарифам прокатов для курьеров
+      // TRANSPORT_OWN_RE находит траты на свой транспорт в Расходах по категории и подписи, TRANSPORT_BUY_PRICE цена своего электровелосипеда для окупаемости
+      const TRANSPORT_RENT_TARIFFS = [
+        { id: 'one', title: 'Электровелосипед', note: 'одна батарея, ТО включено', week: 3500 },
+        { id: 'two', title: 'С двумя батареями', note: 'запас хода на всю смену', week: 4400 },
+        { id: 'svc', title: 'Через сервис доставки', note: 'партнёрская скидка, нужен статус в сервисе', week: 2500 }
+      ];
+      const TRANSPORT_OWN_RE = /велосип|самокат|цеп|камер|колод|ремонт|аккумулятор|зарядк|шин/i;
+      const TRANSPORT_BUY_PRICE = 85000;
+      // @ai-data-end
       function buildSeedRecurringExpenses() {
         return [{ id: 'rec-phone', cat: 'phone', title: 'Связь', amount: 600, every: 'month', startDay: EXP_MIN_DAY, endDay: null }];
       }
@@ -3324,6 +3440,60 @@
       // выборка и период Рынка: последние 4 недели до вчера, одна подпись на всех экранах
       const MARKET_SAMPLE = { moscow: { couriers: 184, orders: 6240 }, spb: { couriers: 63, orders: 1870 } };
       // @ai-data-end
+      // выплаты сервисов сейчас: сколько ждёт и когда придёт, off это сдвиг дня от сегодня, меньше нуля значит выплата задерживается
+      // сроки по правилам сервисов из трекера выплат (docs/PRODUCT-BACKLOG.md), на рабочих аккаунтах не подтверждены
+      // @ai-data-begin
+      const offToWeekday = (wd) => (wd - DEMO_TODAY.getDay() + 7) % 7;
+      const PAYOUT_RULES = {
+        vkusvill: 'Каждый день за вчера, до 12:00',
+        samokat: 'Каждый день за вчера',
+        'yandex-eda': 'Выводите сами в Яндекс Про, парк берёт комиссию',
+        x5: 'По четвергам за прошлую неделю',
+        magnit: 'По четвергам за прошлую неделю',
+        dodo: 'Дважды в месяц, 5 и 20 числа'
+      };
+      const PAYOUTS = [
+        { key: 'samokat', title: 'Самокат', from: 'Самоката', amount: 1870, off: 0, rule: PAYOUT_RULES.samokat },
+        { key: 'yandex-eda', title: 'Яндекс Еда', from: 'Яндекс Еды', amount: 1260, off: 0, rule: PAYOUT_RULES['yandex-eda'], whenLabel: 'можно вывести', self: true },
+        { key: 'vkusvill', title: 'ВкусВилл', from: 'ВкусВилла', amount: 2140, off: 1, rule: PAYOUT_RULES.vkusvill },
+        { key: 'x5', title: 'X5 Доставка', from: 'X5', amount: 4260, off: offToWeekday(4), rule: PAYOUT_RULES.x5 },
+        { key: 'dodo', title: 'Додо Пицца', from: 'Додо', amount: 3150, off: (() => { const d = DEMO_TODAY.getDate(); const next = d < 5 ? new Date(CUR_YEAR, DEMO_TODAY.getMonth(), 5) : d < 20 ? new Date(CUR_YEAR, DEMO_TODAY.getMonth(), 20) : new Date(CUR_YEAR, DEMO_TODAY.getMonth() + 1, 5); return Math.round((next - DEMO_TODAY) / 86400000); })(), rule: PAYOUT_RULES.dodo }
+      ];
+      // сценарий задержки: X5 не заплатил в прошлый четверг
+      const PAYOUT_LATE = { key: 'x5', title: 'X5 Доставка', short: 'X5', from: 'X5', amount: 3980, off: -(((DEMO_TODAY.getDay() - 4 + 7) % 7) || 7), rule: PAYOUT_RULES.x5, supportIn: 'поддержку X5', lateHint: 'Напишите в поддержку X5 в разделе Выплаты, номер выплаты там же' };
+      // @ai-data-end
+      // бонусы и задания сервисов: kind count (порог и зачтено), percent (сервис отдаёт только процент) или text (только условия)
+      // untilMin это срок сегодня в минутах от полуночи, pace обычный темп курьера в этом сервисе, заказов в час
+      // поля по docs/INTEGRATION-BONUSES.md, на рабочих аккаунтах не подтверждены
+      // @ai-data-begin
+      const SERVICE_QUESTS = [
+        { id: 'q-ya-day', key: 'yandex-eda', title: 'Яндекс Еда', name: 'Персональная цель на день', reward: 1500, kind: 'count', done: 14, target: 20, untilMin: 20 * 60, untilLabel: 'до 20:00', pace: 2.3, rule: 'Доставленные заказы с 10:00, отменённые и возвраты не считаются' },
+        { id: 'q-samokat-evening', key: 'samokat', title: 'Самокат', name: 'Вечерние заказы', rewardText: '×1,2 к оплате', kind: 'text', untilLabel: 'до воскресенья', rule: 'Заказы после 19:00 оплачиваются с коэффициентом 1,2, условия партнёра в вашем городе' }
+      ];
+      // @ai-data-end
+      // состояние аккаунта в каждом сервисе: уровень, рейтинг, риски (значение и лимит), блокировка с причиной, сроком и куда писать
+      // поля по docs/INTEGRATION-COURIER-PROFILES.md, на рабочих аккаунтах не подтверждены
+      // @ai-data-begin
+      const ACCOUNT_STATES = {
+        vkusvill: { rating: 4.9, ratingNote: 'из 5, оценки покупателей', facts: [{ label: 'Медкнижка', value: 'до 12 марта', note: 'без неё ВкусВилл отключает от заказов' }] },
+        samokat: { rating: 4.87, ratingNote: 'из 5, за последние 100 заказов' },
+        'yandex-eda': { level: 'Опытный', levelNote: 'уровень рейтинга, ранний выбор слотов', rating: 92, ratingNote: 'баллов из 100' },
+        x5: { rating: 4.8, ratingNote: 'из 5, по оценкам за 30 дней', risks: [{ label: 'Пауза за неделю', value: 9, limit: 15, unit: '%', rule: 'Больше 15% нарушает правила X5, могут ограничить слоты' }] },
+        dodo: {}
+      };
+      // сценарии: пауза X5 близко к лимиту и приостановленный аккаунт X5
+      const ACCOUNT_RISK_X5 = { rating: 4.8, ratingNote: 'из 5, по оценкам за 30 дней', risks: [{ label: 'Пауза за неделю', value: 13, limit: 15, unit: '%', rule: 'Ещё 2% и превысите лимит X5, могут ограничить слоты. Пауза сбросится в понедельник' }] };
+      const ACCOUNT_BLOCK_X5 = { rating: 4.6, ratingNote: 'из 5, по оценкам за 30 дней', block: { reason: 'Пауза 18% за прошлую неделю при лимите 15%', until: 'до ' + dayMonth(4), contact: 'чат поддержки в приложении X5 Курьер, раздел Помощь' }, risks: [] };
+      // @ai-data-end
+      // @ai-data-begin
+      // часы не оплатили: бронь from–to в минутах, с unpaidFrom до конца брони сервис часы не оплатил, rate ставка часа сервиса
+      // сверка броней с оплаченными часами, доказательства из данных интеграции, savedAt если курьер уже сохранил
+      const unpaidDay = (off) => ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][dayAt(off).getDay()] + ', ' + dayMonShort(off);
+      const UNPAID_HOURS = [
+        { id: 'uh-x5', key: 'x5', title: 'X5 Доставка', short: 'X5', iso: isoAt(-2), day: unpaidDay(-2), from: 10 * 60, to: 16 * 60, unpaidFrom: 14 * 60, rate: 290, place: 'Даркстор на Профсоюзной', proofs: ['Бронь подтверждена X5 накануне в 21:14', 'Отметка начала в приложении X5 в 9:56', '11 заказов с 10:08 до 15:51, последний закрыт в 15:51'] },
+        { id: 'uh-vv', key: 'vkusvill', title: 'ВкусВилл', short: 'ВкусВилла', iso: isoAt(-6), day: unpaidDay(-6), from: 9 * 60, to: 17 * 60, unpaidFrom: 16 * 60, rate: 320, place: 'Даркстор на Правды', proofs: ['Слот подтверждён ВкусВиллом', 'Отметка на точке в 8:52 и уход в 17:04', '14 заказов, последний в 16:41'], savedAt: dayMonShort(-5) + ' в 10:12' }
+      ];
+      // @ai-data-end
       const MARKET_PERIOD = (() => {
         const at = (off) => { const d = new Date(DEMO_TODAY); d.setDate(d.getDate() + off); return d.getDate() + ' ' + RU_MONTHS_SHORT[d.getMonth()]; };
         return at(-28) + ' – ' + at(-1);
@@ -3376,6 +3546,27 @@
       const scoreAnonLabel = (k) => { const sc = SERVICE_SCORES[k]; if (!sc) return 'Нет данных'; if (sc.num != null) return ratingRangeLabel(sc.num); const lo = Math.floor(Number(sc.big) / 10) * 10; return lo + '–' + (lo + 9) + ' баллов'; };
       // системная тема в макете зафиксирована, чтобы Системная давала предсказуемый результат
       const SYSTEM_IS_DARK = false;
+      // @ai-data-begin
+      // оповещения по своим правилам курьера (Профиль, Уведомления): what slot свободный слот, demand высокий спрос, bonus бонус или задание, rate ставка от rate ₽/ч, weather спрос из-за погоды
+      // where районы или city весь город, days 0 пн … 6 вс, time all, morning 7–12, day 12–17, evening 17–23, max не чаще N раз в день, ночью 23–08 не пишем
+      const ALERT_RULES_SEED = [
+        { id: 'r1', what: 'slot', svcs: ['samokat', 'x5'], where: ['Тверской', 'Пресненский'], days: [0, 1, 2, 3, 4], time: 'evening', max: 3, on: true },
+        { id: 'r2', what: 'rate', rate: 500, svcs: ['vkusvill'], where: ['city'], days: [5, 6], time: 'day', max: 1, on: false }
+      ];
+      // @ai-data-end
+      // @ai-data-begin
+      // погода на сегодня по городу курьера: источник Open-Meteo, почасовой прогноз, в прототипе три готовых варианта
+      // period: from и to в минутах от полуночи, когда погода поднимает спрос; demand прибавка заказов по наблюдениям Разноса, оценка
+      // warn: предупреждение курьеру, только при морозе ниже −10 °C или сильном дожде от 4 мм/ч на смене
+      const WEATHER_SOURCE = 'Open-Meteo, почасовой прогноз для Москвы, обновлён в 15:30';
+      const WEATHER_DEMO = {
+        clear: { kind: 'clear', temp: '+9°', title: 'Ясно до вечера, без осадков', period: null, demand: '', warn: null },
+        rain: { kind: 'rain', temp: '+7°', title: 'Дождь 18:00–22:00, до 6 мм/ч', period: { from: 18 * 60, to: 22 * 60 }, demand: 'Заказов обычно больше на 15–25%, к вечеру ставки выше', tag: 'Дождь 18–22, спрос выше',
+          warn: { title: 'Сильный дождь на вашей смене', tips: ['Телефон в чехол или пакет, держатель под козырёк', 'На плитке и разметке скользко, тормозите заранее'] } },
+        frost: { kind: 'frost', temp: '−14°', title: 'Мороз до −14 °C вечером, ветер 7 м/с', period: { from: 16 * 60, to: 23 * 60 }, demand: 'Заказов обычно больше на 10–20%, многие курьеры не выходят', tag: 'Мороз −14 °C, спрос выше',
+          warn: { title: 'Мороз на вашей смене', tips: ['Оденьтесь слоями, закройте лицо и руки', 'Телефон во внутренний карман, на холоде батарея садится быстрее, возьмите пауэрбанк', 'Скользко на ступенях и у подъездов'] } }
+      };
+      // @ai-data-end
       const NOTIF_CATS = [
         { key: 'shifts', title: 'Заказы и работа', note: 'Заказ, смены и брони, окна в Плане' },
         { key: 'conn', title: 'Интеграции', note: 'Новый телефон и повторный вход в сервис' },
@@ -4834,6 +5025,8 @@
           const appTheme = st.appTheme || 'system';
           const notifOff = st.notifOff || [];
           const notifOnCount = NOTIF_CATS.length - NOTIF_CATS.filter((c) => notifOff.indexOf(c.key) !== -1).length;
+          // свои правила оповещений: в демо два примера, крайний случай без правил
+          const alertRules = st.alertRules != null ? st.alertRules : (demoOn && role === 'courier' && edge.alerts !== 'none' ? ALERT_RULES_SEED : []);
 
           const favCouriers = st.favCouriers || [];
           const crShort = !!st.crShort;
@@ -5620,6 +5813,8 @@
             connAskKeys.length ? { id: 'n-conn', cat: 'conn', day: 'today', at: '15:02', need: true, to: 'integrations',
               title: connAskDevice ? 'Войдите в сервисы на этом телефоне' : connAskKeys.map((k) => SERVICES[k].title).join(' и ') + (connAskKeys.length > 1 ? ' просят войти снова' : ' просит войти снова'),
               text: connAskKeys.map((k) => SERVICES[k].title).join(', ') + ', пока не войдёте, новые заказы и выплаты не придут' } : null,
+            // сработало правило курьера: приходит, пока правило включено, категории не подчиняется
+            alertRules.some((r) => r.id === 'r1' && r.on && r.what === 'slot') ? { id: 'n-rule', cat: 'rule', day: 'today', at: '14:48', to: 'slots', title: 'Свободный слот: Самокат, 18:00–22:00', text: 'Тверской, взять можно в приложении Самоката, пока свободен', rule: 'По правилу Свободный слот' } : null,
             { id: 'n-withdraw', cat: 'money', day: 'today', at: '14:20', need: true, to: 'wallet-withdraw-history', title: 'Вывод 50 ₽ не прошёл', text: 'Банк отклонил платёж, проверьте карту и повторите' },
             { id: 'n-booking', cat: 'shifts', day: 'today', at: '13:05', to: 'work-hub', title: 'Самокат отменил бронь на завтра', text: 'Бронь 10:30–13:30 снята, в Плане на это время Яндекс Еда без записи' },
             { id: 'n-answers', cat: 'answers', day: 'today', at: '12:40', to: 'my-activity', title: '3 ответа на ваш отзыв о Самокате', text: 'Последний: у нас тоже так, пишите в поддержку склада' },
@@ -5640,7 +5835,7 @@
           ] : [];
           const inboxArchived = INBOX_SEED.filter((n) => inboxHidden[n.id]).concat(INBOX_OLD).map((n) => Object.assign({}, n, { unread: false, time: n.at }));
           const inboxItems = INBOX_SEED
-            .filter((n) => !inboxHidden[n.id] && (n.cat === 'raznos' || notifOff.indexOf(n.cat) === -1))
+            .filter((n) => !inboxHidden[n.id] && (n.cat === 'raznos' || n.cat === 'rule' || notifOff.indexOf(n.cat) === -1))
             .map((n) => Object.assign({}, n, { unread: !(n.read || inboxRead[n.id]), time: n.at }));
           const inboxNeedFirst = (list) => list.filter((n) => n.need && !n.done && n.unread).concat(list.filter((n) => !(n.need && !n.done && n.unread)));
           const inboxUnread = inboxItems.filter((n) => n.unread).length;
@@ -5678,6 +5873,23 @@
             ? 'Готово: ' + Object.keys(SYNC_RESULT_LABELS).map((kind) => { const n = syncRun.keys.filter((k) => syncResults[k] === kind).length; return n ? SYNC_RESULT_LABELS[kind][0].toLowerCase() + ' ' + n : ''; }).filter(Boolean).join(', ')
             : '';
 
+          // состояние аккаунта в сервисе только в демо и для подключённых, сценарии риска и блокировки меняют X5
+          const accountStateOf = (key) => {
+            if (!demoOn || connectedKeys.indexOf(key) === -1 || !ACCOUNT_STATES[key]) return null;
+            if (key === 'x5' && edge.account === 'risk') return ACCOUNT_RISK_X5;
+            if (key === 'x5' && edge.account === 'block') return ACCOUNT_BLOCK_X5;
+            return ACCOUNT_STATES[key];
+          };
+          // коротко для строки сервиса: блокировка, риск у лимита, иначе уровень или рейтинг
+          const accountShortOf = (key) => {
+            const a = accountStateOf(key);
+            if (!a) return null;
+            if (a.block) return { text: 'Приостановлен ' + a.block.until, alert: 'block' };
+            const r = (a.risks || []).find((x) => x.value / x.limit >= 0.8);
+            if (r) return { text: r.label + ' ' + r.value + (r.unit || '') + ' из ' + r.limit + (r.unit || ''), alert: 'risk' };
+            const bits = a.level ? ['уровень ' + a.level] : (a.rating != null ? ['рейтинг ' + String(a.rating).replace('.', ',')] : []);
+            return bits.length ? { text: bits.join(', ').replace(/^./, (c) => c.toUpperCase()), alert: '' } : null;
+          };
           const integrationList = Object.keys(SERVICES).map((key, i) => {
             const svc = SERVICES[key];
             if (svc.method === 'soon') {
@@ -5697,10 +5909,11 @@
               : (status === 'exited'
                 ? ('Вы вышли ' + (((st.connExitedAt || {})[key]) || DEMO_NOW_LABEL) + ', история и последнее обновление сохранены')
                 : (status === 'disabled' ? 'Выключено вами, не обновляем' : passwordNote));
+            const acc = isLinked ? accountShortOf(key) : null;
             const pill = inQueue ? [isCurrent ? 'Запрос…' : 'В очереди', 'disabled']
-              : (res && SYNC_RESULT_LABELS[res] ? SYNC_RESULT_LABELS[res] : (HEALTH_PILL[health] ? [HEALTH_PILL[health], health === 'rate' ? 'rate' : 'relogin'] : (health === 'first' ? ['Первая загрузка', 'disabled'] : null)));
+              : (res && SYNC_RESULT_LABELS[res] ? SYNC_RESULT_LABELS[res] : (HEALTH_PILL[health] ? [HEALTH_PILL[health], health === 'rate' ? 'rate' : 'relogin'] : (health === 'first' ? ['Первая загрузка', 'disabled'] : (acc && acc.alert === 'block' ? ['Приостановлен', 'relogin'] : (acc && acc.alert === 'risk' ? ['Риск', 'rate'] : null)))));
             return {
-              key, title: svc.title, note,
+              key, title: svc.title, note: acc ? acc.text + ' · ' + note.replace(/^./, (c) => c.toLowerCase()) : note,
               status: pill ? pill[1] : (status === 'connected' ? 'connected' : (status === 'limited' ? 'connected' : (status === 'exited' ? 'exited' : (status === 'disabled' ? 'disabled' : (svc.method === 'unsupported' && !svc.catalogNote ? 'unsupported' : 'none'))))),
               statusLabel: pill ? pill[0] : '', showChevron: !(status === 'none' && !pill),
               beta: svc.method === 'external', actionLabel: status === 'none' && !pill ? 'Подключить' : '',
@@ -7076,6 +7289,12 @@
           home_pre_value: formatMoney(todayTarget), home_pre_line: homePreLine, home_pre_cta: (homePre === 'off' ? 'Посмотреть смену' : 'План дня') + ' ›',
           home_pre_go: () => set({ s: 'work-hub', smartFocusAdded: false, smartFocusIso: homePreShift ? homePreShift.iso : TODAY_ISO, smartFocusKey: homePreShift ? 'b:' + homePreShift.id : '', smartOpenKey: '' }),
           home_shift_group: !homePre,
+          // погода на Сегодня: только когда влияет на работу (спрос или предупреждение), в выходной не показываем
+          ...(() => {
+            const wx = demoOn && role === 'courier' ? WEATHER_DEMO[st.weather || 'rain'] : null;
+            const show = !!wx && !!wx.period && homePre !== 'off' && s === 'courier-home';
+            return { home_weather_show: show, home_weather: show ? { kind: wx.kind, temp: wx.temp, title: wx.title, demand: wx.demand, warnTitle: wx.warn ? wx.warn.title : '', tips: wx.warn ? wx.warn.tips : [], src: WEATHER_SOURCE } : null };
+          })(),
           home_shift_idle: (st.homeShiftOn === false) && !st.homeShiftEnded,
           home_now_visible: role === 'courier' && !st.homeShiftEnded && !homePre,
           home_now_state: (st.homeShiftOn === false) ? 'idle' : 'on',
@@ -7092,6 +7311,43 @@
           today_mix: [{ svc: 'vkusvill', title: 'ВкусВилл', sum: vvEarn }, { svc: 'samokat', title: 'Самокат', sum: samokatEarn }].filter((r) => activeDataSvcs.indexOf(r.svc) !== -1 && r.sum > 0).sort((a, b) => b.sum - a.sum)
             .map((r) => ({ title: r.title, sum: formatMoney(r.sum), style: 'flex:' + r.sum + ';background:var(--raznos-svc-' + r.svc + ')', dot: 'background:var(--raznos-svc-' + r.svc + ')' })),
           today_mix_show: [vvEarn, samokatEarn].filter((v) => v > 0).length > 1,
+          // выплаты по подключённым сервисам: строка на Сегодня, шторка и блок в Деньгах
+          ...(() => {
+            const items = demoOn && role === 'courier' ? PAYOUTS.concat(edge.payouts === 'late' ? [PAYOUT_LATE] : []).filter((i) => connectedKeys.indexOf(i.key) !== -1) : [];
+            return {
+              payouts_show: items.length > 0, payouts_items: items,
+              payouts_sheet: !!st.payoutsSheet && items.length > 0,
+              payouts_open: () => set({ payoutsSheet: true }), payouts_close: () => set({ payoutsSheet: false }),
+              payouts_support: (key) => set({ payoutsSheet: false, s: 'service-open-demo', openDemoSection: '', openDemoLabel: SERVICES[key] ? SERVICES[key].title : key, openDemoFrom: s, openDemoShift: '', openDemoSlot: '' })
+            };
+          })(),
+          // бонусы сервисов: карточка на Сегодня только для почти набранного или набранного сегодня, метка в окне Плана
+          ...(() => {
+            const progress = { far: 6, done: 20 }[edge.bonus];
+            const items = demoOn && role === 'courier' ? SERVICE_QUESTS.filter((q) => connectedKeys.indexOf(q.key) !== -1).map((q) => (q.kind === 'count' && progress != null ? Object.assign({}, q, { done: progress }) : q)) : [];
+            const nowMin = DEMO_NOW_MIN;
+            const hot = items.find((q) => q.kind === 'count' && q.untilMin > nowMin && (q.done >= q.target || q.target - q.done <= Math.max(6, Math.ceil(q.target * 0.3))));
+            return {
+              quests_items: items, quests_hot_id: hot ? hot.id : '', quests_hot_show: !!hot && s === 'courier-home',
+              quests_sheet: !!st.questsSheet && items.length > 0,
+              quests_open: () => set({ questsSheet: true }), quests_close: () => set({ questsSheet: false }),
+              // в окна Плана сегодняшнего дня того же сервиса до срока
+              // часы не оплатили за выбранный период Результатов: ссылка в итоге периода и дня, подробно в Удержано
+              ...(() => {
+                const saved = st.unpaidSaved || {};
+                const cases = demoOn && role === 'courier' && edge.unpaid !== 'none' ? UNPAID_HOURS.filter((c) => connectedKeys.indexOf(c.key) !== -1 && c.iso >= statsRange[0] && c.iso <= statsRange[1])
+                  .map((c) => (c.id in saved ? Object.assign({}, c, { savedAt: saved[c.id] || '' }) : c)) : [];
+                return {
+                  unpaid_show: cases.length > 0, unpaid_cases: cases,
+                  unpaid_save: (id) => { const prev = Object.assign({}, st.unpaidSaved || {}); set({ unpaidSaved: Object.assign({}, prev, { [id]: dayMonShort(0) + ' в 15:40' }) }); uxShowToast('Доказательства сохранены на телефоне', 'Отменить', () => set({ unpaidSaved: prev })); },
+                  unpaid_support: (key) => set({ s: 'service-open-demo', openDemoSection: '', openDemoLabel: SERVICES[key] ? SERVICES[key].title : key, openDemoFrom: s, openDemoShift: '', openDemoSlot: '' })
+                };
+              })(),
+              // погода поднимает спрос: метка на окнах Плана сегодня в часы плохой погоды
+              smart_weather: (() => { const wx = demoOn && role === 'courier' ? WEATHER_DEMO[st.weather || 'rain'] : null; return wx && wx.period ? [{ iso: TODAY_ISO, from: wx.period.from, to: wx.period.to, label: wx.tag, kind: wx.kind }] : []; })(),
+              smart_quests: items.filter((q) => q.kind === 'count' && q.untilMin > nowMin && q.done < q.target).map((q) => ({ svc: q.key, iso: TODAY_ISO, until: q.untilMin, label: 'Бонус +' + formatMoney(q.reward) + ' ₽: ещё ' + (q.target - q.done) + ' ' + ruPlural(q.target - q.done, 'заказ', 'заказа', 'заказов') + ' ' + q.untilLabel }))
+            };
+          })(),
           today_mix_aria: 'Из чего сложился заработок: ВкусВилл ' + formatMoney(vvEarn) + ' ₽, Самокат ' + formatMoney(samokatEarn) + ' ₽, подробнее',
           today_sheet_svcs: [{ svc: 'vkusvill', title: 'ВкусВилл', sum: vvEarn, count: today.vvOrders }, { svc: 'samokat', title: 'Самокат', sum: samokatEarn, count: today.samokatOrders }].filter((r) => activeDataSvcs.indexOf(r.svc) !== -1).sort((a, b) => b.sum - a.sum).map((r, i, arr) => ({
             key: r.svc, title: r.title, sum: formatMoney(r.sum), count: r.count + ' ' + ruPlural(r.count, 'заказ', 'заказа', 'заказов'),
@@ -7282,6 +7538,13 @@
 
             conn_caps: SERVICE_CAPS[connKey] || null, conn_has_caps: !!SERVICE_CAPS[connKey], conn_via_mine: viaMineLabel(connKey), conn_via_seen: viaMineOf(connKey) === 'park' ? VIA_DEMO_SEEN : '', conn_via_open: () => set({ viaSheet: connKey }),
             conn_key: connKey, conn_title: conn.title, conn_login_label: conn.loginLabel || 'Логин',
+            // аккаунт в сервисе на экране подключённого сервиса
+            conn_acc_show: connIsConnected && !!accountStateOf(connKey), conn_acc_state: accountStateOf(connKey) || {},
+            conn_acc_in: (SERVICE_CAPS[connKey] && SERVICE_CAPS[connKey].prep) || conn.title, conn_acc_updated: syncLabelOf(connKey).toLowerCase(),
+            acc_contact: (key) => set({ s: 'service-open-demo', openDemoSection: '', openDemoLabel: SERVICES[key] ? SERVICES[key].title : key, openDemoFrom: s, openDemoShift: '', openDemoSlot: '' }),
+            // на Сегодня только риск у лимита или блокировка
+            acc_alerts: s === 'courier-home' ? connectedKeys.map((k) => ({ key: k, title: SERVICES[k] ? SERVICES[k].title : k, short: accountShortOf(k), state: accountStateOf(k) })).filter((x) => x.short && x.short.alert) : [],
+            acc_open: (key) => set({ s: 'integration-connect', connKey: key, connStage: 'form' }),
             conn_is_connected: connIsConnected,
             conn_show_temp_notice: !connIsConnected && connStatusValue !== 'exited' && conn.method !== 'unsupported' && conn.method !== 'soon',
             conn_connected_note: connIsConnected ? (syncLabelOf(connKey) + (connStatusValue === 'limited' ? ' · данные могут быть неполными' : '')) : '',
@@ -7890,7 +8153,7 @@
             demo_go_settings: () => set({ s: 'demo-settings' }),
             demo_settings_back: navBack(() => set({ s: role === 'courier' ? 'courier-home' : 'user-home' })),
             // сброс: все данные и переключатели демо как при первом входе, остаёмся в настройках
-            demo_reset: () => { this.setState(Object.assign({}, this.buildInitialState({ fresh: true }), buildDemoSeed(), { s: 'demo-settings', demoOn: true, role: 'courier', language: st.language, homeDay: '', homeShiftOn: true, netOffline: false, svcHealth: {}, planChangeHidden: false, pvPublic: true, appTheme: '', city: 'moscow', mkCity: 'moscow', transport: 'bike', workGoal: null, demoEdge: {} })); uxShowToast('Демо сброшено', '', null); },
+            demo_reset: () => { this.setState(Object.assign({}, this.buildInitialState({ fresh: true }), buildDemoSeed(), { s: 'demo-settings', demoOn: true, role: 'courier', language: st.language, homeDay: '', homeShiftOn: true, netOffline: false, svcHealth: {}, planChangeHidden: false, pvPublic: true, appTheme: '', city: 'moscow', mkCity: 'moscow', transport: 'bike', workGoal: null, demoEdge: {}, alertRules: null, alertEdit: null, weather: 'rain' })); uxShowToast('Демо сброшено', '', null); },
             demo_toggles: (() => {
               const health = st.svcHealth || {};
               const hv = Object.keys(health).map((k) => health[k]);
@@ -7907,7 +8170,8 @@
                 row('Город', st.city === 'spb' ? 'spb' : 'moscow', [['moscow', 'Москва', { city: 'moscow', mkCity: 'moscow' }], ['spb', 'Петербург', { city: 'spb', mkCity: 'spb' }]]),
                 row('Транспорт', st.transport || 'bike', [['foot', 'Пешком', { transport: 'foot' }], ['bike', 'Велосипед', { transport: 'bike' }], ['car', 'Авто', { transport: 'car' }]]),
                 row('Цель недели', !st.workGoal || st.workGoal === WORK_WEEK_GOAL ? 'plan' : st.workGoal < WORK_WEEK_GOAL ? 'done' : 'behind', [['done', 'Выполнена', { workGoal: 15000 }], ['plan', 'Идёт по плану', { workGoal: WORK_WEEK_GOAL }], ['behind', 'Сильно отстаёт', { workGoal: 60000 }]]),
-                row('Разбор недели', st.aiReviewAlways ? 'on' : 'off', [['off', 'По понедельникам', { aiReviewAlways: false }], ['on', 'Всегда', { aiReviewAlways: true }]]),
+                row('Погода', st.weather || 'rain', [['clear', 'Ясно', { weather: 'clear' }], ['rain', 'Дождь вечером', { weather: 'rain' }], ['frost', 'Мороз', { weather: 'frost' }]]),
+                row('Итог недели', st.aiReviewAlways ? 'on' : 'off', [['off', 'По понедельникам', { aiReviewAlways: false }], ['on', 'Всегда', { aiReviewAlways: true, aiReviewHidden: '' }]]),
                 row('Роль', role, [['courier', 'Курьер', { role: 'courier' }], ['user', 'Ищу работу', { role: 'user' }]]),
                 row('Тема', st.appTheme || '', [['', 'Как в системе', { appTheme: '' }], ['light', 'Светлая', { appTheme: 'light' }], ['dark', 'Тёмная', { appTheme: 'dark' }]])
               ];
@@ -7924,6 +8188,10 @@
               return [
                 row('Сервис только подключили', 'firstLoad', { s: 'integrations' }, [['', 'Нет'], ['on', 'Данные грузятся']]),
                 todayRow,
+                row('Выплаты', 'payouts', { s: 'courier-home', homeDay: '', payoutsSheet: true }, [['', 'В срок'], ['late', 'X5 задерживает']]),
+                row('Аккаунт в X5', 'account', { s: 'courier-home', homeDay: '' }, [['', 'Всё в порядке'], ['risk', 'Пауза у лимита'], ['block', 'Приостановлен']]),
+                row('Часы не оплатили', 'unpaid', { s: 'stats', statsPeriod: 'week', statsStep: 0, statsDetail: 'fines' }, [['', 'Есть'], ['none', 'Нет']]),
+                row('Бонус сервиса', 'bonus', { s: 'courier-home', homeDay: '' }, [['', 'Почти набран'], ['far', 'Далеко'], ['done', 'Набран']]),
                 row('История заказов', 'history', { s: 'history' }, [['', 'Есть'], ['empty', 'Пусто']]),
                 row('Результаты', 'stats', { s: 'stats', statsPeriod: 'week', statsStep: 0, statsDetail: '' }, [['', 'Обычно'], ['first', 'Первая неделя'], ['none', 'Нет за период']]),
                 row('Отзывы о сервисе', 'reviews', { s: 'service', svKey: 'vkusvill', svFrom: 'market', svReviewTab: 'courier' }, [['', 'Много'], ['few', 'Мало'], ['none', 'Нет']]),
@@ -7932,6 +8200,7 @@
                 row('Расходы', 'expenses', { s: 'expenses' }, [['', 'Есть'], ['none', 'Нет']], { expManual: null, expRecurring: null }),
                 walletRow,
                 row('Уведомления', 'inbox', { s: 'inbox', inboxArchive: false }, [['', 'Есть'], ['none', 'Нет']]),
+                row('Свои оповещения', 'alerts', { s: 'notifications', subFrom: 'profile', alertEdit: null }, [['', 'Два правила'], ['none', 'Нет правил']], { alertRules: null }),
                 row('Топ курьеров', 'top', { s: 'top' }, [['', '28 место'], ['near', '7 место'], ['podium', '3 место'], ['first', '1 место'], ['out', 'Вас нет'], ['few', 'Мало участников']]),
                 row('Рынок', 'market', { s: 'market' }, [['', 'Данных хватает'], ['few', 'Мало данных']])
               ];
@@ -7944,17 +8213,17 @@
                 'plan-self': { s: 'work-hub', smartBuild: 'manual', planOnboarded: true, smartFocusIso: isoAt(2), smartFocusKey: '' },
                 'best-places': { s: 'best-places' }, 'best-times': { s: 'best-times' }, 'svc-compare': { s: 'services-compare' },
                 'stats-week': { s: 'stats', statsPeriod: 'week', statsStep: 0, statsDetail: '' }, 'stats-year': { s: 'stats', statsPeriod: 'year', statsStep: 0, statsDetail: '' },
-                'live-feed': { s: 'live-feed' }, 'top': { s: 'top' }, 'inbox': { s: 'inbox' }, 'history': { s: 'history' }, 'expenses': { s: 'expenses' }
+                'live-feed': { s: 'live-feed' }, 'top': { s: 'top' }, 'inbox': { s: 'inbox' }, 'history': { s: 'history' }, 'expenses': { s: 'expenses', transportCalc: false }, 'transport-calc': { s: 'expenses', expBack: 'courier-home', period: 'week', transportCalc: true }
               };
               const go = (key) => () => { const patch = extra[key] || DEMO_SCENARIOS[key]; if (patch) set(Object.assign({}, patch)); };
               const G = (title, who, items) => ({ title, who, items: items.map(([key, label]) => ({ label, tap: go(key) })) });
               return [
                 G('Первый вход', 'Новичок', [['ob', 'Онбординг с начала'], ['empty-home', 'Сегодня без подключённых сервисов'], ['guide', 'Подобрать работу']]),
-                G('Обычный рабочий день', 'Постоянный и автопилот', [['home', 'Сегодня во время смены'], ['plan', 'План на сегодня: смена, бронь, конфликт'], ['plan-change', 'Изменилось без вас'], ['plan-empty', 'Пустой выходной следующей недели'], ['history', 'История заказов'], ['expenses', 'Расходы']]),
-                G('Больше денег', 'Охотник за сменами и максималист', [['plan-self', 'План сам: пустые часы и чем их занять'], ['slots', 'Слоты: брони, заявки, требует внимания'], ['best-places', 'Где выгоднее'], ['best-times', 'Когда выгоднее'], ['svc-compare', 'Сравнение сервисов']]),
-                G('Дойти до цели', 'Целевой', [['stats-week', 'Результаты за неделю'], ['stats-year', 'Результаты за год'], ['stats-money', 'Деньги'], ['stats-time', 'Время'], ['stats-services', 'Сервисы'], ['stats-compare', 'Сравнение с городом'], ['stats-taxes', 'Налог'], ['stats-fines', 'Удержано']]),
+                G('Обычный рабочий день', 'Постоянный и автопилот', [['home', 'Сегодня во время смены'], ['payouts', 'Выплаты: когда и сколько придёт'], ['account-vkusvill', 'Аккаунт в сервисе: рейтинг, медкнижка'], ['plan', 'План на сегодня: смена, бронь, конфликт'], ['plan-change', 'Изменилось без вас'], ['plan-empty', 'Пустой выходной следующей недели'], ['history', 'История заказов'], ['expenses', 'Расходы'], ['transport-calc', 'Свой транспорт или аренда'], ['weather-rain', 'Погода: дождь вечером, спрос выше'], ['weather-frost', 'Погода: мороз на смене'], ['weather-plan', 'Погода в окнах Плана']]),
+                G('Больше денег', 'Охотник за сменами и максималист', [['bonus-near', 'Бонус сервиса почти набран'], ['bonus-plan', 'Бонус в окне Плана'], ['alerts', 'Свои оповещения: правила'], ['alert-edit', 'Редактор оповещения и вид пуша'], ['alert-fired', 'Сработало своё оповещение'], ['plan-self', 'План сам: пустые часы и чем их занять'], ['slots', 'Слоты: брони, заявки, требует внимания'], ['rebook', 'Цена перебронирования: слот вместо своей смены'], ['best-places', 'Где выгоднее'], ['best-times', 'Когда выгоднее'], ['svc-compare', 'Сравнение сервисов']]),
+                G('Дойти до цели', 'Целевой', [['week-recap', 'Итог недели в понедельник'], ['week-recap-share', 'Поделиться итогом недели'], ['stats-week', 'Результаты за неделю'], ['stats-year', 'Результаты за год'], ['stats-money', 'Деньги'], ['stats-time', 'Время'], ['stats-services', 'Сервисы'], ['stats-compare', 'Сравнение с городом'], ['stats-taxes', 'Налог'], ['stats-fines', 'Удержано'], ['unpaid-day', 'Итог дня: часы не оплатили'], ['unpaid-fines', 'Часы не оплатили: доказательства для спора']]),
                 G('Редкие выходы', 'Подработчик', [['before-shift', 'Сегодня до первой смены'], ['day-off', 'Сегодня выходной']]),
-                G('Когда что-то пошло не так', 'Любой курьер', [['new-device', 'Новый телефон: войти в сервисы'], ['net-offline', 'Нет интернета'], ['conn-loss', 'Сервис отключился'], ['integrations-exited', 'Вышли из сервиса'], ['conn-exited', 'Подключение заново'], ['link-missing-app', 'Нет приложения сервиса'], ['link-no-id', 'Нет номера заказа'], ['link-fail', 'Приложение не открылось'], ['withdraw-payment-fail', 'Отказ вывода'], ['tips-payment-fail', 'Чаевые не прошли'], ['states-ban', 'Ограничение аккаунта'], ['states-loading', 'Загрузка'], ['states-alerts', 'Сообщения и плановые работы'], ['states-config', 'Обязательное обновление']]),
+                G('Когда что-то пошло не так', 'Любой курьер', [['new-device', 'Новый телефон: войти в сервисы'], ['payout-late', 'Выплата задерживается'], ['account-risk', 'Риск в аккаунте сервиса: пауза X5'], ['account-block', 'Сервис приостановил аккаунт'], ['net-offline', 'Нет интернета'], ['conn-loss', 'Сервис отключился'], ['integrations-exited', 'Вышли из сервиса'], ['conn-exited', 'Подключение заново'], ['link-missing-app', 'Нет приложения сервиса'], ['link-no-id', 'Нет номера заказа'], ['link-fail', 'Приложение не открылось'], ['withdraw-payment-fail', 'Отказ вывода'], ['tips-payment-fail', 'Чаевые не прошли'], ['states-ban', 'Ограничение аккаунта'], ['states-loading', 'Загрузка'], ['states-alerts', 'Сообщения и плановые работы'], ['states-config', 'Обязательное обновление']]),
                 G('Сообщество и профиль', 'Любой курьер', [['live-feed', 'Что происходит'], ['live-thread', 'Обсуждение сообщения'], ['live-mine', 'Мои сообщения'], ['live-limit', 'Лимит сообщений'], ['user-questions', 'Вопросы о сервисе'], ['anon-unknown-orders', 'Обезличенный профиль автора'], ['preview-anon', 'Как видят другие: обезличенно'], ['preview-named', 'Как видят другие: с именем'], ['preview-hidden-fields', 'Профиль со скрытыми полями'], ['top', 'Топ курьеров'], ['inbox', 'Уведомления'], ['notifications-some-off', 'Часть уведомлений выключена'], ['worker-data-vv', 'Данные работника']])
               ];
             })(),
@@ -8018,7 +8287,22 @@
               set({ inboxHidden: Object.assign({}, inboxHidden, { [id]: true }) });
               uxShowToast('Уведомление скрыто', 'Вернуть', () => { const h = Object.assign({}, (this.state && this.state.inboxHidden) || {}); delete h[id]; set({ inboxHidden: h }); });
             },
-            notif_summary: notifOnCount + ' из ' + NOTIF_CATS.length + ' категорий включено',
+            notif_summary: notifOnCount + ' из ' + NOTIF_CATS.length + ' категорий включено' + (alertRules.some((r) => r.on) ? ', свои оповещения: ' + alertRules.filter((r) => r.on).length : ''),
+            // свои правила оповещений: список, шторка редактора, всё обратимое через Отменить
+            ...(() => {
+              const edit = st.alertEdit;
+              const svcs = (connectedKeys.length ? connectedKeys : ['vkusvill', 'samokat', 'x5']).map((k) => ({ key: k, label: SERVICES[k].title }));
+              const setRules = (next, text) => { const prev = st.alertRules; set({ alertRules: next, alertEdit: null }); uxShowToast(text, 'Отменить', () => set({ alertRules: prev })); };
+              return {
+                ar_rules: alertRules, ar_svcs: svcs, ar_areas: STATS_DISTRICTS.slice(0, 5),
+                ar_sheet: edit != null, ar_rule: edit ? alertRules.find((r) => r.id === edit) || null : null,
+                ar_sheet_title: edit ? 'Оповещение' : 'Новое оповещение',
+                ar_open: (id) => set({ alertEdit: id }), ar_add: () => set({ alertEdit: '' }), ar_close: () => set({ alertEdit: null }),
+                ar_toggle: (id) => { const r = alertRules.find((x) => x.id === id); setRules(alertRules.map((x) => (x.id === id ? Object.assign({}, x, { on: !x.on }) : x)), (r.on ? 'Оповещение выключено' : 'Оповещение включено')); },
+                ar_save: (rule) => (rule.id ? setRules(alertRules.map((x) => (x.id === rule.id ? rule : x)), 'Оповещение сохранено') : setRules(alertRules.concat([Object.assign({}, rule, { id: 'r' + Date.now() })]), 'Оповещение включено')),
+                ar_delete: (id) => setRules(alertRules.filter((x) => x.id !== id), 'Оповещение удалено')
+              };
+            })(),
             notif_rows: NOTIF_CATS.map((c) => {
               const on = notifOff.indexOf(c.key) === -1;
               return {
@@ -8524,6 +8808,20 @@
             go_recurring_from_expenses: () => set({ s: 'recurring', recBack: 'expenses' }),
             exp_back: navBack(() => set({ s: expBack })), rec_back: navBack(() => set({ s: recBack })),
             exp_recurring_summary: expRecurringSummary,
+            // свой транспорт или аренда: траты на свой транспорт из Расходов за 4 недели, часы из заказов, км по доле км на час из Результатов
+            ...(() => {
+              const from = isoAt(-28), to = isoAt(-1);
+              const ownSum = expManual.filter((e) => !e.deletedAt && e.day >= from && e.day <= to && (e.cat === 'rent' || e.cat === 'fuel' || TRANSPORT_OWN_RE.test(e.note || ''))).reduce((sum, e) => sum + Number(e.amount || 0), 0);
+              const hours = Math.round((statsDaysSource('custom', [from, to], false).hours || 0) / 4);
+              const km = Math.round(hours * STATS.month.km / STATS.month.hours);
+              const show = role === 'courier' && hours > 0;
+              return {
+                tc_show: show, tc_sheet: show && !!st.transportCalc,
+                tc: { own: Math.round(ownSum / 4 / 10) * 10, hours, km, tariffs: TRANSPORT_RENT_TARIFFS, buy: TRANSPORT_BUY_PRICE,
+                  src: ownSum ? 'Свой: траты на транспорт из Расходов за 4 недели. Часы и км из заказов за 4 недели, поправьте, если не так' : 'Трат на свой транспорт в Расходах не нашли, впишите сами. Часы и км из заказов за 4 недели' },
+                tc_open: () => set({ transportCalc: true }), tc_close: () => set({ transportCalc: false })
+              };
+            })(),
             exp_period_label: period === 'today' ? dayMonth(0) : (period === 'week' ? isoRangeLabel(WEEK_MON_ISO, TODAY_ISO) : isoRangeLabel(MONTH_START_ISO, TODAY_ISO)),
             exp_total: formatMoney(expStatResult.total), exp_recurring_total: formatMoney(expStatResult.recurring),
             exp_has_templates: expTemplates.length > 0,
@@ -8902,6 +9200,23 @@
               fix: worst && days.length > 1 ? 'Что подтянуть: ' + aiDayName(worst.iso) + ' вышло ' + aiFm(worst.earn / worst.h) + '/ч, это меньше остальных дней' : ''
             };
           })();
+          // итог недели для карточки на Сегодня: без помощника, лучший день по сумме, сервис по доходу в час
+          const weekRecap = (() => {
+            if (!aiReviewDue) return null;
+            const a = isoAt(WEEK_MON_OFF - 7), b = isoAt(WEEK_MON_OFF - 1);
+            const d = statsDaysSource('week', [a, b], true);
+            if (!(d.earn || 0)) return null;
+            const wd = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+            const days = isoRange(a, b).map((iso) => ({ iso, label: wd[new Date(iso + 'T00:00:00').getDay()], earn: statsDaysSource('today', [iso, iso], false).earn || 0 }));
+            const best = days.reduce((x, y) => (y.earn > x.earn ? y : x), days[0]);
+            const svcs = [['vkusvill', d.vvEarn, d.vvHours], ['samokat', d.samokatEarn, d.samokatHours]].filter((x) => x[1] > 0 && x[2] > 0 && connectedKeys.indexOf(x[0]) !== -1)
+              .map((x) => ({ key: x[0], title: SERVICES[x[0]].title, hourly: Math.round(x[1] / x[2]) })).sort((x, y) => y.hourly - x.hourly);
+            return {
+              range: 'Прошлая неделя, ' + isoRangeLabel(a, b), rangeShort: isoRangeLabel(a, b), a, b,
+              earn: d.earn, hours: d.hours || 0, prevEarn: d.prevEarn || null, goal: goalWeek,
+              days, bestDay: best.label + ', ' + ruDateLabel(best.iso), svc: svcs.length > 1 ? svcs[0] : null
+            };
+          })();
           const aiOn = !(st.aiOff != null ? st.aiOff : (() => { try { return localStorage.getItem('raznos-ai-off') === '1'; } catch (e) { return false; } })());
           const aiConsented = () => { try { return demoOn || localStorage.getItem('raznos-ai-consent') === '1'; } catch (e) { return true; } };
           const aiOpenTap = () => set(aiConsented() ? { aiOpen: true } : { aiConsentAsk: true });
@@ -8931,8 +9246,16 @@
               const map = { goal: { s: 'work-hub' }, tomorrow: { s: 'work-hub' }, earn_more: { s: 'slots', slotsTab: 'free', slotsDay: '', slotsSvc: '', slotsWeek: null, slotsFrom: 'work-hub' }, week_worse: { s: 'stats', statsDetail: '', statsPeriod: 'week', statsStep: 0 }, money_when: { s: 'stats', statsDetail: '', statsPeriod: 'week', statsStep: 0 }, fine: { s: 'stats', statsDetail: '', statsPeriod: 'month', statsStep: 0 }, month_less: { s: 'stats', statsDetail: '', statsPeriod: 'month', statsStep: 0 }, expenses_sum: { s: 'expenses', expBack: 'courier-home' }, top_rank: { s: 'top' }, market_bike: { s: 'market' }, market_best_svc: { s: 'market' }, market_samokat: { s: 'market' }, market_when: { s: 'market' } };
               set(Object.assign({ aiOpen: false, aiOff: false }, map[id] || { s: 'courier-home' }));
             },
-            ai_review_show: aiOn && !!aiReview && s === 'courier-home', ai_review: aiReview || {}, ai_review_open: aiOpenWithPrompt,
-            ai_review_dismiss: () => { set({ aiReviewHidden: aiWeekKey }); uxShowToast('Разбор недели скрыт', 'Вернуть', () => set({ aiReviewHidden: '' })); },
+            ai_review_open: aiOpenWithPrompt,
+            ai_review_dismiss: () => { set({ aiReviewHidden: aiWeekKey, weekRecapSheet: false }); uxShowToast('Итог недели скрыт', 'Вернуть', () => set({ aiReviewHidden: '' })); },
+            week_recap_show: !!weekRecap && s === 'courier-home', week_recap: weekRecap || {},
+            week_recap_open: () => weekRecap && set({ s: 'stats', statsPeriod: 'week', statsStep: -1, statsSvcFilter: 'all', statsDetail: '' }),
+            week_recap_share: (text) => { this._weekRecapText = text; set({ weekRecapSheet: true }); },
+            week_recap_sheet: !!weekRecap && !!st.weekRecapSheet && s === 'courier-home',
+            week_recap_sheet_close: () => set({ weekRecapSheet: false }),
+            // в приложении картинка уходит в системное меню отправки, в прототипе только тост
+            week_recap_send: (text) => { try { if (navigator.share && !demoOn) navigator.share({ text: (typeof text === 'string' && text) || this._weekRecapText || (weekRecap ? 'Моя неделя в Разносе, ' + weekRecap.rangeShort + ': ' + formatMoney(weekRecap.earn) + ' ₽' : '') }).catch(() => {}); } catch (e) { /* меню отправки недоступно */ } set({ weekRecapSheet: false }); uxShowToast('Картинка готова, выберите, куда отправить', '', null); },
+            week_recap_copy: (text) => { try { if (navigator.clipboard) navigator.clipboard.writeText((typeof text === 'string' && text) || this._weekRecapText || (weekRecap ? 'Моя неделя в Разносе, ' + weekRecap.rangeShort + ': ' + formatMoney(weekRecap.earn) + ' ₽' : '')).catch(() => {}); } catch (e) { /* буфер недоступен, тост всё равно показываем */ } set({ weekRecapSheet: false }); uxShowToast('Итог недели скопирован', '', null); },
             ai_restart: async () => {
               const old = aiSession();
               aiWriteSid(aiUuid());

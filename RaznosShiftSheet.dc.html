@@ -45,6 +45,7 @@
     <sc-if value="{{ has_when_note }}" hint-placeholder-val="{{ true }}"><p class="rsh-note">{{ when_note }}</p></sc-if>
     <div class="rsh-money"><b>{{ money }}</b><span>{{ money_note }}</span></div>
     <sc-if value="{{ has_conflict }}" hint-placeholder-val="{{ false }}"><p class="rsh-note rsh-note-danger">{{ conflict }}</p></sc-if>
+    <sc-if value="{{ has_rebook }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosRebookLine" drop="{{ rebook.drop }}" gain="{{ rebook.gain }}" penalty="{{ rebook.penalty }}" freeUntil="{{ rebook.freeUntil }}" other="{{ rebook.other }}" requested="{{ rebook.requested }}" slot="{{ rebook.slot }}"></dc-import></sc-if>
     <sc-if value="{{ has_fallback }}" hint-placeholder-val="{{ false }}"><p class="rsh-note">{{ fallback }}</p></sc-if>
     <sc-if value="{{ has_rule }}" hint-placeholder-val="{{ true }}"><p class="{{ rule_cls }}">{{ rule }}<sc-if value="{{ has_rule_src }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosFactSource" src="{{ rule_src }}"></dc-import></sc-if></p></sc-if>
     <sc-if value="{{ has_action }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ act }}">{{ action }}</button></sc-if>
@@ -52,7 +53,7 @@
     <button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ close }}">Закрыть</button>
   </section>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"svc":{"editor":"text","default":"yandex-eda"},"title":{"editor":"text","default":"Яндекс Еда"},"place":{"editor":"text","default":"Локация Беговая"},"time":{"editor":"text","default":"17:00–21:00"},"status":{"editor":"text","default":"бронь"},"tone":{"editor":"text","default":"ok"},"whenNote":{"editor":"text","default":""},"svcLine":{"editor":"text","default":""},"fallback":{"editor":"text","default":""},"money":{"editor":"text","default":"≈ 3 160 ₽ за смену"},"moneyNote":{"editor":"text","default":"≈ 790 ₽/ч, оценка по заказам курьеров Разноса, как в Плане. Ставка сервиса 390 ₽/ч уже внутри"},"conflict":{"editor":"text"},"rule":{"editor":"text","default":"Бесплатная отмена закончилась пн 12:00. Позже это невыход: штраф равен минималке за пропущенные часы"},"ruleTone":{"editor":"text","default":"warn"},"ruleSrc":{"editor":"text","default":""},"action":{"editor":"text","default":"Открыть в приложении Яндекс Еда"},"actionNote":{"editor":"text","default":"Бронь можно отменить только в приложении Яндекс Еда, бесплатно до пн 12:00"},"onAction":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"svc":{"editor":"text","default":"yandex-eda"},"title":{"editor":"text","default":"Яндекс Еда"},"place":{"editor":"text","default":"Локация Беговая"},"time":{"editor":"text","default":"17:00–21:00"},"status":{"editor":"text","default":"бронь"},"tone":{"editor":"text","default":"ok"},"whenNote":{"editor":"text","default":""},"svcLine":{"editor":"text","default":""},"fallback":{"editor":"text","default":""},"money":{"editor":"text","default":"≈ 3 160 ₽ за смену"},"moneyNote":{"editor":"text","default":"≈ 790 ₽/ч, оценка по заказам курьеров Разноса, как в Плане. Ставка сервиса 390 ₽/ч уже внутри"},"conflict":{"editor":"text"},"rebook":{"editor":null},"rule":{"editor":"text","default":"Бесплатная отмена закончилась пн 12:00. Позже это невыход: штраф равен минималке за пропущенные часы"},"ruleTone":{"editor":"text","default":"warn"},"ruleSrc":{"editor":"text","default":""},"action":{"editor":"text","default":"Открыть в приложении Яндекс Еда"},"actionNote":{"editor":"text","default":"Бронь можно отменить только в приложении Яндекс Еда, бесплатно до пн 12:00"},"onAction":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
 // подробности брони: когда, статус, деньги той же моделью, что в Плане, правила отмены и переход в приложение сервиса
 class Component extends DCLogic {
   renderVals() {
@@ -75,6 +76,8 @@ class Component extends DCLogic {
       svc_line: v('svcLine', ''), has_svc_line: !!v('svcLine', ''), fallback: v('fallback', ''), has_fallback: !!v('fallback', ''),
       money: v('money', '≈ 3 160 ₽ за смену'), money_note: v('moneyNote', ''),
       conflict, has_conflict: !!conflict,
+      // цена перебронирования, если слот пересекается с вашей сменой
+      rebook: p.rebook || {}, has_rebook: !!p.rebook,
       rule, has_rule: !!rule, rule_src: v('ruleSrc', ''), has_rule_src: !!v('ruleSrc', ''), rule_cls: 'rsh-note' + (v('ruleTone', 'warn') === 'warn' ? ' rsh-note-warn' : ''),
       action, has_action: !!action, act: fn(p.onAction), action_note: actionNote, has_action_note: !!action && !!actionNote,
       close: fn(p.onClose), stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }

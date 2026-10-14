@@ -58,7 +58,7 @@
   </sc-if>
 
   <sc-if value="{{ show_sheet }}" hint-placeholder-val="{{ false }}">
-    <dc-import name="RaznosShiftSheet" svc="{{ sh.svc }}" title="{{ sh.title }}" place="{{ sh.place }}" time="{{ sh.time }}" status="{{ sh.status }}" tone="{{ sh.tone }}" whenNote="{{ sh.whenNote }}" svcLine="{{ sh.svcLine }}" money="{{ sh.money }}" moneyNote="{{ sh.moneyNote }}" conflict="{{ sh.conflict }}" rule="{{ sh.rule }}" ruleTone="{{ sh.ruleTone }}" ruleSrc="{{ sh.ruleSrc }}" action="{{ sh.action }}" actionNote="{{ sh.actionNote }}" onAction="{{ sh.act }}" onClose="{{ close_sheet }}"></dc-import>
+    <dc-import name="RaznosShiftSheet" svc="{{ sh.svc }}" title="{{ sh.title }}" place="{{ sh.place }}" time="{{ sh.time }}" status="{{ sh.status }}" tone="{{ sh.tone }}" whenNote="{{ sh.whenNote }}" svcLine="{{ sh.svcLine }}" money="{{ sh.money }}" moneyNote="{{ sh.moneyNote }}" conflict="{{ sh.conflict }}" rebook="{{ sh.rebook }}" rule="{{ sh.rule }}" ruleTone="{{ sh.ruleTone }}" ruleSrc="{{ sh.ruleSrc }}" action="{{ sh.action }}" actionNote="{{ sh.actionNote }}" onAction="{{ sh.act }}" onClose="{{ close_sheet }}"></dc-import>
   </sc-if>
 
   <sc-if value="{{ show_fix }}" hint-placeholder-val="{{ false }}">
@@ -192,6 +192,26 @@ class Component extends DCLogic {
       if (f) return { sum: f.earn, pay: RSH_FMT(f.earn) + ' ₽', text: RSH_FMT(f.earn) + ' ₽ за смену', note: f.orders + ' заказов, это факт из приложения сервиса' };
       return { sum: rate * (s.to - s.from) / 60, rate, pay: '≈ ' + RSH_FMT(Math.round(rate * (s.to - s.from) / 60 / 10) * 10) + ' ₽', text: '≈ ' + RSH_FMT(Math.round(rate * (s.to - s.from) / 60 / 10) * 10) + ' ₽ за смену', note: '≈ ' + RSH_FMT(rate) + ' ₽/ч, оценка Разноса ' + RSH_CONF_TEXT(s.from, s.to) + (s.rate && rateKnown(s.svc) ? '. Ставка сервиса ' + s.rate + ' ₽/ч известна заранее и уже внутри' : '') };
     };
+    // цена перебронирования: взять слот, отменив свою смену. Выгода той же моделью денег, штраф из правил сервиса (penalty в rules)
+    // до срока бесплатной отмены и у заявки штрафа нет, неизвестную сумму не выдумываем, итог тогда не считаем
+    const rebookOf = (sl, old) => {
+      const r = rules[old.svc] || {};
+      const pen = r.penalty || null;
+      const d = deadlineOf(old.svc, old.iso, old.from);
+      const requested = old.status === 'requested';
+      let penalty = null, freeUntil = '', other = '';
+      if (requested || r.freeCancel === 'none') { penalty = 0; other = requested ? '' : ((pen && pen.other) || ''); }
+      else if (d && d > nowDate) { penalty = 0; freeUntil = deadlineLabel(d); }
+      else if (pen) { penalty = pen.unknown ? null : (pen.perHour ? Math.round(pen.perHour * (old.to - old.from) / 600) * 10 : (pen.sum || 0)); other = pen.other || ''; }
+      const gain = Math.round((moneyOf(sl).sum - moneyOf(old).sum) / 10) * 10;
+      const signed = (n) => (n > 0 ? '+ ' : (n < 0 ? '− ' : '')) + RSH_FMT(Math.abs(n)) + ' ₽';
+      const net = penalty == null ? null : gain - penalty;
+      const penText = penalty == null ? 'штраф неизвестен' : (penalty === 0 ? (requested ? 'заявку отзовёте' : (freeUntil ? 'без штрафа до ' + freeUntil : 'без штрафа')) : 'штраф ≈ ' + RSH_FMT(penalty) + ' ₽');
+      const inSvc = 'в ' + (capOf(old.svc).prep || old.title);
+      const drop = 'смены ' + inSvc + ' ' + RSH_TIME(old.from) + '–' + RSH_TIME(old.to);
+      const line = 'Вместо смены ' + inSvc + ': ' + penText + ', выгода ' + signed(gain) + (penalty ? ', итог ' + signed(net) : '');
+      return { drop, gain, penalty, freeUntil, other, requested, net, line };
+    };
     const live = shifts.filter((s) => s.status !== 'cancelled');
     // пересечения и дорога между сменами разных сервисов в один день
     const conflictOf = {}, clashes = [];
@@ -301,7 +321,7 @@ class Component extends DCLogic {
       // слежение только там, где профиль сервиса его разрешает, иначе без кнопки
       if (sl.gone && !watchOk(sl.svc)) return Object.assign(row, { note: 'Слота нет в списке сервиса, слежение для него недоступно', action: '' });
       if (sl.gone) return Object.assign(row, { note: on ? 'Напишем, если слот вернётся' : 'Слота нет в списке сервиса, можно следить', action: on ? 'Слежу' : 'Следить', actionKind: on ? 'watch-on' : 'watch', onAction: toggleWatch });
-      if (clash) return Object.assign(row, { note: 'Пересекается с вашей сменой ' + clash.title + ' ' + RSH_TIME(clash.from) + '–' + RSH_TIME(clash.to), action: '' });
+      if (clash) return Object.assign(row, { note: rebookOf(sl, clash).line, urgent: false, action: '' });
       return Object.assign(row, { gain: true, note: '≈ ' + RSH_FMT(m.rate) + ' ₽/ч' + (rateKnown(sl.svc) ? ', ставка известна заранее' : ', оценка Разноса') + (sl.svc === 'vkusvill' ? ', часы согласует куратор' : (sl.apply && !rateKnown(sl.svc) ? ', смену подтвердит сервис' : '')), action: capOf(sl.svc).take || 'Открыть в сервисе', actionKind: 'primary', onAction: take });
     };
     // слоты, которые пересекаются с вашими сменами, взять нельзя, уносим их в свёрнутый блок внизу
@@ -340,6 +360,7 @@ class Component extends DCLogic {
         whenNote: dayTitle(sl.iso) + ', ' + RSH_DUR(sl.to - sl.from) + (sl.bonus ? '. ' + sl.bonus : '') + (sl.apply ? '. Отклик это заявка, смену подтвердит сервис' : '') + (sl.svc === 'vkusvill' ? '. ' + RSH_VV_NOTE : '') + (sl.gone && !watchOk(sl.svc) ? '. Слежение для этого сервиса недоступно' : ''), svcLine: svcLineOf(sl.svc, sl.taken === 'requested' ? 'requested' : (sl.taken ? 'confirmed' : '')),
         money: m.text, moneyNote: m.note,
         conflict: clash ? 'Пересекается с вашей сменой ' + clash.title + ' ' + RSH_TIME(clash.from) + '–' + RSH_TIME(clash.to) : '',
+        rebook: clash ? rebookOf(sl, clash) : null,
         rule: sl.taken ? ruleFor(sl.svc, sl.iso, sl.from).text : offerRule(sl.svc), ruleTone: '', ruleSrc: (rules[sl.svc] || {}).src || '',
         action: sl.taken ? 'Открыть в приложении ' + sl.title : (clash ? '' : r.action),
         actionNote: sl.taken ? cancelNote({ svc: sl.svc, status: sl.taken === 'requested' ? 'requested' : 'confirmed' }) + ' только в приложении ' + sl.title : '',

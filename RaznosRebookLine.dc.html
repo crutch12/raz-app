@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* цена перебронирования: взять этот слот, отменив свою смену, выгода минус штраф одной строкой */
+    .rrb { box-sizing: border-box; width: 100%; display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 14px; background: var(--raznos-surface-2); font-family: var(--raznos-font); color: var(--raznos-ink); }
+    .rrb-cap { margin: 0; font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rrb-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 6px; }
+    .rrb-cell { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .rrb-cell small { font: 500 11.5px var(--raznos-font); color: var(--raznos-ink-3); white-space: nowrap; }
+    .rrb-cell b { font: 750 15px var(--raznos-font); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rrb-op { flex: none; padding-bottom: 1px; font: 600 15px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rrb-net { padding: 5px 10px; border-radius: 10px; background: var(--raznos-surface); }
+    .rrb-net.rrb-is-plus { background: var(--raznos-green-tint); }
+    .rrb-net.rrb-is-plus b { color: var(--raznos-green-deep); }
+    .rrb-net.rrb-is-minus { background: var(--raznos-amber-tint); }
+    .rrb-free b { color: var(--raznos-green-deep); }
+    .rrb-note { margin: 0; font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
+    @media (prefers-reduced-motion: no-preference) {
+      .rrb-net { animation: rrb-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both; }
+      @keyframes rrb-in { from { opacity: 0; transform: translateX(-6px); } }
+    }
+  </style>
+</helmet>
+<div class="rrb" role="group" aria-label="{{ aria }}">
+  <p class="rrb-cap">{{ cap }}</p>
+  <div class="rrb-row">
+    <span class="rrb-cell"><small>Выгода</small><b>{{ gain }}</b></span>
+    <span class="rrb-op" aria-hidden="true">−</span>
+    <span class="{{ pen_cls }}"><small>Штраф</small><b>{{ pen }}</b></span>
+    <sc-if value="{{ has_net }}" hint-placeholder-val="{{ true }}"><span class="rrb-op" aria-hidden="true">=</span><span class="{{ net_cls }}"><small>Итог</small><b>{{ net }}</b></span></sc-if>
+  </div>
+  <sc-if value="{{ has_note }}" hint-placeholder-val="{{ true }}"><p class="rrb-note">{{ note }}</p></sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "drop": { "editor": "text", "default": "смены в Яндекс Еде 17:00–21:00" },
+  "gain": { "editor": "int", "default": 1400 },
+  "penalty": { "editor": "int", "default": 800 },
+  "freeUntil": { "editor": "text", "default": "" },
+  "other": { "editor": "text", "default": "" },
+  "requested": { "editor": "bool", "default": false },
+  "slot": { "editor": "text", "default": "" },
+  "$preview": { "width": 360, "height": 150 }
+}'>
+// цифры считает экран, где показана строка: выгода это доход слота минус доход вашей смены той же моделью, штраф из правил сервиса
+// penalty null значит сумму сервис не публикует, итог тогда не считаем
+const RRB_FMT = (n) => String(Math.round(Math.abs(n))).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
+const RRB_SIGNED = (n) => (n > 0 ? '+ ' : (n < 0 ? '− ' : '')) + RRB_FMT(n);
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const gain = p.gain != null ? p.gain : 1400;
+    const penalty = 'penalty' in p ? p.penalty : 800;
+    const free = penalty === 0;
+    const known = penalty != null;
+    const net = known ? gain - penalty : null;
+    const pen = !known ? 'неизвестен' : (free ? (p.requested ? 'нет' : (p.freeUntil ? 'нет до ' + p.freeUntil : 'нет')) : '≈ ' + RRB_FMT(penalty));
+    const noteParts = [];
+    if (p.other) noteParts.push((free ? 'Денег не снимут, но ' : 'Ещё ') + p.other);
+    if (!known) noteParts.push('Сервис не публикует сумму штрафа, итог посчитать нельзя');
+    if (known && net <= 0) noteParts.push('Выгоднее оставить свою смену');
+    const note = noteParts.join('. ');
+    return {
+      cap: p.slot ? 'Есть выгоднее: ' + p.slot + '. Если взять его, а ' + (p.requested ? 'заявку отозвать' : 'эту бронь отменить') : (p.requested ? 'Если взять этот слот и отозвать свою заявку' : 'Если взять этот слот и отменить свою смену'),
+      gain: RRB_SIGNED(gain), pen, pen_cls: 'rrb-cell' + (free ? ' rrb-free' : ''),
+      has_net: known && !free, net: net == null ? '' : RRB_SIGNED(net),
+      net_cls: 'rrb-cell rrb-net' + (net > 0 ? ' rrb-is-plus' : ' rrb-is-minus'),
+      has_note: !!note, note,
+      aria: (p.drop ? 'Вместо ' + p.drop + ': ' : '') + 'выгода ' + RRB_SIGNED(gain) + ', штраф ' + pen + (known && !free ? ', итог ' + RRB_SIGNED(net) : '')
+    };
+  }
+}
+</script></body></html>

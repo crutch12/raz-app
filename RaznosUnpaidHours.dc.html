@@ -1,0 +1,129 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* часы не оплатили: бронь против оплаченных часов и доказательства для спора */
+    .ruh { display: flex; flex-direction: column; gap: 12px; font-family: var(--raznos-font); color: var(--raznos-ink); }
+    .ruh-head { display: flex; flex-direction: column; gap: 3px; }
+    .ruh-title { margin: 0; font: 700 18px/1.3 var(--raznos-font); }
+    .ruh-title b { font-weight: 800; color: var(--raznos-red); white-space: nowrap; }
+    .ruh-sub { margin: 0; font: 500 13.5px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
+    .ruh-case { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 16px; background: var(--raznos-surface); }
+    .ruh-case-top { display: flex; align-items: center; gap: 10px; }
+    .ruh-case-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+    .ruh-case-title { font: 650 15px/1.3 var(--raznos-font); }
+    .ruh-case-meta { font: 500 12.5px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
+    .ruh-case-sum { flex: none; font: 750 15px var(--raznos-font); color: var(--raznos-red); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    /* часы брони клетками: оплаченные зелёные, неоплаченные штриховкой */
+    .ruh-hours { display: flex; flex-direction: column; gap: 4px; }
+    .ruh-cells { display: flex; gap: 3px; }
+    .ruh-cell { flex: 1 1 0; height: 22px; border-radius: 5px; background: var(--raznos-green); }
+    .ruh-cell.ruh-is-unpaid { background: repeating-linear-gradient(135deg, var(--raznos-red-tint) 0 5px, color-mix(in oklab, var(--raznos-red) 35%, var(--raznos-red-tint)) 5px 7px); box-shadow: inset 0 0 0 1.5px var(--raznos-red); }
+    .ruh-ticks { display: flex; justify-content: space-between; font: 600 11px var(--raznos-font); color: var(--raznos-ink-3); font-variant-numeric: tabular-nums; }
+    .ruh-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-2); }
+    .ruh-legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 3px; vertical-align: -1px; background: var(--raznos-green); }
+    .ruh-legend .ruh-legend-unpaid { background: var(--raznos-red-tint); box-shadow: inset 0 0 0 1.5px var(--raznos-red); }
+    .ruh-proofs { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--raznos-surface-2); list-style: none; }
+    .ruh-proof { display: flex; align-items: flex-start; gap: 8px; font: 500 13px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
+    .ruh-proof svg { flex: none; margin-top: 2px; color: var(--raznos-green-deep); }
+    .ruh-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ruh-saved { display: inline-flex; align-items: center; gap: 6px; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); }
+    .ruh-note { margin: -2px 0 0; font: 500 12px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+    /* ссылка в карточке дня и в Результатах */
+    .ruh-link { width: 100%; display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 10px 14px; border: 0; border-radius: 16px; background: var(--raznos-surface); font: inherit; color: var(--raznos-ink); text-align: left; cursor: pointer; }
+    .ruh-link:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .ruh-link-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+    .ruh-link-title { font: 650 15px var(--raznos-font); }
+    .ruh-link-sub { font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
+    .ruh-link-sum { font: 700 16px var(--raznos-font); color: var(--raznos-red); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    @media (prefers-reduced-motion: no-preference) {
+      .ruh-cell.ruh-is-unpaid { animation: ruh-blink 1.6s ease-out 0.4s 1 both; }
+      @keyframes ruh-blink { 0% { opacity: 0.3; } 30% { opacity: 1; } 55% { opacity: 0.55; } 100% { opacity: 1; } }
+      .ruh-saved { animation: ruh-saved-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      @keyframes ruh-saved-in { from { opacity: 0; transform: translateX(-6px); } }
+    }
+  </style>
+</helmet>
+<sc-if value="{{ is_link }}" hint-placeholder-val="{{ false }}">
+  <button type="button" class="ruh-link" onClick="{{ open }}" aria-label="{{ link_aria }}">
+    <span class="ruh-link-main"><span class="ruh-link-title">Часы не оплатили</span><span class="ruh-link-sub">{{ link_sub }}</span></span>
+    <span class="ruh-link-sum">≈ {{ total }} ₽</span><span class="raznos-row-chevron" aria-hidden="true">›</span>
+  </button>
+</sc-if>
+<sc-if value="{{ is_full }}" hint-placeholder-val="{{ true }}">
+<div class="ruh">
+  <div class="ruh-head"><h3 class="ruh-title">Часы не оплатили <b>≈ {{ total }} ₽</b></h3><p class="ruh-sub">{{ sub }}</p></div>
+  <sc-for list="{{ cases }}" as="c" hint-placeholder-count="2">
+    <div class="ruh-case">
+      <div class="ruh-case-top"><dc-import name="RaznosIcon" svc="{{ c.key }}" alt="{{ c.title }}" size="sm"></dc-import><span class="ruh-case-main"><span class="ruh-case-title">{{ c.head }}</span><span class="ruh-case-meta">{{ c.meta }}</span></span><span class="ruh-case-sum">≈ {{ c.sum }} ₽</span></div>
+      <div class="ruh-hours" role="img" aria-label="{{ c.aria }}">
+        <div class="ruh-cells"><sc-for list="{{ c.cells }}" as="h" hint-placeholder-count="6"><i class="{{ h.cls }}"></i></sc-for></div>
+        <div class="ruh-ticks"><sc-for list="{{ c.ticks }}" as="t" hint-placeholder-count="4"><span>{{ t }}</span></sc-for></div>
+      </div>
+      <div class="ruh-legend"><span><i></i>оплачено {{ c.paid }}</span><span><i class="ruh-legend-unpaid"></i>не оплачено {{ c.unpaid }}</span></div>
+      <ul class="ruh-proofs" aria-label="Доказательства"><sc-for list="{{ c.proofs }}" as="pf" hint-placeholder-count="3"><li class="ruh-proof"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4.5 4.5L19 7"/></svg>{{ pf }}</li></sc-for></ul>
+      <div class="ruh-actions">
+        <sc-if value="{{ c.unsaved }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-primary raznos-btn-small" onClick="{{ c.save }}">Сохранить доказательства</button></sc-if>
+        <sc-if value="{{ c.saved }}" hint-placeholder-val="{{ false }}"><span class="ruh-saved"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l3 3v15H6z"/><path d="m9 13 2.2 2.2L15.5 11"/></svg>{{ c.saved_label }}</span><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ c.support }}">{{ c.support_label }}</button></sc-if>
+      </div>
+    </div>
+  </sc-for>
+  <p class="ruh-note">Сверяем брони с часами, которые сервис оплатил. Доказательства хранятся на телефоне: бронь, отметки начала и конца, заказы и время на точке. Это не начисление, в Удержано и итог не входит</p>
+</div>
+</sc-if>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "cases": { "editor": null },
+  "mode": { "editor": "enum", "options": ["full", "link"], "default": "full" },
+  "onSave": { "editor": null },
+  "onSupport": { "editor": null },
+  "onOpen": { "editor": null },
+  "$preview": { "width": 360, "height": 520 }
+}'>
+const RUH_FMT = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const RUH_HM = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+function ruhPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
+// примеры для дизайн-системы, в приложении приходят из UNPAID_HOURS
+const RUH_SAMPLE = [
+  { id: 'a', key: 'x5', title: 'X5 Доставка', short: 'X5', day: 'пн, 12 окт', from: 600, to: 960, unpaidFrom: 840, rate: 290, place: 'Даркстор на Профсоюзной', proofs: ['Бронь подтверждена X5 накануне в 21:14', 'Отметка начала в приложении X5 в 9:56', '11 заказов с 10:08 до 15:51, последний закрыт в 15:51'] },
+  { id: 'b', key: 'vkusvill', title: 'ВкусВилл', short: 'ВкусВилла', day: 'чт, 8 окт', from: 540, to: 1020, unpaidFrom: 960, rate: 320, place: 'Даркстор на Правды', proofs: ['Слот подтверждён ВкусВиллом', 'Отметка на точке в 8:52 и уход в 17:04', '14 заказов, последний в 16:41'], savedAt: '9 окт в 10:12' }
+];
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const cases = Array.isArray(p.cases) ? p.cases : RUH_SAMPLE;
+    const hh = (m) => { const h = m / 60; return String(Math.round(h * 10) / 10).replace('.', ',') + ' ч'; };
+    const view = cases.map((c) => {
+      const unpaidMin = c.to - c.unpaidFrom;
+      const sum = Math.round(unpaidMin / 60 * c.rate / 10) * 10;
+      const cells = [];
+      for (let m = c.from; m < c.to; m += 60) cells.push({ cls: 'ruh-cell' + (m >= c.unpaidFrom ? ' ruh-is-unpaid' : '') });
+      const ticks = [RUH_HM(c.from), RUH_HM(c.unpaidFrom), RUH_HM(c.to)];
+      const saved = !!c.savedAt;
+      return {
+        key: c.key, title: c.title, sum: RUH_FMT(sum), _sum: sum, _h: unpaidMin,
+        head: c.title + ', ' + c.day,
+        meta: 'Бронь ' + RUH_HM(c.from) + '–' + RUH_HM(c.to) + (c.place ? ' · ' + c.place : ''),
+        cells, ticks,
+        paid: hh(c.unpaidFrom - c.from), unpaid: hh(unpaidMin),
+        aria: 'Бронь ' + hh(c.to - c.from) + ', оплачено ' + hh(c.unpaidFrom - c.from) + ', не оплачено ' + hh(unpaidMin) + ' с ' + RUH_HM(c.unpaidFrom),
+        proofs: c.proofs || [],
+        unsaved: !saved, saved, saved_label: 'Сохранено ' + (c.savedAt || ''),
+        save: () => { if (p.onSave) p.onSave(c.id); },
+        support: () => { if (p.onSupport) p.onSupport(c.key); },
+        support_label: 'Написать в поддержку ' + (c.short || c.title)
+      };
+    });
+    const total = view.reduce((s, c) => s + c._sum, 0);
+    const mins = view.reduce((s, c) => s + c._h, 0);
+    const n = view.length;
+    const hours = hh(mins);
+    return {
+      is_link: p.mode === 'link' && n > 0, is_full: p.mode !== 'link',
+      open: () => { if (p.onOpen) p.onOpen(); },
+      total: RUH_FMT(total), cases: view,
+      sub: (n === 1 ? hours + ' брони' : hours + ' по ' + n + ' броням') + ' сервис не оплатил. Сохраните доказательства и напишите в поддержку сервиса',
+      link_sub: n === 1 ? view[0].head + ', ' + view[0].unpaid : hours + ' в ' + n + ' ' + ruhPlural(n, 'брони', 'бронях', 'бронях'),
+      link_aria: 'Часы не оплатили, ' + hours + ', примерно ' + RUH_FMT(total) + ' рублей, подробнее'
+    };
+  }
+}
+</script></body></html>

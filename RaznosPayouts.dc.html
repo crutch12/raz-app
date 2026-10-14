@@ -1,0 +1,168 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* выплаты сервисов: сколько и когда придёт, задержка отдельно сверху */
+    .rpay { display: flex; flex-direction: column; gap: 14px; font-family: var(--raznos-font); color: var(--raznos-ink); }
+    .rpay-sum { display: flex; flex-direction: column; gap: 4px; }
+    .rpay-sum-label { font: 600 13px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rpay-sum-val { font: 800 32px/1.05 var(--raznos-font); letter-spacing: -0.02em; color: var(--raznos-green-deep); font-variant-numeric: tabular-nums; }
+    .rpay-sum-next { margin: 0; font: 500 14.5px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
+    .rpay-sum-next b { font-weight: 700; color: var(--raznos-ink); }
+    /* задержка: янтарная плашка с причиной и куда писать */
+    .rpay-late { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 16px; background: var(--raznos-amber-tint); }
+    .rpay-late-top { display: flex; align-items: flex-start; gap: 10px; }
+    .rpay-late-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+    .rpay-late-title { font: 700 15px/1.3 var(--raznos-font); color: var(--raznos-ink); }
+    .rpay-late-text { font: 500 13.5px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
+    .rpay-late .raznos-btn { align-self: flex-start; }
+    /* неделя денег: столбик на день, высота по сумме, части в цвет сервиса */
+    .rpay-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; padding: 12px 10px 10px; border-radius: 16px; background: var(--raznos-surface); }
+    .rpay-day { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; }
+    .rpay-day-amt { min-height: 15px; font: 700 11.5px var(--raznos-font); color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rpay-day-col { display: flex; flex-direction: column-reverse; justify-content: flex-start; gap: 2px; width: 100%; max-width: 30px; height: 64px; }
+    .rpay-day-col > i { display: block; width: 100%; border-radius: 5px; min-height: 6px; }
+    .rpay-day-col > .rpay-day-empty { min-height: 3px; height: 3px; border-radius: 2px; background: var(--raznos-line); }
+    .rpay-day-name { font: 600 11.5px var(--raznos-font); color: var(--raznos-ink-3); white-space: nowrap; }
+    .rpay-day-today .rpay-day-name { color: var(--raznos-ink); font-weight: 800; }
+    @media (prefers-reduced-motion: no-preference) {
+      .rpay-day-col > i:not(.rpay-day-empty) { transform-origin: bottom; animation: rpay-grow 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      @keyframes rpay-grow { from { transform: scaleY(0.2); opacity: 0.4; } }
+    }
+    /* список: сервис, правило, сумма и день */
+    .rpay-list { display: flex; flex-direction: column; border-radius: 16px; background: var(--raznos-surface); }
+    .rpay-row { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--raznos-line); }
+    .rpay-row:last-child { border-bottom: 0; }
+    .rpay-row-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+    .rpay-row-title { font: 650 15px/1.3 var(--raznos-font); }
+    .rpay-row-rule { font: 500 12.5px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rpay-row-side { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex: none; }
+    .rpay-row-amt { font: 700 15px var(--raznos-font); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rpay-row-when { font: 600 12.5px var(--raznos-font); color: var(--raznos-ink-3); white-space: nowrap; }
+    .rpay-row-when.rpay-is-soon { color: var(--raznos-green-deep); }
+    .rpay-row-when.rpay-is-late { color: var(--raznos-amber); }
+    .rpay-note { margin: -4px 0 0; font: 500 12px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+    /* строка на Сегодня: одна линия, янтарная точка только при задержке */
+    .rpay-line { width: 100%; display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 10px 14px; border: 0; border-radius: 16px; background: var(--raznos-surface); font: inherit; color: var(--raznos-ink); text-align: left; cursor: pointer; }
+    .rpay-line:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .rpay-line-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+    .rpay-line-title { font: 650 15px var(--raznos-font); }
+    .rpay-line-sub { font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rpay-line-sub.rpay-is-late { color: var(--raznos-amber); font-weight: 650; }
+    .rpay-line-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--raznos-amber); flex: none; }
+    .rpay-line-amt { font: 700 16px var(--raznos-font); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  </style>
+</helmet>
+<sc-if value="{{ is_line }}" hint-placeholder-val="{{ false }}">
+  <button type="button" class="rpay-line" onClick="{{ open }}" aria-label="{{ line_aria }}">
+    <span class="rpay-line-main"><span class="rpay-line-title">Ждёт выплаты</span><span class="{{ line_sub_cls }}">{{ line_sub }}</span></span>
+    <sc-if value="{{ has_late }}" hint-placeholder-val="{{ false }}"><i class="rpay-line-dot" aria-hidden="true"></i></sc-if>
+    <span class="rpay-line-amt">{{ total }} ₽</span><span class="raznos-row-chevron" aria-hidden="true">›</span>
+  </button>
+</sc-if>
+<sc-if value="{{ is_full }}" hint-placeholder-val="{{ true }}">
+<div class="rpay">
+  <sc-for list="{{ late }}" as="lt" hint-placeholder-count="0">
+    <div class="rpay-late" role="status">
+      <div class="rpay-late-top"><dc-import name="RaznosIcon" svc="{{ lt.key }}" alt="{{ lt.title }}" size="sm"></dc-import><span class="rpay-late-main"><span class="rpay-late-title">{{ lt.head }}</span><span class="rpay-late-text">{{ lt.text }}</span></span></div>
+      <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ lt.tap }}">{{ lt.action }}</button>
+    </div>
+  </sc-for>
+  <div class="rpay-sum"><span class="rpay-sum-label">Ждёт выплаты</span><span class="rpay-sum-val">{{ total }} ₽</span><sc-if value="{{ next_show }}" hint-placeholder-val="{{ true }}"><p class="rpay-sum-next">{{ next_a }}<b>{{ next_b }}</b>{{ next_c }}</p></sc-if></div>
+  <div class="rpay-week" role="img" aria-label="{{ week_aria }}">
+    <sc-for list="{{ week }}" as="d" hint-placeholder-count="7">
+      <div class="{{ d.cls }}"><span class="rpay-day-amt">{{ d.amt }}</span><span class="rpay-day-col"><sc-for list="{{ d.parts }}" as="pt" hint-placeholder-count="1"><i class="{{ pt.cls }}" style="{{ pt.style }}"></i></sc-for></span><span class="rpay-day-name">{{ d.name }}</span></div>
+    </sc-for>
+  </div>
+  <div class="rpay-list">
+    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
+      <div class="rpay-row"><dc-import name="RaznosIcon" svc="{{ r.key }}" alt="{{ r.title }}" size="sm"></dc-import><span class="rpay-row-main"><span class="rpay-row-title">{{ r.title }}</span><span class="rpay-row-rule">{{ r.rule }}</span></span><span class="rpay-row-side"><span class="rpay-row-amt">{{ r.amt }} ₽</span><span class="{{ r.when_cls }}">{{ r.when }}</span></span></div>
+    </sc-for>
+  </div>
+  <p class="rpay-note">{{ note }}</p>
+</div>
+</sc-if>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "items": { "editor": null },
+  "mode": { "editor": "enum", "options": ["full", "line"], "default": "full" },
+  "late": { "editor": "boolean", "default": false },
+  "onOpen": { "editor": null },
+  "onSupport": { "editor": null },
+  "$preview": { "width": 360, "height": 560 }
+}'>
+const RPAY_FMT = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const RPAY_WD = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+const RPAY_MON = ['янв', 'февр', 'марта', 'апр', 'мая', 'июня', 'июля', 'авг', 'сент', 'окт', 'нояб', 'дек'];
+const RPAY_MON_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+function rpayPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
+// примеры для дизайн-системы, в приложении приходят из PAYOUTS
+const RPAY_SAMPLE = [
+  { key: 'samokat', title: 'Самокат', from: 'Самоката', amount: 1870, off: 0, rule: 'Каждый день за вчера' },
+  { key: 'yandex-eda', title: 'Яндекс Еда', amount: 1260, off: 0, rule: 'Выводите сами в Яндекс Про', whenLabel: 'можно вывести', self: true },
+  { key: 'vkusvill', title: 'ВкусВилл', from: 'ВкусВилла', amount: 2140, off: 1, rule: 'Каждый день за вчера, до 12:00' },
+  { key: 'x5', title: 'X5 Доставка', from: 'X5', amount: 4260, off: 1, rule: 'По четвергам за прошлую неделю' },
+  { key: 'dodo', title: 'Додо Пицца', from: 'Додо', amount: 3150, off: 6, rule: 'Дважды в месяц, 5 и 20 числа' }
+];
+const RPAY_SAMPLE_LATE = { key: 'x5', title: 'X5 Доставка', short: 'X5', amount: 3980, off: -6, rule: 'По четвергам за прошлую неделю', supportIn: 'поддержку X5' };
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const items = Array.isArray(p.items) ? p.items : RPAY_SAMPLE.concat(p.late ? [RPAY_SAMPLE_LATE] : []);
+    const onSupport = p.onSupport || (() => {});
+    const t0 = new Date(); const today = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate());
+    const dayOf = (off) => new Date(today.getFullYear(), today.getMonth(), today.getDate() + off);
+    const whenOf = (off) => off === 0 ? 'сегодня' : off === 1 ? 'завтра' : (() => { const d = dayOf(off); return RPAY_WD[d.getDay()] + ', ' + d.getDate() + ' ' + RPAY_MON[d.getMonth()]; })();
+    // задержка: ждали в прошлом и денег нет, остальное по ближайшему дню
+    const late = items.filter((i) => i.off < 0);
+    const soon = items.filter((i) => i.off >= 0).sort((a, b) => a.off - b.off || b.amount - a.amount);
+    const total = items.reduce((s, i) => s + i.amount, 0);
+    // деньги, которые курьер выводит сам, не ждут выплаты сервиса и не считаются ближайшей выплатой
+    const next = soon.filter((i) => !i.self)[0];
+    const nextSame = next ? soon.filter((i) => i.off === next.off && !i.self) : [];
+    const selfSum = soon.filter((i) => i.self).reduce((s, i) => s + i.amount, 0);
+    const nextSum = nextSame.reduce((s, i) => s + i.amount, 0);
+    const lateSum = late.reduce((s, i) => s + i.amount, 0);
+    // неделя от сегодня: части дня в цвет сервиса, высота столбика по самой большой сумме дня
+    const days = [0, 1, 2, 3, 4, 5, 6].map((off) => ({ off, list: soon.filter((i) => i.off === off) }));
+    const maxDay = Math.max(1, ...days.map((d) => d.list.reduce((s, i) => s + i.amount, 0)));
+    const short = (n) => n >= 1000 ? (Math.round(n / 100) / 10).toString().replace('.', ',') + 'к' : RPAY_FMT(n);
+    const week = days.map((d) => {
+      const sum = d.list.reduce((s, i) => s + i.amount, 0);
+      const date = dayOf(d.off);
+      return {
+        cls: 'rpay-day' + (d.off === 0 ? ' rpay-day-today' : ''),
+        amt: sum ? short(sum) : '',
+        name: d.off === 0 ? 'сег' : RPAY_WD[date.getDay()] + ' ' + date.getDate(),
+        parts: sum ? d.list.map((i) => ({ cls: '', style: 'height:' + Math.max(8, Math.round(i.amount * 58 / maxDay)) + 'px;background:var(--raznos-svc-' + i.key + ', var(--raznos-green))' })) : [{ cls: 'rpay-day-empty', style: '' }]
+      };
+    });
+    const daysAgo = (off) => -off + ' ' + rpayPlural(-off, 'день', 'дня', 'дней');
+    const lateDate = (off) => { const d = dayOf(off); return RPAY_WD[d.getDay()] === 'чт' ? 'в четверг, ' + d.getDate() + ' ' + RPAY_MON_GEN[d.getMonth()] : d.getDate() + ' ' + RPAY_MON_GEN[d.getMonth()]; };
+    const lineLate = late.length ? (late[0].short || late[0].title) + ' задерживает ' + RPAY_FMT(late[0].amount) + ' ₽' : '';
+    const lineNext = next ? (next.off === 0 ? 'сегодня придёт' : next.off === 1 ? 'завтра придёт' : 'ближайшая ' + whenOf(next.off)) + ' ' + RPAY_FMT(nextSum) + ' ₽' + (nextSame.length === 1 ? ' от ' + (next.from || next.title) : '') : 'Ближайших выплат нет';
+    return {
+      is_line: p.mode === 'line', is_full: p.mode !== 'line',
+      open: () => { if (p.onOpen) p.onOpen(); },
+      total: RPAY_FMT(total), has_late: late.length > 0,
+      line_sub: lineLate || lineNext, line_sub_cls: 'rpay-line-sub' + (late.length ? ' rpay-is-late' : ''),
+      line_aria: 'Ждёт выплаты ' + RPAY_FMT(total) + ' ₽, ' + (lineLate || lineNext) + ', подробнее',
+      late: late.map((i) => ({
+        key: i.key, title: i.title,
+        head: i.title + ' задерживает ' + RPAY_FMT(i.amount) + ' ₽',
+        text: 'Ждали ' + lateDate(i.off) + ', прошло ' + daysAgo(i.off) + '. ' + (i.lateHint || 'Напишите в поддержку сервиса, номер выплаты есть в его приложении'),
+        action: 'Написать в ' + (i.supportIn || i.title), tap: () => onSupport(i.key)
+      })),
+      next_show: !!next,
+      next_a: next ? (next.off === 0 ? 'Сегодня придёт ' : next.off === 1 ? 'Завтра придёт ' : 'Ближайшая ' + whenOf(next.off) + ', ') : '',
+      next_b: next ? RPAY_FMT(nextSum) + ' ₽' : '',
+      next_c: next ? (nextSame.length === 1 ? ' от ' + (next.from || next.title) : ' от ' + nextSame.length + ' ' + rpayPlural(nextSame.length, 'сервиса', 'сервисов', 'сервисов')) + (lateSum ? ', ещё ' + RPAY_FMT(lateSum) + ' ₽ задерживается' : selfSum ? ', ' + RPAY_FMT(selfSum) + ' ₽ можно вывести самим' : '') : '',
+      week, week_aria: 'Выплаты на неделю: ' + days.filter((d) => d.list.length).map((d) => whenOf(d.off) + ' ' + RPAY_FMT(d.list.reduce((s, i) => s + i.amount, 0)) + ' ₽').join(', '),
+      rows: late.concat(soon).map((i) => ({
+        key: i.key, title: i.title, rule: i.rule || '', amt: RPAY_FMT(i.amount),
+        when: i.off < 0 ? 'задерживается' : (i.whenLabel || whenOf(i.off)),
+        when_cls: 'rpay-row-when' + (i.off < 0 ? ' rpay-is-late' : i.off <= 1 ? ' rpay-is-soon' : '')
+      })),
+      note: p.note || 'Дни по правилам сервисов, сервис может сдвинуть выплату. Деньги считаем пришедшими, когда сервис отметил выплату'
+    };
+  }
+}
+</script></body></html>
