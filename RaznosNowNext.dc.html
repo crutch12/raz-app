@@ -38,9 +38,9 @@
       <dc-import name="RaznosIcon" svc="{{ row.svc }}" alt="{{ row.title }}" size="md"></dc-import>
       <span class="rnn-row-body"><span class="rnn-row-top"><span class="rnn-row-lab">{{ row.label }}</span><span class="rnn-row-hint">{{ row.hint }}</span></span><span class="rnn-row-name">{{ row.title }}</span><span class="rnn-row-sub">{{ row.subTime }}</span><sc-if value="{{ row.place }}" hint-placeholder-val="{{ true }}"><span class="rnn-row-place">{{ row.place }}</span></sc-if><sc-if value="{{ row.deadline }}" hint-placeholder-val="{{ false }}"><span class="rnn-row-place">{{ row.deadline }}</span></sc-if></span>
     </button>
+    <sc-if value="{{ row.has_rb }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosRebookLine" variant="chip" altSvc="{{ rb.altSvc }}" altTitle="{{ rb.altTitle }}" altTime="{{ rb.altTime }}" altSum="{{ rb.altSum }}" mineSvc="{{ rb.mineSvc }}" mineTitle="{{ rb.mineTitle }}" mineTime="{{ rb.mineTime }}" mineSum="{{ rb.mineSum }}" penalty="{{ rb.penalty }}" freeUntil="{{ rb.freeUntil }}" requested="{{ rb.requested }}" onOpen="{{ on_rebook }}"></dc-import></sc-if>
   </sc-for>
   <sc-if value="{{ warning }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ warning_cls }}" onClick="{{ on_warning }}"><span>{{ warning }}</span><span class="rnn-warning-act">Что делать ›</span></button></sc-if>
-  <sc-if value="{{ has_rebook }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosRebookLine" variant="chip" altSvc="{{ rb.altSvc }}" altTitle="{{ rb.altTitle }}" altTime="{{ rb.altTime }}" altSum="{{ rb.altSum }}" mineSvc="{{ rb.mineSvc }}" mineTitle="{{ rb.mineTitle }}" mineTime="{{ rb.mineTime }}" mineSum="{{ rb.mineSum }}" penalty="{{ rb.penalty }}" freeUntil="{{ rb.freeUntil }}" requested="{{ rb.requested }}" onOpen="{{ on_rebook }}"></dc-import></sc-if>
   <button type="button" class="rnn-open" onClick="{{ open_plan }}">План дня<span class="raznos-row-chevron">›</span></button>
 </div>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"text","default":"on"},"dayLine":{"editor":"text","default":"09:00–20:00 · осталось 4 ч 20 мин"},"rows":{"editor":null},"onWarning":{"editor":null},"rebook":{"editor":null},"onRebook":{"editor":null},"quiet":{"editor":"boolean","default":false},"warning":{"editor":"text","default":"Не успеете доехать: смены встык, дорога ≈ 20 мин"},"onEnd":{"editor":null},"onStart":{"editor":null},"onOpenPlan":{"editor":null},"onOpenShift":{"editor":null},"$preview":{"width":390,"height":260}}'>
@@ -63,6 +63,8 @@ class Component extends DCLogic {
       const subTime = [row.time, row.source === 'booking' ? '' : (row.pay ? row.pay + ' ₽/ч' : '')].filter(Boolean).join(' · ');
       return Object.assign({}, row, {
         label, sub, subTime, place: row.source === 'booking' ? row.place : '',
+        // плашка выгодной замены стоит сразу под своей бронью
+        has_rb: !!p.rebook && !now && row.source === 'booking' && row.svc === p.rebook.mineSvc,
         cls: 'rnn-row' + (now ? ' rnn-row-now' : ''),
         aria: label + ', ' + row.title + ', ' + sub + (row.hint ? ', ' + row.hint : ''),
         // бронь открывает свою шторку в плане, час из плана открывает план дня
@@ -79,7 +81,7 @@ class Component extends DCLogic {
       on_warning: typeof p.onWarning === 'function' ? p.onWarning : openPlan,
       on_start: typeof p.onStart === 'function' ? p.onStart : noop,
       open_plan: openPlan,
-      // есть слот выгоднее ближайшей брони: спокойная плашка под строками и предупреждением, чек в шторке
+      // есть слот выгоднее брони: спокойная плашка под этой бронью, чек в шторке
       has_rebook: !!p.rebook, rb: p.rebook || {}, on_rebook: typeof p.onRebook === 'function' ? p.onRebook : noop
     };
   }

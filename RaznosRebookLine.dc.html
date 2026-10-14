@@ -39,6 +39,11 @@
     /* плашка на брони: спокойная зелёная рамка, без анимации, область нажатия 44 px */
     .rrbk-chip { align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px; margin: -6px 0; padding: 0; border: 0; background: none; cursor: pointer; font: inherit; color: inherit; border-radius: 999px; }
     .rrbk-chip-in { display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px 5px 12px; border-radius: 999px; border: 1.5px solid color-mix(in oklab, var(--raznos-green) 60%, var(--raznos-line)); background: var(--raznos-surface); font: 600 13px/1.3 var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; }
+    /* плашка в две строки: на что меняем и сколько выйдет после штрафа, чтобы было ясно без шторки */
+    .rrbk-chip-in { border-radius: 14px !important; padding: 8px 10px 8px 12px !important; gap: 8px !important; }
+    .rrbk-chip-copy { display: flex; flex-direction: column; gap: 1px; text-align: left; }
+    .rrbk-chip-copy small { font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); }
+    .rrbk-chip { margin: 0 !important; }
     .rrbk-chip-in b { font-weight: 750; color: var(--raznos-green-deep); font-variant-numeric: tabular-nums; }
     .rrbk-chip-in svg { flex: none; margin-left: -2px; color: var(--raznos-green-deep); }
     /* строка в списке пересечений вместо длинного текста */
@@ -47,7 +52,7 @@
     .rrbk-list b.rrbk-is-plus { color: var(--raznos-green-deep); }
   </style>
 </helmet>
-<sc-if value="{{ is_chip }}" hint-placeholder-val="{{ false }}"><button type="button" class="rrbk-chip" onClick="{{ on_open }}" aria-label="{{ aria }}"><span class="rrbk-chip-in">Выгоднее: {{ alt_short }} <b>{{ net }}</b><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span></button></sc-if>
+<sc-if value="{{ is_chip }}" hint-placeholder-val="{{ false }}"><button type="button" class="rrbk-chip" onClick="{{ on_open }}" aria-label="{{ aria }}"><span class="rrbk-chip-in"><span class="rrbk-chip-copy"><span>Заменить на {{ alt_short }} {{ alt_time }}</span><small><b>{{ net }}</b> даже со штрафом за отмену</small></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span></button></sc-if>
 <sc-if value="{{ is_list }}" hint-placeholder-val="{{ false }}"><span class="rrbk-list" aria-label="{{ aria }}">{{ list_text }}<b class="{{ list_cls }}">{{ list_val }}</b></span></sc-if>
 <sc-if value="{{ is_receipt }}" hint-placeholder-val="{{ true }}"><div class="{{ layer_cls }}" onClick="{{ on_close }}">
   <section class="{{ sheet_cls }}" role="{{ sheet_role }}" aria-label="Цена перебронирования" onClick="{{ stop }}">
