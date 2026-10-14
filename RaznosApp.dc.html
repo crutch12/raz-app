@@ -271,11 +271,6 @@
               <sc-if value="{{ qt_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosQuickTip" orders="{{ qt_orders }}" defaultId="{{ qt_default }}" onAdd="{{ qt_add }}" onClose="{{ qt_close }}"></dc-import></sc-if>
               <sc-if value="{{ qe_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosQuickExpense" cats="{{ qe_cats }}" defaultCat="{{ qe_cat }}" recent="{{ qe_recent }}" today="{{ today_iso }}" minDay="{{ ef_day_min }}" onAdd="{{ qe_add }}" onClose="{{ qe_close }}"></dc-import></sc-if>
               </sc-if>
-              <!-- деньги одной карточкой: ждёт выплаты (янтарная при задержке) и итог прошлой недели по понедельникам, крестик прячет итог до следующей недели -->
-              <div class="raznos-row-group raznos-today-money">
-                <sc-if value="{{ payouts_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosPayouts" mode="line" inGroup="{{ true }}" quietLate="{{ ta_payout_in_slot }}" items="{{ payouts_items }}" onOpen="{{ payouts_open }}"></dc-import></sc-if>
-                <sc-if value="{{ week_recap_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosWeekRecap" mode="row" inGroup="{{ true }}" recap="{{ week_recap }}" onOpen="{{ week_recap_detail_open }}" onDismiss="{{ ai_review_dismiss }}"></dc-import></sc-if>
-              </div>
               <sc-if value="{{ payouts_sheet }}" hint-placeholder-val="{{ false }}">
                 <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Выплаты">
                   <div class="raznos-dialog raznos-day-sheet">
@@ -346,6 +341,11 @@
                 </div>
               </sc-if>
               <sc-if value="{{ home_nudge_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosPlanNudge" icon="{{ home_nudge_icon }}" title="{{ home_nudge_title }}" onTitle="{{ home_nudge_title_tap }}" text="{{ home_nudge_text }}" meta="{{ home_nudge_meta }}" action="{{ home_nudge_action }}" dismiss="{{ home_nudge_dismiss }}" onAction="{{ home_nudge_accept }}" onDismiss="{{ home_nudge_close }}"></dc-import></sc-if>
+              <!-- после Смены: деньги одной карточкой: ждёт выплаты (янтарная при задержке) и итог прошлой недели по понедельникам, крестик прячет итог до следующей недели -->
+              <div class="raznos-row-group raznos-today-money">
+                <sc-if value="{{ payouts_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosPayouts" mode="line" inGroup="{{ true }}" quietLate="{{ ta_payout_in_slot }}" items="{{ payouts_items }}" onOpen="{{ payouts_open }}"></dc-import></sc-if>
+                <sc-if value="{{ week_recap_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosWeekRecap" mode="row" inGroup="{{ true }}" recap="{{ week_recap }}" onOpen="{{ week_recap_detail_open }}" onDismiss="{{ ai_review_dismiss }}"></dc-import></sc-if>
+              </div>
               <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" empty="{{ recent_empty }}" onEmpty="{{ go_zones }}" dayLabel="{{ recent_day_label }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onOpenTrip="{{ open_recent_trip }}"onAddExpense="{{ go_expense_form_from_home }}" onSaveTip="{{ save_recent_tip }}" onNote="{{ open_recent_note }}"></dc-import>
 
               <h2 class="raznos-home-group">Вокруг</h2>
