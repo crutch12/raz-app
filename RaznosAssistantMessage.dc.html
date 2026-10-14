@@ -59,7 +59,12 @@ class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
     const user = p.role === 'user';
-    const all = String(p.text == null ? '' : p.text).replace(/\r/g, '');
+    // подстраховка: вызов инструмента, напечатанный текстом, не показываем; пока он печатается, прячем начало имени
+    const raw0 = String(p.text == null ? '' : p.text).replace(/\r/g, '');
+    const all = user ? raw0 : raw0
+      .replace(/`{0,3}[ \t]*(functions\.)?(suggest_replies|show_card|propose_action)\s*\([\s\S]*$/, '')
+      .replace(/(functions\.)?(sugg|show_|propo)[a-z_]*$/, '')
+      .replace(/\s*`{1,3}\s*$/, '');
     // история и свои сообщения сразу целиком, печатается только то, что приходит сейчас
     if (this._shown == null) this._shown = p.streaming && !user && !RAM_CALM ? 0 : all.length;
     if (!p.streaming && RAM_CALM) this._shown = all.length;
