@@ -140,6 +140,14 @@
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"endpoint":{"editor":"text","default":"http://127.0.0.1:8787"},"getSession":{"editor":null},"getSnapshot":{"editor":null},"getContext":{"editor":null},"cardProps":{"editor":null},"previewAction":{"editor":null},"runAction":{"editor":null},"outcomes":{"editor":null},"setOutcome":{"editor":null},"pushEvent":{"editor":null},"takeEvents":{"editor":null},"restoreEvents":{"editor":null},"off":{"editor":"boolean","default":false},"onPromptScreen":{"editor":null},"autoSend":{"editor":"boolean","default":false},"onAutoSent":{"editor":null},"initialPrompt":{"editor":"text","default":""},"onPromptSent":{"editor":null},"onReset":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":700}}'>
 // лист помощника: восстанавливает разговор с сервера, шлёт ход и читает SSE (fetch + ReadableStream)
 // сервер хранит историю, лист владеет только лентой на экране; итоги действий и очередь событий живут в приложении
+// копия разговора и стартовых вопросов на устройстве: сессия своя у каждого телефона, поэтому копии можно верить.
+// разговор перечитываем с сервера, только если последний ответ дошёл не до конца или копии больше 30 минут;
+// вопросы храним по разделу и отпечатку данных, отпечаток меняется вместе с данными и раз в 15 минут
+const RAS_CACHE_KEY = 'raznos-ai-cache';
+const RAS_CONV_TTL = 30 * 60 * 1000;
+const rasCacheRead = () => { try { return JSON.parse(localStorage.getItem(RAS_CACHE_KEY) || 'null') || {}; } catch (e) { return {}; } };
+const rasCacheWrite = (c) => { try { localStorage.setItem(RAS_CACHE_KEY, JSON.stringify(c)); } catch (e) {} };
+const rasHash = (str) => { let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
 // заголовок пустого экрана под раздел, из которого открыли помощника
 const RAS_INTRO = {
   today: ['Спросите про сегодняшний день', 'Сколько заработали, что дальше по сменам и как добрать цель'],
@@ -249,21 +257,51 @@ class Component extends DCLogic {
     const d = await res.json();
     this._conv = d.conversationId || null;
     this._seq = d.seq || 0;
-    this._set({ items: (d.items || []).map((x) => this._normItem(x)).filter(Boolean), restored: true });
+    const items = (d.items || []).map((x) => this._normItem(x)).filter(Boolean);
+    this._set({ items, restored: true });
+    this._saveConv(items, false);
+  }
+  // копия разговора: пишем после восстановления и после каждого хода, dirty значит в следующий раз перечитать с сервера
+  _saveConv(items, dirty) {
+    const c = rasCacheRead();
+    const sid = this._headers()['x-raznos-session'];
+    if (c.sid !== sid) { c.prompts = {}; }
+    Object.assign(c, { sid, conv: this._conv, seq: this._seq, items: (items || []).slice(-60), at: Date.now(), dirty: !!dirty });
+    rasCacheWrite(c);
+  }
+  _clearConv() {
+    const c = rasCacheRead();
+    delete c.items; delete c.conv; delete c.seq; c.dirty = false;
+    rasCacheWrite(c);
   }
   async _loadPrompts() {
     const p = this._p();
     if (typeof p.getSnapshot !== 'function') return;
+    const snapshot = p.getSnapshot();
+    const context = p.getContext();
+    const key = (context.screen || '') + ':' + rasHash(JSON.stringify(snapshot) + JSON.stringify(Object.assign({}, context, { nowMin: Math.floor((context.nowMin || 0) / 15) })));
+    const c = rasCacheRead();
+    const hit = c.prompts && c.prompts[key];
+    if (hit && Date.now() - hit.at < 15 * 60 * 1000) { this._set({ prompts: hit.list }); return; }
     try {
-      const res = await fetch(this._url('/v1/prompts'), { method: 'POST', headers: this._headers(), body: JSON.stringify({ snapshot: p.getSnapshot(), context: p.getContext() }) });
+      const res = await fetch(this._url('/v1/prompts'), { method: 'POST', headers: this._headers(), body: JSON.stringify({ snapshot, context }) });
       if (!res.ok) return;
       const d = await res.json();
       this._set({ prompts: d.prompts || [] });
+      const c2 = rasCacheRead();
+      const all = Object.assign({}, c2.prompts || {}, { [key]: { list: d.prompts || [], at: Date.now() } });
+      // храним последние 10 наборов
+      c2.prompts = Object.fromEntries(Object.entries(all).sort((a, b) => b[1].at - a[1].at).slice(0, 10));
+      rasCacheWrite(c2);
     } catch (e) {}
   }
   async _init() {
     const p = this._p();
-    try { await this._restore(); } catch (e) { this._set({ restored: true, error: { text: 'Не получилось связаться с помощником. Проверьте интернет и повторите', retry: 'init' } }); return; }
+    const c = rasCacheRead();
+    const sid = this._headers()['x-raznos-session'];
+    const fresh = c.sid === sid && !c.dirty && Array.isArray(c.items) && Date.now() - (c.at || 0) < RAS_CONV_TTL;
+    if (fresh) { this._conv = c.conv || null; this._seq = c.seq || 0; this._set({ items: c.items, restored: true }); }
+    else try { await this._restore(); } catch (e) { this._set({ restored: true, error: { text: 'Не получилось связаться с помощником. Проверьте интернет и повторите', retry: 'init' } }); return; }
     this._loadPrompts();
     if (p.initialPrompt) { if (typeof p.onPromptSent === 'function') p.onPromptSent(); this._send({ text: p.initialPrompt }); }
     else if (p.autoSend) { if (typeof p.onAutoSent === 'function') p.onAutoSent(); this._send({}); }
@@ -313,6 +351,7 @@ class Component extends DCLogic {
     }
     this._busy = false;
     this._set({ busy: false, status: '' });
+    setTimeout(() => this._saveConv((this.state || {}).items, !ok), 0);
     if (ok) this._loadPrompts();
     if (this._wantAuto) { this._wantAuto = false; this._send({}); }
   }
@@ -407,6 +446,7 @@ class Component extends DCLogic {
     clearTimeout(this._undoTimer);
     this._undo = null;
     this._set({ undoShown: false });
+    this._clearConv();
     const p = this._p();
     try { await fetch(this._url('/v1/session/reset'), { method: 'POST', headers: this._headers() }); } catch (e) {}
     if (typeof p.onReset === 'function') p.onReset();
@@ -418,6 +458,7 @@ class Component extends DCLogic {
     this._undo = null;
     this._conv = u.conv; this._seq = u.seq;
     this._set({ items: u.items, undoShown: false });
+    this._saveConv(u.items, false);
   }
   _outcome(id) {
     const p = this._p();
