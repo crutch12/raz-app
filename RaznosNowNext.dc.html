@@ -40,9 +40,10 @@
     </button>
   </sc-for>
   <sc-if value="{{ warning }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ warning_cls }}" onClick="{{ on_warning }}"><span>{{ warning }}</span><span class="rnn-warning-act">Что делать ›</span></button></sc-if>
+  <sc-if value="{{ has_rebook }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosRebookLine" variant="chip" altSvc="{{ rb.altSvc }}" altTitle="{{ rb.altTitle }}" altTime="{{ rb.altTime }}" altSum="{{ rb.altSum }}" mineSvc="{{ rb.mineSvc }}" mineTitle="{{ rb.mineTitle }}" mineTime="{{ rb.mineTime }}" mineSum="{{ rb.mineSum }}" penalty="{{ rb.penalty }}" freeUntil="{{ rb.freeUntil }}" requested="{{ rb.requested }}" onOpen="{{ on_rebook }}"></dc-import></sc-if>
   <button type="button" class="rnn-open" onClick="{{ open_plan }}">План дня<span class="raznos-row-chevron">›</span></button>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"text","default":"on"},"dayLine":{"editor":"text","default":"09:00–20:00 · осталось 4 ч 20 мин"},"rows":{"editor":null},"onWarning":{"editor":null},"quiet":{"editor":"boolean","default":false},"warning":{"editor":"text","default":"Не успеете доехать: смены встык, дорога ≈ 20 мин"},"onEnd":{"editor":null},"onStart":{"editor":null},"onOpenPlan":{"editor":null},"onOpenShift":{"editor":null},"$preview":{"width":390,"height":260}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"text","default":"on"},"dayLine":{"editor":"text","default":"09:00–20:00 · осталось 4 ч 20 мин"},"rows":{"editor":null},"onWarning":{"editor":null},"rebook":{"editor":null},"onRebook":{"editor":null},"quiet":{"editor":"boolean","default":false},"warning":{"editor":"text","default":"Не успеете доехать: смены встык, дорога ≈ 20 мин"},"onEnd":{"editor":null},"onStart":{"editor":null},"onOpenPlan":{"editor":null},"onOpenShift":{"editor":null},"$preview":{"width":390,"height":260}}'>
 // Сейчас и дальше в Сегодня: бронь из Смен важнее плана, план подставляется только в свободные часы
 class Component extends DCLogic {
   renderVals() {
@@ -77,7 +78,9 @@ class Component extends DCLogic {
       on_end: typeof p.onEnd === 'function' ? p.onEnd : noop,
       on_warning: typeof p.onWarning === 'function' ? p.onWarning : openPlan,
       on_start: typeof p.onStart === 'function' ? p.onStart : noop,
-      open_plan: openPlan
+      open_plan: openPlan,
+      // есть слот выгоднее ближайшей брони: спокойная плашка под строками и предупреждением, чек в шторке
+      has_rebook: !!p.rebook, rb: p.rebook || {}, on_rebook: typeof p.onRebook === 'function' ? p.onRebook : noop
     };
   }
 }

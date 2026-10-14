@@ -45,7 +45,7 @@
     <sc-if value="{{ has_when_note }}" hint-placeholder-val="{{ true }}"><p class="rsh-note">{{ when_note }}</p></sc-if>
     <div class="rsh-money"><b>{{ money }}</b><span>{{ money_note }}</span></div>
     <sc-if value="{{ has_conflict }}" hint-placeholder-val="{{ false }}"><p class="rsh-note rsh-note-danger">{{ conflict }}</p></sc-if>
-    <sc-if value="{{ has_rebook }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosRebookLine" drop="{{ rebook.drop }}" gain="{{ rebook.gain }}" penalty="{{ rebook.penalty }}" freeUntil="{{ rebook.freeUntil }}" other="{{ rebook.other }}" requested="{{ rebook.requested }}" slot="{{ rebook.slot }}"></dc-import></sc-if>
+    <sc-if value="{{ has_rebook }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosRebookLine" variant="full" altSvc="{{ rebook.altSvc }}" altTitle="{{ rebook.altTitle }}" altTime="{{ rebook.altTime }}" altSum="{{ rebook.altSum }}" mineSvc="{{ rebook.mineSvc }}" mineTitle="{{ rebook.mineTitle }}" mineTime="{{ rebook.mineTime }}" mineSum="{{ rebook.mineSum }}" penalty="{{ rebook.penalty }}" freeUntil="{{ rebook.freeUntil }}" requested="{{ rebook.requested }}" other="{{ rebook.other }}" onTake="{{ rebook.onTake }}" onKeep="{{ rebook.onKeep }}"></dc-import></sc-if>
     <sc-if value="{{ has_fallback }}" hint-placeholder-val="{{ false }}"><p class="rsh-note">{{ fallback }}</p></sc-if>
     <sc-if value="{{ has_rule }}" hint-placeholder-val="{{ true }}"><p class="{{ rule_cls }}">{{ rule }}<sc-if value="{{ has_rule_src }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosFactSource" src="{{ rule_src }}"></dc-import></sc-if></p></sc-if>
     <sc-if value="{{ has_action }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ act }}">{{ action }}</button></sc-if>
@@ -76,7 +76,7 @@ class Component extends DCLogic {
       svc_line: v('svcLine', ''), has_svc_line: !!v('svcLine', ''), fallback: v('fallback', ''), has_fallback: !!v('fallback', ''),
       money: v('money', '≈ 3 160 ₽ за смену'), money_note: v('moneyNote', ''),
       conflict, has_conflict: !!conflict,
-      // цена перебронирования, если слот пересекается с вашей сменой
+      // цена перебронирования чеком, если есть слот выгоднее или слот пересекается с вашей сменой
       rebook: p.rebook || {}, has_rebook: !!p.rebook,
       rule, has_rule: !!rule, rule_src: v('ruleSrc', ''), has_rule_src: !!v('ruleSrc', ''), rule_cls: 'rsh-note' + (v('ruleTone', 'warn') === 'warn' ? ' rsh-note-warn' : ''),
       action, has_action: !!action, act: fn(p.onAction), action_note: actionNote, has_action_note: !!action && !!actionNote,

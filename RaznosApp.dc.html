@@ -299,7 +299,7 @@
                 </div>
               </sc-if>
               <sc-if value="{{ home_shift_group }}" hint-placeholder-val="{{ true }}"><h2 class="raznos-home-group">Смена</h2></sc-if>
-              <sc-if value="{{ home_now_visible }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosNowNext" state="{{ home_now_state }}" dayLine="{{ home_now_day }}" rows="{{ home_now_rows }}" warning="{{ home_now_warning }}" quiet="{{ true }}" onEnd="{{ end_home_shift }}" onStart="{{ start_home_shift }}" onOpenPlan="{{ go_smart }}" onOpenShift="{{ home_open_shift }}" onWarning="{{ home_open_warning }}"></dc-import></sc-if>
+              <sc-if value="{{ home_now_visible }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosNowNext" state="{{ home_now_state }}" dayLine="{{ home_now_day }}" rows="{{ home_now_rows }}" warning="{{ home_now_warning }}" quiet="{{ true }}" onEnd="{{ end_home_shift }}" onStart="{{ start_home_shift }}" onOpenPlan="{{ go_smart }}" onOpenShift="{{ home_open_shift }}" onWarning="{{ home_open_warning }}" rebook="{{ home_rebook }}" onRebook="{{ home_rebook_open }}"></dc-import></sc-if>
               <!-- шторка Важное сейчас: все пункты слота в полном виде -->
               <sc-if value="{{ ta_sheet }}" hint-placeholder-val="{{ false }}">
                 <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Важное сейчас">
@@ -329,6 +329,7 @@
                   </div>
                 </div>
               </sc-if>
+              <sc-if value="{{ home_rebook_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosRebookLine" variant="sheet" altSvc="{{ home_rebook.altSvc }}" altTitle="{{ home_rebook.altTitle }}" altTime="{{ home_rebook.altTime }}" altSum="{{ home_rebook.altSum }}" mineSvc="{{ home_rebook.mineSvc }}" mineTitle="{{ home_rebook.mineTitle }}" mineTime="{{ home_rebook.mineTime }}" mineSum="{{ home_rebook.mineSum }}" penalty="{{ home_rebook.penalty }}" freeUntil="{{ home_rebook.freeUntil }}" requested="{{ home_rebook.requested }}" other="{{ home_rebook.other }}" onTake="{{ home_rebook_take }}" onKeep="{{ home_rebook_keep }}" onClose="{{ home_rebook_close }}"></dc-import></sc-if>
               <sc-if value="{{ home_fix_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosConflictSheet" aSvc="{{ home_fix.aSvc }}" aTitle="{{ home_fix.aTitle }}" aTo="{{ home_fix.aTo }}" bSvc="{{ home_fix.bSvc }}" bTitle="{{ home_fix.bTitle }}" bFrom="{{ home_fix.bFrom }}" travel="{{ home_fix.travel }}" rate="{{ home_fix.rate }}" onLeave="{{ home_fix.leave }}" onLate="{{ home_fix.late }}" onClose="{{ home_fix_close }}"></dc-import></sc-if>
               <sc-if value="{{ home_end_ask }}" hint-placeholder-val="{{ false }}">
                 <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Завершить рабочий день">
@@ -341,13 +342,13 @@
                 </div>
               </sc-if>
               <sc-if value="{{ home_nudge_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosPlanNudge" icon="{{ home_nudge_icon }}" title="{{ home_nudge_title }}" onTitle="{{ home_nudge_title_tap }}" text="{{ home_nudge_text }}" meta="{{ home_nudge_meta }}" action="{{ home_nudge_action }}" dismiss="{{ home_nudge_dismiss }}" onAction="{{ home_nudge_accept }}" onDismiss="{{ home_nudge_close }}"></dc-import></sc-if>
-              <!-- после Смены: деньги одной карточкой: ждёт выплаты (янтарная при задержке) и итог прошлой недели по понедельникам, крестик прячет итог до следующей недели -->
+              <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" empty="{{ recent_empty }}" onEmpty="{{ go_zones }}" dayLabel="{{ recent_day_label }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onOpenTrip="{{ open_recent_trip }}"onAddExpense="{{ go_expense_form_from_home }}" onSaveTip="{{ save_recent_tip }}" onNote="{{ open_recent_note }}"></dc-import>
+
+              <!-- после Последних заказов: деньги одной карточкой: ждёт выплаты (янтарная при задержке) и итог прошлой недели по понедельникам, крестик прячет итог до следующей недели -->
               <div class="raznos-row-group raznos-today-money">
                 <sc-if value="{{ payouts_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosPayouts" mode="line" inGroup="{{ true }}" quietLate="{{ ta_payout_in_slot }}" items="{{ payouts_items }}" onOpen="{{ payouts_open }}"></dc-import></sc-if>
                 <sc-if value="{{ week_recap_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosWeekRecap" mode="row" inGroup="{{ true }}" recap="{{ week_recap }}" onOpen="{{ week_recap_detail_open }}" onDismiss="{{ ai_review_dismiss }}"></dc-import></sc-if>
               </div>
-              <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" empty="{{ recent_empty }}" onEmpty="{{ go_zones }}" dayLabel="{{ recent_day_label }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onOpenTrip="{{ open_recent_trip }}"onAddExpense="{{ go_expense_form_from_home }}" onSaveTip="{{ save_recent_tip }}" onNote="{{ open_recent_note }}"></dc-import>
-
               <h2 class="raznos-home-group">Вокруг</h2>
               <dc-import name="RaznosLiveToday" items="{{ live_today_items }}" cityTitle="{{ city_title }}" onAll="{{ live_go_feed_home }}" onWrite="{{ live_go_compose_home }}"></dc-import>
               <dc-import name="RaznosCourierMapCard" count="{{ cmap_count }}" locked="{{ cmap_locked }}" onOpen="{{ go_courier_map }}"></dc-import>
@@ -456,7 +457,7 @@
           </sc-if>
 
           <sc-if value="{{ is_work_filters }}"><dc-import name="RaznosWorkFilters" value="{{ work_filters }}" onChange="{{ save_work_filters }}" activeValue="{{ active_filter }}" onActiveChange="{{ set_active_filter }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
-          <sc-if value="{{ is_slots }}"><div class="raznos-phone-body" data-screen-label="Shifts"><dc-import name="RaznosShifts" caps="{{ shifts_caps }}" facts="{{ smart_fact }}" onTake="{{ shifts_take }}" onShowInPlan="{{ shifts_show_plan }}" shifts="{{ shifts_week }}" slots="{{ shifts_slots }}" rules="{{ shifts_rules }}" openings="{{ shifts_openings }}" deficits="{{ shifts_deficits }}" watches="{{ shifts_watches }}" today="{{ today_iso }}" nowMinutes="{{ 940 }}" initialTab="{{ slots_tab }}" initialWeek="{{ slots_week }}" initialDay="{{ slots_day }}" initialSvc="{{ slots_svc }}" initialPast="{{ slots_past }}" onBack="{{ slots_back }}" onOpenService="{{ slots_open_service }}"></dc-import></div></sc-if>
+          <sc-if value="{{ is_slots }}"><div class="raznos-phone-body" data-screen-label="Shifts"><dc-import name="RaznosShifts" caps="{{ shifts_caps }}" facts="{{ smart_fact }}" onTake="{{ shifts_take }}" rebookOff="{{ rebook_off }}" onRebookKeep="{{ rebook_keep }}" onShowInPlan="{{ shifts_show_plan }}" shifts="{{ shifts_week }}" slots="{{ shifts_slots }}" rules="{{ shifts_rules }}" openings="{{ shifts_openings }}" deficits="{{ shifts_deficits }}" watches="{{ shifts_watches }}" today="{{ today_iso }}" nowMinutes="{{ 940 }}" initialTab="{{ slots_tab }}" initialWeek="{{ slots_week }}" initialDay="{{ slots_day }}" initialSvc="{{ slots_svc }}" initialPast="{{ slots_past }}" onBack="{{ slots_back }}" onOpenService="{{ slots_open_service }}"></dc-import></div></sc-if>
           <sc-if value="{{ is_work_schedule }}"><dc-import name="RaznosWorkSchedule" onBack="{{ work_schedule_back }}" onSave="{{ save_work_graph }}" value="{{ work_graph }}"></dc-import></sc-if>
 
           <sc-if value="{{ is_work_hub }}">
@@ -470,7 +471,7 @@
                 </div>
             </div>
             </sc-if>
-            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" caps="{{ shifts_caps }}" quests="{{ smart_quests }}" weather="{{ smart_weather }}" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ plan_edit_graph }}" onAssistant="{{ ai_plan_tap }}" assistantAttention="{{ ai_attention }}" reopenSettings="{{ plan_reopen_settings }}" onReopened="{{ plan_reopened }}" dayFacts="{{ smart_day_facts }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" changeNote="{{ plan_change_note }}" changeIso="{{ plan_change_iso }}" changeKey="{{ plan_change_key }}" onChangeHide="{{ plan_change_hide }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onDay="{{ plan_day_seen }}" planState="{{ plan_state }}" onPlanState="{{ set_plan_state }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
+            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" caps="{{ shifts_caps }}" quests="{{ smart_quests }}" weather="{{ smart_weather }}" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" rebookOff="{{ rebook_off }}" onRebookKeep="{{ rebook_keep }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ plan_edit_graph }}" onAssistant="{{ ai_plan_tap }}" assistantAttention="{{ ai_attention }}" reopenSettings="{{ plan_reopen_settings }}" onReopened="{{ plan_reopened }}" dayFacts="{{ smart_day_facts }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" changeNote="{{ plan_change_note }}" changeIso="{{ plan_change_iso }}" changeKey="{{ plan_change_key }}" onChangeHide="{{ plan_change_hide }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onDay="{{ plan_day_seen }}" planState="{{ plan_state }}" onPlanState="{{ set_plan_state }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
           </sc-if>
 
           <sc-if value="{{ is_active_order }}">
@@ -6668,7 +6669,9 @@
             // Разнос сам не бронирует: Взять слот и Откликнуться ведут в приложение сервиса, итог курьер отмечает на экране перехода
             plan_open_service: (svc, when, iso) => set({ s: 'service-open-demo', openDemoSection: '', openDemoLabel: SHIFT_TITLES[svc] || (SERVICES[svc] ? SERVICES[svc].title : svc), openDemoFrom: s, openDemoShift: when || '', openDemoSlot: '', smartFocusIso: s === 'work-hub' && iso ? iso : st.smartFocusIso }),
             smart_focus_iso: st.smartFocusIso || '', smart_focus_key: st.smartFocusKey || '', smart_open_key: s === 'work-hub' ? (st.smartOpenKey || '') : '',
-            shifts_take: (sl, when) => set(Object.assign({ s: 'service-open-demo', openDemoSection: '', openDemoLabel: SHIFT_TITLES[sl.svc], openDemoFrom: s, openDemoShift: when || '', openDemoSlot: sl.id }, s === 'work-hub' ? { smartFocusIso: sl.iso } : { slotsTab: 'free', slotsDay: sl.iso, slotsWeek: null })), shifts_rules: SHIFT_RULES, shifts_caps: SERVICE_CAPS, shifts_openings: SHIFT_OPENINGS, shifts_deficits: SHIFT_DEFICITS,
+            shifts_take: (sl, when) => set(Object.assign({ s: 'service-open-demo', openDemoSection: '', openDemoLabel: SHIFT_TITLES[sl.svc], openDemoFrom: s, openDemoShift: when || '', openDemoSlot: sl.id }, s === 'work-hub' ? { smartFocusIso: sl.iso } : { slotsTab: 'free', slotsDay: sl.iso, slotsWeek: null })), shifts_rules: SHIFT_RULES, shifts_caps: SERVICE_CAPS,
+            // скрытые курьером предложения перебронирования, общие для Сегодня, Плана и Слотов
+            rebook_off: st.rebookOff || {}, rebook_keep: (pair, on) => set({ rebookOff: Object.assign({}, (this.state || {}).rebookOff || {}, { [pair]: on }) }), shifts_openings: SHIFT_OPENINGS, shifts_deficits: SHIFT_DEFICITS,
             shifts_watches: { f4: true },
             smart_add_window: st.smartAddWindow || null, smart_focus_added: !!st.smartFocusAdded,
             smart_build: st.smartBuild || 'auto',
@@ -6721,7 +6724,38 @@
               else if (current && current.to < dayEnd) rows.push(planRow('next', current.to));
               const gap = current && next ? next.from - current.to : null;
               const conflict = gap != null && current.svc !== next.svc && gap < 20;
+              // цена перебронирования для ближайшей брони: та же модель денег, что в Плане и Слотах, штраф из SHIFT_RULES
+              const rebook = (() => {
+                if (!next || next.status === 'cancelled') return null;
+                const DEM = [0.12, 0.09, 0.07, 0.06, 0.06, 0.1, 0.18, 0.32, 0.46, 0.56, 0.62, 0.72, 0.92, 0.86, 0.62, 0.52, 0.58, 0.78, 1.0, 0.96, 0.82, 0.62, 0.4, 0.22];
+                const SF = { samokat: [0.97, 1, 0.96, 1.06, 0.9], vkusvill: [1.04, 1.07, 1, 0.95, 0.85], 'yandex-eda': [0.95, 1.04, 1, 1.08, 1.02], x5: [1.02, 1.07, 1.12, 1, 0.88], dodo: [0.9, 1.02, 0.98, 1.05, 0.95] };
+                const band = (h) => (h < 11 ? 0 : (h < 15 ? 1 : (h < 18 ? 2 : (h < 22 ? 3 : 4))));
+                const rate = (svc, a, b) => { let sum = 0, n = 0; for (let h = Math.floor(a / 60); h < Math.ceil(b / 60); h++) { sum += (500 + DEM[h % 24] * 280) * (SF[svc] || [1, 1, 1, 1, 1])[band(h % 24)]; n++; } return Math.round((n ? sum / n : 0) / 10) * 10; };
+                const earn = (x) => Math.round(rate(x.svc, x.from, x.to) * (x.to - x.from) / 600) * 10;
+                const r = SHIFT_RULES[next.svc] || {}, pen = r.penalty || null, requested = next.status === 'requested';
+                const dl = new Date(next.iso + 'T00:00:00');
+                if (r.freeCancel === 'noonBefore') { dl.setDate(dl.getDate() - 1); dl.setHours(12); } else if (r.freeCancel === 'hours') dl.setMinutes(next.from - (r.hoursBefore || 24) * 60);
+                const cur = new Date(TODAY_ISO + 'T00:00:00'); cur.setMinutes(nowMin);
+                let penalty = null, freeUntil = '', other = '';
+                if (requested || r.freeCancel === 'none') { penalty = 0; other = requested ? '' : ((pen && pen.other) || ''); }
+                else if ((r.freeCancel === 'noonBefore' || r.freeCancel === 'hours') && dl > cur) { penalty = 0; freeUntil = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][dl.getDay()] + ' ' + fmt(dl.getHours() * 60 + dl.getMinutes()); }
+                else if (pen && !pen.unknown) { penalty = pen.perHour ? Math.round(pen.perHour * (next.to - next.from) / 600) * 10 : (pen.sum || 0); other = pen.other || ''; }
+                else other = (pen && pen.other) || '';
+                const busy = dayRows.filter((x) => x.id !== next.id);
+                const hits = (sl, x) => sl.from < x.to + (x.svc === sl.svc ? 0 : 20) && x.from < sl.to + (x.svc === sl.svc ? 0 : 20);
+                const off = st.rebookOff || {};
+                const best = SHIFT_SLOTS.filter((sl) => sl.iso === TODAY_ISO && !sl.gone && !(st.takenSlots || {})[sl.id] && sl.from > nowMin && hits(sl, next) && !busy.some((x) => hits(sl, x)) && !off[next.id + '>' + sl.id])
+                  .map((sl) => { const altSum = earn(sl), mineSum = earn(next); return { sl, altSum, mineSum, net: penalty == null ? null : altSum - mineSum - penalty }; })
+                  .filter((x) => x.net != null && x.net >= 100).sort((a, b) => b.net - a.net)[0];
+                if (!best) return null;
+                return { pair: next.id + '>' + best.sl.id, slot: best.sl, altSvc: best.sl.svc, altTitle: best.sl.title, altTime: fmt(best.sl.from) + '–' + fmt(best.sl.to), altSum: best.altSum,
+                  mineSvc: next.svc, mineTitle: next.title, mineTime: fmt(next.from) + '–' + fmt(next.to), mineSum: best.mineSum, penalty, freeUntil, requested, other };
+              })();
               return {
+                home_rebook: rebook, home_rebook_show: !!rebook && !!st.homeRebook,
+                home_rebook_open: () => set({ homeRebook: true }), home_rebook_close: () => set({ homeRebook: false }),
+                home_rebook_take: () => { if (!rebook) return; const sl = rebook.slot; set({ homeRebook: false, s: 'service-open-demo', openDemoSection: '', openDemoLabel: SHIFT_TITLES[sl.svc], openDemoFrom: 'courier-home', openDemoShift: fmt(sl.from) + '–' + fmt(sl.to), openDemoSlot: sl.id }); },
+                home_rebook_keep: () => { if (!rebook) return; const pair = rebook.pair; set({ homeRebook: false, rebookOff: Object.assign({}, st.rebookOff || {}, { [pair]: true }) }); uxShowToast('Оставили свою смену', 'Отменить', () => set({ rebookOff: Object.assign({}, st.rebookOff || {}, { [pair]: false }) })); },
                 home_now_rows: rows.filter(Boolean),
                 home_now_day: fmt(dayStart) + '–' + fmt(dayEnd) + (nowMin < dayEnd ? ' · осталось ' + left(dayEnd - nowMin) : ''),
                 // подсказка момента решения: конец последней брони, спрос вечером выше обычного
