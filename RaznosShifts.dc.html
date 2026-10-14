@@ -8,7 +8,7 @@
   </sc-if>
 
   <sc-if value="{{ show_tabs }}" hint-placeholder-val="{{ true }}"><div class="raznos-shifts-tabs" role="tablist" aria-label="Смены">
-    <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="3"><button type="button" role="tab" class="{{ tab.cls }}" aria-selected="{{ tab.selected }}" onClick="{{ tab.tap }}">{{ tab.label }}<sc-if value="{{ tab.count }}" hint-placeholder-val="{{ false }}"><b>{{ tab.count }}</b></sc-if></button></sc-for>
+    <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="3"><button type="button" role="tab" data-tab="{{ tab.key }}" class="{{ tab.cls }}" aria-selected="{{ tab.selected }}" onClick="{{ tab.tap }}">{{ tab.label }}<sc-if value="{{ tab.count }}" hint-placeholder-val="{{ false }}"><b>{{ tab.count }}</b></sc-if></button></sc-for>
   </div></sc-if>
   <sc-if value="{{ show_tabs }}" hint-placeholder-val="{{ true }}"><p class="raznos-shifts-tab-hint">{{ tab_hint }}</p></sc-if>
 
@@ -387,7 +387,7 @@ class Component extends DCLogic {
     const watchCount = Object.keys(watches).length;
     const freeOpen = okSlots.filter((sl) => !sl.gone && !sl.taken).length;
     const tabs = [['mine', hasFree ? 'Мои' : 'Смены', live.filter((s) => s.status !== 'missed' && RSH_UNCONF.indexOf(s.status) === -1).length]].concat(hasFree ? [['free', 'Можно взять', freeOpen]] : [], hasWatch ? [['watch', 'Слежу', watchCount]] : []).map(([key, label, count]) => ({
-      label, count: count || '', selected: tab === key, cls: 'raznos-shifts-tab' + (tab === key ? ' raznos-is-active' : ''),
+      key, label, count: count || '', selected: tab === key, cls: 'raznos-shifts-tab' + (tab === key ? ' raznos-is-active' : ''),
       tap: () => set({ tab: key })
     }));
     return {

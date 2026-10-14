@@ -1,0 +1,79 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .ram-row { display: flex; width: 100%; }
+    .ram-row.ram-user { justify-content: flex-end; }
+    .ram-bubble { box-sizing: border-box; max-width: 88%; display: flex; flex-direction: column; gap: 6px; padding: 10px 14px; border-radius: 16px 16px 16px 4px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); color: var(--raznos-ink); font: 500 15px/1.45 var(--raznos-font); overflow-wrap: anywhere; }
+    .ram-user .ram-bubble { border-radius: 16px 16px 4px 16px; border-color: transparent; background: var(--raznos-dark); color: var(--raznos-on-dark); }
+    .ram-p { margin: 0; }
+    .ram-p b { font-weight: 700; }
+    .ram-bullet { display: flex; gap: 8px; margin: 0; }
+    .ram-bullet > i { flex: none; width: 5px; height: 5px; margin-top: 9px; border-radius: 50%; background: var(--raznos-ink-3); font-style: normal; }
+    .ram-user .ram-bullet > i { background: var(--raznos-on-dark); }
+    .ram-caret { display: inline-block; width: 9px; height: 9px; margin-left: 2px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, oklch(0.7 0.14 140), oklch(0.56 0.13 150)); vertical-align: middle; }
+    @media (prefers-reduced-motion: no-preference) {
+      .ram-caret { animation: ram-pulse 1.1s ease-in-out infinite; }
+      @keyframes ram-pulse { 50% { transform: scale(0.6); opacity: 0.55; } }
+    }
+  </style>
+</helmet>
+<div class="{{ row_cls }}">
+  <div class="ram-bubble">
+    <sc-for list="{{ paras }}" as="pr" hint-placeholder-count="2">
+      <sc-if value="{{ pr.bullet }}" hint-placeholder-val="{{ false }}"><p class="ram-bullet"><i aria-hidden="true"></i><span><sc-for list="{{ pr.runs }}" as="rn"><sc-if value="{{ rn.b }}"><b>{{ rn.t }}</b></sc-if><sc-if value="{{ rn.plain }}">{{ rn.t }}</sc-if></sc-for></span></p></sc-if>
+      <sc-if value="{{ pr.para }}" hint-placeholder-val="{{ true }}"><p class="ram-p"><sc-for list="{{ pr.runs }}" as="rn"><sc-if value="{{ rn.b }}"><b>{{ rn.t }}</b></sc-if><sc-if value="{{ rn.plain }}">{{ rn.t }}</sc-if></sc-for></p></sc-if>
+    </sc-for>
+    <sc-if value="{{ streaming }}" hint-placeholder-val="{{ false }}"><span class="ram-caret" aria-hidden="true"></span></sc-if>
+  </div>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"role":{"editor":"enum","default":"assistant","options":["assistant","user"]},"text":{"editor":"text","default":"Сегодня вы заработали **4 200 ₽**, до цели дня осталось 1 100 ₽"},"streaming":{"editor":"boolean","default":false},"$preview":{"width":366,"height":120}}'>
+// сообщение в чате с помощником: текст модели с редкой разметкой (жирный, списки), без остального markdown
+function ramRuns(line) {
+  const out = [];
+  String(line).split(/(\*\*[^*]+\*\*)/g).forEach((part) => {
+    if (!part) return;
+    if (part.length > 4 && part.slice(0, 2) === '**' && part.slice(-2) === '**') out.push({ t: part.slice(2, -2), b: true, plain: false });
+    else out.push({ t: part.replace(/\*+/g, '').replace(/`/g, ''), b: false, plain: true });
+  });
+  return out;
+}
+const RAM_CALM = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+class Component extends DCLogic {
+  componentDidMount() { this._tick(); }
+  componentDidUpdate() { this._tick(); }
+  componentWillUnmount() { this._dead = true; if (this._raf) cancelAnimationFrame(this._raf); }
+  // куски из потока приходят рывками, на экране текст догоняет их ровно, быстрее когда отстал
+  _tick() {
+    if (this._raf || this._dead || typeof requestAnimationFrame === 'undefined') return;
+    const len = String((this.props || {}).text || '').length;
+    if (this._shown >= len) return;
+    this._raf = requestAnimationFrame(() => {
+      this._raf = 0;
+      if (this._dead) return;
+      const full = String((this.props || {}).text || '').length;
+      this._shown = Math.min(full, this._shown + Math.max(2, Math.ceil((full - this._shown) / 14)));
+      this.setState({ shown: this._shown });
+    });
+  }
+  renderVals() {
+    const p = this.props || {};
+    const user = p.role === 'user';
+    const all = String(p.text == null ? '' : p.text).replace(/\r/g, '');
+    // история и свои сообщения сразу целиком, печатается только то, что приходит сейчас
+    if (this._shown == null) this._shown = p.streaming && !user && !RAM_CALM ? 0 : all.length;
+    if (!p.streaming && RAM_CALM) this._shown = all.length;
+    const raw = all.slice(0, this._shown);
+    const paras = [];
+    raw.split('\n').forEach((line) => {
+      const t = line.trim();
+      if (!t) return;
+      const b = t.match(/^[-•]\s+(.*)$/) || t.match(/^\d+[.)]\s+(.*)$/);
+      const h = t.replace(/^#+\s*/, '');
+      if (b) paras.push({ bullet: true, para: false, runs: ramRuns(b[1]) });
+      else paras.push({ bullet: false, para: true, runs: ramRuns(h) });
+    });
+    return { row_cls: 'ram-row' + (user ? ' ram-user' : ''), paras, streaming: !!p.streaming || this._shown < all.length };
+  }
+}
+</script></body></html>

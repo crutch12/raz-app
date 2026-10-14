@@ -58,6 +58,19 @@
           </div>
         </sc-if>
         <sc-if value="{{ via_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosViaSheet" via="{{ via_data }}" onClose="{{ via_close }}"></dc-import></sc-if>
+        <sc-if value="{{ ai_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosAssistantSheet" endpoint="{{ ai_endpoint }}" getSession="{{ ai_get_session }}" getSnapshot="{{ ai_snapshot }}" getContext="{{ ai_context }}" cardProps="{{ ai_card_props }}" previewAction="{{ ai_preview }}" runAction="{{ ai_run_action }}" outcomes="{{ ai_outcomes }}" setOutcome="{{ ai_set_outcome }}" pushEvent="{{ ai_push_event }}" takeEvents="{{ ai_take_events }}" restoreEvents="{{ ai_restore_events }}" off="{{ ai_off }}" onPromptScreen="{{ ai_prompt_screen }}" autoSend="{{ ai_auto_send }}" onAutoSent="{{ ai_auto_sent }}" initialPrompt="{{ ai_prompt }}" onPromptSent="{{ ai_prompt_sent }}" onReset="{{ ai_on_reset }}" onClose="{{ ai_close }}"></dc-import></sc-if>
+        <sc-if value="{{ ai_consent_ask }}" hint-placeholder-val="{{ false }}">
+          <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Помощник и ваши данные">
+            <div class="raznos-dialog">
+              <span class="raznos-text-h3">Помощник и ваши данные</span>
+              <div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Что уходит помощнику</span><span class="raznos-text-small">Для ответа он видит ваши заработок, смены, расходы и цель. Данные обрабатывает ИИ-сервис за пределами России. Менять что-то помощник может только после вашего согласия</span></div>
+              <div class="raznos-btn-row">
+                <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ ai_consent_yes }}">Согласен</button>
+                <button data-cancel type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ ai_consent_no }}">Не сейчас</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
         <sc-if value="{{ ux_toast_visible }}" hint-placeholder-val="{{ false }}">
           <div style="position:absolute;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom, 0px));z-index:80"><dc-import name="RaznosUndoToast" toastId="{{ ux_toast_id }}" text="{{ ux_toast_text }}" actionLabel="{{ ux_toast_label }}" onAction="{{ ux_toast_action }}" onClose="{{ ux_toast_close }}"></dc-import></div>
         </sc-if>
@@ -65,7 +78,7 @@
         <sc-if value="{{ stip_show }}" hint-placeholder-val="{{ false }}"><div class="raznos-tour-layer" data-tour-step="{{ stip_step }}" data-tip-sel="{{ stip_sel }}" data-tip-all="{{ stip_all }}"><div class="raznos-tour-tip"><dc-import name="RaznosTourTip" step="{{ stip_num }}" total="{{ stip_total }}" title="{{ stip_title }}" text="{{ stip_text }}" below="{{ false }}" onPrev="{{ stip_prev }}" onNext="{{ stip_next }}" onSkip="{{ stip_skip }}"></dc-import></div></div></sc-if>
         <sc-if value="{{ tour_show }}" hint-placeholder-val="{{ false }}"><div class="raznos-tour-layer" data-tour-step="{{ tour_step }}"><div class="raznos-tour-tip"><dc-import name="RaznosTourTip" step="{{ tour_num }}" total="{{ tour_total }}" title="{{ tour_title }}" text="{{ tour_text }}" below="{{ tour_below }}" onPrev="{{ tour_prev }}" onNext="{{ tour_next }}" onSkip="{{ tour_skip }}"></dc-import></div></div></sc-if>
         <!-- потянуть вниз от верха главного экрана вкладки: обновить данные сервисов -->
-        <div class="raznos-ptr" aria-hidden="true"><span class="raznos-ptr-mark">Р</span></div>
+        <div class="raznos-ptr" aria-hidden="true"><svg class="raznos-ptr-ring" viewBox="0 0 24 24"><circle class="raznos-ptr-track" cx="12" cy="12" r="9.5"/><circle class="raznos-ptr-arc" cx="12" cy="12" r="9.5" pathLength="100"/></svg></div>
         <div class="raznos-phone-scroll">
 
           <sc-if value="{{ is_welcome }}" hint-placeholder-val="{{ true }}">
@@ -153,7 +166,7 @@
 
           <sc-if value="{{ is_courier_empty }}">
             <div class="raznos-phone-body" data-screen-label="5 Courier empty">
-              <div class="raznos-app-bar" style="justify-content:space-between;gap:10px"><h1 class="raznos-text-h1" style="margin:0">Сегодня</h1><span class="raznos-text-small" style="text-align:right">{{ city_title }} · {{ transport_title }}</span></div>
+              <div class="raznos-app-bar" style="justify-content:space-between;gap:10px"><h1 class="raznos-text-h1" style="margin:0">Сегодня</h1><span class="raznos-text-small" style="text-align:right">{{ transport_title }}</span></div>
               <sc-if value="{{ relogin_visible }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Сервисы нужно подключить заново</span><span class="raznos-text-small">{{ relogin_note }}</span><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" style="align-self:flex-start" onClick="{{ go_integrations }}">Открыть сервисы</button></div></sc-if>
               <div class="raznos-card raznos-card-pad raznos-fx raznos-col raznos-gap12">
                 <span class="raznos-text-h3">Готовность к работе</span>
@@ -180,7 +193,7 @@
 
           <sc-if value="{{ is_courier_home }}">
             <div class="raznos-phone-body" data-screen-label="6 Courier home">
-              <div class="raznos-app-bar" style="justify-content:space-between;gap:10px"><h1 class="raznos-text-h1" style="margin:0">Сегодня</h1><span class="raznos-text-small" style="text-align:right">{{ city_title }} · {{ transport_title }} · {{ today_short_num }}</span></div>
+              <div class="raznos-app-bar" style="justify-content:space-between;gap:10px"><span style="display:flex;flex-direction:column;gap:1px;min-width:0"><h1 class="raznos-text-h1" style="margin:0">Сегодня</h1><span style="white-space:nowrap;font:500 12.5px var(--raznos-font);color:var(--raznos-ink-3)">{{ transport_title }} · {{ today_short_num }}</span></span><sc-if value="{{ ai_on }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAssistantButton" label="Спросить" attention="{{ ai_attention }}" onClick="{{ ai_open_tap }}"></dc-import></sc-if></div>
               <dc-import name="RaznosConnHealth" items="{{ conn_health_items }}" okNote="{{ conn_health_ok_note }}" netOffline="{{ net_offline }}" onAction="{{ conn_health_action }}"></dc-import>
               <sc-if value="{{ relogin_visible }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Сервисы нужно подключить заново</span><span class="raznos-text-small">{{ relogin_note }}</span><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" style="align-self:flex-start" onClick="{{ go_integrations }}">Открыть сервисы</button></div></sc-if>
 
@@ -257,6 +270,7 @@
               <sc-if value="{{ qt_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosQuickTip" orders="{{ qt_orders }}" defaultId="{{ qt_default }}" onAdd="{{ qt_add }}" onClose="{{ qt_close }}"></dc-import></sc-if>
               <sc-if value="{{ qe_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosQuickExpense" cats="{{ qe_cats }}" defaultCat="{{ qe_cat }}" recent="{{ qe_recent }}" today="{{ today_iso }}" minDay="{{ ef_day_min }}" onAdd="{{ qe_add }}" onClose="{{ qe_close }}"></dc-import></sc-if>
               </sc-if>
+              <sc-if value="{{ ai_review_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosWeekReview" range="{{ ai_review.range }}" earn="{{ ai_review.earn }}" hours="{{ ai_review.hours }}" hourly="{{ ai_review.hourly }}" goalLine="{{ ai_review.goalLine }}" fix="{{ ai_review.fix }}" onOpen="{{ ai_review_open }}" onDismiss="{{ ai_review_dismiss }}"></dc-import></sc-if>
               <sc-if value="{{ home_shift_group }}" hint-placeholder-val="{{ true }}"><h2 class="raznos-home-group">Смена</h2></sc-if>
               <sc-if value="{{ home_now_visible }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosNowNext" state="{{ home_now_state }}" dayLine="{{ home_now_day }}" rows="{{ home_now_rows }}" warning="{{ home_now_warning }}" onEnd="{{ end_home_shift }}" onStart="{{ start_home_shift }}" onOpenPlan="{{ go_smart }}" onOpenShift="{{ home_open_shift }}" onWarning="{{ home_open_warning }}"></dc-import></sc-if>
               <sc-if value="{{ home_fix_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosConflictSheet" aSvc="{{ home_fix.aSvc }}" aTitle="{{ home_fix.aTitle }}" aTo="{{ home_fix.aTo }}" bSvc="{{ home_fix.bSvc }}" bTitle="{{ home_fix.bTitle }}" bFrom="{{ home_fix.bFrom }}" travel="{{ home_fix.travel }}" rate="{{ home_fix.rate }}" onLeave="{{ home_fix.leave }}" onLate="{{ home_fix.late }}" onClose="{{ home_fix_close }}"></dc-import></sc-if>
@@ -350,7 +364,7 @@
                 </sc-if>
               </sc-if>
               <sc-if value="{{ stats_detail_closed }}" hint-placeholder-val="{{ true }}">
-                <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Результаты</h1></div>
+                <div class="raznos-app-bar" style="justify-content:space-between;gap:10px"><h1 class="raznos-text-h1" style="margin:0">Результаты</h1><sc-if value="{{ ai_on }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAssistantButton" label="Спросить" attention="{{ ai_attention }}" onClick="{{ ai_open_tap }}"></dc-import></sc-if></div>
                 <div class="raznos-stats-sticky"><dc-import name="RaznosStatsRange" chips="{{ stats_period_chips }}" title="{{ stats_range_human }}" hint="{{ stats_range_hint }}" stepVisible="{{ stats_step_visible }}" backDisabled="{{ stats_step_back_disabled }}" nextDisabled="{{ stats_step_next_disabled }}" onBack="{{ stats_step_back }}" onNext="{{ stats_step_next }}" filterLabel="{{ stats_filter_names }}" retLabel="{{ stats_ret_label }}" onRet="{{ stats_ret_back }}" onFilters="{{ stats_detail_go_filters }}" onReset="{{ stats_filters_reset }}"></dc-import></div>
                 <sc-if value="{{ stats_period_is_custom }}"><div class="raznos-stats-section"><div class="raznos-stats-fields raznos-stats-fields-row"><label class="raznos-stats-field">С даты<input type="date" max="{{ stats_max_day }}" value="{{ stats_from_day }}" onChange="{{ stats_from_day_change }}" /></label><label class="raznos-stats-field">По дату<input type="date" max="{{ stats_max_day }}" value="{{ stats_to_day }}" onChange="{{ stats_to_day_change }}" /></label></div><p class="raznos-text-tiny">{{ stats_custom_note }}</p></div></sc-if>
                 <sc-if value="{{ stats_has_data }}" hint-placeholder-val="{{ true }}">
@@ -392,7 +406,7 @@
                 </div>
             </div>
             </sc-if>
-            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" caps="{{ shifts_caps }}" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ plan_edit_graph }}" reopenSettings="{{ plan_reopen_settings }}" onReopened="{{ plan_reopened }}" dayFacts="{{ smart_day_facts }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" changeNote="{{ plan_change_note }}" changeIso="{{ plan_change_iso }}" changeKey="{{ plan_change_key }}" onChangeHide="{{ plan_change_hide }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onDay="{{ plan_day_seen }}" planState="{{ plan_state }}" onPlanState="{{ set_plan_state }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
+            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" caps="{{ shifts_caps }}" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ plan_edit_graph }}" onAssistant="{{ ai_plan_tap }}" assistantAttention="{{ ai_attention }}" reopenSettings="{{ plan_reopen_settings }}" onReopened="{{ plan_reopened }}" dayFacts="{{ smart_day_facts }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" changeNote="{{ plan_change_note }}" changeIso="{{ plan_change_iso }}" changeKey="{{ plan_change_key }}" onChangeHide="{{ plan_change_hide }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onDay="{{ plan_day_seen }}" planState="{{ plan_state }}" onPlanState="{{ set_plan_state }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
           </sc-if>
 
           <sc-if value="{{ is_active_order }}">
@@ -742,7 +756,7 @@
           <sc-if value="{{ is_market_map }}"><dc-import name="RaznosPublicAreas" city="{{ mk_city_key }}" cityTitle="{{ mk_city_label }}" onBack="{{ market_back }}"></dc-import></sc-if>
           <sc-if value="{{ is_market }}">
             <div class="raznos-phone-body" data-screen-label="22 Market">
-              <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Рынок сервисов</h1></div>
+              <div class="raznos-app-bar" style="justify-content:space-between;gap:10px"><h1 class="raznos-text-h1" style="margin:0">Рынок сервисов</h1><sc-if value="{{ ai_on }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAssistantButton" label="Спросить" attention="{{ ai_attention }}" onClick="{{ ai_open_tap }}"></dc-import></sc-if></div>
               <button type="button" class="raznos-card" style="padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;cursor:pointer" onClick="{{ go_job_guide }}"><span class="raznos-fx raznos-col raznos-gap4"><span style="font:700 16px var(--raznos-font);color:var(--raznos-ink)">Подобрать работу</span><span class="raznos-text-small">Что получают новички и сколько стоит старт</span></span><span style="flex:none;line-height:0"><svg width="58" height="48" viewBox="0 0 58 48" fill="none"><rect x="27" y="5" width="4" height="39" rx="2" fill="var(--raznos-ink-3)"/><path d="M6 11 H37 l7 6 -7 6 H6 z" fill="var(--raznos-green)"/><path d="M52 25 H21 l-7 5 7 5 H52 z" fill="var(--raznos-ink-2)"/></svg></span><span class="raznos-row-chevron">›</span></button>
               <dc-import name="RaznosBestTimes" open="{{ go_best_times }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
               <dc-import name="RaznosHotspots" open="{{ go_best_places }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
@@ -1260,6 +1274,13 @@
               <dc-import name="RaznosAppSettings" theme="{{ app_theme }}" systemIsDark="{{ app_system_dark }}" notificationsSummary="{{ notif_summary }}" onTheme="{{ set_app_theme }}" onNotifications="{{ go_notifications }}"></dc-import>
               <dc-import name="RaznosCitySelect" value="{{ city }}" onChange="{{ set_city }}" label="Город"></dc-import>
               <dc-import name="RaznosLanguagePicker" value="{{ language }}" onChange="{{ change_language }}"></dc-import>
+              <div class="raznos-card raznos-card-pad">
+                <button type="button" class="raznos-consent-row" role="checkbox" aria-checked="{{ ai_on }}" onClick="{{ ai_toggle }}"><span class="{{ ai_box }}">{{ ai_mark }}</span><span class="raznos-fx raznos-col raznos-gap4"><span class="raznos-text-body">Помощник</span><span class="raznos-text-small">Кнопка Спросить в разделах и разбор недели по понедельникам</span></span></button>
+              </div>
+              <sc-if value="{{ ai_consent_off_row }}" hint-placeholder-val="{{ false }}"><div class="raznos-card"><button type="button" class="raznos-list-row" onClick="{{ ai_consent_grant }}" style="border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">Помощник: разрешить</span><span class="raznos-text-small">Передавать данные ИИ-сервису для ответов</span></div><span class="raznos-row-chevron">›</span></button></div></sc-if>
+              <sc-if value="{{ ai_on }}" hint-placeholder-val="{{ true }}"><div class="raznos-card">
+                <button type="button" class="raznos-list-row" onClick="{{ ai_restart }}" style="border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">Помощник: начать заново</span><span class="raznos-text-small">Очистит переписку с помощником</span></div><span class="raznos-row-chevron">›</span></button>
+              </div></sc-if>
               <div class="raznos-card raznos-card-pad">
                 <button type="button" class="raznos-consent-row" role="checkbox" aria-checked="{{ tips_on }}" onClick="{{ toggle_tips_settings }}"><span class="{{ tips_box }}">{{ tips_mark }}</span><span class="raznos-fx raznos-col raznos-gap4"><span class="raznos-text-body">Показывать подсказки</span><span class="raznos-text-small">Короткий тур по разделам, включите, чтобы пройти его снова</span></span></button>
               </div>
@@ -1979,6 +2000,7 @@
       const ADMIN_PASSWORD = 'raznos2026';
       // демо-сегодня это реальная дата устройства, время дня держим 15:40, иначе ночью ломаются идущая смена, план и предложения
       // демо-данные хранят сдвиг в днях от сегодня, даты и тексты собираются из него
+      // @ai-data-begin
       const DEMO_NOW_MIN = 15 * 60 + 40;
       const DEMO_TODAY = (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); })();
       const RU_MONTHS_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
@@ -3282,8 +3304,10 @@
           partial: bad.length > 0
         };
       }
+      // @ai-data-end
       // те же ₽/ч, что в сравнении сервисов Рынка (RaznosServiceRank) и в гайде, медиана за последние 4 недели до вчера
       // заказы по сервисам в сумме дают всю выборку города, курьер часто работает в двух сервисах
+      // @ai-data-begin
       const MARKET_BASE = {
         'yandex-eda': { hourly: 760, orderPay: 290, duration: 16, wait: 8, orders: 1400, couriers: 46 },
         vkusvill: { hourly: 720, orderPay: 260, duration: 15, wait: 5, orders: 1010, couriers: 38 },
@@ -3299,12 +3323,14 @@
       };
       // выборка и период Рынка: последние 4 недели до вчера, одна подпись на всех экранах
       const MARKET_SAMPLE = { moscow: { couriers: 184, orders: 6240 }, spb: { couriers: 63, orders: 1870 } };
+      // @ai-data-end
       const MARKET_PERIOD = (() => {
         const at = (off) => { const d = new Date(DEMO_TODAY); d.setDate(d.getDate() + off); return d.getDate() + ' ' + RU_MONTHS_SHORT[d.getMonth()]; };
         return at(-28) + ' – ' + at(-1);
       })();
       // author — внутренний идентификатор для своих отзывов и модерации, наружу отзыв всегда подписан «Курьер сервиса»
       // демо: у каждого сервиса есть отзывы, пустых списков в демо не держим
+      // @ai-data-begin
       const REVIEWS = {
         vkusvill: [
           { author: 'Курьер_Юг', city: 'Москва', rating: 4, confirmed: true, date: dayMonShort(-18), text: 'Вечером бывает очередь на пункте выдачи', orders: { count: 140, coverage: 'partial' }, reactions: { courierLikes: 9, courierDislikes: 1, userLikes: 4, userDislikes: 0 } },
@@ -3334,6 +3360,7 @@
         ],
         x5: [{ author: 'Клиент_Света', city: 'Москва', rating: 4, text: 'Курьер поднял заказ на этаж без лифта', date: dayMonShort(-11), reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], 'yandex-eda': [{ author: 'Клиент_Анна', city: 'Москва', rating: 5, text: 'Курьер позвонил заранее, еда горячая', date: dayMonShort(-7), reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], 'yandex-lavka': [{ author: 'Покупатель_Дима', city: 'Москва', rating: 4, text: 'Привезли быстро, пакеты целые', date: dayMonShort(-10), reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], magnit: [{ author: 'Покупатель_Нина', city: 'Москва', rating: 4, text: 'Всё привезли, курьер вежливый', date: dayMonShort(-9), reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], 'ozon-fresh': [{ author: 'Клиент_Павел', city: 'Москва', rating: 5, text: 'Доставили раньше окна', date: dayMonShort(-6), reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], delivery: [{ author: 'Клиент_Ира', city: 'Москва', rating: 4, text: 'Курьер нашёл подъезд без звонка', date: dayMonShort(-12), reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], kuper: [{ author: 'Покупатель_Лена', city: 'Москва', rating: 5, text: 'Замены согласовали в чате', date: dayMonShort(-8), reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], dostaevsky: [{ author: 'Клиент_Артём', city: 'Москва', rating: 4, text: 'Пицца тёплая, курьер быстрый', date: dayMonShort(-13), reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], dodo: [{ author: 'Клиент_Оля', city: 'Москва', rating: 5, text: 'Приехали за 25 минут', date: dayMonShort(-7), reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], 'yandex-delivery': [{ author: 'Клиент_Костя', city: 'Москва', rating: 4, text: 'Посылку отдали в руки', date: dayMonShort(-10), reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], 'wb-courier': [{ author: 'Покупатель_Таня', city: 'Москва', rating: 4, text: 'Курьер подождал у двери', date: dayMonShort(-9), reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], 'ozon-courier': [{ author: 'Клиент_Миша', city: 'Москва', rating: 4, text: 'Привезли в обещанный интервал', date: dayMonShort(-11), reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], dostavista: [{ author: 'Клиент_Вика', city: 'Москва', rating: 5, text: 'Документы доставили за час', date: dayMonShort(-8), reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }], flowwow: [{ author: 'Клиент_Саша', city: 'Москва', rating: 5, text: 'Букет свежий, курьер поздравил', date: dayMonShort(-9), reactions: { courierLikes: 1, courierDislikes: 0, userLikes: 3, userDislikes: 0 } }]
       };
+      // @ai-data-end
       // одинаковые непересекающиеся границы для всех чужих просмотров
       const RATING_RANGE_BUCKETS = [[4.8, 5.0], [4.5, 4.7], [4.0, 4.4], [3.0, 3.9], [1.0, 2.9]];
       function ratingRangeLabel(v) {
@@ -3672,6 +3699,25 @@
         }
         return null;
       }
+      // ИИ-помощник: сессия в первой куке на домене прототипа и адрес воркера
+      const AI_SID_COOKIE = 'raznos_ai_sid';
+      const AI_SID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const aiUuid = () => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); }));
+      const aiReadSid = () => { try { const m = document.cookie.match(new RegExp('(?:^|;\s*)' + AI_SID_COOKIE + '=([^;]+)')); return m ? decodeURIComponent(m[1]) : ''; } catch (e) { return ''; } };
+      const aiWriteSid = (sid) => { window.__rznAiSid = sid; try { document.cookie = AI_SID_COOKIE + '=' + encodeURIComponent(sid) + '; path=/; max-age=31536000; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : ''); } catch (e) {} };
+      // без кук (например file://) id живёт до перезагрузки
+      const aiSession = () => { let sid = aiReadSid(); if (!AI_SID_RE.test(sid)) sid = window.__rznAiSid; if (!AI_SID_RE.test(sid || '')) sid = aiUuid(); if (aiReadSid() !== sid) aiWriteSid(sid); return sid; };
+      // адрес воркера берём только из списка, ?ai= работает лишь на локальном хосте и нигде не хранится
+      const AI_PROD_ORIGIN = 'https://raznos-app-ai.raznos.workers.dev';
+      const AI_ALLOWED_ORIGINS = ['http://127.0.0.1:8787', 'http://localhost:8787', AI_PROD_ORIGIN];
+      const aiApiUrl = () => {
+        const local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+        if (local) {
+          try { const q = new URLSearchParams(location.search).get('ai'); const o = q ? new URL(q).origin : ''; if (AI_ALLOWED_ORIGINS.indexOf(o) !== -1) return o; } catch (e) {}
+        }
+        // по умолчанию боевой воркер, локальный только явно через ?ai= на localhost
+        return AI_PROD_ORIGIN;
+      };
       class Component extends DCLogic {
         buildInitialState(opts) {
           const fresh = !!(opts && opts.fresh);
@@ -3784,6 +3830,7 @@
           this._bindEscClose();
           this._bindMotion();
           this._bindPullRefresh();
+          this._bindTipTargetClick();
           this._bindToastStack();
           this._bindSheetSwipe();
           // клик по затемнению у шторок без своего обработчика жмёт их кнопку отмены
@@ -4077,6 +4124,31 @@
         // перетекающая плашка под активным табом и пунктом нижнего меню: одна на ряд, переезжает с растяжкой
         // новый экран открываем сверху, при возврате на предыдущий экран возвращаем прокрутку
         // потянуть вниз на главном экране вкладки: та же синхронизация, что у кнопки Обновить
+        // нажали на то, на что указывает подсказка: шаг пройден, как по Дальше; само нажатие работает как обычно
+        _bindTipTargetClick() {
+          if (typeof document === 'undefined' || this._tipClickBound) return;
+          this._tipClickBound = true;
+          // гасим уже на касании, шаг засчитываем по клику, чтобы само нажатие сработало как обычно
+          const hit = (e) => {
+            const c = this._stipClick;
+            const t = e.target && e.target.closest ? e.target : null;
+            return c && c.sel && t && !t.closest('.raznos-tour-tip') && t.closest(c.sel) ? t : null;
+          };
+          const hide = (t) => {
+            const layer = t.closest('.raznos-phone-frame') && t.closest('.raznos-phone-frame').querySelector('.raznos-tour-layer');
+            const tip = layer && layer.querySelector('.raznos-tour-tip');
+            if (!tip) return;
+            tip.__holdStep = layer.getAttribute('data-tour-step');
+            tip.style.transition = 'none'; tip.style.opacity = '0'; tip.__placed = false; void tip.offsetWidth; tip.style.transition = '';
+            return tip;
+          };
+          // коснулись и повели палец, клика не было: через мгновение возвращаем тултип
+          document.addEventListener('pointerdown', (e) => {
+            const t = hit(e); const tip = t && hide(t);
+            if (tip) { clearTimeout(tip.__holdTimer); tip.__holdTimer = setTimeout(() => { tip.__holdStep = null; this._tourPlace(); }, 700); }
+          }, true);
+          document.addEventListener('click', (e) => { const t = hit(e); if (!t) return; const tip = hide(t); if (tip) clearTimeout(tip.__holdTimer); setTimeout(this._stipClick.next, 0); }, true);
+        }
         _bindPullRefresh() {
           if (typeof document === 'undefined') return;
           const ROOTS = ['courier-home', 'courier-empty', 'work-hub', 'stats', 'market', 'profile', 'user-home'];
@@ -4095,15 +4167,17 @@
                 box.style.transition = ptr.style.transition = anim ? 'transform .28s cubic-bezier(.16, 1, .3, 1), opacity .2s' : 'none';
                 box.style.transform = px ? 'translateY(' + px + 'px)' : '';
                 ptr.style.top = box.offsetTop + 'px';
-                ptr.style.opacity = px ? Math.min(1, px / LIMIT) : 0;
-                ptr.style.transform = 'translate(-50%, ' + (px / 2 - 20) + 'px) rotate(' + (busy ? 0 : px * 4) + 'deg)';
+                ptr.style.opacity = px ? Math.min(1, px / (LIMIT * 0.6)) : 0;
+                // кольцо дорисовывается по мере натяжения, во время обновления дугу ведёт CSS
+                if (!busy) ptr.style.setProperty('--ptr-p', Math.min(1, px / LIMIT).toFixed(3));
+                ptr.style.transform = 'translate(-50%, ' + (px / 2 - 20) + 'px)' + (px ? '' : ' scale(.7)');
               };
               // ушли на другой экран во время обновления: индикатор убираем сразу, повтор анимаций не играем
               box.__ptrAbort = () => { if (!busy && y0 == null) return; busy = false; y0 = null; moved = false; ptr.classList.remove('raznos-ptr-spin', 'raznos-ptr-done', 'raznos-ptr-ready'); paint(0, false); };
               const finish = () => {
                 if (screenKey() !== startKey) { box.__ptrAbort(); return; }
                 ptr.classList.remove('raznos-ptr-spin'); ptr.classList.add('raznos-ptr-done');
-                setTimeout(() => { if (!busy || screenKey() !== startKey) return; busy = false; ptr.classList.remove('raznos-ptr-done'); paint(0, true); this._ptrReplay(box); }, reduce() ? 300 : 600);
+                setTimeout(() => { if (!busy || screenKey() !== startKey) return; busy = false; paint(0, true); this._ptrReplay(box); setTimeout(() => { if (!busy) { ptr.classList.remove('raznos-ptr-done'); ptr.style.setProperty('--ptr-p', '0'); } }, 320); }, reduce() ? 250 : 420);
               };
               // только основной экран: при открытой шторке, модалке или жесте внутри них не тянем
               const overlayOpen = (t) => (t && t.closest && t.closest('[role="dialog"], .raznos-dialog-layer, [data-backdrop], [data-toast]')) || box.parentElement.querySelector('.raznos-dialog-layer, [role="dialog"][aria-modal="true"]');
@@ -4115,6 +4189,8 @@
                 moved = moved || raw > 8;
                 if (!moved) return;
                 if (e.cancelable) e.preventDefault();
+                // мышью жест не должен выделять текст
+                if (window.getSelection) window.getSelection().removeAllRanges();
                 d = Math.min(MAX, raw * 0.5);
                 ptr.classList.toggle('raznos-ptr-ready', d >= LIMIT);
                 paint(d, false);
@@ -4185,6 +4261,9 @@
               : step === 0 ? frame.querySelector('[data-tour="demo"]') : frame.querySelectorAll('.raznos-bottom-nav > .raznos-nav-tab')[step - 1];
             // открыта шторка: подсказка ждёт, пока её закроют
             const sheetOpen = Array.from(frame.querySelectorAll('.raznos-dialog-layer')).some((x) => x.getClientRects().length > 0);
+            // по цели уже нажали: тултип этого шага больше не показываем, ждём следующий
+            if (tip.__holdStep != null && tip.__holdStep === layer.getAttribute('data-tour-step')) { tip.style.opacity = '0'; tip.style.pointerEvents = 'none'; return; }
+            tip.__holdStep = null; tip.style.pointerEvents = '';
             // все цели серии проверяем сразу, чтобы нумерация с первого шага была без пропавших
             if (sel && layer.__allChecked !== layer.getAttribute('data-tip-all')) {
               layer.__allChecked = layer.getAttribute('data-tip-all');
@@ -4844,6 +4923,19 @@
             this._uxYes = onYes;
             set({ uxConfirm: { title, text, yesLabel, noLabel } });
           };
+          // ИИ-помощник: очередь событий и итоги действий живут в приложении, чтобы пережить закрытие листа
+          const aiEvents = this._aiEvents || (this._aiEvents = []);
+          if (!this._aiOutcomes) { try { this._aiOutcomes = JSON.parse(localStorage.getItem('raznos-ai-out') || '{}') || {}; } catch (e) { this._aiOutcomes = {}; } }
+          // возврат из приложения сервиса: лист открывается снова и сам продолжает разговор
+          const aiServiceReturn = (outcome) => () => {
+            const cur = this.state || {};
+            const pend = cur.aiPending;
+            if (!pend) return;
+            aiEvents.push({ kind: 'service_return', actionId: pend.actionId, slotId: pend.slotId || null, outcome });
+            const patch = { aiPending: null, aiOpen: true, aiAutoSend: true, s: cur.openDemoFrom || 'courier-home', openDemoShift: '', openDemoSlot: '', openDemoSection: '', openDemoKind: '' };
+            if (outcome === 'took' && cur.openDemoSlot) patch.takenSlots = Object.assign({}, cur.takenSlots || {}, { [cur.openDemoSlot]: true });
+            set(patch);
+          };
 
           const screens = [
             'courier-map', 'work-filters', 'offer-history', 'welcome', 'auth', 'code', 'name', 'city', 'courier-empty', 'courier-home', 'stats', 'zones',
@@ -4992,6 +5084,7 @@
               { sel: '.raznos-demo-ribbon-gear', title: 'Сценарии демо', text: 'Выходной, нет связи, пустые данные и другие случаи' }
             ] },
             { key: 'courier-home', on: () => s === 'courier-home', steps: [
+              { sel: '.raznos-phone-body .raznos-app-bar .rab-btn', title: 'Помощник', text: 'Спросите про деньги, смены и слоты' },
               { sel: '.raznos-phone-body .raznos-conn-health', title: 'Сервисы на связи', text: 'Откуда приходят заказы и деньги. Потяните экран вниз, чтобы обновить' },
               { sel: '.raznos-hero-today', title: 'Заработок за день', text: 'Нажмите, чтобы увидеть сервисы, чаевые, расходы и цель на сегодня' }
             ] },
@@ -5003,14 +5096,13 @@
             { key: 'work-hub', on: () => s === 'work-hub' && !!st.planOnboarded, steps: [
               { sel: '.rss-shifts-btn', title: 'Слоты', text: 'Свободные смены всех сервисов: где взять и что требует внимания' },
               { sel: '.rss-goal', title: 'Цель недели', text: 'Сколько хотите заработать за неделю. Нажмите, чтобы поменять' },
+              { sel: '.rss-hours-link', title: 'Часы дня', text: 'Поменять часы только на этот день, график не меняется' },
               { sel: '.rss-list .rpw-badge', title: 'Метки', text: 'Нажмите на метку, чтобы узнать, что она значит' }
             ] },
-            // часы дня только в будущем дне, где их и меняют
-            { key: 'plan-hours', on: () => s === 'work-hub' && !!st.planOnboarded && !!st.planDayIso && st.planDayIso > TODAY_ISO, steps: [
-              { sel: '.rss-head-link', title: 'Часы дня', text: 'Только на этот день, график не меняется' }
-            ] },
             { key: 'slots', on: () => s === 'slots', steps: [
-              { sel: '.raznos-shifts-tabs > .raznos-shifts-tab:nth-of-type(2)', title: 'Можно взять', text: 'Бронируете в приложении сервиса, потом отметьте здесь, получилось ли' }
+              { sel: '.raznos-shifts-tab[data-tab="mine"]', title: 'Мои', text: 'Смены и заявки, которые вы уже взяли в сервисах' },
+              { sel: '.raznos-shifts-tab[data-tab="free"]', title: 'Можно взять', text: 'Бронируете в приложении сервиса, потом отметьте здесь, получилось ли' },
+              { sel: '.raznos-shifts-tab[data-tab="watch"]', title: 'Слежу', text: 'Слоты, которые сейчас заняты. Напишем, если освободятся' }
             ] }
           ];
           const screenTipsSeen = st.screenTipsSeen || {};
@@ -5019,12 +5111,15 @@
           const stipMissing = (st.stipMissing || {})[stipVisit] || {};
           this._stipMissing = (sel) => { const all = this.state.stipMissing || {}, cur = all[stipVisit] || {}; if (!cur[sel]) this.setState({ stipMissing: Object.assign({}, all, { [stipVisit]: Object.assign({}, cur, { [sel]: true }) }) }); };
           const stipReady = role === 'courier' && st.tipsOn !== false && !!st.tourDone && st.tourStep == null;
-          const stipSeries = stipReady ? STIP_SERIES.find((x) => !screenTipsSeen[x.key] && x.on() && x.steps.some((t) => !stipMissing[t.sel])) || null : null;
-          const screenTips = stipSeries ? stipSeries.steps.filter((t) => !stipMissing[t.sel]) : null;
-          const stipKey = stipSeries ? stipSeries.key : '';
+          // все серии, что выпали на экран, идут одной подсказкой со сквозной нумерацией, а не несколькими подряд
+          const stipSeries = stipReady ? STIP_SERIES.filter((x) => !screenTipsSeen[x.key] && x.on() && x.steps.some((t) => !stipMissing[t.sel])) : [];
+          const screenTips = stipSeries.length ? [].concat(...stipSeries.map((x) => x.steps.filter((t) => !stipMissing[t.sel]))) : null;
+          const stipKey = stipSeries.map((x) => x.key).join('+');
           const stipVisible = !!screenTips;
           const stipIdx = Math.min((st.screenTipStep || {})[stipKey] || 0, screenTips ? screenTips.length - 1 : 0);
-          const stipDone = () => set({ screenTipsSeen: Object.assign({}, screenTipsSeen, { [stipKey]: true }), screenTipStep: Object.assign({}, st.screenTipStep || {}, { [stipKey]: 0 }) });
+          const stipNext = () => (stipIdx >= screenTips.length - 1 ? stipDone() : set({ screenTipStep: Object.assign({}, st.screenTipStep || {}, { [stipKey]: stipIdx + 1 }) }));
+          this._stipClick = stipVisible ? { sel: screenTips[stipIdx].sel, next: stipNext } : null;
+          const stipDone = () => set({ screenTipsSeen: Object.assign({}, screenTipsSeen, ...stipSeries.map((x) => ({ [x.key]: true }))), screenTipStep: Object.assign({}, st.screenTipStep || {}, { [stipKey]: 0 }) });
           const tourStep = st.tourStep == null ? null : (st.tourStep === 0 && demoOn ? 1 : st.tourStep);
           // вкладка продвигает тур, только если подсказка на экране видна
           const tourVisible = tourStep != null && role === 'courier' && TOUR_SCREENS.indexOf(s) !== -1 && (tourStep > 0 || s === 'courier-empty');
@@ -6352,7 +6447,7 @@
             // выбранный день Плана держим без перерисовки, чтобы назад вернул на него
             // собранный день, замены и часы дня храним здесь, иначе после перехода в сервис и назад План их теряет
             plan_state: st.smartPlan || null, set_plan_state: (patch) => this.setState({ smartPlan: Object.assign({}, (this.state || {}).smartPlan || {}, patch) }),
-            plan_day_seen: (iso) => { this._planDay = iso; const fut = iso > TODAY_ISO; if (fut !== (this._planDayFut || false)) { this._planDayFut = fut; setTimeout(() => this.setState({ planDayIso: iso }), 0); } },
+            plan_day_seen: (iso) => { this._planDay = iso; },
             plan_edit_graph: (fromSettings) => set({ s: 'work-schedule', wsFrom: s, planSettingsOpen: fromSettings === true }),
             plan_reopen_settings: !!st.planSettingsOpen && s === 'work-hub', plan_reopened: () => set({ planSettingsOpen: false }),
             ...(() => {
@@ -7012,7 +7107,7 @@
           today_sheet_expenses: () => { this._navSheet = true; set({ s: 'expenses', expBack: 'courier-home', period: 'today', expFormDirect: false, todaySheet: false }); },
           sub_back: navBack(() => set({ s: (this.state && this.state.subFrom) || 'profile' })),
           slots_open_service: (svc, when) => set({ s: 'service-open-demo', openDemoSection: '', openDemoLabel: (SERVICES[svc] ? SERVICES[svc].title : svc), openDemoFrom: 'slots', openDemoShift: when || '', openDemoSlot: '' }),
-          open_demo_back: navBack(() => set({ s: (this.state && this.state.openDemoFrom) || 'offers', openDemoShift: '', openDemoSlot: '', openDemoSection: '', openDemoKind: '' }), { openDemoShift: '', openDemoSlot: '', openDemoSection: '', openDemoKind: '' }),
+          open_demo_back: st.aiPending ? aiServiceReturn('back') : navBack(() => set({ s: (this.state && this.state.openDemoFrom) || 'offers', openDemoShift: '', openDemoSlot: '', openDemoSection: '', openDemoKind: '' }), { openDemoShift: '', openDemoSlot: '', openDemoSection: '', openDemoKind: '' }),
           open_demo_take: !!demoSlot, open_demo_plain: !demoSlot,
           // входы в разделы приложений: деньги и удержания в Результатах, расписание в Сменах, поддержка в Помощи
           stats_sec_svc: sectionSvcOf(statsSvcFilter), stats_sec_title: sectionTitleOf(sectionSvcOf(statsSvcFilter)), stats_sec_show: !!sectionSvcOf(statsSvcFilter),
@@ -7031,8 +7126,8 @@
           open_demo_has_note: !!st.openDemoShift || !!APP_SECTIONS[st.openDemoSection],
           open_demo_note: APP_SECTIONS[st.openDemoSection] ? 'Сам раздел Разнос открыть не может, ссылка на него не подтверждена. В прототипе переход не выполняется' : demoSlot ? 'Когда вернётесь, бронь появится в Разносе после синхронизации с сервисом, до этого слот остаётся свободным. В прототипе переход не выполняется, выберите, чем всё закончилось' : 'В прототипе переход не выполняется',
           open_demo_took_label: demoSlot && demoSlot.apply ? 'Я откликнулся' : 'Я взял смену',
-          open_demo_took: () => set({ takenSlots: Object.assign({}, st.takenSlots || {}, st.openDemoSlot ? { [st.openDemoSlot]: true } : {}), s: st.openDemoFrom || 'slots', openDemoShift: '', openDemoSlot: '' }),
-          open_demo_failed: () => set({ s: st.openDemoFrom || 'slots', openDemoShift: '', openDemoSlot: '' }), work_hub_goal: 60000, work_hub_planned: 54800, work_hub_nudge: 'Добавьте пару вечерних часов в Центре, там платят больше', go_top: () => set({ s: 'top' }), top_edge: edge.top || '', top_back: navBack(() => set({ s: 'profile' })), top_open_anon: () => set({ s: 'anon-courier', anonSvcKey: 'samokat', anonAuthor: 'Курьер', anonBack: 'top', pvPreview: '' }),
+          open_demo_took: st.aiPending ? aiServiceReturn('took') : () => set({ takenSlots: Object.assign({}, st.takenSlots || {}, st.openDemoSlot ? { [st.openDemoSlot]: true } : {}), s: st.openDemoFrom || 'slots', openDemoShift: '', openDemoSlot: '' }),
+          open_demo_failed: st.aiPending ? aiServiceReturn('failed') : () => set({ s: st.openDemoFrom || 'slots', openDemoShift: '', openDemoSlot: '' }), work_hub_goal: 60000, work_hub_planned: 54800, work_hub_nudge: 'Добавьте пару вечерних часов в Центре, там платят больше', go_top: () => set({ s: 'top' }), top_edge: edge.top || '', top_back: navBack(() => set({ s: 'profile' })), top_open_anon: () => set({ s: 'anon-courier', anonSvcKey: 'samokat', anonAuthor: 'Курьер', anonBack: 'top', pvPreview: '' }),
             active_filter: st.activeFilter || '', set_active_filter: (name) => set({ activeFilter: name || '' }),
             active_filter_label: (st.activeFilter ? 'Фильтр: ' + st.activeFilter : 'Без фильтра'),
             active_filter_pill_class: 'raznos-status-pill ' + (st.activeFilter ? 'raznos-pill-ok' : 'raznos-pill-muted'),
@@ -7812,6 +7907,7 @@
                 row('Город', st.city === 'spb' ? 'spb' : 'moscow', [['moscow', 'Москва', { city: 'moscow', mkCity: 'moscow' }], ['spb', 'Петербург', { city: 'spb', mkCity: 'spb' }]]),
                 row('Транспорт', st.transport || 'bike', [['foot', 'Пешком', { transport: 'foot' }], ['bike', 'Велосипед', { transport: 'bike' }], ['car', 'Авто', { transport: 'car' }]]),
                 row('Цель недели', !st.workGoal || st.workGoal === WORK_WEEK_GOAL ? 'plan' : st.workGoal < WORK_WEEK_GOAL ? 'done' : 'behind', [['done', 'Выполнена', { workGoal: 15000 }], ['plan', 'Идёт по плану', { workGoal: WORK_WEEK_GOAL }], ['behind', 'Сильно отстаёт', { workGoal: 60000 }]]),
+                row('Разбор недели', st.aiReviewAlways ? 'on' : 'off', [['off', 'По понедельникам', { aiReviewAlways: false }], ['on', 'Всегда', { aiReviewAlways: true }]]),
                 row('Роль', role, [['courier', 'Курьер', { role: 'courier' }], ['user', 'Ищу работу', { role: 'user' }]]),
                 row('Тема', st.appTheme || '', [['', 'Как в системе', { appTheme: '' }], ['light', 'Светлая', { appTheme: 'light' }], ['dark', 'Тёмная', { appTheme: 'dark' }]])
               ];
@@ -7836,7 +7932,7 @@
                 row('Расходы', 'expenses', { s: 'expenses' }, [['', 'Есть'], ['none', 'Нет']], { expManual: null, expRecurring: null }),
                 walletRow,
                 row('Уведомления', 'inbox', { s: 'inbox', inboxArchive: false }, [['', 'Есть'], ['none', 'Нет']]),
-                row('Топ курьеров', 'top', { s: 'top' }, [['', 'Вы в топе'], ['out', 'Вас нет'], ['few', 'Мало участников']]),
+                row('Топ курьеров', 'top', { s: 'top' }, [['', '28 место'], ['near', '7 место'], ['podium', '3 место'], ['first', '1 место'], ['out', 'Вас нет'], ['few', 'Мало участников']]),
                 row('Рынок', 'market', { s: 'market' }, [['', 'Данных хватает'], ['few', 'Мало данных']])
               ];
             })(),
@@ -7872,7 +7968,7 @@
             stip_num: stipIdx + 1, stip_total: screenTips ? screenTips.length : 1,
             stip_title: stipVisible ? screenTips[stipIdx].title : '', stip_text: stipVisible ? screenTips[stipIdx].text : '',
             stip_prev: () => { if (stipIdx > 0) set({ screenTipStep: Object.assign({}, st.screenTipStep || {}, { [stipKey]: stipIdx - 1 }) }); },
-            stip_next: () => (stipIdx >= screenTips.length - 1 ? stipDone() : set({ screenTipStep: Object.assign({}, st.screenTipStep || {}, { [stipKey]: stipIdx + 1 }) })),
+            stip_next: stipNext,
             stip_skip: () => stipDone(),
             tour_step: tourStep != null ? tourStep : '', tour_num: (tourStep || 0) + (demoOn ? 0 : 1), tour_total: TOUR.length - (demoOn ? 1 : 0),
             tour_title: tourStep != null ? TOUR[tourStep].title : '', tour_text: tourStep != null ? TOUR[tourStep].text : '', tour_below: false,
@@ -8564,6 +8660,287 @@
             },
             rf_disable: () => { set({ expRecurring: expRecurring.map((r) => r.id === recFormId ? Object.assign({}, r, { endDay: r.startDay > TODAY_ISO ? r.startDay : TODAY_ISO }) : r), s: 'recurring', recFormId: '', recFormDraft: null, recFormInit: null }); },
             rf_back: () => guardBack(rfDirty, { s: 'recurring', recFormId: '', recFormDraft: null, recFormInit: null })
+          });
+
+          // ---- ИИ-помощник: снимок состояния, карточки, действия ----
+          const aiFm = (n) => formatMoney(Math.round(n)) + ' ₽';
+          const aiWdShort = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+          const aiDayName = (iso) => (iso === TODAY_ISO ? 'сегодня' : aiWdShort[new Date(iso + 'T00:00:00').getDay()] + ' ' + ruDateLabel(iso));
+          const aiWin = (a, b) => homeHm(a) + '–' + homeHm(b);
+          const aiScreenOf = { 'courier-home': 'today', 'work-hub': 'plan', smart: 'plan', stats: 'results', slots: 'slots', market: 'market' };
+          this._aiDerived = { goalWeek, goalEarnedBefore, goalLeft, goalDaysLeft, todayTarget, todayEarn, todayExpenses, todayFines, todayTipsCash, todayNetHourly, todayHours, todayOrders, todayRemain };
+          const aiPlanKeys = ['added', 'removed', 'swaps', 'zones', 'dayHours', 'watches', 'dismissed', 'done'];
+          const aiSnapshot = () => {
+            const cur = this.state || {};
+            const sp = cur.smartPlan || {};
+            const plan = {};
+            aiPlanKeys.forEach((k) => { if (sp[k] !== undefined) plan[k] = sp[k]; });
+            // в состоянии окна дня в минутах, помощник ждёт часы
+            const perDay = cur.graphPerDay && cur.graphWeek ? cur.graphWeek.map((w) => ({ on: !!(w && w.on), from: ((w && w.from) || 0) / 60, to: ((w && w.to) || 0) / 60 })) : null;
+            const days = perDay ? perDay.map((w) => w.on) : [0, 1, 2, 3, 4, 5, 6].map((i) => (cur.graphDays ? !!cur.graphDays[i] : i < 5));
+            const dd = this._aiDerived;
+            const minDay = isoAt(-60);
+            return {
+              v: 1, demoOn,
+              edge: demoOn ? { today: edge.today || null, history: edge.history || null, stats: edge.stats || null, market: edge.market || null, top: edge.top || null } : null,
+              profile: { city: cur.city || 'moscow', transport: cur.transport || 'bike' },
+              market: { city: cur.mkCity || cur.city || 'moscow', transport: cur.mkTransport || 'any', sort: cur.mkSort || 'hourly' },
+              wallet: walletTotals(cur.walletIncome || [], cur.walletWithdrawals || []),
+              connected: connectedKeys.slice(0, 30),
+              goal: { week: dd.goalWeek, earnedBefore: dd.goalEarnedBefore, left: dd.goalLeft, todayTarget: dd.todayTarget, daysLeft: dd.goalDaysLeft.map((d) => ({ iso: d.iso, h: d.h })) },
+              today: { earn: dd.todayEarn, hours: dd.todayHours, orders: dd.todayOrders, fines: dd.todayFines, tipsCash: dd.todayTipsCash, expenses: dd.todayExpenses, net: dd.todayRemain, netHourly: dd.todayHours ? dd.todayNetHourly : null },
+              graph: { start: cur.graphStart != null ? cur.graphStart : 9, end: cur.graphEnd != null ? cur.graphEnd : 18, days, perDay },
+              plan,
+              takenSlots: cur.takenSlots || {},
+              expenses: {
+                manual: (cur.expManual != null ? cur.expManual : expManual).filter((e) => e.day >= minDay).slice(-400).map((e) => ({ id: e.id, day: e.day, cat: e.cat, amount: e.amount, note: e.note || '', deletedAt: e.deletedAt ? Number(e.deletedAt) || 1 : null })),
+                recurring: (cur.expRecurring != null ? cur.expRecurring : expRecurring).slice(0, 50).map((r) => ({ id: r.id, cat: r.cat, title: r.title || '', amount: r.amount, every: r.every, startDay: r.startDay, endDay: r.endDay || null }))
+              },
+              cashTips: Object.keys(cur.cashTips || {}).reduce((acc, k) => { const t = cur.cashTips[k]; acc[k] = { amount: Number(t.amount) || 0, hidden: !!t.hidden }; return acc; }, {})
+            };
+          };
+          const aiContext = () => {
+            const cur = this.state || {};
+            const sel = this._planDay || cur.smartFocusIso || '';
+            return { today: TODAY_ISO, nowMin: DEMO_NOW_MIN, screen: aiScreenOf[cur.s] || cur.s || 'today', selectedDay: /^\d{4}-\d{2}-\d{2}$/.test(sel) ? sel : null };
+          };
+          const aiOpenService = (svc, slot, section) => set({ aiOpen: false, s: 'service-open-demo', openDemoSection: section || '', openDemoLabel: SHIFT_TITLES[svc] || svc, openDemoFrom: s, openDemoShift: slot ? aiDayName(slot.iso) + ', ' + aiWin(slot.from, slot.to) : '', openDemoSlot: slot ? slot.id : '' });
+          const aiRulesText = (svc) => {
+            const r = SHIFT_RULES[svc];
+            if (!r) return '';
+            if (r.freeCancel === 'noonBefore') return 'Бесплатная отмена до 12:00 накануне. ' + (r.late || '');
+            if (r.freeCancel === 'hours') return 'Бесплатная отмена за ' + r.hoursBefore + ' ч до начала. ' + (r.late || '');
+            return r.note || '';
+          };
+          const aiRange = (period) => {
+            if (period === 'week') return [isoAt(WEEK_MON_OFF), TODAY_ISO];
+            if (period === 'prev_week') return [isoAt(WEEK_MON_OFF - 7), isoAt(WEEK_MON_OFF - 1)];
+            if (period === 'month') return [MONTH_START_ISO, TODAY_ISO];
+            return [TODAY_ISO, TODAY_ISO];
+          };
+          const aiToPlan = (iso) => set({ aiOpen: false, s: 'work-hub', smartFocusIso: iso || TODAY_ISO, smartFocusKey: '' });
+          const aiToStats = (per) => set({ aiOpen: false, s: 'stats', statsPeriod: per === 'today' ? 'today' : per === 'month' ? 'month' : 'week', statsStep: per === 'prev_week' ? -1 : 0, statsDetail: '' });
+          const aiShiftProps = (sh, isSlot) => {
+            const caps = SERVICE_CAPS[sh.svc] || {};
+            const hrs = (sh.to - sh.from) / 60;
+            const stMap = { completed: ['Отработана', 'ok'], active: ['Идёт сейчас', 'ok'], confirmed: [caps.status === 'zayavka' ? 'Заявка принята' : 'Подтверждена', 'ok'], requested: ['Ждёт ответа сервиса', 'warn'], cancelled: ['Отменена', 'muted'], missed: ['Пропущена', 'warn'] };
+            const stt = stMap[sh.status] || ['Подтверждена', 'ok'];
+            const pay = '≈ ' + aiFm(Math.round(sh.rate * hrs / 10) * 10);
+            const payNote = sh.rate + ' ₽/ч' + (sh.rateVerified ? ' по условиям сервиса, может отличаться' : ', оценка Разноса');
+            const past = sh.status === 'completed' || sh.status === 'cancelled' || sh.status === 'missed' || sh.status === 'active';
+            if (isSlot) {
+              return { svc: sh.svc, title: sh.title, place: sh.place, time: aiDayName(sh.iso) + ', ' + aiWin(sh.from, sh.to), duration: hrs + ' ч', gone: !!sh.gone, noWatch: !caps.watch, pay, payNote, bonus: sh.bonus || '', rule: aiRulesText(sh.svc), conflict: '', takeLabel: caps.status === 'zayavka' ? 'Подать заявку' : (caps.take || 'Открыть в сервисе'), watching: !!((this.state.smartPlan || {}).watches || {})['o:slot:' + sh.id], onTake: () => aiOpenService(sh.svc, sh, ''), onWatch: () => aiRun({ id: 'ui', actionType: 'watch_slot', payload: { slot_id: sh.id } }, true) };
+            }
+            return { svc: sh.svc, title: sh.title, place: sh.place, time: aiWin(sh.from, sh.to), duration: hrs + ' ч', countdown: '', status: stt[0], tone: stt[1], statusNote: '', pay, payNote, tag: aiDayName(sh.iso), rule: past ? '' : aiRulesText(sh.svc), ruleTone: '', conflict: '', action: 'Открыть в ' + (caps.app || sh.title), muted: sh.status === 'cancelled', onOpen: () => aiOpenService(sh.svc, null, '') };
+          };
+          const aiCardProps = (kind, ref) => {
+            const dd = this._aiDerived;
+            if (kind === 'day_goal') return { type: 'day_goal', props: { goal: dd.goalWeek, earned: dd.goalEarnedBefore, days: dd.goalDaysLeft.map((d) => ({ label: d.iso === TODAY_ISO ? 'сегодня' : aiWdShort[new Date(d.iso + 'T00:00:00').getDay()], h: d.h })) }, open: () => aiToPlan(ref.iso), openLabel: 'План на день' };
+            if (kind === 'week_goal') return { type: 'week_goal', props: { goal: dd.goalWeek, earned: dd.goalEarnedBefore + dd.todayEarn, open: () => aiToPlan(TODAY_ISO) } };
+            if (kind === 'shift') {
+              const sh = SHIFTS_WEEK.find((x) => x.id === ref.shift_id) || SHIFT_SLOTS.find((x) => x.id === ref.shift_id);
+              return sh ? { type: 'shift', props: aiShiftProps(sh, false) } : null;
+            }
+            if (kind === 'slot') {
+              const sl = SHIFT_SLOTS.find((x) => x.id === ref.slot_id);
+              return sl ? { type: 'slot', props: aiShiftProps(sl, true) } : null;
+            }
+            if (kind === 'plan_day') {
+              const iso = ref.iso || TODAY_ISO;
+              const g = goalGraphOf(iso);
+              const sh = SHIFTS_WEEK.filter((x) => x.iso === iso && x.status !== 'cancelled').sort((a, b) => a.from - b.from);
+              const lines = [{ label: 'Окно графика', value: g.on ? aiWin(g.from, g.to) : 'выходной' }].concat(sh.map((x) => ({ label: x.title + ', ' + aiWin(x.from, x.to), value: ({ completed: 'отработана', active: 'идёт', confirmed: 'бронь', requested: 'заявка', missed: 'пропущена' })[x.status] || '' })));
+              const h = goalHoursOf(iso);
+              return { type: 'summary', title: 'План: ' + aiDayName(iso), big: h ? String(h).replace('.', ',') + ' ч' : '', lines, note: sh.length ? '' : 'Броней на этот день нет', open: () => aiToPlan(iso), openLabel: 'Открыть план' };
+            }
+            if (kind === 'money') {
+              const per = ref.period || 'today';
+              const d = per === 'today' ? { earn: dd.todayEarn, payout: null, hours: dd.todayHours, orders: dd.todayOrders } : statsDaysSource('week', aiRange(per), false);
+              const titles = { today: 'Деньги сегодня', week: 'Деньги за неделю', prev_week: 'Деньги за прошлую неделю', month: 'Деньги за месяц' };
+              const lines = [{ label: 'Заказов', value: String(d.orders || 0) }, { label: 'На линии', value: String(d.hours || 0).replace('.', ',') + ' ч' }];
+              if (d.hours) lines.push({ label: 'В час', value: aiFm((d.earn || 0) / d.hours) });
+              if (d.payout != null) lines.unshift({ label: 'Выплачено', value: aiFm(d.payout) });
+              return { type: 'summary', title: titles[per] || 'Деньги', big: aiFm((d.earn || 0)), lines, note: 'Начислено, до вычета расходов', open: () => aiToStats(per), openLabel: 'Открыть Результаты' };
+            }
+            if (kind === 'fines') {
+              const per = ref.period || 'month';
+              const rg = aiRange(per);
+              const rows = STATS_FINES.filter((x) => x.date >= rg[0] && x.date <= rg[1]);
+              const sum = rows.reduce((a, x) => a + x.amount, 0);
+              return { type: 'summary', title: 'Удержания', big: rows.length ? aiFm(sum) : '', lines: rows.slice(0, 5).map((x) => ({ label: ruDateLabel(x.date) + ', ' + (SHIFT_TITLES[x.svc] || x.svc) + ': ' + x.reason, value: '−' + aiFm(x.amount), minus: true })), note: rows.length ? '' : 'За этот период удержаний нет', open: () => aiToStats(per), openLabel: 'Открыть Результаты' };
+            }
+            if (kind === 'orders') {
+              const rg = aiRange(ref.period || 'today');
+              const list = HISTORY.filter((o) => o.dateISO >= rg[0] && o.dateISO <= rg[1] && !o.tripId && edgeKeepOrder(o) && (demoOn || activeDataSvcs.indexOf(o.svc) !== -1)).slice().sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 3);
+              if (!list.length) return { type: 'summary', title: 'Заказы', lines: [], note: 'За этот период заказов нет', open: () => set({ aiOpen: false, s: 'history' }), openLabel: 'История заказов' };
+              return { type: 'orders', orders: list.map((o) => Object.assign(histOrderRow(o), { onTap: () => set({ aiOpen: false, s: 'order', histSelectedId: o.id, orderCommentEditing: false, ordBack: 'courier-home' }) })), open: () => set({ aiOpen: false, s: 'history' }), openLabel: 'Вся история' };
+            }
+            if (kind === 'trip') {
+              const o = HISTORY.find((x) => x.id === ref.order_id);
+              if (!o) return null;
+              if (o.tripId) { const ti = tripInfo(o.tripId); return { type: 'trip', props: Object.assign(histTripRow(o.tripId, ti.orders), { openTrip: () => set({ aiOpen: false, s: 'trip', tripSelectedId: o.tripId, tripBack: 'courier-home' }) }) }; }
+              return { type: 'orders', orders: [Object.assign(histOrderRow(o), { onTap: () => set({ aiOpen: false, s: 'order', histSelectedId: o.id, orderCommentEditing: false, ordBack: 'courier-home' }) })] };
+            }
+            if (kind === 'service_link') return { type: 'service_link', props: { svc: ref.svc, svcTitle: SHIFT_TITLES[ref.svc] || ref.svc, section: ref.section || 'income', onOpen: () => aiOpenService(ref.svc, null, ref.section || '') } };
+            return null;
+          };
+          // что изменится, считаем из состояния приложения, сервер чисел не присылает
+          const aiPreview = (a) => {
+            const cur = this.state || {};
+            const pl = a.payload || {};
+            const dd = this._aiDerived;
+            if (a.actionType === 'set_week_goal') {
+              const left = Math.max(0, pl.amount - dd.goalEarnedBefore);
+              const hrsLeft = dd.goalDaysLeft.reduce((x, d) => x + d.h, 0);
+              const th = dd.goalDaysLeft.find((d) => d.iso === TODAY_ISO);
+              const nt = th && hrsLeft ? Math.round(left * th.h / hrsLeft / 100) * 100 : 0;
+              return { rows: [{ label: 'Цель недели', before: aiFm(dd.goalWeek), after: aiFm(pl.amount) }].concat(th ? [{ label: 'Цель на сегодня', before: aiFm(dd.todayTarget), after: aiFm(nt) }] : []) };
+            }
+            if (a.actionType === 'plan_day_hours') {
+              const g = goalGraphOf(pl.iso);
+              return { rows: [{ label: 'Часы: ' + aiDayName(pl.iso), before: g.on ? aiWin(g.from, g.to) : 'выходной', after: aiWin(pl.from_min, pl.to_min) }] };
+            }
+            if (a.actionType === 'watch_slot') {
+              const sl = SHIFT_SLOTS.find((x) => x.id === pl.slot_id);
+              const on = !!((cur.smartPlan || {}).watches || {})['o:slot:' + pl.slot_id];
+              return { rows: [{ label: sl ? (SHIFT_TITLES[sl.svc] + ', ' + aiDayName(sl.iso) + ', ' + aiWin(sl.from, sl.to)) : 'Слот', before: on ? 'Слежу' : 'Не слежу', after: 'Напишем, если слот вернётся' }] };
+            }
+            if (a.actionType === 'add_expense') {
+              const day = pl.iso || TODAY_ISO;
+              const base = computeExpensesFor(day, day).total;
+              return { rows: [{ label: 'Расходы ' + aiDayName(day) + (EXPENSE_CATS[pl.cat] ? ', ' + EXPENSE_CATS[pl.cat].toLowerCase() : ''), before: aiFm(base), after: aiFm(base + pl.amount) }] };
+            }
+            if (a.actionType === 'set_cash_tip') {
+              const o = HISTORY.find((x) => x.id === pl.order_id);
+              const t = (cur.cashTips || {})[pl.order_id];
+              const was = t ? (t.hidden ? 0 : t.amount) : ((o && o.cashTip) || 0);
+              return { rows: [{ label: 'Чаевые наличными' + (o ? ', ' + o.orderNo : ''), before: aiFm(was), after: aiFm(pl.amount) }] };
+            }
+            return { rows: [], nav: true };
+          };
+          const aiBump = () => set({ aiTick: ((this.state || {}).aiTick || 0) + 1 });
+          const aiSetOutcome = (id, outcome) => { this._aiOutcomes[id] = outcome; try { localStorage.setItem('raznos-ai-out', JSON.stringify(this._aiOutcomes)); } catch (e) {} aiBump(); };
+          // ui true: действие нажал курьер в карточке, помощнику о нём сообщать не нужно
+          const aiRun = (a, ui) => {
+            const cur = this.state || {};
+            const pl = a.payload || {};
+            const undoMark = () => { if (ui) return; aiSetOutcome(a.id, 'undone'); aiEvents.push({ kind: 'action_result', actionId: a.id, outcome: 'undone' }); };
+            const sp = cur.smartPlan || {};
+            const patchPlan = (patch) => set({ smartPlan: Object.assign({}, (this.state || {}).smartPlan || {}, patch) });
+            if (a.actionType === 'set_week_goal') {
+              const prev = cur.workGoal;
+              set({ workGoal: pl.amount });
+              uxShowToast('Цель недели ' + aiFm(pl.amount), 'Вернуть', () => { set({ workGoal: prev }); undoMark(); });
+              return { ok: true };
+            }
+            if (a.actionType === 'plan_day_hours') {
+              const prev = sp.dayHours;
+              patchPlan({ dayHours: Object.assign({}, sp.dayHours || {}, { [pl.iso]: { from: pl.from_min, to: pl.to_min } }) });
+              uxShowToast('Часы ' + aiDayName(pl.iso) + ': ' + aiWin(pl.from_min, pl.to_min), 'Вернуть', () => { patchPlan({ dayHours: prev }); undoMark(); });
+              return { ok: true };
+            }
+            if (a.actionType === 'watch_slot') {
+              const key = 'o:slot:' + pl.slot_id;
+              const prev = sp.watches;
+              const on = !!(sp.watches || {})[key];
+              const next = Object.assign({}, sp.watches || {});
+              if (ui && on) delete next[key]; else next[key] = true;
+              patchPlan({ watches: next });
+              uxShowToast(ui && on ? 'Больше не следим' : 'Напишем, если слот вернётся', 'Вернуть', () => { patchPlan({ watches: prev }); undoMark(); });
+              return { ok: true };
+            }
+            if (a.actionType === 'add_expense') {
+              if (!EXPENSE_CATS[pl.cat]) return { ok: false };
+              const id = 'exp-' + Date.now();
+              set({ expManual: (cur.expManual != null ? cur.expManual : expManual).concat([{ id, day: pl.iso || TODAY_ISO, cat: pl.cat, amount: pl.amount, note: pl.note || '', deletedAt: null }]) });
+              uxShowToast('Расход −' + aiFm(pl.amount) + ' добавлен', 'Вернуть', () => { set({ expManual: (this.state.expManual || []).filter((x) => x.id !== id) }); undoMark(); });
+              return { ok: true };
+            }
+            if (a.actionType === 'set_cash_tip') {
+              if (!HISTORY.find((x) => x.id === pl.order_id)) return { ok: false };
+              const prev = (cur.cashTips || {})[pl.order_id];
+              set({ cashTips: Object.assign({}, cur.cashTips || {}, { [pl.order_id]: { amount: pl.amount, hidden: false, tipType: 'cash', comment: '' } }) });
+              uxShowToast('Чаевые ' + aiFm(pl.amount) + ' сохранены', 'Вернуть', () => {
+                const now = Object.assign({}, this.state.cashTips || {});
+                if (prev) now[pl.order_id] = prev; else delete now[pl.order_id];
+                set({ cashTips: now }); undoMark();
+              });
+              return { ok: true };
+            }
+            if (a.actionType === 'open_service') {
+              const sl = pl.slot_id ? SHIFT_SLOTS.find((x) => x.id === pl.slot_id) : null;
+              this.setState({ aiPending: { actionId: a.id, slotId: pl.slot_id || null, svc: pl.svc } });
+              aiOpenService(pl.svc, sl, pl.section || '');
+              return { ok: true, navigated: true };
+            }
+            if (a.actionType === 'open_screen') {
+              const per = pl.period;
+              const map = {
+                today: { s: 'courier-home' }, plan: { s: 'work-hub', smartFocusIso: '' }, results: { s: 'stats', statsDetail: '', statsPeriod: per === 'today' ? 'today' : per === 'month' ? 'month' : 'week', statsStep: per === 'prev_week' ? -1 : 0 }, stats: { s: 'stats', statsDetail: '' }, market: { s: 'market' }, profile: { s: 'profile' },
+                shifts: { s: 'slots', slotsTab: '', slotsDay: '', slotsSvc: '', slotsWeek: null, slotsFrom: 'work-hub' }, slots: { s: 'slots', slotsTab: 'free', slotsDay: '', slotsSvc: '', slotsWeek: null, slotsFrom: 'work-hub' }, expenses: { s: 'expenses', expBack: 'courier-home' }, settings: { s: 'settings' }
+              };
+              if (!map[pl.screen]) return { ok: false };
+              set(Object.assign({ aiOpen: false }, map[pl.screen]));
+              return { ok: true, navigated: true };
+            }
+            return { ok: false };
+          };
+          // разбор недели: числа считает приложение из тех же источников, что и Результаты
+          const aiWeekKey = isoAt(WEEK_MON_OFF);
+          const aiReviewDue = role === 'courier' && st.aiReviewHidden !== aiWeekKey && (DEMO_TODAY.getDay() === 1 || !!st.aiReviewAlways);
+          const aiReview = (() => {
+            if (!aiReviewDue) return null;
+            const a = isoAt(WEEK_MON_OFF - 7), b = isoAt(WEEK_MON_OFF - 1);
+            const d = statsDaysSource('week', [a, b], false);
+            if (!(d.earn || 0)) return null;
+            const days = isoRange(a, b).map((iso) => { const x = statsDaysSource('today', [iso, iso], false); return { iso, earn: x.earn, h: x.hours }; }).filter((x) => x.h > 0);
+            const worst = days.slice().sort((x, y) => x.earn / x.h - y.earn / y.h)[0];
+            return {
+              range: 'Прошлая неделя, ' + ruDateLabel(a) + '–' + ruDateLabel(b),
+              earn: aiFm((d.earn || 0)), hours: String(d.hours || 0).replace('.', ',') + ' ч', hourly: d.hours ? aiFm((d.earn || 0) / d.hours) : '0 ₽',
+              goalLine: 'Цель недели ' + aiFm(goalWeek) + ', выполнено на ' + Math.round((d.earn || 0) * 100 / goalWeek) + '%',
+              fix: worst && days.length > 1 ? 'Что подтянуть: ' + aiDayName(worst.iso) + ' вышло ' + aiFm(worst.earn / worst.h) + '/ч, это меньше остальных дней' : ''
+            };
+          })();
+          const aiOn = !(st.aiOff != null ? st.aiOff : (() => { try { return localStorage.getItem('raznos-ai-off') === '1'; } catch (e) { return false; } })());
+          const aiConsented = () => { try { return demoOn || localStorage.getItem('raznos-ai-consent') === '1'; } catch (e) { return true; } };
+          const aiOpenTap = () => set(aiConsented() ? { aiOpen: true } : { aiConsentAsk: true });
+          const aiOpenWithPrompt = () => set(aiConsented() ? { aiOpen: true, aiPrompt: 'Разбери мою неделю' } : { aiConsentAsk: true, aiPrompt: 'Разбери мою неделю' });
+          if (!this._aiUrl) this._aiUrl = aiApiUrl();
+          Object.assign(vals, {
+            ai_open: !!st.aiOpen, ai_endpoint: this._aiUrl, ai_get_session: aiSession, ai_snapshot: aiSnapshot, ai_context: aiContext,
+            ai_card_props: aiCardProps, ai_preview: aiPreview, ai_run_action: (a) => aiRun(a, false),
+            ai_outcomes: Object.assign({}, this._aiOutcomes), ai_set_outcome: aiSetOutcome,
+            ai_push_event: (ev) => { aiEvents.push(ev); }, ai_take_events: () => aiEvents.splice(0), ai_restore_events: (evs) => { aiEvents.unshift.apply(aiEvents, evs); },
+            ai_auto_send: !!st.aiAutoSend, ai_auto_sent: () => set({ aiAutoSend: false }),
+            ai_prompt: st.aiPrompt || '', ai_prompt_sent: () => set({ aiPrompt: '' }),
+            ai_on_reset: () => { aiEvents.length = 0; this._aiOutcomes = {}; try { localStorage.removeItem('raznos-ai-out'); } catch (e) {} },
+            ai_close: () => set({ aiOpen: false, aiOff: false, aiPrompt: '', aiAutoSend: false }),
+            ai_open_tap: aiOpenTap, ai_attention: !!aiReview,
+            ai_consent_ask: !!st.aiConsentAsk,
+            ai_consent_yes: () => { try { localStorage.setItem('raznos-ai-consent', '1'); } catch (e) {} set({ aiConsentAsk: false, aiOpen: true }); },
+            ai_consent_no: () => set({ aiConsentAsk: false, aiPrompt: '', aiOpen: true, aiOff: true }),
+            ai_off: !!st.aiOff,
+            ai_consent_off_row: aiOn && !demoOn && !aiConsented(),
+            // помощник можно выключить в Настройках: пропадают кнопки Спросить и разбор недели
+            ai_on: aiOn, ai_box: aiOn ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', ai_mark: aiOn ? '✓' : '',
+            ai_toggle: () => { try { localStorage.setItem('raznos-ai-off', aiOn ? '1' : '0'); } catch (e) {} set({ aiOff: aiOn, aiOpen: false }); },
+            ai_plan_tap: aiOn ? aiOpenTap : null,
+            ai_consent_grant: () => { try { localStorage.setItem('raznos-ai-consent', '1'); } catch (e) {} set({ aiOff: false }); uxShowToast('Помощник включён', 'Отменить', () => { try { localStorage.removeItem('raznos-ai-consent'); } catch (e) {} aiBump(); }); },
+            ai_prompt_screen: (id) => {
+              const map = { goal: { s: 'work-hub' }, tomorrow: { s: 'work-hub' }, earn_more: { s: 'slots', slotsTab: 'free', slotsDay: '', slotsSvc: '', slotsWeek: null, slotsFrom: 'work-hub' }, week_worse: { s: 'stats', statsDetail: '', statsPeriod: 'week', statsStep: 0 }, money_when: { s: 'stats', statsDetail: '', statsPeriod: 'week', statsStep: 0 }, fine: { s: 'stats', statsDetail: '', statsPeriod: 'month', statsStep: 0 }, month_less: { s: 'stats', statsDetail: '', statsPeriod: 'month', statsStep: 0 }, expenses_sum: { s: 'expenses', expBack: 'courier-home' }, top_rank: { s: 'top' }, market_bike: { s: 'market' }, market_best_svc: { s: 'market' }, market_samokat: { s: 'market' }, market_when: { s: 'market' } };
+              set(Object.assign({ aiOpen: false, aiOff: false }, map[id] || { s: 'courier-home' }));
+            },
+            ai_review_show: aiOn && !!aiReview && s === 'courier-home', ai_review: aiReview || {}, ai_review_open: aiOpenWithPrompt,
+            ai_review_dismiss: () => { set({ aiReviewHidden: aiWeekKey }); uxShowToast('Разбор недели скрыт', 'Вернуть', () => set({ aiReviewHidden: '' })); },
+            ai_restart: async () => {
+              const old = aiSession();
+              aiWriteSid(aiUuid());
+              aiEvents.length = 0; this._aiOutcomes = {};
+              try { localStorage.removeItem('raznos-ai-out'); } catch (e) {}
+              set({ aiOpen: false, aiPending: null, aiPrompt: '', aiAutoSend: false });
+              uxShowToast('Помощник начат заново', 'Вернуть', () => aiWriteSid(old));
+            }
           });
 
           return vals;
