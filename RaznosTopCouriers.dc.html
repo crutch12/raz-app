@@ -12,26 +12,13 @@
     .rtc-me-metric { font: 500 12px var(--raznos-font); color: color-mix(in oklab, var(--raznos-on-dark) 70%, transparent); }
     /* до места выше: тонкая полоса под строкой с местом */
     .rtc-me { flex-wrap: wrap; row-gap: 12px; }
+    /* сумма отдельной строкой под местом, подпись рядом с ней, а не под правым краем */
+    .rtc-me .rtc-me-end { flex-basis: 100%; flex-direction: row; align-items: baseline; gap: 8px; }
     .rtc-me-up { flex-basis: 100%; display: flex; flex-direction: column; gap: 6px; }
     .rtc-me-up-track { height: 6px; border-radius: 999px; background: color-mix(in oklab, var(--raznos-on-dark) 16%, transparent); overflow: hidden; }
     .rtc-me-up-fill { display: block; height: 100%; border-radius: inherit; background: var(--raznos-green); }
-    /* лидеры: пьедестал из трёх сот, первое место в центре и выше */
-    .rtc-board { display: flex; flex-direction: column; gap: 10px; padding: 14px 14px 6px; border-radius: 16px; background: var(--raznos-surface); }
-    .rtc-podium { display: grid; grid-template-columns: repeat(3, 1fr); align-items: end; gap: 8px; }
-    .rtc-pod { display: flex; flex-direction: column; align-items: center; gap: 0; min-width: 0; }
-    .rtc-pod-1 { order: 2; } .rtc-pod-2 { order: 1; } .rtc-pod-3 { order: 3; }
-    .rtc-hex { width: 40px; height: 46px; display: inline-flex; align-items: center; justify-content: center; clip-path: var(--raznos-hex); font: 800 17px var(--raznos-mono); color: var(--raznos-ink); }
-    .rtc-pod-1 .rtc-hex { width: 50px; height: 57px; font-size: 21px; background: oklch(0.86 0.12 85); }
-    .rtc-pod-2 .rtc-hex { background: oklch(0.88 0.01 250); }
-    .rtc-pod-3 .rtc-hex { background: oklch(0.8 0.08 55); }
-    .rtc-pod-val { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .rtc-hex { position: relative; z-index: 1; margin-bottom: -10px; }
-    .rtc-pod-1 .rtc-pod-val { font-size: 15px; }
-    .rtc-pod-who { font: 700 12px var(--raznos-font); color: var(--raznos-green-deep); }
+    .rtc-board { display: flex; flex-direction: column; gap: 10px; padding: 4px 14px 6px; border-radius: 16px; background: var(--raznos-surface); }
     /* ступень пьедестала: сумма на ней, высота по месту */
-    .rtc-step { box-sizing: border-box; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 16px; border-radius: 12px 12px 4px 4px; background: var(--raznos-surface-2); }
-    .rtc-pod-1 .rtc-step { height: 72px; } .rtc-pod-2 .rtc-step { height: 58px; } .rtc-pod-3 .rtc-step { height: 48px; }
-    .rtc-pod.rtc-is-me .rtc-step { background: color-mix(in oklab, var(--raznos-green) 18%, var(--raznos-surface)); }
     /* остальные места: полоса суммы относительно лидера, отрыв видно глазом */
     .rtc-list { display: flex; flex-direction: column; }
     .rtc-row { display: grid; grid-template-columns: 30px 1fr auto; align-items: center; gap: 12px; min-height: 48px; border-top: 1px solid var(--raznos-line); }
@@ -45,7 +32,17 @@
     .rtc-row.rtc-is-me + .rtc-row { border-top-color: transparent; }
     .rtc-row.rtc-is-me .rtc-rank, .rtc-row.rtc-is-me .rtc-val { font-weight: 800; color: var(--raznos-green-deep); }
     .rtc-row.rtc-is-me .rtc-bar > i { background: var(--raznos-green); }
-    .rtc-gap { display: flex; align-items: center; gap: 10px; min-height: 36px; border-top: 1px solid var(--raznos-line); font: 600 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+    /* над первым местом линии нет */
+    .rtc-list > :first-child .rtc-row, .rtc-list > .rtc-row:first-child { border-top-color: transparent; }
+    /* медали первых трёх мест: номер в шестиграннике и полоса того же оттенка */
+    .rtc-medal .rtc-rank { justify-self: center; width: 26px; height: 30px; display: inline-flex; align-items: center; justify-content: center; clip-path: var(--raznos-hex); font-weight: 800; color: var(--raznos-ink); }
+    .rtc-medal-1 .rtc-rank { background: oklch(0.86 0.12 85); }
+    .rtc-medal-2 .rtc-rank { background: oklch(0.88 0.01 250); }
+    .rtc-medal-3 .rtc-rank { background: oklch(0.8 0.08 55); }
+    .rtc-medal-1:not(.rtc-is-me) .rtc-bar > i { background: oklch(0.78 0.13 85); }
+    .rtc-medal-2:not(.rtc-is-me) .rtc-bar > i { background: oklch(0.74 0.04 235); }
+    .rtc-medal-3:not(.rtc-is-me) .rtc-bar > i { background: oklch(0.7 0.09 55); }
+    .rtc-gap { display: flex; align-items: center; gap: 10px; min-height: 40px; font: 600 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
     .rtc-gap::before, .rtc-gap::after { content: ''; flex: 1; border-top: 1px dashed var(--raznos-line-strong); }
     .rtc-gap + .rtc-row { border-top-color: transparent; }
     .rtc-out-plan { align-self: flex-start; }
@@ -68,9 +65,6 @@
   <sc-if value="{{ out }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small rtc-out-plan" onClick="{{ on_plan }}">Открыть План</button></sc-if>
   <span class="raznos-text-h3">{{ list_title }}</span>
   <div class="rtc-board">
-    <sc-if value="{{ has_podium }}" hint-placeholder-val="{{ true }}"><div class="rtc-podium" role="list" aria-label="Первые три места">
-      <sc-for list="{{ podium }}" as="pd" hint-placeholder-count="3"><div class="{{ pd.cls }}" role="listitem" aria-label="{{ pd.aria }}"><span class="rtc-hex">{{ pd.rank }}</span><span class="rtc-step"><span class="rtc-pod-val">{{ pd.val }}</span><sc-if value="{{ pd.who }}" hint-placeholder-val="{{ false }}"><span class="rtc-pod-who">{{ pd.who }}</span></sc-if></span></div></sc-for>
-    </div></sc-if>
     <div class="rtc-list">
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
         <sc-if value="{{ r.gap }}" hint-placeholder-val="{{ false }}"><div class="rtc-gap" aria-label="{{ r.aria }}">{{ r.gapLabel }}</div></sc-if>
@@ -192,11 +186,11 @@ class Component extends DCLogic {
         // полоса суммы считается от лидера, у всех одна шкала
         const top = Math.max(...list.map((x) => x.r.num), 1);
         list.forEach((x) => { x.r.bar = 'width:' + Math.max(4, Math.round(x.r.num / top * 100)) + '%'; });
-        const pod = list.filter((x) => x.rank <= 3);
-        const rest = list.filter((x) => x.rank > 3);
+        // первые три места в общем списке, но с медалью: золото, серебро, бронза
+        list.forEach((x) => { if (x.rank <= 3) { x.r.cls += ' rtc-medal rtc-medal-' + x.rank; x.r.aria = x.rank + ' место'; } });
         const rows = [];
-        rest.forEach((x, i) => {
-          const prev = i ? rest[i - 1].rank : 3;
+        list.forEach((x, i) => {
+          const prev = i ? list[i - 1].rank : 0;
           if (x.rank - prev > 1) {
             const skip = x.rank - prev - 1;
             rows.push({ row: false, gap: true, rank: '', who: '', val: '', cls: '', bar: '', aria: 'Места с ' + (prev + 1) + ' по ' + (x.rank - 1), gapLabel: 'ещё ' + skip + ' ' + (skip % 10 === 1 && skip % 100 !== 11 ? 'место' : (skip % 10 >= 2 && skip % 10 <= 4 && (skip % 100 < 12 || skip % 100 > 14) ? 'места' : 'мест')) });
@@ -204,9 +198,7 @@ class Component extends DCLogic {
           rows.push(x.r);
         });
         return {
-          has_podium: pod.length === 3,
-          podium: pod.map((x) => ({ rank: x.r.rank, val: x.r.val, who: x.r.who, cls: 'rtc-pod rtc-pod-' + x.rank + (x.r.who ? ' rtc-is-me' : ''), aria: x.rank + ' место, ' + x.r.val + (x.r.who ? ', это вы' : '') })),
-          rows: pod.length === 3 ? rows : list.map((x) => x.r)
+          rows
         };
       })(),
       // положение между соседями: от места ниже до места выше
