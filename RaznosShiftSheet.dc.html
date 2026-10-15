@@ -40,6 +40,7 @@
       <span class="rsh-head-copy"><h2>{{ title }}</h2><span>{{ place }}</span></span>
       <button type="button" class="rsh-close" onClick="{{ close }}" aria-label="Закрыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
+    <sc-if value="{{ has_area }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosDistrictLink" place="{{ place }}" svc="{{ svc }}" onOpen="{{ area_open }}"></dc-import></sc-if>
     <div class="rsh-when"><b>{{ time }}</b><span class="{{ status_cls }}">{{ status }}</span></div>
     <sc-if value="{{ has_svc_line }}" hint-placeholder-val="{{ false }}"><p class="rsh-svc-line">{{ svc_line }}</p></sc-if>
     <sc-if value="{{ has_when_note }}" hint-placeholder-val="{{ true }}"><p class="rsh-note">{{ when_note }}</p></sc-if>
@@ -53,7 +54,7 @@
     <button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ close }}">Закрыть</button>
   </section>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"svc":{"editor":"text","default":"yandex-eda"},"title":{"editor":"text","default":"Яндекс Еда"},"place":{"editor":"text","default":"Локация Беговая"},"time":{"editor":"text","default":"17:00–21:00"},"status":{"editor":"text","default":"бронь"},"tone":{"editor":"text","default":"ok"},"whenNote":{"editor":"text","default":""},"svcLine":{"editor":"text","default":""},"fallback":{"editor":"text","default":""},"money":{"editor":"text","default":"≈ 3 160 ₽ за смену"},"moneyNote":{"editor":"text","default":"≈ 790 ₽/ч, оценка по заказам курьеров Разноса, как в Плане. Ставка сервиса 390 ₽/ч уже внутри"},"conflict":{"editor":"text"},"rebook":{"editor":null},"rule":{"editor":"text","default":"Бесплатная отмена закончилась пн 12:00. Позже это невыход: штраф равен минималке за пропущенные часы"},"ruleTone":{"editor":"text","default":"warn"},"ruleSrc":{"editor":"text","default":""},"action":{"editor":"text","default":"Открыть в приложении Яндекс Еда"},"actionNote":{"editor":"text","default":"Бронь можно отменить только в приложении Яндекс Еда, бесплатно до пн 12:00"},"onAction":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"svc":{"editor":"text","default":"yandex-eda"},"title":{"editor":"text","default":"Яндекс Еда"},"place":{"editor":"text","default":"Локация Беговая"},"time":{"editor":"text","default":"17:00–21:00"},"status":{"editor":"text","default":"бронь"},"tone":{"editor":"text","default":"ok"},"whenNote":{"editor":"text","default":""},"svcLine":{"editor":"text","default":""},"fallback":{"editor":"text","default":""},"money":{"editor":"text","default":"≈ 3 160 ₽ за смену"},"moneyNote":{"editor":"text","default":"≈ 790 ₽/ч, оценка по заказам курьеров Разноса, как в Плане. Ставка сервиса 390 ₽/ч уже внутри"},"conflict":{"editor":"text"},"rebook":{"editor":null},"rule":{"editor":"text","default":"Бесплатная отмена закончилась пн 12:00. Позже это невыход: штраф равен минималке за пропущенные часы"},"ruleTone":{"editor":"text","default":"warn"},"ruleSrc":{"editor":"text","default":""},"action":{"editor":"text","default":"Открыть в приложении Яндекс Еда"},"actionNote":{"editor":"text","default":"Бронь можно отменить только в приложении Яндекс Еда, бесплатно до пн 12:00"},"onAction":{"editor":null},"onArea":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
 // подробности брони: когда, статус, деньги той же моделью, что в Плане, правила отмены и переход в приложение сервиса
 class Component extends DCLogic {
   renderVals() {
@@ -80,6 +81,8 @@ class Component extends DCLogic {
       rebook: p.rebook || {}, has_rebook: !!p.rebook,
       rule, has_rule: !!rule, rule_src: v('ruleSrc', ''), has_rule_src: !!v('ruleSrc', ''), rule_cls: 'rsh-note' + (v('ruleTone', 'warn') === 'warn' ? ' rsh-note-warn' : ''),
       action, has_action: !!action, act: fn(p.onAction), action_note: actionNote, has_action_note: !!action && !!actionNote,
+      // строка района открывает карту района с зоной даркстора
+      has_area: typeof p.onArea === 'function', area_open: fn(p.onArea),
       close: fn(p.onClose), stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
     };
   }

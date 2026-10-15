@@ -18,8 +18,6 @@
     .rhs-map { position: relative; overflow: hidden; border-radius: 16px; border: 1px solid var(--raznos-line); }
     .rhs-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); }
     .rhs-legend > span { display: inline-flex; align-items: center; gap: 5px; }
-    .rhs-legend i { width: 12px; height: 13px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
-    .rhs-legend .rhs-l1 { background: oklch(0.8 0.1 150 / 0.55); } .rhs-legend .rhs-l2 { background: oklch(0.7 0.14 150 / 0.7); } .rhs-legend .rhs-l3 { background: oklch(0.58 0.15 150 / 0.85); }
     .rhs-legend-note { width: 100%; color: var(--raznos-ink-3); }
     .rhs-pick { background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 4px 16px; }
     /* выбранный район и колокольчик Сообщить, когда здесь высокий спрос */
@@ -58,8 +56,9 @@
     <dc-import name="RaznosFilterChips" filters="{{ filters }}" onChange="{{ on_filter }}"></dc-import>
     <sc-if value="{{ has_detail }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosMarketDetailLink" hint="Каждый час: где и в каком сервисе выгоднее" onOpen="{{ open_detail }}"></dc-import></sc-if>
     <sc-if value="{{ is_map }}" hint-placeholder-val="{{ false }}">
-      <div class="rhs-map"><dc-import name="RaznosCourierMap" couriers="{{ false }}" hideCouriers="{{ true }}" hideMe="{{ true }}" zones="{{ map_zones }}"></dc-import></div>
-      <div class="rhs-legend"><span><i class="rhs-l3" aria-hidden="true"></i>Лучшие</span><span><i class="rhs-l2" aria-hidden="true"></i>Выше среднего</span><span><i class="rhs-l1" aria-hidden="true"></i>Средне</span><span class="rhs-legend-note">Без заливки ниже среднего · ↑ растёт за 4 недели · нажмите на район</span></div>
+      <div class="rhs-map"><dc-import name="RaznosDistrictMap" mode="demand" showModeSwitch="{{ true }}" districts="{{ map_zones }}" selected="{{ map_sel }}" hour="{{ map_hour }}" hourLabel="{{ map_chip }}" onPick="{{ map_pick }}" height="{{ 420 }}"></dc-import></div>
+      <div class="rhs-legend"><span class="rhs-legend-note">Соты без заливки ниже среднего, штриховка нет данных · ↑ растёт за 4 недели · нажмите на район</span></div>
+      <sc-if value="{{ pick_none }}" hint-placeholder-val="{{ false }}"><p class="rhs-pick rhs-empty">{{ pick_none_text }}</p></sc-if>
       <sc-if value="{{ has_pick }}" hint-placeholder-val="{{ true }}"><div class="{{ pick_cls }}"><div class="rhs-pick-main"><dc-import name="RaznosRankRow" rank="{{ pick.rank }}" title="{{ pick.name }}" meta="{{ pick.meta }}" fill="{{ pick.fill }}" value="{{ pick.val }}" action="{{ pick.action }}" href="{{ pick.routeHref }}" actionLabel="{{ pick.routeAria }}" trend="{{ pick.trend }}" trendUp="{{ pick.trendUp }}" trendDown="{{ pick.trendDown }}" trendTail="{{ pick.trendTail }}" divider="{{ false }}"></dc-import></div><sc-if value="{{ has_alert }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosAlertBell" size="sm" on="{{ alert_on }}" label="{{ alert_label }}" sub="{{ alert_sub }}" onTap="{{ alert_tap }}"></dc-import></sc-if></div></sc-if>
     </sc-if>
     <sc-if value="{{ is_list }}" hint-placeholder-val="{{ true }}">
@@ -170,7 +169,9 @@ class Component extends DCLogic {
 
     // выбранный на карте район, по умолчанию самый выгодный
     const view = st.view || p.initialView || 'list';
-    const pickX = byValue.find((x) => x.z.k === (st.pick || p.initialPick)) || byValue[0];
+    // пустая строка значит, что район на карте сняли
+    const pickK = st.pick === '' ? '' : (st.pick || p.initialPick);
+    const pickX = pickK === '' ? null : (byValue.find((x) => x.z.k === pickK) || (st.pickName ? null : byValue[0]));
     const pickRow = pickX ? { k: pickX.z.k, row: Object.assign(rows.find((r) => r.name === pickX.z.name) || rowOf(pickX), { trend: Math.abs(pickX.z.trend) >= 10 ? pickX.z.trend : 0, divider: false }) } : null;
     // карточка: топ-3 и район, который растёт быстрее всех вне топа
     const top = byValue.slice(0, 3);
@@ -212,6 +213,11 @@ class Component extends DCLogic {
         const x = scored.find((y) => y.z === z);
         return { k: z.k, name: z.name, val: x ? shown(x.v) + (metric.k === 'pay' ? '/ч' : '') : 'нет заказов', t: x ? (max === min ? 1 : (x.v - min) / (max - min)) : null, up: !!x && z.trend >= 10, top: !!x && x.rank === 1, sel: pickRow && pickRow.k === z.k, tap: () => set({ pick: z.k }) };
       }),
+      map_sel: pickRow ? pickRow.k : (st.pickName ? pickK : ''), map_pick: (k, info) => set({ pick: k || '', pickName: info && info.name ? info.name : '' }),
+      // выбрали район без цифр: говорим об этом под картой, а не подменяем другим районом
+      pick_none: !pickRow && !!st.pickName && !!pickK, pick_none_text: (st.pickName || '') + ': нет данных по району с этими фильтрами',
+      // час для сот и подпись на карте из фильтра Время суток
+      map_hour: ({ morning: 10, day: 14, evening: 19, night: 23 })[tod.k] || 12, map_chip: tod.k === 'all' ? '' : tod.label + ' ' + tod.note,
       has_pick: !!pickRow, pick: pickRow ? pickRow.row : {},
       // Сообщить, когда в выбранном районе высокий спрос: район, время суток, дни и сервис из фильтров
       ...(() => {

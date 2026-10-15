@@ -4,7 +4,7 @@
   <style>
     .rcmc { box-sizing: border-box; width: 100%; display: flex; flex-direction: column; padding: 0; border: 1px solid var(--raznos-line); border-radius: 18px; background: var(--raznos-surface); overflow: hidden; text-align: left; font: inherit; color: inherit; cursor: pointer; }
     .rcmc:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
-    .rcmc-map { position: relative; height: 150px; }
+    .rcmc-map { position: relative; height: 150px; overflow: hidden; pointer-events: none; }
     .rcmc-pill { position: absolute; left: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: var(--raznos-surface); box-shadow: 0 4px 14px rgba(20, 25, 40, 0.14); font: 700 13px var(--raznos-font); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
     .rcmc-live { width: 8px; height: 8px; border-radius: 50%; background: var(--raznos-green); }
     .rcmc-pill.rcmc-pill-locked { font-weight: 600; color: var(--raznos-ink-2); }
@@ -20,7 +20,7 @@
 </helmet>
 <button type="button" class="rcmc" onClick="{{ open }}" aria-label="{{ aria }}">
   <span class="rcmc-map">
-    <dc-import name="RaznosCourierMap" fill="{{ true }}" compact="{{ true }}" locked="{{ locked }}" me="{{ me }}"></dc-import>
+    <dc-import name="RaznosDistrictMap" mode="people" fill="{{ true }}" compact="{{ true }}" couriers="{{ true }}" locked="{{ locked }}" me="{{ me }}" offline="{{ offline }}"></dc-import>
     <sc-if value="{{ unlocked }}" hint-placeholder-val="{{ true }}"><span class="rcmc-pill"><i class="rcmc-live" aria-hidden="true"></i>{{ count_label }}</span></sc-if>
     <sc-if value="{{ locked }}" hint-placeholder-val="{{ false }}"><span class="rcmc-pill rcmc-pill-locked"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18M10.6 5.1A9.8 9.8 0 0 1 12 5c5 0 9 4.5 10 7-.4 1-1.2 2.3-2.4 3.5M6.2 6.3C4.2 7.6 2.7 9.6 2 12c1 2.5 5 7 10 7 1.6 0 3-.4 4.3-1"/></svg>Скрыто, пока вы не покажете себя</span></sc-if>
   </span>
@@ -29,8 +29,8 @@
     <span class="raznos-row-chevron" aria-hidden="true">›</span>
   </span>
 </button>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"count":{"editor":"number","default":30},"locked":{"editor":"boolean"},"onOpen":{"editor":null},"$preview":{"width":366,"height":230}}'>
-// виджет в Сегодня, группа Вокруг: мини-карта и сколько курьеров на смене рядом
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"count":{"editor":"number","default":30},"locked":{"editor":"boolean"},"offline":{"editor":"boolean"},"onOpen":{"editor":null},"$preview":{"width":366,"height":230}}'>
+// виджет в Сегодня, группа Вокруг: мини-карта на той же подложке, что и экран, без жестов, и сколько курьеров на смене рядом
 const RCMC_PLURAL = (n) => { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return 'курьер'; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'курьера'; return 'курьеров'; };
 class Component extends DCLogic {
   renderVals() {
@@ -38,7 +38,7 @@ class Component extends DCLogic {
     const n = p.count != null ? p.count : 30;
     const locked = !!p.locked;
     return {
-      locked, unlocked: !locked, me: !locked,
+      locked, unlocked: !locked, me: !locked, offline: !!p.offline,
       count_label: n + ' ' + RCMC_PLURAL(n) + ' на смене рядом',
       sub: locked ? 'Видно только тех, кто на смене, и только если показываете себя' : 'Кто сейчас на смене и в каких сервисах',
       aria: 'Карта курьеров, ' + (locked ? 'скрыта' : n + ' ' + RCMC_PLURAL(n) + ' на смене рядом'),

@@ -22,6 +22,14 @@
             </div>
           </div>
         </sc-if>
+        <sc-if value="{{ dmap_visible }}" hint-placeholder-val="{{ false }}">
+          <div class="raznos-dmap-layer" role="dialog" aria-modal="true" aria-label="{{ dmap_aria }}">
+            <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ dmap_back }}" aria-label="Назад">‹</button><span class="raznos-dmap-head"><h1 class="raznos-text-h1" style="margin:0">{{ dmap_name }}</h1><span class="raznos-text-small">{{ dmap_sub }}</span></span></div>
+            <div class="raznos-dmap-box"><dc-import name="RaznosDistrictMap" mode="contour" selected="{{ dmap_k }}" zones="{{ dmap_zones }}" focus="zone" fill="{{ true }}"></dc-import></div>
+            <div class="raznos-card raznos-card-pad raznos-dmap-card"><dc-import name="RaznosIcon" svc="{{ dmap_svc }}" alt="{{ dmap_svc_title }}" size="md"></dc-import><span class="raznos-dmap-card-text"><b>{{ dmap_place }}</b><span>{{ dmap_note }}</span></span></div>
+            <a class="raznos-btn raznos-btn-secondary" href="{{ dmap_route }}" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8-8-2z"/></svg>Маршрут в Яндекс Картах</a>
+          </div>
+        </sc-if>
         <sc-if value="{{ leave_guard_visible }}" hint-placeholder-val="{{ false }}">
           <div class="raznos-dialog-layer" data-backdrop role="dialog" aria-modal="true" aria-label="Уйти без сохранения">
             <div class="raznos-dialog">
@@ -356,7 +364,7 @@
               </div>
               <h2 class="raznos-home-group">Вокруг</h2>
               <dc-import name="RaznosLiveToday" items="{{ live_today_items }}" cityTitle="{{ city_title }}" onAll="{{ live_go_feed_home }}" onWrite="{{ live_go_compose_home }}"></dc-import>
-              <dc-import name="RaznosCourierMapCard" count="{{ cmap_count }}" locked="{{ cmap_locked }}" onOpen="{{ go_courier_map }}"></dc-import>
+              <dc-import name="RaznosCourierMapCard" count="{{ cmap_count }}" locked="{{ cmap_locked }}" offline="{{ net_offline }}" onOpen="{{ go_courier_map }}"></dc-import>
             </div>
           </sc-if>
 
@@ -364,7 +372,7 @@
             <div class="raznos-phone-body raznos-cmap-screen" data-screen-label="Courier map">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ cmap_back }}" aria-label="Назад">‹</button><h1 class="raznos-text-h1" style="margin:0">Карта курьеров</h1></div>
               <div class="raznos-cmap-stage">
-                <dc-import name="RaznosCourierMap" fill="{{ true }}" svcs="{{ cmap_svcs }}" couriers="{{ cmap_share }}" hideCouriers="{{ cmap_locked }}" me="{{ true }}" pins="{{ cmap_pins }}" focus="{{ cmap_focus_pt }}" activeId="{{ cmap_active_id }}"></dc-import>
+                <dc-import name="RaznosDistrictMap" mode="people" fill="{{ true }}" homeButton="{{ false }}" inset="{{ 220 }}" svcs="{{ cmap_svcs }}" couriers="{{ cmap_share }}" me="{{ cmap_me_at }}" pins="{{ cmap_pins }}" focusAt="{{ cmap_focus_at }}" focusKey="{{ cmap_focus_key }}" activeId="{{ cmap_active_id }}" offline="{{ net_offline }}"></dc-import>
                 <!-- фильтры после карты: без своего z-index рисуются поверх неё, а шторка сервисов не заперта в их полоске -->
                 <div class="raznos-cmap-filters" role="group" aria-label="Фильтры карты">
                   <dc-import name="RaznosFilterChips" filters="{{ cmap_filters }}" onChange="{{ cmap_set_filter }}"></dc-import>
@@ -372,6 +380,7 @@
                 </div>
                 <sc-if value="{{ cmap_panel }}" hint-placeholder-val="{{ true }}">
                   <div class="raznos-cmap-dock">
+                    <button type="button" class="raznos-cmap-locate" onClick="{{ cmap_city }}" aria-label="Показать весь город" title="Весь город"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><circle cx="12" cy="12" r="2.5"/></svg></button>
                     <button type="button" class="{{ cmap_locate_cls }}" onClick="{{ cmap_locate }}" aria-label="{{ cmap_locate_label }}" aria-pressed="{{ cmap_focus_me }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8z"/></svg></button>
                     <div class="raznos-cmap-panel">
                       <div class="raznos-cmap-count"><b>{{ cmap_count_title }}</b><span>{{ cmap_count_sub }}</span></div>
@@ -454,7 +463,7 @@
           </sc-if>
 
           <sc-if value="{{ is_work_filters }}"><dc-import name="RaznosWorkFilters" value="{{ work_filters }}" onChange="{{ save_work_filters }}" activeValue="{{ active_filter }}" onActiveChange="{{ set_active_filter }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
-          <sc-if value="{{ is_slots }}"><div class="raznos-phone-body" data-screen-label="Shifts"><dc-import name="RaznosShifts" caps="{{ shifts_caps }}" facts="{{ smart_fact }}" onTake="{{ shifts_take }}" rebookOff="{{ rebook_off }}" onRebookKeep="{{ rebook_keep }}" onShowInPlan="{{ shifts_show_plan }}" shifts="{{ shifts_week }}" slots="{{ shifts_slots }}" rules="{{ shifts_rules }}" openings="{{ shifts_openings }}" deficits="{{ shifts_deficits }}" watches="{{ shifts_watches }}" today="{{ today_iso }}" nowMinutes="{{ 940 }}" initialTab="{{ slots_tab }}" initialWeek="{{ slots_week }}" initialDay="{{ slots_day }}" initialSvc="{{ slots_svc }}" initialPast="{{ slots_past }}" focus="{{ slots_focus }}" onBack="{{ slots_back }}" onOpenService="{{ slots_open_service }}" alertRules="{{ ar_rules }}" alertServices="{{ ar_svcs }}" alertFind="{{ ar_find }}" onAlert="{{ ar_entry }}" onAlertNew="{{ ar_new }}" onAlertOpen="{{ ar_open }}" onAlertToggle="{{ ar_toggle }}" onTab="{{ slots_tab_seen }}"></dc-import></div></sc-if>
+          <sc-if value="{{ is_slots }}"><div class="raznos-phone-body" data-screen-label="Shifts"><dc-import name="RaznosShifts" onAreaMap="{{ dmap_show }}" caps="{{ shifts_caps }}" facts="{{ smart_fact }}" onTake="{{ shifts_take }}" rebookOff="{{ rebook_off }}" onRebookKeep="{{ rebook_keep }}" onShowInPlan="{{ shifts_show_plan }}" shifts="{{ shifts_week }}" slots="{{ shifts_slots }}" rules="{{ shifts_rules }}" openings="{{ shifts_openings }}" deficits="{{ shifts_deficits }}" watches="{{ shifts_watches }}" today="{{ today_iso }}" nowMinutes="{{ 940 }}" initialTab="{{ slots_tab }}" initialWeek="{{ slots_week }}" initialDay="{{ slots_day }}" initialSvc="{{ slots_svc }}" initialPast="{{ slots_past }}" focus="{{ slots_focus }}" onBack="{{ slots_back }}" onOpenService="{{ slots_open_service }}" alertRules="{{ ar_rules }}" alertServices="{{ ar_svcs }}" alertFind="{{ ar_find }}" onAlert="{{ ar_entry }}" onAlertNew="{{ ar_new }}" onAlertOpen="{{ ar_open }}" onAlertToggle="{{ ar_toggle }}" onTab="{{ slots_tab_seen }}"></dc-import></div></sc-if>
           <sc-if value="{{ is_work_schedule }}"><dc-import name="RaznosWorkSchedule" onBack="{{ work_schedule_back }}" onSave="{{ save_work_graph }}" value="{{ work_graph }}"></dc-import></sc-if>
 
           <sc-if value="{{ is_work_hub }}">
@@ -468,7 +477,7 @@
                 </div>
             </div>
             </sc-if>
-            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" caps="{{ shifts_caps }}" quests="{{ smart_quests }}" weather="{{ smart_weather }}" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" rebookOff="{{ rebook_off }}" onRebookKeep="{{ rebook_keep }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ plan_edit_graph }}" onAssistant="{{ ai_plan_tap }}" assistantAttention="{{ ai_attention }}" reopenSettings="{{ plan_reopen_settings }}" onReopened="{{ plan_reopened }}" dayFacts="{{ smart_day_facts }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" changeNote="{{ plan_change_note }}" changeIso="{{ plan_change_iso }}" changeKey="{{ plan_change_key }}" onChangeHide="{{ plan_change_hide }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onDay="{{ plan_day_seen }}" planState="{{ plan_state }}" onPlanState="{{ set_plan_state }}" onBack="{{ back_work_tools }}" alertFind="{{ ar_find }}" onAlert="{{ ar_entry }}"></dc-import></sc-if>
+            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" onAreaMap="{{ dmap_show }}" caps="{{ shifts_caps }}" quests="{{ smart_quests }}" weather="{{ smart_weather }}" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" rebookOff="{{ rebook_off }}" onRebookKeep="{{ rebook_keep }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ plan_edit_graph }}" onAssistant="{{ ai_plan_tap }}" assistantAttention="{{ ai_attention }}" reopenSettings="{{ plan_reopen_settings }}" onReopened="{{ plan_reopened }}" dayFacts="{{ smart_day_facts }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" changeNote="{{ plan_change_note }}" changeIso="{{ plan_change_iso }}" changeKey="{{ plan_change_key }}" onChangeHide="{{ plan_change_hide }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onDay="{{ plan_day_seen }}" planState="{{ plan_state }}" onPlanState="{{ set_plan_state }}" onBack="{{ back_work_tools }}" alertFind="{{ ar_find }}" onAlert="{{ ar_entry }}"></dc-import></sc-if>
           </sc-if>
 
           <sc-if value="{{ is_active_order }}">
@@ -3722,10 +3731,10 @@
       // Что происходит: фото и точки только локальные, без загрузки и геолокации
       const LIVE_PHOTOS = { queue: './assets/live-photo-darkstore-queue.svg', entrance: './assets/live-photo-closed-entrance.svg' };
       const LIVE_SPOTS = [
-        { id: 'begovaya', label: 'Беговая ул., 7', x: 30, y: 36 },
-        { id: 'presnya', label: 'Мантулинская ул., 2', x: 50, y: 62 },
-        { id: 'tverskaya', label: 'Тверская ул.', x: 68, y: 30 },
-        { id: 'sokol', label: 'Склад на Соколе', x: 84, y: 60 }
+        { id: 'begovaya', label: 'Беговая ул., 7', x: 30, y: 36, at: [37.5565, 55.7768] },
+        { id: 'presnya', label: 'Мантулинская ул., 2', x: 50, y: 62, at: [37.5492, 55.7578] },
+        { id: 'tverskaya', label: 'Тверская ул.', x: 68, y: 30, at: [37.6072, 55.7652] },
+        { id: 'sokol', label: 'Склад на Соколе', x: 84, y: 60, at: [37.5168, 55.8003] }
       ];
       // курьер делится точкой, на карте курьеров это его же положение
       const LIVE_MY_SPOT = 'begovaya';
@@ -6630,12 +6639,14 @@
               const sp = LIVE_SPOTS.find((x) => x.id === m.place);
               if (!sp) return null;
               const n = cmapSeen[sp.id] = (cmapSeen[sp.id] || 0) + 1;
-              return { id: m.id, x: sp.x * 3.6 + (n - 1) * 9, y: sp.y * 4.4, svc: m.svcs[0], svcs: m.svcs, tap: liveOpenThread(m.id, 'courier-map') };
+              // несколько сообщений в одном месте разводим вбок, чтобы капли не закрывали друг друга
+              return { id: m.id, at: [sp.at[0] + (n - 1) * 0.0016, sp.at[1]], svc: m.svcs[0], svcs: m.svcs, label: 'Сообщение: ' + m.text.slice(0, 60), tap: liveOpenThread(m.id, 'courier-map') };
             }).filter(Boolean);
           const cmapPins = cmapAllPins.filter((pn) => !cmapSvcs.length || pn.svcs.some((k) => cmapSvcs.indexOf(k) !== -1));
           const cmapFocusKey = st.cmapFocus || '';
           const cmapFocusPin = cmapFocusKey.indexOf('pin:') === 0 ? cmapAllPins.find((pn) => pn.id === cmapFocusKey.slice(4)) : null;
-          const cmapFocusPt = cmapFocusKey === 'me' ? { x: 108, y: 158 } : (cmapFocusPin ? { x: cmapFocusPin.x, y: cmapFocusPin.y - 8 } : null);
+          const cmapMeAt = (LIVE_SPOTS.find((x) => x.id === LIVE_MY_SPOT) || LIVE_SPOTS[0]).at;
+          const cmapFocusAt = cmapFocusKey === 'me' ? cmapMeAt : (cmapFocusPin ? cmapFocusPin.at : null);
           const cmapActivePin = cmapFocusPin ? cmapFocusPin.id : '';
           // удаление в первые 10 минут дневной лимит не списывает
           const liveCountsToLimit = (m) => m.mine && m.createdAt >= liveDayStart && !(m.deletedAt && m.deletedAt - m.createdAt < LIVE_FREE_DELETE_MS);
@@ -7368,7 +7379,7 @@
             cmap_count: 30,
             cmap_svcs: cmapSvcs,
             cmap_pins: cmapMsgsOn ? cmapPins : [],
-            cmap_focus_pt: cmapFocusPt, cmap_active_id: cmapActivePin,
+            cmap_me_at: cmapMeAt, cmap_focus_at: cmapFocusAt, cmap_focus_key: cmapFocusKey + '#' + (st.cmapFly || 0), cmap_active_id: cmapActivePin,
             cmap_filters: [{
               key: 'svcs', title: 'Сервисы', multi: true, allLabel: 'Все сервисы', value: cmapSvcs,
               options: [['yandex-eda', 'Яндекс Еда'], ['samokat', 'Самокат'], ['vkusvill', 'ВкусВилл'], ['x5', 'X5']].map(([k, label]) => ({ k, label, note: cmapShare ? CMAP_COUNTS[k] + ' на смене' : '' }))
@@ -7378,7 +7389,7 @@
             cmap_panel: !cmapIntro, cmap_intro: cmapIntro,
             cmap_count_title: cmapShare ? cmapN + ' ' + ruPlural(cmapN, 'курьер', 'курьера', 'курьеров') + ' на смене рядом' : 'Курьеров не видно',
             cmap_count_sub: [
-              cmapShare ? (cmapSvcs.length ? 'В радиусе 3 км · обновлено только что' : 'Больше всего в Яндекс Еде · обновлено только что') : 'Они появятся, когда вы покажете себя',
+              cmapShare ? (netOffline ? 'Нет сети, точки на 12 мин назад' : (cmapSvcs.length ? 'В радиусе 3 км · обновлено только что' : 'Больше всего в Яндекс Еде · обновлено только что')) : 'Они появятся, когда вы покажете себя',
               cmapMsgsOn ? cmapPins.length + ' ' + ruPlural(cmapPins.length, 'сообщение', 'сообщения', 'сообщений') + ' с местом' : ''
             ].filter(Boolean).join(' · '),
             cmap_me_note: cmapShare ? 'Вас видно, пока идёт смена во ВкусВилле, до 17:00' : 'Вас не видно, и других курьеров тоже',
@@ -7389,7 +7400,8 @@
             cmap_focus_me: cmapFocusKey === 'me',
             cmap_locate_cls: 'raznos-cmap-locate' + (cmapFocusKey === 'me' ? ' raznos-is-active' : ''),
             cmap_locate_label: cmapFocusKey === 'me' ? 'Показать всю карту' : 'Показать, где я сейчас',
-            cmap_locate: () => set({ cmapFocus: this.state.cmapFocus === 'me' ? '' : 'me' }),
+            cmap_locate: () => set({ cmapFocus: this.state.cmapFocus === 'me' ? '' : 'me', cmapFly: (this.state.cmapFly || 0) + 1 }),
+            cmap_city: () => set({ cmapFocus: '', cmapFly: (this.state.cmapFly || 0) + 1 }),
 
             work_vv_check: workVv ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', work_vv_mark: workVv ? '✓' : '',
             work_samokat_check: workSamokat ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', work_samokat_mark: workSamokat ? '✓' : '',
@@ -9103,6 +9115,20 @@
               uxShowToast('Расход удалён', 'Вернуть', () => set({ expManual: (this.state.expManual || []).map((e) => e.id === delId ? Object.assign({}, e, { deletedAt: null }) : e) }));
             },
             ef_back: () => guardBack(efDirty, efExit),
+            // карта района из шторок Плана и Слотов: слой поверх экрана, Назад возвращает в ту же шторку
+            ...(() => {
+              const z = st.dmap || null;
+              const km = z && z.radius_m ? String(Math.round(z.radius_m / 100) / 10).replace('.', ',') + ' км' : '';
+              const svcTitle = z && z.svc ? ((typeof SERVICES !== 'undefined' && SERVICES[z.svc]) || {}).title || '' : '';
+              return {
+                dmap_visible: !!z, dmap_show: (v) => set({ dmap: v || null }), dmap_back: () => set({ dmap: null }),
+                dmap_k: z ? z.k : '', dmap_name: z ? z.name : '', dmap_sub: 'Район города, Москва', dmap_aria: z ? 'Карта района ' + z.name : '',
+                dmap_place: z ? (svcTitle ? svcTitle + ' · ' : '') + z.place : '', dmap_svc: z ? z.svc : '', dmap_svc_title: svcTitle,
+                dmap_zones: z && z.center ? [{ center: z.center, radius_m: z.radius_m, svc: z.svc, approx: true, label: z.place }] : [],
+                dmap_note: z && z.center ? 'Сервис не отдаёт границы зоны, поэтому показываем точку и круг ≈ ' + km + ' примерно' : 'Сервис не отдаёт границы зоны, показываем район, где обычно ждут заказы',
+                dmap_route: z ? 'https://yandex.ru/maps/?mode=routes&rtext=~' + (z.center ? z.center[1] + ',' + z.center[0] : encodeURIComponent('Москва, район ' + z.name)) : ''
+              };
+            })(),
             leave_guard_visible: !!st.leavePatch,
             leave_guard_text: 'Введённые данные не сохранятся, черновик мы не храним',
             leave_stay: () => set({ leavePatch: null }),

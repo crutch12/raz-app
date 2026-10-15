@@ -27,6 +27,7 @@
     <span class="rgp-handle" aria-hidden="true"></span>
     <div class="rgp-head"><h2>{{ head }} <span class="rgp-time">{{ from }}–{{ to }}</span></h2><button type="button" class="rgp-close" onClick="{{ close }}" aria-label="Закрыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <p class="rgp-sub">{{ sub }}</p>
+    <sc-if value="{{ has_area }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosDistrictLink" place="{{ area_place }}" svc="{{ area_svc }}" onOpen="{{ area_open }}"></dc-import></sc-if>
     <sc-if value="{{ has_current }}" hint-placeholder-val="{{ false }}">
       <p class="rgp-label">Сейчас в плане</p>
       <dc-import name="RaznosPlanWindow" from="{{ cur.from }}" to="{{ cur.to }}" svc="{{ cur.svc }}" title="{{ cur.title }}" sub="{{ cur.sub }}" pay="{{ cur.pay }}" kind="{{ cur.kind }}" badge="{{ cur.badge }}" note="{{ cur.note }}" action="{{ cur.action }}" actionKind="{{ cur.actionKind }}" onAction="{{ cur.onAction }}" urgent="{{ cur.urgent }}" plain="{{ true }}"></dc-import>
@@ -50,7 +51,7 @@
     <sc-if value="{{ no_remove }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ close }}">{{ close_label }}</button></sc-if>
   </section>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"18:00"},"to":{"editor":"text","default":"22:00"},"current":{"editor":null},"options":{"editor":null},"extra":{"editor":null},"rely":{"editor":"text"},"doneNote":{"editor":"text"},"closeLabel":{"editor":"text"},"onRemove":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"18:00"},"to":{"editor":"text","default":"22:00"},"current":{"editor":null},"options":{"editor":null},"extra":{"editor":null},"rely":{"editor":"text"},"doneNote":{"editor":"text"},"closeLabel":{"editor":"text"},"onRemove":{"editor":null},"place":{"editor":"text"},"svc":{"editor":"text"},"onArea":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
 // один выбор на любой отрезок времени: свободное время или окно плана, что стоит сейчас и чем можно заменить
 const RGP_DEMO = [
   { from: '18:00', to: '22:00', svc: 'yandex-eda', title: 'Яндекс Еда', sub: 'Центр', pay: '≈ 800 ₽/ч', kind: 'free', badge: 'свободный выход', note: '+3 200 ₽ к неделе', action: 'В план', actionKind: 'primary', gain: true },
@@ -82,6 +83,8 @@ class Component extends DCLogic {
       has_extra: extra.length > 0, extra, has_rely: !!p.rely && (n > 0 || !!cur), rely: p.rely || '',
       no_options: !!cur && !n,
       has_remove: !!cur && typeof p.onRemove === 'function', no_remove: !cur, remove: fn(p.onRemove),
+      // район окна: место текущего варианта или лучшего, открывает карту района
+      has_area: typeof p.onArea === 'function' && !!p.place, area_place: p.place || '', area_svc: p.svc || '', area_open: fn(p.onArea),
       close: fn(p.onClose), stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
     };
   }
