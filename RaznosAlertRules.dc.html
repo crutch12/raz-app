@@ -130,7 +130,7 @@ class Component extends DCLogic {
     const areas = Array.isArray(p.areas) && p.areas.length ? p.areas : RAR_AREAS;
     const svcName = (k) => { const s = svcs.find((x) => x.key === k); return s ? s.label : k; };
     const svcLabel = (list) => (list || []).map(svcName).join(', ');
-    const sub = (r) => [svcLabel(r.svcs), RAR_WHERE_LABEL(r.where), RAR_DAYS_LABEL(r.days) + ' ' + RAR_TIME_LABEL(r.time), 'до ' + r.max + ' ' + RAR_TIMES_WORD(r.max) + ' в день'].join(' · ');
+    const sub = (r) => [svcLabel(r.svcs), RAR_WHERE_LABEL(r.where), RAR_DAYS_LABEL(r.days) + ' ' + RAR_TIME_LABEL(r.time), 'до ' + r.max + ' раз в день'].join(' · ');
     // пример пуша: первое место и первый сервис из правила, время из выбранного окна
     const push = (r) => {
       const svc = svcName((r.svcs || [])[0] || svcs[0].key);

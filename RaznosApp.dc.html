@@ -58,6 +58,16 @@
           </div>
         </sc-if>
         <sc-if value="{{ via_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosViaSheet" via="{{ via_data }}" onClose="{{ via_close }}"></dc-import></sc-if>
+        <!-- редактор своего оповещения: одна шторка для списка в Уведомлениях и входов Сообщать на экранах -->
+        <sc-if value="{{ ar_sheet }}" hint-placeholder-val="{{ false }}">
+          <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="{{ ar_sheet_title }}">
+            <div class="raznos-dialog raznos-day-sheet">
+              <span class="raznos-day-handle" aria-hidden="true"></span>
+              <div class="raznos-day-head"><span class="raznos-text-h3">{{ ar_sheet_title }}</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ ar_close }}" aria-label="Закрыть">×</button></div>
+              <dc-import name="RaznosAlertRules" mode="edit" rule="{{ ar_rule }}" services="{{ ar_svcs }}" areas="{{ ar_areas }}" onSave="{{ ar_save }}" onDelete="{{ ar_delete }}"></dc-import>
+            </div>
+          </div>
+        </sc-if>
         <sc-if value="{{ ai_open }}" hint-placeholder-val="{{ false }}"><div class="raznos-ai-slot"><dc-import name="RaznosAssistantSheet" language="{{ language }}" endpoint="{{ ai_endpoint }}" getSession="{{ ai_get_session }}" getSnapshot="{{ ai_snapshot }}" getContext="{{ ai_context }}" cardProps="{{ ai_card_props }}" previewAction="{{ ai_preview }}" runAction="{{ ai_run_action }}" outcomes="{{ ai_outcomes }}" setOutcome="{{ ai_set_outcome }}" pushEvent="{{ ai_push_event }}" takeEvents="{{ ai_take_events }}" restoreEvents="{{ ai_restore_events }}" off="{{ ai_off }}" onPromptScreen="{{ ai_prompt_screen }}" autoSend="{{ ai_auto_send }}" onAutoSent="{{ ai_auto_sent }}" initialPrompt="{{ ai_prompt }}" onPromptSent="{{ ai_prompt_sent }}" onReset="{{ ai_on_reset }}" onClose="{{ ai_close }}"></dc-import></div></sc-if>
         <sc-if value="{{ ai_consent_ask }}" hint-placeholder-val="{{ false }}">
           <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Помощник и ваши данные">
@@ -310,6 +320,7 @@
                     <span class="raznos-day-handle" aria-hidden="true"></span>
                     <div class="raznos-day-head"><span class="raznos-text-h3">Погода на смене</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ weather_sheet_close }}" aria-label="Закрыть">×</button></div>
                     <dc-import name="RaznosWeather" weather="{{ home_weather }}"></dc-import>
+                    <dc-import name="RaznosAlertBell" variant="row" on="{{ weather_alert_on }}" label="Сообщать о спросе из-за погоды" sub="Заранее, за 1–2 часа до дождя, снега или мороза" onTap="{{ weather_alert_tap }}"></dc-import>
                   </div>
                 </div>
               </sc-if>
@@ -319,6 +330,7 @@
                     <span class="raznos-day-handle" aria-hidden="true"></span>
                     <div class="raznos-day-head"><span class="raznos-text-h3">Бонусы и задания</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ quests_close }}" aria-label="Закрыть">×</button></div>
                     <dc-import name="RaznosBonusQuests" mode="list" items="{{ quests_items }}" nowMin="{{ 940 }}"></dc-import>
+                    <dc-import name="RaznosAlertBell" variant="row" on="{{ quests_alert_on }}" label="Сообщать о новых бонусах" sub="{{ quests_alert_sub }}" onTap="{{ quests_alert_tap }}"></dc-import>
                   </div>
                 </div>
               </sc-if>
@@ -442,7 +454,7 @@
           </sc-if>
 
           <sc-if value="{{ is_work_filters }}"><dc-import name="RaznosWorkFilters" value="{{ work_filters }}" onChange="{{ save_work_filters }}" activeValue="{{ active_filter }}" onActiveChange="{{ set_active_filter }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
-          <sc-if value="{{ is_slots }}"><div class="raznos-phone-body" data-screen-label="Shifts"><dc-import name="RaznosShifts" caps="{{ shifts_caps }}" facts="{{ smart_fact }}" onTake="{{ shifts_take }}" rebookOff="{{ rebook_off }}" onRebookKeep="{{ rebook_keep }}" onShowInPlan="{{ shifts_show_plan }}" shifts="{{ shifts_week }}" slots="{{ shifts_slots }}" rules="{{ shifts_rules }}" openings="{{ shifts_openings }}" deficits="{{ shifts_deficits }}" watches="{{ shifts_watches }}" today="{{ today_iso }}" nowMinutes="{{ 940 }}" initialTab="{{ slots_tab }}" initialWeek="{{ slots_week }}" initialDay="{{ slots_day }}" initialSvc="{{ slots_svc }}" initialPast="{{ slots_past }}" onBack="{{ slots_back }}" onOpenService="{{ slots_open_service }}"></dc-import></div></sc-if>
+          <sc-if value="{{ is_slots }}"><div class="raznos-phone-body" data-screen-label="Shifts"><dc-import name="RaznosShifts" caps="{{ shifts_caps }}" facts="{{ smart_fact }}" onTake="{{ shifts_take }}" rebookOff="{{ rebook_off }}" onRebookKeep="{{ rebook_keep }}" onShowInPlan="{{ shifts_show_plan }}" shifts="{{ shifts_week }}" slots="{{ shifts_slots }}" rules="{{ shifts_rules }}" openings="{{ shifts_openings }}" deficits="{{ shifts_deficits }}" watches="{{ shifts_watches }}" today="{{ today_iso }}" nowMinutes="{{ 940 }}" initialTab="{{ slots_tab }}" initialWeek="{{ slots_week }}" initialDay="{{ slots_day }}" initialSvc="{{ slots_svc }}" initialPast="{{ slots_past }}" focus="{{ slots_focus }}" onBack="{{ slots_back }}" onOpenService="{{ slots_open_service }}" alertRules="{{ ar_rules }}" alertServices="{{ ar_svcs }}" alertFind="{{ ar_find }}" onAlert="{{ ar_entry }}" onAlertNew="{{ ar_new }}" onAlertOpen="{{ ar_open }}" onAlertToggle="{{ ar_toggle }}" onTab="{{ slots_tab_seen }}"></dc-import></div></sc-if>
           <sc-if value="{{ is_work_schedule }}"><dc-import name="RaznosWorkSchedule" onBack="{{ work_schedule_back }}" onSave="{{ save_work_graph }}" value="{{ work_graph }}"></dc-import></sc-if>
 
           <sc-if value="{{ is_work_hub }}">
@@ -456,7 +468,7 @@
                 </div>
             </div>
             </sc-if>
-            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" caps="{{ shifts_caps }}" quests="{{ smart_quests }}" weather="{{ smart_weather }}" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" rebookOff="{{ rebook_off }}" onRebookKeep="{{ rebook_keep }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ plan_edit_graph }}" onAssistant="{{ ai_plan_tap }}" assistantAttention="{{ ai_attention }}" reopenSettings="{{ plan_reopen_settings }}" onReopened="{{ plan_reopened }}" dayFacts="{{ smart_day_facts }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" changeNote="{{ plan_change_note }}" changeIso="{{ plan_change_iso }}" changeKey="{{ plan_change_key }}" onChangeHide="{{ plan_change_hide }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onDay="{{ plan_day_seen }}" planState="{{ plan_state }}" onPlanState="{{ set_plan_state }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
+            <sc-if value="{{ work_ready }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSmartSchedule" caps="{{ shifts_caps }}" quests="{{ smart_quests }}" weather="{{ smart_weather }}" embedded="{{ true }}" workWeek="{{ work_week }}" onOpenResult="{{ go_plan_day_result }}" onOpenWeekResult="{{ go_plan_week_result }}" onGoalChange="{{ set_work_goal }}" onboarded="{{ plan_onboarded }}" onOnboard="{{ set_plan_onboarded }}" weekGoal="{{ work_week_goal }}" weekEarned="{{ work_week_earned }}" todayEarned="{{ today_earn }}" booked="{{ shifts_week }}" slots="{{ shifts_slots }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" onFindSlot="{{ go_slots_find }}" onTakeSlot="{{ shifts_take }}" rebookOff="{{ rebook_off }}" onRebookKeep="{{ rebook_keep }}" onOpenShifts="{{ go_slots }}" onEditGraph="{{ plan_edit_graph }}" onAssistant="{{ ai_plan_tap }}" assistantAttention="{{ ai_attention }}" reopenSettings="{{ plan_reopen_settings }}" onReopened="{{ plan_reopened }}" dayFacts="{{ smart_day_facts }}" build="{{ smart_build }}" prefs="{{ smart_prefs }}" onSettings="{{ smart_settings }}" stay="{{ plan_stay }}" onStay="{{ set_plan_stay }}" fact="{{ smart_fact }}" addWindow="{{ smart_add_window }}" focusAdded="{{ smart_focus_added }}" focusIso="{{ smart_focus_iso }}" focusKey="{{ smart_focus_key }}" openKey="{{ smart_open_key }}" changeNote="{{ plan_change_note }}" changeIso="{{ plan_change_iso }}" changeKey="{{ plan_change_key }}" onChangeHide="{{ plan_change_hide }}" rules="{{ shifts_rules }}" onOpenService="{{ plan_open_service }}" onDay="{{ plan_day_seen }}" planState="{{ plan_state }}" onPlanState="{{ set_plan_state }}" onBack="{{ back_work_tools }}" alertFind="{{ ar_find }}" onAlert="{{ ar_entry }}"></dc-import></sc-if>
           </sc-if>
 
           <sc-if value="{{ is_active_order }}">
@@ -525,7 +537,7 @@
               <sc-if value="{{ conn_done_show }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-ok"><span class="raznos-notice-title">{{ conn_done_title }}</span><span class="raznos-text-small">{{ conn_done_text }}</span></div></sc-if>
               <dc-import name="RaznosConnHealth" items="{{ conn_health_problems }}" netOffline="{{ net_offline }}" onAction="{{ conn_health_action }}"></dc-import>
               <sc-if value="{{ relogin_visible }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Сервисы нужно подключить заново</span><span class="raznos-text-small">{{ relogin_note }}</span></div></sc-if>
-              <sc-if value="{{ sync_has_targets }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSyncPanel" running="{{ sync_running }}" done="{{ sync_done }}" total="{{ sync_total }}" joined="{{ sync_joined }}" summary="{{ sync_summary }}" onRequest="{{ request_sync }}"></dc-import></sc-if>
+              <sc-if value="{{ sync_has_targets }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosSyncPanel" running="{{ sync_running }}" done="{{ sync_done }}" total="{{ sync_total }}" joined="{{ sync_joined }}" summary="{{ sync_summary }}" manualNote="{{ sync_manual_note }}" onRequest="{{ request_sync }}"></dc-import></sc-if>
               <sc-if value="{{ integration_linked_show }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-h3">Подключено</span>
               <div class="raznos-card">
                 <sc-for list="{{ integration_linked }}" as="svc" hint-placeholder-count="2">
@@ -559,6 +571,12 @@
               <sc-if value="{{ conn_is_connected }}" hint-placeholder-val="{{ false }}">
                 <sc-if value="{{ conn_acc_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAccountState" svc="{{ conn_key }}" title="{{ conn_title }}" titleIn="{{ conn_acc_in }}" state="{{ conn_acc_state }}" updated="{{ conn_acc_updated }}" onContact="{{ acc_contact }}"></dc-import></sc-if>
                 <div class="raznos-notice raznos-notice-ok"><span class="raznos-notice-title">Сервис подключён</span><span class="raznos-text-small">{{ conn_connected_note }}</span></div>
+                <sc-if value="{{ conn_one_device }}" hint-placeholder-val="{{ false }}"><div class="raznos-card raznos-card-pad raznos-fx raznos-col raznos-gap8">
+                  <span class="raznos-list-title">Обновляем по кнопке</span>
+                  <span class="raznos-text-small">Яндекс Про пускает один телефон на аккаунт, поэтому сами в фоне не обновляем. После обновления Яндекс Про попросит войти заново, это нормально: заказы, смены и деньги не пропадут</span>
+                  <sc-if value="{{ conn_ya_free }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ conn_ya_refresh }}">Обновить данные</button></sc-if>
+                  <sc-if value="{{ conn_ya_busy }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary" disabled>Обновим после заказа</button><span class="raznos-text-small">Во время заказа не обновляем, иначе Яндекс Про выкинет посреди доставки</span></sc-if>
+                </div></sc-if>
                 <p class="raznos-text-tiny">Мы читаем вашу статистику через тот же вход, что и в приложении курьера {{ conn_title }}. Доступ шифруется и его можно отключить в любой момент</p>
                 <button type="button" class="raznos-btn raznos-btn-danger" onClick="{{ conn_disconnect }}">Отключить сервис</button>
               </sc-if>
@@ -589,6 +607,7 @@
               </sc-if>
 
               <sc-if value="{{ conn_show_temp_notice }}" hint-placeholder-val="{{ true }}"><p class="raznos-conn-lead">Войдите так же, как в приложении курьера {{ conn_title }}</p></sc-if>
+              <sc-if value="{{ conn_one_device_before }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Яндекс Про попросит войти заново</span><span class="raznos-text-small">Он пускает один телефон на аккаунт. После подключения и каждого обновления данных зайдите в Яндекс Про снова, это нормально: заказы, смены и деньги не пропадут. Обновляем только когда вы нажмёте Обновить данные</span></div></sc-if>
 
               <sc-if value="{{ conn_show_agree }}" hint-placeholder-val="{{ true }}">
                 <sc-if value="{{ conn_tax_ask }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-col raznos-gap8">
@@ -1077,7 +1096,7 @@
             <div class="raznos-phone-body" data-screen-label="40 Live feed">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ live_back }}" aria-label="Назад, {{ live_back_label }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Что происходит</h1></div>
               <sc-if value="{{ live_from_work }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">{{ live_work_note }}</span></div></sc-if>
-              <div class="raznos-fx raznos-ac raznos-gap8"><div style="flex:1;min-width:0"><dc-import name="RaznosFilterChips" filters="{{ live_filters }}" onChange="{{ live_set_filter }}"></dc-import></div><button type="button" class="raznos-chip" style="flex:none;min-height:44px" onClick="{{ live_go_mine }}">Мои</button></div>
+              <div class="raznos-fx raznos-ac raznos-gap8"><div style="flex:1;min-width:0"><dc-import name="RaznosFilterChips" filters="{{ live_filters }}" onChange="{{ live_set_filter }}"></dc-import></div></div>
               <sc-if value="{{ live_empty_no_integrations }}" hint-placeholder-val="{{ false }}">
                 <dc-import name="RaznosEmptyState" title="Нет подключённых сервисов" text="Фильтр Все мои сервисы показывает сообщения только по вашим подключениям. Можно посмотреть сообщения всех сервисов" actionLabel="Показать Все сервисы" actionSmall="{{ true }}" onAction="{{ live_show_all_services }}"></dc-import>
               </sc-if>
@@ -1399,7 +1418,7 @@
             <div class="raznos-phone-body" data-screen-label="Best places">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ best_places_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Где выгоднее</h1></div>
               <span class="raznos-text-small" style="margin-top:-4px">{{ city_title }}</span>
-              <dc-import name="RaznosHotspots" mode="full" initialView="{{ bp_view }}" initialPick="{{ bp_pick }}" onDetail="{{ bp_detail }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
+              <dc-import name="RaznosHotspots" mode="full" initialView="{{ bp_view }}" initialPick="{{ bp_pick }}" onDetail="{{ bp_detail }}" alertFind="{{ ar_find }}" onAlert="{{ ar_entry }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
             </div>
           </sc-if>
 
@@ -1413,7 +1432,7 @@
 
           <sc-if value="{{ is_market_timeline }}">
             <div class="raznos-phone-body" data-screen-label="Market timeline">
-              <dc-import name="RaznosMarketTimeline" mode="full" initialDay="{{ mt_day }}" initialHour="{{ mt_hour }}" initialBy="{{ mt_by }}" initialScope="{{ mt_scope }}" connected="{{ svc_connected }}" weather="{{ mt_weather }}" onBack="{{ mt_back }}" onMap="{{ mt_map }}" onPlan="{{ mt_plan }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}" few="{{ mk_few }}"></dc-import>
+              <dc-import name="RaznosMarketTimeline" mode="full" initialDay="{{ mt_day }}" initialHour="{{ mt_hour }}" initialBy="{{ mt_by }}" initialScope="{{ mt_scope }}" connected="{{ svc_connected }}" weather="{{ mt_weather }}" initialView="{{ mt_view }}" initialZones="{{ mt_zones }}" initialPick="{{ mt_pick }}" initialTod="{{ mt_tod }}" slots="{{ mt_slots_list }}" onBack="{{ mt_back }}" onSlots="{{ mt_slots }}" alertFind="{{ ar_find }}" onAlert="{{ ar_entry }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}" few="{{ mk_few }}"></dc-import>
             </div>
           </sc-if>
 
@@ -1507,15 +1526,6 @@
               <sc-if value="{{ is_role_courier }}" hint-placeholder-val="{{ true }}">
                 <span class="raznos-text-h3">Мои оповещения</span>
                 <dc-import name="RaznosAlertRules" rules="{{ ar_rules }}" services="{{ ar_svcs }}" areas="{{ ar_areas }}" onOpen="{{ ar_open }}" onToggle="{{ ar_toggle }}" onAdd="{{ ar_add }}"></dc-import>
-                <sc-if value="{{ ar_sheet }}" hint-placeholder-val="{{ false }}">
-                  <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="{{ ar_sheet_title }}">
-                    <div class="raznos-dialog raznos-day-sheet">
-                      <span class="raznos-day-handle" aria-hidden="true"></span>
-                      <div class="raznos-day-head"><span class="raznos-text-h3">{{ ar_sheet_title }}</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ ar_close }}" aria-label="Закрыть">×</button></div>
-                      <dc-import name="RaznosAlertRules" mode="edit" rule="{{ ar_rule }}" services="{{ ar_svcs }}" areas="{{ ar_areas }}" onSave="{{ ar_save }}" onDelete="{{ ar_delete }}"></dc-import>
-                    </div>
-                  </div>
-                </sc-if>
                 <span class="raznos-text-h3">Категории</span>
               </sc-if>
               <div class="raznos-card">
@@ -1542,6 +1552,7 @@
                 <div class="raznos-card" style="overflow:hidden"><sc-for list="{{ inbox_archive }}" as="n" hint-placeholder-count="3"><dc-import name="RaznosNotifRow" item="{{ n }}" onOpen="{{ inbox_open }}" onRestore="{{ inbox_restore }}"></dc-import></sc-for></div>
               </sc-if>
               <sc-if value="{{ inbox_not_archive }}" hint-placeholder-val="{{ true }}">
+              <sc-if value="{{ inbox_alerts_row }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAlertBell" variant="row" on="{{ inbox_alerts_on }}" label="Свои оповещения" sub="{{ inbox_alerts_sub }}" ariaLabel="{{ inbox_alerts_aria }}" onTap="{{ inbox_alerts_open }}"></dc-import></sc-if>
               <sc-if value="{{ inbox_has_today }}" hint-placeholder-val="{{ true }}">
                 <span class="raznos-text-h3">Сегодня</span>
                 <div class="raznos-card" style="overflow:hidden"><sc-for list="{{ inbox_today }}" as="n" hint-placeholder-count="4"><dc-import name="RaznosNotifRow" item="{{ n }}" onOpen="{{ inbox_open }}" onHide="{{ inbox_hide }}"></dc-import></sc-for></div>
@@ -1551,7 +1562,7 @@
                 <div class="raznos-card" style="overflow:hidden"><sc-for list="{{ inbox_earlier }}" as="n" hint-placeholder-count="3"><dc-import name="RaznosNotifRow" item="{{ n }}" onOpen="{{ inbox_open }}" onHide="{{ inbox_hide }}"></dc-import></sc-for></div>
               </sc-if>
               <sc-if value="{{ inbox_empty }}" hint-placeholder-val="{{ false }}">
-                <dc-import name="RaznosEmptyState" glyph="bell" title="Новых уведомлений нет" text="Напомним о сменах, выплатах и входе в сервисы"></dc-import>
+                <dc-import name="RaznosEmptyState" glyph="bell" title="Новых уведомлений нет" text="{{ inbox_empty_text }}"></dc-import>
               </sc-if>
               </sc-if>
               <sc-if value="{{ inbox_not_archive }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-card raznos-list-row" style="width:100%" onClick="{{ inbox_go_archive }}"><div class="raznos-list-main"><span class="raznos-list-title">Архив</span><span class="raznos-text-small">{{ inbox_archive_note }}</span></div><span class="raznos-row-chevron">›</span></button>
@@ -1572,7 +1583,7 @@
                 <div class="raznos-fx raznos-ac raznos-gap8"><span class="raznos-hero-value">{{ exp_total }}</span><span class="raznos-hero-unit">₽</span></div>
                 <span class="raznos-hero-formula">из них регулярные {{ exp_recurring_total }} ₽, остальное внесено вручную</span>
               </div>
-              <button type="button" class="raznos-list-row raznos-card" onClick="{{ go_recurring_from_expenses }}"><div class="raznos-list-main"><span class="raznos-text-h3">Регулярные</span><span class="raznos-text-small">{{ exp_recurring_summary }}</span></div><span class="raznos-row-chevron">›</span></button>
+              <button type="button" class="raznos-list-row raznos-card raznos-exp-recurring" onClick="{{ go_recurring_from_expenses }}"><div class="raznos-list-main"><span class="raznos-text-h3">Регулярные</span><span class="raznos-text-small">{{ exp_recurring_summary }}</span></div><span class="raznos-row-chevron">›</span></button>
               <!-- свой транспорт или аренда: одна строка с выводом, калькулятор в шторке -->
               <sc-if value="{{ tc_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosTransportCalc" own="{{ tc.own }}" hours="{{ tc.hours }}" km="{{ tc.km }}" tariffs="{{ tc.tariffs }}" onOpen="{{ tc_open }}"></dc-import></sc-if>
               <sc-if value="{{ tc_sheet }}" hint-placeholder-val="{{ false }}">
@@ -2234,17 +2245,17 @@
           transport: ['bike', 'ebike', 'moto', 'car'], transportNote: 'пеших нет', status: 'bron', slots: true, take: 'Взять в Яндекс Лавке', rate: 'estimate', watch: false,
           cancel: { kind: 'noonBefore', late: 'Позже доход может быть снижен, за невыход штраф' },
           opening: { text: 'пятница вечером в Москве, суббота в других городах' }, ratings: true, tips: 'service', link: 'app',
-          src: { transport: 'партнёрские материалы' }, unverified: ['свободный слот']
+          src: { transport: 'партнёрские материалы' }, unverified: ['свободный выход']
         },
         vkusvill: {
           title: 'ВкусВилл', prep: 'ВкусВилле', app: 'ВкусВилл', modes: ['plan', 'auto'], zone: 'даркстор', orders: 'auto',
-          transport: ['car', 'bike', 'ebike'], status: 'zayavka', slots: true, take: 'Подать заявку', rate: 'estimate', watch: null,
+          transport: ['car', 'bike', 'ebike'], status: 'zayavka', slots: true, take: 'Подать заявку во ВкусВилле', rate: 'estimate', watch: null,
           cancel: { kind: 'none', note: 'Срок отмены не опубликован, штрафов у ВкусВилла нет, смену согласует куратор даркстора' },
           opening: null, ratings: false, tips: 'income', link: 'order', src: { transport: 'не подтверждено' }
         },
         samokat: {
           title: 'Самокат', prep: 'Самокате', app: 'Доставка Про', modes: ['plan', 'auto'], zone: 'даркстор', orders: 'auto',
-          transport: ['foot', 'bike', 'ebike', 'moto', 'car'], status: 'zayavka', slots: true, take: 'Запросить часы', rate: 'known', watch: true,
+          transport: ['foot', 'bike', 'ebike', 'moto', 'car'], status: 'zayavka', slots: true, take: 'Запросить часы в Самокате', rate: 'known', watch: true,
           cancel: { kind: 'hours', hours: 48, late: 'Позже падает рейтинг, денежных штрафов нет по словам представителя' },
           opening: null, ratings: false, tips: 'service', link: 'task', src: { cancel: 'отзывы', transport: 'не подтверждено' }
         },
@@ -2292,7 +2303,7 @@
         'yandex-delivery': {
           title: 'Яндекс Доставка', prep: 'Яндекс Доставке', app: 'Яндекс Про', modes: ['plan'], zone: 'локация', orders: 'offers',
           transport: null, status: 'bron', slots: true, take: 'Взять в Яндекс Доставке', rate: 'estimate', watch: null,
-          cancel: null, opening: null, ratings: false, tips: null, link: 'app', src: {}, unverified: ['свободный слот', 'слоты и правила Еды']
+          cancel: null, opening: null, ratings: false, tips: null, link: 'app', src: {}, unverified: ['свободный выход', 'слоты и правила Еды']
         },
         'ozon-courier': {
           title: 'Ozon курьер', prep: 'Ozon', app: 'Вози Ozon', modes: ['plan', 'free'], zone: 'стартовая точка', orders: 'route',
@@ -4472,16 +4483,22 @@
             // по цели уже нажали: тултип этого шага больше не показываем, ждём следующий
             if (tip.__holdStep != null && tip.__holdStep === layer.getAttribute('data-tour-step')) { tip.style.opacity = '0'; tip.style.pointerEvents = 'none'; return; }
             tip.__holdStep = null; tip.style.pointerEvents = '';
-            // все цели серии проверяем сразу, чтобы нумерация с первого шага была без пропавших
-            if (sel && layer.__allChecked !== layer.getAttribute('data-tip-all')) {
-              layer.__allChecked = layer.getAttribute('data-tip-all');
-              setTimeout(() => { const f = layer.closest('.raznos-phone-frame'); if (!f || !this._stipMissing) return; (layer.getAttribute('data-tip-all') || '').split('||').filter(Boolean).forEach((q) => { if (!Array.from(f.querySelectorAll(q)).some((x) => x.getClientRects().length > 0)) this._stipMissing(q); }); }, 350);
+            // все цели серии проверяем сразу, чтобы нумерация с первого шага была без пропавших; что не появилось за полторы секунды, выкидываем
+            // экран ещё не дорисован, если нет ни одной цели серии: тогда ждём дольше; серия сменилась, проверку бросаем
+            const tipSeen = (f, q) => Array.from(f.querySelectorAll(q)).some((x) => x.getClientRects().length > 0);
+            const tipAll = layer.getAttribute('data-tip-all') || '';
+            const tipDrawn = (f) => tipAll.split('||').filter(Boolean).some((q) => tipSeen(f, q));
+            if (sel && layer.__allChecked !== tipAll) {
+              layer.__allChecked = tipAll;
+              const check = (n) => { const f = layer.closest('.raznos-phone-frame'); if (!f || !this._stipMissing || layer.getAttribute('data-tip-all') !== tipAll) return; const miss = tipAll.split('||').filter(Boolean).filter((q) => !tipSeen(f, q)); if (miss.length && (n < 3 || (!tipDrawn(f) && n < 8))) { setTimeout(() => check(n + 1), 500); return; } miss.forEach((q) => this._stipMissing(q)); };
+              setTimeout(() => check(0), 350);
             }
             // цели нет на экране: даём экрану дорисоваться и, если её так и нет, убираем шаг из серии
             if (!target && sel && !sheetOpen) {
               tip.style.opacity = '0';
               clearTimeout(layer.__miss);
-              layer.__miss = setTimeout(() => { const f = layer.closest('.raznos-phone-frame'); if (f && !Array.from(f.querySelectorAll(sel)).some((x) => x.getClientRects().length > 0) && this._stipMissing) this._stipMissing(sel); }, 350);
+              const miss = (n) => { const f = layer.closest('.raznos-phone-frame'); if (!f || !this._stipMissing || layer.getAttribute('data-tip-all') !== tipAll) return; if (tipSeen(f, sel)) { this._tourPlace(); return; } if (!tipDrawn(f) && n < 8) { layer.__miss = setTimeout(() => miss(n + 1), 400); return; } this._stipMissing(sel); };
+              layer.__miss = setTimeout(() => miss(0), 350);
               return;
             }
             if (!target || sheetOpen) { tip.style.opacity = '0'; tip.style.pointerEvents = 'none'; if (sheetOpen && !layer.__wait) { layer.__wait = setTimeout(() => { layer.__wait = 0; this._tourPlace(); }, 400); } return; }
@@ -4499,8 +4516,11 @@
             const fr = frame.getBoundingClientRect(), tr = target.getBoundingClientRect();
             const w = Math.min(300, fr.width - 24), h = tip.offsetHeight, cx = tr.left + tr.width / 2 - fr.left;
             const left = Math.max(12, Math.min(fr.width - w - 12, cx - w / 2));
-            const below = (step === 0 || !!sel) && tr.top - fr.top < h + 80;
-            const top = below ? tr.bottom - fr.top + 12 : tr.top - fr.top - h - 12;
+            // снизу, только если сверху не влезает и снизу места больше; высокая цель у края: тултип не уходит за экран
+            const spaceAbove = tr.top - fr.top - 80, spaceBelow = fr.bottom - tr.bottom - 84;
+            const below = (step === 0 || !!sel) && spaceAbove < h && spaceBelow > spaceAbove;
+            const rawTop = below ? tr.bottom - fr.top + 12 : tr.top - fr.top - h - 12;
+            const top = sel ? Math.max(56, Math.min(fr.height - h - 84, rawTop)) : rawTop;
             // первый показ сразу на месте, без переезда из угла; дальше между шагами плавно
             if (!tip.__placed) { tip.style.transition = 'none'; Object.assign(tip.style, { width: w + 'px', left: left + 'px', top: top + 'px' }); void tip.offsetWidth; tip.style.transition = ''; tip.__placed = true; }
             Object.assign(tip.style, { width: w + 'px', left: left + 'px', top: top + 'px', opacity: '1' });
@@ -4873,6 +4893,8 @@
             else if (nav.swap) {}
             else { nav.stack.push({ k: nav.cur, s: nav.s, d: nav.d, sh: !!this._navSheet, p: nav.s === 'work-hub' && this._planDay ? Object.assign({}, nav.p, { smartFocusIso: this._planDay, smartFocusKey: '' }) : nav.p }); this._navSheet = false; if (nav.stack.length > 40) nav.stack.shift(); }
             nav.back = false; nav.tab = false; nav.swap = false; nav.cur = navId; nav.s = s; nav.d = st.statsDetail || '';
+            // номер захода на экран: серии подсказок, что не влезли в лимит, ждут следующего
+            nav.visit = (nav.visit || 0) + 1;
           }
           // параметры экрана (какой заказ, сервис, откуда пришли) запоминаем вместе с ним, назад открывает тот же самый
           nav.p = {}; NAV_PARAMS.forEach((k) => { nav.p[k] = st[k]; });
@@ -5044,6 +5066,31 @@
           const notifOnCount = NOTIF_CATS.length - NOTIF_CATS.filter((c) => notifOff.indexOf(c.key) !== -1).length;
           // свои правила оповещений: в демо два примера, крайний случай без правил
           const alertRules = st.alertRules != null ? st.alertRules : (demoOn && role === 'courier' && edge.alerts !== 'none' ? ALERT_RULES_SEED : []);
+          // вход Сообщать на экранах: условия экрана становятся правилом, пустые поля по умолчанию
+          // если правило уже покрывает эти условия, вход показывает Сообщаем и открывает его, а не новое
+          const alertNorm = (v) => {
+            const own = connectedKeys.length ? connectedKeys : ['vkusvill', 'samokat', 'x5'];
+            const svcs = (v.svcs || []).filter((k) => own.indexOf(k) !== -1);
+            return Object.assign({ id: '', time: 'all', max: 3, on: true }, v, {
+              svcs: svcs.length ? svcs : own.slice(), where: v.where && v.where.length ? v.where : ['city'], days: v.days && v.days.length ? v.days : [0, 1, 2, 3, 4, 5, 6]
+            });
+          };
+          const alertFind = (pre) => {
+            if (!pre || !pre.what) return null;
+            const v = alertNorm(pre);
+            const has = (a, x) => (a || []).indexOf(x) !== -1;
+            return alertRules.find((r) => r.what === v.what && (v.what === 'bonus' || v.what === 'weather' || (
+              v.svcs.every((k) => has(r.svcs, k)) && v.days.some((d) => has(r.days, d)) && (r.time === 'all' || r.time === v.time)
+              && (v.what === 'slot' || has(r.where, 'city') || (!has(v.where, 'city') && v.where.every((w) => has(r.where, w))))
+              && (v.what !== 'rate' || (r.rate || 500) <= (v.rate || 500))
+            ))) || null;
+          };
+          const alertOpen = (pre) => {
+            const ex = alertFind(pre);
+            if (!ex && alertRules.length >= 5) { uxShowToast('Уже 5 оповещений, новое не добавить', 'Мои оповещения', () => set({ s: 'notifications', subFrom: s, alertEdit: null })); return; }
+            set(ex ? { alertEdit: ex.id, alertDraft: null } : { alertEdit: '', alertDraft: alertNorm(pre) });
+          };
+          const alertIs = (pre) => !!alertFind(pre);
 
           const favCouriers = st.favCouriers || [];
           const crShort = !!st.crShort;
@@ -5296,41 +5343,109 @@
             ] },
             { key: 'courier-home', on: () => s === 'courier-home', steps: [
               { sel: '.raznos-phone-body .raznos-app-bar .rab-btn', title: 'Помощник', text: 'Спросите про деньги, смены и слоты' },
-              { sel: '.raznos-phone-body .raznos-hero-fresh', title: 'Сервисы на связи', text: 'Откуда приходят заказы и деньги. Потяните экран вниз, чтобы обновить' },
-              { sel: '.raznos-hero-today', title: 'Заработок за день', text: 'Нажмите на карточку, чтобы разобрать день по сервисам, кнопки ниже добавляют чаевые и расходы' }
+              { sel: '.raznos-phone-body .raznos-hero-fresh', title: 'Свежесть данных', text: 'Когда последний раз пришли данные из сервисов. Потяните экран вниз, чтобы обновить' },
+              { sel: '.raznos-hero-today', title: 'Заработок за день', text: 'Полоса: сколько уже заработали. Шестиугольник это цель дня, черта прогноз к концу дня. Нажмите, чтобы разобрать по сервисам' }
             ] },
-            // плюс у заказа отдельной серией: заказов может ещё не быть, покажем, когда появятся
+            // заказы отдельной серией: заказов может ещё не быть, покажем, когда появятся
             { key: 'home-order', on: () => s === 'courier-home', steps: [
-              { sel: '.rro-add', title: 'К заказу', text: 'Наличные чаевые, расход, отзыв и заметка к адресу' }
+              { sel: '.raznos-phone-body .rro', title: 'Последние заказы', text: 'Заказы всех сервисов за сегодня. Нажмите на заказ, чтобы увидеть подробности, Показать все открывает историю' },
+              { sel: '.rro-add', title: 'Дополнить заказ', text: 'Плюс у заказа: наличные чаевые, расход, отзыв и заметка к адресу' }
+            ] },
+            // блок Вокруг: что пишут курьеры города и где они сейчас
+            { key: 'home-around', on: () => s === 'courier-home', steps: [
+              { sel: '.raznos-phone-body .raznos-live-today', title: 'Что происходит', text: 'Сообщения курьеров вашего города: очереди на складах, пробки, закрытые подъезды. Можно написать своё' },
+              { sel: '.raznos-phone-body .rcmc', title: 'Карта курьеров', text: 'Где сейчас другие курьеры и их сообщения на карте' }
+            ] },
+            // контекстные: показываем, когда элемент впервые появился на экране
+            { key: 'home-attention', on: () => s === 'courier-home', steps: [
+              { sel: '.raznos-phone-body .rta', title: 'Важное сейчас', text: 'Одно главное событие: опоздание, бонус, сбой сервиса. Остальное под строкой Ещё' }
             ] },
             // в Плане сначала ответ на вопрос «Как вы работаете?»
             { key: 'work-hub', on: () => s === 'work-hub' && !!st.planOnboarded, steps: [
-              { sel: '.rss-shifts-btn', title: 'Слоты', text: 'Свободные смены всех сервисов: где взять и что требует внимания' },
-              { sel: '.rss-goal', title: 'Цель недели', text: 'Сколько хотите заработать за неделю. Нажмите, чтобы поменять' },
-              { sel: '.rss-hours-link', title: 'Часы дня', text: 'Поменять часы только на этот день, график не меняется' },
-              { sel: '.rss-list .rpw-badge', title: 'Метки', text: 'Нажмите на метку, чтобы узнать, что она значит' }
+              { sel: '.rss-goal', title: 'Цель недели', text: 'Сколько хотите за неделю. По плану: сколько выйдет, если отработать брони и окна плана' },
+              { sel: '.rwd-days', title: 'Дни недели', text: 'Точки под днём: сервисы ваших смен, галка: день отработан. Листайте, чтобы увидеть следующую неделю' },
+              { sel: '.rss-list .rpw-hit', title: 'Окно плана', text: 'Нажмите на окно: там другие варианты на это время, сколько они дадут и чем отличаются' },
+              { sel: '.rss-list .rpw-badge:not(.rpw-badge-live)', title: 'Нужна ли запись', text: 'Бронь и заявка уже есть в сервисе. Пунктир и метка без записи: в сервисе вас нет. Нажмите на метку, чтобы понять' },
+              { sel: '.rss-rebuild', title: 'Собрать день заново', text: 'Пересобирает день из лучших вариантов в ваших часах. Когда есть выгоднее, рядом видно, сколько это добавит' },
+              { sel: '.rss-shifts-btn', title: 'Слоты', text: 'Свободные смены всех сервисов. Записываетесь в приложении сервиса, Разнос сам не записывает' }
+            ] },
+            { key: 'plan-changed', on: () => s === 'work-hub' && !!st.planOnboarded, steps: [
+              { sel: '.rss-changed', title: 'План подставил смену', text: 'Бронь отменили в сервисе, мы поставили в план другую смену. Записи в ней нет, проверьте перед выходом' }
+            ] },
+            { key: 'rebook', on: () => s === 'courier-home' || s === 'work-hub', steps: [
+              { sel: '.raznos-phone-body .rrbk-chip', title: 'Цена перебронирования', text: 'Сравниваем вашу бронь с другой сменой с учётом штрафа. Менять бронь нужно в приложении сервиса' }
             ] },
             { key: 'slots', on: () => s === 'slots', steps: [
               { sel: '.raznos-shifts-tab[data-tab="mine"]', title: 'Мои', text: 'Смены и заявки, которые вы уже взяли в сервисах' },
-              { sel: '.raznos-shifts-tab[data-tab="free"]', title: 'Можно взять', text: 'Бронируете в приложении сервиса, потом отметьте здесь, получилось ли' },
+              { sel: '.raznos-shifts-tab[data-tab="free"]', title: 'Можно взять', text: 'Записываетесь в приложении сервиса, Разнос сам не записывает. Потом отметьте здесь, получилось ли' },
               { sel: '.raznos-shifts-tab[data-tab="watch"]', title: 'Слежу', text: 'Слоты, которые сейчас заняты. Напишем, если освободятся' }
+            ] },
+            // метки слотов и колокольчик есть только во вкладке Можно взять, поэтому отдельными сериями, когда её открыли
+            { key: 'slots-take', on: () => s === 'slots' && (st.slotsTabNow || st.slotsTab) === 'free', steps: [
+              { sel: '.raznos-shifts-col .rpw-badge', title: 'Как берут смену', text: 'Слот бронируют сразу, по заявке ждут ответа сервиса. Пунктир: вы ещё не записаны' }
+            ] },
+            { key: 'slots-bell', on: () => s === 'slots' && (st.slotsTabNow || st.slotsTab) === 'free', steps: [
+              { sel: '.raznos-shifts-filter-row .ralb-icon', title: 'Сообщать о новых слотах', text: 'Колокольчик запоминает эти фильтры. Появится подходящий слот, пришлём пуш' }
+            ] },
+            { key: 'slots-watch', on: () => s === 'slots' && (st.slotsTabNow || st.slotsTab) === 'watch', steps: [
+              { sel: '.raznos-shifts .rar', title: 'Свои оповещения', text: 'Пуш, когда появится смена дороже, в нужном районе или с бонусом. Добавьте своё правило' }
+            ] },
+            { key: 'stats', on: () => s === 'stats', steps: [
+              { sel: '.raznos-stats-summary-lead', title: 'Итог периода', text: 'Чистыми: начислено минус удержания и ваши расходы. Выплаты сервисов считаем отдельно' },
+              { sel: '.raznos-stats-verdict', title: 'Сравнение с городом', text: 'Сравниваем с курьерами вашего города на том же транспорте. Значок справа меняет, с кем' },
+              { sel: '.raznos-stats-summary-cell.raznos-is-fines', title: 'Удержано', text: 'Штрафы и корректировки сервисов. Нажмите, чтобы увидеть, за что, и оспорить' }
+            ] },
+            { key: 'stats-tax', on: () => s === 'stats', steps: [
+              { sel: '.raznos-stats-tax-link', title: 'Налог', text: 'Считаем по вашему оформлению в каждом сервисе. Если не так, поправьте в Профиле' }
+            ] },
+            { key: 'stats-unpaid', on: () => s === 'stats', steps: [
+              { sel: '.ruh-link', title: 'Часы не оплатили', text: 'Вы были в смене по брони, а сервис не заплатил за часы. Нажмите, там написано, как оспорить' }
+            ] },
+            { key: 'market', on: () => s === 'market', steps: [
+              { sel: '.raznos-phone-body[data-screen-label="22 Market"] > button.raznos-card:not([aria-label])', title: 'Подобрать работу', text: 'Что получают новички в каждом сервисе и сколько стоит старт' },
+              { sel: '.rbt', title: 'Когда выгоднее', text: 'Доход в час курьеров Разноса в вашем городе. Нажмите на день, чтобы сравнить' },
+              { sel: '.rsr', title: 'Сравнение сервисов', text: 'Средний доход в час по сервисам в вашем городе. Галка: сервис у вас подключён' }
+            ] },
+            // По часам: цели по корневым классам компонентов, шаг без цели выпадает сам
+            { key: 'market-timeline', on: () => s === 'market-timeline', steps: [
+              { sel: '.rmt-full .rhb-cols', title: 'Часы дня', text: 'Нажмите или проведите по столбикам: доход в этот час, ниже лучшие районы и сервисы' },
+              { sel: '.rmt-full .rhb-ico', title: 'Кто платит больше', text: 'Значок над столбиком: сервис, который в этот час платит больше всех. Меняется в течение дня' },
+              { sel: '.rmt-full .rhb-rng', title: 'Прогноз', text: 'Штрихом прогноз по 4 неделям и погоде, усики показывают разброс' },
+              { sel: '.rmt-full [role="tablist"]', title: 'Районы, сервисы, карта', text: 'Переключите, чтобы сравнить районы или сервисы в этот час или увидеть их на карте' }
+            ] },
+            { key: 'services-compare', on: () => s === 'services-compare', steps: [
+              { sel: '.rrr-act', title: 'Подключить сервис', text: 'Плюс открывает подключение сервиса. Галка: сервис подключён, ваши данные есть в сравнении' }
+            ] },
+            { key: 'profile', on: () => s === 'profile', steps: [
+              { sel: '.rnb-btn', title: 'Уведомления', text: 'Здесь и свои оповещения: пуш о слоте, ставке или бонусе по вашим правилам' },
+              { sel: '.raznos-stats-top-card', title: 'Топ курьеров', text: 'Ваше место в городе за прошлую неделю по заработку. Других видно без имён' },
+              { sel: '.raznos-conn-health-ok', title: 'Сервисы на связи', text: 'Если сервис выкинет из аккаунта, здесь появится красная строка и что сделать' }
+            ] },
+            { key: 'expenses', on: () => s === 'expenses', steps: [
+              { sel: '.raznos-exp-recurring', title: 'Регулярные расходы', text: 'Связь, аренда и другое, что платите каждый месяц. Делим на дни, чтобы честно считать чистыми' }
             ] }
           ];
           const screenTipsSeen = st.screenTipsSeen || {};
           // пропавшие цели помним только на этот заход на экран, в следующий раз проверим снова
-          const stipVisit = (this._nav && this._nav.cur) || s;
+          const stipVisit = ((this._nav && this._nav.cur) || s) + '#' + ((this._nav && this._nav.visit) || 0);
           const stipMissing = (st.stipMissing || {})[stipVisit] || {};
           this._stipMissing = (sel) => { const all = this.state.stipMissing || {}, cur = all[stipVisit] || {}; if (!cur[sel]) this.setState({ stipMissing: Object.assign({}, all, { [stipVisit]: Object.assign({}, cur, { [sel]: true }) }) }); };
-          const stipReady = role === 'courier' && st.tipsOn !== false && !!st.tourDone && st.tourStep == null;
+          const stipReady = role === 'courier' && st.tipsOn !== false && !!st.tourDone && st.tourStep == null && !(s === 'slots' && st.slotsFrom === 'market-timeline' && st.slotsFocus);
           // все серии, что выпали на экран, идут одной подсказкой со сквозной нумерацией, а не несколькими подряд
-          const stipSeries = stipReady ? STIP_SERIES.filter((x) => !screenTipsSeen[x.key] && x.on() && x.steps.some((t) => !stipMissing[t.sel])) : [];
+          // не больше 8 шагов подряд: серия, что не влезла, покажется в следующий заход на экран
+          const stipVisitN = (this._nav && this._nav.visit) || 0;
+          const stipHeld = st.stipHeld && st.stipHeld.visit === stipVisitN ? st.stipHeld.keys : [];
+          let stipRoom = 8;
+          const stipCut = [];
+          const stipSeries = (stipReady ? STIP_SERIES.filter((x) => !screenTipsSeen[x.key] && stipHeld.indexOf(x.key) === -1 && x.on() && x.steps.some((t) => !stipMissing[t.sel])) : [])
+            .filter((x, i) => { const n = x.steps.filter((t) => !stipMissing[t.sel]).length; if (i && n > stipRoom) { stipCut.push(x.key); return false; } stipRoom -= n; return true; });
           const screenTips = stipSeries.length ? [].concat(...stipSeries.map((x) => x.steps.filter((t) => !stipMissing[t.sel]))) : null;
           const stipKey = stipSeries.map((x) => x.key).join('+');
           const stipVisible = !!screenTips;
           const stipIdx = Math.min((st.screenTipStep || {})[stipKey] || 0, screenTips ? screenTips.length - 1 : 0);
           const stipNext = () => (stipIdx >= screenTips.length - 1 ? stipDone() : set({ screenTipStep: Object.assign({}, st.screenTipStep || {}, { [stipKey]: stipIdx + 1 }) }));
           this._stipClick = stipVisible ? { sel: screenTips[stipIdx].sel, next: stipNext } : null;
-          const stipDone = () => set({ screenTipsSeen: Object.assign({}, screenTipsSeen, ...stipSeries.map((x) => ({ [x.key]: true }))), screenTipStep: Object.assign({}, st.screenTipStep || {}, { [stipKey]: 0 }) });
+          const stipDone = () => set({ screenTipsSeen: Object.assign({}, screenTipsSeen, ...stipSeries.map((x) => ({ [x.key]: true }))), screenTipStep: Object.assign({}, st.screenTipStep || {}, { [stipKey]: 0 }), stipHeld: { visit: stipVisitN, keys: stipCut } });
           const tourStep = st.tourStep == null ? null : (st.tourStep === 0 && demoOn ? 1 : st.tourStep);
           // вкладка продвигает тур, только если подсказка на экране видна
           const tourVisible = tourStep != null && role === 'courier' && TOUR_SCREENS.indexOf(s) !== -1 && (tourStep > 0 || s === 'courier-empty');
@@ -5789,6 +5904,7 @@
           // Свежесть данных, потеря подключения и общий запрос данных
           const svcHealth = st.svcHealth || {};
           const netOffline = !!st.netOffline;
+          const YA_PRO_KEYS = ['yandex-eda', 'yandex-lavka', 'yandex-delivery', 'delivery'];
           const syncAgo = st.syncAgo || (demoOn ? { vkusvill: 3, samokat: 26, 'yandex-eda': 12, x5: 8, dodo: 15 } : {});
           const syncPartial = st.syncPartial || {};
           const syncRun = st.syncRun || null;
@@ -5880,9 +5996,11 @@
           const requestSync = (opts) => {
             const cur = this.state || {};
             if (cur.syncRun && cur.syncRun.running) return set({ syncRun: Object.assign({}, cur.syncRun, { joined: true }) });
-            if (!syncTargets.length) return;
-            const stepMs = opts && opts.total ? Math.round(opts.total / syncTargets.length) : 0;
-            set({ syncRun: { running: true, keys: syncTargets.slice(), done: 0, results: {}, joined: false, stepMs } });
+            // сервисы на Яндекс Про в общий запрос не берём: обновление выкинет курьера из Яндекс Про, их обновляют кнопкой в карточке сервиса
+            const autoTargets = syncTargets.filter((k) => YA_PRO_KEYS.indexOf(k) === -1);
+            if (!autoTargets.length) return;
+            const stepMs = opts && opts.total ? Math.round(opts.total / autoTargets.length) : 0;
+            set({ syncRun: { running: true, keys: autoTargets, done: 0, results: {}, joined: false, stepMs } });
             this.scheduleSyncStep();
           };
           this._ptrSync = () => requestSync({ total: 500 + Math.round(Math.random() * 1000) });
@@ -6681,7 +6799,8 @@
               const left = (m) => ((m >= 60 ? Math.floor(m / 60) + ' ч ' : '') + (m % 60 ? (m % 60) + ' мин' : '')).trim();
               const dayRows = SHIFTS_WEEK.filter((row) => row.iso === TODAY_ISO && row.status !== 'cancelled').sort((a, b) => a.from - b.from);
               const todayRows = dayRows.filter((row) => row.to > nowMin);
-              const current = todayRows.find((row) => row.from <= nowMin), next = todayRows.find((row) => row.from > nowMin);
+              // в демо вечер можно оставить без брони: тогда Дальше это окно плана без записи
+              const current = todayRows.find((row) => row.from <= nowMin), next = edge.evening === 'plan' ? null : todayRows.find((row) => row.from > nowMin);
               const graphStart = (st.graphStart != null ? st.graphStart : 9) * 60, graphEnd = (st.graphEnd != null ? st.graphEnd : 18) * 60;
               // рабочий день растягивается до последней брони, иначе остаток времени врёт
               const dayStart = Math.min(graphStart, dayRows.length ? dayRows[0].from : graphStart);
@@ -6962,6 +7081,7 @@
             hero_fresh_aria: 'Данные сервисов: ' + (connHealthOkNote || 'не обновлялись') + ', открыть состояние сервисов',
             hero_fresh_tap: (e) => { if (e && e.stopPropagation) e.stopPropagation(); connHealthAction('', 'open'); },
             conn_health_items: connHealthItems, conn_health_ok_note: connHealthOkNote, conn_health_problems: connProblemItems, net_offline: netOffline, conn_health_action: connHealthAction,
+            sync_manual_note: (() => { const m = syncTargets.filter((k) => YA_PRO_KEYS.indexOf(k) !== -1).map((k) => (SERVICES[k] ? SERVICES[k].title : k)); return m.length ? m.join(', ') + ': только кнопкой Обновить данные в карточке сервиса, иначе Яндекс Про выкинет из аккаунта' : ''; })(),
             sync_has_targets: syncTargets.length > 0, sync_running: !!syncRun && syncRun.running, sync_done: syncRun ? syncRun.done : 0, sync_total: syncRun ? syncRun.keys.length : syncTargets.length,
             sync_joined: !!syncRun && !!syncRun.joined, sync_summary: syncSummary, request_sync: requestSync,
             stats_has_bars: period !== 'today', stats_day_bars: statDayBars,stats_bars_title: period === 'month' ? 'По неделям' : 'По дням',
@@ -7310,20 +7430,22 @@
             go_work_filters: () => set({ s: 'work-filters' }), go_offer_history: () => set({ s: 'offer-history' }), go_slots: (a) => set({ s: 'slots', slotsTab: '', slotsDay: '', slotsSvc: '', slotsWeek: a && typeof a.week === 'number' ? a.week : null, slotsFrom: s }),
             // Найти слот из умного расписания: Свободные на этот день и сервис
             go_slots_find: (w) => set({ s: 'slots', slotsTab: 'free', slotsDay: (w && w.iso) || '', slotsSvc: (w && w.svc) || '', slotsWeek: null, slotsFrom: 'work-hub' }),
-            slots_week: st.slotsWeek != null ? st.slotsWeek : null, slots_past: st.slotsFrom === 'profile', slots_tab: st.slotsTab || 'mine', slots_day: st.slotsDay || '', slots_svc: st.slotsSvc || '',
-            slots_back: navBack(backToInbox(() => set({ s: st.slotsFrom === 'courier-home' ? 'courier-home' : (st.slotsFrom === 'profile' ? 'profile' : 'work-hub'), smartFocusIso: '', smartFocusKey: '' }))), go_slots_from_profile: () => set({ s: 'slots', slotsTab: '', slotsDay: '', slotsSvc: '', slotsWeek: -1, slotsFrom: 'profile' }), go_smart: () => set({ s: 'work-hub', smartFocusAdded: false, smartFocusIso: '', smartFocusKey: '', smartOpenKey: '' }), go_work_schedule: () => set({ s: 'work-schedule', wsFrom: s }), work_schedule_back: navBack(() => set({ s: (this.state && this.state.wsFrom) || 'profile' })),
+            slots_week: st.slotsWeek != null ? st.slotsWeek : null, slots_past: st.slotsFrom === 'profile', slots_tab: st.slotsTab || 'mine', slots_focus: st.slotsFrom === 'market-timeline' && st.slotsFocus ? st.slotsFocus : null, slots_day: st.slotsDay || '', slots_svc: st.slotsSvc || '',
+            slots_back: navBack(backToInbox(() => set({ s: st.slotsFrom === 'courier-home' || st.slotsFrom === 'market-timeline' ? st.slotsFrom : (st.slotsFrom === 'profile' ? 'profile' : 'work-hub'), smartFocusIso: '', smartFocusKey: '', slotsTabNow: '', slotsFocus: null }))), go_slots_from_profile: () => set({ s: 'slots', slotsTab: '', slotsDay: '', slotsSvc: '', slotsWeek: -1, slotsFrom: 'profile' }), go_smart: () => set({ s: 'work-hub', smartFocusAdded: false, smartFocusIso: '', smartFocusKey: '', smartOpenKey: '' }), go_work_schedule: () => set({ s: 'work-schedule', wsFrom: s }), work_schedule_back: navBack(() => set({ s: (this.state && this.state.wsFrom) || 'profile' })),
             work_setup_needed: !demoOn && !graphSaved,
             work_ready: demoOn || graphSaved,
             go_best_times: (v) => set({ s: 'best-times', btFrom: s, btView: v === 'day' ? 'day' : 'week', btDay: null, btHour: null }),
             bt_view: (this.state && this.state.btView) || 'week', bt_day: st.btDay != null ? st.btDay : null, bt_hour: st.btHour != null ? st.btHour : null,
             // Подробно по часам: полная версия Рынка, входы из трёх простых экранов, при возврате с карты или из Плана на прежнем часе
-            // из Когда выгоднее: тот же день недели ближайший вперёд и выбранный или лучший час, часы до 6 таймлайн не показывает
-            bt_detail: (o) => set({ s: 'market-timeline', mtFrom: s, mtDay: (o.day - (new Date().getDay() + 6) % 7 + 7) % 7, mtHour: o.hour >= 6 ? o.hour : null, mtBy: 'zone', mtScope: 'all', btView: o.view, btDay: o.day, btHour: o.hour }),
-            bp_detail: (o) => set({ s: 'market-timeline', mtFrom: s, mtDay: 0, mtHour: null, mtBy: 'zone', mtScope: 'all', bpView: o.view, bpPick: o.pick || '' }),
-            sc_detail: (o) => set({ s: 'market-timeline', mtFrom: s, mtDay: 0, mtHour: null, mtBy: 'svc', mtScope: o.show === 'mine' ? 'mine' : 'all' }),
-            mt_day: st.mtDay || 0, mt_hour: st.mtHour != null ? st.mtHour : null, mt_by: st.mtBy || 'zone', mt_scope: st.mtScope || 'all',
-            mt_map: (o) => set({ s: 'best-places', bpFrom: 'market-timeline', bpView: 'map', bpPick: o.zone || '', mtDay: o.day, mtHour: o.hour, mtBy: o.by, mtScope: o.scope }),
-            mt_plan: (o) => set({ s: 'work-hub', smartFocusAdded: false, smartFocusIso: isoAt(o.day), smartFocusKey: '', smartOpenKey: '', mtDay: o.day, mtHour: o.hour, mtBy: o.by, mtScope: o.scope }),
+            // из Когда выгоднее: тот же день недели ближайший вперёд и выбранный или лучший час, часы до 6 это ночь тех же рабочих суток, район и сервис из фильтров
+            // из Где выгоднее: выбранный на карте район открывает Карту на нём, время суток ставит лучший час внутри него, сервис из фильтра
+            bt_detail: (o) => set({ s: 'market-timeline', mtFrom: s, mtDay: (o.day - (new Date().getDay() + 6) % 7 + 7) % 7, mtHour: o.hour != null ? o.hour : null, mtBy: 'zone', mtScope: o.cat && o.cat !== 'all' ? o.cat : 'all', mtView: 'list', mtZones: o.district && o.district !== 'all' ? [o.district] : 'all', mtPick: '', mtTod: '', btView: o.view, btDay: o.day, btHour: o.hour }),
+            bp_detail: (o) => set({ s: 'market-timeline', mtFrom: s, mtDay: 0, mtHour: null, mtBy: 'zone', mtScope: o.cat && o.cat !== 'all' ? o.cat : 'all', mtView: o.pick ? 'map' : 'list', mtZones: 'all', mtPick: o.pick || '', mtTod: o.tod && o.tod !== 'all' ? o.tod : '', bpView: o.view, bpPick: o.pick || '' }),
+            sc_detail: (o) => set({ s: 'market-timeline', mtFrom: s, mtDay: 0, mtHour: null, mtBy: 'svc', mtScope: o.show === 'mine' ? 'mine' : 'all', mtView: 'list', mtZones: 'all', mtPick: '', mtTod: '' }),
+            mt_day: st.mtDay || 0, mt_hour: st.mtHour != null ? st.mtHour : null, mt_by: st.mtBy || 'zone', mt_scope: st.mtScope || 'all', mt_view: st.mtView || 'list', mt_zones: st.mtZones || 'all', mt_pick: st.mtPick || '', mt_tod: st.mtTod || '',
+            // слот на выбранный час: Можно взять на этот день и сервис, слот подсвечен, Назад вернёт на тот же час
+            mt_slots: (o) => set({ s: 'slots', slotsTab: 'free', slotsDay: o.iso, slotsSvc: o.svc, slotsWeek: null, slotsFrom: 'market-timeline', slotsFocus: { iso: o.iso, svc: o.svc, id: o.id }, mtDay: o.day, mtHour: o.hour, mtBy: o.by, mtScope: o.scope, mtView: o.view, mtZones: o.zones, mtPick: o.pick || '', mtTod: '' }),
+            mt_slots_list: SHIFT_SLOTS.filter((sl) => !sl.gone && !(st.takenSlots || {})[sl.id] && connectedKeys.indexOf(sl.svc) !== -1 && !SHIFTS_WEEK.some((w) => w.status !== 'cancelled' && w.iso === sl.iso && sl.from < w.to + (w.svc === sl.svc ? 0 : 20) && w.from < sl.to + (w.svc === sl.svc ? 0 : 20))).map((sl) => ({ id: sl.id, iso: sl.iso, svc: sl.svc, from: sl.from / 60, to: sl.to / 60 })),
             mt_back: navBack(() => set({ s: (this.state && this.state.mtFrom) || 'market' })),
             // погода из демо сдвигает ставки таймлайна и подписана причиной
             mt_weather: (() => { const wx = demoOn && role === 'courier' ? WEATHER_DEMO[st.weather || 'rain'] : null; return wx && wx.period ? [{ day: 0, from: wx.period.from / 60, to: wx.period.to / 60, k: wx.kind === 'rain' ? 1.12 : 1.1, text: wx.tag }] : []; })(),
@@ -7392,6 +7514,8 @@
               quests_items: items, quests_hot_id: hot ? hot.id : '', quests_hot_show: !!hot && s === 'courier-home',
               quests_sheet: !!st.questsSheet && items.length > 0,
               quests_open: () => set({ questsSheet: true }), quests_close: () => set({ questsSheet: false }),
+              // Сообщать о новых бонусах сервисов из списка, шторку бонусов закрываем, чтобы редактор не ушёл под неё
+              ...(() => { const pre = { what: 'bonus', svcs: Array.from(new Set(items.map((q) => q.key))) }; return { quests_alert_on: alertIs(pre), quests_alert_sub: pre.svcs.map((k) => (SERVICES[k] ? SERVICES[k].title : k)).join(', '), quests_alert_tap: () => { set({ questsSheet: false }); alertOpen(pre); } }; })(),
               // в окна Плана сегодняшнего дня того же сервиса до срока
               // часы не оплатили за выбранный период Результатов: ссылка в итоге периода и дня, подробно в Удержано
               ...(() => {
@@ -7598,6 +7722,12 @@
             integration_linked: integrationGroup('linked'), integration_linked_show: integrationGroup('linked').length > 0, integration_free: integrationGroup('free'), integration_soon: integrationGroup('soon'),
 
             conn_caps: SERVICE_CAPS[connKey] || null, conn_has_caps: !!SERVICE_CAPS[connKey], conn_via_mine: viaMineLabel(connKey), conn_via_seen: viaMineOf(connKey) === 'park' ? VIA_DEMO_SEEN : '', conn_via_open: () => set({ viaSheet: connKey }),
+            // сервисы на Яндекс Про: один телефон на аккаунт, обновляем только по кнопке и предупреждаем о перевходе
+            conn_one_device: YA_PRO_KEYS.indexOf(connKey) !== -1 && connIsConnected,
+            conn_one_device_before: YA_PRO_KEYS.indexOf(connKey) !== -1 && !connIsConnected && !(isDeliveryConn && yandexConnected) && connStatusValue !== 'exited' && conn.method !== 'unsupported' && conn.method !== 'soon',
+            // во время заказа не обновляем: Яндекс Про выкинет курьера посреди доставки
+            conn_ya_busy: activeAccepted, conn_ya_free: !activeAccepted,
+            conn_ya_refresh: () => { set({ syncAgo: Object.assign({}, syncAgo, { [connKey]: 0 }) }); uxShowToast('Данные обновлены, зайдите в Яндекс Про заново'); },
             conn_key: connKey, conn_title: conn.title, conn_login_label: conn.loginLabel || 'Логин',
             // аккаунт в сервисе на экране подключённого сервиса
             conn_acc_show: connIsConnected && !!accountStateOf(connKey), conn_acc_state: accountStateOf(connKey) || {},
@@ -8253,6 +8383,7 @@
                 row('Выплаты', 'payouts', { s: 'courier-home', homeDay: '', payoutsSheet: true }, [['', 'В срок'], ['late1', 'Задержка 1 день'], ['late', 'X5 задерживает']]),
                 row('Аккаунт в X5', 'account', { s: 'courier-home', homeDay: '' }, [['', 'Всё в порядке'], ['risk', 'Пауза у лимита'], ['block', 'Приостановлен']]),
                 row('Часы не оплатили', 'unpaid', { s: 'stats', statsPeriod: 'week', statsStep: 0, statsDetail: 'fines' }, [['', 'Есть'], ['none', 'Нет']]),
+                row('Вечер сегодня', 'evening', { s: 'courier-home', homeDay: '' }, [['', 'Бронь'], ['plan', 'Без записи']]),
                 row('Бонус сервиса', 'bonus', { s: 'courier-home', homeDay: '' }, [['', 'Почти набран'], ['far', 'Далеко'], ['done', 'Набран']]),
                 row('История заказов', 'history', { s: 'history' }, [['', 'Есть'], ['empty', 'Пусто']]),
                 row('Результаты', 'stats', { s: 'stats', statsPeriod: 'week', statsStep: 0, statsDetail: '' }, [['', 'Обычно'], ['first', 'Первая неделя'], ['none', 'Нет за период']]),
@@ -8273,7 +8404,7 @@
                 'home': { s: 'courier-home', homeDay: '', homeShiftOn: true }, 'plan': { s: 'work-hub', smartFocusIso: TODAY_ISO, smartFocusKey: '' },
                 'plan-empty': { s: 'work-hub', smartFocusIso: DEMO_EMPTY_ISO, smartFocusKey: '' }, 'plan-change': { s: 'work-hub', planChangeHidden: false },
                 'plan-self': { s: 'work-hub', smartBuild: 'manual', planOnboarded: true, smartFocusIso: isoAt(2), smartFocusKey: '' },
-                'best-places': { s: 'best-places' }, 'best-times': { s: 'best-times', btView: 'week', btDay: null, btHour: null }, 'market-timeline': { s: 'market-timeline', mtDay: 0, mtHour: null, mtBy: 'zone', mtScope: 'all' }, 'best-times-rain': { s: 'market-timeline', mtDay: 0, mtHour: 19, mtBy: 'zone', mtScope: 'all', weather: 'rain' }, 'svc-compare': { s: 'services-compare' },
+                'best-places': { s: 'best-places' }, 'best-times': { s: 'best-times', btView: 'week', btDay: null, btHour: null }, 'market-timeline': { s: 'market-timeline', mtDay: 0, mtHour: null, mtBy: 'zone', mtScope: 'all', mtView: 'list', mtZones: 'all', mtPick: '', mtTod: '' }, 'best-times-rain': { s: 'market-timeline', mtDay: 0, mtHour: 19, mtBy: 'zone', mtScope: 'all', mtView: 'list', mtZones: 'all', mtPick: '', mtTod: '', weather: 'rain' }, 'svc-compare': { s: 'services-compare' },
                 'stats-week': { s: 'stats', statsPeriod: 'week', statsStep: 0, statsDetail: '' }, 'stats-year': { s: 'stats', statsPeriod: 'year', statsStep: 0, statsDetail: '' },
                 'live-feed': { s: 'live-feed' }, 'top': { s: 'top' }, 'inbox': { s: 'inbox' }, 'history': { s: 'history' }, 'expenses': { s: 'expenses', transportCalc: false }, 'transport-calc': { s: 'expenses', expBack: 'courier-home', period: 'week', transportCalc: true }
               };
@@ -8323,6 +8454,12 @@
             inbox_archive: inboxArchived, inbox_is_archive: !!st.inboxArchive, inbox_archive_empty: !!st.inboxArchive && inboxArchived.length === 0,
             inbox_restore: (id) => { const h = Object.assign({}, inboxHidden); delete h[id]; set({ inboxHidden: h }); uxShowToast('Уведомление вернули в список', '', null); },
             inbox_settings: () => set({ s: 'notifications', subFrom: 'inbox' }),
+            // свои оповещения видно из центра уведомлений, а не только из Профиля
+            inbox_alerts_row: role === 'courier', inbox_alerts_on: alertRules.some((r) => r.on),
+            inbox_alerts_sub: alertRules.some((r) => r.on) ? 'включено ' + alertRules.filter((r) => r.on).length + ' из ' + alertRules.length : (alertRules.length ? 'все выключены, включите нужные' : 'Слоты, спрос и бонусы по вашим условиям'),
+            inbox_alerts_open: () => set({ s: 'notifications', subFrom: 'inbox' }),
+            inbox_alerts_aria: 'Свои оповещения, ' + (alertRules.length ? 'включено ' + alertRules.filter((r) => r.on).length + ' из ' + alertRules.length : 'пока нет') + '. Открыть',
+            inbox_empty_text: role === 'courier' ? 'Напомним о сменах, выплатах и входе в сервисы. О слотах, спросе и бонусах напишем по своим оповещениям, их можно задать выше' : 'Напомним о сменах, выплатах и входе в сервисы',
             inbox_badge: inboxBadge,
             inbox_today: inboxNeedFirst(inboxItems.filter((n) => n.day === 'today')),
             inbox_earlier: inboxNeedFirst(inboxItems.filter((n) => n.day !== 'today')),
@@ -8354,12 +8491,18 @@
             ...(() => {
               const edit = st.alertEdit;
               const svcs = (connectedKeys.length ? connectedKeys : ['vkusvill', 'samokat', 'x5']).map((k) => ({ key: k, label: SERVICES[k].title }));
-              const setRules = (next, text) => { const prev = st.alertRules; set({ alertRules: next, alertEdit: null }); uxShowToast(text, 'Отменить', () => set({ alertRules: prev })); };
+              const setRules = (next, text) => { const prev = st.alertRules; set({ alertRules: next, alertEdit: null, alertDraft: null }); uxShowToast(text, 'Отменить', () => set({ alertRules: prev })); };
+              // шторка общая для всех входов: из списка, со Слотов, Рынка, Сегодня, Плана и от помощника
+              const rule = edit ? alertRules.find((r) => r.id === edit) || null : (edit === '' ? st.alertDraft || null : null);
+              const ruleAreas = ((rule && rule.where) || []).filter((w) => w !== 'city' && STATS_DISTRICTS.slice(0, 5).indexOf(w) === -1);
               return {
-                ar_rules: alertRules, ar_svcs: svcs, ar_areas: STATS_DISTRICTS.slice(0, 5),
-                ar_sheet: edit != null, ar_rule: edit ? alertRules.find((r) => r.id === edit) || null : null,
+                ar_rules: alertRules, ar_svcs: svcs, ar_areas: STATS_DISTRICTS.slice(0, 5).concat(ruleAreas),
+                ar_sheet: edit != null && role === 'courier', ar_rule: rule,
                 ar_sheet_title: edit ? 'Оповещение' : 'Новое оповещение',
-                ar_open: (id) => set({ alertEdit: id }), ar_add: () => set({ alertEdit: '' }), ar_close: () => set({ alertEdit: null }),
+                ar_open: (id) => set({ alertEdit: id, alertDraft: null }), ar_add: () => set({ alertEdit: '', alertDraft: null }), ar_close: () => set({ alertEdit: null, alertDraft: null }),
+                ar_find: alertIs, ar_entry: role === 'courier' ? alertOpen : null, ar_new: (pre) => (alertRules.length >= 5 ? uxShowToast('Уже 5 оповещений, новое не добавить', '', null) : set({ alertEdit: '', alertDraft: alertNorm(pre) })),
+                slots_tab_seen: (k) => set({ slotsTabNow: k }),
+                ar_on_count: alertRules.filter((r) => r.on).length,
                 ar_toggle: (id) => { const r = alertRules.find((x) => x.id === id); setRules(alertRules.map((x) => (x.id === id ? Object.assign({}, x, { on: !x.on }) : x)), (r.on ? 'Оповещение выключено' : 'Оповещение включено')); },
                 ar_save: (rule) => (rule.id ? setRules(alertRules.map((x) => (x.id === rule.id ? rule : x)), 'Оповещение сохранено') : setRules(alertRules.concat([Object.assign({}, rule, { id: 'r' + Date.now() })]), 'Оповещение включено')),
                 ar_delete: (id) => setRules(alertRules.filter((x) => x.id !== id), 'Оповещение удалено')
@@ -9088,7 +9231,8 @@
               ta_more: () => set({ taSheet: true }),
               ta_sheet: !!st.taSheet && home && items.length > 0, ta_sheet_close: () => set({ taSheet: false }),
               ta_hide: (id) => { set({ taHidden: Object.assign({}, hidden, { [id]: true }) }); uxShowToast('Скрыли до конца дня', 'Вернуть', () => set({ taHidden: Object.assign({}, (this.state && this.state.taHidden) || {}, { [id]: false }) })); },
-              weather_sheet: !!st.weatherSheet && home && !!vals.home_weather, weather_sheet_close: () => set({ weatherSheet: false })
+              weather_sheet: !!st.weatherSheet && home && !!vals.home_weather, weather_sheet_close: () => set({ weatherSheet: false }),
+              weather_alert_on: alertIs({ what: 'weather' }), weather_alert_tap: () => { set({ weatherSheet: false }); alertOpen({ what: 'weather' }); }
             };
           })());
 
@@ -9302,6 +9446,13 @@
               const sl = pl.slot_id ? SHIFT_SLOTS.find((x) => x.id === pl.slot_id) : null;
               this.setState({ aiPending: { actionId: a.id, slotId: pl.slot_id || null, svc: pl.svc } });
               aiOpenService(pl.svc, sl, pl.section || '');
+              return { ok: true, navigated: true };
+            }
+            // помощник предлагает своё оповещение: та же шторка редактора с условиями из разговора, сохраняет курьер
+            if (a.actionType === 'create_alert') {
+              if (['slot', 'demand', 'bonus', 'rate', 'weather'].indexOf(pl.what) === -1) return { ok: false };
+              set({ aiOpen: false });
+              alertOpen({ what: pl.what, svcs: pl.svc ? [pl.svc] : [], where: pl.area ? [pl.area] : [], time: pl.part || 'all', rate: pl.what === 'rate' ? Math.min(700, Math.max(400, Math.round((pl.amount || 500) / 100) * 100)) : undefined });
               return { ok: true, navigated: true };
             }
             if (a.actionType === 'open_screen') {

@@ -9,6 +9,9 @@
     .rnn-day { font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); font-variant-numeric: tabular-nums; }
     .rnn-row { box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 0; border-radius: 12px; background: var(--raznos-surface-2); color: var(--raznos-ink); text-align: left; font: inherit; cursor: pointer; }
     .rnn-row.rnn-row-now { background: var(--raznos-green-tint); }
+    /* окно плана без записи: полая строка с пунктиром, как в Плане, бронь залита */
+    .rnn-row.rnn-row-plan { background: transparent; border: 1.5px dashed var(--raznos-line-strong); }
+    .rnn-row.rnn-row-plan.rnn-row-now { background: var(--raznos-green-tint); border-color: color-mix(in oklab, var(--raznos-green) 55%, var(--raznos-line)); }
     .rnn-row:focus-visible, .rnn-open:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
     .rnn-row-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
     .rnn-row-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
@@ -58,14 +61,14 @@ class Component extends DCLogic {
     ]).map((row) => {
       const now = row.kind === 'now';
       // слово статуса по профилю сервиса: бронь, заявка, подтверждена
-      const label = (now ? 'Сейчас' : 'Дальше') + (row.source === 'booking' ? ' · ' + (row.word || 'бронь') : ' · по плану');
+      const label = (now ? 'Сейчас' : 'Дальше') + (row.source === 'booking' ? ' · ' + (row.word || 'бронь') : ' · без записи');
       const sub = [row.time, row.source === 'booking' ? row.place : (row.pay ? row.pay + ' ₽/ч' : '')].filter(Boolean).join(' · ');
       const subTime = [row.time, row.source === 'booking' ? '' : (row.pay ? row.pay + ' ₽/ч' : '')].filter(Boolean).join(' · ');
       return Object.assign({}, row, {
         label, sub, subTime, place: row.source === 'booking' ? row.place : '',
         // плашка выгодной замены стоит сразу под своей бронью
         has_rb: !!p.rebook && !now && row.source === 'booking' && row.svc === p.rebook.mineSvc,
-        cls: 'rnn-row' + (now ? ' rnn-row-now' : ''),
+        cls: 'rnn-row' + (now ? ' rnn-row-now' : '') + (row.source === 'booking' ? '' : ' rnn-row-plan'),
         aria: label + ', ' + row.title + ', ' + sub + (row.hint ? ', ' + row.hint : ''),
         // бронь открывает свою шторку в плане, час из плана открывает план дня
         tap: row.source === 'booking' ? () => openShift(row) : openPlan

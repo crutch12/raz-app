@@ -42,6 +42,7 @@
       <button type="button" role="tab" aria-selected="{{ show_mine }}" class="{{ seg_mine_cls }}" onClick="{{ pick_mine }}">{{ mine_label }}</button>
     </div>
     <dc-import name="RaznosFilterChips" filters="{{ filters }}" onChange="{{ on_filter }}"></dc-import>
+    <sc-if value="{{ has_detail }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosMarketDetailLink" hint="Каждый час: где и в каком сервисе выгоднее" onOpen="{{ open_detail }}"></dc-import></sc-if>
     <div class="rsr-list">
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
         <dc-import name="RaznosRankRow" rank="{{ r.rank }}" svc="{{ r.svc }}" title="{{ r.name }}" mine="{{ r.mine }}" meta="{{ r.meta }}" hot="{{ r.hot }}" fill="{{ r.fill }}" value="{{ r.val }}" action="{{ r.action }}" actionLabel="{{ r.actionLabel }}" onAction="{{ r.connect }}" trend="{{ r.trend }}" trendUp="{{ r.trendUp }}" trendDown="{{ r.trendDown }}" trendTail="{{ r.trendTail }}" divider="{{ r.divider }}"></dc-import>
@@ -49,7 +50,6 @@
       <sc-if value="{{ is_empty }}" hint-placeholder-val="{{ false }}"><p class="rsr-empty">{{ empty_text }}</p></sc-if>
     </div>
     <p class="raznos-text-tiny">{{ source_note }}</p>
-    <sc-if value="{{ has_detail }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosMarketDetailLink" hint="Какой сервис выгоднее в каждый час, прошлые дни и прогноз" onOpen="{{ open_detail }}"></dc-import></sc-if>
   </div>
 </sc-if>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"few":{"editor":"boolean","default":false},"mode":{"editor":"text","default":"card"},"open":{"editor":null},"onDetail":{"editor":null},"connected":{"editor":null},"onConnect":{"editor":null},"onOpenService":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"$preview":{"width":390,"height":340}}'>

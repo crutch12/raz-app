@@ -22,6 +22,9 @@
     .rhs-legend .rhs-l1 { background: oklch(0.8 0.1 150 / 0.55); } .rhs-legend .rhs-l2 { background: oklch(0.7 0.14 150 / 0.7); } .rhs-legend .rhs-l3 { background: oklch(0.58 0.15 150 / 0.85); }
     .rhs-legend-note { width: 100%; color: var(--raznos-ink-3); }
     .rhs-pick { background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 4px 16px; }
+    /* выбранный район и колокольчик Сообщить, когда здесь высокий спрос */
+    .rhs-pick-row { display: flex; align-items: center; gap: 6px; padding-right: 8px; }
+    .rhs-pick-main { flex: 1; min-width: 0; }
     .rhs-empty { padding: 20px 0; font: 500 14px var(--raznos-font); color: var(--raznos-ink-2); text-align: center; }
   </style>
 </helmet>
@@ -53,10 +56,11 @@
       <button type="button" role="tab" aria-selected="{{ is_map }}" class="{{ view_map_cls }}" onClick="{{ view_map }}">Карта</button>
     </div>
     <dc-import name="RaznosFilterChips" filters="{{ filters }}" onChange="{{ on_filter }}"></dc-import>
+    <sc-if value="{{ has_detail }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosMarketDetailLink" hint="Каждый час: где и в каком сервисе выгоднее" onOpen="{{ open_detail }}"></dc-import></sc-if>
     <sc-if value="{{ is_map }}" hint-placeholder-val="{{ false }}">
       <div class="rhs-map"><dc-import name="RaznosCourierMap" couriers="{{ false }}" hideCouriers="{{ true }}" hideMe="{{ true }}" zones="{{ map_zones }}"></dc-import></div>
       <div class="rhs-legend"><span><i class="rhs-l3" aria-hidden="true"></i>Лучшие</span><span><i class="rhs-l2" aria-hidden="true"></i>Выше среднего</span><span><i class="rhs-l1" aria-hidden="true"></i>Средне</span><span class="rhs-legend-note">Без заливки ниже среднего · ↑ растёт за 4 недели · нажмите на район</span></div>
-      <sc-if value="{{ has_pick }}" hint-placeholder-val="{{ true }}"><div class="rhs-pick"><dc-import name="RaznosRankRow" rank="{{ pick.rank }}" title="{{ pick.name }}" meta="{{ pick.meta }}" fill="{{ pick.fill }}" value="{{ pick.val }}" action="{{ pick.action }}" href="{{ pick.routeHref }}" actionLabel="{{ pick.routeAria }}" trend="{{ pick.trend }}" trendUp="{{ pick.trendUp }}" trendDown="{{ pick.trendDown }}" trendTail="{{ pick.trendTail }}" divider="{{ false }}"></dc-import></div></sc-if>
+      <sc-if value="{{ has_pick }}" hint-placeholder-val="{{ true }}"><div class="{{ pick_cls }}"><div class="rhs-pick-main"><dc-import name="RaznosRankRow" rank="{{ pick.rank }}" title="{{ pick.name }}" meta="{{ pick.meta }}" fill="{{ pick.fill }}" value="{{ pick.val }}" action="{{ pick.action }}" href="{{ pick.routeHref }}" actionLabel="{{ pick.routeAria }}" trend="{{ pick.trend }}" trendUp="{{ pick.trendUp }}" trendDown="{{ pick.trendDown }}" trendTail="{{ pick.trendTail }}" divider="{{ false }}"></dc-import></div><sc-if value="{{ has_alert }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosAlertBell" size="sm" on="{{ alert_on }}" label="{{ alert_label }}" sub="{{ alert_sub }}" onTap="{{ alert_tap }}"></dc-import></sc-if></div></sc-if>
     </sc-if>
     <sc-if value="{{ is_list }}" hint-placeholder-val="{{ true }}">
     <div class="raznos-segmented" role="tablist" aria-label="Порядок районов">
@@ -71,10 +75,9 @@
     </div>
     </sc-if>
     <p class="raznos-text-tiny">{{ source_note }}</p>
-    <sc-if value="{{ has_detail }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosMarketDetailLink" hint="Какой район выгоднее в каждый час, прошлые дни и прогноз" onOpen="{{ open_detail }}"></dc-import></sc-if>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"few":{"editor":"boolean","default":false},"mode":{"editor":"text","default":"card"},"open":{"editor":null},"onDetail":{"editor":null},"initialView":{"editor":"text","default":"list"},"initialPick":{"editor":"text","default":""},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"$preview":{"width":390,"height":330}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"few":{"editor":"boolean","default":false},"mode":{"editor":"text","default":"card"},"open":{"editor":null},"onDetail":{"editor":null},"initialView":{"editor":"text","default":"list"},"initialPick":{"editor":"text","default":""},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"alertFind":{"editor":null},"onAlert":{"editor":null},"$preview":{"width":390,"height":330}}'>
 // где выгоднее по мотивам Gridwise Where to Work: районы по доходу, полоса от лучшего, тренд за 4 недели
 // один компонент на карточку хаба Работа и экран, чтобы цифры совпадали
 // районы те же, что в фильтре Когда выгоднее, демо
@@ -193,7 +196,8 @@ class Component extends DCLogic {
       more_label: (() => { const n = Math.max(0, byValue.length - 3 - (rising ? 1 : 0)); const w = (n % 10 === 1 && n % 100 !== 11) ? 'район' : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'района' : 'районов'); return 'Ещё ' + n + ' ' + w; })(),
       open_more: () => open({ view: 'list' }),
       has_detail: typeof p.onDetail === 'function',
-      open_detail: () => p.onDetail({ view, pick: view === 'map' && pickRow ? pickRow.k : '', cat: cat.k }),
+      // в По часам переезжают выбранный на карте район, время суток и сервис
+      open_detail: () => p.onDetail({ view, pick: view === 'map' && pickRow ? pickRow.k : '', cat: cat.k, tod: tod.k }),
       by_rank: !nearFirst, by_near: nearFirst,
       seg_rank_cls: 'raznos-segment' + (!nearFirst ? ' raznos-is-active' : ''),
       seg_near_cls: 'raznos-segment' + (nearFirst ? ' raznos-is-active' : ''),
@@ -209,6 +213,17 @@ class Component extends DCLogic {
         return { k: z.k, name: z.name, val: x ? shown(x.v) + (metric.k === 'pay' ? '/ч' : '') : 'нет заказов', t: x ? (max === min ? 1 : (x.v - min) / (max - min)) : null, up: !!x && z.trend >= 10, top: !!x && x.rank === 1, sel: pickRow && pickRow.k === z.k, tap: () => set({ pick: z.k }) };
       }),
       has_pick: !!pickRow, pick: pickRow ? pickRow.row : {},
+      // Сообщить, когда в выбранном районе высокий спрос: район, время суток, дни и сервис из фильтров
+      ...(() => {
+        const has = !!pickRow && typeof p.onAlert === 'function';
+        const pre = has ? { what: 'demand', where: [pickX.z.name], svcs: cat.k === 'all' ? [] : [cat.k], days: when.k === 'weekdays' ? [0, 1, 2, 3, 4] : (when.k === 'weekend' ? [5, 6] : []), time: tod.k === 'night' ? 'evening' : tod.k } : null;
+        return {
+          has_alert: has, pick_cls: 'rhs-pick' + (has ? ' rhs-pick-row' : ''),
+          alert_on: has && typeof p.alertFind === 'function' && !!p.alertFind(pre),
+          alert_label: has ? 'Сообщать о высоком спросе: ' + pickX.z.name : '', alert_sub: has ? [cat.k === 'all' ? 'все сервисы' : cat.label, tod.k === 'all' ? 'весь день' : tod.label.toLowerCase(), when.label.toLowerCase()].join(' · ') : '',
+          alert_tap: () => { if (has) p.onAlert(pre); }
+        };
+      })(),
       source_note: 'Обычный доход в час, ' + city + ' · 184 курьера Разноса · 6 240 заказов · ' + RHS_PERIOD + '. Расстояние считаем от вашего района'
     };
   }

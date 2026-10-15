@@ -71,6 +71,10 @@
     .rpw-note.rpw-note-gain { font-weight: 700; font-size: 13.5px; color: var(--raznos-green-deep); font-variant-numeric: tabular-nums; }
     .rpw-in-plan { flex: none; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--raznos-green); color: var(--raznos-on-dark); }
     .rpw-foot .raznos-btn { flex: none; white-space: nowrap; }
+    /* длинная кнопка вроде Подать заявку во ВкусВилле уходит строкой ниже, подпись не сжимается в столбик */
+    .rpw-foot { flex-wrap: wrap; }
+    .rpw-foot > .rpw-note { flex: 1 1 150px; }
+    .rpw-foot:not(.rpw-foot-two) > .raznos-btn { margin-left: auto; }
     .rpw-more { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 44px; margin-bottom: -6px; padding: 0; border: 0; border-top: 1px solid var(--raznos-line); background: none; text-align: left; font: 600 13px var(--raznos-font); color: var(--raznos-ink-3); cursor: pointer; }
     .rpw-more:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 6px; }
     .rpw-more > svg { flex: none; color: var(--raznos-ink-3); }
@@ -80,7 +84,13 @@
     /* спокойные карточки: без заливки, сервис узнаётся по полоске слева; цвет фона только у идущей смены и у проблемы */
     .rpw { box-shadow: inset 3px 0 0 var(--rpw-svc, transparent); }
     .rpw.rpw-booked, .rpw.rpw-pending { background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
-    .rpw.rpw-pending { border-style: dashed; border-color: var(--raznos-line-strong); }
+    /* заявка уже есть в сервисе: рамка сплошная, как у брони, отличается меткой */
+    .rpw.rpw-pending { border-color: var(--raznos-line-strong); }
+    /* без записи: в сервисе вас на это время нет, карточка полая с пунктиром и меткой без записи */
+    .rpw.rpw-norec { background: transparent; border: 1.5px dashed var(--raznos-line-strong); }
+    .rpw.rpw-norec.rpw-urgent { background: var(--raznos-amber-tint); border-color: var(--raznos-amber); }
+    .rpw.rpw-norec.rpw-now { background: var(--raznos-green-tint); border-color: color-mix(in oklab, var(--raznos-green) 55%, var(--raznos-line)); }
+    .rpw-norec-tag { flex: none; padding: 0 6px; border-radius: 999px; border: 1px dashed var(--raznos-line-strong); font: 600 10.5px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
     .rpw.rpw-now { background: var(--raznos-green-tint); }
     .rpw.rpw-changed { box-shadow: inset 3px 0 0 var(--rpw-svc, transparent), 0 0 0 2px var(--raznos-amber); }
     .rpw.rpw-hl { box-shadow: inset 3px 0 0 var(--rpw-svc, transparent), 0 0 0 3px color-mix(in oklab, var(--raznos-green) 55%, transparent); }
@@ -93,7 +103,7 @@
   <div class="rpw-main">
     <button type="button" class="rpw-hit" onClick="{{ on_tap }}" aria-label="{{ aria }}">
       <span class="rpw-time">{{ from }}<small>{{ to }}</small></span>
-      <span class="rpw-body"><dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ title }}" size="sm"></dc-import><span class="rpw-copy"><span class="rpw-title">{{ title }}</span><span class="rpw-title-row"><span class="rpw-sub">{{ sub }}</span><sc-if value="{{ mine }}" hint-placeholder-val="{{ false }}"><span class="rpw-mine">ваше</span></sc-if></span></span></span>
+      <span class="rpw-body"><dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ title }}" size="sm"></dc-import><span class="rpw-copy"><span class="rpw-title">{{ title }}</span><span class="rpw-title-row"><span class="rpw-sub">{{ sub }}</span><sc-if value="{{ mine }}" hint-placeholder-val="{{ false }}"><span class="rpw-mine">ваше</span></sc-if><sc-if value="{{ norec_tag }}" hint-placeholder-val="{{ false }}"><span class="rpw-norec-tag">без записи</span></sc-if></span></span></span>
     </button>
     <span class="rpw-end"><button type="button" class="rpw-pay-btn" onClick="{{ on_tap }}" tabindex="-1" aria-hidden="true">{{ pay }}<svg class="rpw-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button><button type="button" class="{{ badge_cls }}" onClick="{{ on_badge }}" aria-label="{{ badge_aria }}">{{ badge }}</button></span>
   </div>
@@ -106,7 +116,7 @@
   <sc-if value="{{ rb_chip }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosRebookLine" variant="chip" altSvc="{{ rb.altSvc }}" altTitle="{{ rb.altTitle }}" altTime="{{ rb.altTime }}" altSum="{{ rb.altSum }}" mineSvc="{{ rb.mineSvc }}" mineTitle="{{ rb.mineTitle }}" mineTime="{{ rb.mineTime }}" mineSum="{{ rb.mineSum }}" penalty="{{ rb.penalty }}" freeUntil="{{ rb.freeUntil }}" requested="{{ rb.requested }}" onOpen="{{ on_rebook }}"></dc-import></sc-if>
   <sc-if value="{{ has_more }}" hint-placeholder-val="{{ false }}"><button type="button" class="rpw-more" onClick="{{ on_more }}"><span class="rpw-more-copy">{{ more }}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"12:00"},"rebook":{"editor":null},"rebookMode":{"editor":"enum","options":["chip","list"],"default":"chip"},"onRebook":{"editor":null},"to":{"editor":"text","default":"14:00"},"svc":{"editor":"text","default":"yandex-eda"},"progress":{"editor":"number"},"timeInline":{"editor":"boolean","default":false},"changed":{"editor":"text","default":""},"altLabel":{"editor":"text","default":""},"onAlt":{"editor":null},"loss":{"editor":"boolean","default":false},"left":{"editor":"text"},"title":{"editor":"text","default":"Яндекс Еда"},"sub":{"editor":"text","default":"Центр"},"pay":{"editor":"text","default":"≈ 740 ₽/ч"},"kind":{"editor":"enum","options":["free","booked","pending","need","full","option","auto","shift"],"default":"free"},"badge":{"editor":"text","default":"свободный выход"},"state":{"editor":"enum","options":["","now","past"],"default":""},"note":{"editor":"text","default":""},"action":{"editor":"text","default":""},"actionKind":{"editor":"enum","options":["primary","secondary","ghost"],"default":"secondary"},"onTap":{"editor":null},"onBadge":{"editor":null},"added":{"editor":null},"highlight":{"editor":null},"urgent":{"editor":null},"gain":{"editor":null},"plain":{"editor":null},"more":{"editor":"text","default":""},"mine":{"editor":"boolean","default":false},"quest":{"editor":"text","default":""},"weather":{"editor":"text","default":""},"weatherKind":{"editor":"text","default":"rain"},"onMore":{"editor":null},"onAction":{"editor":null},"$preview":{"width":366,"height":130}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"12:00"},"rebook":{"editor":null},"rebookMode":{"editor":"enum","options":["chip","list"],"default":"chip"},"onRebook":{"editor":null},"to":{"editor":"text","default":"14:00"},"svc":{"editor":"text","default":"yandex-eda"},"progress":{"editor":"number"},"timeInline":{"editor":"boolean","default":false},"changed":{"editor":"text","default":""},"altLabel":{"editor":"text","default":""},"onAlt":{"editor":null},"loss":{"editor":"boolean","default":false},"left":{"editor":"text"},"title":{"editor":"text","default":"Яндекс Еда"},"sub":{"editor":"text","default":"Центр"},"pay":{"editor":"text","default":"≈ 740 ₽/ч"},"kind":{"editor":"enum","options":["free","booked","pending","need","full","option","auto","shift"],"default":"free"},"badge":{"editor":"text","default":"свободный выход"},"state":{"editor":"enum","options":["","now","past"],"default":""},"note":{"editor":"text","default":""},"action":{"editor":"text","default":""},"actionKind":{"editor":"enum","options":["primary","secondary","ghost"],"default":"secondary"},"onTap":{"editor":null},"onBadge":{"editor":null},"added":{"editor":null},"highlight":{"editor":null},"urgent":{"editor":null},"gain":{"editor":null},"plain":{"editor":null},"more":{"editor":"text","default":""},"mine":{"editor":"boolean","default":false},"recTag":{"editor":"boolean","default":true},"quest":{"editor":"text","default":""},"weather":{"editor":"text","default":""},"weatherKind":{"editor":"text","default":"rain"},"onMore":{"editor":null},"onAction":{"editor":null},"$preview":{"width":366,"height":130}}'>
 // окно в умном расписании: бронь из Смен, окно плана или вариант, доступность бейджем, действие внизу
 class Component extends DCLogic {
   renderVals() {
@@ -114,10 +124,12 @@ class Component extends DCLogic {
     const kind = p.kind || 'free';
     const state = p.state || '';
     // auto: автоназначение без брони, заказы приходят сами, shift: смена в ресторане или пиццерии, график утверждает сервис
-    const badgeTone = state === 'now' ? 'live' : ({ booked: 'ok', free: 'ok', pending: 'warn', need: 'warn', full: 'off', option: '', auto: 'ok', shift: 'ok' })[kind] || '';
+    const badgeTone = state === 'now' ? 'live' : ({ booked: 'ok', free: '', pending: 'warn', need: 'warn', full: 'off', option: '', auto: 'ok', shift: 'ok' })[kind] || '';
     const note = p.note || '';
     const action = p.action || '';
     const title = p.title || 'Яндекс Еда';
+    // свободный выход, нужен слот и нет в списке: записи в сервисе нет, это намерение, а не обязательство
+    const norec = ['free', 'need', 'full'].indexOf(kind) !== -1 && state !== 'past';
     const from = p.from || '12:00', to = p.to || '14:00';
     return {
       from, to, svc: p.svc || 'yandex-eda', title, sub: p.timeInline ? [(p.from || '') + '–' + (p.to || ''), p.sub === undefined ? 'Центр' : p.sub].filter(Boolean).join(String.fromCharCode(10)) : (p.sub === undefined ? 'Центр' : p.sub),
@@ -126,8 +138,8 @@ class Component extends DCLogic {
       // срочно: окно уже в плане, но без брони сервис заказы не даст
       // полоска слева цветом сервиса, остальная карточка спокойная
       svc_style: p.svc ? '--rpw-svc: var(--raznos-svc-' + p.svc + ')' : '',
-      cls: 'rpw' + (p.urgent ? ' rpw-urgent' : (({ booked: ' rpw-booked', shift: ' rpw-booked', auto: ' rpw-booked', pending: ' rpw-pending', need: ' rpw-need' })[kind] || '')) + (state === 'past' ? ' rpw-past' : '') + (p.timeInline ? ' rpw-inline' : '') + (state === 'now' ? ' rpw-now' : '') + (p.plain ? ' rpw-plain' : '') + (p.highlight ? ' rpw-hl' : '') + (p.changed ? ' rpw-changed' : ''),
-      urgent: !!p.urgent, mine: !!p.mine,
+      cls: 'rpw' + (p.urgent ? ' rpw-urgent' : (({ booked: ' rpw-booked', shift: ' rpw-booked', auto: ' rpw-booked', pending: ' rpw-pending', need: ' rpw-need' })[kind] || '')) + (state === 'past' ? ' rpw-past' : '') + (p.timeInline ? ' rpw-inline' : '') + (state === 'now' ? ' rpw-now' : '') + (p.plain ? ' rpw-plain' : '') + (p.highlight ? ' rpw-hl' : '') + (p.changed ? ' rpw-changed' : '') + (norec ? ' rpw-norec' : ''),
+      urgent: !!p.urgent, mine: !!p.mine, norec_tag: norec && p.recTag !== false,
       // окно уже в расписании: зелёная подпись и галочка в кружке на месте кнопки
       in_plan: !!p.added && !action, note_cls: 'rpw-note' + (p.added ? ' rpw-note-added' : '') + (p.gain ? ' rpw-note-gain' : '') + (p.loss ? ' rpw-note-loss' : '') + (p.urgent ? ' rpw-note-urgent' : ''),
       // цена перебронирования: плашка под предупреждением или строка списка вместо текста
@@ -141,7 +153,7 @@ class Component extends DCLogic {
       // слежение за местом как в Сменах: колокольчик, включённое с зелёным фоном
       is_watch: p.actionKind === 'watch' || p.actionKind === 'watch-on', watch_on: p.actionKind === 'watch-on',
       action_cls: 'raznos-btn raznos-btn-small' + (p.actionKind === 'primary' ? ' raznos-btn-primary' : (p.actionKind === 'ghost' ? ' raznos-btn-ghost' : (p.actionKind === 'watch-on' ? ' rpw-watch rpw-watch-on' : (p.actionKind === 'watch' ? ' raznos-btn-secondary rpw-watch' : ' raznos-btn-secondary')))),
-      aria: from + '–' + to + ', ' + title + ', ' + (p.pay || '') + ', ' + (p.badge || ''),
+      aria: from + '–' + to + ', ' + title + ', ' + (p.pay || '') + ', ' + (p.badge || '') + (norec ? ', без записи' : ''),
       on_tap: typeof p.onTap === 'function' ? p.onTap : (() => {}),
       // тап по метке объясняет, что она значит
       on_badge: typeof p.onBadge === 'function' ? p.onBadge : (typeof p.onTap === 'function' ? p.onTap : (() => {})),

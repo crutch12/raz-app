@@ -12,13 +12,13 @@
   <span class="raznos-list-main"><span class="raznos-list-title">{{ title }}</span><span class="raznos-text-small">{{ hint }}</span></span>
   <span class="raznos-row-chevron">›</span>
 </button>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"title":{"editor":"text","default":"Подробно по часам"},"hint":{"editor":"text","default":"Районы и сервисы в любой час, прошлые дни и прогноз"},"onOpen":{"editor":null},"$preview":{"width":358,"height":80}}'>
-// вход из простых экранов Рынка в полную версию по часам, спокойная строка в конце экрана
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"title":{"editor":"text","default":"Подробно по часам"},"hint":{"editor":"text","default":"Каждый час: где и в каком сервисе выгоднее"},"onOpen":{"editor":null},"$preview":{"width":358,"height":80}}'>
+// вход из простых экранов Рынка в полную версию по часам, спокойная строка сразу под главным графиком или фильтрами
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
     const title = p.title || 'Подробно по часам';
-    const hint = p.hint || 'Районы и сервисы в любой час, прошлые дни и прогноз';
+    const hint = p.hint || 'Каждый час: где и в каком сервисе выгоднее';
     return {
       title, hint, aria: title + ', ' + hint,
       on_open: typeof p.onOpen === 'function' ? p.onOpen : (() => {})

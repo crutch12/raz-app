@@ -17,57 +17,109 @@
     .rmt-more { flex: none; display: inline-flex; align-items: center; gap: 2px; min-height: 44px; border: 0; background: none; padding: 0 0 0 8px; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
     .rmt-more:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; border-radius: 8px; }
 
-    /* экран */
-    .rmt-full { display: flex; flex-direction: column; gap: 12px; }
-    .rmt-head { display: flex; flex-direction: column; }
-    .rmt-bar { gap: 10px; padding-inline: 6px; }
-    .rmt-bar .raznos-text-h1 { flex: 1; min-width: 0; margin: 0; }
-    .rmt-head-sub { margin-top: -4px; }
-    .rmt-filter { flex: none; color: var(--raznos-ink); padding: 0; }
-    .rmt-filter-on { background: var(--raznos-dark); border-color: var(--raznos-dark); color: var(--raznos-on-dark); }
-    .rmt-filter:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; }
+    /* экран: шапка и отступы как у соседних экранов Рынка */
+    .rmt-full { display: flex; flex-direction: column; gap: var(--raznos-screen-gap, 12px); }
+    .rmt-bar { padding-inline: 6px; }
+    /* чип под заголовком: что показано и вход в шторку, тап-зона 44 */
+    .rmt-scope { position: relative; align-self: flex-start; max-width: 100%; box-sizing: border-box; display: inline-flex; align-items: center; gap: 4px; min-height: 32px; margin: -4px 0 -2px; padding: 4px 10px 4px 12px; border: 1px solid var(--raznos-line-strong); border-radius: 999px; background: var(--raznos-surface); font: 600 13px var(--raznos-font); color: var(--raznos-ink-2); cursor: pointer; }
+    .rmt-scope > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rmt-scope > svg { flex: none; }
+    .rmt-scope::after { content: ''; position: absolute; inset: -6px 0; }
+    .rmt-scope-on { border-color: var(--raznos-ink-2); color: var(--raznos-ink); }
+    .rmt-scope:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; }
 
-    /* выбранный час крупно над столбиками */
-    .rmt-hour { display: flex; flex-direction: column; gap: 12px; padding: 14px 12px 10px; border-radius: 16px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
+    /* выбранный час в две строки над столбиками */
+    .rmt-hour { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 10px; border-radius: 16px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
     .rmt-read { display: flex; flex-direction: column; gap: 2px; padding: 0 4px; }
-    .rmt-read-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; }
-    .rmt-when { font: 600 14px var(--raznos-font); color: var(--raznos-ink-2); }
+    .rmt-read-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 24px; }
+    .rmt-when { min-width: 0; font: 600 13px var(--raznos-font); color: var(--raznos-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .rmt-when b { font-weight: 700; color: var(--raznos-ink); }
-    .rmt-back-now { flex: none; display: inline-flex; align-items: center; min-height: 44px; margin: -8px -4px -8px 0; padding: 0 4px 0 8px; border: 0; background: none; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
-    .rmt-back-now span { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 999px; background: var(--raznos-green-tint); }
+    .rmt-back-now { flex: none; display: inline-flex; align-items: center; min-height: 44px; margin: -10px -4px -10px 0; padding: 0 4px 0 8px; border: 0; background: none; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
+    .rmt-back-now span { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; background: var(--raznos-green-tint); }
     .rmt-back-now:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: -2px; border-radius: 999px; }
-    .rmt-big { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 6px; }
-    .rmt-big b { font: 800 34px/1.05 var(--raznos-font); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; color: var(--raznos-ink); white-space: nowrap; }
-    .rmt-big small { font: 600 15px var(--raznos-font); color: var(--raznos-ink-2); }
-    .rmt-big .raznos-status-pill { align-self: center; padding: 2px 8px; font-size: 12px; }
-    .rmt-leader { display: flex; align-items: center; gap: 6px; min-height: 24px; font: 500 14px/1.35 var(--raznos-font); color: var(--raznos-ink-2); }
-    .rmt-leader b { color: var(--raznos-ink); font-weight: 700; }
+    /* Сейчас и колокольчик Сообщать в строке выбранного часа, без лишней высоты */
+    .rmt-read-acts { flex: none; display: inline-flex; align-items: center; gap: 6px; margin: -6px 0; }
+    .rmt-main { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 40px; }
+    .rmt-main-num { flex: none; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+    .rmt-cap { font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rmt-avg { font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); white-space: nowrap; }
+    .rmt-avg b { font-weight: 700; color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rmt-big { flex: none; display: flex; align-items: baseline; gap: 4px; }
+    .rmt-big b { font: 800 26px/1.1 var(--raznos-font); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; color: var(--raznos-ink); white-space: nowrap; }
+    .rmt-big-range b { font-size: 21px; }
+    .rmt-big small { font: 600 14px var(--raznos-font); color: var(--raznos-ink-2); }
+    .rmt-low { flex: none; padding: 2px 8px; font-size: 12px; }
+    .rmt-leader { min-width: 0; display: flex; align-items: center; gap: 6px; }
     .rmt-leader .raznos-svc-icon-sm { box-sizing: border-box; flex: none; width: 20px; height: 20px; border-radius: 6px; }
-    .rmt-me { font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-2); }
-    .rmt-me { min-height: 36px; }
-    .rmt-me b { color: var(--raznos-ink); font-weight: 700; }
+    .rmt-leader-txt { min-width: 0; display: flex; flex-direction: column; text-align: right; }
+    .rmt-leader-txt b, .rmt-leader-txt span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    /* у длинной вилки название лидера переносится, а не обрезается */
+    .rmt-leader-txt b, .rmt-leader-txt b span { white-space: normal; }
+    .rmt-leader-txt b { font: 700 13px/1.25 var(--raznos-font); color: var(--raznos-ink); }
+    .rmt-leader-txt span { font: 500 12px/1.25 var(--raznos-font); color: var(--raznos-ink-3); }
+    /* место под строку о ваших часах или погоде держим весь день, чтобы при выборе часа список не прыгал */
+    .rmt-notes { display: flex; flex-direction: column; }
+    .rmt-notes-res { min-height: 46px; }
+    .rmt-note { display: flex; align-items: center; gap: 6px; margin-top: 4px; font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-2); }
+    .rmt-note b { color: var(--raznos-ink); font-weight: 700; }
+    .rmt-note-fc { font-size: 12px; color: var(--raznos-ink-3); }
+    /* итог дня с вашими часами над столбиками */
+    .rmt-sum { display: flex; align-items: baseline; gap: 6px; margin: 0; padding: 0 4px; font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-2); }
+    .rmt-sum-dot { flex: none; width: 5px; height: 5px; border-radius: 50%; background: var(--raznos-ink); transform: translateY(-2px); }
+    .rmt-why { align-self: flex-start; max-width: 100%; gap: 6px; margin-top: 4px; font-size: 13px; white-space: normal; }
 
-    .rmt-panel { display: flex; flex-direction: column; padding: 12px 16px 4px; border-radius: 16px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
-    .rmt-by { padding: 3px; gap: 3px; margin-bottom: 4px; }
-    .rmt-by .raznos-segment { min-height: 44px; padding: 0 4px; }
-    .rmt-why { align-self: flex-start; max-width: 100%; gap: 6px; margin: 6px 0 2px; font-size: 13px; white-space: normal; }
+    .rmt-panel { display: flex; flex-direction: column; padding: 4px 16px; border-radius: 16px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
+    .rmt-seg .raznos-segment { position: relative; }
+    /* тап-зона вкладки на всю высоту переключателя, 44px */
+    .rmt-seg .raznos-segment::after { content: ''; position: absolute; inset: -5px -3px; }
     .rmt-rows { display: flex; flex-direction: column; }
+    /* единица один раз над колонкой значений, у районов колонка левее кнопки маршрута */
+    .rmt-unit { align-self: flex-end; padding-top: 6px; font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rmt-unit-act { padding-right: 44px; }
+    /* на 360 и у вилки прогноза полоса уходит, чтобы названия и лидер помещались в строку */
+    .rmt-panel { container-type: inline-size; }
+    .rmt-rows-range.rmt-rows-svc .rrr-row { grid-template-columns: 20px 28px minmax(0, 1fr) auto; }
+    .rmt-rows-range.rmt-rows-zone .rrr-row { grid-template-columns: 20px minmax(0, 1fr) auto 36px; }
+    .rmt-rows-range .rrr-track { display: none; }
+    @container (max-width: 320px) {
+      .rmt-rows-svc .rrr-row { grid-template-columns: 20px 28px minmax(0, 1fr) auto; }
+      .rmt-rows-zone .rrr-row { grid-template-columns: 20px minmax(0, 1fr) auto 36px; }
+      .rmt-rows .rrr-track { display: none; }
+    }
     .rmt-row { will-change: transform; }
     .rmt-all { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0; border: 0; background: none; font: 600 14px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
     .rmt-all:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; border-radius: 8px; }
     .rmt-all-chev { transition: transform .2s ease; }
     .rmt-all-open { transform: rotate(180deg); }
-    .rmt-links { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--raznos-line); }
-    .rmt-links .rmt-more { padding: 0; }
     .rmt-empty { padding: 16px 0; font: 500 14px var(--raznos-font); color: var(--raznos-ink-2); text-align: center; }
 
+    /* карта районов на выбранный час, как в Где выгоднее */
+    .rmt-map { position: relative; overflow: hidden; border-radius: 16px; border: 1px solid var(--raznos-line); }
+    .rmt-map-hint { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    /* выбранный район под картой: строка без места и кнопка маршрута с подписью, куда она ведёт */
+    .rmt-pick { padding-bottom: 12px; }
+    .rmt-route { text-decoration: none; }
+
+    /* переход к свободным слотам лидера */
+    .rmt-slots { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 12px 14px; border-radius: 16px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); color: var(--raznos-ink); text-align: left; font: inherit; cursor: pointer; }
+    .rmt-slots:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; }
+    .rmt-slots .raznos-svc-icon-sm { box-sizing: border-box; flex: none; width: 28px; height: 28px; border-radius: 8px; }
+    .rmt-slots-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+
+    /* шторка фильтра */
+    .rmt-sheet { max-height: 86%; overflow-y: auto; }
+    .rmt-sec { margin-top: 8px; font: 600 13px var(--raznos-font); color: var(--raznos-ink-3); }
     .rmt-opt { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 10px 4px; background: none; border: 0; border-bottom: 1px solid var(--raznos-line); font: 600 15px var(--raznos-font); color: var(--raznos-ink); text-align: left; cursor: pointer; }
-    .rmt-opt:last-child { border-bottom: 0; }
     .rmt-opt:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; }
     .rmt-opt-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
     .rmt-opt-note { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
     .rmt-check { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--raznos-line); display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; }
     .rmt-check-on { background: var(--raznos-dark); border-color: var(--raznos-dark); color: var(--raznos-on-dark); }
+    .rmt-zones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 12px 0 4px; }
+    .rmt-zones .raznos-chip { display: inline-flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0; padding-inline: 12px; white-space: nowrap; }
+    .rmt-zones .raznos-chip small { font: 500 12px var(--raznos-font); opacity: 0.75; }
+    .rmt-done { position: sticky; bottom: 0; margin-top: 12px; box-shadow: 0 -12px 12px var(--raznos-surface); }
+    .rmt-sheet .rmt-opt { min-height: 52px; padding-block: 8px; }
   </style>
 </helmet>
 
@@ -91,91 +143,153 @@
 
 <sc-if value="{{ is_full }}" hint-placeholder-val="{{ false }}">
   <div class="rmt-full">
-    <div class="rmt-head">
-      <div class="raznos-app-bar rmt-bar">
-        <sc-if value="{{ has_back }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-icon-btn" onClick="{{ on_back }}" aria-label="Назад">‹</button></sc-if>
-        <h1 class="raznos-text-h1">По часам</h1>
-        <sc-if value="{{ has_filter }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ filter_cls }}" onClick="{{ open_filter }}" aria-label="{{ filter_aria }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg></button></sc-if>
-      </div>
-      <span class="raznos-text-small rmt-head-sub">{{ head_sub }}</span>
+    <div class="raznos-app-bar rmt-bar" style="justify-content:flex-start;gap:10px">
+      <sc-if value="{{ has_back }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-icon-btn" onClick="{{ on_back }}" aria-label="Назад">‹</button></sc-if>
+      <h1 class="raznos-text-h1" style="margin:0">По часам</h1>
     </div>
-    <dc-import name="RaznosHourStrip" kind="day" size="sm" items="{{ days }}" label="День" centerKey="{{ center_key }}" onPick="{{ pick_day }}"></dc-import>
+    <sc-if value="{{ has_filter }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ scope_cls }}" onClick="{{ open_filter }}" aria-haspopup="dialog" aria-label="{{ filter_aria }}"><span>{{ scope_label }}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></sc-if>
+    <dc-import name="RaznosWeekDays" days="{{ days }}" prevDays="{{ days_prev }}" nextDays="{{ days_next }}" weekKey="{{ week_key }}" canPrev="{{ week_can_prev }}" canNext="{{ week_can_next }}" onPrev="{{ week_prev }}" onNext="{{ week_next }}" onPick="{{ pick_day }}" label="День"></dc-import>
     <div class="rmt-hour">
       <div class="rmt-read" aria-live="polite">
         <div class="rmt-read-top">
-          <span class="rmt-when"><b>{{ when }}</b> · {{ when_sub }}</span>
-          <sc-if value="{{ has_go_now }}" hint-placeholder-val="{{ false }}"><button type="button" class="rmt-back-now" onClick="{{ go_now }}"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Сейчас</span></button></sc-if>
+          <span class="rmt-when"><b>{{ when }}</b></span>
+          <span class="rmt-read-acts">
+          <sc-if value="{{ has_go_now }}" hint-placeholder-val="{{ false }}"><button type="button" class="rmt-back-now" onClick="{{ go_now }}"><span>{{ go_now_label }}</span></button></sc-if>
+          <sc-if value="{{ has_alert }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosAlertBell" size="sm" on="{{ alert_on }}" label="{{ alert_label }}" sub="{{ alert_sub }}" onTap="{{ alert_tap }}"></dc-import></sc-if>
+          </span>
         </div>
-        <span class="rmt-big"><b>{{ big }}</b><small>₽/ч</small><sc-if value="{{ low }}" hint-placeholder-val="{{ false }}"><span class="raznos-status-pill raznos-pill-muted">предварительно</span></sc-if></span>
-        <sc-if value="{{ has_leader }}" hint-placeholder-val="{{ true }}"><span class="rmt-leader"><dc-import name="RaznosIcon" svc="{{ leader_svc }}" alt="{{ leader_title }}" size="sm"></dc-import><span>лучше всего <b>{{ leader_title }}</b>{{ leader_where }}</span></span></sc-if>
-        <sc-if value="{{ has_me }}" hint-placeholder-val="{{ false }}"><span class="rmt-me">Вы были в <b>{{ me_svc }}</b>, {{ me_zone }}: <b>{{ me_val }}</b>{{ me_tail }}</span></sc-if>
-        <sc-if value="{{ has_me_day }}" hint-placeholder-val="{{ false }}"><span class="rmt-me">{{ me_day }}</span></sc-if>
+        <div class="rmt-main">
+          <span class="rmt-main-num">
+            <span class="rmt-cap">{{ cap }}</span>
+            <span class="{{ big_cls }}"><b>{{ big }}</b><small>₽/ч</small></span>
+            <span class="rmt-avg">{{ avg_label }} <b>{{ avg_val }}</b></span>
+          </span>
+          <sc-if value="{{ has_leader }}" hint-placeholder-val="{{ true }}"><span class="rmt-leader"><span class="rmt-leader-txt"><b>{{ leader_title }}</b><span>{{ leader_where }}</span></span><dc-import name="RaznosIcon" svc="{{ leader_svc }}" alt="{{ leader_title }}" size="sm"></dc-import></span></sc-if>
+        </div>
+        <div class="{{ notes_cls }}">
+        <sc-if value="{{ has_me }}" hint-placeholder-val="{{ false }}"><span class="rmt-note"><span>Ваш час: <b>{{ me_svc }}</b>, {{ me_zone }}, <b>{{ me_val }}</b>{{ me_tail }}</span></span></sc-if>
+        <sc-if value="{{ has_why }}" hint-placeholder-val="{{ false }}"><span class="raznos-status-pill raznos-pill-warn rmt-why"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16a5 5 0 1 1 1.2-9.9A6 6 0 0 1 19.5 9 3.5 3.5 0 0 1 18 16H7Z"/><path d="m9 19-1 2M13 19l-1 2M17 19l-1 2"/></svg>{{ why }}</span></sc-if>
+        <sc-if value="{{ has_fc_note }}" hint-placeholder-val="{{ false }}"><span class="rmt-note rmt-note-fc">{{ fc_note }}</span></sc-if>
+        </div>
       </div>
-      <dc-import name="RaznosHourBars" bars="{{ bars }}" win="{{ win }}" legendMe="{{ has_my }}" label="Лучшая ставка по часам, ведите пальцем, чтобы выбрать час" onPick="{{ pick_hour }}"></dc-import>
+      <sc-if value="{{ has_sum }}" hint-placeholder-val="{{ false }}"><p class="rmt-sum"><i class="rmt-sum-dot" aria-hidden="true"></i><span>{{ sum_text }}</span></p></sc-if>
+      <dc-import name="RaznosHourBars" bars="{{ bars }}" win="{{ win }}" legendDay="{{ true }}" label="Лучшая ставка по часам с 06:00 до 06:00, ведите пальцем, чтобы выбрать час" onPick="{{ pick_hour }}"></dc-import>
     </div>
-    <div class="rmt-panel">
-      <sc-if value="{{ has_by }}" hint-placeholder-val="{{ true }}">
-        <div class="raznos-segmented rmt-by" role="tablist" aria-label="Список">
-          <button type="button" role="tab" aria-selected="{{ by_zone }}" class="{{ by_zone_cls }}" onClick="{{ pick_zone }}">Районы</button>
-          <button type="button" role="tab" aria-selected="{{ by_svc }}" class="{{ by_svc_cls }}" onClick="{{ pick_svc }}">Сервисы</button>
-        </div>
-      </sc-if>
-      <sc-if value="{{ has_why }}" hint-placeholder-val="{{ false }}"><span class="raznos-status-pill raznos-pill-warn rmt-why"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16a5 5 0 1 1 1.2-9.9A6 6 0 0 1 19.5 9 3.5 3.5 0 0 1 18 16H7Z"/><path d="m9 19-1 2M13 19l-1 2M17 19l-1 2"/></svg>{{ why }}</span></sc-if>
-      <div class="rmt-rows" data-rmt="{{ uid }}">
-        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
-          <div class="rmt-row" data-rmt-key="{{ r.key }}"><dc-import name="RaznosRankRow" rank="{{ r.rank }}" svc="{{ r.svc }}" title="{{ r.title }}" meta="{{ r.meta }}" fill="{{ r.fill }}" value="{{ r.val }}" forecast="{{ r.fc }}" animate="{{ true }}" divider="{{ r.divider }}"></dc-import></div>
-        </sc-for>
-        <sc-if value="{{ is_empty }}" hint-placeholder-val="{{ false }}"><p class="rmt-empty">В этот час заказов в выбранных сервисах нет</p></sc-if>
+    <sc-if value="{{ has_by }}" hint-placeholder-val="{{ true }}">
+      <div class="raznos-segmented rmt-seg" role="tablist" aria-label="Что показать">
+        <button type="button" role="tab" aria-selected="{{ by_zone }}" class="{{ by_zone_cls }}" onClick="{{ pick_zone }}">Районы</button>
+        <button type="button" role="tab" aria-selected="{{ by_svc }}" class="{{ by_svc_cls }}" onClick="{{ pick_svc }}">Сервисы</button>
+        <button type="button" role="tab" aria-selected="{{ by_map }}" class="{{ by_map_cls }}" onClick="{{ pick_map }}">Карта</button>
       </div>
-      <sc-if value="{{ has_all }}" hint-placeholder-val="{{ true }}"><button type="button" class="rmt-all" onClick="{{ toggle_all }}" aria-expanded="{{ all_open }}">{{ all_label }}<svg class="{{ all_cls }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></sc-if>
-      <sc-if value="{{ has_links }}" hint-placeholder-val="{{ true }}">
-        <div class="rmt-links">
-          <sc-if value="{{ has_map }}" hint-placeholder-val="{{ true }}"><button type="button" class="rmt-more" onClick="{{ go_map }}">На карте<span class="raznos-row-chevron">›</span></button></sc-if>
-          <sc-if value="{{ has_plan }}" hint-placeholder-val="{{ false }}"><button type="button" class="rmt-more" onClick="{{ go_plan }}">Варианты на это время<span class="raznos-row-chevron">›</span></button></sc-if>
+    </sc-if>
+    <sc-if value="{{ is_list }}" hint-placeholder-val="{{ true }}">
+      <div class="rmt-panel">
+        <sc-if value="{{ has_unit }}" hint-placeholder-val="{{ true }}"><span class="{{ unit_cls }}" aria-hidden="true">₽/ч</span></sc-if>
+        <div class="{{ rows_cls }}" data-rmt="{{ uid }}">
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+            <div class="rmt-row" data-rmt-key="{{ r.key }}"><dc-import name="RaznosRankRow" rank="{{ r.rank }}" svc="{{ r.svc }}" title="{{ r.title }}" mine="{{ r.mine }}" meta="{{ r.meta }}" metaMine="{{ r.metaMine }}" fill="{{ r.fill }}" value="{{ r.val }}" forecast="{{ r.fc }}" animate="{{ true }}" action="{{ r.action }}" href="{{ r.href }}" actionLabel="{{ r.aria }}" onTap="{{ r.tap }}" divider="{{ r.divider }}"></dc-import></div>
+          </sc-for>
+          <sc-if value="{{ is_empty }}" hint-placeholder-val="{{ false }}"><p class="rmt-empty">{{ empty_text }}</p></sc-if>
         </div>
-      </sc-if>
-    </div>
+        <sc-if value="{{ has_all }}" hint-placeholder-val="{{ true }}"><button type="button" class="rmt-all" onClick="{{ toggle_all }}" aria-expanded="{{ all_open }}">{{ all_label }}<svg class="{{ all_cls }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></sc-if>
+      </div>
+    </sc-if>
+    <sc-if value="{{ is_map }}" hint-placeholder-val="{{ false }}">
+      <div class="rmt-map"><dc-import name="RaznosCourierMap" couriers="{{ false }}" hideCouriers="{{ true }}" hideMe="{{ true }}" zones="{{ map_zones }}"></dc-import></div>
+      <span class="rmt-map-hint">Нажмите на район</span>
+      <sc-if value="{{ has_map_pick }}" hint-placeholder-val="{{ true }}"><div class="rmt-panel rmt-pick"><dc-import name="RaznosRankRow" plain="{{ true }}" title="{{ map_pick.title }}" meta="{{ map_pick.meta }}" metaMine="{{ map_pick.metaMine }}" value="{{ map_pick.val }}" forecast="{{ map_pick.fc }}" divider="{{ false }}"></dc-import><a class="raznos-btn raznos-btn-secondary raznos-btn-small rmt-route" href="{{ map_pick.href }}" target="_blank" rel="noopener" aria-label="{{ map_pick.aria }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8-8-2z"/></svg>Маршрут в Яндекс Картах</a></div></sc-if>
+    </sc-if>
+    <sc-if value="{{ has_slots }}" hint-placeholder-val="{{ false }}">
+      <button type="button" class="rmt-slots" onClick="{{ go_slots }}"><dc-import name="RaznosIcon" svc="{{ slots_svc }}" alt="{{ slots_svc_title }}" size="sm"></dc-import><span class="rmt-slots-main"><span class="raznos-list-title">{{ slots_title }}</span><span class="raznos-text-small">{{ slots_sub }}</span></span><span class="raznos-row-chevron" aria-hidden="true">›</span></button>
+    </sc-if>
     <p class="raznos-text-tiny">{{ source_note }}</p>
     <sc-if value="{{ sheet_open }}" hint-placeholder-val="{{ false }}">
-      <div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="Какие сервисы показывать" onClick="{{ close_sheet }}">
-        <div class="raznos-dialog" onClick="{{ stop }}">
-          <span class="raznos-text-h3">Какие сервисы показывать</span>
+      <div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="Что показать" onClick="{{ close_sheet }}">
+        <div class="raznos-dialog rmt-sheet" onClick="{{ stop }}">
+          <span class="raznos-text-h3">Что показать</span>
+          <span class="rmt-sec">Сервисы</span>
           <div>
-            <sc-for list="{{ scope_opts }}" as="o" hint-placeholder-count="2">
-              <button type="button" class="rmt-opt" onClick="{{ o.tap }}"><span class="rmt-opt-main"><span>{{ o.label }}</span><span class="rmt-opt-note">{{ o.note }}</span></span><span class="{{ o.check }}">{{ o.mark }}</span></button>
+            <sc-for list="{{ svc_opts }}" as="o" hint-placeholder-count="3">
+              <button type="button" class="rmt-opt" onClick="{{ o.tap }}" aria-pressed="{{ o.on }}"><span class="rmt-opt-main"><span>{{ o.label }}</span><span class="rmt-opt-note">{{ o.note }}</span></span><span class="{{ o.check }}">{{ o.mark }}</span></button>
             </sc-for>
           </div>
+          <sc-if value="{{ svc_picking }}" hint-placeholder-val="{{ false }}">
+            <div class="rmt-zones" role="group" aria-label="Отметить сервисы">
+              <sc-for list="{{ svc_chips }}" as="c" hint-placeholder-count="6">
+                <button type="button" class="{{ c.cls }}" aria-pressed="{{ c.on }}" onClick="{{ c.tap }}">{{ c.name }}</button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ has_zone_filter }}" hint-placeholder-val="{{ true }}">
+            <span class="rmt-sec">Районы</span>
+            <div>
+              <sc-for list="{{ zone_opts }}" as="o" hint-placeholder-count="3">
+                <button type="button" class="rmt-opt" onClick="{{ o.tap }}" aria-pressed="{{ o.on }}"><span class="rmt-opt-main"><span>{{ o.label }}</span><span class="rmt-opt-note">{{ o.note }}</span></span><span class="{{ o.check }}">{{ o.mark }}</span></button>
+              </sc-for>
+            </div>
+            <sc-if value="{{ zone_picking }}" hint-placeholder-val="{{ false }}">
+              <div class="rmt-zones" role="group" aria-label="Отметить районы">
+                <sc-for list="{{ zone_chips }}" as="c" hint-placeholder-count="10">
+                  <button type="button" class="{{ c.cls }}" aria-pressed="{{ c.on }}" onClick="{{ c.tap }}">{{ c.name }}<small>{{ c.km }}</small></button>
+                </sc-for>
+              </div>
+            </sc-if>
+          </sc-if>
+          <button type="button" class="raznos-btn raznos-btn-primary rmt-done" onClick="{{ close_sheet }}">Закрыть</button>
         </div>
       </div>
     </sc-if>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"few":{"editor":"boolean","default":false},"connected":{"editor":null},"weather":{"editor":null},"initialDay":{"editor":"number","default":0},"initialHour":{"editor":"number"},"initialBy":{"editor":"text","default":"zone"},"initialScope":{"editor":"text","default":"all"},"open":{"editor":null},"onBack":{"editor":null},"onMap":{"editor":null},"onPlan":{"editor":null},"$preview":{"width":390,"height":360}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"few":{"editor":"boolean","default":false},"connected":{"editor":null},"weather":{"editor":null},"slots":{"editor":null},"initialDay":{"editor":"number","default":0},"initialHour":{"editor":"number"},"initialBy":{"editor":"text","default":"zone"},"initialScope":{"editor":"text","default":"all"},"initialView":{"editor":"text","default":"list"},"initialZones":{"editor":null},"initialPick":{"editor":"text","default":""},"initialTod":{"editor":"text","default":""},"open":{"editor":null},"onBack":{"editor":null},"onSlots":{"editor":null},"alertFind":{"editor":null},"onAlert":{"editor":null},"$preview":{"width":390,"height":360}}'>
 // таймлайн выгодности: когда и где выгоднее сейчас, в прошлые дни и по прогнозу
 // одна модель час × день × сервис × район, районы и сервисы те же, что в Где выгоднее, основа та же, что в Когда выгоднее
-// mode card: карточка, в приложении не используется; mode full: полная версия Подробно по часам со столбиками и раскладом выбранного часа, входы из простых экранов Рынка
+// mode card: карточка, в приложении не используется; mode full: полная версия Подробно по часам, входы из простых экранов Рынка
+// рабочие сутки с 06:00 до 06:00 следующего утра, час после полуночи хранится как 24..29
 const RMT_BASE = [460, 380, 320, 280, 280, 340, 420, 480, 520, 560, 620, 700, 860, 980, 900, 760, 720, 820, 1040, 1220, 1300, 1180, 920, 700];
 const RMT_DAY_MUL = [0.92, 1.02, 0.95, 1.0, 1.06, 1.1, 0.86];
 // масштаб под медиану города за неделю, ту же, что в Сравнении сервисов (690 ₽/ч)
 const RMT_SCALE = 690 / (RMT_DAY_MUL.reduce((a, m) => a + m, 0) / 7 * RMT_BASE.slice(8).reduce((a, v) => a + v, 0) / 16);
+// сервисы и их сила утром, днём, вечером и ночью, список тот же, что в Сравнении сервисов; gen для подписи Взять слот Самоката
 const RMT_SVC = [
-  { k: 'vkusvill', title: 'ВкусВилл', mul: [1.05, 1.0, 0.95, 0.8] },
-  { k: 'samokat', title: 'Самокат', mul: [0.92, 0.97, 1.1, 1.0] },
-  { k: 'yandex-eda', title: 'Яндекс Еда', mul: [0.86, 1.08, 1.03, 0.95] }
+  { k: 'vkusvill', title: 'ВкусВилл', gen: 'ВкусВилла', mul: [1.05, 1.0, 0.95, 0.8] },
+  { k: 'samokat', title: 'Самокат', gen: 'Самоката', mul: [0.92, 0.97, 1.1, 1.0] },
+  { k: 'yandex-eda', title: 'Яндекс Еда', gen: 'Яндекс Еды', mul: [0.86, 1.08, 1.03, 0.95] },
+  { k: 'x5', title: 'X5 Доставка', gen: 'X5 Доставки', mul: [0.98, 1.0, 0.98, 0.82] },
+  { k: 'yandex-lavka', title: 'Яндекс Лавка', gen: 'Яндекс Лавки', mul: [0.9, 1.0, 1.16, 1.08] },
+  { k: 'kuper', title: 'Купер', gen: 'Купера', mul: [1.12, 1.07, 0.92, 0.7] },
+  { k: 'dostaevsky', title: 'Достаевский', gen: 'Достаевского', mul: [0.65, 0.89, 1.02, 1.06] },
+  { k: 'delivery', title: 'Деливери', gen: 'Деливери', mul: [0.64, 0.94, 0.99, 0.92] },
+  { k: 'magnit', title: 'Магнит', gen: 'Магнита', mul: [0.78, 0.83, 0.88, 0.68] },
+  { k: 'dodo', title: 'Додо', gen: 'Додо', mul: [0.57, 0.85, 0.91, 0.73] },
+  { k: 'ozon-fresh', title: 'Ozon fresh', gen: 'Ozon fresh', mul: [0.77, 0.8, 0.77, 0.63] }
 ];
-// районы и их сервисы как в Где выгоднее, 0 значит сервиса в районе нет, loc для фразы лучше всего ... в районе
+// районы и их сервисы как в Где выгоднее, 0 значит сервиса в районе нет, сервис не из списка работает везде, km от курьера как в Где выгоднее
 const RMT_ZONES = [
-  { k: 'presnya', name: 'Пресненский', loc: 'в Пресненском', pay: 760, tod: [0.9, 1.08, 1.02, 0.8], svc: { vkusvill: 1.04, samokat: 1, 'yandex-eda': 1.06 } },
-  { k: 'tverskoy', name: 'Тверской', loc: 'в Тверском', pay: 740, tod: [0.84, 1.14, 1.04, 0.9], svc: { vkusvill: 1, samokat: 0.96, 'yandex-eda': 1.08 } },
-  { k: 'khamovniki', name: 'Хамовники', loc: 'в Хамовниках', pay: 700, tod: [0.96, 0.98, 1.06, 0.82], svc: { vkusvill: 1.08, samokat: 1.02, 'yandex-eda': 0.98 } },
-  { k: 'arbat', name: 'Арбат', loc: 'на Арбате', pay: 680, tod: [0.86, 1.04, 1.1, 0.96], svc: { vkusvill: 0.98, samokat: 0, 'yandex-eda': 1.1 } },
-  { k: 'basmanny', name: 'Басманный', loc: 'в Басманном', pay: 640, tod: [0.92, 1, 1.06, 0.88], svc: { vkusvill: 1, samokat: 1.04, 'yandex-eda': 1 } },
-  { k: 'zamoskvorechye', name: 'Замоскворечье', loc: 'в Замоскворечье', pay: 620, tod: [0.9, 1.06, 1.02, 0.84], svc: { vkusvill: 1.02, samokat: 1, 'yandex-eda': 1.02 } },
-  { k: 'begovoy', name: 'Беговой', loc: 'в Беговом', pay: 590, tod: [1.02, 0.96, 1.04, 0.9], svc: { vkusvill: 0, samokat: 1.08, 'yandex-eda': 0.96 } },
-  { k: 'meshchansky', name: 'Мещанский', loc: 'в Мещанском', pay: 570, tod: [0.94, 1.02, 1.02, 0.88], svc: { vkusvill: 1, samokat: 0.98, 'yandex-eda': 1 } },
-  { k: 'dorogomilovo', name: 'Дорогомилово', loc: 'в Дорогомилове', pay: 540, tod: [1, 0.96, 1.06, 0.86], svc: { vkusvill: 1.06, samokat: 1.02, 'yandex-eda': 0.94 } },
-  { k: 'krasnoselsky', name: 'Красносельский', loc: 'в Красносельском', pay: 510, tod: [0.96, 1, 1.02, 0.9], svc: { vkusvill: 0.96, samokat: 1, 'yandex-eda': 1 } }
+  { k: 'presnya', name: 'Пресненский', loc: 'Пресненский', pay: 760, km: 3.1, tod: [0.9, 1.08, 1.02, 0.8], svc: { vkusvill: 1.04, samokat: 1, 'yandex-eda': 1.06, x5: 0.98, 'yandex-lavka': 1.02, kuper: 0.96 } },
+  { k: 'tverskoy', name: 'Тверской', loc: 'Тверской', pay: 740, km: 4.6, tod: [0.84, 1.14, 1.04, 0.9], svc: { vkusvill: 1, samokat: 0.96, 'yandex-eda': 1.08, x5: 0, 'yandex-lavka': 1.04, kuper: 1 } },
+  { k: 'khamovniki', name: 'Хамовники', loc: 'Хамовники', pay: 700, km: 1.8, tod: [0.96, 0.98, 1.06, 0.82], svc: { vkusvill: 1.08, samokat: 1.02, 'yandex-eda': 0.98, x5: 1.02, 'yandex-lavka': 0.96, kuper: 1.06 } },
+  { k: 'arbat', name: 'Арбат', loc: 'Арбат', pay: 680, km: 2.4, tod: [0.86, 1.04, 1.1, 0.96], svc: { vkusvill: 0.98, samokat: 0, 'yandex-eda': 1.1, x5: 0.94, 'yandex-lavka': 1.06, kuper: 0 } },
+  { k: 'basmanny', name: 'Басманный', loc: 'Басманный', pay: 640, km: 5.2, tod: [0.92, 1, 1.06, 0.88], svc: { vkusvill: 1, samokat: 1.04, 'yandex-eda': 1, x5: 1.04, 'yandex-lavka': 0.98, kuper: 1.02 } },
+  { k: 'zamoskvorechye', name: 'Замоскворечье', loc: 'Замоскворечье', pay: 620, km: 3.9, tod: [0.9, 1.06, 1.02, 0.84], svc: { vkusvill: 1.02, samokat: 1, 'yandex-eda': 1.02, x5: 1, 'yandex-lavka': 1.08, kuper: 0.98 } },
+  { k: 'begovoy', name: 'Беговой', loc: 'Беговой', pay: 590, km: 2.7, tod: [1.02, 0.96, 1.04, 0.9], svc: { vkusvill: 0, samokat: 1.08, 'yandex-eda': 0.96, x5: 1.06, 'yandex-lavka': 1, kuper: 1.04 } },
+  { k: 'meshchansky', name: 'Мещанский', loc: 'Мещанский', pay: 570, km: 5.8, tod: [0.94, 1.02, 1.02, 0.88], svc: { vkusvill: 1, samokat: 0.98, 'yandex-eda': 1, x5: 0.98, 'yandex-lavka': 0, kuper: 1 } },
+  { k: 'dorogomilovo', name: 'Дорогомилово', loc: 'Дорогомилово', pay: 540, km: 3.3, tod: [1, 0.96, 1.06, 0.86], svc: { vkusvill: 1.06, samokat: 1.02, 'yandex-eda': 0.94, x5: 1, 'yandex-lavka': 1, kuper: 1.08 } },
+  { k: 'krasnoselsky', name: 'Красносельский', loc: 'Красносельский', pay: 510, km: 6.4, tod: [0.96, 1, 1.02, 0.9], svc: { vkusvill: 0.96, samokat: 1, 'yandex-eda': 1, x5: 1.02, 'yandex-lavka': 0.98, kuper: 0.96 } }
 ];
+// быстрый пункт фильтра Рядом со мной
+const RMT_NEAR_KM = 3.5;
+// время суток из фильтра Где выгоднее
+const RMT_TOD = { morning: [8, 12], day: [12, 17], evening: [17, 22], night: [22, 24] };
+// в среднем как в Когда выгоднее: те же множители района и сервиса, если выбран один
+const RMT_AVG_SVC = { vkusvill: 1.05, samokat: 0.96, 'yandex-eda': 1.02 };
+const RMT_AVG_ZONE = {
+  presnya: { mul: 1.08, tilt: [0.04, 0.03, 0.02, 0.02, 0, -0.06, -0.08], dat: 'по Пресненскому району' },
+  tverskoy: { mul: 1.12, tilt: [0.06, 0.05, 0.05, 0.04, 0.02, -0.08, -0.12], dat: 'по Тверскому району' },
+  khamovniki: { mul: 1.04, tilt: [0, 0, 0, 0, 0.02, 0.04, 0.06], dat: 'по Хамовникам' },
+  basmanny: { mul: 0.98, tilt: [0, 0.01, 0, 0.01, 0.03, 0.02, -0.02], dat: 'по Басманному району' },
+  begovoy: { mul: 0.94, tilt: [-0.02, -0.02, -0.02, -0.01, 0.02, 0.06, 0.08], dat: 'по Беговому району' }
+};
 // у Петербурга районов нет, как в Где выгоднее, ставки ниже на тот же множитель, что в Когда выгоднее
 const RMT_CITY = { moscow: { mul: 1, couriers: 184, orders: 6240, zones: true }, spb: { mul: 0.93, couriers: 63, orders: 1870, zones: false } };
 const RMT_NOW_H = 15; // демо-время 15:40, текущий час уже идёт, он не прогноз
@@ -184,25 +298,35 @@ const RMT_WX_TODAY = [{ day: 0, from: 18, to: 22, k: 1.12, text: 'Дождь 18�
 const RMT_WX_AHEAD = [{ day: 3, from: 17, to: 21, k: 1.1, text: 'Дождь вечером, заказов больше' }];
 // ваши часы на линии в демо: день, с какого и до какого часа, сервис и район, как в мокапе вариантов
 const RMT_MY = { '-4': [9, 15, 'vkusvill', 'presnya'], '-2': [17, 22, 'samokat', 'basmanny'], '-1': [10, 17, 'vkusvill', 'presnya'], '0': [9, 15, 'vkusvill', 'presnya'] };
-const RMT_FROM = 6, RMT_TO = 24, RMT_TOP = 5;
+const RMT_FROM = 6, RMT_TO = 24, RMT_END = 30, RMT_TOP = 5;
 const RMT_DOW = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+const RMT_DOW_ACC = ['воскресенье', 'понедельник', 'вторник', 'среду', 'четверг', 'пятницу', 'субботу'];
+const RMT_DOW_FULL = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
 const RMT_PERIOD = (() => {
   const mon = ['янв', 'февр', 'марта', 'апр', 'мая', 'июня', 'июля', 'авг', 'сент', 'окт', 'нояб', 'дек'];
-  const at = (off) => { const d = new Date(); d.setDate(d.getDate() + off); return d.getDate() + ' ' + mon[d.getMonth()]; };
+  const at = (off) => { const d = new Date(); d.setDate(d.getDate() + off); return d.getDate() + ' ' + mon[d.getMonth()]; };
   return at(-28) + ' – ' + at(-1);
 })();
 // числа и ₽/ч не рвутся на строки
-const rmtFmt = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-const RMT_RPH = ' ₽/⁠ч';
+const rmtFmt = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
+const RMT_RPH = ' ₽/⁠ч';
 const rmtHH = (h) => String(h % 24).padStart(2, '0');
 const rmtR10 = (v) => Math.round(v / 10) * 10;
-const rmtDate = (d) => { const t = new Date(); t.setDate(t.getDate() + d); return t; };
+const rmtR50 = (v) => Math.round(v / 50) * 50;
+const rmtDate = (d) => { const t = new Date(); t.setHours(0, 0, 0, 0); t.setDate(t.getDate() + d); return t; };
+const rmtIso = (d) => { const t = rmtDate(d); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); };
 const rmtFc = (d, h) => d > 0 || (d === 0 && h > RMT_NOW_H);
+// вилка прогноза растёт с удалённостью: ближайшие часы около ±5%, завтра шире, через 3 дня и дальше до ±18%
+const rmtSpread = (d, h) => (rmtFc(d, h) ? Math.min(0.18, 0.04 + 0.0019 * (d * 24 + h - RMT_NOW_H)) : 0);
 // утро до 12, день до 17, вечер до 22, ночь, как в фильтре времени суток Где выгоднее
 const rmtBand = (h) => (h >= 22 || h < 6 ? 3 : h < 12 ? 0 : h < 17 ? 1 : 2);
 const rmtHash = (a, b, c) => { const x = Math.sin(a * 127.1 + b * 311.7 + c * 74.7) * 43758.5453; return x - Math.floor(x); };
 const rmtPlural = (n, one, few, many) => (n % 10 === 1 && n % 100 !== 11) ? one : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? few : many);
 const rmtDayName = (d) => (d === 0 ? 'Сегодня' : d === 1 ? 'Завтра' : d === -1 ? 'Вчера' : RMT_DOW[rmtDate(d).getDay()] + ' ' + rmtDate(d).getDate());
+const rmtKm = (km) => String(km).replace('.', ',') + ' км';
+// индекс дня недели сегодня, понедельник 0
+const RMT_TODAY_IDX = (new Date().getDay() + 6) % 7;
+const rmtWeekOf = (d) => Math.floor((RMT_TODAY_IDX + d) / 7);
 
 class Component extends DCLogic {
   renderVals() {
@@ -225,34 +349,49 @@ class Component extends DCLogic {
     const connected = Array.isArray(p.connected) ? p.connected : ['vkusvill', 'samokat'];
     const isMine = (k) => connected.indexOf(k) !== -1;
     const hasMine = RMT_SVC.some((s) => isMine(s.k));
-    const scope = hasMine ? (st.scope || p.initialScope || 'all') : 'all';
-    const svcs = RMT_SVC.filter((s) => scope !== 'mine' || isMine(s.k));
-    const zones = hasZones ? RMT_ZONES : [null];
+    // сервисы: все, мои или отмеченные, вход из Когда и Где выгоднее приносит один сервис
+    const sInit = p.initialScope;
+    const sInitPick = Array.isArray(sInit) ? sInit : (sInit && sInit !== 'all' && sInit !== 'mine' ? [sInit] : []);
+    const smodeRaw = st.smode || (sInitPick.length ? 'pick' : (sInit === 'mine' ? 'mine' : 'all'));
+    const smode = smodeRaw === 'mine' && !hasMine ? 'all' : smodeRaw;
+    const spick = (st.spick || sInitPick).filter((k) => RMT_SVC.some((s) => s.k === k));
+    const svcs = RMT_SVC.filter((s) => (smode === 'mine' ? isMine(s.k) : (smode === 'pick' && spick.length ? spick.indexOf(s.k) !== -1 : true)));
+    // районы: все, рядом со мной или отмеченные
+    const zInit = p.initialZones;
+    const zInitPick = Array.isArray(zInit) ? zInit : [];
+    const zmode = st.zmode || (zInitPick.length ? 'pick' : (zInit === 'near' ? 'near' : 'all'));
+    const zpick = (st.zpick || zInitPick).filter((k) => RMT_ZONES.some((z) => z.k === k));
+    const zoneIn = (z) => (zmode === 'near' ? z.km <= RMT_NEAR_KM : (zmode === 'pick' && zpick.length ? zpick.indexOf(z.k) !== -1 : true));
+    const zones = hasZones ? RMT_ZONES.filter(zoneIn) : [null];
+    // фильтр одним значением: all, mine, near или список ключей, отметили ноль значит все
+    const scope = smode === 'pick' ? (spick.length ? spick : 'all') : smode;
+    const zf = zmode === 'pick' ? (zpick.length ? zpick : 'all') : zmode;
     const wx = (Array.isArray(p.weather) ? p.weather : RMT_WX_TODAY).concat(RMT_WX_AHEAD);
-    const wxAt = (d, h) => wx.find((w) => w.day === d && h >= w.from && h < w.to);
+    const at = (d, h) => (h >= 24 ? [d + 1, h - 24] : [d, h]);
+    const wxAt = (d, h) => { const [dd, hh] = at(d, h); return wx.find((w) => w.day === dd && hh >= w.from && hh < w.to); };
 
     // ставка в час: база часа и дня недели, сервис по времени суток, район и его сервис, погода и небольшой разброс
     const cache = {};
     const pay = (d, h, s, z) => {
       const b = rmtBand(h);
-      const zf = z ? Math.sqrt(z.pay / 650) * z.tod[b] * (z.svc[s.k] || 0) : 1;
-      if (!zf) return 0;
+      const zf2 = z ? Math.sqrt(z.pay / 650) * z.tod[b] * (z.svc[s.k] != null ? z.svc[s.k] : 1) : 1;
+      if (!zf2) return 0;
       const dow = (rmtDate(d).getDay() + 6) % 7;
-      const w = wxAt(d, h);
+      const w = wx.find((x) => x.day === d && h >= x.from && h < x.to);
       const n = 0.95 + rmtHash(d + 9, h, RMT_SVC.indexOf(s) * 7 + (z ? RMT_ZONES.indexOf(z) : 0)) * 0.1;
-      return RMT_BASE[h] * RMT_SCALE * RMT_DAY_MUL[dow] * city.mul * s.mul[b] * zf * (w ? w.k : 1) * n;
+      return RMT_BASE[h] * RMT_SCALE * RMT_DAY_MUL[dow] * city.mul * s.mul[b] * zf2 * (w ? w.k : 1) * n;
     };
     // все пары сервис и район в этот час, от лучшей, первая пара это лидер часа и в шапке, и в списке
-    const options = (d, h) => {
-      const key = d + ':' + h;
+    const options = (d, H) => {
+      const [dd, hh] = at(d, H);
+      const key = dd + ':' + hh;
       if (cache[key]) return cache[key];
       const out = [];
-      svcs.forEach((s) => { zones.forEach((z) => { const v = pay(d, h, s, z); if (v > 0) out.push({ s, z, v }); }); });
+      svcs.forEach((s) => { zones.forEach((z) => { const v = pay(dd, hh, s, z); if (v > 0) out.push({ s, z, v }); }); });
       out.sort((a, b) => b.v - a.v);
       return (cache[key] = out);
     };
-    const at = (d, h) => (h >= 24 ? [d + 1, h - 24] : [d, h]);
-    const bestAt = (d, h) => { const [dd, hh] = at(d, h); return options(dd, hh)[0] || { v: 0 }; };
+    const bestAt = (d, H) => options(d, H)[0] || { v: 0 };
     // лучшее окно дня из 3 часов: сегодня с текущего часа, в другие дни с 8
     const bestWin = (d) => {
       let bw = null;
@@ -264,11 +403,11 @@ class Component extends DCLogic {
       return { h: bw.h, peakH, peak: bestAt(d, peakH), label: rmtHH(bw.h) + '–' + rmtHH(bw.h + 3) };
     };
 
-    // выборка: Мои это часть города, при малой выборке вывод предварительный
-    const share = (p.few ? 0.12 : 1) * (scope === 'mine' ? 0.45 : 1);
+    // выборка: Мои и часть районов это часть города, при малой выборке вывод предварительный
+    const share = (p.few ? 0.12 : 1) * (scope === 'mine' ? 0.45 : (Array.isArray(scope) ? Math.min(1, 0.4 * svcs.length) : 1)) * (hasZones ? Math.max(0.18, zones.length / RMT_ZONES.length) : 1);
     const sCour = Math.max(1, Math.round(city.couriers * share)), sOrd = rmtR10(city.orders * share);
     const low = sCour < 30 || sOrd < 100;
-    const basis = sCour + ' ' + rmtPlural(sCour, 'курьер', 'курьера', 'курьеров') + ' · ' + rmtFmt(sOrd) + ' заказов · ' + RMT_PERIOD;
+    const basis = sCour + ' ' + rmtPlural(sCour, 'курьер', 'курьера', 'курьеров') + ' · ' + rmtFmt(sOrd) + ' заказов · ' + RMT_PERIOD;
     const open = typeof p.open === 'function' ? p.open : (() => {});
 
     if (!full) {
@@ -286,118 +425,266 @@ class Component extends DCLogic {
         card_bars: bars, card_win: { from: String(bw.h), to: String(bw.h + 2) },
         card_pick: (k) => open({ day: 0, hour: +k < 24 ? +k : RMT_NOW_H }),
         open_now: () => open({ day: 0, hour: RMT_NOW_H }),
-        basis_short: sCour + ' ' + rmtPlural(sCour, 'курьер', 'курьера', 'курьеров') + ' · ' + rmtFmt(sOrd) + ' заказов · 4 недели'
+        basis_short: sCour + ' ' + rmtPlural(sCour, 'курьер', 'курьера', 'курьеров') + ' · ' + rmtFmt(sOrd) + ' заказов · 4 недели'
       };
     }
 
-    // экран
+    // экран: день от сегодня, час рабочих суток 6..29
     const day = st.day != null ? st.day : (p.initialDay != null ? +p.initialDay : 0);
-    const dayPeak = (d) => { let b = RMT_FROM + 6; for (let h = RMT_FROM; h < RMT_TO; h++) if (bestAt(d, h).v > bestAt(d, b).v) b = h; return b; };
-    const hour = st.hour != null ? st.hour : (p.initialHour != null && p.initialHour !== '' ? +p.initialHour : (day === 0 ? RMT_NOW_H : dayPeak(day)));
-    const by = hasZones ? (st.by || p.initialBy || 'zone') : 'svc';
-    const fc = rmtFc(day, hour);
-    const nowSel = day === 0 && hour === RMT_NOW_H;
-    // перед сменой часа, дня или списка запоминаем, где стояли строки, после рендера двигаем их на новые места
-    const flipSet = (patch) => { this.captureFlip(); set(patch); };
+    const dayPeak = (d) => { let b = RMT_FROM + 6; for (let h = RMT_FROM; h < RMT_END; h++) if (bestAt(d, h).v > bestAt(d, b).v) b = h; return b; };
 
     // ваши часы: только прошедшие, у подключённого сервиса и в городе с районами
     const myOf = (d) => { const m = RMT_MY[String(d)]; return m && hasZones && isMine(m[2]) ? m : null; };
-    const meAt = (d, h) => { const m = myOf(d); return !!m && h >= m[0] && h < m[1] && (d < 0 || (d === 0 && h < RMT_NOW_H)); };
-    const hasMy = Object.keys(RMT_MY).some((k) => !!myOf(+k));
+    const meAt = (d, H) => { const [dd, hh] = at(d, H); const m = myOf(dd); return !!m && hh >= m[0] && hh < m[1] && (dd < 0 || (dd === 0 && hh < RMT_NOW_H)); };
+    // ваш доход в час: ваш сервис и район, чуть ниже рынка
+    const myPay = (d, H) => {
+      const [dd, hh] = at(d, H), m = myOf(dd);
+      return m ? rmtR10(pay(dd, hh, RMT_SVC.find((s) => s.k === m[2]), RMT_ZONES.find((z) => z.k === m[3])) * 0.94) : 0;
+    };
+    const myHours = (d) => { const out = []; for (let H = RMT_FROM; H < RMT_END; H++) if (meAt(d, H)) out.push(H); return out; };
+    // на прошлом дне с вашими часами сначала ваш худший час, где лучший вариант давал больше всего
+    const myWorst = (d) => myHours(d).reduce((a, H) => (a == null || bestAt(d, H).v - myPay(d, H) > bestAt(d, a).v - myPay(d, a) ? H : a), null);
+    const startHour = (d) => (d === 0 ? RMT_NOW_H : (d < 0 && myWorst(d) != null ? myWorst(d) : dayPeak(d)));
+    // время суток из Где выгоднее: лучший час внутри него, сегодня из ещё не прошедших
+    const todHour = (d, k) => {
+      const r = RMT_TOD[k];
+      if (!r) return null;
+      const hs = []; for (let h = r[0]; h < r[1]; h++) hs.push(h);
+      const ahead = d === 0 ? hs.filter((h) => h >= RMT_NOW_H) : hs;
+      return (ahead.length ? ahead : hs).reduce((a, h) => (bestAt(d, h).v > bestAt(d, a).v ? h : a));
+    };
+    const ih = p.initialHour != null && p.initialHour !== '' ? +p.initialHour : null;
+    const hour = st.hour != null ? st.hour : (ih != null ? (ih < RMT_FROM ? ih + 24 : ih) : (todHour(day, p.initialTod) || startHour(day)));
+    // Районы, Сервисы и Карта одним переключателем
+    const by = hasZones ? (st.by || (p.initialView === 'map' ? 'map' : (p.initialBy || 'zone'))) : 'svc';
+    const listBy = by === 'svc' ? 'svc' : 'zone';
+    const [rd, rh] = at(day, hour);
+    const fc = rmtFc(rd, rh);
+    const spread = rmtSpread(rd, rh);
+    const far = fc && rd >= 3;
+    const nowSel = day === 0 && hour === RMT_NOW_H;
+    // перед сменой дня, списка или фильтра запоминаем, где стояли строки, после рендера двигаем их на новые места
+    const flipSet = (patch) => { this.stopHold(); this.captureFlip(); set(patch); };
+    const mapPickRaw = st.mapPick || p.initialPick || '';
+    // состояние для возврата с экрана слотов на тот же час
+    const ctx = { day, hour: hour % 24, by, scope, view: by === 'map' ? 'map' : 'list', zones: zf, pick: mapPickRaw };
 
-    // дни: 7 прошлых, сегодня, 6 вперёд, уровень по средней лучшей ставке с 10 до 24
-    const dayKeys = []; for (let k = -7; k <= 6; k++) dayKeys.push(k);
-    const dayAvg = dayKeys.map((k) => { let s = 0, n = 0; for (let h = 10; h < RMT_TO; h++) { s += bestAt(k, h).v; n++; } return s / n; });
-    const dMin = Math.min.apply(null, dayAvg), dMax = Math.max.apply(null, dayAvg);
-    const days = dayKeys.map((k, i) => {
+    // дни как в Плане: неделя с понедельника, прошлая, текущая и следующая, уровень по средней лучшей ставке с 10 до 24
+    const week = st.week != null ? st.week : Math.max(-1, Math.min(1, rmtWeekOf(day)));
+    const weekDays = (w) => Array.from({ length: 7 }, (_, i) => w * 7 - RMT_TODAY_IDX + i);
+    const allDays = weekDays(-1).concat(weekDays(0), weekDays(1));
+    const avgOf = (k) => { let s = 0; for (let h = 10; h < RMT_TO; h++) s += bestAt(k, h).v; return s / (RMT_TO - 10); };
+    const avg = {}; allDays.forEach((k) => { avg[k] = avgOf(k); });
+    const vals = allDays.map((k) => avg[k]);
+    const dMin = Math.min.apply(null, vals), dMax = Math.max.apply(null, vals);
+    const dayItem = (k) => {
       const dt = rmtDate(k);
-      return { key: String(k), top: k === 0 ? 'Сегодня' : RMT_DOW[dt.getDay()], main: String(dt.getDate()), fc: k > 0, now: k === 0, sel: k === day, level: 1 + Math.round((dayAvg[i] - dMin) / (dMax - dMin || 1) * 4), aria: rmtDayName(k) + (k === 0 ? '' : ', ' + dt.getDate()) + (k > 0 ? ', прогноз' : '') };
-    });
+      return { key: String(k), dow: RMT_DOW[dt.getDay()], date: String(dt.getDate()), today: k === 0, past: k < 0, fc: k > 0, sel: k === day, level: avg[k] == null ? 0 : 1 + Math.round((avg[k] - dMin) / (dMax - dMin || 1) * 4), aria: (k === 0 ? 'Сегодня, ' : '') + RMT_DOW_FULL[dt.getDay()] + ' ' + dt.getDate() + (k > 0 ? ', прогноз' : '') };
+    };
+    const goWeek = (dlt) => { const nw = week + dlt; if (nw < -1 || nw > 1) return; const d = day + dlt * 7; flipSet({ week: nw, day: d, hour: startHour(d) }); };
 
     const bw = bestWin(day);
-    const hourList = []; for (let h = RMT_FROM; h < RMT_TO; h++) hourList.push(h);
-    const bars = hourList.map((h) => {
-      const f = rmtFc(day, h), b = bestAt(day, h), v = rmtR10(b.v), now = day === 0 && h === RMT_NOW_H, me = meAt(day, h);
-      return { key: String(h), val: v, fc: f, now, sel: h === hour, me, svc: b.s ? b.s.k : '', svcTitle: b.s ? b.s.title : '', tick: h % 3 === 0 ? rmtHH(h) : '', aria: (now ? 'Сейчас' : rmtHH(h) + ':00') + ', ' + (f ? 'примерно ' : '') + rmtFmt(v) + ' рублей в час' + (b.s ? ', ' + b.s.title : '') + (me ? ', вы на линии' : '') };
+    const hourList = []; for (let h = RMT_FROM; h < RMT_END; h++) hourList.push(h);
+    const bars = hourList.map((H) => {
+      const [dd, hh] = at(day, H);
+      const f = rmtFc(dd, hh), b = bestAt(day, H), v = rmtR10(b.v), now = dd === 0 && hh === RMT_NOW_H, me = meAt(day, H), sp = rmtSpread(dd, hh);
+      return { key: String(H), val: v, lo: sp ? Math.round(b.v * (1 - sp)) : null, hi: sp ? Math.round(b.v * (1 + sp)) : null, fc: f, night: H >= 24, now, sel: H === hour, me, svc: b.s ? b.s.k : '', svcTitle: b.s ? b.s.title : '', tick: H % 3 === 0 ? rmtHH(H) : '', aria: (now ? 'Сейчас' : rmtHH(H) + ':00') + (H >= 24 ? ' ночи' : '') + ', ' + (f ? 'примерно ' : '') + rmtFmt(v) + ' рублей в час' + (b.s ? ', ' + b.s.title : '') + (me ? ', вы на линии' : '') };
     });
+    // вилка круглыми числами: до 1 000 по 10 ₽, дальше по 50 ₽; рубли в час один раз над колонкой
+    const rr = (v) => (v < 1000 ? rmtR10(v) : rmtR50(v));
+    const range = (v) => { const lo = rr(v * (1 - spread)), hi = rr(v * (1 + spread)); return spread && hi > lo ? '≈' + rmtFmt(lo) + '–' + rmtFmt(hi) : (fc ? '≈' : '') + rmtFmt(rmtR10(v)); };
+    const routeHref = (z) => 'https://yandex.ru/maps/?mode=routes&rtext=~' + encodeURIComponent(cityTitle + ', район ' + z.name);
+    const routeAria = (z) => 'Маршрут в район ' + z.name + ', откроются Яндекс Карты';
 
     // строки выбранного часа: район со своим лучшим сервисом или сервис в лучшем районе
     const seen = {}, picked = [];
-    options(day, hour).forEach((o) => { const k = by === 'svc' ? o.s.k : o.z.k; if (!seen[k]) { seen[k] = 1; picked.push(o); } });
+    options(day, hour).forEach((o) => { const k = listBy === 'svc' ? o.s.k : o.z.k; if (!seen[k]) { seen[k] = 1; picked.push(o); } });
     const vMax = picked.length ? picked[0].v : 1, vMin = picked.length ? picked[picked.length - 1].v : 0;
     const fillW = (v) => Math.round(18 + 82 * (vMax === vMin ? 1 : (v - vMin) / (vMax - vMin)));
-    // ваш пишем, только когда он отличает строки: среди строк есть и ваши, и чужие
+    // галочку подключённого ставим, только когда она отличает строки: среди строк есть и ваши, и чужие
     const mineN = picked.filter((o) => isMine(o.s.k)).length;
     const markMine = mineN > 0 && mineN < picked.length;
     const allOpen = !!st.all;
-    const shown = allOpen ? picked : picked.slice(0, RMT_TOP);
-    const rows = shown.map((o, i) => ({
-      key: by === 'svc' ? o.s.k : o.z.k, rank: i + 1,
-      svc: o.s.k, title: by === 'svc' ? o.s.title : o.z.name,
-      meta: [by === 'svc' ? (o.z ? o.z.name : '') : o.s.title, markMine && isMine(o.s.k) ? 'ваш' : ''].filter(Boolean).join(', '),
-      fill: fillW(o.v), val: (fc ? '≈' : '') + rmtFmt(rmtR10(o.v)) + ' ₽', fc, divider: i < shown.length - 1
-    }));
+    const keyOf = (o) => (listBy === 'svc' ? o.s.k : o.z.k);
+    const target = (allOpen ? picked : picked.slice(0, RMT_TOP)).map(keyOf);
+    // пока час быстро меняют, строки стоят на местах, новые встают на место ушедших, порядок по выгоде после паузы
+    const listKey = [day, listBy, JSON.stringify(scope), JSON.stringify(zf), allOpen ? 1 : 0].join('|');
+    let order = target;
+    if (this._hold && this._order && this._listKey === listKey) {
+      const add = target.filter((k) => this._order.indexOf(k) === -1);
+      order = this._order.map((k) => (target.indexOf(k) !== -1 ? k : add.shift())).filter(Boolean).concat(add);
+    }
+    this._order = order; this._listKey = listKey;
+    const rankOf = {}; picked.forEach((o, i) => { rankOf[keyOf(o)] = { o, rank: i + 1 }; });
+    const rows = order.map((k, i) => {
+      const { o, rank } = rankOf[k];
+      const zr = listBy === 'zone';
+      return {
+        // пока строки держатся на местах, номера не показываем, иначе они идут вразнобой
+        key: k, rank: this._hold ? 0 : rank,
+        // у районов логотип не ставим, чтобы строка не читалась как сервис: расстояние и лидер подписью
+        svc: zr ? '' : o.s.k, title: zr ? o.z.name : o.s.title,
+        mine: !zr && markMine && isMine(o.s.k), metaMine: zr && markMine && isMine(o.s.k),
+        meta: zr ? rmtKm(o.z.km) + ' · ' + o.s.title : (o.z ? o.z.name + ', ' + rmtKm(o.z.km) : ''),
+        fill: fillW(o.v), val: range(o.v), fc, divider: i < order.length - 1,
+        // район открывается на карте, маршрут кнопкой как в Где выгоднее
+        action: zr ? 'route' : '', href: zr ? routeHref(o.z) : '', aria: zr ? routeAria(o.z) : '',
+        tap: zr ? () => { this.stopHold(); set({ by: 'map', mapPick: o.z.k }); } : null
+      };
+    });
     const rest = picked.length - RMT_TOP;
-    const restWord = by === 'svc' ? rmtPlural(rest, 'сервис', 'сервиса', 'сервисов') : rmtPlural(rest, 'район', 'района', 'районов');
+    const restWord = listBy === 'svc' ? rmtPlural(rest, 'сервис', 'сервиса', 'сервисов') : rmtPlural(rest, 'район', 'района', 'районов');
 
     const w = wxAt(day, hour);
-    const top = picked[0];
-    const when = nowSel ? 'Сейчас' : (day === 0 ? '' : rmtDayName(day) + ', ') + rmtHH(hour) + ':00';
-    const whenSub = fc ? (day > 3 ? 'примерный прогноз' : 'прогноз') : (nowSel ? 'последние 30 мин' : 'было');
-    // вы были на линии в этот час: ваш сервис и район против лучшего варианта часа
-    const my = meAt(day, hour) ? myOf(day) : null;
-    const myDay = day <= 0 && myOf(day) && myOf(day)[0] < (day === 0 ? RMT_NOW_H : 24) ? myOf(day) : null;
+    const top = picked[0] || options(day, hour)[0];
+    // ночь подписываем днём выбранных суток: Чт, ночь 02:00
+    const when = nowSel ? 'Сейчас' : (hour >= 24 ? RMT_DOW[rmtDate(day).getDay()] + ', ночь ' : (rd === 0 ? 'Сегодня, ' : rmtDayName(rd) + ', ')) + (nowSel ? '' : rmtHH(hour) + ':00');
+    // было, прогноз или примерно пишем у подписи числа, чтобы строке с днём хватило места рядом с кнопкой К текущему часу
+    const cap = ['Лучший вариант', nowSel ? '' : (fc ? (far ? 'примерно' : 'прогноз') : 'было'), low ? 'предварительно' : ''].filter(Boolean).join(', ');
+    // вы были на линии в этот час: ваш сервис и район против лучшего варианта часа, только у этих часов
+    const my = meAt(day, hour) ? myOf(rd) : null;
     const myS = my ? RMT_SVC.find((s) => s.k === my[2]) : null, myZ = my ? RMT_ZONES.find((z) => z.k === my[3]) : null;
-    const myV = my ? rmtR10(pay(day, hour, myS, myZ) * 0.94) : 0, gap = top ? rmtR10(top.v) - myV : 0;
+    const myV = my ? myPay(day, hour) : 0, gap = top ? rmtR10(top.v) - myV : 0;
+    // итог дня с вашими часами: сколько были на линии, ваш средний доход и лучший вариант в те же часы
+    const mh = myHours(day);
+    const sumText = mh.length ? 'Вы на линии ' + mh.length + ' ч: в среднем ' + rmtFmt(rmtR10(mh.reduce((a, H) => a + myPay(day, H), 0) / mh.length)) + RMT_RPH + ', лучший вариант ' + rmtFmt(rmtR10(mh.reduce((a, H) => a + bestAt(day, H).v, 0) / mh.length)) + RMT_RPH : '';
+    // прогноз объясняем у числа: откуда он и почему вилка
+    const fcNote = far ? 'Примерно: дальше 3 дней прогноз грубее' : 'Прогноз по 4 неделям и погоде, чем дальше час, тем шире вилка';
 
-    const onMap = typeof p.onMap === 'function' ? p.onMap : null;
-    const onPlan = typeof p.onPlan === 'function' ? p.onPlan : null;
-    const ctx = { day, hour, by, scope };
-    const hasMap = !!onMap && hasZones && !!top;
-    const hasPlan = !!onPlan && fc;
-    const mineList = RMT_SVC.filter((s) => isMine(s.k)).map((s) => s.title).join(', ');
+    // в среднем по городу та же, что в Когда выгоднее для этого дня недели и часа, с тем же районом или сервисом, если выбран один
+    const oneSvc = Array.isArray(scope) && scope.length === 1 && RMT_AVG_SVC[scope[0]] ? RMT_SVC.find((s) => s.k === scope[0]) : null;
+    const oneZone = hasZones && Array.isArray(zf) && zf.length === 1 && RMT_AVG_ZONE[zf[0]] ? RMT_AVG_ZONE[zf[0]] : null;
+    const avgAt = (d, h) => {
+      const dw = (rmtDate(d).getDay() + 6) % 7;
+      return rmtR10(RMT_BASE[h] * RMT_SCALE * (RMT_DAY_MUL[dw] + (oneZone ? oneZone.tilt[dw] : 0)) * (oneZone ? oneZone.mul : 1) * (oneSvc ? RMT_AVG_SVC[oneSvc.k] : 1) * city.mul);
+    };
+    const avgLabel = 'в среднем ' + (oneSvc ? 'у ' + oneSvc.gen + ' ' : '') + (oneZone ? oneZone.dat : 'по городу');
+
+    // карта районов на выбранный час: те же цифры, что в списке районов
+    const zoneBest = hasZones ? zones.map((z) => ({ z, o: options(day, hour).find((x) => x.z === z) })).filter((x) => x.o) : [];
+    zoneBest.sort((a, b) => b.o.v - a.o.v);
+    const zMax = zoneBest.length ? zoneBest[0].o.v : 1, zMin = zoneBest.length ? zoneBest[zoneBest.length - 1].o.v : 0;
+    const mapPickK = (zoneBest.find((x) => x.z.k === mapPickRaw) || zoneBest[0] || { z: {} }).z.k;
+    const mapPickX = zoneBest.find((x) => x.z.k === mapPickK);
+
+    // слот на этот час: только у будущего часа, только свободный слот подключённого сервиса, который покрывает час; сначала у лидера
+    const onSlots = typeof p.onSlots === 'function' ? p.onSlots : null;
+    const rdIso = rmtIso(rd);
+    const svcBest = (k) => { const s = RMT_SVC.find((x) => x.k === k); let b = 0; if (s) zones.forEach((z) => { b = Math.max(b, pay(rd, rh, s, z)); }); return b; };
+    const isLead = (sl) => (top && sl.svc === top.s.k ? 1 : 0);
+    const slotHit = onSlots && fc && Array.isArray(p.slots) ? p.slots.filter((sl) => sl.iso === rdIso && rh >= sl.from && rh < sl.to && isMine(sl.svc)).sort((a, b) => isLead(b) - isLead(a) || svcBest(b.svc) - svcBest(a.svc))[0] || null : null;
+    const slotSvc = slotHit ? RMT_SVC.find((s) => s.k === slotHit.svc) : null;
+    const slotWhen = (sl) => rmtHH(Math.floor(sl.from)) + ':' + (sl.from % 1 ? '30' : '00') + '\u2060–\u2060' + rmtHH(Math.floor(sl.to)) + ':' + (sl.to % 1 ? '30' : '00');
 
     // после рендера играем перестановку строк, если перед ним запомнили старые места
     if (this._flip) { const f = this._flip; this._flip = null; setTimeout(() => this.playFlip(f), 0); }
     if (!this._uid) this._uid = 'rmt' + Math.random().toString(36).slice(2, 8);
 
+    // чип под заголовком: город, сервисы и районы, он же открывает шторку
+    const nearN = RMT_ZONES.filter((z) => z.km <= RMT_NEAR_KM).length;
+    const shortList = (names) => (names.length <= 2 ? names.join(', ') : names.slice(0, 2).join(', ') + ' и ещё ' + (names.length - 2));
+    const svcLabel = smode === 'mine' ? 'мои сервисы' : (Array.isArray(scope) ? (svcs.length === 1 ? svcs[0].title : svcs.length + ' ' + rmtPlural(svcs.length, 'сервис', 'сервиса', 'сервисов')) : 'все сервисы');
+    const zoneLabel = !hasZones ? '' : (zf === 'near' ? 'рядом со мной' : (Array.isArray(zf) ? (zones.length === 1 ? zones[0].name : zones.length + ' ' + rmtPlural(zones.length, 'район', 'района', 'районов')) : 'все районы'));
+    const filtered = smode === 'mine' || Array.isArray(scope) || zf !== 'all';
+    const mineList = RMT_SVC.filter((s) => isMine(s.k)).map((s) => s.title);
+    const radio = (on) => ({ check: 'rmt-check' + (on ? ' rmt-check-on' : ''), mark: on ? '✓' : '', on: String(on) });
+    const toggle = (list, k) => { const cur = list.slice(); const i = cur.indexOf(k); if (i === -1) cur.push(k); else cur.splice(i, 1); return cur; };
+
     return {
       no_data: false, is_card: false, is_full: true, low, uid: this._uid,
       has_back: typeof p.onBack === 'function', on_back: typeof p.onBack === 'function' ? p.onBack : (() => {}),
-      head_sub: 'Где и в каком сервисе выгоднее в любой час, за 4 недели и на неделю вперёд',
-      has_filter: hasMine, filter_cls: 'raznos-icon-btn rmt-filter' + (scope === 'mine' ? ' rmt-filter-on' : ''),
-      filter_aria: 'Сервисы: ' + (scope === 'mine' ? 'мои' : 'все'),
+      scope_label: [cityTitle, svcLabel, zoneLabel].filter(Boolean).join(' · '), scope_cls: 'rmt-scope' + (filtered ? ' rmt-scope-on' : ''),
+      has_filter: true, filter_aria: 'Что показать: ' + [svcLabel, zoneLabel].filter(Boolean).join(', '),
       open_filter: () => set({ sheet: true }), close_sheet: () => set({ sheet: false }),
       stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
       sheet_open: !!st.sheet,
-      scope_opts: [{ k: 'all', label: 'Все сервисы', note: 'Весь рынок города' }, { k: 'mine', label: 'Мои сервисы', note: mineList }].map((o) => ({
-        label: o.label, note: o.note, check: 'rmt-check' + (o.k === scope ? ' rmt-check-on' : ''), mark: o.k === scope ? '✓' : '',
-        tap: () => { this.captureFlip(); set({ scope: o.k, sheet: false }); }
-      })),
-      days, center_key: String(day), pick_day: (k) => { const d = +k; flipSet({ day: d, hour: d === 0 ? RMT_NOW_H : dayPeak(d) }); },
-      when, when_sub: whenSub,
-      has_go_now: !nowSel, go_now: () => flipSet({ day: 0, hour: RMT_NOW_H }),
-      big: (fc ? '≈' : '') + rmtFmt(rmtR10(top ? top.v : 0)),
-      has_leader: !!top, leader_svc: top ? top.s.k : '', leader_title: top ? top.s.title : '', leader_where: top && top.z ? ' ' + top.z.loc : '',
+      // шторка в три режима и у сервисов, и у районов, отметки раскрываются только в режиме Выбрать
+      svc_opts: [
+        { k: 'all', label: 'Все сервисы', note: RMT_SVC.length + ' ' + rmtPlural(RMT_SVC.length, 'сервис', 'сервиса', 'сервисов') + ' города' },
+        ...(hasMine ? [{ k: 'mine', label: 'Мои сервисы', note: shortList(mineList) }] : []),
+        { k: 'pick', label: 'Выбрать сервисы', note: smode === 'pick' && spick.length ? shortList(svcs.map((s) => s.title)) : 'Отметьте нужные' }
+      ].map((o) => Object.assign({ label: o.label, note: o.note, tap: () => flipSet({ smode: o.k, spick }) }, radio(smode === o.k))),
+      svc_picking: smode === 'pick',
+      svc_chips: RMT_SVC.map((s) => { const on = spick.indexOf(s.k) !== -1; return { name: s.title, on: String(on), cls: 'raznos-chip' + (on ? ' raznos-is-active' : ''), tap: () => flipSet({ smode: 'pick', spick: toggle(spick, s.k) }) }; }),
+      has_zone_filter: hasZones,
+      zone_opts: [
+        { k: 'all', label: 'Все районы', note: RMT_ZONES.length + ' районов центра' },
+        { k: 'near', label: 'Рядом со мной', note: 'до ' + rmtKm(RMT_NEAR_KM) + ' от вас · ' + nearN + ' ' + rmtPlural(nearN, 'район', 'района', 'районов') },
+        { k: 'pick', label: 'Выбрать районы', note: zmode === 'pick' && zpick.length ? shortList(zones.map((z) => z.name)) : 'Отметьте нужные' }
+      ].map((o) => Object.assign({ label: o.label, note: o.note, tap: () => flipSet({ zmode: o.k, zpick }) }, radio(zmode === o.k))),
+      zone_picking: zmode === 'pick',
+      zone_chips: RMT_ZONES.slice().sort((a, b) => a.km - b.km).map((z) => {
+        const on = zpick.indexOf(z.k) !== -1;
+        return { name: z.name, km: rmtKm(z.km), on: String(on), cls: 'raznos-chip' + (on ? ' raznos-is-active' : ''), tap: () => flipSet({ zmode: 'pick', zpick: toggle(zpick, z.k) }) };
+      }),
+      days: weekDays(week).map(dayItem), days_prev: weekDays(week - 1).map(dayItem), days_next: weekDays(week + 1).map(dayItem),
+      week_key: week, week_can_prev: week > -1, week_can_next: week < 1, week_prev: () => goWeek(-1), week_next: () => goWeek(1),
+      pick_day: (k) => { const d = +k; flipSet({ day: d, week: rmtWeekOf(d), hour: startHour(d) }); },
+      when, cap,
+      has_go_now: !nowSel, go_now_label: day === 0 ? 'Сейчас' : 'К текущему часу', go_now: () => flipSet({ day: 0, week: 0, hour: RMT_NOW_H }),
+      // Сообщить, когда снова будет высокий спрос: район и сервис лидера часа, этот день недели и время суток
+      ...(() => {
+        const has = !!top && typeof p.onAlert === 'function';
+        const h = hour % 24;
+        const part = h >= 7 && h < 12 ? 'morning' : (h >= 12 && h < 17 ? 'day' : (h >= 17 && h < 23 ? 'evening' : 'all'));
+        const dw = rmtDate(rd).getDay();
+        const pre = has ? { what: 'demand', where: top.z ? [top.z.name] : [], svcs: [top.s.k], days: [(dw + 6) % 7], time: part } : null;
+        return {
+          has_alert: has, alert_on: has && typeof p.alertFind === 'function' && !!p.alertFind(pre),
+          alert_label: 'Сообщать о высоком спросе' + (has && top.z ? ': ' + top.z.name : ''),
+          alert_sub: has ? [top.s.title, ({ morning: 'утро', day: 'день', evening: 'вечер', all: 'весь день' })[part], 'по ' + ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][dw]].join(' · ') : '',
+          alert_tap: () => { if (has) p.onAlert(pre); }
+        };
+      })(),
+      big: top ? range(top.v) : '0', big_cls: 'rmt-big' + (spread ? ' rmt-big-range' : ''),
+      avg_label: avgLabel, avg_val: rmtFmt(avgAt(rd, rh)) + RMT_RPH,
+      notes_cls: 'rmt-notes' + (hourList.some((H) => meAt(day, H) || !!wxAt(day, H) || rmtFc(...at(day, H))) ? ' rmt-notes-res' : ''),
+      has_leader: !!top, leader_svc: top ? top.s.k : '', leader_title: top ? top.s.title : '', leader_where: top && top.z ? top.z.loc : (top ? 'весь город' : ''),
       has_me: !!my, me_svc: myS ? myS.title : '', me_zone: myZ ? myZ.name : '', me_val: rmtFmt(myV) + RMT_RPH,
-      has_me_day: !my && !!myDay, me_day: myDay ? (day === 0 ? 'Сегодня вы' : 'Вы') + ' были на линии ' + rmtHH(myDay[0]) + '–' + rmtHH(Math.min(myDay[1], day === 0 ? RMT_NOW_H : 24)) : '',
-      me_tail: gap >= 50 ? ', лучше было на ' + rmtFmt(gap) + ' ₽' : ', почти лучший вариант',
-      bars, win: { from: String(bw.h), to: String(bw.h + 2), label: 'лучше ' + bw.label }, has_my: hasMy,
-      pick_hour: (k) => flipSet({ hour: +k, day }),
-      has_by: hasZones, by_zone: by === 'zone', by_svc: by === 'svc',
-      by_zone_cls: 'raznos-segment' + (by === 'zone' ? ' raznos-is-active' : ''), by_svc_cls: 'raznos-segment' + (by === 'svc' ? ' raznos-is-active' : ''),
-      pick_zone: () => flipSet({ by: 'zone' }), pick_svc: () => flipSet({ by: 'svc' }),
-      has_why: !!w, why: w ? w.text : '',
-      rows, is_empty: rows.length === 0,
+      me_tail: gap >= 50 ? ', лучший вариант давал на ' + rmtFmt(gap) + RMT_RPH + ' больше' : ', почти как лучший вариант',
+      has_why: !!w && !my, why: w ? w.text : '',
+      has_fc_note: fc && !w && !my, fc_note: fcNote,
+      has_sum: !!sumText, sum_text: sumText,
+      bars, win: { from: String(bw.h), to: String(bw.h + 2), label: 'лучше ' + bw.label },
+      pick_hour: (k) => this.holdPick(+k),
+      is_list: by !== 'map', is_map: by === 'map',
+      has_by: hasZones, by_zone: String(by === 'zone'), by_svc: String(by === 'svc'), by_map: String(by === 'map'),
+      by_zone_cls: 'raznos-segment' + (by === 'zone' ? ' raznos-is-active' : ''), by_svc_cls: 'raznos-segment' + (by === 'svc' ? ' raznos-is-active' : ''), by_map_cls: 'raznos-segment' + (by === 'map' ? ' raznos-is-active' : ''),
+      pick_zone: () => flipSet({ by: 'zone' }), pick_svc: () => flipSet({ by: 'svc' }), pick_map: () => { this.stopHold(); set({ by: 'map' }); },
+      rows, rows_cls: 'rmt-rows rmt-rows-' + listBy + (spread ? ' rmt-rows-range' : ''), is_empty: rows.length === 0, empty_text: 'В этот час заказов в выбранных сервисах и районах нет',
+      has_unit: rows.length > 0, unit_cls: 'rmt-unit' + (listBy === 'zone' ? ' rmt-unit-act' : ''),
       has_all: rest > 0, all_open: String(allOpen),
       all_label: allOpen ? 'Свернуть' : 'Ещё ' + rest + ' ' + restWord, all_cls: 'rmt-all-chev' + (allOpen ? ' rmt-all-open' : ''),
       toggle_all: () => flipSet({ all: !allOpen }),
-      has_links: hasMap || hasPlan, has_map: hasMap, has_plan: hasPlan,
-      go_map: () => onMap && onMap(Object.assign({ zone: top && top.z ? top.z.k : '' }, ctx)),
-      go_plan: () => onPlan && onPlan(ctx),
-      source_note: 'Лучший доход в час по курьерам Разноса, ' + cityTitle + (hasZones ? '' : ', без деления на районы') + ' · ' + basis + (low ? '. Данных мало, вывод предварительный' : '') + '. Прогноз по 4 неделям и погоде, дальше 3 дней примерный'
+      map_zones: zoneBest.map((x) => ({ k: x.z.k, name: x.z.name, val: (fc ? '≈' : '') + rmtFmt(rmtR10(x.o.v)).replace(/\u00a0/g, ' ') + '/ч', t: zMax === zMin ? 1 : (x.o.v - zMin) / (zMax - zMin), top: x === zoneBest[0], sel: x.z.k === mapPickK, tap: () => set({ mapPick: x.z.k }) })),
+      has_map_pick: !!mapPickX,
+      map_pick: mapPickX ? {
+        title: mapPickX.z.name, meta: rmtKm(mapPickX.z.km) + ' · ' + mapPickX.o.s.title, metaMine: markMine && isMine(mapPickX.o.s.k),
+        val: range(mapPickX.o.v) + RMT_RPH, fc, href: routeHref(mapPickX.z), aria: routeAria(mapPickX.z)
+      } : {},
+      has_slots: !!slotHit,
+      slots_svc: slotSvc ? slotSvc.k : '', slots_svc_title: slotSvc ? slotSvc.title : '',
+      slots_title: slotSvc ? 'Взять слот ' + slotSvc.gen + ' ' + slotWhen(slotHit) : '',
+      slots_sub: slotHit ? (isLead(slotHit) ? 'Лидер этого часа' : 'Ваш сервис') + ' · ' + range(svcBest(slotHit.svc)) + RMT_RPH : '',
+      go_slots: () => { if (onSlots && slotHit) onSlots(Object.assign({}, ctx, { iso: rdIso, svc: slotHit.svc, id: slotHit.id || '', from: slotHit.from, to: slotHit.to })); },
+      source_note: 'По курьерам Разноса, ' + cityTitle + (hasZones ? '' : ', без деления на районы') + ' · ' + basis + (low ? '. Данных мало, вывод предварительный' : '')
     };
   }
+
+  // выбор часа: значения и столбики сразу, перестановка строк после паузы 250 мс
+  holdPick(h) {
+    const st = this.state || {};
+    const cur = st.hour;
+    if (cur === h) return;
+    this._hold = true;
+    clearTimeout(this._holdT);
+    this._holdT = setTimeout(() => { this._hold = false; this.captureFlip(); this.setState({ settle: ((this.state || {}).settle || 0) + 1 }); }, 250);
+    this.setState({ hour: h, day: st.day != null ? st.day : (this.props && this.props.initialDay != null ? +this.props.initialDay : 0) });
+  }
+
+  stopHold() { clearTimeout(this._holdT); this._hold = false; }
+
+  componentWillUnmount() { clearTimeout(this._holdT); }
 
   // старые места строк и длины полос по ключу строки
   captureFlip() {
@@ -406,29 +693,26 @@ class Component extends DCLogic {
     const prev = {};
     box.querySelectorAll('[data-rmt-key]').forEach((el) => {
       const fill = el.querySelector('.rrr-fill');
-      prev[el.getAttribute('data-rmt-key')] = { top: el.getBoundingClientRect().top, w: fill ? fill.style.width : '' };
+      prev[el.getAttribute('data-rmt-key')] = { top: el.getBoundingClientRect().top, h: el.getBoundingClientRect().height, w: fill ? fill.style.width : '' };
     });
     this._flip = prev;
   }
 
-  // строки переезжают со старых мест, полосы растут от старой длины, без анимации при уменьшенном движении
+  // строки переезжают со старых мест, далёкие без перелёта через экран, только проявляются; незавершённое отменяем
   playFlip(prev) {
+    (this._anims || []).forEach((a) => { try { a.cancel(); } catch (e) {} });
+    this._anims = [];
     if (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const box = document.querySelector('[data-rmt="' + this._uid + '"]');
     if (!box) return;
     const ease = 'cubic-bezier(.16, 1, .3, 1)';
     box.querySelectorAll('[data-rmt-key]').forEach((el) => {
+      if (!el.animate) return;
       const was = prev[el.getAttribute('data-rmt-key')];
-      if (!was) { if (el.animate) el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-out' }); return; }
-      const dy = was.top - el.getBoundingClientRect().top;
-      if (dy && el.animate) el.animate([{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }], { duration: 450, easing: ease });
-      const fill = el.querySelector('.rrr-fill');
-      if (fill && was.w && was.w !== fill.style.width) {
-        const to = fill.style.width;
-        fill.style.transition = 'none'; fill.style.width = was.w;
-        void fill.offsetWidth;
-        fill.style.transition = ''; fill.style.width = to;
-      }
+      const r = el.getBoundingClientRect();
+      const dy = was ? was.top - r.top : 0;
+      if (!was || Math.abs(dy) > r.height * 2.5) { this._anims.push(el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' })); return; }
+      if (dy) this._anims.push(el.animate([{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }], { duration: 380, easing: ease }));
     });
   }
 }

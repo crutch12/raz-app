@@ -21,7 +21,7 @@
     .rrbk-notes li { font: 500 12px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
     .rrbk-notes li.rrbk-is-key { font-weight: 600; color: var(--raznos-ink-2); }
     .rrbk-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .rrbk-acts .raznos-btn { min-width: 0; white-space: nowrap; }
+    .rrbk-acts .raznos-btn { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     /* шторка с чеком: открывается с плашки на брони */
     .rrbk-wrap { display: contents; }
     .rrbk-layer { align-items: flex-end; padding: 0; }
@@ -95,6 +95,8 @@
 const RRB_FMT = (n) => String(Math.round(Math.abs(n))).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
 const RRB_SIGNED = (n) => (n > 0 ? '+' : (n < 0 ? '−' : '')) + RRB_FMT(n);
 // родительный падеж для строки списка: вместо Яндекс Еды
+// взять можно только в приложении сервиса, поэтому на кнопке где: Взять в X5
+const RRB_PREP = { 'yandex-eda': 'Яндекс Еде', 'yandex-lavka': 'Лавке', samokat: 'Самокате', vkusvill: 'ВкусВилле', magnit: 'Магните', dodo: 'Додо', kuper: 'Купере', 'ozon-fresh': 'Ozon Fresh', 'ozon-courier': 'Ozon' };
 const RRB_GEN = { 'yandex-eda': 'Яндекс Еды', 'yandex-lavka': 'Яндекс Лавки', samokat: 'Самоката', vkusvill: 'ВкусВилла', magnit: 'Магнита', dodo: 'Додо', 'kuper': 'Купера', 'ozon-fresh': 'Ozon Fresh', 'ozon-courier': 'Ozon' };
 class Component extends DCLogic {
   renderVals() {
@@ -116,7 +118,7 @@ class Component extends DCLogic {
     if (!known) notes.push({ text: 'Итог не считаем: сервис не публикует штраф', cls: 'rrbk-is-key' });
     if (p.other) notes.push({ text: (free ? 'Денег не снимут, но ' : 'Кроме штрафа: ') + p.other, cls: '' });
     notes.push({ text: 'Это оценка: доход по похожим сменам курьеров Разноса, штраф по правилам сервиса', cls: '' });
-    const takeLabel = p.takeLabel || 'Взять ' + altShort;
+    const takeLabel = p.takeLabel || 'Взять в ' + (RRB_PREP[v('altSvc', 'x5')] || altShort);
     const listHead = 'вместо ' + (RRB_GEN[mineSvc] || mineTitle) + ': ';
     return {
       is_receipt: variant === 'full' || variant === 'sheet', is_sheet: variant === 'sheet',

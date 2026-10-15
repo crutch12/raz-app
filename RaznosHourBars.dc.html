@@ -3,7 +3,7 @@
   <link rel="stylesheet" href="./raznos-v3.css" />
   <style>
     /* столбики лучшей ставки по часам: было сплошным, прогноз штрихом, выбор тапом и ведением пальцем */
-    .rhb { --rhb-past: color-mix(in oklab, var(--raznos-green) 78%, var(--raznos-surface)); --rhb-fc: color-mix(in oklab, var(--raznos-green) 70%, var(--raznos-surface)); --rhb-fc-bg: color-mix(in oklab, var(--raznos-green) 14%, var(--raznos-surface));
+    .rhb { --rhb-past: color-mix(in oklab, var(--raznos-green) 78%, var(--raznos-surface)); --rhb-fc: color-mix(in oklab, var(--raznos-green) 90%, var(--raznos-ink)); --rhb-fc-bg: color-mix(in oklab, var(--raznos-green) 32%, var(--raznos-surface));
       display: flex; flex-direction: column; gap: 4px; width: 100%; min-width: 0; user-select: none; -webkit-user-select: none; }
     .rhb-plot { position: relative; touch-action: pan-y; }
     .rhb-cols { position: absolute; inset: 0; display: flex; }
@@ -14,8 +14,17 @@
     .rhb-fc .rhb-bar { box-sizing: border-box; border: 1.5px solid var(--rhb-fc); background: var(--rhb-fc-bg) repeating-linear-gradient(135deg, var(--rhb-fc) 0 2px, transparent 2px 5px); }
     .rhb-col[aria-pressed="true"] .rhb-bar { background: var(--raznos-ink); }
     .rhb-fc[aria-pressed="true"] .rhb-bar { border-color: var(--raznos-ink); background: var(--raznos-surface) repeating-linear-gradient(135deg, var(--raznos-ink) 0 3.5px, transparent 3.5px 5px); }
+    /* ночь после 24:00 тише: столбики бледнее, под ними едва заметная подложка */
+    .rhb-night-band { position: absolute; top: 0; bottom: 0; border-radius: 8px; background: color-mix(in oklab, var(--raznos-ink) 5%, transparent); pointer-events: none; }
+    .rhb-night-band > span { position: absolute; z-index: 2; top: 2px; left: 0; right: 0; text-align: center; font: 600 10.5px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rhb-night:not([aria-pressed="true"]) .rhb-bar { opacity: 0.55; }
+    /* разброс прогноза тонкой засечкой: шире, чем дальше час */
+    .rhb-rng { position: absolute; left: 50%; width: 7px; transform: translateX(-50%); box-sizing: border-box; border-top: 1.5px solid var(--raznos-ink-3); border-bottom: 1.5px solid var(--raznos-ink-3); background: linear-gradient(var(--raznos-ink-3), var(--raznos-ink-3)) center / 1.5px 100% no-repeat; pointer-events: none; transition: bottom .32s cubic-bezier(.16, 1, .3, 1), height .32s cubic-bezier(.16, 1, .3, 1); }
+    .rhb-col[aria-pressed="true"] .rhb-rng { border-color: var(--raznos-ink); background-image: linear-gradient(var(--raznos-ink), var(--raznos-ink)); }
     .rhb-ico { position: absolute; left: 50%; transform: translateX(-50%); line-height: 0; pointer-events: none; transition: bottom .32s cubic-bezier(.16, 1, .3, 1); }
     .rhb-ico .raznos-svc-icon-sm { box-sizing: border-box; width: 15px; height: 15px; border-radius: 4px; border-width: 1px; }
+    /* смена лидера точкой, логотип только над выбранным */
+    .rhb-lead { position: absolute; left: 50%; width: 4px; height: 4px; margin-bottom: 2px; transform: translateX(-50%); border-radius: 50%; background: var(--raznos-ink-3); pointer-events: none; transition: bottom .32s cubic-bezier(.16, 1, .3, 1); }
     .rhb-val { position: absolute; left: 50%; transform: translateX(-50%); font: 700 11.5px var(--raznos-font); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; color: var(--raznos-ink); white-space: nowrap; pointer-events: none; }
     /* лучшее окно скобкой над столбиками */
     .rhb-win { position: absolute; top: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
@@ -36,17 +45,22 @@
     .rhb-key { width: 9px; height: 12px; border-radius: 2px; background: var(--rhb-past); }
     .rhb-key-fc { box-sizing: border-box; border: 1.5px solid var(--rhb-fc); background: var(--rhb-fc-bg) repeating-linear-gradient(135deg, var(--rhb-fc) 0 2px, transparent 2px 5px); }
     .rhb-key-me { width: 5px; height: 5px; border-radius: 50%; background: var(--raznos-ink); }
-    @media (prefers-reduced-motion: reduce) { .rhb-bar, .rhb-ico { transition: none; } }
+    .rhb-key-lead { width: 4px; height: 4px; border-radius: 50%; background: var(--raznos-ink-3); }
+    .rhb-key-day { width: 14px; height: 4px; border-radius: 3px; background: var(--rhb-past); }
+    @media (prefers-reduced-motion: reduce) { .rhb-bar, .rhb-ico, .rhb-rng, .rhb-lead { transition: none; } }
   </style>
 </helmet>
 <div class="{{ cls }}" role="group" aria-label="{{ label }}">
   <div class="rhb-plot" style="{{ plot_style }}" onPointerDown="{{ on_down }}" onPointerMove="{{ on_move }}" onPointerUp="{{ on_up }}" onPointerCancel="{{ on_up }}">
     <sc-if value="{{ has_win }}" hint-placeholder-val="{{ true }}"><div class="rhb-win" style="{{ win_style }}"><sc-if value="{{ has_win_label }}" hint-placeholder-val="{{ true }}"><span class="rhb-win-label">{{ win_label }}</span></sc-if><span class="rhb-win-line"></span></div></sc-if>
+    <sc-if value="{{ has_night }}" hint-placeholder-val="{{ false }}"><div class="rhb-night-band" style="{{ night_style }}" aria-hidden="true"><span>ночь</span></div></sc-if>
     <div class="rhb-cols">
       <sc-for list="{{ cols }}" as="c" hint-placeholder-count="18">
         <button type="button" class="{{ c.cls }}" aria-pressed="{{ c.sel }}" aria-label="{{ c.aria }}" tabindex="{{ c.tab }}" onClick="{{ c.tap }}">
           <span class="rhb-bar" style="{{ c.bar_style }}"></span>
+          <sc-if value="{{ c.has_rng }}" hint-placeholder-val="{{ false }}"><span class="rhb-rng" style="{{ c.rng_style }}"></span></sc-if>
           <sc-if value="{{ c.has_icon }}" hint-placeholder-val="{{ false }}"><span class="rhb-ico" style="{{ c.top_style }}"><dc-import name="RaznosIcon" svc="{{ c.svc }}" alt="{{ c.svc_title }}" size="sm"></dc-import></span></sc-if>
+          <sc-if value="{{ c.has_lead }}" hint-placeholder-val="{{ false }}"><span class="rhb-lead" style="{{ c.top_style }}" aria-hidden="true"></span></sc-if>
           <sc-if value="{{ c.has_val }}" hint-placeholder-val="{{ false }}"><span class="rhb-val" style="{{ c.top_style }}">{{ c.val }}</span></sc-if>
         </button>
       </sc-for>
@@ -58,19 +72,22 @@
     </sc-for>
   </div>
   <sc-if value="{{ has_legend }}" hint-placeholder-val="{{ true }}">
-    <div class="rhb-legend"><span><i class="rhb-key" aria-hidden="true"></i>было</span><span><i class="rhb-key rhb-key-fc" aria-hidden="true"></i>прогноз, ≈</span><sc-if value="{{ legend_me }}" hint-placeholder-val="{{ true }}"><span><i class="rhb-key-me" aria-hidden="true"></i>вы на линии</span></sc-if></div>
+    <div class="rhb-legend"><sc-if value="{{ legend_past }}" hint-placeholder-val="{{ true }}"><span><i class="rhb-key" aria-hidden="true"></i>было</span></sc-if><sc-if value="{{ legend_fc }}" hint-placeholder-val="{{ true }}"><span><i class="rhb-key rhb-key-fc" aria-hidden="true"></i>прогноз</span></sc-if><sc-if value="{{ legend_me }}" hint-placeholder-val="{{ true }}"><span><i class="rhb-key-me" aria-hidden="true"></i>вы на линии</span></sc-if><sc-if value="{{ legend_lead }}" hint-placeholder-val="{{ false }}"><span><i class="rhb-key-lead" aria-hidden="true"></i>сменился лидер</span></sc-if><sc-if value="{{ legend_day }}" hint-placeholder-val="{{ false }}"><span><i class="rhb-key-day" aria-hidden="true"></i>полоса под днём: насколько выгоден день</span></sc-if></div>
   </sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"bars":{"editor":null},"win":{"editor":null},"size":{"editor":"text","default":"md"},"legend":{"editor":"boolean","default":true},"legendMe":{"editor":"boolean","default":true},"label":{"editor":"text","default":"Лучшая ставка по часам"},"onPick":{"editor":null},"$preview":{"width":358,"height":200}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"bars":{"editor":null},"win":{"editor":null},"size":{"editor":"text","default":"md"},"legend":{"editor":"boolean","default":true},"legendMe":{"editor":"boolean","default":true},"legendDay":{"editor":"boolean","default":false},"label":{"editor":"text","default":"Лучшая ставка по часам"},"onPick":{"editor":null},"$preview":{"width":358,"height":200}}'>
 // столбики по часам для таймлайна выгодности: высота это лучшая ставка часа, над столбиком логотип сервиса-лидера
-// bars: [{ key, val, fc, now, sel, me, svc, svcTitle, tick, label, aria }], tick подпись под столбиком, label цифра над ним (в sm)
+// bars: [{ key, val, lo, hi, fc, night, now, sel, me, svc, svcTitle, tick, label, aria }], lo и hi вилка прогноза засечкой, night тихая ночь, tick подпись под столбиком, label цифра над ним (в sm)
 // win: { from, to, label } ключи первого и последнего часа лучшего окна, onPick(key) тап и ведение пальцем
 // size md: экран, выбор ведением пальцем; sm: карточка, без логотипов и выделения, цифры только где есть label
+// логотип лидера только над выбранным столбиком, где лидер сменился, маленькая точка; в легенде только то, что есть на этом дне
+// legendDay: пункт про полосу под днём в ленте дней над столбиками
 const RHB_PREVIEW = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23].map((h) => {
   const v = [420, 480, 520, 560, 620, 700, 860, 980, 900, 760, 720, 820, 1040, 1220, 1300, 1180, 920, 700][h - 6];
-  return { key: String(h), val: v, fc: h > 15, now: h === 15, me: h >= 9 && h < 15, svc: h >= 17 ? 'samokat' : (h >= 12 ? 'yandex-eda' : 'vkusvill'), tick: h % 3 === 0 ? String(h).padStart(2, '0') : '' };
+  const sp = h > 15 ? 0.04 + (h - 15) * 0.006 : 0;
+  return { key: String(h), val: v, lo: sp ? Math.round(v * (1 - sp)) : null, hi: sp ? Math.round(v * (1 + sp)) : null, fc: h > 15, now: h === 15, me: h >= 9 && h < 15, svc: h >= 17 ? 'samokat' : (h >= 12 ? 'yandex-eda' : 'vkusvill'), tick: h % 3 === 0 ? String(h).padStart(2, '0') : '' };
 });
-const RHB_SIZE = { md: { h: 132, top: 20, head: 18 }, sm: { h: 74, top: 8, head: 16 } };
+const RHB_SIZE = { md: { h: 112, top: 18, head: 18 }, sm: { h: 74, top: 8, head: 16 } };
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
@@ -84,7 +101,7 @@ class Component extends DCLogic {
     const pick = (key) => { if (key == null || key === this._picked) return; this._picked = key; if (ext) p.onPick(key); else this.setState({ sel: key }); };
     this._picked = selKey;
     this._keys = list.map((b) => b.key);
-    const max = Math.max.apply(null, list.map((b) => +b.val || 0).concat([1]));
+    const max = Math.max.apply(null, list.map((b) => Math.max(+b.val || 0, +b.hi || 0)).concat([1]));
     const room = dim.h - dim.top - dim.head;
     const hOf = (v) => Math.max(3, Math.round((+v || 0) / max * room));
     const n = list.length;
@@ -97,26 +114,31 @@ class Component extends DCLogic {
       return Math.max(0, Math.min(n - 1, Math.floor((e.clientX - r.left) / (r.width / n))));
     };
     const scrub = !sm;
+    const nFirst = list.findIndex((b) => b.night);
+    let nLast = -1; list.forEach((b, i) => { if (b.night) nLast = i; });
     return {
       cls: 'rhb' + (sm ? ' rhb-sm' : ''), label: p.label || 'Лучшая ставка по часам',
       plot_style: 'height:' + dim.h + 'px',
       on_down: (e) => { if (!scrub || (e.pointerType === 'mouse' && e.button !== 0)) return; this._drag = true; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {} pick(this._keys[idxAt(e)]); },
       on_move: (e) => { if (this._drag) pick(this._keys[idxAt(e)]); },
       on_up: () => { this._drag = false; },
+      has_night: !sm && nFirst !== -1, night_style: nFirst === -1 ? '' : 'left:' + (nFirst / n * 100) + '%;width:' + ((nLast - nFirst + 1) / n * 100) + '%',
       has_win: hasWin, has_win_label: hasWin && !sm && !!win.label, win_label: win ? win.label || '' : '',
       win_style: hasWin ? 'left:' + (wFrom / n * 100) + '%;width:' + ((wTo - wFrom + 1) / n * 100) + '%' : '',
-      // логотип только там, где лидер сменился, у первого столбика и у выбранного, чтобы над днём было 3-5 логотипов
       cols: list.map((b, i) => {
         const bh = hOf(b.val), sel = b.key === selKey;
-        const lead = i === 0 || sel || b.svc !== list[i - 1].svc;
+        const rng = !sm && b.lo != null && b.hi != null && +b.hi > +b.lo;
+        const lo = rng ? hOf(b.lo) : bh, hi = rng ? hOf(b.hi) : bh;
+        const lead = i > 0 && !!b.svc && b.svc !== list[i - 1].svc;
         return {
-          cls: 'rhb-col' + (b.fc ? ' rhb-fc' : '') + (b.now ? ' rhb-now' : ''),
+          cls: 'rhb-col' + (b.fc ? ' rhb-fc' : '') + (b.now ? ' rhb-now' : '') + (b.night ? ' rhb-night' : ''),
           sel: sm ? null : String(sel), tab: sm ? '-1' : '0',
           aria: b.aria || ((b.tick || b.key) + ', ' + b.val),
           tap: () => pick(b.key),
           bar_style: 'height:' + bh + 'px',
-          top_style: 'bottom:' + (bh + 3) + 'px',
-          has_icon: !sm && !!b.svc && lead, svc: b.svc || '', svc_title: b.svcTitle || '',
+          top_style: 'bottom:' + (Math.max(bh, hi) + 3) + 'px',
+          has_rng: rng, rng_style: 'bottom:' + lo + 'px;height:' + Math.max(4, hi - lo) + 'px',
+          has_icon: !sm && !!b.svc && sel, has_lead: !sm && lead && !sel, svc: b.svc || '', svc_title: b.svcTitle || '',
           has_val: sm && !!b.label, val: b.label || ''
         };
       }),
@@ -126,7 +148,10 @@ class Component extends DCLogic {
         const text = b.now ? 'сейчас' : (nearNow ? '' : (b.tick || ''));
         return { me_cls: 'rhb-me' + (b.me ? '' : ' rhb-me-off'), has_text: !!text, text, cls: 'rhb-t' + (b.now ? ' rhb-t-now' : '') };
       }),
-      has_legend: p.legend !== false && !sm, legend_me: p.legendMe !== false
+      has_legend: p.legend !== false && !sm,
+      legend_past: list.some((b) => !b.fc), legend_fc: list.some((b) => b.fc),
+      legend_me: p.legendMe !== false && list.some((b) => b.me),
+      legend_lead: list.some((b, i) => i > 0 && !!b.svc && b.svc !== list[i - 1].svc), legend_day: !!p.legendDay
     };
   }
 }

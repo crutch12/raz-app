@@ -13,45 +13,11 @@
     .rss-changed-go > svg { flex: none; color: var(--raznos-amber); }
     .rss-changed-x { flex: none; width: 36px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 12px; background: none; color: var(--raznos-ink-3); cursor: pointer; }
     .rss-changed-go:focus-visible, .rss-changed-x:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: -2px; border-radius: 10px; }
-    /* лента недель: прошлая, текущая, следующая; свайп двигает ленту, соседняя неделя видна сразу */
-    .rss-days-view { flex: 1; min-width: 0; overflow: hidden; touch-action: pan-y; user-select: none; }
-    .rss-days-track { display: flex; width: 300%; transform: translateX(-33.3333%); }
-    .rss-days-track > .rss-days { flex: 0 0 33.3333%; }
-    .rss-days-ghost .rss-day { cursor: default; }
-    .rss-days { touch-action: pan-y; user-select: none; flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
-    /* листание недели: дни въезжают с той стороны, куда листали */
-    @media (prefers-reduced-motion: no-preference) {
-      .rss-days.rss-days-next-a, .rss-days.rss-days-next-b { animation: rss-days-next .32s cubic-bezier(.16, 1, .3, 1); }
-      .rss-days.rss-days-prev-a, .rss-days.rss-days-prev-b { animation: rss-days-prev .32s cubic-bezier(.16, 1, .3, 1); }
-      @keyframes rss-days-next { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
-      @keyframes rss-days-prev { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: none; } }
-    }
-    .rss-week-row { display: flex; align-items: center; gap: 0; margin: 0 -12px; }
-    .rss-week-step { width: 44px; height: 48px; flex: none; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 10px; background: none; color: var(--raznos-ink-2); cursor: pointer; }
-    .rss-week-step:disabled { color: var(--raznos-line-strong); cursor: default; }
     .rss-title { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
     .rss-week-sub { white-space: nowrap; font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
     .rss-bar-actions { display: flex; align-items: center; gap: 8px; }
     .rss-shifts-btn { position: relative; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 14px; border: 1px solid var(--raznos-line); border-radius: 12px; background: var(--raznos-surface); font: 650 14px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; }
     .rss-shifts-dot { position: absolute; top: 7px; right: 7px; width: 8px; height: 8px; border-radius: 50%; background: var(--raznos-red); box-shadow: 0 0 0 2px var(--raznos-surface); }
-    .rss-day { box-sizing: border-box; height: 64px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 3px; padding: 7px 0 6px; border-radius: 12px; border: 0; background: transparent; cursor: pointer; font: inherit; color: var(--raznos-ink); }
-    .rss-day:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 1px; }
-    .rss-day > .rss-day-d { font: 600 11px var(--raznos-font); color: var(--raznos-ink-3); }
-    .rss-day > .rss-day-n { font: 700 16px var(--raznos-mono); font-variant-numeric: tabular-nums; }
-    .rss-day-dots { display: flex; gap: 2px; height: 5px; }
-    .rss-day-dots > i { width: 5px; height: 5px; border-radius: 50%; }
-    .rss-day.rss-day-off > .rss-day-n { color: var(--raznos-ink-3); }
-    .rss-day.rss-day-past > .rss-day-n { color: var(--raznos-ink-3); }
-    .rss-day > .rss-day-done { color: var(--raznos-green-deep); }
-    .rss-day.raznos-is-active > .rss-day-done { color: var(--raznos-on-dark); }
-    .rss-day.raznos-is-active { background: var(--raznos-dark); color: var(--raznos-on-dark); }
-    /* сегодня видно всегда: зелёная рамка и число, рамка остаётся и у выбранного; высота у всех дней одна */
-    .rss-day.rss-day-today { box-shadow: inset 0 0 0 2px var(--raznos-green); }
-    .rss-day.rss-day-today > .rss-day-n { color: var(--raznos-green-deep); }
-    .rss-day.rss-day-today.raznos-is-active { box-shadow: inset 0 0 0 2px var(--raznos-green), inset 0 0 0 4px var(--raznos-dark); }
-    .rss-day.rss-day-today.raznos-is-active > .rss-day-n { color: var(--raznos-on-dark); }
-    .rss-day.raznos-is-active > .rss-day-d { color: color-mix(in oklab, var(--raznos-on-dark) 70%, transparent); }
-    .rss-day.raznos-is-active > .rss-day-n { color: var(--raznos-on-dark); }
     .rss-link { flex: none; min-height: 44px; background: none; border: 0; padding: 0; cursor: pointer; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); }
     .rss-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; padding-top: 4px; }
     .rss-legend { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -84,6 +50,10 @@
     .rss-goal.rss-goal-sticky { position: sticky; top: 4px; z-index: 4; box-shadow: 0 6px 16px rgba(20, 25, 40, 0.1); }
     /* план недели изменился: карточка пружинит и подсвечивается, дельта всплывает, по полосе проходит блик */
     .rss-goal { position: relative; }
+    /* подпись к точкам под днями: какой цвет какой сервис */
+    .rss-dot-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; margin-top: -4px; font: 500 11.5px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rss-dot-legend > span { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+    .rss-dot-legend i { width: 6px; height: 6px; border-radius: 50%; }
     /* сумма дня: подсветка и дельта, как у цели недели */
     .rss-total-btn { position: relative; border-radius: 12px; }
     .rss-total-delta { position: absolute; right: 0; bottom: -18px; padding: 2px 8px; border-radius: 999px; font: 800 12.5px var(--raznos-font); font-variant-numeric: tabular-nums; white-space: nowrap; opacity: 0; pointer-events: none; }
@@ -131,7 +101,7 @@
     .rss-settings-group { display: flex; flex-direction: column; gap: 6px; }
     .rss-settings-label { font: 650 13px var(--raznos-font); color: var(--raznos-ink); }
     .rss-goal { display: flex; flex-direction: column; gap: 6px; width: 100%; padding: 8px 12px 10px; border: 0; border-radius: 14px; background: var(--raznos-surface); text-align: left; font: inherit; color: var(--raznos-ink); cursor: pointer; }
-    .rss-goal:focus-visible, .rss-shifts-btn:focus-visible, .rss-week-step:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .rss-goal:focus-visible, .rss-shifts-btn:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
     .rss-goal-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
     .rss-goal-top > b { font: 700 15px var(--raznos-font); font-variant-numeric: tabular-nums; }
     .rss-goal-top > span { font: 600 12.5px var(--raznos-font); color: var(--raznos-green-deep); white-space: nowrap; }
@@ -163,25 +133,8 @@
 
 
 
-  <div class="rss-week-row">
-  <button type="button" class="rss-week-step" onClick="{{ week_prev }}" disabled="{{ week_prev_off }}" aria-label="Прошлая неделя"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
-  <div class="rss-days-view">
-  <div class="rss-days-track">
-    <div class="rss-days rss-days-ghost" aria-hidden="true">
-      <sc-for list="{{ days_prev }}" as="g" hint-placeholder-count="7"><span class="{{ g.cls }}"><span class="rss-day-d">{{ g.dow }}</span><span class="rss-day-n">{{ g.date }}</span><sc-if value="{{ g.show_dots }}" hint-placeholder-val="{{ true }}"><span class="rss-day-dots"><sc-for list="{{ g.dots }}" as="dt" hint-placeholder-count="2"><i style="{{ dt }}"></i></sc-for></span></sc-if></span></sc-for>
-    </div>
-    <div class="{{ days_cls }}">
-      <sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
-        <button type="button" class="{{ d.cls }}" onClick="{{ d.tap }}" aria-label="{{ d.aria }}"><span class="rss-day-d">{{ d.dow }}</span><span class="rss-day-n">{{ d.date }}</span><sc-if value="{{ d.done }}" hint-placeholder-val="{{ false }}"><svg class="rss-day-done" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4.5 4.5L19 7"/></svg></sc-if><sc-if value="{{ d.show_dots }}" hint-placeholder-val="{{ true }}"><span class="rss-day-dots"><sc-for list="{{ d.dots }}" as="dot" hint-placeholder-count="2"><i style="{{ dot }}"></i></sc-for></span></sc-if></button>
-      </sc-for>
-    </div>
-    <div class="rss-days rss-days-ghost" aria-hidden="true">
-      <sc-for list="{{ days_next }}" as="g" hint-placeholder-count="7"><span class="{{ g.cls }}"><span class="rss-day-d">{{ g.dow }}</span><span class="rss-day-n">{{ g.date }}</span><sc-if value="{{ g.show_dots }}" hint-placeholder-val="{{ true }}"><span class="rss-day-dots"><sc-for list="{{ g.dots }}" as="dt" hint-placeholder-count="2"><i style="{{ dt }}"></i></sc-for></span></sc-if></span></sc-for>
-    </div>
-  </div>
-  </div>
-  <button type="button" class="rss-week-step" onClick="{{ week_next }}" disabled="{{ week_next_off }}" aria-label="Следующая неделя"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-  </div>
+  <dc-import name="RaznosWeekDays" days="{{ days }}" prevDays="{{ days_prev }}" nextDays="{{ days_next }}" weekKey="{{ week_key }}" canPrev="{{ week_can_prev }}" canNext="{{ week_can_next }}" onPrev="{{ week_prev }}" onNext="{{ week_next }}" onPick="{{ pick_day }}"></dc-import>
+  <sc-if value="{{ has_dot_legend }}" hint-placeholder-val="{{ true }}"><div class="rss-dot-legend"><span>Точки:</span><sc-for list="{{ dot_legend }}" as="l" hint-placeholder-count="2"><span><i style="{{ l.style }}" aria-hidden="true"></i>{{ l.title }}</span></sc-for></div></sc-if>
 
   <button type="button" class="{{ goal_cls }}" onClick="{{ open_goal }}" aria-label="{{ goal_aria }}">
     <span class="rss-goal-top"><b>{{ goal_title }}</b><span class="{{ goal_state_cls }}">{{ goal_state_pre }}<span class="rss-goal-num">{{ goal_state_num }}</span>{{ goal_state_post }}</span><svg class="rss-goal-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
@@ -223,6 +176,7 @@
       </div>
     </sc-if>
 
+    <sc-if value="{{ has_wx_alert }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosAlertBell" variant="row" on="{{ wx_alert_on }}" label="Сообщать о спросе из-за погоды" sub="{{ wx_alert_sub }}" onTap="{{ wx_alert_tap }}"></dc-import></sc-if>
     <sc-if value="{{ show_reset }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" style="align-self:flex-start" onClick="{{ reset_day }}">Сбросить мои правки дня</button></sc-if>
   </sc-if>
 
@@ -313,7 +267,7 @@
 
   <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><span class="rss-toast" data-toast role="status"><button type="button" class="raznos-toast-x" data-toast-close onClick="{{ toast_close }}" aria-label="Закрыть"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span>{{ toast }}</span><sc-if value="{{ toast_has_act }}" hint-placeholder-val="{{ false }}"><button type="button" class="rss-toast-act" onClick="{{ toast_show }}">Показать</button></sc-if><sc-if value="{{ toast_has_undo }}" hint-placeholder-val="{{ false }}"><button type="button" class="rss-toast-act" onClick="{{ toast_undo }}">Вернуть</button></sc-if></span></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"caps":{"editor":null},"onBack":{"editor":null},"onDay":{"editor":null},"planState":{"editor":null},"onPlanState":{"editor":null},"weekGoal":{"editor":null},"weekEarned":{"editor":null},"booked":{"editor":null},"slots":{"editor":null},"workStart":{"editor":null},"workWeek":{"editor":null},"openKey":{"editor":null},"todayEarned":{"editor":null},"prefs":{"editor":null},"build":{"editor":null},"onSettings":{"editor":null},"stay":{"editor":null},"onStay":{"editor":null},"fact":{"editor":null},"embedded":{"editor":null},"onGoalChange":{"editor":null},"onAssistant":{"editor":null},"assistantAttention":{"editor":null},"onboarded":{"editor":null},"onOnboard":{"editor":null},"workEnd":{"editor":null},"onFindSlot":{"editor":null},"onTakeSlot":{"editor":null},"onOpenShifts":{"editor":null},"onOpenResult":{"editor":null},"onOpenWeekResult":{"editor":null},"onEditGraph":{"editor":null},"addWindow":{"editor":null},"focusAdded":{"editor":null},"focusIso":{"editor":null},"focusKey":{"editor":null},"changeNote":{"editor":"text","default":""},"changeIso":{"editor":"text","default":""},"changeKey":{"editor":"text","default":""},"onChangeHide":{"editor":null},"rules":{"editor":null},"onOpenService":{"editor":null},"dayFacts":{"editor":null},"reopenSettings":{"editor":null},"onReopened":{"editor":null},"quests":{"editor":null},"weather":{"editor":null},"$preview":{"width":390,"height":1100}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"caps":{"editor":null},"onBack":{"editor":null},"onDay":{"editor":null},"planState":{"editor":null},"onPlanState":{"editor":null},"weekGoal":{"editor":null},"weekEarned":{"editor":null},"booked":{"editor":null},"slots":{"editor":null},"workStart":{"editor":null},"workWeek":{"editor":null},"openKey":{"editor":null},"todayEarned":{"editor":null},"prefs":{"editor":null},"build":{"editor":null},"onSettings":{"editor":null},"stay":{"editor":null},"onStay":{"editor":null},"fact":{"editor":null},"embedded":{"editor":null},"onGoalChange":{"editor":null},"onAssistant":{"editor":null},"assistantAttention":{"editor":null},"onboarded":{"editor":null},"onOnboard":{"editor":null},"workEnd":{"editor":null},"onFindSlot":{"editor":null},"onTakeSlot":{"editor":null},"onOpenShifts":{"editor":null},"onOpenResult":{"editor":null},"onOpenWeekResult":{"editor":null},"onEditGraph":{"editor":null},"addWindow":{"editor":null},"focusAdded":{"editor":null},"focusIso":{"editor":null},"focusKey":{"editor":null},"changeNote":{"editor":"text","default":""},"changeIso":{"editor":"text","default":""},"changeKey":{"editor":"text","default":""},"onChangeHide":{"editor":null},"rules":{"editor":null},"onOpenService":{"editor":null},"dayFacts":{"editor":null},"reopenSettings":{"editor":null},"onReopened":{"editor":null},"quests":{"editor":null},"weather":{"editor":null},"alertFind":{"editor":null},"onAlert":{"editor":null},"$preview":{"width":390,"height":1100}}'>
 // демо-сегодня как в приложении: реальная дата устройства, время дня держим 15:40
 const RSS_TODAY = (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); })();
 const RSS_NOW = 15 * 60 + 40;
@@ -412,13 +366,14 @@ const RSS_TERMS = {
   'бронь': 'Сервис подтвердил смену. Выйти нужно вовремя, последствия за невыход смотрите в правилах сервиса',
   'заявка': 'Вы откликнулись, но сервис ещё не подтвердил. Это не бронь, смену могут не дать',
   'предварительная': 'Смена в черновике сервиса и может измениться',
-  'свободный выход': 'Бронь не нужна: выходите на линию когда удобно и на сколько удобно, это Яндекс Еда',
-  'нужен слот': 'Сервис даёт заказы только по брони. Слот берётся в приложении сервиса, мы покажем где',
+  'свободный выход': 'Запись не нужна: выходите на линию, когда удобно, и на сколько удобно, так работает Яндекс Еда',
+  'нужен слот': 'Сервис даёт заказы только по брони. Слот берут в приложении сервиса, Разнос сам не записывает',
+  'без записи': 'В сервисе вас на это время нет, это окно плана, а не обязательство',
   'нет в списке': 'Слот пропал из списка сервиса. Где слежение разрешено, напишем, когда он вернётся',
   'отработано': 'Смена прошла, заработок берём из приложения сервиса',
-  'идёт': 'Смена идёт сейчас',
+  'идёт': 'Смена идёт сейчас. Закончить её можно только в приложении сервиса',
   'по заявке': 'Отклик на слот это заявка, смену подтверждает сервис',
-  'слот': 'Смена по брони в приложении сервиса',
+  'слот': 'Смена по брони: берёте её в приложении сервиса, и это бронь',
 };
 const rssTimeBand = (m) => (m < 660 ? 'Утро' : (m < 900 ? 'Обед' : (m < 1080 ? 'День' : 'Вечер')));
 
@@ -443,63 +398,7 @@ const RSS_DEMO_FACT = {
 };
 
 class Component extends DCLogic {
-  componentDidMount() { this._scrollToHl(); this._openFromProps(); this._bindWeekSwipe(); }
-  componentWillUnmount() { if (this._swipeOff) this._swipeOff(); }
-  // листание недели свайпом и горизонтальной прокруткой, как в swiper: полоса едет за пальцем, дальше порога листаем
-  _bindWeekSwipe() {
-    if (typeof document === 'undefined' || this._swipeOff) return;
-    const box = () => document.querySelector('.rss-days-view');
-    const track = () => document.querySelector('.rss-days-track');
-    let drag = null, wheelAt = 0;
-    const can = (dir) => (this._weekCan || {})[dir];
-    const go = (dir) => { const f = (this._weekGo || {})[dir]; if (f) f(); };
-    const down = (e) => {
-      const el = box(); if (!el || !el.contains(e.target)) return;
-      drag = { x: e.clientX, y: e.clientY, t: performance.now(), dx: 0, on: false, el: track() || el, w: el.getBoundingClientRect().width };
-    };
-    const move = (e) => {
-      if (!drag) return;
-      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-      if (!drag.on) { if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy)) { if (Math.abs(dy) > 10) drag = null; return; } drag.on = true; drag.el.style.transition = 'none'; }
-      // у края, где листать нельзя, полоса тянется с сопротивлением
-      const dir = dx < 0 ? 'next' : 'prev';
-      drag.dx = can(dir) ? dx : dx / 4;
-      drag.el.style.transform = 'translateX(calc(-33.3333% + ' + drag.dx + 'px))';
-    };
-    const up = () => {
-      if (!drag) return;
-      const d = drag; drag = null;
-      if (!d.on) return;
-      const v = Math.abs(d.dx) / Math.max(1, performance.now() - d.t);
-      const dir = d.dx < 0 ? 'next' : 'prev';
-      d.el.style.transition = 'transform .28s cubic-bezier(.16, 1, .3, 1)';
-      // тап по дню после свайпа не засчитываем
-      const stop = (ev) => { ev.stopPropagation(); ev.preventDefault(); };
-      document.addEventListener('click', stop, true); setTimeout(() => document.removeEventListener('click', stop, true), 0);
-      if (can(dir) && (Math.abs(d.dx) > 60 || v > 0.5)) {
-        // доезжаем до соседней недели, потом меняем данные и без анимации возвращаем ленту в центр
-        d.el.style.transform = 'translateX(' + (dir === 'next' ? '-66.6667%' : '0%') + ')';
-        setTimeout(() => { this._swipeNav = true; go(dir); const t = track(); if (t) { t.style.transition = 'none'; t.style.transform = ''; } }, 280);
-      } else { d.el.style.transform = ''; }
-    };
-    const wheel = (e) => {
-      const el = box(); if (!el || !el.contains(e.target)) return;
-      if (Math.abs(e.deltaX) < 30 || Math.abs(e.deltaX) < Math.abs(e.deltaY)) return;
-      e.preventDefault();
-      const now = performance.now(); if (now - wheelAt < 450) return; wheelAt = now;
-      const dir = e.deltaX > 0 ? 'next' : 'prev'; if (can(dir)) go(dir);
-    };
-    document.addEventListener('pointerdown', down, true);
-    document.addEventListener('pointermove', move, true);
-    document.addEventListener('pointerup', up, true);
-    document.addEventListener('pointercancel', up, true);
-    document.addEventListener('wheel', wheel, { capture: true, passive: false });
-    this._swipeOff = () => {
-      document.removeEventListener('pointerdown', down, true); document.removeEventListener('pointermove', move, true);
-      document.removeEventListener('pointerup', up, true); document.removeEventListener('pointercancel', up, true);
-      document.removeEventListener('wheel', wheel, { capture: true });
-    };
-  }
+  componentDidMount() { this._scrollToHl(); this._openFromProps(); }
   componentDidUpdate() { this._scrollToHl(); this._openFromProps(); this._rollGoal(); this._rollNum('_dayRoll', '.rss-total-num'); }
   // докрутка числа в элементе к новому значению
   _rollNum(key, sel) {
@@ -721,25 +620,21 @@ class Component extends DCLogic {
     const earnOf = (w) => rateOf(w) * (w.to - w.from) / 60;
 
     // брони и сервисы по дням в ленте
-    const ghostDays = (off) => Array.from({ length: 7 }, (_, i) => rssWeekDay(off * 7 + i)).map((d) => {
+    const dayOf = (d) => {
       const iso = rssIso(d);
       const ws = windowsOf(iso).filter((w) => w.source !== 'gap');
-      return { dow: RSS_WD[d.getDay()], date: String(d.getDate()), dots: Array.from(new Set(ws.map((w) => w.svc))).slice(0, 3).map((sv) => 'background:var(--raznos-svc-' + sv + ')'), show_dots: !(iso < RSS_TODAY_ISO && ws.length > 0),
-        cls: 'rss-day' + (iso === RSS_TODAY_ISO ? ' rss-day-today' : '') + (isWorkDay(d) ? '' : ' rss-day-off') + (iso < RSS_TODAY_ISO ? ' rss-day-past' : '') };
-    });
-    const days = weekDays.map((d) => {
-      const iso = rssIso(d);
-      const ws = windowsOf(iso).filter((w) => w.source !== 'gap');
-      const svcs = Array.from(new Set(ws.map((w) => w.svc))).slice(0, 3);
+      const done = iso < RSS_TODAY_ISO && ws.length > 0;
       return {
-        dow: RSS_WD[d.getDay()], date: String(d.getDate()),
-        dots: svcs.map((s) => 'background:var(--raznos-svc-' + s + ')'),
+        key: iso, dow: RSS_WD[d.getDay()], date: String(d.getDate()),
+        dots: done ? [] : Array.from(new Set(ws.map((w) => w.svc))).slice(0, 3).map((s) => 'background:var(--raznos-svc-' + s + ')'),
         aria: RSS_WD_FULL[d.getDay()] + ' ' + d.getDate() + (ws.length ? ', окон ' + ws.length : ', пусто'),
-        done: iso < RSS_TODAY_ISO && ws.length > 0, show_dots: !(iso < RSS_TODAY_ISO && ws.length > 0),
-        cls: 'rss-day' + (iso === RSS_TODAY_ISO ? ' rss-day-today' : '') + (iso === selIso ? ' raznos-is-active' : '') + (isWorkDay(d) ? '' : ' rss-day-off') + (iso < RSS_TODAY_ISO ? ' rss-day-past' : ''),
-        tap: () => set({ day: iso })
+        done, today: iso === RSS_TODAY_ISO, sel: iso === selIso, off: !isWorkDay(d), past: iso < RSS_TODAY_ISO
       };
-    });
+    };
+    const ghostDays = (off) => Array.from({ length: 7 }, (_, i) => rssWeekDay(off * 7 + i)).map((d) => Object.assign(dayOf(d), { sel: false }));
+    const days = weekDays.map(dayOf);
+    // сервисы, чьи точки видны в ленте этой недели, для подписи под ней
+    const dotSvcs = Array.from(new Set([].concat(...weekDays.map((d) => { const iso = rssIso(d), ws = windowsOf(iso).filter((w) => w.source !== 'gap'); return iso < RSS_TODAY_ISO && ws.length ? [] : Array.from(new Set(ws.map((w) => w.svc))).slice(0, 3); }))));
 
     // неделя: заработано с понедельника и то, что осталось в плане до воскресенья
     const goals = st.goals || {};
@@ -780,10 +675,6 @@ class Component extends DCLogic {
     } else if (this._goalKey !== goalKey) { this._goalAnim = null; }
     this._goalKey = goalKey; this._goalTotal = weekTotal; this._goalRaw = weekRaw;
     const goalAnim = this._goalAnim;
-    if (this._swipeNav) { this._swipeNav = false; this._daysAnim = null; }
-    else if (this._daysWeek != null && this._daysWeek !== weekOff) this._daysAnim = { n: ((this._daysAnim && this._daysAnim.n) || 0) + 1, dir: weekOff > this._daysWeek ? 'next' : 'prev' };
-    this._daysWeek = weekOff;
-    const daysAnim = this._daysAnim;
     const weekShort = weekTotal < weekGoal;
     const setGoal = (v) => {
       if (weekOff !== 0) { set({ goals: Object.assign({}, goals, { [weekStartIso]: v }) }); return; }
@@ -1376,9 +1267,6 @@ class Component extends DCLogic {
       });
       return out.length > 1 ? out : [];
     })();
-    // колбэки листания для свайпа по полосе дней
-    this._weekGo = { prev: () => goWeek(-1), next: () => goWeek(1) };
-    this._weekCan = { prev: weekOff > -1, next: weekOff < 1 };
     // ответы на Как вы работаете: пресеты настроек, текущий ответ узнаём по настройкам
     const ONB = [
       ['Держусь своих смен', 'Только мои брони, без советов', { build: 'auto', swap: false, rbDefault: 'money', onlyFree: false }],
@@ -1406,7 +1294,7 @@ class Component extends DCLogic {
       goal_state_post: weekPast || weekEarned < weekGoal ? ' ₽' : '',
       goal_cls: 'rss-goal rss-goal-sticky' + (goalAnim ? ' rss-goal-' + goalAnim.dir + '-' + (goalAnim.n % 2 ? 'a' : 'b') : ''),
       days_prev: ghostDays(weekOff - 1), days_next: ghostDays(weekOff + 1),
-      days_cls: 'rss-days' + (daysAnim ? ' rss-days-' + daysAnim.dir + '-' + (daysAnim.n % 2 ? 'a' : 'b') : ''),
+      has_dot_legend: dotSvcs.length > 0, dot_legend: dotSvcs.slice(0, 4).map((k) => ({ title: String((RSS_SVC[k] || {}).title || k).replace(/\s+Доставка$/, ''), style: 'background:var(--raznos-svc-' + k + ')' })),
       goal_delta_show: !!goalAnim, goal_delta: goalAnim ? (goalAnim.delta > 0 ? '+' : '−') + rssFmt(Math.abs(goalAnim.delta)) + ' ₽' : '',
       goal_delta_cls: 'rss-goal-delta' + (goalAnim ? ' rss-is-' + goalAnim.dir : ''),
       // на полосе подсвечиваем ровно тот кусок, на который изменился план
@@ -1440,7 +1328,7 @@ class Component extends DCLogic {
       } })),
       onboard_skip: () => { const again = !!st.onboardOpen; set({ onboarded: true, onboardOpen: false }); if (again) return; if (typeof p.onOnboard === 'function') p.onOnboard(''); },
       has_week_sub: true, week_sub: weekOff < 0 ? 'прошлая неделя' : (weekOff > 0 ? 'следующая неделя' : 'текущая неделя'),
-      week_prev: () => goWeek(-1), week_next: () => goWeek(1), week_prev_off: weekOff <= -1, week_next_off: weekOff >= 1,
+      week_prev: () => goWeek(-1), week_next: () => goWeek(1), week_key: weekOff, week_can_prev: weekOff > -1, week_can_next: weekOff < 1, pick_day: (iso) => set({ day: iso }),
       // у прошедшей недели ссылка на её итог в Результатах
       days, is_mine: true,
       day_title: (isToday ? 'Сегодня, ' : RSS_WD_FULL[selDate.getDay()] + ', ') + selDate.getDate() + ' ' + RSS_MONTHS[selDate.getMonth()],
@@ -1453,6 +1341,15 @@ class Component extends DCLogic {
       open_forecast: () => set({ term: 'оценка дня' }),
       rows: topNudge ? [topNudge].concat(rowsShown) : rowsShown, has_rows: rowsShown.length > 0 || !!topNudge,
       show_empty: !realWins.length,
+      // в день с погодой, которая поднимает спрос: вход Сообщать о спросе из-за погоды под окнами
+      ...(() => {
+        const wx = typeof p.onAlert === 'function' && selIso >= RSS_TODAY_ISO ? (p.weather || []).find((x) => x.iso === selIso) : null;
+        return {
+          has_wx_alert: !!wx, wx_alert_on: !!wx && typeof p.alertFind === 'function' && !!p.alertFind({ what: 'weather' }),
+          wx_alert_sub: wx ? (wx.label ? wx.label + '. ' : '') + 'В следующий раз напишем заранее, за 1–2 часа' : '',
+          wx_alert_tap: () => { if (wx) p.onAlert({ what: 'weather' }); }
+        };
+      })(),
       empty_title: isWorkDay(selDate) ? 'Пока пусто' : 'Выходной по графику',
       empty_text: isWorkDay(selDate) ? 'Соберём день из лучших вариантов, лишнее потом уберёте' : 'Если захотите поработать, соберём план из лучших вариантов этого дня',
       can_assemble: selIso >= RSS_TODAY_ISO, assemble_label: 'Собрать план на ' + ['воскресенье', 'понедельник', 'вторник', 'среду', 'четверг', 'пятницу', 'субботу'][selDate.getDay()], assemble: assembleDay,
