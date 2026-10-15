@@ -38,7 +38,7 @@
 </helmet>
 <div class="rro">
   <div class="rro-head"><span class="rro-title">{{ title }}</span><button type="button" class="rro-all" onClick="{{ on_all }}">Показать все</button></div>
-  <sc-if value="{{ is_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" glyph="₽" title="Заказов пока нет" text="Первый появится здесь сразу после доставки" actionLabel="Где сейчас выгоднее" actionSmall="{{ true }}" onAction="{{ on_empty }}" compact="{{ true }}"></dc-import></sc-if>
+  <sc-if value="{{ is_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" glyph="₽" title="Заказов пока нет" text="Первый появится здесь сразу после доставки" actionLabel="Когда выгоднее" actionSmall="{{ true }}" onAction="{{ on_empty }}" compact="{{ true }}"></dc-import></sc-if>
   <sc-for list="{{ rows }}" as="o" hint-placeholder-count="3">
     <div class="rro-row">
       <button type="button" class="{{ o.openClass }}" onClick="{{ o.openOrder }}">

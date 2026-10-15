@@ -1,0 +1,108 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* лента плашек часов или дней со скроллом вбок, прошлое сплошное, прогноз пунктиром */
+    .rhst { --rhst-lv1: oklch(0.95 0.025 150); --rhst-lv2: oklch(0.88 0.06 150); --rhst-lv3: oklch(0.76 0.1 150); --rhst-lv4: oklch(0.6 0.13 150); --rhst-lv5: oklch(0.46 0.12 150); --rhst-hatch: oklch(1 0 0 / 0.6);
+      display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 2px 16px 4px; scroll-behavior: smooth; }
+    .raznos-theme-dark .rhst { --rhst-lv1: oklch(0.3 0.03 150); --rhst-lv2: oklch(0.38 0.06 150); --rhst-lv3: oklch(0.48 0.09 150); --rhst-lv4: oklch(0.58 0.12 150); --rhst-lv5: oklch(0.68 0.14 150); --rhst-hatch: oklch(0.2 0.01 250 / 0.6); }
+    .rhst::-webkit-scrollbar { display: none; }
+    .rhst-inset { margin: 0; padding: 2px 0 4px; }
+    .rhst-item { flex: none; min-width: 58px; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0 8px; border: 1px solid var(--raznos-line); border-radius: 14px; background: var(--raznos-surface); color: var(--raznos-ink-2); font: 600 12px var(--raznos-font); cursor: pointer; }
+    .rhst-item b { font: 700 13px var(--raznos-font); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; color: var(--raznos-ink); white-space: nowrap; }
+    .rhst-item.rhst-fc { border-style: dashed; }
+    .rhst-item.rhst-now { color: var(--raznos-green-deep); }
+    .rhst-item[aria-pressed="true"] { background: var(--raznos-dark); border-color: var(--raznos-dark); color: var(--raznos-on-dark); }
+    .rhst-item[aria-pressed="true"] b { color: var(--raznos-on-dark); }
+    .rhst-item:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    /* компактная лента в карточке */
+    .rhst-sm .rhst-item { min-width: 50px; min-height: 46px; border-radius: 12px; font-size: 11.5px; }
+    .rhst-sm .rhst-item b { font-size: 12.5px; }
+
+    /* дни: день недели, число и полоса уровня выгодности одной зелёной шкалой */
+    .rhst-day .rhst-item { width: 50px; min-width: 0; min-height: 0; gap: 4px; padding: 7px 0 8px; border-color: transparent; background: none; }
+    .rhst-day .rhst-item b { font-size: 14px; }
+    .rhst-day .rhst-item.rhst-now b { color: var(--raznos-green-deep); }
+    .rhst-day .rhst-item[aria-pressed="true"] { background: var(--raznos-surface); border-color: var(--raznos-line); color: var(--raznos-ink-2); box-shadow: 0 2px 6px oklch(0 0 0 / 0.08); }
+    .rhst-day .rhst-item[aria-pressed="true"] b { color: var(--raznos-ink); }
+    .rhst-day .rhst-item.rhst-now[aria-pressed="true"] b { color: var(--raznos-green-deep); }
+    .rhst-lv { width: 30px; height: 6px; border-radius: 3px; background: var(--rhst-lv1); }
+    .rhst-lv-2 { background: var(--rhst-lv2); } .rhst-lv-3 { background: var(--rhst-lv3); } .rhst-lv-4 { background: var(--rhst-lv4); } .rhst-lv-5 { background: var(--rhst-lv5); }
+    /* компактная лента дней на экране таймлайна */
+    .rhst-day.rhst-sm .rhst-item { width: 44px; gap: 3px; padding: 5px 0 6px; border-radius: 12px; font-size: 11px; }
+    .rhst-day.rhst-sm .rhst-item b { font-size: 13px; }
+    .rhst-day.rhst-sm .rhst-lv { width: 24px; height: 5px; }
+    .rhst-fc .rhst-lv { background-image: repeating-linear-gradient(135deg, transparent 0 3px, var(--rhst-hatch) 3px 5px); }
+  </style>
+</helmet>
+<div class="{{ cls }}" data-rhst="{{ uid }}" role="group" aria-label="{{ label }}">
+  <sc-for list="{{ items }}" as="it" hint-placeholder-count="8">
+    <button type="button" class="{{ it.cls }}" aria-pressed="{{ it.sel }}" aria-label="{{ it.aria }}" onClick="{{ it.tap }}"><span>{{ it.top }}</span><b>{{ it.main }}</b><sc-if value="{{ it.has_lv }}" hint-placeholder-val="{{ false }}"><i class="{{ it.lvCls }}" aria-hidden="true"></i></sc-if></button>
+  </sc-for>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"items":{"editor":null},"kind":{"editor":"text","default":"hour"},"size":{"editor":"text","default":"md"},"inset":{"editor":"boolean","default":false},"label":{"editor":"text","default":"Час"},"centerKey":{"editor":"text","default":""},"onPick":{"editor":null},"$preview":{"width":390,"height":90}}'>
+// лента часов (kind hour) или дней (kind day) для таймлайна выгодности
+// items: [{ key, top, main, fc, now, sel, level 1..5 у дней, aria }], onPick(key)
+// при смене centerKey и при появлении выбранная плашка встаёт по центру
+const RHST_PREVIEW = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21].map((h) => {
+  const v = [860, 980, 900, 760, 720, 820, 1040, 1220, 1300, 1180][h - 12];
+  return { key: String(h), top: h === 15 ? 'Сейчас' : h + ':00', main: (h > 15 ? '≈' : '') + String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ' '), fc: h > 15, now: h === 15 };
+});
+const RHST_DAYS = (() => {
+  const dow = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+  return [-3, -2, -1, 0, 1, 2, 3].map((k, i) => { const d = new Date(); d.setDate(d.getDate() + k); return { key: String(k), top: k === 0 ? 'Сегодня' : dow[d.getDay()], main: String(d.getDate()), fc: k > 0, now: k === 0, level: [2, 3, 4, 3, 5, 4, 2][i] }; });
+})();
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const day = p.kind === 'day';
+    const list = Array.isArray(p.items) ? p.items : (day ? RHST_DAYS : RHST_PREVIEW);
+    // без onPick (превью в ДС) выбор держим у себя
+    const ext = typeof p.onPick === 'function';
+    const selKey = ext ? (list.find((it) => it.sel) || {}).key : (st.sel != null ? st.sel : (list.find((it) => it.now) || list[0] || {}).key);
+    if (!this._uid) this._uid = 'rhst' + Math.random().toString(36).slice(2, 8);
+    const center = String(p.centerKey == null ? '' : p.centerKey);
+    if (center !== this._centered) { this._centered = center; setTimeout(() => this.centerSel(), 0); }
+    else if (selKey !== this._lastSel) setTimeout(() => this.revealSel(), 0);
+    this._lastSel = selKey;
+    return {
+      uid: this._uid, label: p.label || (day ? 'День' : 'Час'),
+      cls: 'rhst' + (day ? ' rhst-day' : '') + (p.size === 'sm' ? ' rhst-sm' : '') + (p.inset ? ' rhst-inset' : ''),
+      items: list.map((it) => ({
+        cls: 'rhst-item' + (it.fc ? ' rhst-fc' : '') + (it.now ? ' rhst-now' : ''),
+        sel: String(it.key === selKey), top: it.top, main: it.main, aria: it.aria || (it.top + ', ' + it.main),
+        has_lv: day, lvCls: 'rhst-lv rhst-lv-' + Math.max(1, Math.min(5, it.level || 1)),
+        tap: () => (ext ? p.onPick(it.key) : this.setState({ sel: it.key }))
+      }))
+    };
+  }
+
+  componentDidMount() { this.centerSel(); }
+
+  // выбранное за краем ленты докручиваем, чтобы было видно целиком
+  revealSel() {
+    const box = document.querySelector('[data-rhst="' + this._uid + '"]');
+    const el = box && box.querySelector('[aria-pressed="true"]');
+    if (!box || !el) return;
+    const a = box.getBoundingClientRect(), b = el.getBoundingClientRect(), pad = 16;
+    const dx = b.left < a.left + pad ? b.left - a.left - pad : (b.right > a.right - pad ? b.right - a.right + pad : 0);
+    if (dx && box.scrollBy) box.scrollBy({ left: dx, behavior: typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  }
+
+  // выбранную плашку ставим по центру ленты без прокрутки страницы
+  centerSel() {
+    const tryIt = (left) => {
+      const box = document.querySelector('[data-rhst="' + this._uid + '"]');
+      const el = box && box.querySelector('[aria-pressed="true"]');
+      if (box && el && box.scrollWidth > box.clientWidth) {
+        const a = box.getBoundingClientRect(), b = el.getBoundingClientRect();
+        box.style.scrollBehavior = 'auto';
+        box.scrollLeft += b.left + b.width / 2 - (a.left + a.width / 2);
+        box.style.scrollBehavior = '';
+      } else if (left > 0) requestAnimationFrame(() => tryIt(left - 1));
+    };
+    requestAnimationFrame(() => tryIt(20));
+  }
+}
+</script></body></html>

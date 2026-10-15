@@ -71,9 +71,10 @@
     </div>
     </sc-if>
     <p class="raznos-text-tiny">{{ source_note }}</p>
+    <sc-if value="{{ has_detail }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosMarketDetailLink" hint="Какой район выгоднее в каждый час, прошлые дни и прогноз" onOpen="{{ open_detail }}"></dc-import></sc-if>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"few":{"editor":"boolean","default":false},"mode":{"editor":"text","default":"card"},"open":{"editor":null},"initialView":{"editor":"text","default":"list"},"initialPick":{"editor":"text","default":""},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"$preview":{"width":390,"height":330}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"few":{"editor":"boolean","default":false},"mode":{"editor":"text","default":"card"},"open":{"editor":null},"onDetail":{"editor":null},"initialView":{"editor":"text","default":"list"},"initialPick":{"editor":"text","default":""},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"$preview":{"width":390,"height":330}}'>
 // где выгоднее по мотивам Gridwise Where to Work: районы по доходу, полоса от лучшего, тренд за 4 недели
 // один компонент на карточку хаба Работа и экран, чтобы цифры совпадали
 // районы те же, что в фильтре Когда выгоднее, демо
@@ -191,6 +192,8 @@ class Component extends DCLogic {
       card_rows: top.map((x) => rowOf(x)).concat(rising ? [rising] : []).map((r, i) => Object.assign(r, { tap: () => open({ view: 'map', pick: (byValue.find((x) => x.z.name === r.name) || {}).z.k }), divider: false })),
       more_label: (() => { const n = Math.max(0, byValue.length - 3 - (rising ? 1 : 0)); const w = (n % 10 === 1 && n % 100 !== 11) ? 'район' : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'района' : 'районов'); return 'Ещё ' + n + ' ' + w; })(),
       open_more: () => open({ view: 'list' }),
+      has_detail: typeof p.onDetail === 'function',
+      open_detail: () => p.onDetail({ view, pick: view === 'map' && pickRow ? pickRow.k : '', cat: cat.k }),
       by_rank: !nearFirst, by_near: nearFirst,
       seg_rank_cls: 'raznos-segment' + (!nearFirst ? ' raznos-is-active' : ''),
       seg_near_cls: 'raznos-segment' + (nearFirst ? ' raznos-is-active' : ''),

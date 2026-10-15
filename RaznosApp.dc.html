@@ -335,7 +335,7 @@
                 </div>
               </sc-if>
               <sc-if value="{{ home_nudge_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosPlanNudge" icon="{{ home_nudge_icon }}" title="{{ home_nudge_title }}" onTitle="{{ home_nudge_title_tap }}" text="{{ home_nudge_text }}" meta="{{ home_nudge_meta }}" action="{{ home_nudge_action }}" dismiss="{{ home_nudge_dismiss }}" onAction="{{ home_nudge_accept }}" onDismiss="{{ home_nudge_close }}"></dc-import></sc-if>
-              <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" empty="{{ recent_empty }}" onEmpty="{{ go_zones }}" dayLabel="{{ recent_day_label }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onOpenTrip="{{ open_recent_trip }}"onAddExpense="{{ go_expense_form_from_home }}" onSaveTip="{{ save_recent_tip }}" onNote="{{ open_recent_note }}"></dc-import>
+              <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" empty="{{ recent_empty }}" onEmpty="{{ go_best_times_now }}" dayLabel="{{ recent_day_label }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onOpenTrip="{{ open_recent_trip }}"onAddExpense="{{ go_expense_form_from_home }}" onSaveTip="{{ save_recent_tip }}" onNote="{{ open_recent_note }}"></dc-import>
 
               <!-- после Последних заказов: деньги одной карточкой: ждёт выплаты (янтарная при задержке) и итог прошлой недели по понедельникам, крестик прячет итог до следующей недели -->
               <div class="raznos-row-group raznos-today-money">
@@ -345,7 +345,6 @@
               <h2 class="raznos-home-group">Вокруг</h2>
               <dc-import name="RaznosLiveToday" items="{{ live_today_items }}" cityTitle="{{ city_title }}" onAll="{{ live_go_feed_home }}" onWrite="{{ live_go_compose_home }}"></dc-import>
               <dc-import name="RaznosCourierMapCard" count="{{ cmap_count }}" locked="{{ cmap_locked }}" onOpen="{{ go_courier_map }}"></dc-import>
-              <div class="raznos-card"><button type="button" class="raznos-list-row" style="border-bottom:0" onClick="{{ go_zones }}"><div class="raznos-list-main"><span class="raznos-list-title">Где сейчас выгоднее</span><span class="raznos-text-small">Районы, время и источник данных</span></div><span class="raznos-row-chevron">›</span></button></div>
             </div>
           </sc-if>
 
@@ -439,13 +438,6 @@
                 <sc-if value="{{ stats_no_data }}"><div class="raznos-empty-state"><span class="raznos-text-h3">Пока нет данных</span><p class="raznos-text-small">Подключите сервис или посмотрите демо</p><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ go_integrations }}">Подключить сервис</button><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ stats_start_demo }}">Посмотреть демо</button></div></sc-if>
               </sc-if>
               <sc-if value="{{ stats_filter_sheet_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosStatsFilterSheet" groups="{{ stats_filter_groups }}" active="{{ stats_filters_active }}" onReset="{{ stats_filters_reset }}" onClose="{{ stats_filter_close }}"></dc-import></sc-if>
-            </div>
-          </sc-if>
-
-          <sc-if value="{{ is_zones }}">
-            <div class="raznos-phone-body" data-screen-label="8 Zones">
-              <div class="raznos-app-bar"><button type="button" class="raznos-icon-btn" onClick="{{ go_home_any }}">‹</button><span></span></div>
-              <dc-import name="RaznosForecast" city="{{ zones_city }}"></dc-import>
             </div>
           </sc-if>
 
@@ -1399,7 +1391,7 @@
             <div class="raznos-phone-body" data-screen-label="Services compare">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ services_compare_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Сравнение сервисов</h1></div>
               <span class="raznos-text-small" style="margin-top:-4px">{{ city_title }}</span>
-              <dc-import name="RaznosServiceRank" mode="full" connected="{{ svc_connected }}" onConnect="{{ svc_compare_connect }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
+              <dc-import name="RaznosServiceRank" mode="full" connected="{{ svc_connected }}" onConnect="{{ svc_compare_connect }}" onDetail="{{ sc_detail }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
             </div>
           </sc-if>
 
@@ -1407,7 +1399,7 @@
             <div class="raznos-phone-body" data-screen-label="Best places">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ best_places_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Где выгоднее</h1></div>
               <span class="raznos-text-small" style="margin-top:-4px">{{ city_title }}</span>
-              <dc-import name="RaznosHotspots" mode="full" initialView="{{ bp_view }}" initialPick="{{ bp_pick }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
+              <dc-import name="RaznosHotspots" mode="full" initialView="{{ bp_view }}" initialPick="{{ bp_pick }}" onDetail="{{ bp_detail }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
             </div>
           </sc-if>
 
@@ -1415,7 +1407,13 @@
             <div class="raznos-phone-body" data-screen-label="Best times">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ best_times_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Когда выгоднее</h1></div>
               <span class="raznos-text-small" style="margin-top:-4px">{{ city_title }}</span>
-              <dc-import name="RaznosBestTimes" mode="full" initialView="{{ bt_view }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
+              <dc-import name="RaznosBestTimes" mode="full" initialView="{{ bt_view }}" initialDay="{{ bt_day }}" initialHour="{{ bt_hour }}" onDetail="{{ bt_detail }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ is_market_timeline }}">
+            <div class="raznos-phone-body" data-screen-label="Market timeline">
+              <dc-import name="RaznosMarketTimeline" mode="full" initialDay="{{ mt_day }}" initialHour="{{ mt_hour }}" initialBy="{{ mt_by }}" initialScope="{{ mt_scope }}" connected="{{ svc_connected }}" weather="{{ mt_weather }}" onBack="{{ mt_back }}" onMap="{{ mt_map }}" onPlan="{{ mt_plan }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}" few="{{ mk_few }}"></dc-import>
             </div>
           </sc-if>
 
@@ -3893,7 +3891,7 @@
       // что запоминаем вместе с экраном в стеке назад: выбранный объект и откуда на него пришли
       const NAV_PARAMS = ['histSelectedId', 'ordBack', 'tripSelectedId', 'tripBack', 'histBack', 'svKey', 'svFrom', 'svReviewTab', 'connKey', 'connFrom',
         'anonSvcKey', 'anonAuthor', 'anonBack', 'anonCtx', 'anonOrders', 'liveThreadId', 'liveThreadBack', 'liveBack', 'liveViewBack', 'liveReportId', 'liveReportBack',
-        'lcBack', 'cmapBack', 'cmapFocus', 'subFrom', 'wsFrom', 'expBack', 'recBack', 'slotsFrom', 'bpFrom', 'btFrom', 'scFrom', 'guideSvc', 'guideSection',
+        'lcBack', 'cmapBack', 'cmapFocus', 'subFrom', 'wsFrom', 'expBack', 'recBack', 'slotsFrom', 'bpFrom', 'btFrom', 'scFrom', 'mtFrom', 'guideSvc', 'guideSection',
         'ppSelectedId', 'shViewLinkId', 'openDemoFrom', 'openDemoLabel', 'openDemoSection', 'openDemoShift', 'openDemoSlot', 'openDemoKind', 'pvPreview',
         'activeFrom', 'selectedOfferId', 'tipRecipientId', 'statsDetailBack', 'inboxRet'];
       // день Плана сюда не входит: План сам передаёт его при уходе, и возврат открывает тот же день
@@ -5150,7 +5148,7 @@
           };
 
           const screens = [
-            'courier-map', 'work-filters', 'offer-history', 'welcome', 'auth', 'code', 'name', 'city', 'courier-empty', 'courier-home', 'stats', 'zones',
+            'courier-map', 'work-filters', 'offer-history', 'welcome', 'auth', 'code', 'name', 'city', 'courier-empty', 'courier-home', 'stats',
             'work-setup', 'offers', 'offer-detail', 'active-order', 'confirm-decline',
             'offer-result', 'service-open-demo', 'work-summary', 'user-home', 'integrations', 'integration-connect',
             'history', 'order', 'trip', 'market', 'market-services', 'service', 'form-review', 'review-complaint', 'review-complaint-sent',
@@ -5158,7 +5156,7 @@
             'favorites', 'couriers', 'public-profile', 'tips', 'tips-sent', 'contest',
             'expenses', 'expense-form', 'recurring', 'recurring-form', 'my-activity', 'imported-reviews', 'live-feed', 'live-thread', 'live-compose', 'live-place-pick', 'live-photo', 'live-place', 'live-report', 'live-mine',
             'wallet', 'wallet-income', 'wallet-withdraw', 'wallet-withdraw-history', 'work-hub', 'slots', 'smart', 'work-schedule', 'job-guide', 'tax-forms', 'settings',
-            'notifications', 'inbox', 'worker-data', 'common-states', 'work-tasks', 'faq', 'best-times', 'best-places', 'services-compare', 'demo-settings'
+            'notifications', 'inbox', 'worker-data', 'common-states', 'work-tasks', 'faq', 'best-times', 'market-timeline', 'best-places', 'services-compare', 'demo-settings'
           ];
           const vals = {};
           screens.forEach((name) => { vals['is_' + name.replace(/-/g, '_')] = s === name; });
@@ -6537,7 +6535,7 @@
           const navRole = role;
           const tabOf = { 'profile-edit': 'profile', 'courier-home': 'home', 'courier-empty': 'home', 'work-hub': 'work', 'work-setup': 'work', offers: 'work', 'offer-detail': 'work', 'active-order': st.activeFrom || 'work', 'confirm-decline': 'work', 'offer-result': 'work', 'service-open-demo': st.openDemoFrom === 'courier-home' ? 'home' : 'work', 'work-summary': 'work', slots: 'work', 'job-guide': 'market', 'tax-forms': 'profile', stats: 'stats', market: 'market', 'market-services': 'market', profile: 'profile', history: 'home', order: 'home', integrations: 'home', 'integration-connect': 'home', zones: 'home', service: 'market', 'form-review': 'market', questions: 'market', 'anon-courier': 'market', top: 'profile', photo: 'profile', share: 'profile', privacy: 'profile', contest: 'profile', 'my-activity': 'profile', 'imported-reviews': 'profile', 'live-feed': 'home', 'live-mine': 'profile', 'user-home': 'home', favorites: 'favorites', couriers: 'couriers', 'public-profile': 'couriers', tips: 'market', 'tips-sent': 'profile', expenses: st.expBack === 'profile' ? 'profile' : 'home', 'expense-form': 'home', recurring: 'profile', 'recurring-form': 'profile', wallet: 'profile', 'wallet-income': 'profile', 'wallet-withdraw': 'profile', 'wallet-withdraw-history': 'profile', notifications: 'profile', inbox: 'profile', support: 'profile', settings: 'profile', faq: 'profile', 'worker-data': 'home', 'common-states': 'home', 'work-tasks': 'work', 'demo-settings': 'profile' };
           const activeTab = tabOf[s];
-          const showNav = (role === 'courier' && !!activeTab && s !== 'history' && s !== 'order' && s !== 'integrations' && s !== 'integration-connect' && s !== 'zones' && s !== 'courier-map' && s !== 'photo' && s !== 'service' && s !== 'form-review' && s !== 'questions' && s !== 'anon-courier' && !(s === 'expenses' && st.expBack !== 'profile') && s !== 'expense-form' && s !== 'recurring-form' && s !== 'worker-data' && s !== 'common-states') || (role === 'user' && !!activeTab && s !== 'privacy' && s !== 'notifications' && s !== 'support');
+          const showNav = (role === 'courier' && !!activeTab && s !== 'history' && s !== 'order' && s !== 'integrations' && s !== 'integration-connect' && s !== 'courier-map' && s !== 'photo' && s !== 'service' && s !== 'form-review' && s !== 'questions' && s !== 'anon-courier' && !(s === 'expenses' && st.expBack !== 'profile') && s !== 'expense-form' && s !== 'recurring-form' && s !== 'worker-data' && s !== 'common-states') || (role === 'user' && !!activeTab && s !== 'privacy' && s !== 'notifications' && s !== 'support');
           const showNavFinal = showNav && !st.pvPreview && (s.indexOf('live-') !== 0 || s === 'live-feed' || s === 'live-mine');
 
           Object.assign(vals, {
@@ -7239,8 +7237,7 @@
             stats_has_demo_action: !hasData, stats_has_connect_action: !hasData,
             stats_start_demo: () => set(Object.assign(buildDemoSeed(), { s: 'stats', demoReturnState: Object.assign({}, this.state, { demoReturnState: null }), demoOn: true, statsPeriod: 'week', statsSvcFilter: 'all', statsDistrict: 'all', statsDetail: '', expManual: null, expRecurring: null })),
 
-            zones_city: city,
-            go_zones: () => set({ s: 'zones' }),
+            go_best_times_now: () => set({ s: 'best-times', btFrom: s, btView: 'day', btDay: null, btHour: null }),
             // карта курьеров взаимная: видите других, только если показываете себя, и только пока идёт смена
             go_courier_map: () => set({ s: 'courier-map', cmapBack: '', cmapFocus: '' }),
             cmap_back: navBack(() => {
@@ -7317,8 +7314,19 @@
             slots_back: navBack(backToInbox(() => set({ s: st.slotsFrom === 'courier-home' ? 'courier-home' : (st.slotsFrom === 'profile' ? 'profile' : 'work-hub'), smartFocusIso: '', smartFocusKey: '' }))), go_slots_from_profile: () => set({ s: 'slots', slotsTab: '', slotsDay: '', slotsSvc: '', slotsWeek: -1, slotsFrom: 'profile' }), go_smart: () => set({ s: 'work-hub', smartFocusAdded: false, smartFocusIso: '', smartFocusKey: '', smartOpenKey: '' }), go_work_schedule: () => set({ s: 'work-schedule', wsFrom: s }), work_schedule_back: navBack(() => set({ s: (this.state && this.state.wsFrom) || 'profile' })),
             work_setup_needed: !demoOn && !graphSaved,
             work_ready: demoOn || graphSaved,
-            go_best_times: (v) => set({ s: 'best-times', btFrom: s, btView: v === 'day' ? 'day' : 'week' }),
-            bt_view: (this.state && this.state.btView) || 'week',
+            go_best_times: (v) => set({ s: 'best-times', btFrom: s, btView: v === 'day' ? 'day' : 'week', btDay: null, btHour: null }),
+            bt_view: (this.state && this.state.btView) || 'week', bt_day: st.btDay != null ? st.btDay : null, bt_hour: st.btHour != null ? st.btHour : null,
+            // Подробно по часам: полная версия Рынка, входы из трёх простых экранов, при возврате с карты или из Плана на прежнем часе
+            // из Когда выгоднее: тот же день недели ближайший вперёд и выбранный или лучший час, часы до 6 таймлайн не показывает
+            bt_detail: (o) => set({ s: 'market-timeline', mtFrom: s, mtDay: (o.day - (new Date().getDay() + 6) % 7 + 7) % 7, mtHour: o.hour >= 6 ? o.hour : null, mtBy: 'zone', mtScope: 'all', btView: o.view, btDay: o.day, btHour: o.hour }),
+            bp_detail: (o) => set({ s: 'market-timeline', mtFrom: s, mtDay: 0, mtHour: null, mtBy: 'zone', mtScope: 'all', bpView: o.view, bpPick: o.pick || '' }),
+            sc_detail: (o) => set({ s: 'market-timeline', mtFrom: s, mtDay: 0, mtHour: null, mtBy: 'svc', mtScope: o.show === 'mine' ? 'mine' : 'all' }),
+            mt_day: st.mtDay || 0, mt_hour: st.mtHour != null ? st.mtHour : null, mt_by: st.mtBy || 'zone', mt_scope: st.mtScope || 'all',
+            mt_map: (o) => set({ s: 'best-places', bpFrom: 'market-timeline', bpView: 'map', bpPick: o.zone || '', mtDay: o.day, mtHour: o.hour, mtBy: o.by, mtScope: o.scope }),
+            mt_plan: (o) => set({ s: 'work-hub', smartFocusAdded: false, smartFocusIso: isoAt(o.day), smartFocusKey: '', smartOpenKey: '', mtDay: o.day, mtHour: o.hour, mtBy: o.by, mtScope: o.scope }),
+            mt_back: navBack(() => set({ s: (this.state && this.state.mtFrom) || 'market' })),
+            // погода из демо сдвигает ставки таймлайна и подписана причиной
+            mt_weather: (() => { const wx = demoOn && role === 'courier' ? WEATHER_DEMO[st.weather || 'rain'] : null; return wx && wx.period ? [{ day: 0, from: wx.period.from / 60, to: wx.period.to / 60, k: wx.kind === 'rain' ? 1.12 : 1.1, text: wx.tag }] : []; })(),
             best_times_back: navBack(() => set({ s: (this.state && this.state.btFrom) || 'work-hub' })),
             go_best_places: (o) => set({ s: 'best-places', bpFrom: s, bpView: (o && o.view) || 'list', bpPick: (o && o.pick) || '' }),
             bp_view: (this.state && this.state.bpView) || 'list', bp_pick: (this.state && this.state.bpPick) || '',
@@ -8177,8 +8185,8 @@
             hist_show_list: histHasData && edge.history !== 'empty' && !pvHideHistory,
             // сервис подключён, а заказов ещё не было: ведём туда, где сейчас платят больше
             hist_empty_text: histHasData ? 'Первый заказ появится здесь сразу после доставки' : 'Подключите сервис, и заказы появятся здесь',
-            hist_empty_action: histHasData ? 'Где сейчас выгоднее' : 'Подключить сервис',
-            hist_empty_go: () => set(histHasData ? { s: 'zones' } : { s: 'integrations' }),
+            hist_empty_action: histHasData ? 'Когда выгоднее' : 'Подключить сервис',
+            hist_empty_go: () => set(histHasData ? { s: 'best-times', btFrom: s, btView: 'day', btDay: null, btHour: null } : { s: 'integrations' }),
             hist_unhide: () => set({ pvHideHistory: false }),
             // оценки из сервиса: крупное значение со шкалой, сервисы без данных одной строкой
             pf_scores: connectedKeys.filter((k) => SERVICE_SCORES[k]).map((k) => {
@@ -8265,7 +8273,7 @@
                 'home': { s: 'courier-home', homeDay: '', homeShiftOn: true }, 'plan': { s: 'work-hub', smartFocusIso: TODAY_ISO, smartFocusKey: '' },
                 'plan-empty': { s: 'work-hub', smartFocusIso: DEMO_EMPTY_ISO, smartFocusKey: '' }, 'plan-change': { s: 'work-hub', planChangeHidden: false },
                 'plan-self': { s: 'work-hub', smartBuild: 'manual', planOnboarded: true, smartFocusIso: isoAt(2), smartFocusKey: '' },
-                'best-places': { s: 'best-places' }, 'best-times': { s: 'best-times' }, 'svc-compare': { s: 'services-compare' },
+                'best-places': { s: 'best-places' }, 'best-times': { s: 'best-times', btView: 'week', btDay: null, btHour: null }, 'market-timeline': { s: 'market-timeline', mtDay: 0, mtHour: null, mtBy: 'zone', mtScope: 'all' }, 'best-times-rain': { s: 'market-timeline', mtDay: 0, mtHour: 19, mtBy: 'zone', mtScope: 'all', weather: 'rain' }, 'svc-compare': { s: 'services-compare' },
                 'stats-week': { s: 'stats', statsPeriod: 'week', statsStep: 0, statsDetail: '' }, 'stats-year': { s: 'stats', statsPeriod: 'year', statsStep: 0, statsDetail: '' },
                 'live-feed': { s: 'live-feed' }, 'top': { s: 'top' }, 'inbox': { s: 'inbox' }, 'history': { s: 'history' }, 'expenses': { s: 'expenses', transportCalc: false }, 'transport-calc': { s: 'expenses', expBack: 'courier-home', period: 'week', transportCalc: true }
               };
@@ -8274,7 +8282,7 @@
               return [
                 G('Первый вход', 'Новичок', [['ob', 'Онбординг с начала'], ['empty-home', 'Сегодня без подключённых сервисов'], ['guide', 'Подобрать работу']]),
                 G('Обычный рабочий день', 'Постоянный и автопилот', [['home', 'Сегодня во время смены'], ['payouts', 'Выплаты: когда и сколько придёт'], ['account-vkusvill', 'Аккаунт в сервисе: рейтинг, медкнижка'], ['plan', 'План на сегодня: смена, бронь, конфликт'], ['plan-change', 'Изменилось без вас'], ['plan-empty', 'Пустой выходной следующей недели'], ['history', 'История заказов'], ['expenses', 'Расходы'], ['transport-calc', 'Свой транспорт или аренда'], ['weather-rain', 'Погода: дождь вечером, спрос выше'], ['weather-frost', 'Погода: мороз на смене'], ['weather-plan', 'Погода в окнах Плана']]),
-                G('Больше денег', 'Охотник за сменами и максималист', [['bonus-near', 'Бонус сервиса почти набран'], ['bonus-plan', 'Бонус в окне Плана'], ['alerts', 'Свои оповещения: правила'], ['alert-edit', 'Редактор оповещения и вид пуша'], ['alert-fired', 'Сработало своё оповещение'], ['plan-self', 'План сам: пустые часы и чем их занять'], ['slots', 'Слоты: брони, заявки, требует внимания'], ['rebook', 'Цена перебронирования: слот вместо своей смены'], ['best-places', 'Где выгоднее'], ['best-times', 'Когда выгоднее'], ['svc-compare', 'Сравнение сервисов']]),
+                G('Больше денег', 'Охотник за сменами и максималист', [['bonus-near', 'Бонус сервиса почти набран'], ['bonus-plan', 'Бонус в окне Плана'], ['alerts', 'Свои оповещения: правила'], ['alert-edit', 'Редактор оповещения и вид пуша'], ['alert-fired', 'Сработало своё оповещение'], ['plan-self', 'План сам: пустые часы и чем их занять'], ['slots', 'Слоты: брони, заявки, требует внимания'], ['rebook', 'Цена перебронирования: слот вместо своей смены'], ['best-places', 'Где выгоднее'], ['best-times', 'Когда выгоднее'], ['market-timeline', 'Подробно по часам'], ['best-times-rain', 'Подробно по часам: вечер в дождь'], ['svc-compare', 'Сравнение сервисов']]),
                 G('Дойти до цели', 'Целевой', [['week-recap', 'Итог недели в понедельник'], ['week-recap-share', 'Поделиться итогом недели'], ['stats-week', 'Результаты за неделю'], ['stats-year', 'Результаты за год'], ['stats-money', 'Деньги'], ['stats-time', 'Время'], ['stats-services', 'Сервисы'], ['stats-compare', 'Сравнение с городом'], ['stats-taxes', 'Налог'], ['stats-fines', 'Удержано'], ['unpaid-day', 'Итог дня: часы не оплатили'], ['unpaid-fines', 'Часы не оплатили: доказательства для спора']]),
                 G('Редкие выходы', 'Подработчик', [['before-shift', 'Сегодня до первой смены'], ['day-off', 'Сегодня выходной']]),
                 G('Когда что-то пошло не так', 'Любой курьер', [['new-device', 'Новый телефон: войти в сервисы'], ['payout-late', 'Выплата задерживается'], ['account-risk', 'Риск в аккаунте сервиса: пауза X5'], ['account-block', 'Сервис приостановил аккаунт'], ['net-offline', 'Нет интернета'], ['conn-loss', 'Сервис отключился'], ['integrations-exited', 'Вышли из сервиса'], ['conn-exited', 'Подключение заново'], ['link-missing-app', 'Нет приложения сервиса'], ['link-no-id', 'Нет номера заказа'], ['link-fail', 'Приложение не открылось'], ['withdraw-payment-fail', 'Отказ вывода'], ['tips-payment-fail', 'Чаевые не прошли'], ['states-ban', 'Ограничение аккаунта'], ['states-loading', 'Загрузка'], ['states-alerts', 'Сообщения и плановые работы'], ['states-config', 'Обязательное обновление']]),

@@ -1,0 +1,138 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* кривая лучшей ставки по часам: было сплошной линией, прогноз пунктиром с полосой разброса */
+    .rhc { overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+    .rhc::-webkit-scrollbar { display: none; }
+    .rhc-stage { position: relative; }
+    .rhc-svg { position: absolute; z-index: 1; left: 0; top: 0; display: block; overflow: visible; pointer-events: none; }
+    .rhc-val, .rhc-dot, .rhc-foot, .rhc-now-label { z-index: 2; }
+    .rhc-area { fill: color-mix(in oklab, var(--raznos-green) 16%, transparent); stroke: none; }
+    .rhc-band { fill: color-mix(in oklab, var(--raznos-green) 22%, transparent); stroke: none; }
+    .rhc-line { fill: none; stroke: var(--raznos-green-deep); stroke-width: 3; stroke-linecap: round; }
+    .rhc-line-fc { stroke-dasharray: 2 6; }
+    .rhc-now { stroke: var(--raznos-ink); stroke-width: 1.5; stroke-dasharray: 3 3; }
+    .rhc-hit { position: absolute; top: 0; bottom: 0; padding: 0; border: 0; border-radius: 12px; background: none; cursor: pointer; }
+    .rhc-hit[aria-pressed="true"] { background: color-mix(in oklab, var(--raznos-surface) 75%, transparent); box-shadow: 0 2px 8px oklch(0 0 0 / 0.1); }
+    .rhc-hit:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: -2px; }
+    .rhc-val { position: absolute; transform: translateX(-50%); font: 600 11.5px var(--raznos-font); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; color: var(--raznos-ink-2); white-space: nowrap; pointer-events: none; }
+    .rhc-val-sel { color: var(--raznos-ink); font-weight: 750; }
+    .rhc-dot { position: absolute; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--raznos-green-deep); pointer-events: none; }
+    .rhc-dot-fc { box-sizing: border-box; background: var(--raznos-surface); border: 2px solid var(--raznos-green-deep); }
+    .rhc-dot-sel { width: 12px; height: 12px; margin: -6px 0 0 -6px; }
+    .rhc-now-label { position: absolute; top: 0; transform: translateX(-50%); font: 700 11px var(--raznos-font); color: var(--raznos-green-deep); pointer-events: none; }
+    .rhc-foot { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 3px; transform: translateX(-50%); pointer-events: none; }
+    .rhc-foot .raznos-svc-icon-sm { width: 20px; height: 20px; border-radius: 6px; }
+    .rhc-time { font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rhc-time-now { color: var(--raznos-ink); }
+  </style>
+</helmet>
+<div class="rhc" data-rhc="{{ uid }}" role="group" aria-label="{{ label }}">
+  <div class="rhc-stage" style="{{ stage_style }}">
+    <svg class="rhc-svg" width="{{ width }}" height="{{ svg_h }}" aria-hidden="true">
+      <path class="rhc-area" d="{{ area_d }}"/>
+      <path class="rhc-band" d="{{ band_d }}"/>
+      <path class="rhc-line" d="{{ past_d }}"/>
+      <path class="rhc-line rhc-line-fc" d="{{ fc_d }}"/>
+      <path class="rhc-now" d="{{ now_d }}"/>
+    </svg>
+    <sc-if value="{{ has_now }}" hint-placeholder-val="{{ false }}"><span class="rhc-now-label" style="{{ now_style }}">сейчас</span></sc-if>
+    <sc-for list="{{ pts }}" as="pt" hint-placeholder-count="8">
+      <button type="button" class="rhc-hit" style="{{ pt.hitStyle }}" aria-pressed="{{ pt.sel }}" aria-label="{{ pt.aria }}" onClick="{{ pt.tap }}"></button>
+      <span class="{{ pt.valCls }}" style="{{ pt.valStyle }}">{{ pt.label }}</span>
+      <span class="{{ pt.dotCls }}" style="{{ pt.dotStyle }}"></span>
+      <span class="rhc-foot" style="{{ pt.footStyle }}"><sc-if value="{{ pt.has_svc }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosIcon" svc="{{ pt.svc }}" alt="{{ pt.svcTitle }}" size="sm"></dc-import></sc-if><span class="{{ pt.timeCls }}">{{ pt.time }}</span></span>
+    </sc-for>
+  </div>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"points":{"editor":null},"label":{"editor":"text","default":"Ставка по часам"},"centerKey":{"editor":"text","default":""},"onPick":{"editor":null},"$preview":{"width":390,"height":200}}'>
+// кривая для таймлайна выгодности: точка на час, над точкой ставка, под ней иконка сервиса-победителя и время
+// points: [{ key, val, label, lo, hi, fc, now, sel, svc, svcTitle, time, aria }], onPick(key)
+const RHC_W = 48, RHC_TOP = 34, RHC_H = 132;
+const RHC_PREVIEW = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23].map((h) => {
+  const v = [420, 480, 520, 560, 620, 700, 860, 980, 900, 760, 720, 820, 1040, 1220, 1300, 1180, 920, 700][h - 6];
+  const fc = h > 15, sp = fc ? 0.07 : 0;
+  return { key: String(h), val: v, lo: Math.round(v * (1 - sp)), hi: Math.round(v * (1 + sp)), fc, now: h === 15, svc: h >= 17 ? 'samokat' : (h >= 12 ? 'yandex-eda' : 'vkusvill'), time: String(h).padStart(2, '0'), label: (fc ? '≈' : '') + String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') };
+});
+// плавная линия через точки: кубические кривые с опорами на середине шага
+const rhcSmooth = (p) => p.map((q, i) => { if (!i) return 'M' + q[0] + ',' + q[1]; const a = p[i - 1], mx = (a[0] + q[0]) / 2; return 'C' + mx + ',' + a[1] + ' ' + mx + ',' + q[1] + ' ' + q[0] + ',' + q[1]; }).join(' ');
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const list = Array.isArray(p.points) ? p.points : RHC_PREVIEW;
+    const ext = typeof p.onPick === 'function';
+    const selKey = ext ? (list.find((x) => x.sel) || {}).key : (st.sel != null ? st.sel : (list.find((x) => x.now) || list[0] || {}).key);
+    const n = list.length, width = n * RHC_W;
+    const hi = Math.max.apply(null, list.map((x) => x.hi || x.val).concat([1]));
+    const lo = Math.min.apply(null, list.map((x) => x.lo || x.val));
+    const min = Math.max(0, lo - (hi - lo) * 0.15), max = hi;
+    const y = (v) => Math.round((RHC_TOP + (1 - (v - min) / (max - min || 1)) * (RHC_H - RHC_TOP - 8)) * 10) / 10;
+    const x = (i) => i * RHC_W + RHC_W / 2;
+    const pts = list.map((c, i) => [x(i), y(c.val)]);
+    // было до первой точки прогноза, прогноз от последней точки факта, чтобы линия не рвалась
+    const split = list.findIndex((c) => c.fc);
+    const past = split === -1 ? pts : pts.slice(0, split);
+    const fcFrom = split <= 0 ? 0 : split - 1;
+    const fc = split === -1 ? [] : pts.slice(fcFrom);
+    const up = split === -1 ? [] : list.slice(fcFrom).map((c, j) => [x(fcFrom + j), y(c.fc ? (c.hi || c.val) : c.val)]);
+    const down = split === -1 ? [] : list.slice(fcFrom).map((c, j) => [x(fcFrom + j), y(c.fc ? (c.lo || c.val) : c.val)]).reverse();
+    const nowI = list.findIndex((c) => c.now);
+    if (!this._uid) this._uid = 'rhc' + Math.random().toString(36).slice(2, 8);
+    const center = String(p.centerKey == null ? '' : p.centerKey);
+    if (center !== this._centered) { this._centered = center; setTimeout(() => this.centerSel(), 0); }
+    else if (selKey !== this._lastSel) setTimeout(() => this.revealSel(), 0);
+    this._lastSel = selKey;
+    const footTop = RHC_H + 6;
+    return {
+      uid: this._uid, label: p.label || 'Ставка по часам', width, svg_h: RHC_H,
+      stage_style: 'width:' + width + 'px;height:' + (footTop + 44) + 'px',
+      area_d: past.length > 1 ? rhcSmooth(past) + ' L' + past[past.length - 1][0] + ',' + RHC_H + ' L' + past[0][0] + ',' + RHC_H + ' Z' : '',
+      band_d: fc.length > 1 ? 'M' + up.map((q) => q.join(',')).join(' L') + ' L' + down.map((q) => q.join(',')).join(' L') + ' Z' : '',
+      past_d: past.length > 1 ? rhcSmooth(past) : '',
+      fc_d: fc.length > 1 ? rhcSmooth(fc) : '',
+      has_now: nowI !== -1,
+      now_d: nowI !== -1 ? 'M' + x(nowI) + ',' + 14 + ' L' + x(nowI) + ',' + RHC_H : '',
+      now_style: nowI !== -1 ? 'left:' + x(nowI) + 'px' : '',
+      pts: list.map((c, i) => {
+        const sel = c.key === selKey;
+        return {
+          sel: String(sel), aria: c.aria || (c.time + ', ' + c.label),
+          hitStyle: 'left:' + (i * RHC_W + 2) + 'px;width:' + (RHC_W - 4) + 'px',
+          label: c.label, valCls: 'rhc-val' + (sel ? ' rhc-val-sel' : ''), valStyle: 'left:' + x(i) + 'px;top:' + (y(c.val) - 22) + 'px',
+          dotCls: 'rhc-dot' + (c.fc ? ' rhc-dot-fc' : '') + (sel ? ' rhc-dot-sel' : ''), dotStyle: 'left:' + x(i) + 'px;top:' + y(c.val) + 'px',
+          footStyle: 'left:' + x(i) + 'px;top:' + footTop + 'px',
+          has_svc: !!c.svc, svc: c.svc || '', svcTitle: c.svcTitle || '',
+          time: c.time, timeCls: 'rhc-time' + (c.now ? ' rhc-time-now' : ''),
+          tap: () => (ext ? p.onPick(c.key) : this.setState({ sel: c.key }))
+        };
+      })
+    };
+  }
+
+  componentDidMount() { this.centerSel(); }
+
+  // выбранное за краем ленты докручиваем, чтобы было видно целиком
+  revealSel() {
+    const box = document.querySelector('[data-rhc="' + this._uid + '"]');
+    const el = box && box.querySelector('[aria-pressed="true"]');
+    if (!box || !el) return;
+    const a = box.getBoundingClientRect(), b = el.getBoundingClientRect(), pad = 16;
+    const dx = b.left < a.left + pad ? b.left - a.left - pad : (b.right > a.right - pad ? b.right - a.right + pad : 0);
+    if (dx && box.scrollBy) box.scrollBy({ left: dx, behavior: typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  }
+
+  centerSel() {
+    const tryIt = (left) => {
+      const box = document.querySelector('[data-rhc="' + this._uid + '"]');
+      const el = box && box.querySelector('[aria-pressed="true"]');
+      if (box && el && box.scrollWidth > box.clientWidth) {
+        const a = box.getBoundingClientRect(), b = el.getBoundingClientRect();
+        box.scrollLeft += b.left + b.width / 2 - (a.left + a.width / 2);
+      } else if (left > 0) requestAnimationFrame(() => tryIt(left - 1));
+    };
+    requestAnimationFrame(() => tryIt(20));
+  }
+}
+</script></body></html>

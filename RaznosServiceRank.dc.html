@@ -49,9 +49,10 @@
       <sc-if value="{{ is_empty }}" hint-placeholder-val="{{ false }}"><p class="rsr-empty">{{ empty_text }}</p></sc-if>
     </div>
     <p class="raznos-text-tiny">{{ source_note }}</p>
+    <sc-if value="{{ has_detail }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosMarketDetailLink" hint="Какой сервис выгоднее в каждый час, прошлые дни и прогноз" onOpen="{{ open_detail }}"></dc-import></sc-if>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"few":{"editor":"boolean","default":false},"mode":{"editor":"text","default":"card"},"open":{"editor":null},"connected":{"editor":null},"onConnect":{"editor":null},"onOpenService":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"$preview":{"width":390,"height":340}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"few":{"editor":"boolean","default":false},"mode":{"editor":"text","default":"card"},"open":{"editor":null},"onDetail":{"editor":null},"connected":{"editor":null},"onConnect":{"editor":null},"onOpenService":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"$preview":{"width":390,"height":340}}'>
 // сравнение сервисов по мотивам Gridwise Compare Companies и Solo Jobs: доход по сервисам города, тренд, горячие дни
 // hot: индексы дней Пн=0, tod: утро, день, вечер, ночь, демо
 const RSR_SERVICES = [
@@ -185,6 +186,8 @@ class Component extends DCLogic {
       card_rows: cardRows,
       more_label: 'Ещё ' + rest + ' ' + rsrPlural(rest, 'сервис', 'сервиса', 'сервисов'),
       open_more: () => open(),
+      has_detail: typeof p.onDetail === 'function',
+      open_detail: () => p.onDetail({ show: onlyMine ? 'mine' : 'all' }),
       show_all: !onlyMine, show_mine: onlyMine,
       seg_all_cls: 'raznos-segment' + (!onlyMine ? ' raznos-is-active' : ''),
       seg_mine_cls: 'raznos-segment' + (onlyMine ? ' raznos-is-active' : ''),

@@ -1,0 +1,28 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rmdl { width: 100%; border-radius: 16px; }
+    .rmdl:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; }
+    .rmdl-ico { flex: none; width: 36px; height: 36px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: var(--raznos-green-tint); color: var(--raznos-green-deep); }
+  </style>
+</helmet>
+<button type="button" class="raznos-card raznos-list-row rmdl" onClick="{{ on_open }}" aria-label="{{ aria }}">
+  <span class="rmdl-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V12M8.5 20V8M13 20v-5M17.5 20V5"/></svg></span>
+  <span class="raznos-list-main"><span class="raznos-list-title">{{ title }}</span><span class="raznos-text-small">{{ hint }}</span></span>
+  <span class="raznos-row-chevron">›</span>
+</button>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"title":{"editor":"text","default":"Подробно по часам"},"hint":{"editor":"text","default":"Районы и сервисы в любой час, прошлые дни и прогноз"},"onOpen":{"editor":null},"$preview":{"width":358,"height":80}}'>
+// вход из простых экранов Рынка в полную версию по часам, спокойная строка в конце экрана
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const title = p.title || 'Подробно по часам';
+    const hint = p.hint || 'Районы и сервисы в любой час, прошлые дни и прогноз';
+    return {
+      title, hint, aria: title + ', ' + hint,
+      on_open: typeof p.onOpen === 'function' ? p.onOpen : (() => {})
+    };
+  }
+}
+</script></body></html>

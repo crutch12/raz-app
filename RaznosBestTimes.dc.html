@@ -110,9 +110,10 @@
     </div>
 
     <p class="raznos-text-tiny">{{ source_note }}</p>
+    <sc-if value="{{ has_detail }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosMarketDetailLink" hint="{{ detail_hint }}" onOpen="{{ open_detail }}"></dc-import></sc-if>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"few":{"editor":"boolean","default":false},"mode":{"editor":"text","default":"card"},"initialView":{"editor":"text","default":"week"},"open":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"workStart":{"editor":"number","default":9},"workEnd":{"editor":"number","default":18},"$preview":{"width":390,"height":250}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"few":{"editor":"boolean","default":false},"mode":{"editor":"text","default":"card"},"initialView":{"editor":"text","default":"week"},"open":{"editor":null},"onDetail":{"editor":null},"initialDay":{"editor":"number"},"initialHour":{"editor":"number"},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"workStart":{"editor":"number","default":9},"workEnd":{"editor":"number","default":18},"$preview":{"width":390,"height":250}}'>
 // когда выгоднее по мотивам Gridwise When to Work, два представления: день по часам и неделя по дням
 // один компонент на карточку хаба Работа и экран, чтобы цифры совпадали
 const RBT_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -190,7 +191,8 @@ class Component extends DCLogic {
     let bestDay = 0;
     dayPay.forEach((v, d) => { if (v > dayPay[bestDay]) bestDay = d; });
     // карточка в режиме дня всегда про сегодня
-    const selDay = full ? (st.day != null ? st.day : (isDay ? RBT_TODAY : bestDay)) : (isDay ? RBT_TODAY : bestDay);
+    const iDay = p.initialDay != null && p.initialDay !== '' ? +p.initialDay : null;
+    const selDay = full ? (st.day != null ? st.day : (iDay != null ? iDay : (isDay ? RBT_TODAY : bestDay))) : (isDay ? RBT_TODAY : bestDay);
 
     // день: все 24 часа выбранного дня, лучшее окно из 3 часов
     const hp = RBT_BASE.map((_, i) => pay(selDay, i));
@@ -202,7 +204,8 @@ class Component extends DCLogic {
     }
     const inWin = (i) => i >= wStart && i < wStart + winLen;
     const peakInWin = allIdx.filter(inWin).reduce((a, i) => (hp[i] > hp[a] ? i : a), wStart);
-    const selHour = full && st.hour != null ? st.hour : peakInWin;
+    const iHour = st.day == null && p.initialHour != null && p.initialHour !== '' ? +p.initialHour : null;
+    const selHour = full && st.hour != null ? st.hour : (full && iHour != null ? iHour : peakInWin);
 
     const series = isDay ? hp.map(toVal) : dayPay.map(toVal);
     const n = series.length;
@@ -286,6 +289,10 @@ class Component extends DCLogic {
       // лучший день рядом с неделей целиком, чтобы было понятно, почему он выше лучшего района
       best_val: isDay ? fmt(toVal(winAvg)) : fmt(toVal(dayPay[bestDay])) + ', вся неделя ≈ ' + fmtShort(toVal(Math.round(dayPay.reduce((a, v) => a + v, 0) / 7 / 10) * 10)),
       open_more: () => open(view),
+      // полная версия открывается на этом дне и выбранном или лучшем часе
+      has_detail: typeof p.onDetail === 'function',
+      detail_hint: cap(RBT_DAYS_FULL[selDay]) + ' по часам: где и в каком сервисе выгоднее',
+      open_detail: () => p.onDetail({ view, day: selDay, hour: selHour }),
       daypick: RBT_DAYS.map((label, d) => ({ label, cls: 'rbt-dp' + (d === RBT_TODAY ? ' rbt-dp-today' : '') + (d === selDay ? ' raznos-is-active' : ''), tap: () => set({ day: d, hour: null }) })),
       ro_label: roLabel, ro_val: roVal, ro_pill: roPill, ro_pill_cls: 'rbt-pill' + (roMuted ? ' rbt-pill-mute' : ''), ro_note: roNote, trend,
       filters,
