@@ -50,6 +50,7 @@
     .rrbk-list { font: 500 12.5px/1.35 var(--raznos-font); color: var(--raznos-ink-2); }
     .rrbk-list b { font-weight: 700; color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
     .rrbk-list b.rrbk-is-plus { color: var(--raznos-green-deep); }
+    .rrbk-list b.rrbk-is-minus { color: var(--raznos-ink-3); font-weight: 600; }
   </style>
 </helmet>
 <sc-if value="{{ is_chip }}" hint-placeholder-val="{{ false }}"><button type="button" class="rrbk-chip" onClick="{{ on_open }}" aria-label="{{ aria }}"><span class="rrbk-chip-in"><span class="rrbk-chip-copy"><span>Заменить на {{ alt_short }} {{ alt_time }}</span><small><b>{{ net }}</b> даже со штрафом за отмену</small></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span></button></sc-if>
@@ -133,7 +134,8 @@ class Component extends DCLogic {
       take_label: takeLabel, take_cls: 'raznos-btn ' + (keep ? 'raznos-btn-secondary' : 'raznos-btn-primary'), keep_cls: 'raznos-btn ' + (keep ? 'raznos-btn-primary' : 'raznos-btn-secondary'),
       on_take: fn(p.onTake), on_keep: fn(p.onKeep), on_open: fn(p.onOpen), on_close: variant === 'sheet' ? fn(p.onClose) : () => {},
       stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
-      list_text: listHead + (known ? 'итог ' : 'штраф '), list_val: known ? RRB_SIGNED(net) : 'неизвестен', list_cls: net > 0 ? 'rrbk-is-plus' : '',
+      // в минус замену не предлагаем: строка нейтральная и без слова вместо
+      list_text: known && net <= 0 ? 'замена не выгодна: ' : listHead + (known ? 'итог ' : 'штраф '), list_val: known ? RRB_SIGNED(net) : 'неизвестен', list_cls: net > 0 ? 'rrbk-is-plus' : (known ? 'rrbk-is-minus' : ''),
       aria: 'Вместо ' + mineTitle + ' ' + v('mineTime', '') + ' взять ' + altTitle + ' ' + altTime + (known ? ', итог ' + RRB_SIGNED(net) : ', штраф неизвестен')
     };
   }

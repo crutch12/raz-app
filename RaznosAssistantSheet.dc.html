@@ -150,13 +150,15 @@
     </div>
   </section>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"endpoint":{"editor":"text","default":"http://127.0.0.1:8787"},"getSession":{"editor":null},"getSnapshot":{"editor":null},"getContext":{"editor":null},"cardProps":{"editor":null},"previewAction":{"editor":null},"runAction":{"editor":null},"outcomes":{"editor":null},"setOutcome":{"editor":null},"pushEvent":{"editor":null},"takeEvents":{"editor":null},"restoreEvents":{"editor":null},"off":{"editor":"boolean","default":false},"onPromptScreen":{"editor":null},"autoSend":{"editor":"boolean","default":false},"onAutoSent":{"editor":null},"initialPrompt":{"editor":"text","default":""},"onPromptSent":{"editor":null},"onReset":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":700}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"language":{"editor":"enum","options":["ru","en","uz","tg","ky"],"default":"ru"},"endpoint":{"editor":"text","default":"http://127.0.0.1:8787"},"getSession":{"editor":null},"getSnapshot":{"editor":null},"getContext":{"editor":null},"cardProps":{"editor":null},"previewAction":{"editor":null},"runAction":{"editor":null},"outcomes":{"editor":null},"setOutcome":{"editor":null},"pushEvent":{"editor":null},"takeEvents":{"editor":null},"restoreEvents":{"editor":null},"off":{"editor":"boolean","default":false},"onPromptScreen":{"editor":null},"autoSend":{"editor":"boolean","default":false},"onAutoSent":{"editor":null},"initialPrompt":{"editor":"text","default":""},"onPromptSent":{"editor":null},"onReset":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":700}}'>
 // лист помощника: восстанавливает разговор с сервера, шлёт ход и читает SSE (fetch + ReadableStream)
 // сервер хранит историю, лист владеет только лентой на экране; итоги действий и очередь событий живут в приложении
 // копия разговора и стартовых вопросов на устройстве: сессия своя у каждого телефона, поэтому копии можно верить.
 // разговор перечитываем с сервера, только если последний ответ дошёл не до конца или копии больше 30 минут;
 // вопросы храним по разделу и отпечатку данных, отпечаток меняется вместе с данными и раз в 15 минут
 const RAS_CACHE_KEY = 'raznos-ai-cache';
+// языки приложения и коды распознавания речи браузера
+const RAS_SPEECH_LANG = { ru: 'ru-RU', en: 'en-US', uz: 'uz-UZ', tg: 'tg-TJ', ky: 'ky-KG' };
 const RAS_CONV_TTL = 30 * 60 * 1000;
 const rasCacheRead = () => { try { return JSON.parse(localStorage.getItem(RAS_CACHE_KEY) || 'null') || {}; } catch (e) { return {}; } };
 const rasCacheWrite = (c) => { try { localStorage.setItem(RAS_CACHE_KEY, JSON.stringify(c)); } catch (e) {} };
@@ -222,7 +224,8 @@ class Component extends DCLogic {
     const SR = typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
     if (!SR || this._rec) return;
     const rec = new SR();
-    rec.lang = 'ru-RU';
+    // язык распознавания берём из языка приложения; если браузер его не знает, слушаем по-русски и говорим об этом
+    rec.lang = this._micLang || RAS_SPEECH_LANG[this._p().language] || 'ru-RU';
     rec.interimResults = true;
     rec.continuous = false;
     const base = String((this.state || {}).draft || '').trim();
@@ -231,7 +234,8 @@ class Component extends DCLogic {
       for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
       this._set({ draft: (base ? base + ' ' : '') + t.trim() });
     };
-    rec.onerror = (e) => { const deny = e && (e.error === 'not-allowed' || e.error === 'service-not-allowed'); this._set({ micNote: deny ? 'Нет доступа к микрофону' : (e && e.error === 'no-speech' ? 'Не расслышал, попробуйте ещё' : '') }); };
+    rec.onerror = (e) => {
+      if (e && e.error === 'language-not-supported' && rec.lang !== 'ru-RU') { this._micLang = 'ru-RU'; this._set({ micNote: 'Этот язык браузер не распознаёт, слушаю по-русски' }); return; } const deny = e && (e.error === 'not-allowed' || e.error === 'service-not-allowed'); this._set({ micNote: deny ? 'Нет доступа к микрофону' : (e && e.error === 'no-speech' ? 'Не расслышал, попробуйте ещё' : '') }); };
     rec.onend = () => { this._rec = null; this._set({ listening: false }); };
     this._rec = rec;
     try { rec.start(); this._set({ listening: true, micNote: '' }); } catch (err) { this._rec = null; }
