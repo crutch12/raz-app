@@ -69,11 +69,10 @@
     .ras-compose { display: flex; flex-direction: column; }
     .ras-compose-row { display: flex; align-items: flex-end; gap: 8px; }
     /* запись голоса: текст идёт вживую, слева отмена, справа Готово */
-    .ras-rec { display: flex; align-items: flex-end; gap: 8px; min-height: 52px; padding: 4px; border-radius: 26px; border: 1.5px solid var(--raznos-green); background: var(--raznos-surface); }
-    .ras-rec-x { flex: none; width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 50%; background: var(--raznos-surface-2); color: var(--raznos-ink); cursor: pointer; }
-    .ras-rec-done { flex: none; width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 50%; background: var(--raznos-green); color: #fff; cursor: pointer; }
-    .ras-rec-x:focus-visible, .ras-rec-done:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
-    .ras-rec-text { flex: 1; min-width: 0; align-self: center; max-height: 110px; overflow-y: auto; padding: 8px 2px; font: 500 15px/22px var(--raznos-font); color: var(--raznos-ink); }
+    .ras-rec { flex: 1; min-width: 0; box-sizing: border-box; min-height: 44px; max-height: 130px; display: flex; align-items: flex-start; gap: 4px; padding: 0 14px 0 6px; border: 1px solid var(--raznos-green); border-radius: 22px; background: var(--raznos-bg); }
+    .ras-rec-x { flex: none; width: 32px; height: 32px; margin-top: 5px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 50%; background: var(--raznos-surface-2); color: var(--raznos-ink-2); cursor: pointer; }
+    .ras-rec-x:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .ras-rec-text { flex: 1; min-width: 0; max-height: 128px; overflow-y: auto; scrollbar-width: none; padding: 10px 0; font: 500 16px/22px var(--raznos-font); color: var(--raznos-ink); }
     .ras-rec-wait { display: inline-flex; align-items: center; gap: 8px; color: var(--raznos-ink-3); }
     .ras-rec-wait i { width: 8px; height: 8px; border-radius: 50%; background: var(--raznos-green); }
     /* поле растёт с текстом до пяти строк, дальше прокрутка внутри */
@@ -154,10 +153,9 @@
       <sc-if value="{{ undo_shown }}" hint-placeholder-val="{{ false }}"><div class="ras-undo" role="status"><span>Начат новый разговор</span><button type="button" class="ras-undo-btn" onClick="{{ undo_tap }}">Вернуть</button></div></sc-if>
       <sc-if value="{{ show_chips }}" hint-placeholder-val="{{ false }}"><div class="ras-chips"><sc-for list="{{ chips }}" as="ch" hint-placeholder-count="3"><button type="button" class="ras-chip" onClick="{{ ch.tap }}">{{ ch.text }}</button></sc-for></div></sc-if>
       <div class="ras-compose" style="{{ compose_style }}">
-        <sc-if value="{{ listening }}" hint-placeholder-val="{{ false }}"><div class="ras-rec" role="status" aria-live="polite">
-          <button type="button" class="ras-rec-x" onClick="{{ mic_cancel }}" aria-label="Отменить запись"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-          <span class="ras-rec-text"><sc-if value="{{ rec_empty }}" hint-placeholder-val="{{ true }}"><span class="ras-rec-wait"><i></i>Говорите…</span></sc-if>{{ rec_text }}</span>
-          <button type="button" class="ras-rec-done" onClick="{{ mic_done }}" aria-label="Готово, вставить текст"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></button>
+        <sc-if value="{{ listening }}" hint-placeholder-val="{{ false }}"><div class="ras-compose-row">
+          <div class="ras-rec" role="status" aria-live="polite"><button type="button" class="ras-rec-x" onClick="{{ mic_cancel }}" aria-label="Отменить запись"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span class="ras-rec-text"><sc-if value="{{ rec_empty }}" hint-placeholder-val="{{ true }}"><span class="ras-rec-wait"><i></i>Говорите…</span></sc-if>{{ rec_text }}</span></div>
+          <button type="button" class="ras-send ras-rec-done" onClick="{{ mic_done }}" aria-label="Готово, вставить текст"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></button>
         </div></sc-if>
         <sc-if value="{{ not_listening }}" hint-placeholder-val="{{ true }}"><div class="ras-compose-row">
         <textarea class="ras-input" rows="1" maxlength="1000" enterkeyhint="enter" placeholder="{{ input_hint }}" value="{{ draft }}" onChange="{{ draft_change }}" onKeyDown="{{ draft_key }}" aria-label="Вопрос помощнику"></textarea>
@@ -233,7 +231,7 @@ class Component extends DCLogic {
     const ta = typeof document !== 'undefined' ? document.querySelector('.ras-input') : null;
     if (!ta) return;
     ta.style.height = 'auto';
-    const h = Math.min(ta.scrollHeight + 2, 130);
+    const h = ta.scrollHeight <= 44 ? 44 : Math.min(ta.scrollHeight + 2, 130);
     ta.style.height = Math.max(44, h) + 'px';
     ta.style.overflowY = ta.scrollHeight + 2 > 130 ? 'auto' : 'hidden';
   }

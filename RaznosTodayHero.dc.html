@@ -1,0 +1,113 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* тёмная карточка Начислено сегодня: сверху сумма, посередине путь к цели дня, внизу тихая строка денег и два действия */
+    .rth { gap: 0; cursor: pointer; text-align: left; }
+    .rth:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 3px; }
+    .rth-top { display: flex; flex-direction: column; gap: 6px; }
+    .rth-stats { font: 600 13px var(--raznos-mono); color: var(--raznos-on-dark); opacity: 0.88; margin-top: 2px; }
+    .rth-pace { margin-top: 18px; gap: 8px; }
+    .rth-legend { font: 500 13px var(--raznos-font); font-variant-numeric: tabular-nums; color: var(--raznos-on-dark); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 12px; }
+    .rth-legend > span { display: inline-flex; align-items: center; gap: 6px; opacity: 0.8; }
+    .rth-goal-label b { font-weight: 700; color: var(--raznos-on-dark); }
+    .rth-mark-hex { flex: none; width: 10px; height: 11px; clip-path: var(--raznos-hex); background: color-mix(in oklab, var(--raznos-on-dark) 55%, transparent); }
+    .rth-mark-tick { flex: none; width: 2px; height: 11px; border-radius: 1px; background: color-mix(in oklab, var(--raznos-on-dark) 70%, transparent); }
+    .rth-track { height: 6px; }
+    .rth-track .raznos-hero-pace-fill { position: relative; z-index: 1; }
+    /* прогноз к концу дня: бледная полоса от нуля до прогноза под заработанным и риска на прогнозе */
+    .rth-forecast { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: color-mix(in oklab, var(--raznos-green) 32%, transparent); }
+    .rth-tick { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; border-radius: 1px; background: color-mix(in oklab, var(--raznos-on-dark) 70%, transparent); z-index: 2; }
+    .rth-track .raznos-hero-pace-goal { z-index: 3; }
+    .rth-reached .rth-goal-label { opacity: 1; color: oklch(0.86 0.15 90); font-weight: 700; }
+    .rth-reached .rth-goal-label b { color: inherit; }
+    .rth-reached .rth-mark-hex { background: var(--raznos-green); }
+    .raznos-theme-dark .rth-reached .rth-goal-label { color: oklch(0.5 0.12 75); }
+    .rth-note { margin-top: 16px; }
+    /* строка денег течёт текстом: при переносе точка остаётся в конце строки, а не в начале следующей */
+    .rth-money { margin-top: 18px; font: 500 13px/1.5 var(--raznos-font); font-variant-numeric: tabular-nums; color: var(--raznos-on-dark); }
+    .rth-money > span { opacity: 0.78; }
+    .rth-seg { white-space: nowrap; }
+    .rth-money b { font-weight: 700; }
+    .rth-money i { font-style: normal; opacity: 0.6; }
+    .rth-actions { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .rth-add { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 16px 0 12px; border: 0; border-radius: 999px; background: color-mix(in oklab, var(--raznos-on-dark) 12%, transparent); color: var(--raznos-on-dark); font: 600 14px var(--raznos-font); cursor: pointer; }
+    .rth-add:hover { background: color-mix(in oklab, var(--raznos-on-dark) 18%, transparent); }
+    .rth-add:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .rth-off { display: none !important; }
+  </style>
+</helmet>
+<div class="raznos-hero-dark raznos-hero-today rth" role="button" tabindex="0" onClick="{{ open }}" aria-label="{{ aria }}">
+  <div class="rth-top">
+    <span class="raznos-hero-label">Начислено сегодня</span>
+    <div class="raznos-fx raznos-ac raznos-gap8"><span class="raznos-hero-value" data-roll="today-earn">{{ earn_label }}</span><span class="raznos-hero-unit">₽</span></div>
+    <span class="rth-stats">{{ stats }}</span>
+  </div>
+  <sc-if value="{{ has_goal }}" hint-placeholder-val="{{ true }}">
+    <div class="{{ pace_cls }}">
+      <div class="rth-legend">
+        <span class="rth-goal-label"><i class="rth-mark-hex" aria-hidden="true"></i><span>{{ goal_text }} <b>{{ goal_label }} ₽</b>{{ goal_done }}</span></span>
+        <sc-if value="{{ show_forecast }}" hint-placeholder-val="{{ true }}"><span><i class="rth-mark-tick" aria-hidden="true"></i>{{ forecast_text }}</span></sc-if>
+      </div>
+      <div class="raznos-hero-pace-track rth-track">
+        <sc-if value="{{ show_forecast }}" hint-placeholder-val="{{ true }}"><i class="rth-forecast" style="{{ forecast_style }}" aria-hidden="true"></i><i class="rth-tick" style="{{ tick_style }}" aria-hidden="true"></i></sc-if>
+        <span class="raznos-hero-pace-fill" style="{{ fill_style }}"></span>
+        <i class="{{ goal_cls }}" style="{{ goal_style }}" aria-hidden="true"></i>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ no_goal }}" hint-placeholder-val="{{ false }}"><span class="raznos-hero-pace-note rth-note">{{ plain_note }}</span></sc-if>
+  <div class="{{ money_cls }}"><span class="{{ tips_cls }}" data-delta-host="gain" data-roll-host="today-tips"><sc-if value="{{ tips_show }}" hint-placeholder-val="{{ true }}"><span class="rth-seg">чаевые <b data-roll="today-tips">{{ tips_label }}</b></span></sc-if></span><span class="{{ exp_cls }}" data-delta-host="cost" data-roll-host="today-exp"><sc-if value="{{ exp_show }}" hint-placeholder-val="{{ true }}"><sc-if value="{{ exp_sep }}" hint-placeholder-val="{{ true }}"><i aria-hidden="true">&nbsp;· </i></sc-if><span class="rth-seg">расходы <b data-roll="today-exp">{{ exp_label }}</b></span></sc-if></span><sc-if value="{{ net_show }}" hint-placeholder-val="{{ true }}"><span><sc-if value="{{ net_sep }}" hint-placeholder-val="{{ true }}"><i aria-hidden="true">&nbsp;· </i></sc-if><span class="rth-seg">чистыми <b>{{ net_label }}</b></span></span></sc-if></div>
+  <div class="rth-actions">
+    <button type="button" class="rth-add" onClick="{{ on_tip }}" aria-label="Добавить чаевые наличными"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Чаевые</button>
+    <button type="button" class="rth-add" onClick="{{ on_expense }}" aria-label="Добавить расход"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Расход</button>
+  </div>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"open":{"editor":null},"onTip":{"editor":null},"onExpense":{"editor":null},"$preview":{"width":390,"height":330}}'>
+// карточка Начислено сегодня на Сегодня: цель дня полосой, прогноз риской, деньги строкой, действия кнопками
+const RTH_FMT = (n) => { const v = Math.round((Number(n) || 0) * 100) / 100; return v.toLocaleString('ru-RU', { minimumFractionDigits: Number.isInteger(v) ? 0 : 2, maximumFractionDigits: 2 }); };
+const RTH_PLURAL = (n, a, b, c) => { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return a; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return b; return c; };
+const RTH_PCT = (v) => Math.round(v * 1000) / 10 + '%';
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const num = (v, d) => (v != null ? Number(v) : d);
+    const earn = num(p.earn, 4200), orders = num(p.orders, 17), hours = num(p.hours, 6), hourly = num(p.hourly, 700);
+    const target = num(p.target, 6800), forecast = num(p.forecast, 8270);
+    const tips = num(p.tips, 238), expenses = num(p.expenses, 299);
+    const net = p.net != null ? Number(p.net) : earn + tips - expenses;
+    const stop = (fn) => (e) => { if (e && e.stopPropagation) e.stopPropagation(); if (typeof fn === 'function') fn(e); };
+    const hasGoal = target > 0;
+    const reached = hasGoal && earn >= target;
+    // шкала до большего из цели и прогноза: если прогноз выше цели, цель стоит внутри полосы
+    const scale = Math.max(target, forecast, earn, 1);
+    const ahead = forecast > earn;
+    // риска прогноза не нужна, когда почти совпадает с сотой цели
+    const showForecast = ahead && Math.abs(forecast - target) / scale > 0.04;
+    const tipsShow = tips > 0, expShow = expenses > 0;
+    const netShow = Math.round(net) !== Math.round(earn);
+    return {
+      open: typeof p.open === 'function' ? p.open : (() => {}),
+      on_tip: stop(p.onTip), on_expense: stop(p.onExpense),
+      earn_label: RTH_FMT(earn),
+      stats: orders + ' ' + RTH_PLURAL(orders, 'заказ', 'заказа', 'заказов') + ' · ' + String(hours).replace('.', ',') + ' ч · ' + RTH_FMT(hourly) + ' ₽/ч',
+      has_goal: hasGoal, no_goal: !hasGoal,
+      pace_cls: 'raznos-hero-pace rth-pace' + (reached ? ' raznos-hero-pace-done rth-reached' : ''),
+      goal_text: 'Цель дня', goal_label: RTH_FMT(target), goal_done: reached ? ' набрана' : '',
+      show_forecast: hasGoal && showForecast,
+      forecast_text: '≈ ' + RTH_FMT(forecast) + ' к концу дня',
+      forecast_style: 'width:' + RTH_PCT(forecast / scale),
+      tick_style: 'left:' + RTH_PCT(forecast / scale),
+      fill_style: 'width:' + RTH_PCT(Math.max(0.03, Math.min(1, earn / scale))),
+      goal_cls: 'raznos-hero-pace-goal' + (reached ? ' raznos-is-reached' : ''),
+      goal_style: 'left:' + RTH_PCT(target / scale),
+      plain_note: ahead ? '≈ ' + RTH_FMT(forecast) + ' ₽ к концу дня по плану' : 'План дня выполнен',
+      tips_cls: tipsShow ? '' : 'rth-off', tips_show: tipsShow, tips_label: RTH_FMT(tips) + ' ₽',
+      exp_cls: expShow ? '' : 'rth-off', exp_show: expShow, exp_sep: tipsShow, exp_label: '−' + RTH_FMT(Math.round(expenses)) + ' ₽',
+      money_cls: 'rth-money' + (tipsShow || expShow || netShow ? '' : ' rth-off'),
+      net_show: netShow, net_sep: tipsShow || expShow, net_label: RTH_FMT(Math.round(net)) + ' ₽',
+      aria: 'Начислено сегодня ' + RTH_FMT(earn) + ' рублей' + (hasGoal ? ', цель дня ' + RTH_FMT(target) + (reached ? ' набрана' : '') : '') + ', открыть разбор дня'
+    };
+  }
+}
+</script></body></html>

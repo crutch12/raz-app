@@ -212,14 +212,7 @@
                 </button>
               </sc-if>
               <sc-if value="{{ home_shift_not_ended }}" hint-placeholder-val="{{ true }}">
-              <div class="raznos-hero-dark raznos-hero-today" role="button" tabindex="0" onClick="{{ today_sheet_open }}" aria-label="Начислено сегодня, подробнее">
-                <button type="button" class="raznos-hero-open" tabindex="-1" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-                <span class="raznos-hero-label">Начислено сегодня</span>
-                <div class="raznos-fx raznos-ac raznos-gap8"><span class="raznos-hero-value" data-roll="today-earn">{{ today_earn_label }}</span><span class="raznos-hero-unit">₽</span></div>
-                <span style="color:var(--raznos-on-dark);opacity:0.88;font:600 13px var(--raznos-mono);margin-top:2px">{{ today_hero_stats }}</span>
-                <div class="{{ today_pace_cls }}"><div class="raznos-hero-pace-track"><span class="raznos-hero-pace-fill" style="{{ today_plan_style }}"></span><sc-if value="{{ today_goal_mark_show }}" hint-placeholder-val="{{ true }}"><i class="{{ today_goal_mark_cls }}" style="{{ today_goal_mark_style }}" title="Цель дня {{ today_target }} ₽" aria-hidden="true"></i></sc-if></div><span class="raznos-hero-pace-note">{{ today_plan_note }}</span></div>
-                <div class="raznos-hero-chips"><button type="button" class="raznos-hero-chip raznos-hero-chip-add" onClick="{{ qt_open_tap }}" aria-label="Добавить чаевые наличными" data-delta-host="gain" data-roll-host="today-tips"><span>Чаевые<sc-if value="{{ today_tips_show }}" hint-placeholder-val="{{ true }}"> <b data-roll="today-tips">{{ today_tips_label }}</b></sc-if></span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button type="button" class="raznos-hero-chip raznos-hero-chip-add" onClick="{{ go_expense_form_from_home }}" aria-label="Добавить расход" data-delta-host="cost" data-roll-host="today-exp"><sc-if value="{{ today_exp_show }}" hint-placeholder-val="{{ true }}"><span>Расходы <b data-roll="today-exp">{{ today_exp_label }}</b></span></sc-if><sc-if value="{{ today_add_label }}" hint-placeholder-val="{{ false }}"><span>Расход</span></sc-if><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
-              </div>
+              <dc-import name="RaznosTodayHero" earn="{{ today_earn }}" orders="{{ today_orders }}" hours="{{ today_hours }}" hourly="{{ today_hourly }}" target="{{ today_target_n }}" forecast="{{ today_forecast_n }}" tips="{{ today_tips_n }}" expenses="{{ today_exp_n }}" net="{{ today_net_n }}" open="{{ today_sheet_open }}" onTip="{{ qt_open_tap }}" onExpense="{{ go_expense_form_from_home }}"></dc-import>
               <sc-if value="{{ today_mix_show }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-today-mix" onClick="{{ today_sheet_open }}" aria-label="{{ today_mix_aria }}"><span class="raznos-today-mix-bar" aria-hidden="true"><sc-for list="{{ today_mix }}" as="mx" hint-placeholder-count="2"><i style="{{ mx.style }}"></i></sc-for></span><span class="raznos-today-mix-legend"><sc-for list="{{ today_mix }}" as="mx" hint-placeholder-count="2"><span><i style="{{ mx.dot }}" aria-hidden="true"></i>{{ mx.title }} <b>{{ mx.sum }} ₽</b></span></sc-for></span></button></sc-if>
                 <sc-if value="{{ hero_fresh_show }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ hero_fresh_cls }}" onClick="{{ hero_fresh_tap }}" aria-label="{{ hero_fresh_aria }}"><i aria-hidden="true"></i><span>{{ hero_fresh }}</span></button></sc-if>
               <sc-if value="{{ today_sheet }}" hint-placeholder-val="{{ false }}">
@@ -5285,6 +5278,7 @@
           const goalHoursLeft = goalDaysLeft.reduce((sum, d) => sum + d.h, 0);
           const goalTodayH = goalTodayOn ? goalDaysLeft.find((d) => d.iso === TODAY_ISO).h : 0;
           const todayTarget = goalTodayOn && goalHoursLeft ? Math.round(goalLeft * goalTodayH / goalHoursLeft / 100) * 100 : 0;
+          const goalDayDoneWeek = goalEarnedBefore + (goalTodayH ? Math.round(4000 * goalHoursLeft / goalTodayH / 100) * 100 : 0);
           // день ещё не начался или выходной: в демо задаётся сценарием, ближайшая смена берётся из броней
           // тур подсказок: шаг 0 про демо, дальше пять вкладок; если демо уже включено, нулевой шаг пропускаем
           const TOUR = [
@@ -5306,7 +5300,7 @@
             { key: 'courier-home', on: () => s === 'courier-home', steps: [
               { sel: '.raznos-phone-body .raznos-app-bar .rab-btn', title: 'Помощник', text: 'Спросите про деньги, смены и слоты' },
               { sel: '.raznos-phone-body .raznos-hero-fresh', title: 'Сервисы на связи', text: 'Откуда приходят заказы и деньги. Потяните экран вниз, чтобы обновить' },
-              { sel: '.raznos-hero-today', title: 'Заработок за день', text: 'Нажмите, чтобы увидеть сервисы, чаевые, расходы и цель на сегодня' }
+              { sel: '.raznos-hero-today', title: 'Заработок за день', text: 'Нажмите на карточку, чтобы разобрать день по сервисам, кнопки ниже добавляют чаевые и расходы' }
             ] },
             // плюс у заказа отдельной серией: заказов может ещё не быть, покажем, когда появятся
             { key: 'home-order', on: () => s === 'courier-home', steps: [
@@ -6633,13 +6627,6 @@
             // шторка дня: те же переменные, что и карточка, чтобы цифры не спорили
             today_sheet: !!st.todaySheet, today_sheet_open: () => set({ todaySheet: true }), today_sheet_close: () => set({ todaySheet: false }), today_sheet_stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
             today_sheet_recap: () => set(Object.assign({ todaySheet: false }, { statsRet: { label: 'Назад на Сегодня', patch: { s: 'courier-home' } }, s: 'stats', statsPeriod: 'today', statsStep: 0, statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' })),
-            // прогноз к концу дня тот же, что К концу дня в Плане (в демо число из Плана)
-            today_plan_note: todayEarn >= TODAY_PLAN_END ? 'План дня выполнен' : 'К концу дня ≈ ' + formatMoney(TODAY_PLAN_END) + ' ₽ по плану',
-            today_pace_cls: 'raznos-hero-pace' + (todayEarn >= TODAY_PLAN_END ? ' raznos-hero-pace-done' : ''),
-            today_goal_mark_show: false,
-            today_goal_mark_cls: 'raznos-hero-pace-goal' + (todayEarn >= todayTarget ? ' raznos-is-reached' : ''),
-            today_goal_mark_style: 'left:' + Math.round(todayTarget / TODAY_PLAN_END * 100) + '%',
-            today_plan_style: 'width:' + Math.max(4, Math.min(100, Math.round(todayEarn / TODAY_PLAN_END * 100))) + '%',
             today_goal_short: (todayEarn >= todayTarget ? 'Цель выполнена' : '≈ ' + Math.max(1, todayOrdersLeft) + ' ' + ruPlural(Math.max(1, todayOrdersLeft), 'заказ', 'заказа', 'заказов') + ' до цели') + ' · по плану ≈ ' + formatMoney(TODAY_PLAN_END) + ' ₽',
             today_fines_show: todayFines > 0, today_fines_label: '−' + formatMoney(todayFines) + ' ₽',
             today_remain_label: formatMoney(Math.round(todayRemain)),
@@ -6653,14 +6640,13 @@
             today_tips_none_text: 'Нет данных: ' + connectedKeys.filter((k) => !tipSrcOf(k)).map((k) => SERVICES[k] ? SERVICES[k].title : k).join(', '),
             today_tips_block: role === 'courier',
             today_tips_sheet_value: todayTipsDigital + todayTipsCash > 0 || connectedKeys.some((k) => !!tipSrcOf(k)) ? formatMoney(todayTipsDigital + todayTipsCash) + ' ₽' : 'Нет данных из сервиса',
-            today_tips_show: todayTipsDigital + todayTipsCash > 0, today_tips_label: formatMoney(todayTipsDigital + todayTipsCash) + ' ₽',
-            // подпись у кнопки добавления нужна, пока плашки расходов нет
-            today_add_label: todayExpenses <= 0, today_exp_show: todayExpenses > 0, today_exp_label: '−' + formatMoney(Math.round(todayExpenses)) + ' ₽',
             today_hero_note: [
               todayTipsDigital > 0 ? ('чаевые ' + formatMoney(todayTipsDigital) + ' ₽ уже в сумме') : '',
               (todayExpenses > 0 || todayFines > 0 || todayTipsCash > 0) ? ('чистыми ' + formatMoney(todayRemain) + ' ₽, ' + formatMoney(todayNetHourly) + ' ₽/ч') : ''
             ].filter(Boolean).join(' · '),
             today_target: formatMoney(todayTarget), today_delta_pct: todayDeltaPct,
+            // тёмная карточка RaznosTodayHero: числа как есть, подписи собирает компонент, прогноз тот же, что К концу дня в Плане
+            today_target_n: todayTarget, today_forecast_n: TODAY_PLAN_END, today_tips_n: todayTipsDigital + todayTipsCash, today_exp_n: todayExpenses, today_net_n: todayRemain,
             work_week_goal: st.workGoal || WORK_WEEK_GOAL, set_work_goal: (v) => set({ workGoal: v }), work_week_earned: STATS_CALENDAR_WEEK.earn,
             // взятые в прототипе слоты становятся бронями (по заявке заявками) и уходят из свободных
             shifts_week: SHIFTS_WEEK.concat(SHIFT_SLOTS.filter((sl) => (st.takenSlots || {})[sl.id]).map((sl) => Object.assign({}, sl, { id: 't' + sl.id, status: sl.apply ? 'requested' : 'confirmed' }))),
@@ -8236,7 +8222,8 @@
                 row('Подключено сервисов', !st.integrationStatus || Object.keys(st.integrationStatus).length >= 3 ? 'all' : Object.keys(st.integrationStatus).length === 1 ? 'one' : Object.keys(st.integrationStatus).length === 0 ? 'none' : 'all', [['all', 'Пять', { integrationStatus: buildDemoSeed().integrationStatus }], ['one', 'Один', { integrationStatus: { vkusvill: 'connected' } }]]),
                 row('Город', st.city === 'spb' ? 'spb' : 'moscow', [['moscow', 'Москва', { city: 'moscow', mkCity: 'moscow' }], ['spb', 'Петербург', { city: 'spb', mkCity: 'spb' }]]),
                 row('Транспорт', st.transport || 'bike', [['foot', 'Пешком', { transport: 'foot' }], ['bike', 'Велосипед', { transport: 'bike' }], ['car', 'Авто', { transport: 'car' }]]),
-                row('Цель недели', !st.workGoal || st.workGoal === WORK_WEEK_GOAL ? 'plan' : st.workGoal < WORK_WEEK_GOAL ? 'done' : 'behind', [['done', 'Выполнена', { workGoal: 15000 }], ['plan', 'Идёт по плану', { workGoal: WORK_WEEK_GOAL }], ['behind', 'Сильно отстаёт', { workGoal: 60000 }]]),
+                // цель дня набрана: цель недели такая, чтобы на сегодня вышло около 4 000 ₽; набрана до сегодня: цели дня нет
+                row('Цель недели', st.workGoal === goalDayDoneWeek ? 'day' : st.workGoal === goalEarnedBefore ? 'none' : !st.workGoal || st.workGoal === WORK_WEEK_GOAL ? 'plan' : st.workGoal < WORK_WEEK_GOAL ? 'done' : 'behind', [['done', 'Выполнена', { workGoal: 15000 }], ['day', 'Цель дня набрана', { workGoal: goalDayDoneWeek }], ['none', 'Набрана до сегодня', { workGoal: goalEarnedBefore }], ['plan', 'Идёт по плану', { workGoal: WORK_WEEK_GOAL }], ['behind', 'Сильно отстаёт', { workGoal: 60000 }]]),
                 row('Погода', st.weather || 'rain', [['clear', 'Ясно', { weather: 'clear' }], ['rain', 'Дождь вечером', { weather: 'rain' }], ['frost', 'Мороз', { weather: 'frost' }]]),
                 row('Итог недели', st.aiReviewAlways ? 'on' : 'off', [['off', 'По понедельникам', { aiReviewAlways: false }], ['on', 'Всегда', { aiReviewAlways: true, aiReviewHidden: '' }]]),
                 row('Роль', role, [['courier', 'Курьер', { role: 'courier' }], ['user', 'Ищу работу', { role: 'user' }]]),
