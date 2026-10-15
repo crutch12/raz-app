@@ -48,7 +48,7 @@
   </style>
 </helmet>
 <div class="rwd-row" data-rwd="{{ uid }}">
-  <button type="button" class="rwd-step" onClick="{{ go_prev }}" disabled="{{ prev_off }}" aria-label="{{ prev_aria }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+  <button type="button" class="rwd-step" onClick="{{ go_prev }}" disabled="{{ prev_off }}" aria-label="{{ prev_aria }}" title="{{ prev_aria }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
   <div class="rwd-view">
     <div class="rwd-track">
       <div class="rwd-days rwd-ghost" aria-hidden="true">
@@ -64,7 +64,7 @@
       </div>
     </div>
   </div>
-  <button type="button" class="rwd-step" onClick="{{ go_next }}" disabled="{{ next_off }}" aria-label="{{ next_aria }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+  <button type="button" class="rwd-step" onClick="{{ go_next }}" disabled="{{ next_off }}" aria-label="{{ next_aria }}" title="{{ next_aria }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
 </div>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"days":{"editor":null},"prevDays":{"editor":null},"nextDays":{"editor":null},"weekKey":{"editor":"number","default":0},"canPrev":{"editor":"boolean","default":true},"canNext":{"editor":"boolean","default":true},"label":{"editor":"text","default":"Дни недели"},"onPick":{"editor":null},"onPrev":{"editor":null},"onNext":{"editor":null},"$preview":{"width":390,"height":80}}'>
 // выбор дня недели из Плана: неделя по дням, стрелки и свайп листают недели, соседние недели видны при свайпе

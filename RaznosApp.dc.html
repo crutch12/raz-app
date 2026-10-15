@@ -1441,7 +1441,7 @@
 
           <sc-if value="{{ is_market_timeline }}">
             <div class="raznos-phone-body" data-screen-label="Market timeline">
-              <dc-import name="RaznosMarketTimeline" mode="full" initialDay="{{ mt_day }}" initialHour="{{ mt_hour }}" initialBy="{{ mt_by }}" initialScope="{{ mt_scope }}" connected="{{ svc_connected }}" weather="{{ mt_weather }}" initialView="{{ mt_view }}" initialZones="{{ mt_zones }}" initialPick="{{ mt_pick }}" initialTod="{{ mt_tod }}" slots="{{ mt_slots_list }}" onBack="{{ mt_back }}" onSlots="{{ mt_slots }}" alertFind="{{ ar_find }}" onAlert="{{ ar_entry }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}" few="{{ mk_few }}"></dc-import>
+              <dc-import name="RaznosMarketTimeline" mode="full" initialDay="{{ mt_day }}" initialHour="{{ mt_hour }}" initialBy="{{ mt_by }}" initialScope="{{ mt_scope }}" connected="{{ svc_connected }}" weather="{{ mt_weather }}" initialView="{{ mt_view }}" initialZones="{{ mt_zones }}" initialPick="{{ mt_pick }}" initialTod="{{ mt_tod }}" slots="{{ mt_slots_list }}" onBack="{{ mt_back }}" onSlots="{{ mt_slots }}" onMyDay="{{ mt_my_day }}" alertFind="{{ ar_find }}" onAlert="{{ ar_entry }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_has_data }}" few="{{ mk_few }}"></dc-import>
             </div>
           </sc-if>
 
@@ -7457,6 +7457,11 @@
             mt_day: st.mtDay || 0, mt_hour: st.mtHour != null ? st.mtHour : null, mt_by: st.mtBy || 'zone', mt_scope: st.mtScope || 'all', mt_view: st.mtView || 'list', mt_zones: st.mtZones || 'all', mt_pick: st.mtPick || '', mt_tod: st.mtTod || '',
             // слот на выбранный час: Можно взять на этот день и сервис, слот подсвечен, Назад вернёт на тот же час
             mt_slots: (o) => set({ s: 'slots', slotsTab: 'free', slotsDay: o.iso, slotsSvc: o.svc, slotsWeek: null, slotsFrom: 'market-timeline', slotsFocus: { iso: o.iso, svc: o.svc, id: o.id }, mtDay: o.day, mtHour: o.hour, mtBy: o.by, mtScope: o.scope, mtView: o.view, mtZones: o.zones, mtPick: o.pick || '', mtTod: '' }),
+            // ваш доход за день из итога По часам: Результаты на этот день, Назад вернёт на тот же день и час
+            mt_my_day: (o) => {
+              const mt = { mtDay: o.day, mtHour: o.hour, mtBy: o.by, mtScope: o.scope, mtView: o.view, mtZones: o.zones, mtPick: o.pick || '', mtTod: '' };
+              set(Object.assign({}, mt, { statsRet: { label: 'Назад к По часам', patch: Object.assign({ s: 'market-timeline' }, mt) }, s: 'stats', statsPeriod: 'today', statsStep: Math.min(0, o.day), statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' }));
+            },
             mt_slots_list: SHIFT_SLOTS.filter((sl) => !sl.gone && !(st.takenSlots || {})[sl.id] && connectedKeys.indexOf(sl.svc) !== -1 && !SHIFTS_WEEK.some((w) => w.status !== 'cancelled' && w.iso === sl.iso && sl.from < w.to + (w.svc === sl.svc ? 0 : 20) && w.from < sl.to + (w.svc === sl.svc ? 0 : 20))).map((sl) => ({ id: sl.id, iso: sl.iso, svc: sl.svc, from: sl.from / 60, to: sl.to / 60 })),
             mt_back: navBack(() => set({ s: (this.state && this.state.mtFrom) || 'market' })),
             // погода из демо сдвигает ставки таймлайна и подписана причиной

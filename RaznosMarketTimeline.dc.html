@@ -66,6 +66,10 @@
     /* итог дня с вашими часами над столбиками */
     .rmt-sum { display: flex; align-items: baseline; gap: 6px; margin: 0; padding: 0 4px; font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-2); }
     .rmt-sum-dot { flex: none; width: 5px; height: 5px; border-radius: 50%; background: var(--raznos-ink); transform: translateY(-2px); }
+    /* ссылка в Результаты за этот день под итогом, тап-зона 44 */
+    .rmt-sum-link { position: relative; align-self: flex-start; display: inline-flex; align-items: center; gap: 2px; min-height: 28px; margin: -6px 0 -4px 15px; padding: 0; border: 0; background: none; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
+    .rmt-sum-link::after { content: ''; position: absolute; inset: -8px -6px; }
+    .rmt-sum-link:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; border-radius: 8px; }
     .rmt-why { align-self: flex-start; max-width: 100%; gap: 6px; margin-top: 4px; font-size: 13px; white-space: normal; }
 
     .rmt-panel { display: flex; flex-direction: column; padding: 4px 16px; border-radius: 16px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
@@ -173,6 +177,7 @@
         </div>
       </div>
       <sc-if value="{{ has_sum }}" hint-placeholder-val="{{ false }}"><p class="rmt-sum"><i class="rmt-sum-dot" aria-hidden="true"></i><span>{{ sum_text }}</span></p></sc-if>
+      <sc-if value="{{ has_my_day }}" hint-placeholder-val="{{ false }}"><button type="button" class="rmt-sum-link" onClick="{{ go_my_day }}">{{ my_day_label }}<span class="raznos-row-chevron" aria-hidden="true">›</span></button></sc-if>
       <dc-import name="RaznosHourBars" bars="{{ bars }}" win="{{ win }}" legendDay="{{ true }}" label="Лучшая ставка по часам с 06:00 до 06:00, ведите пальцем, чтобы выбрать час" onPick="{{ pick_hour }}"></dc-import>
     </div>
     <sc-if value="{{ has_by }}" hint-placeholder-val="{{ true }}">
@@ -196,7 +201,7 @@
     </sc-if>
     <sc-if value="{{ is_map }}" hint-placeholder-val="{{ false }}">
       <div class="rmt-map"><dc-import name="RaznosDistrictMap" mode="demand" showModeSwitch="{{ true }}" districts="{{ map_zones }}" selected="{{ map_sel }}" hour="{{ map_hour }}" hourLabel="{{ map_chip }}" onPick="{{ map_pick_k }}" height="{{ 400 }}"></dc-import></div>
-      <span class="rmt-map-hint">Соты перекрашиваются по выбранному часу · нажмите на район</span>
+      <span class="rmt-map-hint">Нажмите на район</span>
       <sc-if value="{{ map_none }}" hint-placeholder-val="{{ false }}"><p class="rmt-panel rmt-empty">{{ map_none_text }}</p></sc-if>
       <sc-if value="{{ has_map_pick }}" hint-placeholder-val="{{ true }}"><div class="rmt-panel rmt-pick"><dc-import name="RaznosRankRow" plain="{{ true }}" title="{{ map_pick.title }}" meta="{{ map_pick.meta }}" metaMine="{{ map_pick.metaMine }}" value="{{ map_pick.val }}" forecast="{{ map_pick.fc }}" divider="{{ false }}"></dc-import><a class="raznos-btn raznos-btn-secondary raznos-btn-small rmt-route" href="{{ map_pick.href }}" target="_blank" rel="noopener" aria-label="{{ map_pick.aria }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8-8-2z"/></svg>Маршрут в Яндекс Картах</a></div></sc-if>
     </sc-if>
@@ -242,7 +247,7 @@
     </sc-if>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"few":{"editor":"boolean","default":false},"connected":{"editor":null},"weather":{"editor":null},"slots":{"editor":null},"initialDay":{"editor":"number","default":0},"initialHour":{"editor":"number"},"initialBy":{"editor":"text","default":"zone"},"initialScope":{"editor":"text","default":"all"},"initialView":{"editor":"text","default":"list"},"initialZones":{"editor":null},"initialPick":{"editor":"text","default":""},"initialTod":{"editor":"text","default":""},"open":{"editor":null},"onBack":{"editor":null},"onSlots":{"editor":null},"alertFind":{"editor":null},"onAlert":{"editor":null},"$preview":{"width":390,"height":360}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"few":{"editor":"boolean","default":false},"connected":{"editor":null},"weather":{"editor":null},"slots":{"editor":null},"initialDay":{"editor":"number","default":0},"initialHour":{"editor":"number"},"initialBy":{"editor":"text","default":"zone"},"initialScope":{"editor":"text","default":"all"},"initialView":{"editor":"text","default":"list"},"initialZones":{"editor":null},"initialPick":{"editor":"text","default":""},"initialTod":{"editor":"text","default":""},"open":{"editor":null},"onBack":{"editor":null},"onSlots":{"editor":null},"onMyDay":{"editor":null},"alertFind":{"editor":null},"onAlert":{"editor":null},"$preview":{"width":390,"height":360}}'>
 // таймлайн выгодности: когда и где выгоднее сейчас, в прошлые дни и по прогнозу
 // одна модель час × день × сервис × район, районы и сервисы те же, что в Где выгоднее, основа та же, что в Когда выгоднее
 // mode card: карточка, в приложении не используется; mode full: полная версия Подробно по часам, входы из простых экранов Рынка
@@ -303,6 +308,7 @@ const RMT_FROM = 6, RMT_TO = 24, RMT_END = 30, RMT_TOP = 5;
 const RMT_DOW = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 const RMT_DOW_ACC = ['воскресенье', 'понедельник', 'вторник', 'среду', 'четверг', 'пятницу', 'субботу'];
 const RMT_DOW_FULL = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+const RMT_MON_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const RMT_PERIOD = (() => {
   const mon = ['янв', 'февр', 'марта', 'апр', 'мая', 'июня', 'июля', 'авг', 'сент', 'окт', 'нояб', 'дек'];
   const at = (off) => { const d = new Date(); d.setDate(d.getDate() + off); return d.getDate() + ' ' + mon[d.getMonth()]; };
@@ -494,6 +500,8 @@ class Component extends DCLogic {
     // вилка круглыми числами: до 1 000 по 10 ₽, дальше по 50 ₽; рубли в час один раз над колонкой
     const rr = (v) => (v < 1000 ? rmtR10(v) : rmtR50(v));
     const range = (v) => { const lo = rr(v * (1 - spread)), hi = rr(v * (1 + spread)); return spread && hi > lo ? '≈' + rmtFmt(lo) + '–' + rmtFmt(hi) : (fc ? '≈' : '') + rmtFmt(rmtR10(v)); };
+    // на карте одно число: середина той же вилки, что в строке, у прогноза со знаком ≈
+    const rangeMid = (v) => { const lo = rr(v * (1 - spread)), hi = rr(v * (1 + spread)); return spread && hi > lo ? '≈' + rmtFmt(rr((lo + hi) / 2)) : (fc ? '≈' : '') + rmtFmt(rmtR10(v)); };
     const routeHref = (z) => 'https://yandex.ru/maps/?mode=routes&rtext=~' + encodeURIComponent(cityTitle + ', район ' + z.name);
     const routeAria = (z) => 'Маршрут в район ' + z.name + ', откроются Яндекс Карты';
 
@@ -647,6 +655,10 @@ class Component extends DCLogic {
       has_why: !!w && !my, why: w ? w.text : '',
       has_fc_note: fc && !w && !my, fc_note: fcNote,
       has_sum: !!sumText, sum_text: sumText,
+      // Результаты за этот день, Назад вернёт на тот же день и час
+      has_my_day: !!sumText && rd <= 0 && typeof p.onMyDay === 'function',
+      my_day_label: 'Ваш доход за ' + (day === 0 ? 'сегодня' : RMT_DOW[rmtDate(day).getDay()].toLowerCase() + ' ' + rmtDate(day).getDate() + ' ' + RMT_MON_GEN[rmtDate(day).getMonth()]),
+      go_my_day: () => { if (typeof p.onMyDay === 'function') p.onMyDay(Object.assign({}, ctx, { iso: rmtIso(day) })); },
       bars, win: { from: String(bw.h), to: String(bw.h + 2), label: 'лучше ' + bw.label },
       pick_hour: (k) => this.holdPick(+k),
       is_list: by !== 'map', is_map: by === 'map',
@@ -658,7 +670,8 @@ class Component extends DCLogic {
       has_all: rest > 0, all_open: String(allOpen),
       all_label: allOpen ? 'Свернуть' : 'Ещё ' + rest + ' ' + restWord, all_cls: 'rmt-all-chev' + (allOpen ? ' rmt-all-open' : ''),
       toggle_all: () => flipSet({ all: !allOpen }),
-      map_zones: zoneBest.map((x) => ({ k: x.z.k, name: x.z.name, val: (fc ? '≈' : '') + rmtFmt(rmtR10(x.o.v)).replace(/\u00a0/g, ' ') + '/ч', t: zMax === zMin ? 1 : (x.o.v - zMin) / (zMax - zMin), top: x === zoneBest[0], sel: x.z.k === mapPickK, tap: () => set({ mapPick: x.z.k }) })),
+      // у трёх лучших районов на карте название рядом с числом
+      map_zones: zoneBest.map((x, i) => ({ k: x.z.k, name: x.z.name, val: rangeMid(x.o.v).replace(/\u00a0/g, ' ') + '/ч', t: zMax === zMin ? 1 : (x.o.v - zMin) / (zMax - zMin), top: x === zoneBest[0], named: i < 3, sel: x.z.k === mapPickK, tap: () => set({ mapPick: x.z.k }) })),
       map_sel: mapPickK || (st.mapPickName ? st.mapPick || '' : ''), map_pick_k: (k, info) => set({ mapPick: k || '', mapPickName: info && info.name ? info.name : '' }),
       // район без цифр на этот час: говорим об этом под картой
       map_none: !mapPickX && !!st.mapPickName && !!st.mapPick, map_none_text: (st.mapPickName || '') + ': нет данных по району за этот час', map_hour: hour % 24, map_chip: String(hour % 24).padStart(2, '0') + ':00',
