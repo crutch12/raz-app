@@ -57,13 +57,13 @@
     </div>
   </sc-if>
   <sc-if value="{{ no_goal }}" hint-placeholder-val="{{ false }}"><span class="raznos-hero-pace-note rth-note">{{ plain_note }}</span></sc-if>
-  <div class="{{ money_cls }}"><span class="{{ tips_cls }}" data-delta-host="gain" data-roll-host="today-tips"><sc-if value="{{ tips_show }}" hint-placeholder-val="{{ true }}"><span class="rth-seg">чаевые <b data-roll="today-tips">{{ tips_label }}</b></span></sc-if></span><span class="{{ exp_cls }}" data-delta-host="cost" data-roll-host="today-exp"><sc-if value="{{ exp_show }}" hint-placeholder-val="{{ true }}"><sc-if value="{{ exp_sep }}" hint-placeholder-val="{{ true }}"><i aria-hidden="true">&nbsp;· </i></sc-if><span class="rth-seg">расходы <b data-roll="today-exp">{{ exp_label }}</b></span></sc-if></span><sc-if value="{{ net_show }}" hint-placeholder-val="{{ true }}"><span><sc-if value="{{ net_sep }}" hint-placeholder-val="{{ true }}"><i aria-hidden="true">&nbsp;· </i></sc-if><span class="rth-seg">чистыми <b>{{ net_label }}</b></span></span></sc-if></div>
+  <div class="{{ money_cls }}"><span class="{{ tips_cls }}" data-delta-host="gain" data-roll-host="today-tips"><sc-if value="{{ tips_show }}" hint-placeholder-val="{{ true }}"><span class="rth-seg">чаевые наличными <b data-roll="today-tips">{{ tips_label }}</b></span></sc-if></span><sc-if value="{{ fine_show }}" hint-placeholder-val="{{ false }}"><span><sc-if value="{{ fine_sep }}" hint-placeholder-val="{{ true }}"><i aria-hidden="true">&nbsp;· </i></sc-if><span class="rth-seg">штрафы <b>{{ fine_label }}</b></span></span></sc-if><span class="{{ exp_cls }}" data-delta-host="cost" data-roll-host="today-exp"><sc-if value="{{ exp_show }}" hint-placeholder-val="{{ true }}"><sc-if value="{{ exp_sep }}" hint-placeholder-val="{{ true }}"><i aria-hidden="true">&nbsp;· </i></sc-if><span class="rth-seg">расходы <b data-roll="today-exp">{{ exp_label }}</b></span></sc-if></span><sc-if value="{{ net_show }}" hint-placeholder-val="{{ true }}"><span><sc-if value="{{ net_sep }}" hint-placeholder-val="{{ true }}"><i aria-hidden="true">&nbsp;· </i></sc-if><span class="rth-seg">чистыми <b>{{ net_label }}</b></span></span></sc-if></div>
   <div class="rth-actions">
     <button type="button" class="rth-add" onClick="{{ on_tip }}" aria-label="Добавить чаевые наличными"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Чаевые</button>
     <button type="button" class="rth-add" onClick="{{ on_expense }}" aria-label="Добавить расход"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Расход</button>
   </div>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"open":{"editor":null},"onTip":{"editor":null},"onExpense":{"editor":null},"$preview":{"width":390,"height":330}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"open":{"editor":null},"onTip":{"editor":null},"fines":{"editor":"number","default":0},"onExpense":{"editor":null},"$preview":{"width":390,"height":330}}'>
 // карточка Начислено сегодня на Сегодня: цель дня полосой, прогноз риской, деньги строкой, действия кнопками
 const RTH_FMT = (n) => { const v = Math.round((Number(n) || 0) * 100) / 100; return v.toLocaleString('ru-RU', { minimumFractionDigits: Number.isInteger(v) ? 0 : 2, maximumFractionDigits: 2 }); };
 const RTH_PLURAL = (n, a, b, c) => { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return a; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return b; return c; };
@@ -74,8 +74,9 @@ class Component extends DCLogic {
     const num = (v, d) => (v != null ? Number(v) : d);
     const earn = num(p.earn, 4200), orders = num(p.orders, 17), hours = num(p.hours, 6), hourly = num(p.hourly, 700);
     const target = num(p.target, 6800), forecast = num(p.forecast, 8270);
-    const tips = num(p.tips, 238), expenses = num(p.expenses, 299);
-    const net = p.net != null ? Number(p.net) : earn + tips - expenses;
+    // в строке только то, что не входит в начисления: наличные чаевые, штрафы и расходы, тогда чистыми сходится на глаз
+    const tips = num(p.tips, 238), fines = num(p.fines, 0), expenses = num(p.expenses, 299);
+    const net = p.net != null ? Number(p.net) : earn + tips - fines - expenses;
     const stop = (fn) => (e) => { if (e && e.stopPropagation) e.stopPropagation(); if (typeof fn === 'function') fn(e); };
     const hasGoal = target > 0;
     const reached = hasGoal && earn >= target;
@@ -84,7 +85,7 @@ class Component extends DCLogic {
     const ahead = forecast > earn;
     // риска прогноза не нужна, когда почти совпадает с сотой цели
     const showForecast = ahead && Math.abs(forecast - target) / scale > 0.04;
-    const tipsShow = tips > 0, expShow = expenses > 0;
+    const tipsShow = tips > 0, fineShow = fines > 0, expShow = expenses > 0;
     const netShow = Math.round(net) !== Math.round(earn);
     return {
       open: typeof p.open === 'function' ? p.open : (() => {}),
@@ -93,7 +94,7 @@ class Component extends DCLogic {
       stats: orders + ' ' + RTH_PLURAL(orders, 'заказ', 'заказа', 'заказов') + ' · ' + String(hours).replace('.', ',') + ' ч · ' + RTH_FMT(hourly) + ' ₽/ч',
       has_goal: hasGoal, no_goal: !hasGoal,
       pace_cls: 'raznos-hero-pace rth-pace' + (reached ? ' raznos-hero-pace-done rth-reached' : ''),
-      goal_text: 'Цель дня', goal_label: RTH_FMT(target), goal_done: reached ? ' набрана' : '',
+      goal_text: reached ? 'Цель' : 'Цель дня', goal_label: RTH_FMT(target), goal_done: reached ? ' набрана' : '',
       show_forecast: hasGoal && showForecast,
       forecast_text: '≈ ' + RTH_FMT(forecast) + ' к концу дня',
       forecast_style: 'width:' + RTH_PCT(forecast / scale),
@@ -103,9 +104,10 @@ class Component extends DCLogic {
       goal_style: 'left:' + RTH_PCT(target / scale),
       plain_note: ahead ? '≈ ' + RTH_FMT(forecast) + ' ₽ к концу дня по плану' : 'План дня выполнен',
       tips_cls: tipsShow ? '' : 'rth-off', tips_show: tipsShow, tips_label: RTH_FMT(tips) + ' ₽',
-      exp_cls: expShow ? '' : 'rth-off', exp_show: expShow, exp_sep: tipsShow, exp_label: '−' + RTH_FMT(Math.round(expenses)) + ' ₽',
-      money_cls: 'rth-money' + (tipsShow || expShow || netShow ? '' : ' rth-off'),
-      net_show: netShow, net_sep: tipsShow || expShow, net_label: RTH_FMT(Math.round(net)) + ' ₽',
+      exp_cls: expShow ? '' : 'rth-off', exp_show: expShow, exp_sep: tipsShow || fineShow,
+      fine_show: fineShow, fine_sep: tipsShow, fine_label: '−' + RTH_FMT(Math.round(fines)) + ' ₽', exp_label: '−' + RTH_FMT(Math.round(expenses)) + ' ₽',
+      money_cls: 'rth-money' + (tipsShow || fineShow || expShow || netShow ? '' : ' rth-off'),
+      net_show: netShow, net_sep: tipsShow || fineShow || expShow, net_label: RTH_FMT(Math.round(net)) + ' ₽',
       aria: 'Начислено сегодня ' + RTH_FMT(earn) + ' рублей' + (hasGoal ? ', цель дня ' + RTH_FMT(target) + (reached ? ' набрана' : '') : '') + ', открыть разбор дня'
     };
   }

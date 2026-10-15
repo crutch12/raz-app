@@ -193,7 +193,7 @@
 
           <sc-if value="{{ is_courier_home }}">
             <div class="raznos-phone-body" data-screen-label="6 Courier home">
-              <div class="raznos-app-bar" style="justify-content:space-between;gap:10px"><span style="display:flex;flex-direction:column;gap:1px;min-width:0"><h1 class="raznos-text-h1" style="margin:0">Сегодня</h1><span style="white-space:nowrap;font:500 12.5px var(--raznos-font);color:var(--raznos-ink-3)">{{ transport_title }} · {{ today_short_num }}</span></span><sc-if value="{{ ai_on }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAssistantButton" label="Спросить" attention="{{ ai_attention }}" onClick="{{ ai_open_tap }}"></dc-import></sc-if></div>
+              <div class="raznos-app-bar" style="justify-content:space-between;gap:10px"><span style="display:flex;flex-direction:column;gap:1px;min-width:0"><h1 class="raznos-text-h1" style="margin:0">Сегодня</h1><span class="raznos-home-sub"><span>{{ transport_title }} · {{ today_short_num }}</span><sc-if value="{{ hero_fresh_show }}" hint-placeholder-val="{{ true }}"><span class="raznos-home-fresh-wrap"><button type="button" class="{{ hero_fresh_cls }}" onClick="{{ hero_fresh_tap }}" aria-label="{{ hero_fresh_aria }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.6-4.5M4 4v3h3M4 13a8 8 0 0 0 14.6 4.5M20 20v-3h-3"/></svg>{{ hero_fresh }}</button></span></sc-if></span></span><sc-if value="{{ ai_on }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAssistantButton" label="Спросить" attention="{{ ai_attention }}" onClick="{{ ai_open_tap }}"></dc-import></sc-if></div>
               <!-- Важное сейчас: спокойно строка связи, при событии на её месте одна строка, остальное в Ещё N -->
               <dc-import name="RaznosTodayAlerts" items="{{ ta_items }}" conn="{{ ta_conn }}" onConnAction="{{ conn_health_action }}" onOpen="{{ ta_open }}" onMore="{{ ta_more }}" onHide="{{ ta_hide }}"></dc-import>
               <sc-if value="{{ relogin_visible }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Сервисы нужно подключить заново</span><span class="raznos-text-small">{{ relogin_note }}</span><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" style="align-self:flex-start" onClick="{{ go_integrations }}">Открыть сервисы</button></div></sc-if>
@@ -212,9 +212,8 @@
                 </button>
               </sc-if>
               <sc-if value="{{ home_shift_not_ended }}" hint-placeholder-val="{{ true }}">
-              <dc-import name="RaznosTodayHero" earn="{{ today_earn }}" orders="{{ today_orders }}" hours="{{ today_hours }}" hourly="{{ today_hourly }}" target="{{ today_target_n }}" forecast="{{ today_forecast_n }}" tips="{{ today_tips_n }}" expenses="{{ today_exp_n }}" net="{{ today_net_n }}" open="{{ today_sheet_open }}" onTip="{{ qt_open_tap }}" onExpense="{{ go_expense_form_from_home }}"></dc-import>
+              <dc-import name="RaznosTodayHero" earn="{{ today_earn }}" orders="{{ today_orders }}" hours="{{ today_hours }}" hourly="{{ today_hourly }}" target="{{ today_target_n }}" forecast="{{ today_forecast_n }}" tips="{{ today_tips_n }}" fines="{{ today_fines_n }}" expenses="{{ today_exp_n }}" net="{{ today_net_n }}" open="{{ today_sheet_open }}" onTip="{{ qt_open_tap }}" onExpense="{{ go_expense_form_from_home }}"></dc-import>
               <sc-if value="{{ today_mix_show }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-today-mix" onClick="{{ today_sheet_open }}" aria-label="{{ today_mix_aria }}"><span class="raznos-today-mix-bar" aria-hidden="true"><sc-for list="{{ today_mix }}" as="mx" hint-placeholder-count="2"><i style="{{ mx.style }}"></i></sc-for></span><span class="raznos-today-mix-legend"><sc-for list="{{ today_mix }}" as="mx" hint-placeholder-count="2"><span><i style="{{ mx.dot }}" aria-hidden="true"></i>{{ mx.title }} <b>{{ mx.sum }} ₽</b></span></sc-for></span></button></sc-if>
-                <sc-if value="{{ hero_fresh_show }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ hero_fresh_cls }}" onClick="{{ hero_fresh_tap }}" aria-label="{{ hero_fresh_aria }}"><i aria-hidden="true"></i><span>{{ hero_fresh }}</span></button></sc-if>
               <sc-if value="{{ today_sheet }}" hint-placeholder-val="{{ false }}">
                 <div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="Заработок за сегодня" onClick="{{ today_sheet_close }}">
                   <div class="raznos-dialog raznos-day-sheet" onClick="{{ today_sheet_stop }}">
@@ -6646,7 +6645,7 @@
             ].filter(Boolean).join(' · '),
             today_target: formatMoney(todayTarget), today_delta_pct: todayDeltaPct,
             // тёмная карточка RaznosTodayHero: числа как есть, подписи собирает компонент, прогноз тот же, что К концу дня в Плане
-            today_target_n: todayTarget, today_forecast_n: TODAY_PLAN_END, today_tips_n: todayTipsDigital + todayTipsCash, today_exp_n: todayExpenses, today_net_n: todayRemain,
+            today_target_n: todayTarget, today_forecast_n: TODAY_PLAN_END, today_tips_n: todayTipsCash, today_fines_n: todayFines, today_exp_n: todayExpenses, today_net_n: todayRemain,
             work_week_goal: st.workGoal || WORK_WEEK_GOAL, set_work_goal: (v) => set({ workGoal: v }), work_week_earned: STATS_CALENDAR_WEEK.earn,
             // взятые в прототипе слоты становятся бронями (по заявке заявками) и уходят из свободных
             shifts_week: SHIFTS_WEEK.concat(SHIFT_SLOTS.filter((sl) => (st.takenSlots || {})[sl.id]).map((sl) => Object.assign({}, sl, { id: 't' + sl.id, status: sl.apply ? 'requested' : 'confirmed' }))),
@@ -6959,7 +6958,8 @@
             stats_delta_badge: (statDeltaPct >= 0 ? '↑' : '↓') + Math.abs(statDeltaPct) + '%', stats_delta_suffix: 'к прошлому периоду', stats_delta_class: statDeltaPct >= 0 ? 'raznos-delta raznos-delta-up' : 'raznos-delta raznos-delta-down',
             // свежесть цифры прямо под суммой: когда получили данные и сколько сервисов на связи, тап открывает состояние сервисов
             hero_fresh_show: connHealthItems.length > 0,
-            hero_fresh: (connHealthOkNote ? connHealthOkNote.replace(/минут[ыау]?/, 'мин').replace(/час(а|ов)?/, 'ч') : 'данные не обновлялись') + ' · ' + okAgo.length + ' ' + (okAgo.length % 10 === 1 && okAgo.length % 100 !== 11 ? 'сервис' : (okAgo.length % 10 >= 2 && okAgo.length % 10 <= 4 && (okAgo.length % 100 < 12 || okAgo.length % 100 > 14) ? 'сервиса' : 'сервисов')),
+            // свежесть в подзаголовке под Сегодня: спокойно когда обновили, при сбое коротко что не так, янтарным
+            hero_fresh: netOffline ? 'нет сети' : connProblemItems.length ? connProblemItems.length + ' ' + (connProblemItems.length === 1 ? 'сервис' : connProblemItems.length < 5 ? 'сервиса' : 'сервисов') + ' без связи' : (connHealthOkNote ? connHealthOkNote.replace(/^обновлено\s*/, '').replace(/минут[ыау]?/, 'мин').replace(/час(а|ов)?/, 'ч') : 'не обновлялись'),
             hero_fresh_cls: 'raznos-hero-fresh' + (connProblemItems.length || netOffline ? ' raznos-is-warn' : ''),
             hero_fresh_aria: 'Данные сервисов: ' + (connHealthOkNote || 'не обновлялись') + ', открыть состояние сервисов',
             hero_fresh_tap: (e) => { if (e && e.stopPropagation) e.stopPropagation(); connHealthAction('', 'open'); },
