@@ -66,7 +66,16 @@
     .ras-empty-chips { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
     /* стартовые вопросы карточками на полупрозрачном стекле поверх ауры */
     .ras-empty-chips .ras-chip { width: 100%; min-height: 54px; padding: 14px 16px; border-radius: 14px; border-color: color-mix(in oklab, var(--raznos-surface) 80%, transparent); background: color-mix(in oklab, var(--raznos-surface) 82%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: 0 1px 2px rgba(20, 25, 40, 0.04); font: 500 15px/1.35 var(--raznos-font); white-space: normal; text-align: left; }
-    .ras-compose { display: flex; align-items: flex-end; gap: 8px; }
+    .ras-compose { display: flex; flex-direction: column; }
+    .ras-compose-row { display: flex; align-items: flex-end; gap: 8px; }
+    /* запись голоса: текст идёт вживую, слева отмена, справа Готово */
+    .ras-rec { display: flex; align-items: flex-end; gap: 8px; min-height: 52px; padding: 4px; border-radius: 26px; border: 1.5px solid var(--raznos-green); background: var(--raznos-surface); }
+    .ras-rec-x { flex: none; width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 50%; background: var(--raznos-surface-2); color: var(--raznos-ink); cursor: pointer; }
+    .ras-rec-done { flex: none; width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 50%; background: var(--raznos-green); color: #fff; cursor: pointer; }
+    .ras-rec-x:focus-visible, .ras-rec-done:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .ras-rec-text { flex: 1; min-width: 0; align-self: center; max-height: 110px; overflow-y: auto; padding: 8px 2px; font: 500 15px/22px var(--raznos-font); color: var(--raznos-ink); }
+    .ras-rec-wait { display: inline-flex; align-items: center; gap: 8px; color: var(--raznos-ink-3); }
+    .ras-rec-wait i { width: 8px; height: 8px; border-radius: 50%; background: var(--raznos-green); }
     /* поле растёт с текстом до пяти строк, дальше прокрутка внутри */
     .ras-input { flex: 1; min-width: 0; box-sizing: border-box; height: 44px; min-height: 44px; max-height: 130px; margin: 0; padding: 10px 14px; resize: none; overflow-y: hidden; scrollbar-width: none; border: 1px solid var(--raznos-line-strong); border-radius: 22px; background: var(--raznos-bg); color: var(--raznos-ink); font: 500 16px/22px var(--raznos-font); outline: none; }
     .ras-input:focus { border-color: var(--raznos-green); }
@@ -78,6 +87,8 @@
     .ras-mic-on::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid var(--raznos-green); opacity: 0.6; }
     @media (prefers-reduced-motion: no-preference) {
       .ras-mic-on::before { animation: ras-listen 1.2s ease-out infinite; }
+      .ras-rec-wait i { animation: ras-rec-pulse 1.1s ease-in-out infinite; }
+      @keyframes ras-rec-pulse { 50% { transform: scale(0.55); opacity: 0.5; } }
       @keyframes ras-listen { from { transform: scale(0.9); opacity: 0.8; } to { transform: scale(1.35); opacity: 0; } }
     }
     @media (prefers-reduced-motion: no-preference) {
@@ -143,9 +154,16 @@
       <sc-if value="{{ undo_shown }}" hint-placeholder-val="{{ false }}"><div class="ras-undo" role="status"><span>Начат новый разговор</span><button type="button" class="ras-undo-btn" onClick="{{ undo_tap }}">Вернуть</button></div></sc-if>
       <sc-if value="{{ show_chips }}" hint-placeholder-val="{{ false }}"><div class="ras-chips"><sc-for list="{{ chips }}" as="ch" hint-placeholder-count="3"><button type="button" class="ras-chip" onClick="{{ ch.tap }}">{{ ch.text }}</button></sc-for></div></sc-if>
       <div class="ras-compose" style="{{ compose_style }}">
+        <sc-if value="{{ listening }}" hint-placeholder-val="{{ false }}"><div class="ras-rec" role="status" aria-live="polite">
+          <button type="button" class="ras-rec-x" onClick="{{ mic_cancel }}" aria-label="Отменить запись"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+          <span class="ras-rec-text"><sc-if value="{{ rec_empty }}" hint-placeholder-val="{{ true }}"><span class="ras-rec-wait"><i></i>Говорите…</span></sc-if>{{ rec_text }}</span>
+          <button type="button" class="ras-rec-done" onClick="{{ mic_done }}" aria-label="Готово, вставить текст"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></button>
+        </div></sc-if>
+        <sc-if value="{{ not_listening }}" hint-placeholder-val="{{ true }}"><div class="ras-compose-row">
         <textarea class="ras-input" rows="1" maxlength="1000" enterkeyhint="enter" placeholder="{{ input_hint }}" value="{{ draft }}" onChange="{{ draft_change }}" onKeyDown="{{ draft_key }}" aria-label="Вопрос помощнику"></textarea>
         <sc-if value="{{ show_mic }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ mic_cls }}" onClick="{{ mic_tap }}" disabled="{{ mic_off }}" aria-label="{{ mic_aria }}" aria-pressed="{{ listening }}"><sc-if value="{{ listening }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg></sc-if><sc-if value="{{ not_listening }}" hint-placeholder-val="{{ true }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></sc-if></button></sc-if>
         <sc-if value="{{ show_send }}" hint-placeholder-val="{{ false }}"><button type="button" class="ras-send" onClick="{{ send_tap }}" disabled="{{ send_off }}" aria-label="Отправить"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg></button></sc-if>
+</div></sc-if>
       </div>
     </div>
   </section>
@@ -220,27 +238,65 @@ class Component extends DCLogic {
     ta.style.overflowY = ta.scrollHeight + 2 > 130 ? 'auto' : 'hidden';
   }
   // голосовой ввод через распознавание браузера, текст попадает в поле, отправляет курьер сам
+  // голос как в мобильном Claude: запись идёт, пока курьер не нажмёт Готово или крестик; браузер сам обрывает распознавание
+  // после паузы, мы молча перезапускаем его и дописываем текст; по Готово весь текст уходит в поле ввода
   _micStart() {
     const SR = typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
-    if (!SR || this._rec) return;
+    if (!SR || this._micWant) return;
+    this._micWant = true;
+    this._micFinal = '';
+    this._micInterim = '';
+    this._set({ listening: true, recText: '', micNote: '' });
+    this._micRun();
+  }
+  _micRun() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR || !this._micWant || !this._alive) return;
     const rec = new SR();
     // язык распознавания берём из языка приложения; если браузер его не знает, слушаем по-русски и говорим об этом
     rec.lang = this._micLang || RAS_SPEECH_LANG[this._p().language] || 'ru-RU';
     rec.interimResults = true;
-    rec.continuous = false;
-    const base = String((this.state || {}).draft || '').trim();
+    rec.continuous = true;
     rec.onresult = (e) => {
-      let t = '';
-      for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
-      this._set({ draft: (base ? base + ' ' : '') + t.trim() });
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) this._micFinal = (this._micFinal + ' ' + t).trim();
+        else interim += t;
+      }
+      this._micInterim = interim.trim();
+      this._set({ recText: (this._micFinal + ' ' + this._micInterim).trim() });
     };
     rec.onerror = (e) => {
-      if (e && e.error === 'language-not-supported' && rec.lang !== 'ru-RU') { this._micLang = 'ru-RU'; this._set({ micNote: 'Этот язык браузер не распознаёт, слушаю по-русски' }); return; } const deny = e && (e.error === 'not-allowed' || e.error === 'service-not-allowed'); this._set({ micNote: deny ? 'Нет доступа к микрофону' : (e && e.error === 'no-speech' ? 'Не расслышал, попробуйте ещё' : '') }); };
-    rec.onend = () => { this._rec = null; this._set({ listening: false }); };
+      const err = e && e.error;
+      if (err === 'language-not-supported' && rec.lang !== 'ru-RU') { this._micLang = 'ru-RU'; this._set({ micNote: 'Этот язык браузер не распознаёт, слушаю по-русски' }); return; }
+      // нет доступа к микрофону: запись заканчиваем, остальные ошибки (тишина, сеть) переживаем перезапуском
+      if (err === 'not-allowed' || err === 'service-not-allowed' || err === 'audio-capture') { this._micWant = false; this._set({ listening: false, micNote: 'Нет доступа к микрофону' }); }
+    };
+    rec.onend = () => {
+      this._rec = null;
+      // недописанный кусок не теряем при перезапуске
+      if (this._micInterim) { this._micFinal = (this._micFinal + ' ' + this._micInterim).trim(); this._micInterim = ''; }
+      if (this._micWant && this._alive) setTimeout(() => this._micRun(), 120);
+    };
     this._rec = rec;
-    try { rec.start(); this._set({ listening: true, micNote: '' }); } catch (err) { this._rec = null; }
+    try { rec.start(); } catch (err) { this._rec = null; }
   }
-  _micStop() { if (this._rec) { try { this._rec.stop(); } catch (err) {} } }
+  // Готово: текст записи добавляется в поле ввода, дальше курьер правит и отправляет сам
+  _micDone() {
+    const text = (this._micFinal + ' ' + (this._micInterim || '')).trim();
+    this._micWant = false;
+    if (this._rec) { try { this._rec.stop(); } catch (err) {} }
+    const draft = String((this.state || {}).draft || '').trim();
+    this._set({ listening: false, recText: '', draft: text ? (draft ? draft + ' ' : '') + text : draft });
+    setTimeout(() => { const ta = document.querySelector('.ras-input'); if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } }, 50);
+  }
+  // крестик: запись отменяется, поле ввода остаётся как было
+  _micStop() {
+    this._micWant = false;
+    if (this._rec) { try { this._rec.abort(); } catch (err) {} }
+    if ((this.state || {}).listening) this._set({ listening: false, recText: '' });
+  }
   _p() { return this.props || {}; }
   _headers() {
     const p = this._p();
@@ -558,7 +614,9 @@ class Component extends DCLogic {
       show_send: !(micOk && (!draft.trim() || listening)), show_mic: micOk && (!draft.trim() || listening),
       listening, not_listening: !listening, mic_off: busy, mic_cls: 'ras-send ras-mic' + (listening ? ' ras-mic-on' : ''),
       mic_aria: listening ? 'Остановить запись' : 'Сказать голосом',
-      mic_tap: () => (listening ? this._micStop() : this._micStart()),
+      mic_tap: () => (listening ? this._micDone() : this._micStart()),
+      mic_done: () => this._micDone(), mic_cancel: () => this._micStop(),
+      rec_text: st.recText || '', rec_empty: !st.recText,
       input_hint: listening ? 'Говорите' : (st.micNote || 'Спросите помощника'),
       feed_scroll: (e) => { const el = e && e.target; if (el) this._stick = el.scrollHeight - el.scrollTop - el.clientHeight < 80; },
       close: () => { if (typeof p.onClose === 'function') p.onClose(); },

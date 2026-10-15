@@ -272,6 +272,12 @@ button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, b
 .raznos-hero-pre-line { font: 500 14px/1.35 var(--raznos-font); color: var(--raznos-ink-2); }
 .raznos-hero-pre-cta { margin-top: 6px; min-height: 44px; display: inline-flex; align-items: center; align-self: flex-start; padding: 0 16px; border-radius: 999px; background: var(--raznos-dark); color: var(--raznos-on-dark); font: 650 14px var(--raznos-font); }
 .raznos-hero-label { font: 500 14px var(--raznos-font); opacity: 0.72; }
+/* свежесть данных отдельно под полосой сервисов: тихая серая строка, точка зелёная, при сбое янтарная */
+.raznos-hero-fresh { align-self: flex-start; display: inline-flex; align-items: center; gap: 7px; min-height: 32px; margin: -6px 0 0; padding: 0 2px; border: 0; background: none; color: var(--raznos-ink-3); font: 500 12.5px var(--raznos-font); text-align: left; cursor: pointer; }
+.raznos-hero-fresh i { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--raznos-green); }
+.raznos-hero-fresh.raznos-is-warn i { background: var(--raznos-amber); }
+.raznos-hero-fresh::after { content: '›'; margin-left: 2px; font-size: 15px; line-height: 1; }
+.raznos-hero-fresh:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 6px; }
 .raznos-hero-value { font: 700 40px/1 var(--raznos-mono); letter-spacing: -0.01em; }
 .raznos-hero-unit { font: 600 16px var(--raznos-font); opacity: 0.8; }
 .raznos-hero-today { position: relative; }
