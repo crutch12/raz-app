@@ -5344,7 +5344,7 @@
             { tab: 'work', title: 'План', text: 'Цель недели и смены: где и когда выйти, чтобы успеть' },
             { tab: 'stats', title: 'Результаты', text: 'Итоги за неделю, месяц и год и сравнение с курьерами города' },
             { tab: 'market', title: 'Рынок', text: 'Где и в каком сервисе платят больше и как начать работать' },
-            { tab: 'profile', title: 'Профиль', text: 'Баланс, уведомления, настройки и ваш профиль для других' }
+            { tab: 'profile', title: 'Профиль', text: 'Чаевые, уведомления, настройки и ваш профиль для других' }
           ];
           const TOUR_SCREENS = ['courier-empty', 'courier-home', 'work-hub', 'stats', 'market', 'profile'];
           // после тура короткие серии подсказок к тому, что без них не найти или поймут не так; каждая серия один раз
@@ -8407,7 +8407,7 @@
               const row = (title, key, go, opts, extra) => ({ title, go: () => set(Object.assign({}, go)), opts: opts.map(([v, label]) => ({ label, on: (edge[key] || '') === v, cls: 'raznos-chip' + ((edge[key] || '') === v ? ' raznos-is-active' : ''), tap: () => set(Object.assign({ demoEdge: Object.assign({}, edge, { [key]: v }) }, extra || {})) })) });
               // баланс берём из самих данных: пусто, если не было ни чаевых, ни выводов
               const walletCur = (st.walletIncome || []).length || (st.walletWithdrawals || []).length ? 'has' : 'zero';
-              const walletRow = { title: 'Баланс', go: () => set({ s: 'wallet' }), opts: [['has', 'Есть чаевые', { walletIncome: buildSeedWalletIncome(), walletWithdrawals: buildSeedWalletWithdrawals() }], ['zero', 'Ноль, выводов не было', { walletIncome: [], walletWithdrawals: [] }]].map(([v, label, patch]) => ({ label, on: walletCur === v, cls: 'raznos-chip' + (walletCur === v ? ' raznos-is-active' : ''), tap: () => set(patch) })) };
+              const walletRow = { title: 'Чаевые через Разнос', go: () => set({ s: 'wallet' }), opts: [['has', 'Есть чаевые', { walletIncome: buildSeedWalletIncome(), walletWithdrawals: buildSeedWalletWithdrawals() }], ['zero', 'Ноль, выводов не было', { walletIncome: [], walletWithdrawals: [] }]].map(([v, label, patch]) => ({ label, on: walletCur === v, cls: 'raznos-chip' + (walletCur === v ? ' raznos-is-active' : ''), tap: () => set(patch) })) };
               // пустая история значит заказов нет совсем, сегодня тоже: чип показывает Ноль, а Есть возвращает и историю
               const todayCur = edge.history === 'empty' ? 'zero' : (edge.today || '');
               const todayRow = { title: 'Заказы сегодня', go: () => set({ s: 'courier-home', homeDay: '' }), opts: [['', 'Есть', { today: '', history: '' }], ['zero', 'Ноль', { today: 'zero' }]].map(([v, label, patch]) => ({ label, on: todayCur === v, cls: 'raznos-chip' + (todayCur === v ? ' raznos-is-active' : ''), tap: () => set({ demoEdge: Object.assign({}, edge, patch) }) })) };
