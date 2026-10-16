@@ -46,8 +46,6 @@
     .rss-total-btn:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 6px; }
     .rss-total-cap { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); text-decoration: underline dotted; text-underline-offset: 3px; }
     .rss-list { display: flex; flex-direction: column; gap: 8px; }
-    /* ≈ ₽/ч у окон это оценка окна: одна метка над столбцом сумм */
-    .rss-basis { display: flex; justify-content: flex-end; margin: 0 0 -4px; }
     /* прилипая сверху, карточка отделяется тенью от экрана */
     .rss-goal.rss-goal-sticky { position: sticky; top: 4px; z-index: 4; box-shadow: 0 6px 16px rgba(20, 25, 40, 0.1); }
     /* план недели изменился: карточка пружинит и подсвечивается, дельта всплывает, по полосе проходит блик */
@@ -158,7 +156,6 @@
         <sc-if value="{{ r.is_past_group }}" hint-placeholder-val="{{ false }}"><button type="button" class="rss-past-group" onClick="{{ r.tap }}" aria-expanded="{{ r.open }}"><span>{{ r.label }}</span><span class="rss-past-group-act">{{ r.act }}</span></button></sc-if>
         <sc-if value="{{ r.is_now_line }}" hint-placeholder-val="{{ false }}"><span class="rss-now-line" role="img" aria-label="{{ r.label }}"></span></sc-if>
         <sc-if value="{{ r.is_window }}" hint-placeholder-val="{{ true }}">
-          <sc-if value="{{ r.basis_first }}" hint-placeholder-val="{{ false }}"><div class="rss-basis"><dc-import name="RaznosRateBasis" kind="window"></dc-import></div></sc-if>
           <dc-import name="RaznosPlanWindow" from="{{ r.from }}" to="{{ r.to }}" svc="{{ r.svc }}" title="{{ r.title }}" sub="{{ r.sub }}" pay="{{ r.pay }}" kind="{{ r.kind }}" badge="{{ r.badge }}" state="{{ r.state }}" progress="{{ r.progress }}" left="{{ r.left }}" note="{{ r.note }}" action="{{ r.action }}" actionKind="{{ r.actionKind }}" onTap="{{ r.tap }}" onAction="{{ r.onAction }}" onBadge="{{ r.onBadge }}" gain="{{ r.gain }}" loss="{{ r.loss }}" urgent="{{ r.urgent }}" highlight="{{ r.highlight }}" changed="{{ r.changed }}" altLabel="{{ r.altLabel }}" mine="{{ r.mine }}" onAlt="{{ r.onAlt }}" quest="{{ r.quest }}" weather="{{ r.weather }}" weatherKind="{{ r.weatherKind }}" more="{{ r.more }}" onMore="{{ r.tap }}" rebook="{{ r.rebook }}" onRebook="{{ r.onRebook }}" offer="{{ r.offer }}" onOffer="{{ r.onOffer }}"></dc-import>
         </sc-if>
         <sc-if value="{{ r.is_gap }}" hint-placeholder-val="{{ false }}">
@@ -1366,8 +1363,7 @@ class Component extends DCLogic {
       total_delta_show: false, total_delta: dayAnim ? (dayAnim.delta > 0 ? '+' : '−') + rssFmt(Math.abs(dayAnim.delta)) + ' ₽' : '',
       total_delta_cls: 'rss-total-delta' + (dayAnim ? ' rss-is-' + dayAnim.dir : ''), total_cap: isToday ? 'К концу дня' : 'За день', total_aria: (isToday ? 'К концу дня' : 'За день') + ' ≈ ' + rssFmt(r10(dayEarn)) + ' рублей, как считаем',
       open_forecast: () => set({ term: 'оценка дня' }),
-      // метка меры над первым окном с ₽/ч: дальше в Плане ≈ ₽/ч у окна значит оценка окна
-      rows: (topNudge ? [topNudge].concat(rowsShown) : rowsShown).map((r, i, all) => (selIso >= RSS_TODAY_ISO && r.is_window && r.pay && all.findIndex((x) => x.is_window && x.pay) === i ? Object.assign({}, r, { basis_first: true }) : r)), has_rows: rowsShown.length > 0 || !!topNudge,
+      rows: topNudge ? [topNudge].concat(rowsShown) : rowsShown, has_rows: rowsShown.length > 0 || !!topNudge,
       show_empty: !realWins.length,
       // в день с погодой, которая поднимает спрос: вход Сообщать о спросе из-за погоды под окнами
       ...(() => {

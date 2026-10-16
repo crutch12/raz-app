@@ -59,7 +59,7 @@
         <span class="rdo-radio" aria-hidden="true"></span>
         <span class="rdo-opt-body">
           <span class="rdo-opt-head"><dc-import name="RaznosIcon" svc="{{ o.svc }}" alt="" size="sm"></dc-import><b>{{ o.title }}</b><span class="{{ o.val_cls }}">{{ o.val }}</span></span>
-          <sc-if value="{{ o.has_rates }}" hint-placeholder-val="{{ false }}"><span class="rdo-rates">{{ o.rates }}<dc-import name="RaznosRateBasis" kind="window"></dc-import></span></sc-if>
+          <sc-if value="{{ o.has_rates }}" hint-placeholder-val="{{ false }}"><span class="rdo-rates">{{ o.rates }}</span></sc-if>
           <sc-for list="{{ o.lines }}" as="l" hint-placeholder-count="1"><span class="{{ l.cls }}">{{ l.text }}</span></sc-for>
         </span>
       </button></sc-for>
