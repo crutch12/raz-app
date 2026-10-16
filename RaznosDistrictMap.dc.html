@@ -141,6 +141,7 @@ const rdmData = () => rdmDataP || (rdmDataP = rdmOnce(() => Promise.all([rdmGeo(
 // на входе нейтральные данные: GeoJSON с готовыми цветами в properties (fill, fillOpacity, line, lineWidth, lineOpacity, dashed, hatch)
 const RDM_LIB = 'https://cdn.jsdelivr.net/npm/maplibre-gl@6.11.2/dist/maplibre-gl.mjs';
 const RDM_STYLE = 'https://tiles.openfreemap.org/styles/';
+const RDM_SHOW_CREDITS = false;
 const RDM_MAP = (() => {
   let libP = null;
   const styleP = {};
@@ -425,7 +426,8 @@ class Component extends DCLogic {
       ph_cls: 'rdm-ph' + (drawn ? ' rdm-ph-off' : '') + (net === 'loading' && !drawn ? ' rdm-ph-loading' : ''),
       has_fail: failCard, retry: () => this._retry(),
       // в превью карточка сама кнопка, поэтому там просто текст
-      attr_btn: !p.compact, attr_plain: !!p.compact, attr_open: String(!!st.attrOpen), attr_full: 'Источники карты: ' + RDM_MAP.credits.full,
+      // в демо подпись источников скрыта; в рабочем приложении включить, этого требует лицензия OpenStreetMap
+      attr_btn: RDM_SHOW_CREDITS && !p.compact, attr_plain: RDM_SHOW_CREDITS && !!p.compact, attr_open: String(!!st.attrOpen), attr_full: 'Источники карты: ' + RDM_MAP.credits.full,
       attr_text: st.attrOpen && !p.compact ? RDM_MAP.credits.full : RDM_MAP.credits.short, attr_tap: () => this.setState({ attrOpen: !st.attrOpen }),
       // на Карте курьеров снизу сводка экрана, карточку ставим по центру видимой части
       fail_style: people && +p.inset > 0 ? 'top:calc(50% - ' + Math.round(+p.inset / 2) + 'px)' : '',
