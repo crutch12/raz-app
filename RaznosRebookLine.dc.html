@@ -53,7 +53,7 @@
     .rrbk-list b.rrbk-is-minus { color: var(--raznos-ink-3); font-weight: 600; }
   </style>
 </helmet>
-<sc-if value="{{ is_chip }}" hint-placeholder-val="{{ false }}"><button type="button" class="rrbk-chip" onClick="{{ on_open }}" aria-label="{{ aria }}"><span class="rrbk-chip-in"><span class="rrbk-chip-copy"><span>Заменить на {{ alt_short }} {{ alt_time }}</span><small><b>{{ net }}</b> даже со штрафом за отмену</small></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span></button></sc-if>
+<sc-if value="{{ is_chip }}" hint-placeholder-val="{{ false }}"><button type="button" class="rrbk-chip" onClick="{{ on_open }}" aria-label="{{ aria }}"><span class="rrbk-chip-in"><span class="rrbk-chip-copy"><span>Заменить на {{ alt_short }} {{ alt_time }}</span><small><b>{{ net }}</b> {{ chip_sub }}</small></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span></button></sc-if>
 <sc-if value="{{ is_list }}" hint-placeholder-val="{{ false }}"><span class="rrbk-list" aria-label="{{ aria }}">{{ list_text }}<b class="{{ list_cls }}">{{ list_val }}</b></span></sc-if>
 <sc-if value="{{ is_receipt }}" hint-placeholder-val="{{ true }}"><div class="{{ layer_cls }}" onClick="{{ on_close }}">
   <section class="{{ sheet_cls }}" role="{{ sheet_role }}" aria-label="Цена перебронирования" onClick="{{ stop }}">
@@ -130,6 +130,8 @@ class Component extends DCLogic {
       mine_sub: requested ? 'ваша заявка, отзовёте' : 'ваша бронь, отмените',
       pen_label: requested ? 'Отзыв заявки' : 'Штраф за отмену', pen, pen_cls: 'rrbk-sum' + (known && !free ? '' : ' rrbk-is-soft'),
       penalty_n: penalty, free_until: p.freeUntil || '', requested, other: p.other || '',
+      // у заявки штрафа нет, её просто отзывают
+      chip_sub: requested ? 'заявку отзовёте' : (free ? 'без штрафа за отмену' : 'даже со штрафом за отмену'),
       has_net: known, net: net == null ? '' : RRB_SIGNED(net), total_cls: 'rrbk-total' + (net > 0 ? ' rrbk-is-plus' : ''),
       notes,
       has_acts: typeof p.onTake === 'function' || typeof p.onKeep === 'function',

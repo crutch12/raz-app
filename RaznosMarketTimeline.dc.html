@@ -164,7 +164,7 @@
         </div>
         <div class="rmt-main">
           <span class="rmt-main-num">
-            <span class="rmt-cap">{{ cap }}</span>
+            <span class="rmt-cap">{{ cap }} <dc-import name="RaznosRateBasis" kind="{{ cap_kind }}"></dc-import></span>
             <span class="{{ big_cls }}"><b>{{ big }}</b><small>₽/ч</small></span>
             <span class="rmt-avg">{{ avg_label }} <b>{{ avg_val }}</b></span>
           </span>
@@ -200,7 +200,7 @@
       </div>
     </sc-if>
     <sc-if value="{{ is_map }}" hint-placeholder-val="{{ false }}">
-      <div class="rmt-map"><dc-import name="RaznosDistrictMap" mode="demand" showModeSwitch="{{ true }}" districts="{{ map_zones }}" selected="{{ map_sel }}" hour="{{ map_hour }}" hourLabel="{{ map_chip }}" onPick="{{ map_pick_k }}" height="{{ 400 }}"></dc-import></div>
+      <div class="rmt-map"><dc-import name="RaznosDistrictMap" mode="demand" poolKey="timeline" showModeSwitch="{{ true }}" districts="{{ map_zones }}" selected="{{ map_sel }}" hour="{{ map_hour }}" hourLabel="{{ map_chip }}" onPick="{{ map_pick_k }}" height="{{ 400 }}"></dc-import></div>
       <span class="rmt-map-hint">Нажмите на район</span>
       <sc-if value="{{ map_none }}" hint-placeholder-val="{{ false }}"><p class="rmt-panel rmt-empty">{{ map_none_text }}</p></sc-if>
       <sc-if value="{{ has_map_pick }}" hint-placeholder-val="{{ true }}"><div class="rmt-panel rmt-pick"><dc-import name="RaznosRankRow" plain="{{ true }}" title="{{ map_pick.title }}" meta="{{ map_pick.meta }}" metaMine="{{ map_pick.metaMine }}" value="{{ map_pick.val }}" forecast="{{ map_pick.fc }}" divider="{{ false }}"></dc-import><a class="raznos-btn raznos-btn-secondary raznos-btn-small rmt-route" href="{{ map_pick.href }}" target="_blank" rel="noopener" aria-label="{{ map_pick.aria }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8-8-2z"/></svg>Маршрут в Яндекс Картах</a></div></sc-if>
@@ -247,7 +247,7 @@
     </sc-if>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"few":{"editor":"boolean","default":false},"connected":{"editor":null},"weather":{"editor":null},"slots":{"editor":null},"initialDay":{"editor":"number","default":0},"initialHour":{"editor":"number"},"initialBy":{"editor":"text","default":"zone"},"initialScope":{"editor":"text","default":"all"},"initialView":{"editor":"text","default":"list"},"initialZones":{"editor":null},"initialPick":{"editor":"text","default":""},"initialTod":{"editor":"text","default":""},"open":{"editor":null},"onBack":{"editor":null},"onSlots":{"editor":null},"onMyDay":{"editor":null},"alertFind":{"editor":null},"onAlert":{"editor":null},"$preview":{"width":390,"height":360}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"myRate":{"editor":"number","default":0},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"few":{"editor":"boolean","default":false},"connected":{"editor":null},"weather":{"editor":null},"slots":{"editor":null},"initialDay":{"editor":"number","default":0},"initialHour":{"editor":"number"},"initialBy":{"editor":"text","default":"zone"},"initialScope":{"editor":"text","default":"all"},"initialView":{"editor":"text","default":"list"},"initialZones":{"editor":null},"initialPick":{"editor":"text","default":""},"initialTod":{"editor":"text","default":""},"open":{"editor":null},"onBack":{"editor":null},"onSlots":{"editor":null},"onMyDay":{"editor":null},"alertFind":{"editor":null},"onAlert":{"editor":null},"$preview":{"width":390,"height":360}}'>
 // таймлайн выгодности: когда и где выгоднее сейчас, в прошлые дни и по прогнозу
 // одна модель час × день × сервис × район, районы и сервисы те же, что в Где выгоднее, основа та же, что в Когда выгоднее
 // mode card: карточка, в приложении не используется; mode full: полная версия Подробно по часам, входы из простых экранов Рынка
@@ -444,11 +444,16 @@ class Component extends DCLogic {
     const myOf = (d) => { const m = RMT_MY[String(d)]; return m && hasZones && isMine(m[2]) ? m : null; };
     const meAt = (d, H) => { const [dd, hh] = at(d, H); const m = myOf(dd); return !!m && hh >= m[0] && hh < m[1] && (dd < 0 || (dd === 0 && hh < RMT_NOW_H)); };
     // ваш доход в час: ваш сервис и район, чуть ниже рынка
-    const myPay = (d, H) => {
+    const myPayRaw = (d, H) => {
       const [dd, hh] = at(d, H), m = myOf(dd);
       return m ? rmtR10(pay(dd, hh, RMT_SVC.find((s) => s.k === m[2]), RMT_ZONES.find((z) => z.k === m[3])) * 0.94) : 0;
     };
     const myHours = (d) => { const out = []; for (let H = RMT_FROM; H < RMT_END; H++) if (meAt(d, H)) out.push(H); return out; };
+    // сегодня ваш факт тот же, что на Сегодня: часы дня подтягиваем к среднему myRate
+    const myToday = myHours(0).filter((H) => at(0, H)[0] === 0);
+    const myTodayRaw = myToday.length ? myToday.reduce((a, H) => a + myPayRaw(0, H), 0) / myToday.length : 0;
+    const myTodayK = +p.myRate > 0 && myTodayRaw ? +p.myRate / myTodayRaw : 1;
+    const myPay = (d, H) => (at(d, H)[0] === 0 && myTodayK !== 1 ? rmtR10(myPayRaw(d, H) * myTodayK) : myPayRaw(d, H));
     // на прошлом дне с вашими часами сначала ваш худший час, где лучший вариант давал больше всего
     const myWorst = (d) => myHours(d).reduce((a, H) => (a == null || bestAt(d, H).v - myPay(d, H) > bestAt(d, a).v - myPay(d, a) ? H : a), null);
     const startHour = (d) => (d === 0 ? RMT_NOW_H : (d < 0 && myWorst(d) != null ? myWorst(d) : dayPeak(d)));
@@ -549,14 +554,17 @@ class Component extends DCLogic {
     // ночь подписываем днём выбранных суток: Чт, ночь 02:00
     const when = nowSel ? 'Сейчас' : (hour >= 24 ? RMT_DOW[rmtDate(day).getDay()] + ', ночь ' : (rd === 0 ? 'Сегодня, ' : rmtDayName(rd) + ', ')) + (nowSel ? '' : rmtHH(hour) + ':00');
     // было, прогноз или примерно пишем у подписи числа, чтобы строке с днём хватило места рядом с кнопкой К текущему часу
-    const cap = ['Лучший вариант', nowSel ? '' : (fc ? (far ? 'примерно' : 'прогноз') : 'было'), low ? 'предварительно' : ''].filter(Boolean).join(', ');
+    // мера по словарю меткой у подписи: прошлый и текущий час это в этот час, будущий прогноз
+    const cap = ['Лучший вариант', far ? 'примерно' : '', low ? 'предварительно' : ''].filter(Boolean).join(', ');
+    const capKind = fc ? 'forecast' : 'hour';
     // вы были на линии в этот час: ваш сервис и район против лучшего варианта часа, только у этих часов
     const my = meAt(day, hour) ? myOf(rd) : null;
     const myS = my ? RMT_SVC.find((s) => s.k === my[2]) : null, myZ = my ? RMT_ZONES.find((z) => z.k === my[3]) : null;
     const myV = my ? myPay(day, hour) : 0, gap = top ? rmtR10(top.v) - myV : 0;
     // итог дня с вашими часами: сколько были на линии, ваш средний доход и лучший вариант в те же часы
     const mh = myHours(day);
-    const sumText = mh.length ? 'Вы на линии ' + mh.length + ' ч: в среднем ' + rmtFmt(rmtR10(mh.reduce((a, H) => a + myPay(day, H), 0) / mh.length)) + RMT_RPH + ', лучший вариант ' + rmtFmt(rmtR10(mh.reduce((a, H) => a + bestAt(day, H).v, 0) / mh.length)) + RMT_RPH : '';
+    const myAvg = day === 0 && +p.myRate > 0 ? +p.myRate : rmtR10(mh.reduce((a, H) => a + myPay(day, H), 0) / (mh.length || 1));
+    const sumText = mh.length ? 'У вас ' + mh.length + ' ч на линии: в среднем ' + rmtFmt(myAvg) + RMT_RPH + ', лучший вариант ' + rmtFmt(rmtR10(mh.reduce((a, H) => a + bestAt(day, H).v, 0) / mh.length)) + RMT_RPH : '';
     // прогноз объясняем у числа: откуда он и почему вилка
     const fcNote = far ? 'Примерно: дальше 3 дней прогноз грубее' : 'Прогноз по 4 неделям и погоде, чем дальше час, тем шире вилка';
 
@@ -647,7 +655,7 @@ class Component extends DCLogic {
         };
       })(),
       big: top ? range(top.v) : '0', big_cls: 'rmt-big' + (spread ? ' rmt-big-range' : ''),
-      avg_label: avgLabel, avg_val: rmtFmt(avgAt(rd, rh)) + RMT_RPH,
+      cap_kind: capKind, avg_label: avgLabel, avg_val: rmtFmt(avgAt(rd, rh)) + RMT_RPH,
       notes_cls: 'rmt-notes' + (hourList.some((H) => meAt(day, H) || !!wxAt(day, H) || rmtFc(...at(day, H))) ? ' rmt-notes-res' : ''),
       has_leader: !!top, leader_svc: top ? top.s.k : '', leader_title: top ? top.s.title : '', leader_where: top && top.z ? top.z.loc : (top ? 'весь город' : ''),
       has_me: !!my, me_svc: myS ? myS.title : '', me_zone: myZ ? myZ.name : '', me_val: rmtFmt(myV) + RMT_RPH,

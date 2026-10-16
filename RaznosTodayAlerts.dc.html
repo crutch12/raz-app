@@ -82,7 +82,7 @@
       <sc-if value="{{ it.is_weather }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosWeather" weather="{{ it.weather }}"></dc-import></sc-if>
       <sc-if value="{{ it.is_bonus }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosBonusQuests" items="{{ it.q_items }}" hotId="{{ it.q_hot }}" nowMin="{{ it.q_now }}" onOpen="{{ it.tap }}"></dc-import></sc-if>
       <sc-if value="{{ it.is_payout }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosPayouts" mode="line" items="{{ it.payouts }}" late="{{ true }}" onOpen="{{ it.tap }}"></dc-import></sc-if>
-      <sc-if value="{{ it.is_row }}" hint-placeholder-val="{{ false }}"><div class="{{ it.cls }}"><div class="rta-row"><button type="button" class="rta-main" onClick="{{ it.tap }}"><span class="rta-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 1.5M9.5 2.5h5"/></svg></span><span class="rta-text"><span class="rta-title">{{ it.title }}</span><span class="rta-sub">{{ it.sub }}</span></span><span class="raznos-row-chevron rta-go" aria-hidden="true">›</span></button></div></div></sc-if>
+      <sc-if value="{{ it.is_row }}" hint-placeholder-val="{{ false }}"><div class="{{ it.cls }}"><div class="rta-row"><button type="button" class="rta-main" onClick="{{ it.tap }}"><span class="rta-ico" aria-hidden="true"><sc-if value="{{ it.svc }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosIcon" svc="{{ it.svc }}" alt="" size="sm"></dc-import></sc-if><sc-if value="{{ it.no_svc }}" hint-placeholder-val="{{ true }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 1.5M9.5 2.5h5"/></svg></sc-if></span><span class="rta-text"><span class="rta-title">{{ it.title }}</span><span class="rta-sub">{{ it.sub }}</span></span><span class="raznos-row-chevron rta-go" aria-hidden="true">›</span></button></div></div></sc-if>
     </div>
   </sc-for>
 </div>
@@ -90,7 +90,7 @@
 </x-dc><script type="text/x-dc" data-dc-script data-props='{
   "mode": { "editor": "enum", "options": ["slot", "sheet"], "default": "slot" },
   "items": { "editor": null },
-  "sample": { "editor": "enum", "options": ["calm", "bonus", "all", "block", "weather", "done", "risk", "late"], "default": "bonus" },
+  "sample": { "editor": "enum", "options": ["calm", "bonus", "all", "block", "weather", "done", "risk", "late", "offer"], "default": "bonus" },
   "conn": { "editor": null },
   "onConnAction": { "editor": null },
   "onOpen": { "editor": null },
@@ -102,13 +102,14 @@
 // примеры для дизайн-системы. В приложении список собирает RaznosApp по приоритету: 1 блокировка, 2 сбой связи, 3 не успеете доехать, 4 опасная погода, 5 риск аккаунта, 6 бонус почти набран, 7 задержка выплаты от 2 дней, 8 погода, 9 бонус набран
 const RTA_BLOCK = { id: 'acc-x5', kind: 'block', tone: 'red', svc: 'x5', word: 'аккаунт', title: 'X5 приостановил аккаунт', sub: 'До 18 октября, пауза 18% при лимите 15%', acc: { svc: 'x5', title: 'X5 Доставка', titleIn: 'X5 Доставке', sample: 'block' } };
 const RTA_CONFLICT = { id: 'conflict', kind: 'conflict', tone: 'amber', word: 'дорога', title: 'Не успеете доехать в Яндекс Еду', sub: 'Смены встык, дорога ≈ 20 мин, начало в 17:00' };
+const RTA_OFFER = { id: 'offer', kind: 'offer', tone: '', svc: 'x5', word: 'замена', hide: true, title: 'Выгоднее X5 17:30–23:00', sub: '+200 ₽, ≈ 720 против 790 ₽/ч' };
 const RTA_LATE = { id: 'payout', kind: 'late', tone: 'amber', svc: 'x5', word: 'выплата', hide: true, title: 'X5 задерживает 3 980 ₽', sub: 'Ждали в четверг, прошло 6 дней' };
 const RTA_BONUS = { id: 'bonus', kind: 'bonus', tone: '', svc: 'yandex-eda', word: 'бонус', hide: true, title: 'Ещё 6 заказов до ', titleB: '+1 500 ₽', sub: 'Яндекс Еда, до 20:00, 14 из 20', pct: 70 };
 const RTA_DONE = { id: 'bonus', kind: 'bonus-done', tone: 'green', svc: 'yandex-eda', word: 'бонус', hide: true, title: 'Цель набрана, ', titleB: '+1 500 ₽', sub: 'Яндекс Еда начислит после проверки', pct: 100 };
 const RTA_RAIN = { id: 'weather', kind: 'weather', tone: '', wx: 'rain', word: 'погода', hide: true, title: 'Дождь 18–22, ', titleB: 'спрос выше', sub: 'Заказов обычно больше, к вечеру ставки выше' };
 const RTA_FROST = { id: 'weather', kind: 'weather-danger', tone: 'amber', wx: 'frost', word: 'погода', title: 'Мороз на вашей смене', sub: 'До −14 °C вечером, ветер 7 м/с' };
 const RTA_RISK = { id: 'acc-x5', kind: 'risk', tone: 'amber', svc: 'x5', word: 'аккаунт', hide: true, title: 'Пауза X5 13% из 15%', sub: 'Ещё 2% и могут ограничить слоты', acc: { svc: 'x5', title: 'X5 Доставка', titleIn: 'X5 Доставке', sample: 'risk' } };
-const RTA_SAMPLES = { calm: [], bonus: [RTA_CONFLICT, RTA_BONUS], all: [RTA_FROST, RTA_RISK, RTA_BONUS, RTA_LATE], block: [RTA_BLOCK, RTA_BONUS, RTA_LATE], weather: [RTA_FROST, RTA_BONUS], done: [RTA_DONE], risk: [RTA_RISK], late: [RTA_LATE, RTA_RAIN] };
+const RTA_SAMPLES = { calm: [], bonus: [RTA_CONFLICT, RTA_BONUS], all: [RTA_FROST, RTA_RISK, RTA_BONUS, RTA_LATE], block: [RTA_BLOCK, RTA_BONUS, RTA_LATE], weather: [RTA_FROST, RTA_BONUS], done: [RTA_DONE], risk: [RTA_RISK], late: [RTA_LATE, RTA_RAIN], offer: [RTA_OFFER] };
 function rtaPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
 class Component extends DCLogic {
   renderVals() {
@@ -157,7 +158,8 @@ class Component extends DCLogic {
           is_weather: k === 'weather' || k === 'weather-danger', weather: it.weather,
           is_bonus: k === 'bonus' || k === 'bonus-done', q_items: it.quests ? it.quests.items : undefined, q_hot: it.quests ? it.quests.hotId : '', q_now: it.quests ? it.quests.nowMin : 940,
           is_payout: k === 'late', payouts: it.payouts,
-          is_row: k === 'conflict', cls: 'rta' + (it.tone ? ' rta-is-' + it.tone : ''), title: it.title || '', sub: it.sub || '',
+          // конфликт и замена смены строкой, у замены иконка сервиса
+          is_row: k === 'conflict' || k === 'offer', svc: k === 'offer' ? it.svc || '' : '', no_svc: !(k === 'offer' && it.svc), cls: 'rta' + (it.tone ? ' rta-is-' + it.tone : ''), title: it.title || '', sub: it.sub || '',
           tap: onOpen(it),
           contact: (svc) => { if (p.onContact) p.onContact(svc); }
         };

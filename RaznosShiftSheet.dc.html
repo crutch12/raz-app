@@ -26,6 +26,7 @@
     .rsh-note.rsh-note-warn { background: var(--raznos-amber-tint); color: var(--raznos-ink); }
     .rsh-action-note { margin: -4px 0 0; text-align: center; font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
     .rsh-note.rsh-note-danger { background: color-mix(in oklab, var(--raznos-red) 10%, var(--raznos-surface)); color: var(--raznos-red); }
+    .rsh-offer:has(.rdo-is-conflict) { padding: 2px 12px; border-radius: 12px; background: var(--raznos-amber-tint); }
     @media (prefers-reduced-motion: no-preference) {
       .rsh-sheet { animation: rsh-in .24s cubic-bezier(.16, 1, .3, 1) both; }
       @keyframes rsh-in { from { transform: translateY(100%); } to { transform: none; } }
@@ -45,6 +46,7 @@
     <sc-if value="{{ has_svc_line }}" hint-placeholder-val="{{ false }}"><p class="rsh-svc-line">{{ svc_line }}</p></sc-if>
     <sc-if value="{{ has_when_note }}" hint-placeholder-val="{{ true }}"><p class="rsh-note">{{ when_note }}</p></sc-if>
     <div class="rsh-money"><b>{{ money }}</b><span>{{ money_note }}</span></div>
+    <sc-if value="{{ has_offer }}" hint-placeholder-val="{{ false }}"><div class="rsh-offer"><dc-import name="RaznosDayOffer" variant="line" conflict="{{ offer.conflict }}" swap="{{ offer.swap }}" onOpen="{{ on_offer }}"></dc-import></div></sc-if>
     <sc-if value="{{ has_conflict }}" hint-placeholder-val="{{ false }}"><p class="rsh-note rsh-note-danger">{{ conflict }}</p></sc-if>
     <sc-if value="{{ has_rebook }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosRebookLine" variant="full" altSvc="{{ rebook.altSvc }}" altTitle="{{ rebook.altTitle }}" altTime="{{ rebook.altTime }}" altSum="{{ rebook.altSum }}" mineSvc="{{ rebook.mineSvc }}" mineTitle="{{ rebook.mineTitle }}" mineTime="{{ rebook.mineTime }}" mineSum="{{ rebook.mineSum }}" penalty="{{ rebook.penalty }}" freeUntil="{{ rebook.freeUntil }}" requested="{{ rebook.requested }}" other="{{ rebook.other }}" onTake="{{ rebook.onTake }}" onKeep="{{ rebook.onKeep }}"></dc-import></sc-if>
     <sc-if value="{{ has_fallback }}" hint-placeholder-val="{{ false }}"><p class="rsh-note">{{ fallback }}</p></sc-if>
@@ -54,7 +56,7 @@
     <button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ close }}">Закрыть</button>
   </section>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"svc":{"editor":"text","default":"yandex-eda"},"title":{"editor":"text","default":"Яндекс Еда"},"place":{"editor":"text","default":"Локация Беговая"},"time":{"editor":"text","default":"17:00–21:00"},"status":{"editor":"text","default":"бронь"},"tone":{"editor":"text","default":"ok"},"whenNote":{"editor":"text","default":""},"svcLine":{"editor":"text","default":""},"fallback":{"editor":"text","default":""},"money":{"editor":"text","default":"≈ 3 160 ₽ за смену"},"moneyNote":{"editor":"text","default":"≈ 790 ₽/ч, оценка по заказам курьеров Разноса, как в Плане. Ставка сервиса 390 ₽/ч уже внутри"},"conflict":{"editor":"text"},"rebook":{"editor":null},"rule":{"editor":"text","default":"Бесплатная отмена закончилась пн 12:00. Позже это невыход: штраф равен минималке за пропущенные часы"},"ruleTone":{"editor":"text","default":"warn"},"ruleSrc":{"editor":"text","default":""},"action":{"editor":"text","default":"Открыть в приложении Яндекс Еда"},"actionNote":{"editor":"text","default":"Бронь можно отменить только в приложении Яндекс Еда, бесплатно до пн 12:00"},"onAction":{"editor":null},"onArea":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"svc":{"editor":"text","default":"yandex-eda"},"offer":{"editor":null},"onOffer":{"editor":null},"title":{"editor":"text","default":"Яндекс Еда"},"place":{"editor":"text","default":"Локация Беговая"},"time":{"editor":"text","default":"17:00–21:00"},"status":{"editor":"text","default":"бронь"},"tone":{"editor":"text","default":"ok"},"whenNote":{"editor":"text","default":""},"svcLine":{"editor":"text","default":""},"fallback":{"editor":"text","default":""},"money":{"editor":"text","default":"≈ 3 160 ₽ за смену"},"moneyNote":{"editor":"text","default":"≈ 790 ₽/ч, оценка по заказам курьеров Разноса, как в Плане. Ставка сервиса 390 ₽/ч уже внутри"},"conflict":{"editor":"text"},"rebook":{"editor":null},"rule":{"editor":"text","default":"Бесплатная отмена закончилась пн 12:00. Позже это невыход: штраф равен минималке за пропущенные часы"},"ruleTone":{"editor":"text","default":"warn"},"ruleSrc":{"editor":"text","default":""},"action":{"editor":"text","default":"Открыть в приложении Яндекс Еда"},"actionNote":{"editor":"text","default":"Бронь можно отменить только в приложении Яндекс Еда, бесплатно до пн 12:00"},"onAction":{"editor":null},"onArea":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":620}}'>
 // подробности брони: когда, статус, деньги той же моделью, что в Плане, правила отмены и переход в приложение сервиса
 class Component extends DCLogic {
   renderVals() {
@@ -64,6 +66,7 @@ class Component extends DCLogic {
     const tone = v('tone', 'ok');
     const rule = v('rule', 'Бесплатная отмена закончилась пн 12:00. Позже это невыход: штраф равен минималке за пропущенные часы');
     const conflict = v('conflict', '');
+    const offer = p.offer && (p.offer.conflict || p.offer.swap) ? p.offer : null;
     const action = v('action', 'Открыть в приложении Яндекс Еда');
     const actionNote = v('actionNote', 'Бронь можно отменить только в приложении Яндекс Еда, бесплатно до пн 12:00');
     // без пропса подпись про сегодня
@@ -76,9 +79,11 @@ class Component extends DCLogic {
       // статус и режим словами сервиса серой строкой, метка выше всегда из общего словаря
       svc_line: v('svcLine', ''), has_svc_line: !!v('svcLine', ''), fallback: v('fallback', ''), has_fallback: !!v('fallback', ''),
       money: v('money', '≈ 3 160 ₽ за смену'), money_note: v('moneyNote', ''),
-      conflict, has_conflict: !!conflict,
+      conflict, has_conflict: !!conflict && !offer,
       // цена перебронирования чеком, если есть слот выгоднее или слот пересекается с вашей сменой
-      rebook: p.rebook || {}, has_rebook: !!p.rebook,
+      rebook: p.rebook || {}, has_rebook: !!p.rebook && !offer,
+      // предложение дня в Плане: та же строка, что на окне, тап открывает общую шторку
+      offer: offer || {}, has_offer: !!offer, on_offer: fn(p.onOffer),
       rule, has_rule: !!rule, rule_src: v('ruleSrc', ''), has_rule_src: !!v('ruleSrc', ''), rule_cls: 'rsh-note' + (v('ruleTone', 'warn') === 'warn' ? ' rsh-note-warn' : ''),
       action, has_action: !!action, act: fn(p.onAction), action_note: actionNote, has_action_note: !!action && !!actionNote,
       // строка района открывает карту района с зоной даркстора

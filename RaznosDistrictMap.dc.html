@@ -9,6 +9,8 @@
     .rdm.rdm-fill { position: absolute; inset: 0; height: auto; }
     /* через .rdm, чтобы стили карты, подключённые заново при повторе, не перебили position */
     .rdm .rdm-canvas { position: absolute; inset: 0; }
+    /* сама карта во внутреннем узле: при уходе с экрана его вместе с картой забирает пул, при возврате ставим обратно */
+    .rdm .rdm-canvas > .rdm-gl { position: absolute; inset: 0; }
     .rdm-canvas .maplibregl-canvas:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: -2px; }
     .rdm-top { position: absolute; z-index: 3; top: 10px; left: 10px; right: 10px; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; pointer-events: none; }
     .rdm-top > * { pointer-events: auto; }
@@ -30,11 +32,10 @@
     .rdm-legend i { flex: none; width: 12px; height: 13px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
     .rdm-legend .rdm-l1 { background: oklch(0.8 0.1 150 / 0.7); } .rdm-legend .rdm-l2 { background: oklch(0.7 0.14 150 / 0.85); } .rdm-legend .rdm-l3 { background: oklch(0.58 0.15 150); }
     .rdm-legend .rdm-ring { width: 12px; height: 12px; border-radius: 50%; border: 2px dashed currentColor; clip-path: none; box-sizing: border-box; }
-    .rdm .maplibregl-ctrl-bottom-right { z-index: 2; }
-    .rdm .maplibregl-ctrl-attrib { font: 500 10px var(--raznos-font); }
-    .raznos-theme-dark .rdm .maplibregl-ctrl-attrib, .rdm.raznos-theme-dark .maplibregl-ctrl-attrib { background: oklch(0.2 0.01 250 / 0.75); color: oklch(0.85 0.01 250); }
-    .raznos-theme-dark .rdm .maplibregl-ctrl-attrib a, .rdm.raznos-theme-dark .maplibregl-ctrl-attrib a { color: inherit; }
-    .raznos-theme-dark .rdm .maplibregl-ctrl-attrib-button, .rdm.raznos-theme-dark .maplibregl-ctrl-attrib-button { filter: invert(1); }
+    /* источники карты своей тихой строкой вместо значка библиотеки, по тапу полный текст */
+    .rdm-attr { position: absolute; z-index: 2; right: 6px; bottom: 4px; max-width: calc(100% - 12px); padding: 3px 6px; border: 0; border-radius: 6px; background: color-mix(in oklab, var(--rdm-land) 72%, transparent); font: 500 10px/1.35 var(--raznos-font); color: var(--raznos-ink-3); text-align: right; text-wrap: balance; cursor: pointer; }
+    .rdm-attr:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 1px; }
+    .rdm-attr.rdm-attr-plain { pointer-events: none; cursor: default; }
     /* пилюли районов создаёт карта, стили общие для обоих режимов */
     /* позицию задаёт маркер карты (absolute), свою не ставим, иначе пилюли съезжают в потоке */
     .rdm-pill { display: inline-flex; align-items: center; gap: 4px; min-height: 28px; padding: 0 10px; border: 0; border-radius: 999px; background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 2px 6px rgba(20, 25, 40, .24); font: 700 12px var(--raznos-font); font-variant-numeric: tabular-nums; white-space: nowrap; cursor: pointer; }
@@ -56,12 +57,12 @@
     .rdm.rdm-locked .rdm-canvas { filter: saturate(0.7) blur(3px); transform: scale(1.04); }
     .rdm-quiet { pointer-events: none; font: 700 9.5px var(--raznos-font); letter-spacing: .08em; text-transform: uppercase; color: var(--raznos-ink-3); text-shadow: 0 0 3px var(--rdm-land), 0 0 3px var(--rdm-land); white-space: nowrap; }
     .rdm-mk-courier { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--rdm-ring); box-sizing: border-box; box-shadow: 0 1px 4px rgba(20, 25, 40, .3); pointer-events: none; }
-    .rdm-mk-me { position: relative; width: 16px; height: 16px; pointer-events: none; }
+    .rdm-mk-me { width: 16px; height: 16px; pointer-events: none; }
     .rdm-mk-me > i { position: absolute; inset: 0; border-radius: 50%; }
     .rdm-mk-me > .rdm-mk-dot { border: 3px solid var(--rdm-ring); box-shadow: 0 1px 5px rgba(20, 25, 40, .35); }
     .rdm-mk-me > .rdm-mk-halo { inset: -8px; background: color-mix(in oklab, var(--raznos-dark) 18%, transparent); }
     .rdm-mk-me > b { position: absolute; left: 21px; top: 50%; transform: translateY(-50%); font: 800 12px var(--raznos-font); color: var(--raznos-dark); text-shadow: 0 0 3px var(--rdm-land), 0 0 3px var(--rdm-land), 0 0 2px var(--rdm-land); }
-    .rdm-mk-drop { position: relative; display: block; width: 28px; height: 32px; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(0 2px 3px rgba(20, 25, 40, .3)); }
+    .rdm-mk-drop { display: block; width: 28px; height: 32px; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(0 2px 3px rgba(20, 25, 40, .3)); }
     .rdm-mk-drop::before { content: ""; position: absolute; inset: -6px -8px 0; }
     .rdm-mk-drop svg { display: block; width: 28px; height: 32px; }
     .rdm-mk-drop path { fill: currentColor; stroke: var(--rdm-ring); stroke-width: 1.8; stroke-linejoin: round; }
@@ -106,9 +107,11 @@
   <sc-if value="{{ has_state }}" hint-placeholder-val="{{ false }}"><span class="{{ state_cls }}" role="status"><sc-if value="{{ state_busy }}" hint-placeholder-val="{{ false }}"><i class="rdm-state-dot" aria-hidden="true"></i></sc-if>{{ state_text }}</span></sc-if>
   <sc-if value="{{ has_legend_demand }}" hint-placeholder-val="{{ false }}"><span class="rdm-legend">Ставка часа<i class="rdm-l1" aria-hidden="true"></i><i class="rdm-l2" aria-hidden="true"></i><i class="rdm-l3" aria-hidden="true"></i>выше</span></sc-if>
   <sc-if value="{{ has_legend_zone }}" hint-placeholder-val="{{ false }}"><span class="rdm-legend"><i class="rdm-ring" style="{{ zone_color }}" aria-hidden="true"></i>Зона примерно</span></sc-if>
+  <sc-if value="{{ attr_btn }}" hint-placeholder-val="{{ true }}"><button type="button" class="rdm-attr" aria-expanded="{{ attr_open }}" aria-label="{{ attr_full }}" onClick="{{ attr_tap }}">{{ attr_text }}</button></sc-if>
+  <sc-if value="{{ attr_plain }}" hint-placeholder-val="{{ false }}"><span class="rdm-attr rdm-attr-plain">{{ attr_text }}</span></sc-if>
   <sc-if value="{{ has_home }}" hint-placeholder-val="{{ false }}"><button type="button" class="rdm-home" aria-label="{{ home_label }}" title="{{ home_label }}" onClick="{{ home }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><circle cx="12" cy="12" r="2.5"/></svg></button></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"demand"},"districts":{"editor":null},"selected":{"editor":"text","default":""},"hour":{"editor":"number"},"hourLabel":{"editor":"text","default":""},"zones":{"editor":null},"focus":{"editor":"text","default":""},"showModeSwitch":{"editor":"boolean","default":false},"onPick":{"editor":null},"onMode":{"editor":null},"theme":{"editor":"text","default":"auto"},"height":{"editor":"number","default":380},"fill":{"editor":"boolean","default":false},"compact":{"editor":"boolean","default":false},"couriers":{"editor":null},"svcs":{"editor":null},"pins":{"editor":null},"me":{"editor":null},"activeId":{"editor":"text","default":""},"focusAt":{"editor":null},"focusKey":{"editor":"text","default":""},"locked":{"editor":"boolean","default":false},"offline":{"editor":"boolean","default":false},"homeButton":{"editor":"boolean","default":true},"inset":{"editor":"number","default":0},"demoState":{"editor":"text","default":""},"$preview":{"width":390,"height":380}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"demand"},"districts":{"editor":null},"selected":{"editor":"text","default":""},"hour":{"editor":"number"},"hourLabel":{"editor":"text","default":""},"zones":{"editor":null},"focus":{"editor":"text","default":""},"showModeSwitch":{"editor":"boolean","default":false},"onPick":{"editor":null},"onMode":{"editor":null},"theme":{"editor":"text","default":"auto"},"height":{"editor":"number","default":380},"fill":{"editor":"boolean","default":false},"compact":{"editor":"boolean","default":false},"couriers":{"editor":null},"svcs":{"editor":null},"pins":{"editor":null},"me":{"editor":null},"activeId":{"editor":"text","default":""},"focusAt":{"editor":null},"focusKey":{"editor":"text","default":""},"locked":{"editor":"boolean","default":false},"offline":{"editor":"boolean","default":false},"homeButton":{"editor":"boolean","default":true},"inset":{"editor":"number","default":0},"demoState":{"editor":"text","default":""},"poolKey":{"editor":"text","default":""},"$preview":{"width":390,"height":380}}'>
 
 // карта районов: районы OSM и соты H3 лежат локально в data/, поэтому видны и без сети, подложка подгружается поверх
 // пропсы и события в своих терминах, вся работа с картографической библиотекой только в адаптере RDM_MAP ниже
@@ -220,7 +223,9 @@ const RDM_MAP = (() => {
     ].forEach((l) => map.addLayer(l));
   };
   return {
-    // o: { container, land, dark, bounds, interactive, wheel, hatchColor, hexEdge, attribution, onTap(k), onNet(state), onReady() }
+    // источники для подписи на карте, обязательны по лицензии ODbL и OpenFreeMap
+    credits: { short: '© OpenStreetMap', full: '© участники OpenStreetMap, © OpenMapTiles, подложка OpenFreeMap' },
+    // o: { container, land, dark, bounds, interactive, wheel, hatchColor, hexEdge, onTap(k), onNet(state), onView(), onReady() }
     create(o) {
       return lib().then((L) => {
         const h = { L, markers: [], ready: false };
@@ -229,7 +234,8 @@ const RDM_MAP = (() => {
           container: o.container,
           style: { version: 8, sources: {}, layers: [{ id: 'rdm-bg', type: 'background', paint: { 'background-color': o.land } }] },
           bounds: [[b[0], b[1]], [b[2], b[3]]], fitBoundsOptions: { padding: 16 },
-          attributionControl: { compact: true, customAttribution: o.attribution },
+          // подпись источников рисует компонент своей строкой, тексты в credits
+          attributionControl: false,
           interactive: o.interactive, dragRotate: false, pitchWithRotate: false, touchPitch: false, scrollZoom: !!o.wheel,
           minZoom: 9, maxZoom: 16.5, renderWorldCopies: false
         });
@@ -239,7 +245,7 @@ const RDM_MAP = (() => {
         map.setMissingStyleImageResolver((id) => { if (id === 'rdm-hatch' && !map.hasImage(id)) map.addImage(id, hatch(o.hatchColor)); });
         // ошибки тайлов и стиля значат, что подложки нет, наши слои локальные
         map.on('error', (e) => { if (!(e && e.sourceId && OWN.test(e.sourceId)) && !h.gone) o.onNet('offline'); });
-        if (o.onView) map.on('moveend', () => { if (!h.gone) o.onView(); });
+        map.on('moveend', () => { if (!h.gone) o.onView(); });
         map.on('click', (e) => {
           if (Date.now() - (h.markerTap || 0) < 400) return;
           const f = map.queryRenderedFeatures(e.point, { layers: ['rdm-hit'] })[0];
@@ -249,8 +255,6 @@ const RDM_MAP = (() => {
           addOwn(map, o);
           h.ready = true;
           o.onReady();
-          // в превью без жестов подпись источников свёрнута в значок, иначе она не закроется
-          if (o.attribCollapsed) map.once('idle', () => { const a = o.container.querySelector('.maplibregl-ctrl-attrib'); if (a) a.classList.remove('maplibregl-compact-show'); });
           // без сети подложку не просим, наши слои и точки локальные
           if (o.offline) { o.onNet('offline'); return; }
           style(o.dark).then((s) => {
@@ -288,10 +292,31 @@ const RDM_MAP = (() => {
     // свои слои уже нарисованы: ждём простоя карты, но не дольше 800 мс, подложка может грузиться дольше
     whenDrawn(h, cb) { let done = false; const go = () => { if (!done && !h.gone) { done = true; cb(); } }; h.map.once('idle', go); setTimeout(go, 800); },
     fitTo(h, box, o) { h.map.fitBounds([[box[0], box[1]], [box[2], box[3]]], { padding: o.padding, maxZoom: o.maxZoom, duration: o.animate ? 650 : 0 }); },
+    // вид карты для пула: что сохранить при уходе и вернуть после пересадки в новый узел
+    view(h) { const c = h.map.getCenter(); return { center: [c.lng, c.lat], zoom: h.map.getZoom() }; },
+    reattach(h, v) { h.map.resize(); if (v) h.map.jumpTo({ center: v.center, zoom: v.zoom }); },
     destroy(h) { h.gone = true; h.markers.forEach((m) => m.remove()); try { h.map.remove(); } catch (e) { /* уже снята */ } }
   };
 })();
 // ===== конец адаптера =====
+
+// пул живых карт по ключу экрана: при уходе с экрана карта не удаляется, а ждёт возврата, библиотека и подложка уже загружены
+// работает поверх адаптера: хранит узел с картой, ручку адаптера и вид, сам с библиотекой не говорит
+const RDM_POOL = (() => {
+  const items = new Map();
+  const MAX = 4;
+  return {
+    put(key, e) {
+      const old = items.get(key);
+      if (old) { items.delete(key); RDM_MAP.destroy(old.h); }
+      items.set(key, e);
+      // контекстов WebGL у браузера немного, старые карты отпускаем
+      while (items.size > MAX) { const [k, v] = items.entries().next().value; items.delete(k); RDM_MAP.destroy(v.h); }
+    },
+    peek(key) { return items.get(key) || null; },
+    take(key) { const e = items.get(key) || null; items.delete(key); return e; }
+  };
+})();
 
 // цвета из токенов ДС считаем сами: картам нужен rgb, oklch переводим через canvas
 const rdmCanvas = typeof document !== 'undefined' ? document.createElement('canvas') : null;
@@ -361,7 +386,12 @@ class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
     const st = this.state || {};
-    if (!this._uid) this._uid = 'rdm' + Math.random().toString(36).slice(2, 8);
+    if (!this._uid) {
+      this._uid = 'rdm' + Math.random().toString(36).slice(2, 8);
+      // карта этого экрана ждёт в пуле: с первого кадра без заглушки и надписи загрузки
+      this._pre = p.poolKey && !p.demoState ? RDM_POOL.peek(p.poolKey) : null;
+    }
+    const pre = this._pre;
     const mode = this._mode();
     const sel = this._sel();
     const list = Array.isArray(p.districts) ? p.districts : [];
@@ -369,8 +399,8 @@ class Component extends DCLogic {
     const zones = Array.isArray(p.zones) ? p.zones : [];
     // demoState для галереи: loading или fail, карту тогда не создаём
     const demo = p.demoState === 'loading' || p.demoState === 'fail' ? p.demoState : '';
-    const net = demo || st.net || 'loading';
-    const drawn = !demo && !!st.drawn;
+    const net = demo || st.net || (pre && pre.sink.net) || 'loading';
+    const drawn = !demo && (st.drawn != null ? !!st.drawn : !!pre);
     const showSwitch = !!p.showModeSwitch && !p.compact;
     const chip = p.hourLabel || '';
     // ошибку без превью говорит карточка с кнопкой, в превью Сегодня кнопки нет, карту перезапустит открытие экрана
@@ -394,13 +424,16 @@ class Component extends DCLogic {
       zone_color: zones[0] && zones[0].svc ? 'color:var(--raznos-svc-' + zones[0].svc + ')' : '',
       ph_cls: 'rdm-ph' + (drawn ? ' rdm-ph-off' : '') + (net === 'loading' && !drawn ? ' rdm-ph-loading' : ''),
       has_fail: failCard, retry: () => this._retry(),
+      // в превью карточка сама кнопка, поэтому там просто текст
+      attr_btn: !p.compact, attr_plain: !!p.compact, attr_open: String(!!st.attrOpen), attr_full: 'Источники карты: ' + RDM_MAP.credits.full,
+      attr_text: st.attrOpen && !p.compact ? RDM_MAP.credits.full : RDM_MAP.credits.short, attr_tap: () => this.setState({ attrOpen: !st.attrOpen }),
       // на Карте курьеров снизу сводка экрана, карточку ставим по центру видимой части
       fail_style: people && +p.inset > 0 ? 'top:calc(50% - ' + Math.round(+p.inset / 2) + 'px)' : '',
       has_home: !p.compact && p.homeButton !== false && drawn, home_label: zones.length ? 'Показать зону целиком' : 'Показать весь город', home: () => this._home()
     };
   }
 
-  _mode() { const p = this.props || {}; if (p.mode === 'people') return 'people'; return (this.state || {}).mode || (p.mode === 'contour' ? 'contour' : 'demand'); }
+  _mode() { const p = this.props || {}; if (p.mode === 'people') return 'people'; return (this.state || {}).mode || (this._pre && this._pre.mode) || (p.mode === 'contour' ? 'contour' : 'demand'); }
   // кого рисуем на Карте курьеров: фильтр сервисов действует на точки и капли, до согласия только размытый намёк
   _crowd() {
     const p = this.props || {};
@@ -420,8 +453,49 @@ class Component extends DCLogic {
   }
   _host() { return document.querySelector('[data-rdm="' + this._uid + '"]'); }
 
-  componentDidMount() { this._alive = true; this._init(); }
-  componentWillUnmount() { this._alive = false; this._drop(); }
+  componentDidMount() { this._alive = true; if (!this._adopt()) this._init(); }
+  componentWillUnmount() {
+    this._alive = false;
+    const p = this.props || {};
+    // готовую карту с ключом экрана не удаляем, а кладём в пул вместе с видом
+    if (p.poolKey && this._h && this._h.ready && (this.state || {}).drawn && this._el) {
+      RDM_POOL.put(p.poolKey, {
+        h: this._h, el: this._el, sink: this._sink, view: RDM_MAP.view(this._h), data: this._data, c: this._c, dark: this._dark, off: this._off,
+        cityBox: this._cityBox, svcC: this._svcC, fly: this._fly, lastSel: this._lastSel, target: this._target(), mode: (this.state || {}).mode
+      });
+      this._el.remove();
+      this._h = null;
+      return;
+    }
+    this._drop();
+  }
+
+  // что задаёт вид карты: если с прошлого раза не поменялось, оставляем вид как был
+  _target() {
+    const p = this.props || {};
+    if (this._mode() === 'people') return JSON.stringify(['people', p.focusKey || '', p.focusAt || null]);
+    return JSON.stringify([this._sel(), p.focus || '', (Array.isArray(p.zones) ? p.zones : []).map((z) => [z.center, z.radius_m, z.polygon ? 1 : 0])]);
+  }
+
+  // забрать карту экрана из пула: пересадить узел, вернуть вид и подписаться на её события
+  _adopt() {
+    const p = this.props || {};
+    const e = p.poolKey && !p.demoState ? RDM_POOL.take(p.poolKey) : null;
+    const host = e && this._host();
+    if (!e) { this._pre = null; return false; }
+    if (!host || !!host.closest('.raznos-theme-dark') !== e.dark || !!p.offline !== e.off) { this._pre = null; RDM_MAP.destroy(e.h); return false; }
+    const box = host.querySelector('.rdm-canvas');
+    box.textContent = '';
+    box.appendChild(e.el);
+    this._gen = (this._gen || 0) + 1;
+    e.sink.cmp = this; e.sink.gen = this._gen;
+    Object.assign(this, { _h: e.h, _el: e.el, _sink: e.sink, _data: e.data, _c: e.c, _dark: e.dark, _off: e.off, _cityBox: e.cityBox, _svcC: e.svcC, _fly: e.fly, _lastSel: e.lastSel, _sig: '' });
+    RDM_MAP.reattach(e.h, e.view);
+    this.setState({ net: e.sink.net, drawn: true, mode: e.mode });
+    // слои и метки собираем заново под новые пропсы, вид трогаем, только если сменилась цель
+    this._sync(e.target !== this._target());
+    return true;
+  }
   componentDidUpdate() {
     const host = this._host();
     if (!host || !this._h) return;
@@ -430,7 +504,7 @@ class Component extends DCLogic {
     this._sync(false);
   }
 
-  _drop() { if (this._h) RDM_MAP.destroy(this._h); this._h = null; this._sig = ''; }
+  _drop() { if (this._h) RDM_MAP.destroy(this._h); if (this._el) this._el.remove(); this._h = null; this._el = null; this._sig = ''; }
   _net(v) { if (this._alive && (this.state || {}).net !== v) this.setState({ net: v }); }
 
   // повтор после ошибки: библиотека, данные и стили карты заново
@@ -471,6 +545,9 @@ class Component extends DCLogic {
     if (this._alive) this.setState({ net: 'loading', drawn: false });
     const p = this.props || {};
     const live = () => this._alive && gen === this._gen;
+    // события карты идут текущему владельцу: после пула это уже другой экземпляр компонента
+    const sink = { cmp: this, gen, net: 'loading' };
+    const to = (fn) => (...a) => { const c = sink.cmp; if (c._alive && sink.gen === c._gen) fn(c, ...a); };
     rdmGeo().then((geo) => { if (live()) this._paintPh(geo); }, () => {});
     if (p.demoState === 'loading' || p.demoState === 'fail') return;
     rdmCssAgain();
@@ -486,20 +563,24 @@ class Component extends DCLogic {
       l1: rdmRgb('oklch(0.8 0.1 150)'), l2: rdmRgb('oklch(0.7 0.14 150)'), l3: rdmRgb('oklch(0.58 0.15 150)')
     };
     this._cityBox = rdmBox(data.districts.features.map((f) => f.geometry.coordinates[0]));
+    const box = host.querySelector('.rdm-canvas');
+    box.textContent = '';
+    const el = document.createElement('div');
+    el.className = 'rdm-gl';
+    box.appendChild(el);
     let h;
     try {
       h = await RDM_MAP.create({
-        container: host.querySelector('.rdm-canvas'), land: this._c.land, dark: this._dark, bounds: this._cityBox,
-        interactive: !p.compact, wheel: !!p.fill, offline: this._off, attribCollapsed: !!p.compact && this._mode() === 'people', hatchColor: this._c.ink3, hexEdge: this._dark ? 'rgba(20,25,35,0.5)' : 'rgba(255,255,255,0.7)',
-        attribution: 'Районы © участники OpenStreetMap',
-        onTap: (k) => { if (this._mode() !== 'people') this._pick(k && k === this._sel() ? '' : k); },
-        onNet: (v) => { if (live()) this._net(v); },
-        onView: () => { if (live()) this._declutter(); },
-        onReady: () => { if (live()) { this._sync(true); } }
+        container: el, land: this._c.land, dark: this._dark, bounds: this._cityBox,
+        interactive: !p.compact, wheel: !!p.fill, offline: this._off, hatchColor: this._c.ink3, hexEdge: this._dark ? 'rgba(20,25,35,0.5)' : 'rgba(255,255,255,0.7)',
+        onTap: to((c, k) => { if (c._mode() !== 'people') c._pick(k && k === c._sel() ? '' : k); }),
+        onNet: (v) => { sink.net = v; to((c) => c._net(v))(); },
+        onView: to((c) => c._declutter()),
+        onReady: to((c) => c._sync(true))
       });
-    } catch (e) { if (live()) this._net('fail'); return; }
-    if (!live()) { RDM_MAP.destroy(h); return; }
-    this._h = h;
+    } catch (e) { if (live()) this._net('fail'); el.remove(); return; }
+    if (!live()) { RDM_MAP.destroy(h); el.remove(); return; }
+    this._h = h; this._el = el; this._sink = sink;
     if (h.ready) this._sync(true);
   }
 

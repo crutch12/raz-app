@@ -1,7 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
 <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
-<section class="raznos-stats-section raznos-stats-compare-card" aria-label="Сравнение">
-  <button type="button" class="raznos-stats-head-link" onClick="{{ on_open }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">Сравнение</h2><small>{{ caption }}</small></span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+<section class="raznos-stats-section raznos-stats-compare-card" aria-label="С прошлым и городом">
+  <button type="button" class="raznos-stats-head-link" onClick="{{ on_open }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">С прошлым и городом</h2><small>{{ caption }}</small></span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
   <div class="raznos-stats-verdicts">
     <dc-import name="RaznosCohortCompare" verdictMode="{{ true }}" recapMode="{{ true }}" city="{{ city }}" mineCity="{{ mine_city }}" transport="{{ transport }}" period="{{ period }}" svc="{{ svc }}" district="{{ district }}" mineAmount="{{ mine_amount }}" medianHint="{{ median_hint }}" share="{{ share }}" onSettings="{{ on_settings }}"></dc-import>
   </div>

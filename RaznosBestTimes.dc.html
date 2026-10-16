@@ -79,7 +79,7 @@
       </div>
       <div class="rbt-axis"><sc-for list="{{ bars }}" as="b" hint-placeholder-count="7"><span class="{{ b.axCls }}">{{ b.ax }}</span></sc-for></div>
     </div></div>
-    <div class="rbt-foot"><span class="rbt-best">{{ best_prefix }} <b>{{ best_label }}</b> · ≈ {{ best_val }}</span><button type="button" class="rbt-more" onClick="{{ open_more }}">Подробнее<span class="raznos-row-chevron">›</span></button></div>
+    <div class="rbt-foot"><span class="rbt-best">{{ best_prefix }} <b>{{ best_label }}</b> · ≈ {{ best_val }} <sc-if value="{{ basis_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosRateBasis" kind="{{ basis_kind }}"></dc-import></sc-if></span><button type="button" class="rbt-more" onClick="{{ open_more }}">Подробнее<span class="raznos-row-chevron">›</span></button></div>
     <span class="rbt-sub">{{ basis }}</span>
   </div>
 </sc-if>
@@ -94,7 +94,7 @@
 
     <div class="rbt">
       <div class="rbt-readout">
-        <span class="raznos-fx raznos-col raznos-gap4"><span class="rbt-ro-label">{{ ro_label }}</span><span class="rbt-ro-val">{{ ro_val }}</span></span>
+        <span class="raznos-fx raznos-col raznos-gap4"><span class="rbt-ro-label">{{ ro_label }}</span><span class="raznos-fx raznos-ac raznos-gap8"><span class="rbt-ro-val">{{ ro_val }}</span><sc-if value="{{ basis_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosRateBasis" kind="{{ basis_kind }}"></dc-import></sc-if></span></span>
         <span class="{{ ro_pill_cls }}">{{ ro_pill }}</span>
       </div>
       <div class="{{ scroll_cls }}" data-rbt-scroll="{{ uid }}"><div style="{{ scroll_style }}">
@@ -285,6 +285,8 @@ class Component extends DCLogic {
       scroll_cls: isDay ? 'rbt-scroll-on' : '',
       scroll_style: isDay ? 'width:' + (24 * colW) + 'px' : '',
       bars,
+      // мера числа по словарю: неделя по дням это обычно, день по часам это в этот час
+      basis_show: metric.k === 'pay', basis_kind: isDay ? 'hour' : 'usual',
       card_sub: isDay ? ('сегодня, ' + RBT_DAYS_FULL[RBT_TODAY] + ' · ₽ в час') : ((p.cityTitle || 'Москва') + ' · ₽ в час · по дням недели'),
       best_prefix: lowSample ? (isDay ? 'Предварительно: лучшее окно' : 'Предварительно: лучше всего') : (isDay ? 'Лучшее окно' : 'Лучше всего'),
       best_label: isDay ? winLabel : RBT_DAYS_FULL[bestDay],

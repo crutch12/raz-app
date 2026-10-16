@@ -30,7 +30,7 @@
     <button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ close }}">Закрыть</button>
   </section>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"aSvc":{"editor":"text","default":"vkusvill"},"aTitle":{"editor":"text","default":"ВкусВилл"},"aTo":{"editor":null},"bSvc":{"editor":"text","default":"yandex-eda"},"bTitle":{"editor":"text","default":"Яндекс Еда"},"bFrom":{"editor":null},"travel":{"editor":null},"rate":{"editor":null},"onLeave":{"editor":null},"onLate":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":420}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"transport":{"editor":"text","default":""},"aSvc":{"editor":"text","default":"vkusvill"},"aTitle":{"editor":"text","default":"ВкусВилл"},"aTo":{"editor":null},"bSvc":{"editor":"text","default":"yandex-eda"},"bTitle":{"editor":"text","default":"Яндекс Еда"},"bFrom":{"editor":null},"travel":{"editor":null},"rate":{"editor":null},"onLeave":{"editor":null},"onLate":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":420}}'>
 // конфликт между бронями: два действия по сути, оба ведут в приложение сервиса, брони Разнос сам не меняет
 const RCS_GEN = { 'yandex-eda': 'Яндекс Еды', samokat: 'Самоката', vkusvill: 'ВкусВилла', x5: 'X5 Доставки', dodo: 'Додо', kuper: 'Купера', 'yandex-lavka': 'Яндекс Лавки' };
 const RCS_ACC = { 'yandex-eda': 'Яндекс Еду', samokat: 'Самокат', vkusvill: 'ВкусВилл', x5: 'X5 Доставку', dodo: 'Додо', kuper: 'Купер', 'yandex-lavka': 'Яндекс Лавку' };
@@ -49,7 +49,7 @@ class Component extends DCLogic {
     const loss = p.rate ? Math.round(p.rate * need / 60 / 10) * 10 : 0;
     return {
       title: gap < 0 ? 'Смены пересекаются' : 'Не успеете доехать',
-      lead: aTitle + ' до ' + rcsTime(aTo) + ', ' + bTitle + ' с ' + rcsTime(bFrom) + (gap < 0 ? '' : ', дорога ≈ ' + travel + ' мин'),
+      lead: aTitle + ' до ' + rcsTime(aTo) + ', ' + bTitle + ' с ' + rcsTime(bFrom) + (gap < 0 ? '' : ', дорога ≈ ' + travel + ' мин' + (p.transport ? ' ' + p.transport : '')),
       choices: [
         { title: 'Уйти из ' + gen(p.aSvc, aTitle) + ' в ' + rcsTime(aTo - need), note: 'Откроем приложение ' + gen(p.aSvc, aTitle) + ', сократить смену можно только там', tap: fn(p.onLeave) },
         { title: 'Опоздаю на ' + need + ' мин в ' + acc(p.bSvc, bTitle), note: 'Начнёте в ' + rcsTime(bFrom + need) + (loss ? ', потеряете ≈ ' + rcsFmt(loss) + ' ₽' : '') + '', tap: fn(p.onLate) }
