@@ -12,7 +12,7 @@
     /* сама карта во внутреннем узле: при уходе с экрана его вместе с картой забирает пул, при возврате ставим обратно */
     .rdm .rdm-canvas > .rdm-gl { position: absolute; inset: 0; }
     .rdm-canvas .maplibregl-canvas:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: -2px; }
-    .rdm-top { position: absolute; z-index: 3; top: 10px; left: 10px; right: 10px; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; pointer-events: none; }
+    .rdm-top { position: absolute; z-index: 3; top: calc(10px + var(--rdm-it, 0px)); left: 10px; right: 10px; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; pointer-events: none; }
     .rdm-top > * { pointer-events: auto; }
     .rdm-seg { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--raznos-surface); box-shadow: 0 2px 8px rgba(20, 25, 40, .18); }
     .rdm-seg-btn { min-height: 38px; padding: 0 14px; border: 0; border-radius: 999px; background: none; font: 600 13px var(--raznos-font); color: var(--raznos-ink-2); cursor: pointer; }
@@ -22,13 +22,13 @@
     .rdm-state { position: absolute; z-index: 3; left: 50%; top: 58px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 6px; max-width: calc(100% - 24px); padding: 6px 12px; border-radius: 999px; background: var(--raznos-surface); box-shadow: 0 2px 8px rgba(20, 25, 40, .18); font: 600 12px var(--raznos-font); color: var(--raznos-ink-2); white-space: nowrap; }
     .rdm-state.rdm-state-solo { top: 10px; }
     .rdm-state.rdm-state-warn { background: var(--raznos-amber-tint); color: var(--raznos-ink); }
-    .rdm-state-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--raznos-green); }
+    .rdm-state-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--raznos-green); }
     @media (prefers-reduced-motion: no-preference) {
       .rdm-state-dot { animation: rdm-blink 1s ease-in-out infinite alternate; }
       @keyframes rdm-blink { from { opacity: .25; } to { opacity: 1; } }
     }
-    .rdm-home { position: absolute; z-index: 3; right: 10px; bottom: 36px; width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 14px; background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 2px 8px rgba(20, 25, 40, .2); cursor: pointer; }
-    .rdm-legend { position: absolute; z-index: 3; left: 10px; bottom: 34px; display: inline-flex; align-items: center; gap: 5px; max-width: calc(100% - 76px); padding: 6px 9px; border-radius: 10px; background: var(--raznos-surface); box-shadow: 0 1px 6px rgba(20, 25, 40, .16); font: 600 11px var(--raznos-font); color: var(--raznos-ink-2); }
+    .rdm-home { position: absolute; z-index: 3; right: 10px; bottom: calc(12px + var(--rdm-ib, 0px)); width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 14px; background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 2px 8px rgba(20, 25, 40, .2); cursor: pointer; }
+    .rdm-legend { position: absolute; z-index: 3; left: 10px; bottom: calc(14px + var(--rdm-ib, 0px)); display: inline-flex; align-items: center; gap: 5px; max-width: calc(100% - 76px); padding: 6px 9px; border-radius: 10px; background: var(--raznos-surface); box-shadow: 0 1px 6px rgba(20, 25, 40, .16); font: 600 11px var(--raznos-font); color: var(--raznos-ink-2); }
     .rdm-legend i { flex: none; width: 12px; height: 13px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
     .rdm-legend .rdm-l1 { background: oklch(0.8 0.1 150 / 0.7); } .rdm-legend .rdm-l2 { background: oklch(0.7 0.14 150 / 0.85); } .rdm-legend .rdm-l3 { background: oklch(0.58 0.15 150); }
     .rdm-legend .rdm-ring { width: 12px; height: 12px; border-radius: 50%; border: 2px dashed currentColor; clip-path: none; box-sizing: border-box; }
@@ -111,7 +111,7 @@
   <sc-if value="{{ attr_plain }}" hint-placeholder-val="{{ false }}"><span class="rdm-attr rdm-attr-plain">{{ attr_text }}</span></sc-if>
   <sc-if value="{{ has_home }}" hint-placeholder-val="{{ false }}"><button type="button" class="rdm-home" aria-label="{{ home_label }}" title="{{ home_label }}" onClick="{{ home }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><circle cx="12" cy="12" r="2.5"/></svg></button></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"demand"},"districts":{"editor":null},"selected":{"editor":"text","default":""},"hour":{"editor":"number"},"hourLabel":{"editor":"text","default":""},"zones":{"editor":null},"focus":{"editor":"text","default":""},"showModeSwitch":{"editor":"boolean","default":false},"onPick":{"editor":null},"onMode":{"editor":null},"theme":{"editor":"text","default":"auto"},"height":{"editor":"number","default":380},"fill":{"editor":"boolean","default":false},"compact":{"editor":"boolean","default":false},"couriers":{"editor":null},"svcs":{"editor":null},"pins":{"editor":null},"me":{"editor":null},"activeId":{"editor":"text","default":""},"focusAt":{"editor":null},"focusKey":{"editor":"text","default":""},"locked":{"editor":"boolean","default":false},"offline":{"editor":"boolean","default":false},"homeButton":{"editor":"boolean","default":true},"inset":{"editor":"number","default":0},"demoState":{"editor":"text","default":""},"poolKey":{"editor":"text","default":""},"$preview":{"width":390,"height":380}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"demand"},"districts":{"editor":null},"selected":{"editor":"text","default":""},"hour":{"editor":"number"},"hourLabel":{"editor":"text","default":""},"zones":{"editor":null},"focus":{"editor":"text","default":""},"showModeSwitch":{"editor":"boolean","default":false},"onPick":{"editor":null},"onMode":{"editor":null},"theme":{"editor":"text","default":"auto"},"height":{"editor":"number","default":380},"fill":{"editor":"boolean","default":false},"compact":{"editor":"boolean","default":false},"couriers":{"editor":null},"svcs":{"editor":null},"pins":{"editor":null},"me":{"editor":null},"activeId":{"editor":"text","default":""},"focusAt":{"editor":null},"focusKey":{"editor":"text","default":""},"locked":{"editor":"boolean","default":false},"offline":{"editor":"boolean","default":false},"homeButton":{"editor":"boolean","default":true},"inset":{"editor":"number","default":0},"insetTop":{"editor":"number","default":0},"demoState":{"editor":"text","default":""},"poolKey":{"editor":"text","default":""},"$preview":{"width":390,"height":380}}'>
 
 // карта районов: районы OSM и соты H3 лежат локально в data/, поэтому видны и без сети, подложка подгружается поверх
 // пропсы и события в своих терминах, вся работа с картографической библиотекой только в адаптере RDM_MAP ниже
@@ -413,7 +413,8 @@ class Component extends DCLogic {
     return {
       uid: this._uid,
       cls: 'rdm' + (p.fill ? ' rdm-fill' : '') + (p.theme === 'dark' ? ' raznos-theme-dark' : '') + (people && p.locked ? ' rdm-locked' : ''),
-      style: p.fill ? '' : 'height:' + (+p.height > 0 ? +p.height : 380) + 'px',
+      // insetTop и inset: сколько карты сверху и снизу закрыто интерфейсом экрана, кнопки карты встают над ними
+      style: [p.fill ? '' : 'height:' + (+p.height > 0 ? +p.height : 380) + 'px', '--rdm-it:' + (+p.insetTop > 0 ? +p.insetTop : 0) + 'px', '--rdm-ib:' + (+p.inset > 0 && this._mode() !== 'people' ? +p.inset : 0) + 'px'].filter(Boolean).join(';'),
       aria: people ? (p.locked ? 'Карта курьеров скрыта, пока вы не показываете себя' : 'Карта курьеров, на смене ' + crowd.couriers.length + (crowd.pins.length ? ', сообщений с местом ' + crowd.pins.length : ''))
         : 'Карта районов, ' + (mode === 'demand' ? 'спрос по ставке часа' : 'границы районов') + (selD ? ', выбран ' + selD.name : ''),
       has_top: showSwitch || !!chip, show_switch: showSwitch, has_chip: !!chip, chip,
@@ -574,7 +575,8 @@ class Component extends DCLogic {
     try {
       h = await RDM_MAP.create({
         container: el, land: this._c.land, dark: this._dark, bounds: this._cityBox,
-        interactive: !p.compact, wheel: !!p.fill, offline: this._off, hatchColor: this._c.ink3, hexEdge: this._dark ? 'rgba(20,25,35,0.5)' : 'rgba(255,255,255,0.7)',
+        // колесо мыши и щипок тачпада зумят любую карту, кроме превью без жестов
+        interactive: !p.compact, wheel: !p.compact, offline: this._off, hatchColor: this._c.ink3, hexEdge: this._dark ? 'rgba(20,25,35,0.5)' : 'rgba(255,255,255,0.7)',
         onTap: to((c, k) => { if (c._mode() !== 'people') c._pick(k && k === c._sel() ? '' : k); }),
         onNet: (v) => { sink.net = v; to((c) => c._net(v))(); },
         onView: to((c) => c._declutter()),
@@ -606,7 +608,8 @@ class Component extends DCLogic {
     const top = ((p.showModeSwitch || p.hourLabel) && !p.compact ? 60 : 24) + (Array.isArray(p.zones) && p.zones.length ? 32 : 0);
     // на Карте курьеров сверху чипы фильтров, снизу сводка экрана
     // inset: сколько снизу закрыто интерфейсом экрана, например сводкой
-    return this._mode() === 'people' ? (p.compact ? { top: 8, bottom: 8, left: 8, right: 8 } : { top: 64, bottom: +p.inset > 0 ? +p.inset : 48, left: 24, right: 24 }) : { top, bottom: 48, left: 24, right: 24 };
+    const it = +p.insetTop > 0 ? +p.insetTop : 0, ib = +p.inset > 0 ? +p.inset : 48;
+    return this._mode() === 'people' ? (p.compact ? { top: 8, bottom: 8, left: 8, right: 8 } : { top: 64 + it, bottom: ib, left: 24, right: 24 }) : { top: top + it, bottom: ib, left: 24, right: 24 };
   }
 
   _zoneBox() {

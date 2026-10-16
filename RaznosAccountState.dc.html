@@ -16,6 +16,9 @@
     .ras-fact-val { font: 750 19px/1.2 var(--raznos-font); font-variant-numeric: tabular-nums; }
     .ras-fact-note { font: 500 12px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
     .ras-fact-wide { grid-column: 1 / -1; }
+    /* документ скоро истекает: янтарный фон и слово, не только цвет */
+    .ras-fact.ras-is-soon { background: var(--raznos-amber-tint); }
+    .ras-fact.ras-is-soon .ras-fact-note { color: var(--raznos-ink-2); }
     /* риск: полоса до лимита, отметка лимита в конце, цвет по близости */
     .ras-risks { display: flex; flex-direction: column; border-radius: 16px; background: var(--raznos-surface); }
     .ras-risk { display: flex; flex-direction: column; gap: 7px; padding: 12px 14px; border-bottom: 1px solid var(--raznos-line); }
@@ -80,6 +83,7 @@
   "title": { "editor": "text", "default": "X5 Доставка" },
   "titleIn": { "editor": "text", "default": "" },
   "state": { "editor": null },
+  "quests": { "editor": null },
   "mode": { "editor": "enum", "options": ["full", "alert"], "default": "full" },
   "sample": { "editor": "enum", "options": ["ok", "risk", "block"], "default": "ok" },
   "updated": { "editor": "text", "default": "" },
@@ -112,8 +116,13 @@ class Component extends DCLogic {
     const facts = [];
     if (st.level) facts.push({ label: 'Уровень', value: st.level, note: st.levelNote || '' });
     if (st.rating != null) facts.push({ label: 'Рейтинг', value: fmt(st.rating), note: st.ratingNote || '' });
-    (st.facts || []).forEach((f) => facts.push(f));
-    facts.forEach((f, i) => { f.cls = 'ras-fact' + (facts.length % 2 && i === facts.length - 1 ? ' ras-fact-wide' : ''); });
+    (st.facts || []).forEach((f) => facts.push(Object.assign({}, f, f.soon ? { wide: true, label: f.label + ', скоро истекает', note: 'Осталось ' + f.days + ' ' + (f.days % 10 === 1 && f.days % 100 !== 11 ? 'день' : f.days % 10 >= 2 && f.days % 10 <= 4 && (f.days % 100 < 12 || f.days % 100 > 14) ? 'дня' : 'дней') + (f.note ? ', ' + f.note : '') } : {})));
+    // задания сервиса (SERVICE_QUESTS) плиткой во всю ширину, прогресс числом, если сервис отдаёт порог
+    const money = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    (p.quests || []).forEach((q) => facts.push({ label: 'Задание сервиса', value: q.name, wide: true,
+      note: [q.kind === 'count' ? q.done + ' из ' + q.target + ' заказов' : '', q.reward ? '+' + money(q.reward) + ' ₽' : q.rewardText || '', q.untilLabel || ''].filter(Boolean).join(', ') }));
+    const narrow = facts.filter((f) => !f.wide);
+    facts.forEach((f) => { f.cls = 'ras-fact' + (f.wide || (narrow.length % 2 && f === narrow[narrow.length - 1]) ? ' ras-fact-wide' : '') + (f.soon ? ' ras-is-soon' : ''); });
     const hot = risks.find((r) => r.tone);
     const block = st.block || null;
     return {

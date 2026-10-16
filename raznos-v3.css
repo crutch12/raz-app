@@ -752,7 +752,7 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-cmap-toggle { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); font: 600 14px var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; cursor: pointer; }
 .raznos-cmap-toggle.raznos-is-active { border-color: var(--raznos-dark); background: var(--raznos-dark); color: var(--raznos-on-dark); }
 /* сводка выше нижнего края, чтобы подпись источников карты не пряталась под ней */
-.raznos-cmap-dock { position: absolute; left: 10px; right: 10px; bottom: 34px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.raznos-cmap-dock { position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
 .raznos-cmap-locate { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%; background: var(--raznos-surface); box-shadow: 0 4px 14px rgba(20, 25, 40, 0.18); color: var(--raznos-ink); cursor: pointer; }
 .raznos-cmap-locate.raznos-is-active { background: var(--raznos-dark); color: var(--raznos-on-dark); }
 .raznos-cmap-panel { align-self: stretch; display: flex; flex-direction: column; border-radius: 16px; background: var(--raznos-surface); box-shadow: 0 10px 30px rgba(20, 25, 40, 0.16); }
@@ -861,14 +861,25 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-goal-spark { position: absolute; z-index: 2; width: 8px; height: 9px; margin: -4.5px 0 0 -4px; clip-path: var(--raznos-hex); background: var(--raznos-green); pointer-events: none; }
 
 /* карта района из шторок Плана и Слотов: слой поверх экрана под строкой статуса, Назад возвращает в шторку */
-.raznos-dmap-layer { position: absolute; inset: 29px 0 0; z-index: 90; display: flex; flex-direction: column; gap: 10px; padding: 4px 12px calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--raznos-bg); }
+/* карта района на весь экран: шапка сверху и карточка с маршрутом снизу лежат поверх карты */
+.raznos-dmap-layer { position: absolute; inset: 29px 0 0; z-index: 90; display: block; padding: 0; background: var(--raznos-bg); overflow: hidden; }
+.raznos-dmap-layer > .raznos-app-bar { position: absolute; z-index: 2; top: 0; left: 0; right: 0; margin: 0; padding: 4px 12px 22px; background: linear-gradient(var(--raznos-bg) 62%, color-mix(in oklab, var(--raznos-bg) 0%, transparent)); pointer-events: none; }
+.raznos-dmap-layer > .raznos-app-bar > * { pointer-events: auto; }
 .raznos-dmap-head { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.raznos-dmap-box { position: relative; flex: 1; min-height: 240px; overflow: hidden; border: 1px solid var(--raznos-line); border-radius: 16px; }
-.raznos-dmap-card { display: flex; flex-direction: row; align-items: center; gap: 12px; }
-.raznos-dmap-layer > a.raznos-btn { gap: 8px; text-decoration: none; }
+.raznos-dmap-box { position: absolute; inset: 0; }
+.raznos-dmap-card { position: absolute; z-index: 2; left: 12px; right: 12px; bottom: calc(80px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: row; align-items: center; gap: 12px; box-shadow: 0 6px 20px oklch(0 0 0 / 0.16); }
+.raznos-dmap-layer > a.raznos-btn { position: absolute; z-index: 2; left: 12px; right: 12px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); gap: 8px; text-decoration: none; background: var(--raznos-surface); box-shadow: 0 6px 20px oklch(0 0 0 / 0.16); }
 .raznos-dmap-card-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; font: 500 13px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
 .raznos-dmap-card-text > b { font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
 @media (prefers-reduced-motion: no-preference) {
   .raznos-dmap-layer { animation: raznos-dmap-in .26s cubic-bezier(.16, 1, .3, 1) both; }
   @keyframes raznos-dmap-in { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
 }
+
+/* пустой старт: ответ на вопрос Уже работаете в сервисе доставки двумя карточками рядом */
+.raznos-ready-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.raznos-ready-opt { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 92px; padding: 12px 12px 14px; border: 1px solid var(--raznos-line-strong); border-radius: 14px; background: var(--raznos-surface); color: var(--raznos-ink); text-align: left; cursor: pointer; font: inherit; }
+.raznos-ready-opt b { font: 700 16px var(--raznos-font); }
+.raznos-ready-opt span { font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-ready-opt:active { background: var(--raznos-surface-2); }
+.raznos-ready-opt:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; }

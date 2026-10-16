@@ -25,7 +25,7 @@
         <sc-if value="{{ dmap_visible }}" hint-placeholder-val="{{ false }}">
           <div class="raznos-dmap-layer" role="dialog" aria-modal="true" aria-label="{{ dmap_aria }}">
             <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ dmap_back }}" aria-label="Назад">‹</button><span class="raznos-dmap-head"><h1 class="raznos-text-h1" style="margin:0">{{ dmap_name }}</h1><span class="raznos-text-small">{{ dmap_sub }}</span></span></div>
-            <div class="raznos-dmap-box"><dc-import name="RaznosDistrictMap" mode="contour" poolKey="district" selected="{{ dmap_k }}" zones="{{ dmap_zones }}" focus="zone" fill="{{ true }}"></dc-import></div>
+            <div class="raznos-dmap-box"><dc-import name="RaznosDistrictMap" mode="contour" poolKey="district" selected="{{ dmap_k }}" zones="{{ dmap_zones }}" focus="zone" fill="{{ true }}" insetTop="{{ 64 }}" inset="{{ 196 }}"></dc-import></div>
             <div class="raznos-card raznos-card-pad raznos-dmap-card"><dc-import name="RaznosIcon" svc="{{ dmap_svc }}" alt="{{ dmap_svc_title }}" size="md"></dc-import><span class="raznos-dmap-card-text"><b>{{ dmap_place }}</b><span>{{ dmap_note }}</span></span></div>
             <a class="raznos-btn raznos-btn-secondary" href="{{ dmap_route }}" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8-8-2z"/></svg>Маршрут в Яндекс Картах</a>
           </div>
@@ -198,7 +198,7 @@
                   </div>
                 </sc-if>
                 <!-- без сервисов два равных пути: подключить или подобрать работу, новичок не упирается в список входов -->
-                <sc-if value="{{ empty_no_connections }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-col raznos-gap8"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ ready_cta_action }}">Подключить сервис</button><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ go_job_guide }}">Пока нет, подобрать работу</button></div></sc-if>
+                <sc-if value="{{ empty_no_connections }}" hint-placeholder-val="{{ true }}"><div class="raznos-ready-choice" role="group" aria-label="Уже работаете в сервисе доставки?"><button type="button" class="raznos-ready-opt" onClick="{{ ready_cta_action }}"><b>Да, работаю</b><span>Подключите сервис и увидите свой доход</span></button><button type="button" class="raznos-ready-opt" onClick="{{ go_job_guide }}"><b>Пока нет</b><span>Подберём, где лучше начать</span></button></div></sc-if>
                 <sc-if value="{{ empty_has_real_connections }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ ready_cta_action }}">{{ ready_cta_label }}</button></sc-if>
                 <button type="button" class="raznos-btn raznos-btn-ghost" data-tour="demo" onClick="{{ start_demo }}">Посмотреть демо</button>
               </div>
@@ -580,7 +580,7 @@
               <sc-if value="{{ conn_has_caps }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosServiceCaps" caps="{{ conn_caps }}" compact="{{ true }}" viaMine="{{ conn_via_mine }}" viaSeen="{{ conn_via_seen }}" onVia="{{ conn_via_open }}"></dc-import></sc-if>
 
               <sc-if value="{{ conn_is_connected }}" hint-placeholder-val="{{ false }}">
-                <sc-if value="{{ conn_acc_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAccountState" svc="{{ conn_key }}" title="{{ conn_title }}" titleIn="{{ conn_acc_in }}" state="{{ conn_acc_state }}" updated="{{ conn_acc_updated }}" onContact="{{ acc_contact }}"></dc-import></sc-if>
+                <sc-if value="{{ conn_acc_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAccountState" svc="{{ conn_key }}" title="{{ conn_title }}" titleIn="{{ conn_acc_in }}" state="{{ conn_acc_state }}" quests="{{ conn_acc_quests }}" updated="{{ conn_acc_updated }}" onContact="{{ acc_contact }}"></dc-import></sc-if>
                 <div class="raznos-notice raznos-notice-ok"><span class="raznos-notice-title">Сервис подключён</span><span class="raznos-text-small">{{ conn_connected_note }}</span></div>
                 <sc-if value="{{ conn_one_device }}" hint-placeholder-val="{{ false }}"><div class="raznos-card raznos-card-pad raznos-fx raznos-col raznos-gap8">
                   <span class="raznos-list-title">Обновляем по кнопке</span>
@@ -678,7 +678,7 @@
               </div></sc-if>
 
               <sc-if value="{{ conn_form_external }}"><div class="raznos-fx raznos-col raznos-gap12">
-                <div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Бета: данные первое время могут приходить с задержкой</span></div>
+                <div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Данные первое время могут приходить с задержкой</span></div>
                 <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ conn_finish }}">Демо: открыть вход {{ conn_title }}</button>
               </div></sc-if>
 
@@ -864,7 +864,7 @@
                     <div class="raznos-card-pad">
                       <div class="raznos-fx raznos-jb raznos-ac raznos-wrap raznos-market-row">
                         <div class="raznos-fx raznos-ac raznos-gap12" style="min-width:0;flex:1"><dc-import name="RaznosIcon" svc="{{ row.key }}" alt="{{ row.title }}" size="md"></dc-import><span class="raznos-fx raznos-col raznos-gap4" style="min-width:0"><span class="raznos-list-title">{{ row.title }}</span><span class="{{ row.ratingPillClass }}" style="align-self:flex-start">{{ row.ratingPill }}</span></span></div>
-                        <sc-if value="{{ row.sufficient }}" hint-placeholder-val="{{ true }}"><span class="raznos-fx raznos-col" style="align-items:flex-end;gap:2px"><span class="raznos-metric-value-text">{{ row.hourly }} ₽/ч</span><dc-import name="RaznosRateBasis" kind="usual"></dc-import></span></sc-if>
+                        <sc-if value="{{ row.sufficient }}" hint-placeholder-val="{{ true }}"><span class="raznos-fx raznos-col" style="align-items:flex-end;gap:2px"><span class="raznos-metric-value-text">{{ row.hourly }} ₽/ч</span></span></sc-if>
                         <sc-if value="{{ row.insufficient }}"><span class="raznos-status-pill raznos-pill-muted">Мало данных</span></sc-if>
                       </div>
                       <sc-if value="{{ row.sufficient }}" hint-placeholder-val="{{ true }}">
@@ -888,7 +888,7 @@
             <div class="raznos-phone-body" data-screen-label="23 Service">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ service_back }}">‹</button><dc-import name="RaznosIcon" svc="{{ sv_key }}" alt="{{ sv_title }}" size="md"></dc-import><h1 class="raznos-text-h1" style="margin:0">{{ sv_title }}</h1></div>
               <div class="raznos-metric-grid">
-                <div class="raznos-metric-card"><span class="raznos-text-small">Доход в час</span><span class="raznos-metric-value">{{ sv_hourly }}</span><sc-if value="{{ sv_hourly_known }}" hint-placeholder-val="{{ true }}"><span><dc-import name="RaznosRateBasis" kind="usual"></dc-import></span></sc-if></div>
+                <div class="raznos-metric-card"><span class="raznos-text-small">Доход в час</span><span class="raznos-metric-value">{{ sv_hourly }}</span><sc-if value="{{ sv_hourly_known }}" hint-placeholder-val="{{ true }}"><span></span></sc-if></div>
                 <div class="raznos-metric-card"><span class="raznos-text-small">Оплата заказа</span><span class="raznos-metric-value">{{ sv_orderpay }}</span></div>
                 <div class="raznos-metric-card"><span class="raznos-text-small">Ожидание</span><span class="raznos-metric-value">{{ sv_wait }}</span></div>
               </div>
@@ -1268,16 +1268,12 @@
                 <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosStatsTopLink" place="{{ 28 }}" placeDelta="{{ 3 }}" scope="{{ stats_top_scope }}" onOpen="{{ go_top }}"></dc-import></sc-if>
                 <dc-import name="RaznosConnHealth" items="{{ conn_health_items }}" okNote="{{ conn_health_ok_note }}" netOffline="{{ net_offline }}" onAction="{{ conn_health_action }}"></dc-import>
                 <sc-if value="{{ has_data }}" hint-placeholder-val="{{ true }}"><div class="raznos-fx raznos-col raznos-gap12">
-                  <span class="raznos-text-h3">Оценки из сервиса</span>
+                  <span class="raznos-text-h3">Аккаунты в сервисах</span>
                   <div class="raznos-card raznos-scores">
-                    <sc-for list="{{ pf_scores }}" as="sc" hint-placeholder-count="2">
-                      <div class="raznos-score-row">
-                        <dc-import name="RaznosIcon" svc="{{ sc.key }}" alt="{{ sc.title }}" size="md"></dc-import>
-                        <span class="raznos-score-name"><b>{{ sc.title }}</b><span>{{ sc.source }}</span></span>
-                        <span class="raznos-score-val"><span class="raznos-score-num"><b>{{ sc.big }}</b><small>{{ sc.unit }}</small></span><sc-if value="{{ sc.has_bar }}" hint-placeholder-val="{{ true }}"><i class="raznos-score-bar" aria-hidden="true"><i style="{{ sc.bar }}"></i></i></sc-if></span>
-                      </div>
+                    <sc-for list="{{ pf_acc_rows }}" as="ar" hint-placeholder-count="3">
+                      <dc-import name="RaznosAccountRow" svc="{{ ar.key }}" title="{{ ar.title }}" state="{{ ar.state }}" quests="{{ ar.quests }}" onOpen="{{ pf_acc_open }}"></dc-import>
                     </sc-for>
-                    <sc-if value="{{ pf_scores_none_show }}" hint-placeholder-val="{{ true }}"><div class="raznos-score-none"><span class="raznos-score-none-icons"><sc-for list="{{ pf_scores_none }}" as="nd" hint-placeholder-count="2"><dc-import name="RaznosIcon" svc="{{ nd.key }}" alt="{{ nd.title }}" size="sm"></dc-import></sc-for></span><span>{{ pf_scores_none_text }}</span></div></sc-if>
+                    <sc-if value="{{ pf_acc_none_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAccountRow" mode="none" none="{{ pf_acc_none }}"></dc-import></sc-if>
                     <p class="raznos-score-foot">Сервисы пока не отдают отзывы покупателей</p>
                   </div>
                 </div></sc-if>
@@ -1436,7 +1432,6 @@
           <sc-if value="{{ is_best_times }}">
             <div class="raznos-phone-body" data-screen-label="Best times">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ best_times_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Когда выгоднее</h1></div>
-              <span class="raznos-text-small" style="margin-top:-4px">{{ city_title }}</span>
               <dc-import name="RaznosBestTimes" mode="full" initialView="{{ bt_view }}" initialDay="{{ bt_day }}" initialHour="{{ bt_hour }}" onDetail="{{ bt_detail }}" workStart="{{ work_start }}" workEnd="{{ work_end }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
             </div>
           </sc-if>
@@ -3511,18 +3506,22 @@
       ];
       // @ai-data-end
       // состояние аккаунта в каждом сервисе: уровень, рейтинг, риски (значение и лимит), блокировка с причиной, сроком и куда писать
-      // поля по docs/INTEGRATION-COURIER-PROFILES.md, на рабочих аккаунтах не подтверждены
+      // поля по docs/INTEGRATION-COURIER-PROFILES.md и integrations/COURIER-PROFILES.md, на рабочих аккаунтах не подтверждены, чего сервис не отдаёт, не пишем
+      // ВкусВилл: rating/courier/{id}, медкнижка date_medbook_to, soon значит дата напоминания сервиса date_reminder_from уже наступила
+      // Самокат: рейтинга и уровня в профиле нет, есть кампании (SERVICE_QUESTS) и статусы медицинских документов без дат
+      // Яндекс Еда: уровни и недельные баллы, доплата и время записи по уровню из базы знаний Про, пороги Москвы (docs/integration-research/yandex-eda/official-check.md)
+      // X5: rating без подтверждённой шкалы, лимит паузы 15% из правил X5 (docs/PRODUCT-BACKLOG.md); Додо: поля профиля в Dart AOT не восстановлены
       // @ai-data-begin
       const ACCOUNT_STATES = {
-        vkusvill: { rating: 4.9, ratingNote: 'из 5, оценки покупателей', facts: [{ label: 'Медкнижка', value: 'до 12 марта', note: 'без неё ВкусВилл отключает от заказов' }] },
-        samokat: { rating: 4.87, ratingNote: 'из 5, за последние 100 заказов' },
-        'yandex-eda': { level: 'Опытный', levelNote: 'уровень рейтинга, ранний выбор слотов', rating: 92, ratingNote: 'баллов из 100' },
-        x5: { rating: 4.8, ratingNote: 'из 5, по оценкам за 30 дней', risks: [{ label: 'Пауза за неделю', value: 9, limit: 15, unit: '%', rule: 'Больше 15% нарушает правила X5, могут ограничить слоты' }] },
+        vkusvill: { rating: 4.9, ratingNote: 'из 5, рейтинг ВкусВилла', facts: [{ label: 'Медкнижка', value: 'до ' + dayMonth(24), days: 24, soon: true, note: 'ВкусВилл уже напоминает продлить, без неё отключает от заказов' }] },
+        samokat: {},
+        'yandex-eda': { level: 'Золото', levelPerk: '+10% к оплате', levelNote: 'доплата 10% к заказам, запись на слоты в пт с 18:00, до Платины 148 баллов', rating: 412, ratingUnit: 'баллов', ratingNote: 'баллов за неделю пт–чт, Платина от 560' },
+        x5: { rating: 4.8, ratingNote: 'из 5, рейтинг X5', risks: [{ label: 'Пауза за неделю', value: 9, limit: 15, unit: '%', rule: 'Больше 15% нарушает правила X5, могут ограничить слоты' }] },
         dodo: {}
       };
       // сценарии: пауза X5 близко к лимиту и приостановленный аккаунт X5
-      const ACCOUNT_RISK_X5 = { rating: 4.8, ratingNote: 'из 5, по оценкам за 30 дней', risks: [{ label: 'Пауза за неделю', value: 13, limit: 15, unit: '%', rule: 'Ещё 2% и превысите лимит X5, могут ограничить слоты. Пауза сбросится в понедельник' }] };
-      const ACCOUNT_BLOCK_X5 = { rating: 4.6, ratingNote: 'из 5, по оценкам за 30 дней', block: { reason: 'Пауза 18% за прошлую неделю при лимите 15%', until: 'до ' + dayMonth(4), contact: 'чат поддержки в приложении X5 Курьер, раздел Помощь' }, risks: [] };
+      const ACCOUNT_RISK_X5 = { rating: 4.8, ratingNote: 'из 5, рейтинг X5', risks: [{ label: 'Пауза за неделю', value: 13, limit: 15, unit: '%', rule: 'Ещё 2% и превысите лимит X5, могут ограничить слоты. Пауза сбросится в понедельник' }] };
+      const ACCOUNT_BLOCK_X5 = { rating: 4.6, ratingNote: 'из 5, рейтинг X5', block: { reason: 'Пауза 18% за прошлую неделю при лимите 15%', until: 'до ' + dayMonth(4), contact: 'чат поддержки в приложении X5 Курьер, раздел Помощь' }, risks: [] };
       // @ai-data-end
       // @ai-data-begin
       // часы не оплатили: бронь from–to в минутах, с unpaidFrom до конца брони сервис часы не оплатил, rate ставка часа сервиса
@@ -3577,10 +3576,11 @@
         const b = RATING_RANGE_BUCKETS.find((x) => v >= x[0]) || RATING_RANGE_BUCKETS[RATING_RANGE_BUCKETS.length - 1];
         return b[0].toFixed(1).replace('.', ',') + '–' + b[1].toFixed(1).replace('.', ',') + ' из 5';
       }
-      // что сервис сам отдаёт о курьере: у остальных подключённых данных нет
+      // что сервис сам отдаёт о курьере: у остальных подключённых данных нет, числа те же, что в ACCOUNT_STATES
       const SERVICE_SCORES = {
-        x5: { num: 4.6, max: 5, big: '4,6', unit: 'из 5', label: '4,6 из 5', source: 'Рейтинг X5, шкала от 0 до 5' },
-        'yandex-eda': { num: null, max: null, big: '84', unit: 'балла', label: '84 балла', source: 'Баллы Про, шкала как в сервисе' }
+        vkusvill: { num: 4.9, max: 5, big: '4,9', unit: 'из 5', label: '4,9 из 5', source: 'Рейтинг ВкусВилла, шкала от 0 до 5' },
+        x5: { num: 4.8, max: 5, big: '4,8', unit: 'из 5', label: '4,8 из 5', source: 'Рейтинг X5, шкала от 0 до 5' },
+        'yandex-eda': { num: null, max: null, big: '412', unit: 'баллов', label: '412 баллов за неделю', source: 'Баллы Про, шкала как в сервисе' }
       };
       const scoreAnonLabel = (k) => { const sc = SERVICE_SCORES[k]; if (!sc) return 'Нет данных'; if (sc.num != null) return ratingRangeLabel(sc.num); const lo = Math.floor(Number(sc.big) / 10) * 10; return lo + '–' + (lo + 9) + ' баллов'; };
       // системная тема в макете зафиксирована, чтобы Системная давала предсказуемый результат
@@ -4480,19 +4480,23 @@
           if (typeof document === 'undefined') return;
           // тур закончился или его пропустили: снимаем подсветку цели
           requestAnimationFrame(() => { if (!document.querySelector('.raznos-tour-layer')) document.querySelectorAll('.raznos-tour-target').forEach((x) => x.classList.remove('raznos-tour-target')); });
-          requestAnimationFrame(() => document.querySelectorAll('.raznos-tour-layer').forEach((layer) => {
+          // наблюдатели и прокрутка зовут пересчёт часто, считаем не чаще раза за кадр
+          if (this._tourRaf) return;
+          this._tourRaf = requestAnimationFrame(() => { this._tourRaf = 0; document.querySelectorAll('.raznos-tour-layer').forEach((layer) => {
             const frame = layer.closest('.raznos-phone-frame');
             const tip = layer.querySelector('.raznos-tour-tip');
             if (!frame || !tip) return;
-            document.querySelectorAll('.raznos-tour-target').forEach((x) => x.classList.remove('raznos-tour-target'));
             const sel = layer.getAttribute('data-tip-sel') || '';
             const step = sel ? layer.getAttribute('data-tour-step') : Number(layer.getAttribute('data-tour-step'));
             const target = sel ? Array.from(frame.querySelectorAll(sel)).find((x) => x.getClientRects().length > 0)
               : step === 0 ? frame.querySelector('[data-tour="demo"]') : frame.querySelectorAll('.raznos-bottom-nav > .raznos-nav-tab')[step - 1];
+            // подсветку снимаем только с чужих целей, иначе каждая перестановка класса будит наблюдатель
+            const unmark = (keep) => document.querySelectorAll('.raznos-tour-target').forEach((x) => { if (x !== keep) x.classList.remove('raznos-tour-target'); });
+            this._tourWatch(layer, frame);
             // открыта шторка: подсказка ждёт, пока её закроют
             const sheetOpen = Array.from(frame.querySelectorAll('.raznos-dialog-layer')).some((x) => x.getClientRects().length > 0);
             // по цели уже нажали: тултип этого шага больше не показываем, ждём следующий
-            if (tip.__holdStep != null && tip.__holdStep === layer.getAttribute('data-tour-step')) { tip.style.opacity = '0'; tip.style.pointerEvents = 'none'; return; }
+            if (tip.__holdStep != null && tip.__holdStep === layer.getAttribute('data-tour-step')) { unmark(null); tip.style.opacity = '0'; tip.style.pointerEvents = 'none'; return; }
             tip.__holdStep = null; tip.style.pointerEvents = '';
             // все цели серии проверяем сразу, чтобы нумерация с первого шага была без пропавших; что не появилось за полторы секунды, выкидываем
             // экран ещё не дорисован, если нет ни одной цели серии: тогда ждём дольше; серия сменилась, проверку бросаем
@@ -4506,39 +4510,109 @@
             }
             // цели нет на экране: даём экрану дорисоваться и, если её так и нет, убираем шаг из серии
             if (!target && sel && !sheetOpen) {
+              unmark(null);
               tip.style.opacity = '0';
               clearTimeout(layer.__miss);
               const miss = (n) => { const f = layer.closest('.raznos-phone-frame'); if (!f || !this._stipMissing || layer.getAttribute('data-tip-all') !== tipAll) return; if (tipSeen(f, sel)) { this._tourPlace(); return; } if (!tipDrawn(f) && n < 8) { layer.__miss = setTimeout(() => miss(n + 1), 400); return; } this._stipMissing(sel); };
               layer.__miss = setTimeout(() => miss(0), 350);
               return;
             }
-            if (!target || sheetOpen) { tip.style.opacity = '0'; tip.style.pointerEvents = 'none'; if (sheetOpen && !layer.__wait) { layer.__wait = setTimeout(() => { layer.__wait = 0; this._tourPlace(); }, 400); } return; }
-            tip.style.pointerEvents = '';
-            target.classList.add('raznos-tour-target');
-            // к цели прокручиваем один раз на шаг и плавно, только экран, тултип едет следом за прокруткой
+            if (!target || sheetOpen) { unmark(null); tip.style.opacity = '0'; tip.style.pointerEvents = 'none'; if (sheetOpen && !layer.__wait) { layer.__wait = setTimeout(() => { layer.__wait = 0; this._tourPlace(); }, 400); } return; }
+            unmark(target);
+            if (!target.classList.contains('raznos-tour-target')) target.classList.add('raznos-tour-target');
             const box = frame.querySelector('.raznos-phone-scroll');
-            if (box && !box.__tourScroll) { box.__tourScroll = true; box.addEventListener('scroll', () => { if (box.closest('.raznos-phone-frame').querySelector('.raznos-tour-layer')) this._tourPlace(); }, { passive: true }); }
-            if (box && layer.__step !== step) {
-              layer.__step = step;
-              const br = box.getBoundingClientRect(), r0 = target.getBoundingClientRect();
-              const off = r0.top - br.top;
-              if ((step === 0 || sel) && (off < 80 || off + r0.height > box.clientHeight - 240)) box.scrollTo({ top: Math.max(0, box.scrollTop + off - box.clientHeight / 2 + 120), behavior: 'smooth' });
+            const inBox = !!box && box.contains(target);
+            // цель на экране, а не в нижнем меню: ставим подсказку выше или ниже по месту и докручиваем к цели
+            const free = step === 0 || !!sel;
+            const key = layer.getAttribute('data-tour-step'), now = Date.now();
+            const hideTip = () => { tip.style.opacity = '0'; tip.style.pointerEvents = 'none'; };
+            const later = (ms) => { clearTimeout(layer.__later); layer.__later = setTimeout(() => this._tourPlace(), ms); };
+            if (layer.__key !== key) {
+              layer.__key = key; layer.__at = now; layer.__pos = ''; layer.__settled = !free; layer.__touched = false; layer.__scrollEnd = 0; layer.__again = 0;
+              // новый шаг на экране показываем сразу на месте, без переезда через весь экран
+              if (free) { hideTip(); tip.__placed = false; }
             }
-            const fr = frame.getBoundingClientRect(), tr = target.getBoundingClientRect();
-            const w = Math.min(300, fr.width - 24), h = tip.offsetHeight, cx = tr.left + tr.width / 2 - fr.left;
+            // видимая часть экрана: под липкой плашкой демо и над нижним меню
+            const vis = () => {
+              const r = (inBox ? box : frame).getBoundingClientRect();
+              let t = r.top;
+              const rib = inBox && box.querySelector('.raznos-demo-ribbon');
+              if (rib && !rib.contains(target)) { const rr = rib.getBoundingClientRect(); if (rr.height && rr.top <= t + 1 && rr.bottom > t) t = rr.bottom; }
+              return { t, b: r.bottom };
+            };
+            const h = tip.offsetHeight, GAP = 12, PAD = 8, need = h + GAP + PAD;
+            // экран ещё дорисовывается: ждём, пока цель простоит на месте 250 мс, но не дольше полутора секунд
+            if (!layer.__settled) {
+              const r = target.getBoundingClientRect();
+              const pos = [r.top + (box ? box.scrollTop : 0), r.left, r.width, r.height].map(Math.round).join();
+              if (pos !== layer.__pos) { layer.__pos = pos; layer.__posAt = now; }
+              if (now - layer.__posAt < 250 && now - layer.__at < 1500) { hideTip(); later(120); return; }
+              layer.__settled = true;
+              // цель в горизонтальной ленте за краем: сначала доводим ленту
+              const fr0 = frame.getBoundingClientRect(), cx0 = r.left + r.width / 2;
+              if (cx0 < fr0.left || cx0 > fr0.right) target.scrollIntoView({ block: 'nearest', inline: 'center' });
+              // докручиваем экран так, чтобы рядом с целью влезла подсказка; из двух мест выбираем то, куда ехать меньше
+              if (inBox) {
+                const v = vis(), tr0 = target.getBoundingClientRect(), max = box.scrollHeight - box.clientHeight;
+                const shift = (lo, hi) => (lo < v.t ? lo - v.t : hi > v.b ? Math.min(hi - v.b, lo - v.t) : 0);
+                const opts = [shift(tr0.top - need, tr0.bottom + PAD), shift(tr0.top - PAD, tr0.bottom + need)]
+                  .filter((d) => box.scrollTop + d >= -1 && box.scrollTop + d <= max + 1).sort((a, b) => Math.abs(a) - Math.abs(b));
+                // высокая цель целиком с подсказкой не влезает: верх цели под подсказкой, низ уходит за край
+                const d = opts.length ? opts[0] : tr0.top - need - v.t;
+                if (Math.abs(d) > 2) {
+                  const smooth = !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+                  box.scrollTo({ top: Math.max(0, Math.min(max, box.scrollTop + d)), behavior: smooth ? 'smooth' : 'auto' });
+                  layer.__scrollEnd = now + 900; layer.__st = -1;
+                }
+              }
+            }
+            // показываем, когда прокрутка к цели доехала
+            if (layer.__scrollEnd && now < layer.__scrollEnd && box && box.scrollTop !== layer.__st) { layer.__st = box.scrollTop; hideTip(); later(100); return; }
+            layer.__scrollEnd = 0;
+            const fr = frame.getBoundingClientRect(), tr = target.getBoundingClientRect(), v = vis();
+            // блок выше дорисовался и увёл цель за край, пока человек сам не листал: возвращаем цель в видимую часть
+            if (free && inBox && !layer.__touched && layer.__again < 3 && tr.height < v.b - v.t - need && (tr.top < v.t || tr.bottom > v.b)) { layer.__again++; layer.__settled = false; layer.__pos = ''; layer.__at = now; hideTip(); later(120); return; }
+            // цель уехала за край при прокрутке: подсказка прячется и возвращается вместе с ней
+            if (free && (tr.bottom < v.t + 4 || tr.top > v.b - 4)) { hideTip(); return; }
+            tip.style.pointerEvents = '';
+            const w = Math.min(300, fr.width - 24), cx = tr.left + tr.width / 2 - fr.left;
             const left = Math.max(12, Math.min(fr.width - w - 12, cx - w / 2));
-            // снизу, только если сверху не влезает и снизу места больше; высокая цель у края: тултип не уходит за экран
-            const spaceAbove = tr.top - fr.top - 80, spaceBelow = fr.bottom - tr.bottom - 84;
-            const below = (step === 0 || !!sel) && spaceAbove < h && spaceBelow > spaceAbove;
-            const rawTop = below ? tr.bottom - fr.top + 12 : tr.top - fr.top - h - 12;
-            const top = sel ? Math.max(56, Math.min(fr.height - h - 84, rawTop)) : rawTop;
+            // сверху, если влезает; иначе снизу; не влезает нигде: туда, где места больше, и в пределах экрана
+            const top0 = v.t - fr.top + PAD, bot0 = v.b - fr.top - PAD;
+            const tT = tr.top - fr.top, tB = tr.bottom - fr.top;
+            const roomA = tT - GAP - top0, roomB = bot0 - tB - GAP;
+            const below = free && roomA < h && (roomB >= h || roomB > roomA);
+            let top = below ? tB + GAP : tT - GAP - h;
+            if (free && roomA < h && roomB < h) top = Math.max(top0, Math.min(bot0 - h, top));
             // первый показ сразу на месте, без переезда из угла; дальше между шагами плавно
-            if (!tip.__placed) { tip.style.transition = 'none'; Object.assign(tip.style, { width: w + 'px', left: left + 'px', top: top + 'px' }); void tip.offsetWidth; tip.style.transition = ''; tip.__placed = true; }
+            if (!tip.__placed) { tip.style.transition = 'none'; Object.assign(tip.style, { width: w + 'px', left: left + 'px', top: top + 'px' }); void tip.offsetWidth; tip.__placed = true; }
+            // при прокрутке подсказка идёт за целью без запаздывания
+            tip.style.transition = layer.__scrolling ? 'opacity .2s ease' : '';
             Object.assign(tip.style, { width: w + 'px', left: left + 'px', top: top + 'px', opacity: '1' });
-            // хвостик с той стороны, где на самом деле цель
+            // хвостик с той стороны, где на самом деле цель, и в её центр, но не за скруглением подсказки
             const tipBox = tip.querySelector('.rtt'); if (tipBox) tipBox.classList.toggle('rtt-below', below);
-            tip.style.setProperty('--rtt-arrow', Math.round(cx - left) + 'px');
-          }));
+            tip.style.setProperty('--rtt-arrow', Math.round(Math.max(20, Math.min(w - 20, cx - left))) + 'px');
+          }); });
+        }
+        // пока открыта подсказка, следим за экраном: дорисованные блоки, смена размеров и прокрутка двигают цель
+        _tourWatch(layer, frame) {
+          if (layer.__watch || typeof MutationObserver === 'undefined') return;
+          const kick = () => { if (!layer.isConnected) { stop(); return; } this._tourPlace(); };
+          const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(kick) : null;
+          const watchSize = () => { if (!ro) return; const sc = frame.querySelector('.raznos-phone-scroll'); if (sc) { ro.observe(sc); Array.from(sc.children).forEach((x) => ro.observe(x)); } };
+          watchSize();
+          const mo = new MutationObserver((list) => { if (list.some((m) => !layer.contains(m.target))) { watchSize(); kick(); } });
+          mo.observe(frame, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'hidden', 'open'] });
+          let scrollT = 0;
+          const onScroll = (e) => { if (layer.contains(e.target)) return; layer.__scrolling = true; clearTimeout(scrollT); scrollT = setTimeout(() => { layer.__scrolling = false; }, 150); kick(); };
+          // сам полистал или нажал мимо подсказки: дальше экран за ним не докручиваем
+          const touch = (e) => { if (!(e.target && e.target.closest && e.target.closest('.raznos-tour-tip'))) layer.__touched = true; };
+          const ev = ['wheel', 'touchstart', 'pointerdown', 'keydown'];
+          frame.addEventListener('scroll', onScroll, { capture: true, passive: true });
+          ev.forEach((n) => frame.addEventListener(n, touch, { capture: true, passive: true }));
+          window.addEventListener('resize', kick);
+          const stop = () => { mo.disconnect(); if (ro) ro.disconnect(); frame.removeEventListener('scroll', onScroll, { capture: true }); ev.forEach((n) => frame.removeEventListener(n, touch, { capture: true })); window.removeEventListener('resize', kick); layer.__watch = null; };
+          layer.__watch = stop;
         }
         // назад браузера или телефона: закрываем верхнюю шторку, иначе жмём назад текущего экрана, на корне вкладки идём на главную
         _hardwareBack() {
@@ -5386,7 +5460,7 @@
               { sel: '.rss-changed', title: 'План подставил смену', text: 'Бронь отменили в сервисе, мы поставили в план другую смену. Записи в ней нет, проверьте перед выходом' }
             ] },
             { key: 'day-offer', on: () => s === 'work-hub' && !!st.planOnboarded, steps: [
-              { sel: '.raznos-phone-body .rss-list .rdo-line', title: 'Предложение дня', text: 'Одно на день: что не так или где выгоднее. Нажмите: варианты с ценой каждого и ставки ₽/ч обоих. Менять бронь нужно в приложении сервиса' }
+              { sel: '.raznos-phone-body .rss-list .rdo-line', title: 'Предложение дня', text: 'Одно на день: что не так или где выгоднее. Нажмите, чтобы увидеть варианты и сколько даёт каждый. Менять смены можно только в приложении сервиса' }
             ] },
             { key: 'slots', on: () => s === 'slots', steps: [
               { sel: '.raznos-shifts-tab[data-tab="mine"]', title: 'Мои', text: 'Смены и заявки, которые вы уже взяли в сервисах' },
@@ -5398,7 +5472,7 @@
               { sel: '.raznos-shifts-col .rpw-badge', title: 'Как берут смену', text: 'Слот бронируют сразу, по заявке ждут ответа сервиса. Пунктир: вы ещё не записаны' }
             ] },
             { key: 'slots-bell', on: () => s === 'slots' && (st.slotsTabNow || st.slotsTab) === 'free', steps: [
-              { sel: '.raznos-shifts-filter-row .ralb-icon', title: 'Сообщать о новых слотах', text: 'Колокольчик запоминает эти фильтры. Появится подходящий слот, пришлём пуш' }
+              { sel: '.raznos-shifts-alert-btn .ralb-btn', title: 'Сообщать о новых слотах', text: 'Кнопка запоминает эти фильтры. Появится подходящий слот, пришлём пуш' }
             ] },
             { key: 'slots-watch', on: () => s === 'slots' && (st.slotsTabNow || st.slotsTab) === 'watch', steps: [
               { sel: '.raznos-shifts .rar', title: 'Свои оповещения', text: 'Пуш, когда появится смена дороже, в нужном районе или с бонусом. Добавьте своё правило' }
@@ -6040,7 +6114,16 @@
             const bits = a.level ? ['уровень ' + a.level] : (a.rating != null ? ['рейтинг ' + String(a.rating).replace('.', ',')] : []);
             return bits.length ? { text: bits.join(', ').replace(/^./, (c) => c.toUpperCase()), alert: '' } : null;
           };
-          const integrationList = Object.keys(SERVICES).map((key, i) => {
+          // аккаунт целиком для Профиля и экрана сервиса: состояние и задания сервиса, прогресс задания по сценарию бонуса как на Сегодня
+          const accountViewOf = (key) => {
+            const state = accountStateOf(key);
+            if (!state) return null;
+            const progress = { far: 6, done: 20 }[edge.bonus];
+            const quests = SERVICE_QUESTS.filter((q) => q.key === key).map((q) => (q.kind === 'count' && progress != null ? Object.assign({}, q, { done: progress }) : q));
+            const has = state.rating != null || !!state.level || !!state.block || (state.facts || []).length > 0 || (state.risks || []).length > 0 || quests.length > 0;
+            return { state, quests, has };
+          };
+          const integrationList =Object.keys(SERVICES).map((key, i) => {
             const svc = SERVICES[key];
             if (svc.method === 'soon') {
               return { key, title: svc.title, note: 'Подключение в планах', status: 'soon', statusLabel: 'Скоро', showChevron: false, onTap: () => {}, group: 'soon' };
@@ -6066,7 +6149,7 @@
               key, title: svc.title, note: acc ? acc.text + ' · ' + note.replace(/^./, (c) => c.toLowerCase()) : note,
               status: pill ? pill[1] : (status === 'connected' ? 'connected' : (status === 'limited' ? 'connected' : (status === 'exited' ? 'exited' : (status === 'disabled' ? 'disabled' : (svc.method === 'unsupported' && !svc.catalogNote ? 'unsupported' : 'none'))))),
               statusLabel: pill ? pill[0] : '', showChevron: !(status === 'none' && !pill),
-              beta: svc.method === 'external', actionLabel: status === 'none' && !pill ? 'Подключить' : '',
+              actionLabel: status === 'none' && !pill ? 'Подключить' : '',
               group: isLinked || status === 'disabled' ? 'linked' : 'free',
               onTap: () => set({ s: 'integration-connect', connKey: key, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '123456', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: 'demo1234' }),
             };
@@ -6973,7 +7056,7 @@
             go_market: () => set({ s: 'market' }), market_back: navBack(() => set({ s: 'market' })),
             go_market_services: () => set({ s: 'market-services' }),
             service_back: navBack(() => set(st.svFrom === 'job-guide' ? { s: 'job-guide', svFrom: '' } : { s: st.svFrom === 'market-services' ? 'market-services' : 'market' })),
-            conn_back: navBack(() => { if (st.connFrom === 'job-guide') return set({ s: 'job-guide', connFrom: '' }); if (role === 'courier') set({ s: 'integrations' }); }),
+            conn_back: navBack(() => { if (st.connFrom === 'job-guide') return set({ s: 'job-guide', connFrom: '' }); if (st.connFrom === 'profile') return set({ s: 'profile', connFrom: '' }); if (role === 'courier') set({ s: 'integrations' }); }),
             go_history: () => { if (role === 'courier') set({ s: 'history', histBack: '', histSvc: 'all', histDistrict: 'all' }); },
             // до первой смены и в выходной сегодняшних заказов нет: берём последний рабочий день
             recent_empty: demoOn && !HISTORY.some((o) => o.dateISO === recentDay && edgeKeepOrder(o)),
@@ -7762,7 +7845,7 @@
             conn_ya_refresh: () => { set({ syncAgo: Object.assign({}, syncAgo, { [connKey]: 0 }) }); uxShowToast('Данные обновлены, зайдите в Яндекс Про заново'); },
             conn_key: connKey, conn_title: conn.title, conn_login_label: conn.loginLabel || 'Логин',
             // аккаунт в сервисе на экране подключённого сервиса
-            conn_acc_show: connIsConnected && !!accountStateOf(connKey), conn_acc_state: accountStateOf(connKey) || {},
+            conn_acc_show: connIsConnected && !!accountStateOf(connKey), conn_acc_state: accountStateOf(connKey) || {}, conn_acc_quests: (accountViewOf(connKey) || { quests: [] }).quests,
             conn_acc_in: (SERVICE_CAPS[connKey] && SERVICE_CAPS[connKey].prep) || conn.title, conn_acc_updated: syncLabelOf(connKey).toLowerCase(),
             acc_contact: (key) => set({ s: 'service-open-demo', openDemoSection: '', openDemoLabel: SERVICES[key] ? SERVICES[key].title : key, openDemoFrom: s, openDemoShift: '', openDemoSlot: '' }),
             // на Сегодня только риск у лимита или блокировка
@@ -8352,14 +8435,11 @@
             hist_empty_action: histHasData ? 'Когда выгоднее' : 'Подключить сервис',
             hist_empty_go: () => set(histHasData ? { s: 'best-times', btFrom: s, btView: 'day', btDay: null, btHour: null } : { s: 'integrations' }),
             hist_unhide: () => set({ pvHideHistory: false }),
-            // оценки из сервиса: крупное значение со шкалой, сервисы без данных одной строкой
-            pf_scores: connectedKeys.filter((k) => SERVICE_SCORES[k]).map((k) => {
-              const sc = SERVICE_SCORES[k];
-              return { key: k, title: SERVICES[k].title, source: sc.source.split(',')[0], big: sc.big, unit: sc.unit, has_bar: sc.max != null, bar: sc.max != null ? 'width:' + Math.round(sc.num / sc.max * 100) + '%' : '' };
-            }),
-            pf_scores_none: connectedKeys.filter((k) => !SERVICE_SCORES[k]).map((k) => ({ key: k, title: SERVICES[k].title })),
-            pf_scores_none_show: connectedKeys.some((k) => !SERVICE_SCORES[k]),
-            pf_scores_none_text: 'Нет данных: ' + connectedKeys.filter((k) => !SERVICE_SCORES[k]).map((k) => SERVICES[k].title).join(', '),
+            // аккаунты в сервисах: строка на сервис с данными, тап открывает аккаунт на экране сервиса, без данных одной строкой
+            pf_acc_rows: connectedKeys.filter((k) => { const v = accountViewOf(k); return v && v.has; }).map((k) => Object.assign({ key: k, title: SERVICES[k].title }, accountViewOf(k))),
+            pf_acc_none: connectedKeys.filter((k) => { const v = accountViewOf(k); return !v || !v.has; }).map((k) => ({ key: k, title: SERVICES[k].title })),
+            pf_acc_none_show: connectedKeys.some((k) => { const v = accountViewOf(k); return !v || !v.has; }),
+            pf_acc_open: (key) => set({ s: 'integration-connect', connKey: key, connFrom: 'profile', connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '123456', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: 'demo1234' }),
             pf_client_ratings: connectedKeys.map((k) => { const cr = SERVICE_SCORES[k]; return { key: k, title: SERVICES[k].title, value: cr ? cr.label : 'Нет данных из сервиса', source: cr ? cr.source : '', value_cls: 'raznos-imp-reviews__value' + (cr ? '' : ' raznos-imp-reviews__value--none') }; }),
             pf_restricted: myAccountRestricted,
             pf_restriction_reason: (() => {
@@ -9237,9 +9317,9 @@
             const sw = vals.home_offer_swap;
             const swNet = sw ? sw.altSum - sw.mineSum - (sw.penalty || 0) : 0;
             const swShort = sw ? String(sw.altTitle).replace(/\s+Доставка$/, '') : '';
-            if (home && cf && phase !== 'off') list.push({ p: 3, id: 'conflict', kind: 'conflict', tone: 'amber', word: 'дорога', title: 'Не успеете доехать к ' + cf.from, sub: sw ? 'Есть решение: ' + swShort + ' с ' + sw.altFrom + ', +' + fm(swNet) : cf.title + ', ' + (cf.gap > 0 ? 'между сменами ' + cf.gap + ' мин' : 'смены встык') + ', дорога ≈ 20 мин' });
+            if (home && cf && phase !== 'off') list.push({ p: 3, id: 'conflict', kind: 'conflict', tone: 'amber', word: 'дорога', title: 'Не успеете в ' + String(cf.title).replace(/а$/, 'у'), sub: sw ? 'Можно взять ' + swShort + ' с ' + sw.altFrom + ', +' + fm(swNet) : (cf.gap > 0 ? 'Между сменами ' + cf.gap + ' мин' : 'Смены встык') + ', дорога 20 мин' });
             // 10: замена без конфликта, спокойно и после остального, выключается в настройках Плана
-            if (home && !cf && sw && phase !== 'off') list.push({ p: 10, id: 'offer', kind: 'offer', tone: '', svc: sw.altSvc, word: 'замена', hide: true, title: 'Выгоднее ' + swShort + ' ' + sw.altTime, sub: '+' + fm(swNet) + ', ≈ ' + formatMoney(sw.altRate) + ' против ' + formatMoney(sw.mineRate) + ' ₽/ч' });
+            if (home && !cf && sw && phase !== 'off') list.push({ p: 10, id: 'offer', kind: 'offer', tone: '', svc: sw.altSvc, word: 'замена', hide: true, title: 'Выгоднее ' + swShort + ' ' + sw.altTime, sub: '+' + fm(swNet) + (sw.altMin && sw.mineMin && sw.altMin !== sw.mineMin ? ', на ' + String(Math.round(Math.abs(sw.altMin - sw.mineMin) / 6) / 10).replace('.', ',') + ' ч ' + (sw.altMin > sw.mineMin ? 'дольше' : 'короче') : (sw.other ? ', но ' + sw.other : (sw.requested ? ', заявку отзовёте' : ''))) });
             // 4 и 8: погода за 2 ч до окна или во время, опасная янтарная и без крестика
             const wx = vals.home_weather_show && demoOn ? WEATHER_DEMO[st.weather || 'rain'] : null;
             if (home && wx && wx.period && phase !== 'off' && nowMin >= wx.period.from - 120 && nowMin < wx.period.to) {

@@ -14,7 +14,13 @@
     .ralb-row-txt b { font: 650 15px/1.3 var(--raznos-font); overflow-wrap: anywhere; }
     .ralb-row-txt span { font: 500 13px/1.4 var(--raznos-font); color: var(--raznos-ink-2); overflow-wrap: anywhere; }
     .ralb-row-txt .ralb-state { color: var(--raznos-green-deep); font-weight: 650; }
-    .ralb-icon:focus-visible, .ralb-row:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; }
+    /* кнопка с подписью под фильтрами: маленькая вторичная, видно, что это действие, а не ещё один фильтр */
+    .ralb-btn { position: relative; align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px 0 11px; border: 1px solid var(--raznos-line-strong); border-radius: 999px; background: var(--raznos-surface); color: var(--raznos-ink); font: 600 13.5px var(--raznos-font); cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+    .ralb-btn::after { content: ''; position: absolute; inset: -4px 0; }
+    .ralb-btn .ralb-glyph { flex: none; width: 17px; height: 17px; color: var(--raznos-green-deep); }
+    /* правило есть: залитый колокольчик и Сообщаем на светлой зелёной подложке */
+    .ralb-btn.ralb-is-on { border-color: color-mix(in oklab, var(--raznos-green) 45%, transparent); background: color-mix(in oklab, var(--raznos-green) 12%, var(--raznos-surface)); color: var(--raznos-green-deep); }
+    .ralb-icon:focus-visible, .ralb-row:focus-visible, .ralb-btn:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; }
     @media (prefers-reduced-motion: no-preference) {
       /* включили: колокольчик качнулся, это отклик на своё действие, а не призыв */
       .ralb-is-on .ralb-glyph { transform-origin: 50% 12%; animation: ralb-ring 0.7s cubic-bezier(0.36, 0, 0.3, 1) both; }
@@ -25,6 +31,12 @@
 <sc-if value="{{ is_icon }}" hint-placeholder-val="{{ true }}">
   <button type="button" class="{{ icon_cls }}" onClick="{{ tap }}" aria-label="{{ aria }}" aria-pressed="{{ on }}">
     <svg class="ralb-glyph" width="20" height="20" viewBox="0 0 24 24" fill="{{ fill }}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+  </button>
+</sc-if>
+<sc-if value="{{ is_btn }}" hint-placeholder-val="{{ false }}">
+  <button type="button" class="{{ btn_cls }}" onClick="{{ tap }}" aria-label="{{ aria }}" aria-pressed="{{ on }}">
+    <svg class="ralb-glyph" width="20" height="20" viewBox="0 0 24 24" fill="{{ fill }}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+    <span>{{ btn_text }}</span>
   </button>
 </sc-if>
 <sc-if value="{{ is_row }}" hint-placeholder-val="{{ false }}">
@@ -38,15 +50,17 @@
 </sc-if>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{
   "on": { "editor": "boolean", "default": false },
-  "variant": { "editor": "enum", "options": ["icon", "row"], "default": "icon" },
+  "variant": { "editor": "enum", "options": ["icon", "button", "row"], "default": "icon" },
   "size": { "editor": "enum", "options": ["md", "sm"], "default": "md" },
   "label": { "editor": "text", "default": "Сообщать о новых слотах" },
   "sub": { "editor": "text", "default": "Самокат, X5 · вечер · любой день" },
+  "btnLabel": { "editor": "text", "default": "Сообщать о новых" },
   "ariaLabel": { "editor": "text", "default": "" },
   "onTap": { "editor": null },
   "$preview": { "width": 360, "height": 90 }
 }'>
 // один вид входа во всех местах: нет правила, колокольчик контуром; правило уже есть, залитый зелёный и подпись Сообщаем
+// кнопка с подписью для мест, где один значок непонятен: Сообщать о новых, с правилом Сообщаем
 // точку не ставим, в списке уведомлений зелёная точка значит непрочитанное
 // тап всегда в одну шторку: новое правило с условиями экрана или уже созданное
 class Component extends DCLogic {
@@ -56,7 +70,8 @@ class Component extends DCLogic {
     const label = p.label || 'Сообщать о новых слотах';
     const sub = p.sub == null ? '' : String(p.sub);
     return {
-      on, is_icon: p.variant !== 'row', is_row: p.variant === 'row',
+      on, is_icon: p.variant !== 'row' && p.variant !== 'button', is_row: p.variant === 'row', is_btn: p.variant === 'button',
+      btn_cls: 'ralb-btn' + (on ? ' ralb-is-on' : ''), btn_text: on ? 'Сообщаем' : p.btnLabel || 'Сообщать о новых',
       icon_cls: 'ralb-icon' + (p.size === 'sm' ? ' ralb-sm' : '') + (on ? ' ralb-is-on' : ''),
       row_icon_cls: 'ralb-icon' + (on ? ' ralb-is-on' : ''),
       fill: on ? 'currentColor' : 'none',

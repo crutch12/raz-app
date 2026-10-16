@@ -28,47 +28,40 @@
     .rmt-scope-on { border-color: var(--raznos-ink-2); color: var(--raznos-ink); }
     .rmt-scope:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; }
 
-    /* выбранный час в две строки над столбиками */
-    .rmt-hour { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 10px; border-radius: 16px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
+    /* выбранный час: строка дня, крупно ставка, лидер одной строкой, ниже столбики */
+    .rmt-hour { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 6px; border-radius: 16px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
     .rmt-read { display: flex; flex-direction: column; gap: 2px; padding: 0 4px; }
     .rmt-read-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 24px; }
-    .rmt-when { min-width: 0; font: 600 13px var(--raznos-font); color: var(--raznos-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .rmt-when b { font-weight: 700; color: var(--raznos-ink); }
-    .rmt-back-now { flex: none; display: inline-flex; align-items: center; min-height: 44px; margin: -10px -4px -10px 0; padding: 0 4px 0 8px; border: 0; background: none; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
-    .rmt-back-now span { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; background: var(--raznos-green-tint); }
+    .rmt-when { min-width: 0; font: 600 12px var(--raznos-font); color: var(--raznos-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rmt-back-now { flex: none; display: inline-flex; align-items: center; min-height: 44px; margin: -10px -4px -10px 0; padding: 0 4px; border: 0; background: none; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
+    /* кнопка, а не метка: рамка и иконка часов, как вторичные кнопки ДС */
+    .rmt-back-now > span { display: inline-flex; align-items: center; gap: 5px; min-height: 32px; padding: 0 12px 0 9px; border-radius: 999px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 1px 2px oklch(0 0 0 / 0.08); }
+    .rmt-back-now:active > span { background: var(--raznos-surface-2); }
     .rmt-back-now:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: -2px; border-radius: 999px; }
     /* Сейчас и колокольчик Сообщать в строке выбранного часа, без лишней высоты */
     .rmt-read-acts { flex: none; display: inline-flex; align-items: center; gap: 6px; margin: -6px 0; }
-    .rmt-main { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 40px; }
-    .rmt-main-num { flex: none; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-    .rmt-cap { font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); }
-    .rmt-avg { font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); white-space: nowrap; }
-    .rmt-avg b { font-weight: 700; color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
-    .rmt-big { flex: none; display: flex; align-items: baseline; gap: 4px; }
+    .rmt-avg { margin-top: 2px; font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); white-space: nowrap; }
+    .rmt-avg b { font-weight: 600; color: var(--raznos-ink-2); font-variant-numeric: tabular-nums; }
+    .rmt-big { flex: none; display: flex; align-items: baseline; gap: 4px; margin-top: 2px; }
     .rmt-big b { font: 800 26px/1.1 var(--raznos-font); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; color: var(--raznos-ink); white-space: nowrap; }
     .rmt-big-range b { font-size: 21px; }
     .rmt-big small { font: 600 14px var(--raznos-font); color: var(--raznos-ink-2); }
     .rmt-low { flex: none; padding: 2px 8px; font-size: 12px; }
-    .rmt-leader { min-width: 0; display: flex; align-items: center; gap: 6px; }
+    /* где: логотип и сервис с районом одной строкой под ставкой */
+    .rmt-leader { min-width: 0; display: flex; align-items: center; gap: 6px; margin-top: 4px; font: 600 14px/1.3 var(--raznos-font); color: var(--raznos-ink); }
     .rmt-leader .raznos-svc-icon-sm { box-sizing: border-box; flex: none; width: 20px; height: 20px; border-radius: 6px; }
-    .rmt-leader-txt { min-width: 0; display: flex; flex-direction: column; text-align: right; }
-    .rmt-leader-txt b, .rmt-leader-txt span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    /* у длинной вилки название лидера переносится, а не обрезается */
-    .rmt-leader-txt b, .rmt-leader-txt b span { white-space: normal; }
-    .rmt-leader-txt b { font: 700 13px/1.25 var(--raznos-font); color: var(--raznos-ink); }
-    .rmt-leader-txt span { font: 500 12px/1.25 var(--raznos-font); color: var(--raznos-ink-3); }
-    /* место под строку о ваших часах или погоде держим весь день, чтобы при выборе часа список не прыгал */
+    .rmt-leader-txt { min-width: 0; }
+    /* место под строку о вашем часе или погоде держим весь день, чтобы при выборе часа список не прыгал */
     .rmt-notes { display: flex; flex-direction: column; }
-    .rmt-notes-res { min-height: 46px; }
+    .rmt-notes-res { min-height: 30px; }
     .rmt-note { display: flex; align-items: center; gap: 6px; margin-top: 4px; font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-2); }
     .rmt-note b { color: var(--raznos-ink); font-weight: 700; }
-    .rmt-note-fc { font-size: 12px; color: var(--raznos-ink-3); }
-    /* итог дня с вашими часами над столбиками */
-    .rmt-sum { display: flex; align-items: baseline; gap: 6px; margin: 0; padding: 0 4px; font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-2); }
-    .rmt-sum-dot { flex: none; width: 5px; height: 5px; border-radius: 50%; background: var(--raznos-ink); transform: translateY(-2px); }
-    /* ссылка в Результаты за этот день под итогом, тап-зона 44 */
-    .rmt-sum-link { position: relative; align-self: flex-start; display: inline-flex; align-items: center; gap: 2px; min-height: 28px; margin: -6px 0 -4px 15px; padding: 0; border: 0; background: none; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
-    .rmt-sum-link::after { content: ''; position: absolute; inset: -8px -6px; }
+    /* итог дня с вашими часами тихой строкой под столбиками, вся строка ведёт в Результаты за этот день */
+    .rmt-sum { box-sizing: border-box; display: flex; align-items: center; gap: 6px; width: 100%; min-height: 36px; margin: 0; padding: 0 4px; border: 0; border-top: 1px solid var(--raznos-line); background: none; font: 500 12px/1.35 var(--raznos-font); color: var(--raznos-ink-2); text-align: left; }
+    .rmt-sum-txt { flex: 1; min-width: 0; }
+    .rmt-sum-dot { flex: none; width: 5px; height: 5px; border-radius: 50%; background: var(--raznos-ink); }
+    .rmt-sum-link { position: relative; min-height: 40px; cursor: pointer; }
+    .rmt-sum-link::after { content: ''; position: absolute; inset: -2px 0; }
     .rmt-sum-link:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; border-radius: 8px; }
     .rmt-why { align-self: flex-start; max-width: 100%; gap: 6px; margin-top: 4px; font-size: 13px; white-space: normal; }
 
@@ -156,29 +149,23 @@
     <div class="rmt-hour">
       <div class="rmt-read" aria-live="polite">
         <div class="rmt-read-top">
-          <span class="rmt-when"><b>{{ when }}</b></span>
+          <span class="rmt-when">{{ when }}</span>
           <span class="rmt-read-acts">
-          <sc-if value="{{ has_go_now }}" hint-placeholder-val="{{ false }}"><button type="button" class="rmt-back-now" onClick="{{ go_now }}"><span>{{ go_now_label }}</span></button></sc-if>
+          <sc-if value="{{ has_go_now }}" hint-placeholder-val="{{ false }}"><button type="button" class="rmt-back-now" onClick="{{ go_now }}"><span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>{{ go_now_label }}</span></button></sc-if>
           <sc-if value="{{ has_alert }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosAlertBell" size="sm" on="{{ alert_on }}" label="{{ alert_label }}" sub="{{ alert_sub }}" onTap="{{ alert_tap }}"></dc-import></sc-if>
           </span>
         </div>
-        <div class="rmt-main">
-          <span class="rmt-main-num">
-            <span class="rmt-cap">{{ cap }} <dc-import name="RaznosRateBasis" kind="{{ cap_kind }}"></dc-import></span>
-            <span class="{{ big_cls }}"><b>{{ big }}</b><small>₽/ч</small></span>
-            <span class="rmt-avg">{{ avg_label }} <b>{{ avg_val }}</b></span>
-          </span>
-          <sc-if value="{{ has_leader }}" hint-placeholder-val="{{ true }}"><span class="rmt-leader"><span class="rmt-leader-txt"><b>{{ leader_title }}</b><span>{{ leader_where }}</span></span><dc-import name="RaznosIcon" svc="{{ leader_svc }}" alt="{{ leader_title }}" size="sm"></dc-import></span></sc-if>
-        </div>
+        <span class="{{ big_cls }}" aria-label="{{ big_aria }}"><b>{{ big }}</b><small>₽/ч</small></span>
+        <sc-if value="{{ has_leader }}" hint-placeholder-val="{{ true }}"><span class="rmt-leader"><dc-import name="RaznosIcon" svc="{{ leader_svc }}" alt="{{ leader_title }}" size="sm"></dc-import><span class="rmt-leader-txt">{{ leader_line }}</span></span></sc-if>
+        <span class="rmt-avg">{{ avg_label }} <b>{{ avg_val }}</b></span>
         <div class="{{ notes_cls }}">
         <sc-if value="{{ has_me }}" hint-placeholder-val="{{ false }}"><span class="rmt-note"><span>Ваш час: <b>{{ me_svc }}</b>, {{ me_zone }}, <b>{{ me_val }}</b>{{ me_tail }}</span></span></sc-if>
         <sc-if value="{{ has_why }}" hint-placeholder-val="{{ false }}"><span class="raznos-status-pill raznos-pill-warn rmt-why"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16a5 5 0 1 1 1.2-9.9A6 6 0 0 1 19.5 9 3.5 3.5 0 0 1 18 16H7Z"/><path d="m9 19-1 2M13 19l-1 2M17 19l-1 2"/></svg>{{ why }}</span></sc-if>
-        <sc-if value="{{ has_fc_note }}" hint-placeholder-val="{{ false }}"><span class="rmt-note rmt-note-fc">{{ fc_note }}</span></sc-if>
         </div>
       </div>
-      <sc-if value="{{ has_sum }}" hint-placeholder-val="{{ false }}"><p class="rmt-sum"><i class="rmt-sum-dot" aria-hidden="true"></i><span>{{ sum_text }}</span></p></sc-if>
-      <sc-if value="{{ has_my_day }}" hint-placeholder-val="{{ false }}"><button type="button" class="rmt-sum-link" onClick="{{ go_my_day }}">{{ my_day_label }}<span class="raznos-row-chevron" aria-hidden="true">›</span></button></sc-if>
-      <dc-import name="RaznosHourBars" bars="{{ bars }}" win="{{ win }}" legendDay="{{ true }}" label="Лучшая ставка по часам с 06:00 до 06:00, ведите пальцем, чтобы выбрать час" onPick="{{ pick_hour }}"></dc-import>
+      <dc-import name="RaznosHourBars" bars="{{ bars }}" win="{{ win }}" label="Лучшая ставка по часам с 06:00 до 06:00, ведите пальцем, чтобы выбрать час" onPick="{{ pick_hour }}"></dc-import>
+      <sc-if value="{{ has_sum_text }}" hint-placeholder-val="{{ false }}"><p class="rmt-sum"><i class="rmt-sum-dot" aria-hidden="true"></i><span class="rmt-sum-txt">{{ sum_text }}</span></p></sc-if>
+      <sc-if value="{{ has_my_day }}" hint-placeholder-val="{{ false }}"><button type="button" class="rmt-sum rmt-sum-link" onClick="{{ go_my_day }}" aria-label="{{ my_day_label }}"><i class="rmt-sum-dot" aria-hidden="true"></i><span class="rmt-sum-txt">{{ sum_text }}</span><span class="raznos-row-chevron" aria-hidden="true">›</span></button></sc-if>
     </div>
     <sc-if value="{{ has_by }}" hint-placeholder-val="{{ true }}">
       <div class="raznos-segmented rmt-seg" role="tablist" aria-label="Что показать">
@@ -553,10 +540,8 @@ class Component extends DCLogic {
     const top = picked[0] || options(day, hour)[0];
     // ночь подписываем днём выбранных суток: Чт, ночь 02:00
     const when = nowSel ? 'Сейчас' : (hour >= 24 ? RMT_DOW[rmtDate(day).getDay()] + ', ночь ' : (rd === 0 ? 'Сегодня, ' : rmtDayName(rd) + ', ')) + (nowSel ? '' : rmtHH(hour) + ':00');
-    // было, прогноз или примерно пишем у подписи числа, чтобы строке с днём хватило места рядом с кнопкой К текущему часу
-    // мера по словарю меткой у подписи: прошлый и текущий час это в этот час, будущий прогноз
-    const cap = ['Лучший вариант', far ? 'примерно' : '', low ? 'предварительно' : ''].filter(Boolean).join(', ');
-    const capKind = fc ? 'forecast' : 'hour';
+    // прогноз, примерно или предварительно одним словом в строке дня: Сегодня, 19:00 · прогноз
+    const tag = [far ? 'примерно' : (fc ? 'прогноз' : ''), low ? 'предварительно' : ''].filter(Boolean).join(', ');
     // вы были на линии в этот час: ваш сервис и район против лучшего варианта часа, только у этих часов
     const my = meAt(day, hour) ? myOf(rd) : null;
     const myS = my ? RMT_SVC.find((s) => s.k === my[2]) : null, myZ = my ? RMT_ZONES.find((z) => z.k === my[3]) : null;
@@ -564,9 +549,7 @@ class Component extends DCLogic {
     // итог дня с вашими часами: сколько были на линии, ваш средний доход и лучший вариант в те же часы
     const mh = myHours(day);
     const myAvg = day === 0 && +p.myRate > 0 ? +p.myRate : rmtR10(mh.reduce((a, H) => a + myPay(day, H), 0) / (mh.length || 1));
-    const sumText = mh.length ? 'У вас ' + mh.length + ' ч на линии: в среднем ' + rmtFmt(myAvg) + RMT_RPH + ', лучший вариант ' + rmtFmt(rmtR10(mh.reduce((a, H) => a + bestAt(day, H).v, 0) / mh.length)) + RMT_RPH : '';
-    // прогноз объясняем у числа: откуда он и почему вилка
-    const fcNote = far ? 'Примерно: дальше 3 дней прогноз грубее' : 'Прогноз по 4 неделям и погоде, чем дальше час, тем шире вилка';
+    const sumText = mh.length ? 'У вас ' + mh.length + ' ч: ' + rmtFmt(myAvg) + RMT_RPH + ', лучший вариант ' + rmtFmt(rmtR10(mh.reduce((a, H) => a + bestAt(day, H).v, 0) / mh.length)) : '';
 
     // в среднем по городу та же, что в Когда выгоднее для этого дня недели и часа, с тем же районом или сервисом, если выбран один
     const oneSvc = Array.isArray(scope) && scope.length === 1 && RMT_AVG_SVC[scope[0]] ? RMT_SVC.find((s) => s.k === scope[0]) : null;
@@ -638,8 +621,8 @@ class Component extends DCLogic {
       days: weekDays(week).map(dayItem), days_prev: weekDays(week - 1).map(dayItem), days_next: weekDays(week + 1).map(dayItem),
       week_key: week, week_can_prev: week > -1, week_can_next: week < 1, week_prev: () => goWeek(-1), week_next: () => goWeek(1),
       pick_day: (k) => { const d = +k; flipSet({ day: d, week: rmtWeekOf(d), hour: startHour(d) }); },
-      when, cap,
-      has_go_now: !nowSel, go_now_label: day === 0 ? 'Сейчас' : 'К текущему часу', go_now: () => flipSet({ day: 0, week: 0, hour: RMT_NOW_H }),
+      when: when + (tag ? ' · ' + tag : ''),
+      has_go_now: !nowSel, go_now_label: 'Сейчас', go_now: () => flipSet({ day: 0, week: 0, hour: RMT_NOW_H }),
       // Сообщить, когда снова будет высокий спрос: район и сервис лидера часа, этот день недели и время суток
       ...(() => {
         const has = !!top && typeof p.onAlert === 'function';
@@ -654,18 +637,18 @@ class Component extends DCLogic {
           alert_tap: () => { if (has) p.onAlert(pre); }
         };
       })(),
-      big: top ? range(top.v) : '0', big_cls: 'rmt-big' + (spread ? ' rmt-big-range' : ''),
-      cap_kind: capKind, avg_label: avgLabel, avg_val: rmtFmt(avgAt(rd, rh)) + RMT_RPH,
-      notes_cls: 'rmt-notes' + (hourList.some((H) => meAt(day, H) || !!wxAt(day, H) || rmtFc(...at(day, H))) ? ' rmt-notes-res' : ''),
-      has_leader: !!top, leader_svc: top ? top.s.k : '', leader_title: top ? top.s.title : '', leader_where: top && top.z ? top.z.loc : (top ? 'весь город' : ''),
+      big: top ? range(top.v) : '0', big_aria: 'Лучший вариант' + (tag ? ', ' + tag : '') + ': ' + (top ? range(top.v) : '0') + ' ₽/ч', big_cls: 'rmt-big' + (spread ? ' rmt-big-range' : ''),
+      avg_label: avgLabel, avg_val: rmtFmt(avgAt(rd, rh)) + RMT_RPH,
+      notes_cls: 'rmt-notes' + (hourList.some((H) => meAt(day, H) || !!wxAt(day, H)) ? ' rmt-notes-res' : ''),
+      has_leader: !!top, leader_svc: top ? top.s.k : '', leader_title: top ? top.s.title : '', leader_line: top ? top.s.title + (top.z ? ', ' + top.z.loc : '') : '',
       has_me: !!my, me_svc: myS ? myS.title : '', me_zone: myZ ? myZ.name : '', me_val: rmtFmt(myV) + RMT_RPH,
-      me_tail: gap >= 50 ? ', лучший вариант давал на ' + rmtFmt(gap) + RMT_RPH + ' больше' : ', почти как лучший вариант',
+      me_tail: gap >= 50 ? ', лучший вариант на ' + rmtFmt(gap) + RMT_RPH + ' больше' : ', почти как лучший вариант',
       has_why: !!w && !my, why: w ? w.text : '',
-      has_fc_note: fc && !w && !my, fc_note: fcNote,
-      has_sum: !!sumText, sum_text: sumText,
-      // Результаты за этот день, Назад вернёт на тот же день и час
-      has_my_day: !!sumText && rd <= 0 && typeof p.onMyDay === 'function',
-      my_day_label: 'Ваш доход за ' + (day === 0 ? 'сегодня' : RMT_DOW[rmtDate(day).getDay()].toLowerCase() + ' ' + rmtDate(day).getDate() + ' ' + RMT_MON_GEN[rmtDate(day).getMonth()]),
+      sum_text: sumText,
+      // вся строка итога ведёт в Результаты за этот день, Назад вернёт на тот же день и час
+      has_my_day: !!sumText && day <= 0 && typeof p.onMyDay === 'function',
+      has_sum_text: !!sumText && !(day <= 0 && typeof p.onMyDay === 'function'),
+      my_day_label: 'У вас ' + mh.length + ' ч на линии. Ваш доход за ' + (day === 0 ? 'сегодня' : RMT_DOW[rmtDate(day).getDay()].toLowerCase() + ' ' + rmtDate(day).getDate() + ' ' + RMT_MON_GEN[rmtDate(day).getMonth()]),
       go_my_day: () => { if (typeof p.onMyDay === 'function') p.onMyDay(Object.assign({}, ctx, { iso: rmtIso(day) })); },
       bars, win: { from: String(bw.h), to: String(bw.h + 2), label: 'лучше ' + bw.label },
       pick_hour: (k) => this.holdPick(+k),
@@ -693,7 +676,7 @@ class Component extends DCLogic {
       slots_title: slotSvc ? 'Взять слот ' + slotSvc.gen + ' ' + slotWhen(slotHit) : '',
       slots_sub: slotHit ? (isLead(slotHit) ? 'Лидер этого часа' : 'Ваш сервис') + ' · ' + range(svcBest(slotHit.svc)) + RMT_RPH : '',
       go_slots: () => { if (onSlots && slotHit) onSlots(Object.assign({}, ctx, { iso: rdIso, svc: slotHit.svc, id: slotHit.id || '', from: slotHit.from, to: slotHit.to })); },
-      source_note: 'По курьерам Разноса, ' + cityTitle + (hasZones ? '' : ', без деления на районы') + ' · ' + basis + (low ? '. Данных мало, вывод предварительный' : '')
+      source_note: 'По курьерам Разноса, ' + cityTitle + (hasZones ? '' : ', без деления на районы') + ' · ' + basis + (low ? '. Данных мало, вывод предварительный' : '') + '. Прогноз по 4 неделям и погоде, чем дальше час, тем шире вилка'
     };
   }
 

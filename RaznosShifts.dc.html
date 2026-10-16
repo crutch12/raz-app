@@ -30,8 +30,9 @@
   <sc-if value="{{ is_free }}" hint-placeholder-val="{{ false }}">
     <div class="raznos-shifts-filter-row">
       <div class="raznos-shifts-filter-chips"><dc-import name="RaznosFilterChips" filters="{{ filters }}" onChange="{{ set_filter }}"></dc-import></div>
-      <sc-if value="{{ has_alert }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAlertBell" on="{{ alert_on }}" label="Сообщать о новых слотах" sub="{{ alert_sub }}" onTap="{{ alert_tap }}"></dc-import></sc-if>
     </div>
+    <!-- под фильтрами: сообщать о новых слотах по этим фильтрам; в пустом списке вместо кнопки строка ниже -->
+    <sc-if value="{{ has_alert_btn }}" hint-placeholder-val="{{ true }}"><div class="raznos-shifts-alert-btn"><dc-import name="RaznosAlertBell" variant="button" on="{{ alert_on }}" label="Сообщать о новых слотах" sub="{{ alert_sub }}" onTap="{{ alert_tap }}"></dc-import></div></sc-if>
     <sc-for list="{{ free_days }}" as="day" hint-placeholder-count="2">
       <section class="raznos-shifts-day raznos-shifts-cal" aria-label="{{ day.title }}">
         <div class="raznos-shifts-gutter" aria-hidden="true"><div class="{{ day.gutter_cls }}"><span>{{ day.dow }}</span><b>{{ day.num }}</b></div></div>
@@ -464,7 +465,7 @@ class Component extends DCLogic {
       clash_rows: clashSlots.map((sl) => Object.assign(slotRow(sl), { sub: shortDay(sl.iso) + ' · ' + sl.place })),
       watch_meta: watchCount ? watchCount + ' ' + RSH_PLURAL(watchCount, 'слот', 'слота', 'слотов') : '',
       watch_list: watchList, watch_empty: !watchList.length, opening_list: openingList,
-      has_alert: hasAlert, alert_on: hasAlert && typeof p.alertFind === 'function' && !!p.alertFind(alertPre), alert_sub: alertSub,
+      has_alert: hasAlert, has_alert_btn: hasAlert && (freeDays.length > 0 || clashSlots.length > 0), alert_on: hasAlert && typeof p.alertFind === 'function' && !!p.alertFind(alertPre), alert_sub: alertSub,
       alert_tap: () => { if (hasAlert) p.onAlert(alertPre); },
       alert_rules: slotRules, alert_svcs: p.alertServices || null,
       alert_rule_open: (id) => { if (typeof p.onAlertOpen === 'function') p.onAlertOpen(id); },

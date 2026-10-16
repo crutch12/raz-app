@@ -138,3 +138,4 @@
 /* фильтры Можно взять и колокольчик Сообщать о новых слотах справа, чипы прокручиваются под ним */
 .raznos-shifts-filter-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .raznos-shifts-filter-chips { flex: 1; min-width: 0; }
+.raznos-shifts-alert-btn { display: flex; margin-top: -4px; }
