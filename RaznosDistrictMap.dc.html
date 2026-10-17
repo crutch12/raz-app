@@ -57,6 +57,11 @@
     .rdm.rdm-locked .rdm-canvas { filter: saturate(0.7) blur(3px); transform: scale(1.04); }
     .rdm-quiet { pointer-events: none; font: 700 9.5px var(--raznos-font); letter-spacing: .08em; text-transform: uppercase; color: var(--raznos-ink-3); text-shadow: 0 0 3px var(--rdm-land), 0 0 3px var(--rdm-land); white-space: nowrap; }
     .rdm-mk-courier { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--rdm-ring); box-sizing: border-box; box-shadow: 0 1px 4px rgba(20, 25, 40, .3); pointer-events: none; }
+    /* курьера можно выбрать: точка та же, зона нажатия 44, выбранная крупнее с кольцом */
+    button.rdm-mk-courier { position: relative; padding: 0; margin: 0; cursor: pointer; pointer-events: auto; }
+    button.rdm-mk-courier::before { content: ''; position: absolute; inset: -16px; border-radius: 50%; }
+    button.rdm-mk-courier:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 50%, transparent); outline-offset: 3px; }
+    .rdm-mk-courier.rdm-mk-on { width: 20px; height: 20px; border-width: 3px; box-shadow: 0 0 0 4px color-mix(in oklab, var(--raznos-ink) 22%, transparent), 0 2px 8px rgba(20, 25, 40, .35); z-index: 2; }
     .rdm-mk-me { width: 16px; height: 16px; pointer-events: none; }
     .rdm-mk-me > i { position: absolute; inset: 0; border-radius: 50%; }
     .rdm-mk-me > .rdm-mk-dot { border: 3px solid var(--rdm-ring); box-shadow: 0 1px 5px rgba(20, 25, 40, .35); }
@@ -111,7 +116,7 @@
   <sc-if value="{{ attr_plain }}" hint-placeholder-val="{{ false }}"><span class="rdm-attr rdm-attr-plain">{{ attr_text }}</span></sc-if>
   <sc-if value="{{ has_home }}" hint-placeholder-val="{{ false }}"><button type="button" class="rdm-home" aria-label="{{ home_label }}" title="{{ home_label }}" onClick="{{ home }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><circle cx="12" cy="12" r="2.5"/></svg></button></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"demand"},"districts":{"editor":null},"selected":{"editor":"text","default":""},"hour":{"editor":"number"},"hourLabel":{"editor":"text","default":""},"zones":{"editor":null},"focus":{"editor":"text","default":""},"showModeSwitch":{"editor":"boolean","default":false},"onPick":{"editor":null},"onMode":{"editor":null},"theme":{"editor":"text","default":"auto"},"height":{"editor":"number","default":380},"fill":{"editor":"boolean","default":false},"compact":{"editor":"boolean","default":false},"couriers":{"editor":null},"svcs":{"editor":null},"pins":{"editor":null},"me":{"editor":null},"activeId":{"editor":"text","default":""},"focusAt":{"editor":null},"focusKey":{"editor":"text","default":""},"locked":{"editor":"boolean","default":false},"offline":{"editor":"boolean","default":false},"homeButton":{"editor":"boolean","default":true},"inset":{"editor":"number","default":0},"insetTop":{"editor":"number","default":0},"demoState":{"editor":"text","default":""},"poolKey":{"editor":"text","default":""},"$preview":{"width":390,"height":380}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"demand"},"districts":{"editor":null},"selected":{"editor":"text","default":""},"hour":{"editor":"number"},"hourLabel":{"editor":"text","default":""},"zones":{"editor":null},"focus":{"editor":"text","default":""},"showModeSwitch":{"editor":"boolean","default":false},"onPick":{"editor":null},"onMode":{"editor":null},"theme":{"editor":"text","default":"auto"},"height":{"editor":"number","default":380},"fill":{"editor":"boolean","default":false},"compact":{"editor":"boolean","default":false},"couriers":{"editor":null},"svcs":{"editor":null},"pins":{"editor":null},"me":{"editor":null},"activeId":{"editor":"text","default":""},"focusAt":{"editor":null},"onCourier":{"editor":null},"activeCourier":{"editor":null},"focusKey":{"editor":"text","default":""},"locked":{"editor":"boolean","default":false},"offline":{"editor":"boolean","default":false},"homeButton":{"editor":"boolean","default":true},"inset":{"editor":"number","default":0},"insetTop":{"editor":"number","default":0},"demoState":{"editor":"text","default":""},"poolKey":{"editor":"text","default":""},"$preview":{"width":390,"height":380}}'>
 
 // карта районов: районы OSM и соты H3 лежат локально в data/, поэтому видны и без сети, подложка подгружается поверх
 // пропсы и события в своих терминах, вся работа с картографической библиотекой только в адаптере RDM_MAP ниже
@@ -197,6 +202,12 @@ const RDM_MAP = (() => {
       el.querySelector('.rdm-mk-dot').style.background = m.color;
       el.setAttribute('role', 'img');
       el.setAttribute('aria-label', 'Вы здесь');
+    } else if (m.onTap) {
+      el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'rdm-mk-courier' + (m.active ? ' rdm-mk-on' : '');
+      el.setAttribute('aria-label', m.label || 'Курьер на смене');
+      el.addEventListener('click', (e) => { e.stopPropagation(); m.onTap(); });
     } else {
       el = document.createElement('div');
       el.className = 'rdm-mk-courier';
@@ -282,7 +293,7 @@ const RDM_MAP = (() => {
     setZones(h, fc) { h.map.getSource('rdm-z').setData(fc); },
     setSelection(h, f) { h.map.getSource('rdm-sel').setData(f || EMPTY); },
     // markers: [{ el, at: [lng, lat], anchor: 'center'|'bottom' }] или готовые типы с цветом от нашего кода:
-    // { kind: 'courier', at, color }, { kind: 'drop', at, color, active, label, onTap }, { kind: 'me', at, color }
+    // { kind: 'courier', at, color, active, label, onTap }, { kind: 'drop', at, color, active, label, onTap }, { kind: 'me', at, color }
     setMarkers(h, list) {
       h.markers.forEach((m) => m.remove());
       h.markers = list.map(rdmMark).map((m) => {
@@ -442,7 +453,7 @@ class Component extends DCLogic {
     const p = this.props || {};
     const svcs = Array.isArray(p.svcs) ? p.svcs : [];
     const all = Array.isArray(p.couriers) ? p.couriers : (p.couriers === true ? RDM_COURIERS_DEMO : []);
-    const couriers = all.filter((c) => !svcs.length || svcs.indexOf(c.svc) !== -1).filter((c, i) => !p.locked || i % 2 === 0);
+    const couriers = all.map((c, i) => Object.assign({ i }, c)).filter((c) => !svcs.length || svcs.indexOf(c.svc) !== -1).filter((c, i) => !p.locked || i % 2 === 0);
     const pins = p.locked ? [] : (Array.isArray(p.pins) ? p.pins : []).filter((pn) => !svcs.length || (pn.svcs || [pn.svc]).some((k) => svcs.indexOf(k) !== -1));
     const me = p.locked ? null : (Array.isArray(p.me) ? p.me : (p.me === true ? RDM_ME_DEMO : null));
     return { couriers, pins, me };
@@ -577,7 +588,7 @@ class Component extends DCLogic {
         container: el, land: this._c.land, dark: this._dark, bounds: this._cityBox,
         // колесо мыши и щипок тачпада зумят любую карту, кроме превью без жестов
         interactive: !p.compact, wheel: !p.compact, offline: this._off, hatchColor: this._c.ink3, hexEdge: this._dark ? 'rgba(20,25,35,0.5)' : 'rgba(255,255,255,0.7)',
-        onTap: to((c, k) => { if (c._mode() !== 'people') c._pick(k && k === c._sel() ? '' : k); }),
+        onTap: to((c, k) => { if (c._mode() !== 'people') c._pick(k && k === c._sel() ? '' : k); else if (typeof (c.props || {}).onCourier === 'function') c.props.onCourier(null); }),
         onNet: (v) => { sink.net = v; to((c) => c._net(v))(); },
         onView: to((c) => c._declutter()),
         onReady: to((c) => c._sync(true))
@@ -694,7 +705,8 @@ class Component extends DCLogic {
     const at = Array.isArray(p.focusAt) ? p.focusAt : null;
     this._pinTaps = {};
     pins.forEach((pn) => { this._pinTaps[pn.id] = pn.tap; });
-    const sig = JSON.stringify(['people', couriers.map((x) => [x.at, x.svc]), pins.map((x) => [x.id, x.at, x.svc, x.label]), me, p.activeId || '', !!p.compact]);
+    const pickable = !p.compact && !p.locked && typeof p.onCourier === 'function';
+    const sig = JSON.stringify(['people', couriers.map((x) => [x.at, x.svc]), pins.map((x) => [x.id, x.at, x.svc, x.label]), me, p.activeId || '', !!p.compact, pickable, p.activeCourier == null ? '' : p.activeCourier]);
     const fly = JSON.stringify([p.focusKey || '', at]);
     if (sig !== this._sig) {
       this._sig = sig;
@@ -709,7 +721,10 @@ class Component extends DCLogic {
       const svcColor = (k) => this._svcC[k] || (this._svcC[k] = host ? rdmTok(host, '--raznos-svc-' + k) : c.deep);
       const marks = [];
       if (!p.compact) feats.forEach((f) => { const el = document.createElement('div'); el.className = 'rdm-quiet'; el.textContent = f.properties.name; el.setAttribute('aria-hidden', 'true'); marks.push({ el, at: f.properties.label }); });
-      couriers.forEach((x) => marks.push({ kind: 'courier', at: x.at, color: svcColor(x.svc) }));
+      // выбранный курьер поверх остальных
+      const courier = (x) => ({ kind: 'courier', at: x.at, color: svcColor(x.svc), active: x.i === p.activeCourier, label: x.label || 'Курьер на смене', onTap: pickable ? () => { const f = (this.props || {}).onCourier; if (typeof f === 'function') f(x.i, x.svc); } : null });
+      couriers.filter((x) => x.i !== p.activeCourier).forEach((x) => marks.push(courier(x)));
+      couriers.filter((x) => x.i === p.activeCourier).forEach((x) => marks.push(courier(x)));
       const drop = (pn) => ({
         kind: 'drop', at: pn.at, color: svcColor(pn.svc), active: pn.id === p.activeId, label: pn.label || 'Сообщение', onTap: () => { const t = (this._pinTaps || {})[pn.id]; if (typeof t === 'function') t(); }
       });

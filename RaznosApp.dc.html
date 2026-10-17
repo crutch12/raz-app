@@ -374,7 +374,7 @@
             <div class="raznos-phone-body raznos-cmap-screen" data-screen-label="Courier map">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ cmap_back }}" aria-label="Назад">‹</button><h1 class="raznos-text-h1" style="margin:0">Карта курьеров</h1></div>
               <div class="raznos-cmap-stage">
-                <dc-import name="RaznosDistrictMap" mode="people" poolKey="courier-map" fill="{{ true }}" homeButton="{{ false }}" inset="{{ 220 }}" svcs="{{ cmap_svcs }}" couriers="{{ cmap_share }}" me="{{ cmap_me_at }}" pins="{{ cmap_pins }}" focusAt="{{ cmap_focus_at }}" focusKey="{{ cmap_focus_key }}" activeId="{{ cmap_active_id }}" offline="{{ net_offline }}"></dc-import>
+                <dc-import name="RaznosDistrictMap" mode="people" poolKey="courier-map" fill="{{ true }}" homeButton="{{ false }}" inset="{{ 220 }}" svcs="{{ cmap_svcs }}" couriers="{{ cmap_share }}" me="{{ cmap_me_at }}" pins="{{ cmap_pins }}" focusAt="{{ cmap_focus_at }}" focusKey="{{ cmap_focus_key }}" activeId="{{ cmap_active_id }}" onCourier="{{ cmap_pick_courier }}" activeCourier="{{ cmap_courier_i }}" offline="{{ net_offline }}"></dc-import>
                 <!-- фильтры после карты: без своего z-index рисуются поверх неё, а шторка сервисов не заперта в их полоске -->
                 <div class="raznos-cmap-filters" role="group" aria-label="Фильтры карты">
                   <dc-import name="RaznosFilterChips" filters="{{ cmap_filters }}" onChange="{{ cmap_set_filter }}"></dc-import>
@@ -385,7 +385,19 @@
                     <button type="button" class="raznos-cmap-locate" onClick="{{ cmap_city }}" aria-label="Показать весь город" title="Весь город"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><circle cx="12" cy="12" r="2.5"/></svg></button>
                     <button type="button" class="{{ cmap_locate_cls }}" onClick="{{ cmap_locate }}" aria-label="{{ cmap_locate_label }}" aria-pressed="{{ cmap_focus_me }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8z"/></svg></button>
                     <div class="raznos-cmap-panel">
-                      <div class="raznos-cmap-count"><b>{{ cmap_count_title }}</b><span>{{ cmap_count_sub }}</span></div>
+                      <sc-if value="{{ cmap_no_courier }}" hint-placeholder-val="{{ true }}"><div class="raznos-cmap-count"><b>{{ cmap_count_title }}</b><span>{{ cmap_count_sub }}</span></div></sc-if>
+                      <sc-if value="{{ cmap_has_courier }}" hint-placeholder-val="{{ false }}">
+                        <div class="raznos-cmap-courier" role="status" aria-live="polite">
+                          <div class="raznos-cmap-courier-head">
+                            <sc-if value="{{ cmap_courier.named }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosAvatar" kind="{{ cmap_courier.photo }}" alt="{{ cmap_courier.title }}" size="sm"></dc-import></sc-if>
+                            <sc-if value="{{ cmap_courier.anon }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosIcon" svc="{{ cmap_courier.svc }}" alt="{{ cmap_courier.svcTitle }}" size="sm"></dc-import></sc-if>
+                            <span class="raznos-cmap-courier-copy"><b>{{ cmap_courier.title }}</b><span>{{ cmap_courier.sub }}</span></span>
+                            <button type="button" class="raznos-cmap-courier-x" onClick="{{ cmap_courier_close }}" aria-label="Закрыть карточку курьера"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+                          </div>
+                          <sc-if value="{{ cmap_courier.named }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small raznos-cmap-courier-open" onClick="{{ cmap_courier.open }}">Открыть профиль</button></sc-if>
+                          <sc-if value="{{ cmap_courier.anon }}" hint-placeholder-val="{{ true }}"><p class="raznos-cmap-courier-note">Курьер не открывал профиль на карте, видно только сервис</p></sc-if>
+                        </div>
+                      </sc-if>
                       <button type="button" class="raznos-cmap-me" onClick="{{ cmap_toggle }}" role="switch" aria-checked="{{ cmap_share }}"><span class="raznos-cmap-me-copy"><b>Показать себя</b><span>{{ cmap_me_note }}</span></span><span class="{{ cmap_switch_cls }}"><span class="raznos-switch-knob"></span></span></button>
                     </div>
                   </div>
@@ -393,7 +405,7 @@
                 <sc-if value="{{ cmap_intro }}" hint-placeholder-val="{{ false }}">
                   <div class="raznos-cmap-gate" role="dialog" aria-label="Показать себя на карте">
                     <h2>Покажите себя, чтобы видеть других</h2>
-                    <p>Карта взаимная: вы видите курьеров на смене, они видят вас. Точка примерная, без имени и маршрута, и видна только пока вы на смене</p>
+                    <p>Карта взаимная: вы видите курьеров на смене, они видят вас. Точка примерная, без маршрута, и видна только пока вы на смене. Имя другие увидят, только если вы сами откроете профиль на карте в Приватности</p>
                     <p class="raznos-cmap-gate-note">Выключить можно в любой момент здесь или в Приватности. Без этого карту всё равно можно смотреть, только курьеров на ней не будет</p>
                     <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ cmap_enable }}">Показать меня на смене</button>
                     <button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ cmap_intro_skip }}">Не сейчас</button>
@@ -1802,6 +1814,7 @@
                   <button type="button" class="raznos-list-row" onClick="{{ pv_toggle_public }}" role="switch" aria-checked="{{ pv_public_on }}"><div class="raznos-list-main"><span class="raznos-list-title">Публичный профиль</span><span class="raznos-text-small">{{ pv_public_note }}</span></div><span class="{{ pv_public_cls }}"><span class="raznos-switch-knob"></span></span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ pv_toggle_aggregate }}" role="switch" aria-checked="{{ pv_aggregate_on }}"><div class="raznos-list-main"><span class="raznos-list-title">Общая статистика</span><span class="raznos-text-small">Без имени, только цифры</span></div><span class="{{ pv_aggregate_cls }}"><span class="raznos-switch-knob"></span></span></button>
                   <button type="button" class="raznos-list-row" style="border-bottom:0" onClick="{{ pv_toggle_cmap }}" role="switch" aria-checked="{{ pv_cmap_on }}"><div class="raznos-list-main"><span class="raznos-list-title">Показывать меня на карте</span><span class="raznos-text-small">Только на смене, точка примерная</span></div><span class="{{ pv_cmap_cls }}"><span class="raznos-switch-knob"></span></span></button>
+                  <sc-if value="{{ pv_cmap_link_show }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-list-row" style="border-bottom:0;border-top:1px solid var(--raznos-line)" onClick="{{ pv_toggle_cmap_link }}" role="switch" aria-checked="{{ pv_cmap_link_on }}"><div class="raznos-list-main"><span class="raznos-list-title">Открывать мой профиль с карты</span><span class="raznos-text-small">По нажатию на вашу точку видно имя и кнопку профиля</span></div><span class="{{ pv_cmap_link_cls }}"><span class="raznos-switch-knob"></span></span></button></sc-if>
                 </div>
                 <span class="raznos-text-h3">Что видно в профиле</span>
                 <div class="raznos-chip-row" style="{{ pv_chips_style }}">
@@ -3646,6 +3659,8 @@
           ['Дарксторы', 'Пресня, Сокол', 'Ответ сервиса от ' + dayMonth(-6), 'stale']
         ] }
       };
+      // точки демо-карты курьеров, у которых публичный профиль открыт с карты: индекс точки и id профиля
+      const CMAP_LINKED = { 1: 'c2' };
       const COURIERS = [
         { id: 'c1', name: 'Алексей Соколов', city: 'Москва', transport: 'велосипед', photoKind: 'portrait1', services: 'ВкусВилл, Самокат', tenure: '8 мес' },
         { id: 'c2', name: 'Дмитрий Волков', city: 'Москва', transport: 'электровелосипед', photoKind: 'portrait2', services: 'Самокат', tenure: '5 мес', orders: { period: isoRangeLabel(MONTH_START_ISO, TODAY_ISO), parts: [['samokat', 64]] } },
@@ -7523,7 +7538,7 @@
 
             go_best_times_now: () => set({ s: 'best-times', btFrom: s, btView: 'day', btDay: null, btHour: null }),
             // карта курьеров взаимная: видите других, только если показываете себя, и только пока идёт смена
-            go_courier_map: () => set({ s: 'courier-map', cmapBack: '', cmapFocus: '' }),
+            go_courier_map: () => set({ s: 'courier-map', cmapBack: '', cmapFocus: '', cmapCourier: null }),
             cmap_back: navBack(() => {
               if (st.cmapBack) set({ s: st.cmapBack, cmapBack: '' });
               else set({ s: role === 'courier' ? (readyHome ? 'courier-home' : 'courier-empty') : 'user-home' });
@@ -7537,7 +7552,7 @@
               key: 'svcs', title: 'Сервисы', multi: true, allLabel: 'Все сервисы', value: cmapSvcs,
               options: [['yandex-eda', 'Яндекс Еда'], ['samokat', 'Самокат'], ['vkusvill', 'ВкусВилл'], ['x5', 'X5']].map(([k, label]) => ({ k, label, note: cmapShare ? CMAP_COUNTS[k] + ' на смене' : '' }))
             }],
-            cmap_set_filter: (key, v) => set({ cmapSvcs: v, cmapFocus: '' }),
+            cmap_set_filter: (key, v) => set({ cmapSvcs: v, cmapFocus: '', cmapCourier: null }),
             cmap_toggles: [{ label: 'Сообщения', on: cmapMsgsOn, cls: 'raznos-cmap-toggle' + (cmapMsgsOn ? ' raznos-is-active' : ''), tap: () => set({ cmapMsgs: !cmapMsgsOn }) }],
             cmap_panel: !cmapIntro, cmap_intro: cmapIntro,
             cmap_count_title: cmapShare ? cmapN + ' ' + ruPlural(cmapN, 'курьер', 'курьера', 'курьеров') + ' на смене рядом' : 'Курьеров не видно',
@@ -7545,6 +7560,21 @@
               cmapShare ? (netOffline ? 'Нет сети, точки на 12 мин назад' : (cmapSvcs.length ? 'В радиусе 3 км · обновлено только что' : 'Больше всего в Яндекс Еде · обновлено только что')) : 'Они появятся, когда вы покажете себя',
               cmapMsgsOn ? cmapPins.length + ' ' + ruPlural(cmapPins.length, 'сообщение', 'сообщения', 'сообщений') + ' с местом' : ''
             ].filter(Boolean).join(' · '),
+            // курьер на карте: по умолчанию только сервис; имя и профиль, если у него публичный профиль и он сам разрешил открывать его с карты
+            ...(() => {
+              const i = cmapShare && st.cmapCourier && st.cmapCourier.i != null ? st.cmapCourier.i : null;
+              const svc = i != null ? st.cmapCourier.svc : '';
+              const linked = i != null ? (CMAP_LINKED[i] ? COURIERS.find((c) => c.id === CMAP_LINKED[i]) : null) : null;
+              const svcTitle = (SERVICES[svc] || {}).title || svc;
+              return {
+                cmap_courier_i: i, cmap_has_courier: i != null, cmap_no_courier: i == null,
+                cmap_courier: i == null ? {} : linked
+                  ? { named: true, anon: false, photo: linked.photoKind, title: linked.name, sub: svcTitle + ' · на смене · ' + linked.tenure + ' в Разносе', svc, svcTitle, open: () => set({ s: 'public-profile', ppSelectedId: linked.id, cmapCourier: null }) }
+                  : { named: false, anon: true, title: 'Курьер на смене', sub: svcTitle + ' · профиль скрыт', svc, svcTitle },
+                cmap_pick_courier: (ci, csvc) => set({ cmapCourier: ci == null ? null : { i: ci, svc: csvc } }),
+                cmap_courier_close: () => set({ cmapCourier: null })
+              };
+            })(),
             cmap_me_note: cmapShare ? 'Вас видно, пока идёт смена во ВкусВилле, до 17:00' : 'Вас не видно, и других курьеров тоже',
             cmap_switch_cls: 'raznos-switch' + (cmapShare ? ' raznos-is-on' : ''),
             cmap_enable: () => set({ cmapShare: true, cmapIntroSeen: true }),
@@ -8955,6 +8985,8 @@
             pv_public_note: pvPublic ? 'Имя и выбранное видят все' : 'Вы видны только как Курьер сервиса',
  pv_toggle_aggregate: () => { set({ pvAggregate: !pvAggregate }); uxShowToast(pvAggregate ? 'Общая статистика выключена' : 'Общая статистика включена', 'Отменить', () => set({ pvAggregate })); },
             pv_toggle_hide_history: () => { set({ pvHideHistory: !pvHideHistory }); uxShowToast(pvHideHistory ? 'История снова видна' : 'История скрыта', 'Отменить', () => set({ pvHideHistory })); },
+            pv_cmap_link_show: !!st.cmapShare && !!pvPublic, pv_cmap_link_on: String(!!st.cmapProfileLink), pv_cmap_link_cls: st.cmapProfileLink ? 'raznos-switch raznos-is-on' : 'raznos-switch',
+            pv_toggle_cmap_link: () => { set({ cmapProfileLink: !st.cmapProfileLink }); uxShowToast(st.cmapProfileLink ? 'С карты профиль не открыть' : 'С карты откроют ваш профиль', 'Отменить', () => set({ cmapProfileLink: !!st.cmapProfileLink })); },
             pv_toggle_cmap: () => { set({ cmapShare: !st.cmapShare }); uxShowToast(st.cmapShare ? 'Вас не видно на карте' : 'Вы видны на карте', 'Отменить', () => set({ cmapShare: !!st.cmapShare })); },
             pv_not_closing: pvCloseStage === 'idle', pv_confirming_close: pvCloseStage === 'confirming', pv_closed: pvCloseStage === 'closed',
             pv_ask_close: () => set({ pvCloseStage: 'confirming' }),

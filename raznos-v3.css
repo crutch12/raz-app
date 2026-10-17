@@ -759,6 +759,16 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-cmap-count { display: flex; flex-direction: column; gap: 2px; padding: 14px 16px 12px; border-bottom: 1px solid var(--raznos-line); }
 .raznos-cmap-count > b { font: 700 16px var(--raznos-font); color: var(--raznos-ink); }
 .raznos-cmap-count > span { font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+/* выбранный на карте курьер вместо счётчика: кто это, сервис и профиль, если курьер его открыл */
+.raznos-cmap-courier { display: flex; flex-direction: column; gap: 8px; padding: 12px 12px 12px 16px; border-bottom: 1px solid var(--raznos-line); }
+.raznos-cmap-courier-head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.raznos-cmap-courier-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.raznos-cmap-courier-copy > b { font: 700 16px var(--raznos-font); color: var(--raznos-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.raznos-cmap-courier-copy > span { font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-cmap-courier-x { flex: none; width: 44px; height: 44px; margin: -6px -4px -6px 0; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 12px; background: none; color: var(--raznos-ink-2); cursor: pointer; }
+.raznos-cmap-courier-x:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: -2px; }
+.raznos-cmap-courier-open { align-self: stretch; }
+.raznos-cmap-courier-note { margin: 0; font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-2); }
 .raznos-cmap-me { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 0; background: none; text-align: left; font: inherit; cursor: pointer; }
 .raznos-cmap-me-copy { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .raznos-cmap-me-copy > b { font: 650 14px var(--raznos-font); color: var(--raznos-ink); }
