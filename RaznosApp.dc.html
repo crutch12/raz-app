@@ -2223,7 +2223,7 @@
         delivery: { title: 'Деливери', method: 'external', sharedWith: 'yandex-eda' },
         'wb-courier': { title: 'WB курьер', method: 'soon' },
         'ozon-courier': { title: 'Ozon курьер', method: 'soon' },
-        'yandex-delivery': { title: 'Яндекс Доставка', method: 'soon' },
+        'yandex-delivery': { title: 'Яндекс Доставка', method: 'external', sharedWith: 'yandex-eda', catalogNote: 'Посылки, пеший и авто · вход через Яндекс Про' },
         dostavista: { title: 'Достависта', method: 'soon' },
         flowwow: { title: 'Flowwow', method: 'soon' }
       };
@@ -2236,6 +2236,7 @@
         magnit: { dat: 'Магнит Доставке', prep: 'Магнит Доставке', gen: 'Магнит Доставки' },
         'ozon-fresh': { dat: 'Ozon fresh', prep: 'Ozon fresh' },
         delivery: { dat: 'Деливери', prep: 'Деливери' },
+        'yandex-delivery': { dat: 'Яндекс Доставке', prep: 'Яндекс Доставке', gen: 'Яндекс Доставки' },
         kuper: { dat: 'Куперу', prep: 'Купере', gen: 'Купера' },
         dodo: { dat: 'Додо', prep: 'Додо', gen: 'Додо' },
         dostaevsky: { dat: 'Достаевскому', prep: 'Достаевском', gen: 'Достаевского' }
@@ -2313,10 +2314,14 @@
           transport: null, status: 'bron', slots: true, take: 'Взять в Деливери', rate: 'estimate', watch: null,
           cancel: null, opening: null, ratings: false, tips: null, link: 'app', src: {}, unverified: ['слоты и правила Еды']
         },
+        // посылки: pro.yandex.ru knowledge-base delivery-foot и delivery-auto, грузовой отдельный бренд и сюда не входит
         'yandex-delivery': {
-          title: 'Яндекс Доставка', prep: 'Яндекс Доставке', app: 'Яндекс Про', modes: ['plan'], zone: 'локация', orders: 'offers',
-          transport: null, status: 'bron', slots: true, take: 'Взять в Яндекс Доставке', rate: 'estimate', watch: null,
-          cancel: null, opening: null, ratings: false, tips: null, link: 'app', src: {}, unverified: ['свободный выход', 'слоты и правила Еды']
+          title: 'Яндекс Доставка', prep: 'Яндекс Доставке', app: 'Яндекс Про', modes: ['plan', 'free'], zone: 'район', orders: 'offers',
+          transport: ['foot', 'car'], transportNote: 'пеший и авто', status: 'bron', slots: true, take: 'Взять в Яндекс Доставке', rate: 'estimate', watch: null,
+          cancel: { kind: 'hours', hours: 12, late: 'Позже 12 часов до начала отмена может быть платной, выгодные слоты отменяются без корректировки' },
+          opening: null, ratings: true, tips: null, link: 'app',
+          src: { cancel: 'pro.yandex.ru delivery-foot/app/slots-mode', ratings: 'delivery-foot/execution/delivery-rating, ниже 4,7 тариф отключают' },
+          unverified: ['свободный выход']
         },
         'ozon-courier': {
           title: 'Ozon курьер', prep: 'Ozon', app: 'Вози Ozon', modes: ['plan', 'free'], zone: 'стартовая точка', orders: 'route',
@@ -2909,6 +2914,7 @@
       const REBOOK_PENALTIES = {
         'yandex-eda': { perHour: 150, other: '', note: 'невыход, штраф равен минималке за пропущенные часы, в демо 150 ₽/ч' },
         'yandex-lavka': { unknown: true, other: 'доход за слот могут снизить' },
+        'yandex-delivery': { unknown: true, other: 'позже 12 часов отмена может быть платной' },
         samokat: { sum: 0, other: 'падает рейтинг' },
         x5: { sum: 0, other: 'будет событие рейтинга' },
         'ozon-fresh': { sum: 0, other: 'блокировка на 2 дня' },
@@ -3473,6 +3479,7 @@
         kuper: { hourly: 650, orderPay: 340, duration: 18, wait: 7, orders: 430, couriers: 31 },
         dostaevsky: { hourly: 640, orderPay: 270, duration: 17, wait: 9, orders: 320, couriers: 30 },
         delivery: { hourly: 620, orderPay: 280, duration: 17, wait: 9, orders: 290, couriers: 30 },
+        'yandex-delivery': { hourly: 600, orderPay: 320, duration: 24, wait: 8, orders: 260, couriers: 30 },
         x5: { hourly: 610, orderPay: 240, duration: 17, wait: 7, orders: 400, couriers: 32 },
         magnit: { hourly: 580, orderPay: 220, duration: 15, wait: 7, orders: 270, couriers: 30 },
         dodo: { hourly: 570, orderPay: 210, duration: 15, wait: 6, orders: 180, couriers: 30 },

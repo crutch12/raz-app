@@ -65,6 +65,7 @@ const RSR_SERVICES = [
   { k: 'x5', name: 'X5 Доставка', cat: 'grocery', pay: 610, per: 240, trend: -2, hot: [0, 1, 4], wk: 0.98, tod: [0.98, 1.02, 1.04, 0.8] },
   { k: 'yandex-lavka', name: 'Яндекс Лавка', cat: 'grocery', pay: 700, per: 250, trend: 4, hot: [4, 5, 6], wk: 1.05, tod: [0.92, 1.02, 1.08, 0.86] },
   { k: 'delivery', name: 'Деливери', cat: 'food', pay: 620, per: 280, trend: 2, hot: [4, 5, 6], wk: 1.1, tod: [0.72, 1.06, 1.12, 1.04] },
+  { k: 'yandex-delivery', name: 'Яндекс Доставка', cat: 'parcels', pay: 600, per: 320, trend: 5, hot: [0, 1, 4], wk: 0.94, tod: [1.02, 1.08, 1, 0.72] },
   { k: 'magnit', name: 'Магнит', cat: 'grocery', pay: 580, per: 220, trend: -14, hot: [4, 5, 6], wk: 1.02, tod: [0.94, 1, 1.06, 0.82] },
   { k: 'dodo', name: 'Додо', cat: 'food', pay: 570, per: 210, trend: 1, hot: [4, 5, 6], wk: 1.08, tod: [0.7, 1.04, 1.12, 0.9] },
   { k: 'ozon-fresh', name: 'Ozon fresh', cat: 'grocery', pay: 540, per: 250, trend: 11, hot: [1, 2, 3], wk: 0.96, tod: [1, 1.04, 1, 0.82] }
@@ -73,7 +74,8 @@ const RSR_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 const RSR_CATS = [
   { k: 'all', label: 'Все заказы' },
   { k: 'grocery', label: 'Продукты' },
-  { k: 'food', label: 'Еда из ресторанов' }
+  { k: 'food', label: 'Еда из ресторанов' },
+  { k: 'parcels', label: 'Посылки' }
 ];
 const RSR_METRICS = [{ k: 'pay', label: '₽ в час' }, { k: 'per', label: '₽ за заказ' }, { k: 'ord', label: 'Заказов в час' }];
 const RSR_WHEN = [{ k: 'week', label: 'Вся неделя' }, { k: 'weekdays', label: 'Будни', note: 'Пн–Пт' }, { k: 'weekend', label: 'Выходные', note: 'Сб–Вс' }];
