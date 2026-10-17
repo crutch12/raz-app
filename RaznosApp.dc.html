@@ -7608,7 +7608,17 @@
               const mt = { mtDay: o.day, mtHour: o.hour, mtBy: o.by, mtScope: o.scope, mtView: o.view, mtZones: o.zones, mtPick: o.pick || '', mtTod: '' };
               set(Object.assign({}, mt, { statsRet: { label: 'Назад к По часам', patch: Object.assign({ s: 'market-timeline' }, mt) }, s: 'stats', statsPeriod: 'today', statsStep: Math.min(0, o.day), statsSvcFilter: 'all', statsDistrict: 'all', statsTransport: 'all', statsShift: 'all', statsCohortService: 'all', statsCohortDistrict: 'all', statsDetail: '' }));
             },
-            mt_slots_list: SHIFT_SLOTS.filter((sl) => !sl.gone && !(st.takenSlots || {})[sl.id] && connectedKeys.indexOf(sl.svc) !== -1 && !SHIFTS_WEEK.some((w) => w.status !== 'cancelled' && w.iso === sl.iso && sl.from < w.to + (w.svc === sl.svc ? 0 : 20) && w.from < sl.to + (w.svc === sl.svc ? 0 : 20))).map((sl) => ({ id: sl.id, iso: sl.iso, svc: sl.svc, from: sl.from / 60, to: sl.to / 60 })),
+            // все слоты, у недоступных причина в off, По часам показывает их по галке
+            mt_slots_list: (() => {
+              const taken = st.takenSlots || {};
+              const busy = SHIFTS_WEEK.filter((w) => w.status !== 'cancelled').concat(SHIFT_SLOTS.filter((sl) => taken[sl.id]));
+              const hm = (m) => String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+              return SHIFT_SLOTS.map((sl) => {
+                const clash = busy.find((w) => w.id !== sl.id && w.iso === sl.iso && sl.from < w.to + (w.svc === sl.svc ? 0 : 20) && w.from < sl.to + (w.svc === sl.svc ? 0 : 20));
+                const off = taken[sl.id] ? 'Уже в плане' : (sl.gone ? 'Нет в списке сервиса' : (connectedKeys.indexOf(sl.svc) === -1 ? 'Сервис не подключён' : (clash ? 'Пересекается со сменой ' + SHIFT_TITLES[clash.svc] + ' ' + hm(clash.from) + '–' + hm(clash.to) : '')));
+                return { id: sl.id, iso: sl.iso, svc: sl.svc, from: sl.from / 60, to: sl.to / 60, bonus: sl.bonus || '', off };
+              });
+            })(),
             mt_back: navBack(() => set({ s: (this.state && this.state.mtFrom) || 'market' })),
             // погода из демо сдвигает ставки таймлайна и подписана причиной
             mt_weather: (() => { const wx = demoOn && role === 'courier' ? WEATHER_DEMO[st.weather || 'rain'] : null; return wx && wx.period ? [{ day: 0, from: wx.period.from / 60, to: wx.period.to / 60, k: wx.kind === 'rain' ? 1.12 : 1.1, text: wx.tag }] : []; })(),
