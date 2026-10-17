@@ -184,7 +184,7 @@
 
           <sc-if value="{{ is_courier_empty }}">
             <div class="raznos-phone-body" data-screen-label="5 Courier empty">
-              <div class="raznos-app-bar" style="justify-content:space-between;gap:10px"><h1 class="raznos-text-h1" style="margin:0">Сегодня</h1></div>
+              <div class="raznos-app-bar" style="justify-content:space-between;gap:10px"><h1 class="raznos-text-h1" style="margin:0">Сегодня</h1><sc-if value="{{ ai_on }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosAssistantButton" label="Спросить" onClick="{{ ai_open_tap }}"></dc-import></sc-if></div>
               <sc-if value="{{ relogin_visible }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Сервисы нужно подключить заново</span><span class="raznos-text-small">{{ relogin_note }}</span><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" style="align-self:flex-start" onClick="{{ go_integrations }}">Открыть сервисы</button></div></sc-if>
               <div class="raznos-card raznos-card-pad raznos-fx raznos-col raznos-gap12">
                 <span class="raznos-text-h3">Готовность к работе</span>
@@ -403,7 +403,7 @@
             </div>
           </sc-if>
 
-          <sc-if value="{{ is_top }}"><dc-import name="RaznosTopCouriers" me="{{ top_me }}" edge="{{ top_edge }}" onPlan="{{ go_smart }}" onBack="{{ top_back }}" onOpenAnon="{{ top_open_anon }}"></dc-import></sc-if>
+          <sc-if value="{{ is_top }}"><sc-if value="{{ own_none }}" hint-placeholder-val="{{ false }}"><div class="raznos-phone-body" data-screen-label="Top empty"><div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ top_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Топ курьеров</h1></div><dc-import name="RaznosEmptyState" glyph="₽" title="Вашего места пока нет" text="Место в топе считаем по заказам из подключённых сервисов" actionLabel="Подключить сервис" actionKind="primary" onAction="{{ go_integrations }}"></dc-import></div></sc-if><sc-if value="{{ own_data }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosTopCouriers" me="{{ top_me }}" edge="{{ top_edge }}" onPlan="{{ go_smart }}" onBack="{{ top_back }}" onOpenAnon="{{ top_open_anon }}"></dc-import></sc-if></sc-if>
           <sc-if value="{{ is_stats }}">
             <div class="raznos-phone-body raznos-stats-screen" data-screen-label="7 Stats">
               <sc-if value="{{ stats_detail_open }}" hint-placeholder-val="{{ false }}">
@@ -465,10 +465,16 @@
           </sc-if>
 
           <sc-if value="{{ is_work_filters }}"><dc-import name="RaznosWorkFilters" value="{{ work_filters }}" onChange="{{ save_work_filters }}" activeValue="{{ active_filter }}" onActiveChange="{{ set_active_filter }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
-          <sc-if value="{{ is_slots }}"><div class="raznos-phone-body" data-screen-label="Shifts"><dc-import name="RaznosShifts" onAreaMap="{{ dmap_show }}" caps="{{ shifts_caps }}" facts="{{ smart_fact }}" onTake="{{ shifts_take }}" rebookOff="{{ rebook_off }}" onRebookKeep="{{ rebook_keep }}" onShowInPlan="{{ shifts_show_plan }}" shifts="{{ shifts_week }}" slots="{{ shifts_slots }}" rules="{{ shifts_rules }}" openings="{{ shifts_openings }}" deficits="{{ shifts_deficits }}" watches="{{ shifts_watches }}" today="{{ today_iso }}" nowMinutes="{{ 940 }}" initialTab="{{ slots_tab }}" initialWeek="{{ slots_week }}" initialDay="{{ slots_day }}" initialSvc="{{ slots_svc }}" initialPast="{{ slots_past }}" focus="{{ slots_focus }}" onBack="{{ slots_back }}" onOpenService="{{ slots_open_service }}" alertRules="{{ ar_rules }}" alertServices="{{ ar_svcs }}" alertFind="{{ ar_find }}" onAlert="{{ ar_entry }}" onAlertNew="{{ ar_new }}" onAlertOpen="{{ ar_open }}" onAlertToggle="{{ ar_toggle }}" onTab="{{ slots_tab_seen }}"></dc-import></div></sc-if>
+          <sc-if value="{{ is_slots }}"><sc-if value="{{ own_none }}" hint-placeholder-val="{{ false }}"><div class="raznos-phone-body" data-screen-label="Shifts empty"><div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ slots_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Слоты</h1></div><dc-import name="RaznosEmptyState" glyph="₽" title="Броней пока нет" text="Подключите сервис, и здесь появятся ваши смены и свободные слоты" actionLabel="Подключить сервис" actionKind="primary" onAction="{{ go_integrations }}"></dc-import></div></sc-if><sc-if value="{{ own_data }}" hint-placeholder-val="{{ true }}"><div class="raznos-phone-body" data-screen-label="Shifts"><dc-import name="RaznosShifts" onAreaMap="{{ dmap_show }}" caps="{{ shifts_caps }}" facts="{{ smart_fact }}" onTake="{{ shifts_take }}" rebookOff="{{ rebook_off }}" onRebookKeep="{{ rebook_keep }}" onShowInPlan="{{ shifts_show_plan }}" shifts="{{ shifts_week }}" slots="{{ shifts_slots }}" rules="{{ shifts_rules }}" openings="{{ shifts_openings }}" deficits="{{ shifts_deficits }}" watches="{{ shifts_watches }}" today="{{ today_iso }}" nowMinutes="{{ 940 }}" initialTab="{{ slots_tab }}" initialWeek="{{ slots_week }}" initialDay="{{ slots_day }}" initialSvc="{{ slots_svc }}" initialPast="{{ slots_past }}" focus="{{ slots_focus }}" onBack="{{ slots_back }}" onOpenService="{{ slots_open_service }}" alertRules="{{ ar_rules }}" alertServices="{{ ar_svcs }}" alertFind="{{ ar_find }}" onAlert="{{ ar_entry }}" onAlertNew="{{ ar_new }}" onAlertOpen="{{ ar_open }}" onAlertToggle="{{ ar_toggle }}" onTab="{{ slots_tab_seen }}"></dc-import></div></sc-if></sc-if>
           <sc-if value="{{ is_work_schedule }}"><dc-import name="RaznosWorkSchedule" onBack="{{ work_schedule_back }}" onSave="{{ save_work_graph }}" value="{{ work_graph }}"></dc-import></sc-if>
 
           <sc-if value="{{ is_work_hub }}">
+            <sc-if value="{{ own_none }}" hint-placeholder-val="{{ false }}">
+            <div class="raznos-phone-body" data-screen-label="9 Work hub empty">
+              <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">План</h1></div>
+              <dc-import name="RaznosEmptyState" glyph="₽" title="План пока не из чего собрать" text="Подключите сервис, и Разнос соберёт план из ваших броней и выгодных часов" actionLabel="Подключить сервис" actionKind="primary" onAction="{{ go_integrations }}"></dc-import>
+            </div>
+            </sc-if>
             <sc-if value="{{ work_setup_needed }}" hint-placeholder-val="{{ false }}">
             <div class="raznos-phone-body" data-screen-label="9 Work hub">
               <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">План</h1></div>
@@ -2050,6 +2056,8 @@
             <div class="raznos-phone-body" data-screen-label="31 Contest">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ nav_back_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Городской конкурс · {{ city_title }}</h1></div>
               <p class="raznos-text-small">Больше всего подтверждённых доставок за {{ cur_month_word }}, из данных подключённых сервисов этого города</p>
+              <sc-if value="{{ own_none }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" glyph="₽" title="Пока нечего считать" text="Конкурс считает доставки из подключённых сервисов" actionLabel="Подключить сервис" actionKind="primary" onAction="{{ go_integrations }}"></dc-import></sc-if>
+              <sc-if value="{{ own_data }}" hint-placeholder-val="{{ true }}">
               <div class="raznos-metric-grid">
                 <div class="raznos-metric-card"><span class="raznos-text-small">Начислено за {{ pf_week_range }}, справочно</span><span class="raznos-metric-value">{{ pf_week_earn }} ₽</span></div>
                 <div class="raznos-metric-card"><span class="raznos-text-small">Наличные чаевые</span><span class="raznos-metric-value" style="font:700 18px var(--raznos-font)">не в зачёте</span></div>
@@ -2076,6 +2084,7 @@
                   <div class="raznos-notice raznos-notice-ok"><span class="raznos-notice-title">Проверка завершена</span><span class="raznos-text-small">Место подтверждено по данным сервисов</span></div>
                 </sc-if>
                 <span class="raznos-status-pill {{ contest_status_class }}">{{ contest_status_label }}</span>
+              </sc-if>
               </sc-if>
             </div>
           </sc-if>
@@ -5349,6 +5358,8 @@
           const histHasData = hasData || statsSavedServices.length > 0;
           const histConnectedCount = demoOn ? 0 : HISTORY.filter((o) => dataSvcConnected.indexOf(o.svc) !== -1).length;
           // после подключения сервиса и сохранения графика Сегодня становится рабочим экраном
+          // свои данные есть только в демо или с подключённым сервисом, иначе личные экраны пустые
+          const ownData = demoOn || connectedKeys.length > 0 || exitedKeys.length > 0;
           const readyHome = demoOn || ((connectedKeys.length > 0 || exitedKeys.length > 0) && graphSaved);
           // масштабируем демо-статистику под реально подключённые сервисы, чтобы цифры сходились с подтянутой историей
           const scopeStat = (base) => {
@@ -6079,7 +6090,7 @@
           ].filter(Boolean) : [];
           // выключенная категория не попадает и в список, важное от Разноса не выключается
           // архив: скрытые крестиком и старше 30 дней, их можно вернуть в список
-          const INBOX_OLD = role === 'courier' ? [
+          const INBOX_OLD = demoOn && role === 'courier' ? [
             { id: 'n-old-1', cat: 'money', day: 'old', at: RU_MONTHS_NOM[(DEMO_TODAY.getMonth() + 11) % 12], read: true, to: 'wallet-income', title: 'Выплата пришла', text: 'ВкусВилл 11 900 ₽ на карту' },
             { id: 'n-old-2', cat: 'shifts', day: 'old', at: RU_MONTHS_NOM[(DEMO_TODAY.getMonth() + 11) % 12], read: true, done: true, to: 'slots', title: 'Самокат подтвердил смену', text: 'Пн, 10:00–14:00' },
             { id: 'n-old-3', cat: 'answers', day: 'old', at: RU_MONTHS_NOM[(DEMO_TODAY.getMonth() + 10) % 12], read: true, to: 'my-activity', title: 'Ответили на ваш отзыв', text: 'О ВкусВилле' }
@@ -7571,8 +7582,9 @@
             go_slots_find: (w) => set({ s: 'slots', slotsTab: 'free', slotsDay: (w && w.iso) || '', slotsSvc: (w && w.svc) || '', slotsWeek: null, slotsFrom: 'work-hub' }),
             slots_week: st.slotsWeek != null ? st.slotsWeek : null, slots_past: st.slotsFrom === 'profile', slots_tab: st.slotsTab || 'mine', slots_focus: st.slotsFrom === 'market-timeline' && st.slotsFocus ? st.slotsFocus : null, slots_day: st.slotsDay || '', slots_svc: st.slotsSvc || '',
             slots_back: navBack(backToInbox(() => set({ s: st.slotsFrom === 'courier-home' || st.slotsFrom === 'market-timeline' ? st.slotsFrom : (st.slotsFrom === 'profile' ? 'profile' : 'work-hub'), smartFocusIso: '', smartFocusKey: '', slotsTabNow: '', slotsFocus: null }))), go_slots_from_profile: () => set({ s: 'slots', slotsTab: '', slotsDay: '', slotsSvc: '', slotsWeek: -1, slotsFrom: 'profile' }), go_smart: () => set({ s: 'work-hub', smartFocusAdded: false, smartFocusIso: '', smartFocusKey: '', smartOpenKey: '' }), go_work_schedule: () => set({ s: 'work-schedule', wsFrom: s }), work_schedule_back: navBack(() => set({ s: (this.state && this.state.wsFrom) || 'profile' })),
-            work_setup_needed: !demoOn && !graphSaved,
-            work_ready: demoOn || graphSaved,
+            work_setup_needed: ownData && !demoOn && !graphSaved,
+            work_ready: ownData && (demoOn || graphSaved),
+            own_data: ownData, own_none: !ownData,
             go_best_times: (v) => set({ s: 'best-times', btFrom: s, btView: v === 'day' ? 'day' : 'week', btDay: null, btHour: null }),
             bt_view: (this.state && this.state.btView) || 'week', bt_day: st.btDay != null ? st.btDay : null, bt_hour: st.btHour != null ? st.btHour : null,
             // Подробно по часам: полная версия Рынка, входы из трёх простых экранов, при возврате с карты или из Плана на прежнем часе
@@ -9403,7 +9415,8 @@
           const aiWdShort = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
           const aiDayName = (iso) => (iso === TODAY_ISO ? 'сегодня' : aiWdShort[new Date(iso + 'T00:00:00').getDay()] + ' ' + ruDateLabel(iso));
           const aiWin = (a, b) => homeHm(a) + '–' + homeHm(b);
-          const aiScreenOf = { 'courier-home': 'today', 'work-hub': 'plan', smart: 'plan', stats: 'results', slots: 'slots', market: 'market' };
+          // пустой старт: сервисов нет, помощник отвечает только о приложении
+          const aiScreenOf = { 'courier-empty': 'today-empty', 'courier-home': 'today', 'work-hub': 'plan', smart: 'plan', stats: 'results', slots: 'slots', market: 'market' };
           this._aiDerived = { goalWeek, goalEarnedBefore, goalLeft, goalDaysLeft, todayTarget, todayEarn, todayExpenses, todayFines, todayTipsCash, todayNetHourly, todayHours, todayOrders, todayRemain };
           const aiPlanKeys = ['added', 'removed', 'swaps', 'zones', 'dayHours', 'watches', 'dismissed', 'done'];
           const aiSnapshot = () => {
