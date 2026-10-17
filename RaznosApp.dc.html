@@ -628,8 +628,8 @@
                 </div></sc-if>
                 <button type="button" class="raznos-consent-row" onClick="{{ toggle_conn_agree }}"><span class="{{ conn_agree_class }}">{{ conn_agree_mark }}</span><span class="raznos-text-body">Понимаю, что Разнос входит под моим аккаунтом</span></button>
                 <sc-if value="{{ conn_agree_nudge }}" hint-placeholder-val="{{ false }}"><p class="raznos-conn-nudge">Отметьте галку, без неё не войти</p></sc-if>
-                <button type="button" class="raznos-conn-why" onClick="{{ conn_why_toggle }}" aria-expanded="{{ conn_why_open }}">Почему не только чтение ›</button>
-                <sc-if value="{{ conn_why_open }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Сервисы не дают отдельного доступа только на чтение, поэтому вход технически шире, чем нужно нам. Мы только читаем данные и ничего не делаем от вашего имени</p></sc-if>
+                <button type="button" class="raznos-conn-why" onClick="{{ conn_why_toggle }}" aria-expanded="{{ conn_why_open }}">Что Разнос делает в аккаунте ›</button>
+                <sc-if value="{{ conn_why_open }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Только читаем: заказы, доход, смены и рейтинг. Ничего не берём, не отменяем и не пишем от вашего имени. Входим вашим логином, потому что отдельного входа только для чтения сервисы не дают</p></sc-if>
               </sc-if>
 
               <sc-if value="{{ conn_is_unsupported }}" hint-placeholder-val="{{ false }}">
@@ -1416,7 +1416,6 @@
           <sc-if value="{{ is_services_compare }}">
             <div class="raznos-phone-body" data-screen-label="Services compare">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ services_compare_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Сравнение сервисов</h1></div>
-              <span class="raznos-text-small" style="margin-top:-4px">{{ city_title }}</span>
               <dc-import name="RaznosServiceRank" mode="full" connected="{{ svc_connected }}" onConnect="{{ svc_compare_connect }}" onDetail="{{ sc_detail }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
             </div>
           </sc-if>
@@ -1424,7 +1423,6 @@
           <sc-if value="{{ is_best_places }}">
             <div class="raznos-phone-body" data-screen-label="Best places">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ best_places_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Где выгоднее</h1></div>
-              <span class="raznos-text-small" style="margin-top:-4px">{{ city_title }}</span>
               <dc-import name="RaznosHotspots" mode="full" initialView="{{ bp_view }}" initialPick="{{ bp_pick }}" onDetail="{{ bp_detail }}" alertFind="{{ ar_find }}" onAlert="{{ ar_entry }}" cityTitle="{{ mk_city_label }}" cityKey="{{ mk_city_key }}" hasData="{{ mk_cards_data }}" few="{{ mk_few }}"></dc-import>
             </div>
           </sc-if>
@@ -4505,7 +4503,19 @@
             const tipDrawn = (f) => tipAll.split('||').filter(Boolean).some((q) => tipSeen(f, q));
             if (sel && layer.__allChecked !== tipAll) {
               layer.__allChecked = tipAll;
-              const check = (n) => { const f = layer.closest('.raznos-phone-frame'); if (!f || !this._stipMissing || layer.getAttribute('data-tip-all') !== tipAll) return; const miss = tipAll.split('||').filter(Boolean).filter((q) => !tipSeen(f, q)); if (miss.length && (n < 3 || (!tipDrawn(f) && n < 8))) { setTimeout(() => check(n + 1), 500); return; } miss.forEach((q) => this._stipMissing(q)); };
+              const check = (n) => {
+                const f = layer.closest('.raznos-phone-frame'); if (!f || !this._stipResolve || layer.getAttribute('data-tip-all') !== tipAll) return;
+                const all = tipAll.split('||').filter(Boolean), miss = all.filter((q) => !tipSeen(f, q));
+                if (miss.length && (n < 3 || (!tipDrawn(f) && n < 8))) { setTimeout(() => check(n + 1), 500); return; }
+                // порядок по положению цели в документе: в прокрутке с учётом scrollTop, липкое и шапка как на экране; в одном ряду слева направо
+                const sc = f.querySelector('.raznos-phone-scroll'), top0 = sc ? sc.getBoundingClientRect().top : 0;
+                const pin = (el) => { if (!sc || !sc.contains(el)) return true; for (let e = el; e && e !== sc; e = e.parentElement) { const p = getComputedStyle(e).position; if (p === 'sticky' || p === 'fixed') return true; } return false; };
+                const at = (q) => { const el = Array.from(f.querySelectorAll(q)).find((x) => x.getClientRects().length > 0), r = el.getBoundingClientRect(); return { q, y: r.top - top0 + (pin(el) ? 0 : sc.scrollTop), x: r.left }; };
+                const order = all.filter((q) => miss.indexOf(q) === -1).map(at).sort((a, b) => (Math.abs(a.y - b.y) > 8 ? a.y - b.y : a.x - b.x)).map((p) => p.q);
+                const next = this._stipResolve(miss, order);
+                layer.__checkDone = next; layer.__allChecked = next;
+                this._tourPlace();
+              };
               setTimeout(() => check(0), 350);
             }
             // цели нет на экране: даём экрану дорисоваться и, если её так и нет, убираем шаг из серии
@@ -4518,6 +4528,8 @@
               return;
             }
             if (!target || sheetOpen) { unmark(null); tip.style.opacity = '0'; tip.style.pointerEvents = 'none'; if (sheetOpen && !layer.__wait) { layer.__wait = setTimeout(() => { layer.__wait = 0; this._tourPlace(); }, 400); } return; }
+            // пока не проверили все цели серии, подсказку не показываем: иначе номер шага и порядок поменяются у человека на глазах
+            if (sel && layer.__checkDone !== tipAll) { unmark(null); tip.style.opacity = '0'; tip.style.pointerEvents = 'none'; return; }
             unmark(target);
             if (!target.classList.contains('raznos-tour-target')) target.classList.add('raznos-tour-target');
             const box = frame.querySelector('.raznos-phone-scroll');
@@ -5450,7 +5462,8 @@
             // в Плане сначала ответ на вопрос «Как вы работаете?»
             { key: 'work-hub', on: () => s === 'work-hub' && !!st.planOnboarded, steps: [
               { sel: '.rss-goal', title: 'Цель недели', text: 'Сколько хотите за неделю. По плану: сколько выйдет, если отработать брони и окна плана' },
-              { sel: '.rwd-days', title: 'Дни недели', text: 'Точки под днём: сервисы ваших смен, галка: день отработан. Листайте, чтобы увидеть следующую неделю' },
+              // ячейка сегодня, а если сегодня не на этой неделе, выбранный день
+              { sel: '.raznos-phone-body .rwd-days:not(.rwd-ghost) .rwd-today, .raznos-phone-body .rwd-days:not(.rwd-ghost):not(:has(.rwd-today)) .raznos-is-active', title: 'Дни недели', text: 'Точки под днём: сервисы ваших смен, галка: день отработан. Листайте ленту, чтобы увидеть другую неделю' },
               { sel: '.rss-list .rpw-hit', title: 'Окно плана', text: 'Нажмите на окно: там другие варианты на это время, сколько они дадут и чем отличаются' },
               { sel: '.rss-list .rpw-badge:not(.rpw-badge-live)', title: 'Нужна ли запись', text: 'Бронь и заявка уже есть в сервисе. Пунктир и метка без записи: в сервисе вас нет. Нажмите на метку, чтобы понять' },
               { sel: '.rss-rebuild', title: 'Собрать день заново', text: 'Пересобирает окна плана из лучших вариантов в ваших часах, брони не трогает. Если сборка что-то даёт, рядом видно сколько' },
@@ -5516,6 +5529,8 @@
           // пропавшие цели помним только на этот заход на экран, в следующий раз проверим снова
           const stipVisit = ((this._nav && this._nav.cur) || s) + '#' + ((this._nav && this._nav.visit) || 0);
           const stipMissing = (st.stipMissing || {})[stipVisit] || {};
+          // шаги, которые уже показали раньше, не повторяем, серия засчитана, когда показаны все её шаги
+          const stipLeft = (x) => x.steps.filter((t) => !stipMissing[t.sel] && !screenTipsSeen[x.key + '|' + t.sel]);
           this._stipMissing = (sel) => { const all = this.state.stipMissing || {}, cur = all[stipVisit] || {}; if (!cur[sel]) this.setState({ stipMissing: Object.assign({}, all, { [stipVisit]: Object.assign({}, cur, { [sel]: true }) }) }); };
           const stipReady = role === 'courier' && st.tipsOn !== false && !!st.tourDone && st.tourStep == null && !(s === 'slots' && st.slotsFrom === 'market-timeline' && st.slotsFocus);
           // все серии, что выпали на экран, идут одной подсказкой со сквозной нумерацией, а не несколькими подряд
@@ -5524,15 +5539,29 @@
           const stipHeld = st.stipHeld && st.stipHeld.visit === stipVisitN ? st.stipHeld.keys : [];
           let stipRoom = 8;
           const stipCut = [];
-          const stipSeries = (stipReady ? STIP_SERIES.filter((x) => !screenTipsSeen[x.key] && stipHeld.indexOf(x.key) === -1 && x.on() && x.steps.some((t) => !stipMissing[t.sel])) : [])
-            .filter((x, i) => { const n = x.steps.filter((t) => !stipMissing[t.sel]).length; if (i && n > stipRoom) { stipCut.push(x.key); return false; } stipRoom -= n; return true; });
-          const screenTips = stipSeries.length ? [].concat(...stipSeries.map((x) => x.steps.filter((t) => !stipMissing[t.sel]))) : null;
+          const stipSeries = (stipReady ? STIP_SERIES.filter((x) => !screenTipsSeen[x.key] && stipHeld.indexOf(x.key) === -1 && x.on() && stipLeft(x).length) : [])
+            .filter((x, i) => { const n = stipLeft(x).length; if (i && n > stipRoom) { stipCut.push(x.key); return false; } stipRoom -= n; return true; });
           const stipKey = stipSeries.map((x) => x.key).join('+');
+          // тур идёт сверху вниз: порядок шагов считает _tourPlace по положению целей на экране, ручной порядок в списке не важен
+          const stipOrd = (st.stipOrder || {})[stipKey] || [];
+          const stipRank = (t) => { const i = stipOrd.indexOf(t.sel); return i === -1 ? stipOrd.length : i; };
+          const screenTips = stipSeries.length ? [].concat(...stipSeries.map((x) => stipLeft(x).map((t) => Object.assign({ key: x.key }, t)))).sort((a, b) => stipRank(a) - stipRank(b)) : null;
           const stipVisible = !!screenTips;
           const stipIdx = Math.min((st.screenTipStep || {})[stipKey] || 0, screenTips ? screenTips.length - 1 : 0);
           const stipNext = () => (stipIdx >= screenTips.length - 1 ? stipDone() : set({ screenTipStep: Object.assign({}, st.screenTipStep || {}, { [stipKey]: stipIdx + 1 }) }));
           this._stipClick = stipVisible ? { sel: screenTips[stipIdx].sel, next: stipNext } : null;
-          const stipDone = () => set({ screenTipsSeen: Object.assign({}, screenTipsSeen, ...stipSeries.map((x) => ({ [x.key]: true }))), screenTipStep: Object.assign({}, st.screenTipStep || {}, { [stipKey]: 0 }), stipHeld: { visit: stipVisitN, keys: stipCut } });
+          // проверка целей серии закончилась: пропавшие убираем, остальные ставим сверху вниз, порядок меняем только до первого шага
+          this._stipResolve = (miss, order) => {
+            const all = this.state.stipMissing || {}, cur = Object.assign({}, all[stipVisit] || {});
+            miss.forEach((q) => { cur[q] = true; });
+            const patch = miss.length ? { stipMissing: Object.assign({}, all, { [stipVisit]: cur }) } : {};
+            const left = screenTips ? screenTips.map((t) => t.sel).filter((q) => order.indexOf(q) !== -1) : [];
+            if (stipIdx === 0 && order.join('||') !== left.join('||')) patch.stipOrder = Object.assign({}, this.state.stipOrder || {}, { [stipKey]: order });
+            if (Object.keys(patch).length) this.setState(patch);
+            // какой станет серия после перерисовки, её второй раз не проверяем
+            return (patch.stipOrder ? order : left).join('||');
+          };
+          const stipDone = () => set({ screenTipsSeen: Object.assign({}, screenTipsSeen, ...stipSeries.map((x) => (x.steps.every((t) => !stipMissing[t.sel] || screenTipsSeen[x.key + '|' + t.sel]) ? { [x.key]: true } : Object.assign({}, ...stipLeft(x).map((t) => ({ [x.key + '|' + t.sel]: true })))))), screenTipStep: Object.assign({}, st.screenTipStep || {}, { [stipKey]: 0 }), stipHeld: { visit: stipVisitN, keys: stipCut } });
           const tourStep = st.tourStep == null ? null : (st.tourStep === 0 && demoOn ? 1 : st.tourStep);
           // вкладка продвигает тур, только если подсказка на экране видна
           const tourVisible = tourStep != null && role === 'courier' && TOUR_SCREENS.indexOf(s) !== -1 && (tourStep > 0 || s === 'courier-empty');
