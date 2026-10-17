@@ -72,6 +72,7 @@
       "svc": { "editor": "text", "default": "" },
       "hideRatings": { "editor": "boolean", "default": false },
       "hideReviews": { "editor": "boolean", "default": false },
+      "orders": { "editor": null },
       "full": { "editor": "boolean", "default": false },
       "compact": { "editor": "boolean", "default": false },
       "onAll": { "editor": null },
@@ -122,17 +123,20 @@
           const scaled = (v) => (v == null ? "" : String(v).replace(".", ",") + " из 5");
           // обезличенный профиль всегда про один сервис, иначе сочетание сервисов связывает человека
           const allGroups = (DEMO_BY_COURIER[p.courierId] || []).filter((g) => !p.svc || g.svc === p.svc);
+          // orders: заказы за период по сервисам, тогда один список, справа заказы, оценка подписью под сервисом
+          const orders = !full && !anon && Array.isArray(p.orders) ? p.orders : null;
+          const merged = orders ? orders.map((o) => Object.assign({ svc: o.key, title: o.title, score: null, reviews: [] }, allGroups.find((g) => g.svc === o.key) || {}, { count: o.count })).concat(allGroups.filter((g) => !orders.some((o) => o.key === g.svc))) : null;
           const list = full ? allGroups.filter((g) => fSvc === "all" || g.svc === fSvc) : allGroups;
-          const groups = (full ? [] : list).map((g) => {
+          const groups = (full ? [] : (merged || list)).map((g) => {
             const valid = p.hideReviews ? [] : g.reviews.filter((r) => r.rating != null || !!r.text);
             const reviews = full ? valid.filter((r) => !periodFrom || r.iso >= periodFrom) : valid.slice(0, 1);
             return {
               svc: g.svc,
               title: g.title,
-              hasRating: !p.hideRatings,
-              ratingLabel: !g.score ? "Нет данных из сервиса" : (anon ? (g.score.num != null ? ratingRangeLabel(g.score.num) : "Есть, " + g.score.source.split(",")[0].toLowerCase()) : g.score.label),
-              countLabel: g.score ? g.score.source : "",
-              valueCls: "raznos-imp-reviews__value" + (g.score ? "" : " raznos-imp-reviews__value--none"),
+              hasRating: merged ? g.count != null : !p.hideRatings,
+              ratingLabel: merged ? (g.count != null ? String(g.count) : "") : (!g.score ? "Нет данных из сервиса" : (anon ? (g.score.num != null ? ratingRangeLabel(g.score.num) : "Есть, " + g.score.source.split(",")[0].toLowerCase()) : g.score.label)),
+              countLabel: merged ? (g.score ? g.score.label + " · " + g.score.source.split(",")[0] : "") : (g.score ? g.score.source : ""),
+              valueCls: "raznos-imp-reviews__value" + (merged || g.score ? "" : " raznos-imp-reviews__value--none"),
               hasCards: reviews.length > 0,
               cards: reviews.map((r) => ({
                 hasRating: r.rating != null,
@@ -143,15 +147,15 @@
                 date: anon ? ("В " + (r.month || "недавнем месяце") + " " + new Date().getFullYear()) : (r.date || "")
               }))
             };
-          }).filter((g) => g.hasRating || g.hasCards);
+          }).filter((g) => merged || g.hasRating || g.hasCards);
           const compact = !anon && !visitor && !full && !!p.compact;
           // компактный вид: два самых свежих отзыва с текстом из всех сервисов
           const compactRows = compact && !p.hideReviews ? allGroups.reduce((acc, g) => acc.concat(g.reviews.filter((r) => r.text).map((r) => ({ svc: g.svc, title: g.title, iso: r.iso, date: r.date, ratingLabel: r.rating == null ? "" : "Оценка " + r.rating, text: r.text }))), []).sort((a, b) => (a.iso < b.iso ? 1 : -1)).slice(0, 2) : [];
           const shownCount = groups.reduce((sum, g) => sum + g.cards.length, 0);
           const hasMore = allGroups.some((g) => g.reviews.length > 1);
           return {
-            headTitle: full ? "История отзывов из сервисов" : "Оценки из сервиса",
-            headNote: anon ? "Что сервис отдаёт о курьере, без точных значений. Тексты отзывов покупателей сервисы не отдают" : (visitor ? "Оценки, рейтинги и уровни из сервисов, которые курьер разрешил показывать, у каждого указаны шкала и источник. Тексты отзывов покупателей сервисы не отдают" : "Ваши данные из сервисов со шкалой и источником. Где сервис ничего не отдаёт, так и написано. Тексты отзывов покупателей сервисы не отдают"),
+            headTitle: full ? "История отзывов из сервисов" : (merged ? "Сервисы" : "Оценки из сервиса"),
+            headNote: merged ? "Справа заказы за период, под сервисом оценка из него, если курьер разрешил её показывать. Тексты отзывов покупателей сервисы не отдают" : anon ? "Что сервис отдаёт о курьере, без точных значений. Тексты отзывов покупателей сервисы не отдают" : (visitor ? "Оценки, рейтинги и уровни из сервисов, которые курьер разрешил показывать, у каждого указаны шкала и источник. Тексты отзывов покупателей сервисы не отдают" : "Ваши данные из сервисов со шкалой и источником. Где сервис ничего не отдаёт, так и написано. Тексты отзывов покупателей сервисы не отдают"),
             isFull: full && shownCount > 0,
             isRegular: !compact,
             isCompact: compact && compactRows.length > 0,

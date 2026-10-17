@@ -1894,7 +1894,7 @@
                   </sc-if>
                 </div>
               </sc-if>
-              <sc-if value="{{ pp_show_orders }}" hint-placeholder-val="{{ true }}">
+              <sc-if value="{{ pp_show_orders_list }}" hint-placeholder-val="{{ true }}">
                 <div class="raznos-profile-services">
                   <sc-for list="{{ pp_orders_parts }}" as="op" hint-placeholder-count="2">
                     <div class="raznos-profile-service-row"><div class="raznos-profile-service-name"><dc-import name="RaznosIcon" svc="{{ op.key }}" alt="{{ op.title }}" size="sm"></dc-import>{{ op.title }}</div><span class="{{ op.cls }}">{{ op.count }}</span></div>
@@ -1911,7 +1911,7 @@
                 <sc-if value="{{ pp_is_self }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">Это ваш профиль, отправить чаевые себе нельзя</p></sc-if>
               </sc-if>
               <sc-if value="{{ pv_preview_on }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">Кнопки В избранное и Отправить чаевые видит только посетитель</p></sc-if>
-              <sc-if value="{{ pp_show_feedback }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosImportedReviews" courierId="{{ pp_courier_id }}" visitor="{{ true }}" hideRatings="{{ pp_hide_ratings }}" hideReviews="{{ pp_hide_reviews }}"></dc-import></sc-if>
+              <sc-if value="{{ pp_show_feedback }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosImportedReviews" courierId="{{ pp_courier_id }}" visitor="{{ true }}" hideRatings="{{ pp_hide_ratings }}" hideReviews="{{ pp_hide_reviews }}" orders="{{ pp_orders_merged }}"></dc-import></sc-if>
             </div>
           </sc-if>
 
@@ -8985,6 +8985,11 @@
             pp_orders_total: ppOrders ? String(ppOrders.parts.reduce((sum, x) => sum + (x[1] || 0), 0)) : '',
             pp_orders_parts: ppOrders ? ppOrders.parts.map((x) => ({ key: x[0], title: SERVICES[x[0]].title, count: x[1] == null ? 'Нет данных' : String(x[1]), cls: x[1] == null ? 'raznos-text-small' : 'raznos-num' })) : [],
             pp_show_feedback: (ppFields.ratings || ppFields.reviews) && (ppCourier.id !== 'c1' || (pvPublic && pvCloseStage !== 'closed')),
+            // заказы и оценки одним списком по сервисам, если видны и те и другие, иначе сервисы перечислены дважды
+            ...(() => {
+              const merged = !!ppFields.orders && !!ppOrders && !!ppFields.ratings && (ppCourier.id !== 'c1' || (pvPublic && pvCloseStage !== 'closed'));
+              return { pp_show_orders_list: !!ppFields.orders && !!ppOrders && !merged, pp_orders_merged: merged ? ppOrders.parts.map((x) => ({ key: x[0], title: SERVICES[x[0]].title, count: x[1] })) : null };
+            })(),
 
             // Предпросмотр своего профиля глазами посетителя, ничего не публикует и не меняет
             pv_preview_on: !!pvPreview, pv_preview_off: !pvPreview,
@@ -9702,7 +9707,9 @@
             };
           })();
           const aiOn = !(st.aiOff != null ? st.aiOff : (() => { try { return localStorage.getItem('raznos-ai-off') === '1'; } catch (e) { return false; } })());
-          const aiConsented = () => { try { return demoOn || localStorage.getItem('raznos-ai-consent') === '1'; } catch (e) { return true; } };
+          // пока согласие не спрашиваем, помощник открывается сразу; вернуть: убрать AI_ASK_CONSENT_OFF
+          const AI_ASK_CONSENT_OFF = true;
+          const aiConsented = () => { if (AI_ASK_CONSENT_OFF) return true; try { return demoOn || localStorage.getItem('raznos-ai-consent') === '1'; } catch (e) { return true; } };
           const aiOpenTap = () => set(aiConsented() ? { aiOpen: true } : { aiConsentAsk: true });
           const aiOpenWithPrompt = () => set(aiConsented() ? { aiOpen: true, aiPrompt: 'Разбери мою неделю' } : { aiConsentAsk: true, aiPrompt: 'Разбери мою неделю' });
           if (!this._aiUrl) this._aiUrl = aiApiUrl();

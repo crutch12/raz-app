@@ -540,12 +540,14 @@ class Component extends DCLogic {
     const openService = typeof p.onOpenService === 'function' ? p.onOpenService : (() => {});
     const added = st.added || RSS_DEMO_ADDED;
     const removed = st.removed || {};
+    // часы убранных ваших окон по дням: они остаются в дне свободным промежутком
+    const freed = st.freed || {};
     const swaps = st.swaps || {};
     const zonesOf = st.zones || {};
     const watches = st.watches || {};
     const dismissed = st.dismissed || {};
     const done = st.done || {};
-    const prevPlan = () => ({ added, removed, swaps, zones: zonesOf });
+    const prevPlan = () => ({ added, removed, swaps, zones: zonesOf, freed });
 
     // окно из Когда выгоднее: ближайший такой день недели, свободный выход в эти часы
     const bt = p.addWindow || null;
@@ -569,7 +571,7 @@ class Component extends DCLogic {
     const stayBase = booked.filter((b) => b.iso === RSS_TODAY_ISO && b.to > RSS_NOW && b.to < 1320).sort((a, b) => b.to - a.to)[0] || null;
     const slotState = (sl) => (sl.gone ? 'full' : (sl.apply ? 'apply' : 'open'));
     // все окна дня: брони из Смен, план в свободные часы графика, добавленное курьером
-    const windowsOf = (iso) => {
+    const windowsOf = (iso, withRemoved) => {
       const d = new Date(iso + 'T00:00:00');
       const own = booked.filter((b) => b.iso === iso).map((b) => ({ key: 'b:' + b.id, iso, svc: b.svc, from: b.from, to: b.to, zone: '', place: b.place, source: 'booking', status: b.status }));
       const list = own.slice();
@@ -602,7 +604,7 @@ class Component extends DCLogic {
       if (iso === RSS_TODAY_ISO && stay === 'added' && stayBase) list.push({ key: 'a:stay', iso, svc: stayBase.svc, from: stayBase.to, to: stayBase.to + 60, zone: 'Центр', source: 'added' });
       // ваше окно, которое уже взято бронью в том же сервисе, не дублируем
       (added[iso] || []).filter((a) => !own.some((b) => b.svc === a.svc && b.from < a.to && b.to > a.from)).forEach((a) => list.push(Object.assign({ iso, zone: 'Центр' }, a)));
-      return list.filter((w) => !removed[w.key])
+      return list.filter((w) => withRemoved || !removed[w.key])
         .map((w) => (w.source === 'booking' || w.source === 'gap' ? w : Object.assign({}, w, { svc: swaps[w.key] || w.svc, zone: zonesOf[w.key] || w.zone })))
         .sort((a, b) => a.from - b.from);
     };
@@ -829,8 +831,10 @@ class Component extends DCLogic {
     const mineWins = planWins.filter((w) => w.source === 'added');
     // свободное время показываем только в ваших часах: график и то, что уже стоит в дне, а не весь день 08–22
     const dayOff = !isWorkDay(selDate);
-    const gapFrom = Math.max(dayFrom, Math.min.apply(null, (dayOff ? [] : [selHours.from]).concat(planWins.map((w) => w.from))));
-    const gapTo = Math.min(dayTo, Math.max.apply(null, (dayOff ? [] : [selHours.to]).concat(planWins.map((w) => w.to))));
+    // время убранного окна остаётся в дне свободным промежутком, иначе на его месте пусто
+    const dayEdges = planWins.concat(windowsOf(selIso, true).filter((w) => removed[w.key] && w.source !== 'gap'), (freed[selIso] || []).map(([from, to]) => ({ from, to })));
+    const gapFrom = Math.max(dayFrom, Math.min.apply(null, (dayOff ? [] : [selHours.from]).concat(dayEdges.map((w) => w.from))));
+    const gapTo = Math.min(dayTo, Math.max.apply(null, (dayOff ? [] : [selHours.to]).concat(dayEdges.map((w) => w.to))));
     const freeGaps = (() => {
       const busy = planWins.map((w) => [Math.max(w.from, gapFrom), Math.min(w.to, gapTo)]).filter(([f, t]) => t > f).sort((a, b) => a[0] - b[0]);
       let cur = gapFrom; const out = [];
@@ -1057,7 +1061,7 @@ class Component extends DCLogic {
       nx[selIso] = (keepMine ? (added[selIso] || []) : []).concat(rb.fill.map((w) => ({ key: 'a:r:' + selIso + ':' + w.from, svc: w.svc, from: w.from, to: w.to, zone: 'Центр', source: 'added', slot: w.slot })));
       const strip = (obj) => { const o = {}; Object.keys(obj).forEach((k) => { if (k.indexOf(selIso) === -1) o[k] = obj[k]; }); return o; };
       const delta = Math.round((winsSum(rb.after) - winsSum(liveWins)) / 10) * 10;
-      set({ added: nx, removed: strip(removed), swaps: strip(swaps), zones: strip(zonesOf), rebuild: false });
+      set({ added: nx, removed: strip(removed), swaps: strip(swaps), zones: strip(zonesOf), freed: strip(freed), rebuild: false });
       flashUndo('Собрали день заново' + (delta > 0 ? ', +' + rssFmt(delta) + ' ₽' : ''), prevPlan());
     };
     // замена окна: то, что пересекается из плана и ваших окон, уходит, остаток часов добиваем свободным выходом
@@ -1176,7 +1180,7 @@ class Component extends DCLogic {
     })() : null;
     const removeWin = () => {
       const w = sheetWin;
-      if (w.source === 'added') { const nx = Object.assign({}, added); nx[selIso] = (added[selIso] || []).filter((a) => a.key !== w.key); set({ added: nx, gapSheet: null }); }
+      if (w.source === 'added') { const nx = Object.assign({}, added); nx[selIso] = (added[selIso] || []).filter((a) => a.key !== w.key); set({ added: nx, freed: Object.assign({}, freed, { [selIso]: (freed[selIso] || []).concat([[w.from, w.to]]) }), gapSheet: null }); }
       else set({ removed: Object.assign({}, removed, { [w.key]: true }), gapSheet: null });
       flashUndo('Убрали ' + rssTime(w.from) + '–' + rssTime(w.to), prevPlan());
     };
@@ -1427,7 +1431,7 @@ class Component extends DCLogic {
       show_reset: dayChanged, reset_day: () => {
         const strip = (obj) => { const nx = {}; Object.keys(obj).forEach((k) => { if (k.indexOf(selIso) === -1) nx[k] = obj[k]; }); return nx; };
         const nxAdded = Object.assign({}, added); delete nxAdded[selIso];
-        set({ added: nxAdded, removed: strip(removed), swaps: strip(swaps), zones: strip(zonesOf) });
+        set({ added: nxAdded, removed: strip(removed), swaps: strip(swaps), zones: strip(zonesOf), freed: strip(freed) });
         flashUndo('Правки дня сброшены', prevPlan());
       },
       toast_has_undo: !!st.undo,
