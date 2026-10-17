@@ -132,7 +132,7 @@
     <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ open_reviews }}">Отзывы и вопросы · {{ svc_title }}</button>
   </sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"city":{"editor":"text","default":"moscow"},"section":{"editor":"enum","default":"newbies","options":["newbies","start","schedule","terms"]},"svc":{"editor":"text","default":"vkusvill"},"services":{"editor":null},"connected":{"editor":null},"onBack":{"editor":null},"onOpenService":{"editor":null},"via":{"editor":null},"onOpenVia":{"editor":null},"onSection":{"editor":null},"onSvc":{"editor":null},"onRegister":{"editor":null},"onConnect":{"editor":null},"$preview":{"width":390,"height":900}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"city":{"editor":"text","default":"moscow"},"section":{"editor":"enum","default":"newbies","options":["newbies","start","schedule","terms"]},"svc":{"editor":"text","default":"vkusvill"},"services":{"editor":null},"connected":{"editor":null},"week":{"editor":null},"onBack":{"editor":null},"onOpenService":{"editor":null},"via":{"editor":null},"onOpenVia":{"editor":null},"onSection":{"editor":null},"onSvc":{"editor":null},"onRegister":{"editor":null},"onConnect":{"editor":null},"$preview":{"width":390,"height":900}}'>
 const JG_CITIES = { moscow: 'Москва', spb: 'Санкт-Петербург' };
 function jgPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
 // запасной список сервисов, когда App не передал каталог
@@ -196,6 +196,7 @@ const JG_SOON = ['ozon-courier', 'wb-courier', 'dostavista', 'flowwow'];
 const JG_FREE = ['wb-courier', 'dostavista', 'flowwow'];
 const JG_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 const JG_WINDOWS = [['morning', 'Утро 8–12'], ['day', 'День 12–17'], ['evening', 'Вечер 17–22']];
+const JG_HOURS = { morning: [8, 12], day: [12, 17], evening: [17, 22] };
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
@@ -210,8 +211,11 @@ class Component extends DCLogic {
     const via = p.via && typeof p.via === 'object' ? p.via : {};
     const viaOf = via[svc] || null;
     const data = JG_DATA[svc] || {};
-    const days = st.days || [5, 6];
-    const wins = st.wins || ['day', 'evening'];
+    // дни и время из графика в Плане: окно отмечено, если график захватывает в нём от 2 часов
+    const week = Array.isArray(p.week) && p.week.length === 7 ? p.week : [0, 1, 2, 3, 4, 5, 6].map((i) => ({ on: i < 5, from: 9, to: 18 }));
+    const onDays = week.map((w, i) => (w && w.on ? i : -1)).filter((i) => i !== -1);
+    const days = st.days || onDays;
+    const wins = st.wins || JG_WINDOWS.filter((w) => { const [a, b] = JG_HOURS[w[0]]; return onDays.some((i) => Math.min(b, week[i].to) - Math.max(a, week[i].from) >= 2); }).map((w) => w[0]);
     const openNb = st.nbOpen || [];
     const toggle = (l, v) => (l.indexOf(v) !== -1 ? l.filter((x) => x !== v) : l.concat([v]));
     const call = (name, arg) => { if (typeof p[name] === 'function') p[name](arg); };

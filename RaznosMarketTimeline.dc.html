@@ -72,8 +72,8 @@
     .rmt-seg .raznos-segment::after { content: ''; position: absolute; inset: -5px -3px; }
     .rmt-rows { display: flex; flex-direction: column; }
     /* единица один раз над колонкой значений, у районов колонка левее кнопки маршрута */
-    .rmt-unit { align-self: flex-end; padding-top: 6px; font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); }
-    .rmt-unit-act { padding-right: 44px; }
+    .rmt-unit { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0 2px; font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rmt-unit-act { padding-right: 46px; }
     /* на 360 и у вилки прогноза полоса уходит, чтобы названия и лидер помещались в строку */
     .rmt-panel { container-type: inline-size; }
     .rmt-rows-range.rmt-rows-svc .rrr-row { grid-template-columns: 20px 28px minmax(0, 1fr) auto; }
@@ -185,10 +185,10 @@
     </sc-if>
     <sc-if value="{{ is_list }}" hint-placeholder-val="{{ true }}">
       <div class="rmt-panel">
-        <sc-if value="{{ has_unit }}" hint-placeholder-val="{{ true }}"><span class="{{ unit_cls }}" aria-hidden="true">₽/ч</span></sc-if>
+        <sc-if value="{{ has_unit }}" hint-placeholder-val="{{ true }}"><span class="{{ unit_cls }}" aria-hidden="true"><span>{{ unit_left }}</span><span>₽ в час</span></span></sc-if>
         <div class="{{ rows_cls }}" data-rmt="{{ uid }}">
           <sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
-            <div class="rmt-row" data-rmt-key="{{ r.key }}"><dc-import name="RaznosRankRow" rank="{{ r.rank }}" svc="{{ r.svc }}" title="{{ r.title }}" mine="{{ r.mine }}" meta="{{ r.meta }}" metaMine="{{ r.metaMine }}" fill="{{ r.fill }}" value="{{ r.val }}" forecast="{{ r.fc }}" animate="{{ true }}" action="{{ r.action }}" href="{{ r.href }}" actionLabel="{{ r.aria }}" onTap="{{ r.tap }}" divider="{{ r.divider }}"></dc-import></div>
+            <div class="rmt-row" data-rmt-key="{{ r.key }}"><dc-import name="RaznosRankRow" rank="{{ r.rank }}" svc="{{ r.svc }}" title="{{ r.title }}" mine="{{ r.mine }}" meta="{{ r.meta }}" metaMine="{{ r.metaMine }}" fill="{{ r.fill }}" value="{{ r.val }}" forecast="{{ r.fc }}" animate="{{ true }}" action="{{ r.action }}" onAction="{{ r.tap }}" actionLabel="{{ r.aria }}" onTap="{{ r.tap }}" divider="{{ r.divider }}"></dc-import></div>
           </sc-for>
           <sc-if value="{{ is_empty }}" hint-placeholder-val="{{ false }}"><p class="rmt-empty">{{ empty_text }}</p></sc-if>
         </div>
@@ -537,8 +537,8 @@ class Component extends DCLogic {
         mine: !zr && markMine && isMine(o.s.k), metaMine: zr && markMine && isMine(o.s.k),
         meta: zr ? rmtKm(o.z.km) + ' · ' + o.s.title : (o.z ? o.z.name + ', ' + rmtKm(o.z.km) : ''),
         fill: fillW(o.v), val: range(o.v), fc, divider: i < order.length - 1,
-        // район открывается на карте, маршрут кнопкой как в Где выгоднее
-        action: zr ? 'route' : '', href: zr ? routeHref(o.z) : '', aria: zr ? routeAria(o.z) : '',
+        // стрелка и строка открывают район на карте спроса, маршрут в Яндекс Картах под картой
+        action: zr ? 'route' : '', aria: zr ? 'Район ' + o.z.name + ' на карте спроса' : '',
         tap: zr ? () => set({ by: 'map', mapPick: o.z.k }) : null
       };
     });
@@ -668,7 +668,7 @@ class Component extends DCLogic {
       by_zone_cls: 'raznos-segment' + (by === 'zone' ? ' raznos-is-active' : ''), by_svc_cls: 'raznos-segment' + (by === 'svc' ? ' raznos-is-active' : ''), by_map_cls: 'raznos-segment' + (by === 'map' ? ' raznos-is-active' : ''),
       pick_zone: () => flipSet({ by: 'zone' }), pick_svc: () => flipSet({ by: 'svc' }), pick_map: () => set({ by: 'map' }),
       rows, rows_cls: 'rmt-rows rmt-rows-' + listBy + (spread ? ' rmt-rows-range' : ''), is_empty: rows.length === 0, empty_text: 'В этот час заказов в выбранных сервисах и районах нет',
-      has_unit: rows.length > 0, unit_cls: 'rmt-unit' + (listBy === 'zone' ? ' rmt-unit-act' : ''),
+      has_unit: rows.length > 0, unit_cls: 'rmt-unit' + (listBy === 'zone' ? ' rmt-unit-act' : ''), unit_left: listBy === 'zone' ? 'Район и лучший сервис' : 'Сервис и лучший район',
       has_all: rest > 0, all_open: String(allOpen),
       all_label: allOpen ? 'Свернуть' : 'Ещё ' + rest + ' ' + restWord, all_cls: 'rmt-all-chev' + (allOpen ? ' rmt-all-open' : ''),
       toggle_all: () => flipSet({ all: !allOpen }),

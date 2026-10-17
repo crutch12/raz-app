@@ -51,6 +51,7 @@
     <span class="rrr-val">{{ value }}</span>
     <sc-if value="{{ has_chev }}" hint-placeholder-val="{{ false }}"><span class="rrr-chev raznos-row-chevron" aria-hidden="true">›</span></sc-if>
     <sc-if value="{{ is_route }}" hint-placeholder-val="{{ false }}"><a class="rrr-act" href="{{ href }}" target="_blank" rel="noopener" aria-label="{{ action_label }}" onClick="{{ stop }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8-8-2z"/></svg></a></sc-if>
+    <sc-if value="{{ is_route_btn }}" hint-placeholder-val="{{ false }}"><button type="button" class="rrr-act" onClick="{{ act_stop }}" aria-label="{{ action_label }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8-8-2z"/></svg></button></sc-if>
     <sc-if value="{{ is_connect }}" hint-placeholder-val="{{ false }}"><button type="button" class="rrr-act" onClick="{{ act }}" aria-label="{{ action_label }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></sc-if>
     <sc-if value="{{ is_done }}" hint-placeholder-val="{{ false }}"><span class="rrr-act rrr-act-done" aria-label="{{ action_label }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span></sc-if>
   </div>
@@ -60,7 +61,7 @@
 </div>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"rank":{"editor":"number","default":1},"svc":{"editor":"text","default":""},"title":{"editor":"text","default":"Пресненский"},"meta":{"editor":"text","default":"3,1 км"},"hot":{"editor":"boolean","default":false},"mine":{"editor":"boolean","default":false},"fill":{"editor":"number","default":100},"value":{"editor":"text","default":"760 ₽"},"action":{"editor":"text","default":"route"},"href":{"editor":"text","default":"#"},"actionLabel":{"editor":"text","default":""},"metaMine":{"editor":"boolean","default":false},"plain":{"editor":"boolean","default":false},"onAction":{"editor":null},"onTap":{"editor":null},"badge":{"editor":"text","default":""},"trend":{"editor":"number","default":0},"trendTail":{"editor":"text","default":"дохода в час за 4 недели"},"divider":{"editor":"boolean","default":false},"forecast":{"editor":"boolean","default":false},"animate":{"editor":"boolean","default":false},"$preview":{"width":358,"height":120}}'>
 // строка рейтинга: место, иконка сервиса, название, полоса от лучшего, значение, действие, выноска тренда
-// action: route (ссылка маршрута) | connect (кнопка +) | done (подключено) | пусто
+// action: route (ссылка маршрута по href, с onAction кнопка со стрелкой) | connect (кнопка +) | done (подключено) | пусто
 // forecast: полоса штрихом, animate: полоса плавно меняет длину
 // metaMine: галочка подключённого после подписи, когда подключён не сам заголовок, а сервис из подписи
 // rank 0 без номера, место под него остаётся, чтобы строка не прыгала; plain: одна строка без места и полосы, например под картой
@@ -85,12 +86,13 @@ class Component extends DCLogic {
       mine: !!p.mine && action !== 'done', has_meta: !!p.meta, meta: p.meta || '', hot: !!p.hot,
       fill_cls: 'rrr-fill' + (rank === 1 ? ' rrr-fill-top' : '') + (p.forecast ? ' rrr-fill-fc' : '') + (p.animate ? ' rrr-fill-anim' : ''), fill_style: 'width:' + fill + '%',
       value: p.value || '',
-      is_route: action === 'route', is_connect: action === 'connect', is_done: action === 'done',
+      is_route: action === 'route' && typeof p.onAction !== 'function', is_route_btn: action === 'route' && typeof p.onAction === 'function', is_connect: action === 'connect', is_done: action === 'done',
       href: p.href || '#', action_label: p.actionLabel || '',
       meta_mine: !!p.metaMine,
       // маршрут внутри нажимаемой строки не должен нажимать строку
       stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
       act: typeof p.onAction === 'function' ? p.onAction : (() => {}),
+      act_stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); if (typeof p.onAction === 'function') p.onAction(); },
       has_trend: trend !== 0, up: trend > 0, down: trend < 0,
       trend_cls: 'rrr-trend ' + (trend > 0 ? 'rrr-trend-up' : 'rrr-trend-down'),
       // если есть шаблоны, пишем предложением: Доход в час вырос на 13% за месяц

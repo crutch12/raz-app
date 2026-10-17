@@ -68,7 +68,7 @@
     </div>
     <div class="rhs-list">
       <sc-for list="{{ rows }}" as="z" hint-placeholder-count="8">
-        <dc-import name="RaznosRankRow" rank="{{ z.rank }}" title="{{ z.name }}" meta="{{ z.meta }}" fill="{{ z.fill }}" value="{{ z.val }}" action="{{ z.action }}" href="{{ z.routeHref }}" actionLabel="{{ z.routeAria }}" trend="{{ z.trend }}" trendUp="{{ z.trendUp }}" trendDown="{{ z.trendDown }}" trendTail="{{ z.trendTail }}" divider="{{ z.divider }}"></dc-import>
+        <dc-import name="RaznosRankRow" rank="{{ z.rank }}" title="{{ z.name }}" meta="{{ z.meta }}" fill="{{ z.fill }}" value="{{ z.val }}" action="{{ z.action }}" onAction="{{ z.toMap }}" actionLabel="{{ z.mapAria }}" trend="{{ z.trend }}" trendUp="{{ z.trendUp }}" trendDown="{{ z.trendDown }}" trendTail="{{ z.trendTail }}" divider="{{ z.divider }}"></dc-import>
       </sc-for>
       <sc-if value="{{ is_empty }}" hint-placeholder-val="{{ false }}"><p class="rhs-empty">В этих районах нет заказов выбранного сервиса</p></sc-if>
     </div>
@@ -163,6 +163,9 @@ class Component extends DCLogic {
         routeHref: 'https://yandex.ru/maps/?mode=routes&rtext=~' + encodeURIComponent(city + ', район ' + x.z.name),
         routeAria: 'Маршрут в район ' + x.z.name,
         action: 'route', divider: x !== list[list.length - 1],
+        // в списке стрелка открывает район на карте спроса, маршрут в Яндекс Картах в карточке района под картой
+        mapAria: 'Район ' + x.z.name + ' на карте спроса',
+        toMap: () => { set({ view: 'map', pick: x.z.k, pickName: '' }); const sc = typeof document !== 'undefined' && document.querySelector('.rhs-list'); const box = sc && sc.closest('.raznos-phone-scroll'); if (box) box.scrollTo({ top: 0 }); },
         trend: big ? x.z.trend : 0,
         trendTail: '· по курьерам Разноса', trendUp: 'Доход в час вырос на {n}% за месяц', trendDown: 'Доход в час упал на {n}% за месяц'
       });

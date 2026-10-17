@@ -530,7 +530,7 @@
             <dc-import name="RaznosUserHome" city="{{ uh_city }}" cityTitle="{{ uh_city_title }}" rates="{{ uh_market_rates }}" onCityChange="{{ uh_set_city }}" onNavigate="{{ uh_navigate }}"></dc-import>
           </sc-if>
           <sc-if value="{{ is_job_guide }}">
-            <dc-import name="RaznosJobGuide" city="{{ city }}" section="{{ guide_section }}" svc="{{ guide_svc }}" services="{{ guide_services }}" connected="{{ guide_connected }}" via="{{ guide_via }}" onOpenVia="{{ guide_open_via }}" onBack="{{ market_back }}" onOpenService="{{ guide_open_service }}" onSection="{{ guide_set_section }}" onSvc="{{ guide_set_svc }}" onRegister="{{ guide_register }}" onConnect="{{ guide_connect }}"></dc-import>
+            <dc-import name="RaznosJobGuide" city="{{ city }}" section="{{ guide_section }}" svc="{{ guide_svc }}" services="{{ guide_services }}" connected="{{ guide_connected }}" week="{{ guide_week }}" via="{{ guide_via }}" onOpenVia="{{ guide_open_via }}" onBack="{{ market_back }}" onOpenService="{{ guide_open_service }}" onSection="{{ guide_set_section }}" onSvc="{{ guide_set_svc }}" onRegister="{{ guide_register }}" onConnect="{{ guide_connect }}"></dc-import>
           </sc-if>
 
           <sc-if value="{{ is_tax_forms }}">
@@ -4236,7 +4236,7 @@
             const k = Math.max(0, Math.min(1, y / d.h));
             d.layer.style.backgroundColor = 'color-mix(in srgb, ' + d.bg + ' ' + Math.round((1 - k) * 100) + '%, transparent)';
           };
-          const start = (target, y, mouse) => {
+          const start = (target, x, y, mouse) => {
             const layers = Array.from(document.querySelectorAll('.raznos-dialog-layer')).filter((el) => el.getClientRects().length > 0);
             const layer = layers[layers.length - 1];
             if (!layer || !layer.contains(target)) return;
@@ -4245,17 +4245,21 @@
             // в поле ввода жест его, а не шторки; ищем только внутри шторки
             const field = target.closest('input, textarea, select, [contenteditable="true"]');
             if (field && sheet.contains(field)) return;
+            // ряды с прокруткой вбок, например варианты в помощнике, шторку не закрывают
+            const keep = target.closest('[data-no-swipe]');
+            if (keep && sheet.contains(keep)) return;
             // мышью тянем только за верх шторки, пальцем откуда угодно
             if (mouse && y - sheet.getBoundingClientRect().top > 40) return;
             // пока что-то внутри прокручено вниз, жест отдаём прокрутке
             for (let el = target; el && el !== layer; el = el.parentElement) { if (el.scrollTop > 0) return; }
-            drag = { layer, sheet, y0: y, dy: 0, on: false, mouse, h: sheet.offsetHeight, bg: getComputedStyle(layer).backgroundColor, samples: [] };
+            drag = { layer, sheet, x0: x, y0: y, dy: 0, on: false, mouse, h: sheet.offsetHeight, bg: getComputedStyle(layer).backgroundColor, samples: [] };
           };
-          const move = (y, e) => {
+          const move = (x, y, e) => {
             if (!drag) return;
             const dy = y - drag.y0;
             if (!drag.on) {
-              if (dy < -4) { drag = null; return; }
+              // жест больше вбок, чем вниз, отдаём прокрутке
+              if (dy < -4 || Math.abs(x - drag.x0) > Math.max(6, dy)) { drag = null; return; }
               if (dy < 6) return;
               drag.on = true;
               // анимация появления держит transform, на время жеста её снимаем
@@ -4308,12 +4312,12 @@
               setTimeout(() => { d.sheet.style.transition = ''; d.layer.style.transition = ''; }, 300);
             }
           };
-          document.addEventListener('touchstart', (e) => { if (e.touches.length === 1) start(e.target, e.touches[0].clientY, false); else { if (drag && drag.on) end(); drag = null; } }, { capture: true, passive: true });
-          document.addEventListener('touchmove', (e) => { if (drag && e.touches.length === 1) move(e.touches[0].clientY, e); }, { capture: true, passive: false });
+          document.addEventListener('touchstart', (e) => { if (e.touches.length === 1) start(e.target, e.touches[0].clientX, e.touches[0].clientY, false); else { if (drag && drag.on) end(); drag = null; } }, { capture: true, passive: true });
+          document.addEventListener('touchmove', (e) => { if (drag && e.touches.length === 1) move(e.touches[0].clientX, e.touches[0].clientY, e); }, { capture: true, passive: false });
           document.addEventListener('touchend', end, true);
           document.addEventListener('touchcancel', end, true);
-          document.addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse' && e.button === 0) start(e.target, e.clientY, true); }, true);
-          document.addEventListener('pointermove', (e) => { if (drag && drag.mouse) move(e.clientY, e); }, true);
+          document.addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse' && e.button === 0) start(e.target, e.clientX, e.clientY, true); }, true);
+          document.addEventListener('pointermove', (e) => { if (drag && drag.mouse) move(e.clientX, e.clientY, e); }, true);
           document.addEventListener('pointerup', () => { if (drag && drag.mouse) end(); }, true);
         }
         _bindEscClose() {
@@ -4557,8 +4561,8 @@
             const later = (ms) => { clearTimeout(layer.__later); layer.__later = setTimeout(() => this._tourPlace(), ms); };
             if (layer.__key !== key) {
               layer.__key = key; layer.__at = now; layer.__pos = ''; layer.__settled = !free; layer.__touched = false; layer.__scrollEnd = 0; layer.__again = 0;
-              // новый шаг на экране показываем сразу на месте, без переезда через весь экран
-              if (free) { hideTip(); tip.__placed = false; }
+              // новый шаг сразу прячем без затухания и показываем уже на новом месте, иначе новый текст мелькает на старом
+              tip.style.transition = 'none'; hideTip(); tip.__placed = false;
             }
             // видимая часть экрана: под липкой плашкой демо и над нижним меню
             const vis = () => {
@@ -4612,7 +4616,7 @@
             const below = free && roomA < h && (roomB >= h || roomB > roomA);
             let top = below ? tB + GAP : tT - GAP - h;
             if (free && roomA < h && roomB < h) top = Math.max(top0, Math.min(bot0 - h, top));
-            // первый показ сразу на месте, без переезда из угла; дальше между шагами плавно
+            // показ шага сразу на месте, без переезда; внутри шага плавно идёт за целью
             if (!tip.__placed) { tip.style.transition = 'none'; Object.assign(tip.style, { width: w + 'px', left: left + 'px', top: top + 'px' }); void tip.offsetWidth; tip.__placed = true; }
             // при прокрутке подсказка идёт за целью без запаздывания
             tip.style.transition = layer.__scrolling ? 'opacity .2s ease' : '';
@@ -7187,6 +7191,10 @@
             guide_section: st.guideSection || 'newbies',
             guide_svc: st.guideSvc || 'vkusvill',
             guide_services: Object.keys(SERVICES).map((k) => ({ key: k, title: SERVICES[k].title })),
+            // график из Плана, по дням с часами; не сохраняли, значит график по умолчанию Пн–Пт 9–18
+            guide_week: st.graphPerDay && st.graphWeek
+              ? st.graphWeek.map((w) => ({ on: !!(w && w.on), from: ((w && w.from) || 0) / 60, to: ((w && w.to) || 0) / 60 }))
+              : [0, 1, 2, 3, 4, 5, 6].map((i) => ({ on: st.graphDays ? !!st.graphDays[i] : i < 5, from: st.graphStart != null ? st.graphStart : 9, to: st.graphEnd != null ? st.graphEnd : 18 })),
             guide_connected: Object.keys(integrationStatus || {}).reduce((acc, k) => { if (integrationStatus[k] === 'connected' || integrationStatus[k] === 'limited') acc[k] = true; return acc; }, {}),
             guide_set_section: (t) => set({ guideSection: t }),
             guide_set_svc: (k) => set({ guideSvc: k }),

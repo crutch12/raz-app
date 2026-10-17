@@ -153,7 +153,7 @@
     </div>
     <div class="ras-foot">
       <sc-if value="{{ undo_shown }}" hint-placeholder-val="{{ false }}"><div class="ras-undo" role="status"><span>Начат новый разговор</span><button type="button" class="ras-undo-btn" onClick="{{ undo_tap }}">Вернуть</button></div></sc-if>
-      <sc-if value="{{ show_chips }}" hint-placeholder-val="{{ false }}"><div class="ras-chips"><sc-for list="{{ chips }}" as="ch" hint-placeholder-count="3"><button type="button" class="ras-chip" onClick="{{ ch.tap }}">{{ ch.text }}</button></sc-for></div></sc-if>
+      <sc-if value="{{ show_chips }}" hint-placeholder-val="{{ false }}"><div class="ras-chips" data-no-swipe="1"><sc-for list="{{ chips }}" as="ch" hint-placeholder-count="3"><button type="button" class="ras-chip" onClick="{{ ch.tap }}">{{ ch.text }}</button></sc-for></div></sc-if>
       <div class="ras-compose" style="{{ compose_style }}">
         <sc-if value="{{ listening }}" hint-placeholder-val="{{ false }}"><div class="ras-compose-row">
           <div class="ras-rec" role="status" aria-live="polite"><button type="button" class="ras-rec-x" onClick="{{ mic_cancel }}" aria-label="Отменить запись"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><textarea class="ras-rec-text" rows="1" readOnly="{{ true }}" value="{{ rec_text }}" onScroll="{{ rec_scroll }}" aria-label="Текст записи"></textarea><sc-if value="{{ rec_empty }}" hint-placeholder-val="{{ true }}"><span class="ras-rec-wait" aria-hidden="true"><i></i>Говорите…</span></sc-if></div>
