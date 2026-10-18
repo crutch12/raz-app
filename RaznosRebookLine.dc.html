@@ -65,6 +65,7 @@
     <li class="rrbk-item"><dc-import name="RaznosIcon" svc="{{ alt_svc }}" alt="{{ alt_title }}" size="sm"></dc-import><span class="rrbk-item-copy"><b>{{ alt_title }}</b><small>{{ alt_time }} · возьмёте</small></span><span class="rrbk-sum">{{ alt_sum }}</span></li>
     <li class="rrbk-item"><dc-import name="RaznosIcon" svc="{{ mine_svc }}" alt="{{ mine_title }}" size="sm"></dc-import><span class="rrbk-item-copy"><b>{{ mine_title }}</b><small>{{ mine_time }} · {{ mine_sub }}</small></span><span class="rrbk-sum">{{ mine_sum }}</span></li>
     <li class="rrbk-item"><span class="rrbk-pen-mark" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></span><span class="rrbk-item-copy"><b>{{ pen_label }}</b></span><span class="{{ pen_cls }}">{{ pen }}</span></li>
+    <sc-if value="{{ has_bonus }}" hint-placeholder-val="{{ false }}"><li class="rrbk-item"><span class="rrbk-pen-mark" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></span><span class="rrbk-item-copy"><b>{{ bonus_label }}</b></span><span class="rrbk-sum">{{ bonus_sum }}</span></li></sc-if>
   </ul>
   <sc-if value="{{ has_net }}" hint-placeholder-val="{{ true }}"><div class="{{ total_cls }}"><span>Итог</span><b>{{ net }}</b></div></sc-if>
   <ul class="rrbk-notes"><sc-for list="{{ notes }}" as="n" hint-placeholder-count="1"><li class="{{ n.cls }}">{{ n.text }}</li></sc-for></ul>
@@ -83,6 +84,7 @@
   "mineTime": { "editor": "text", "default": "17:00–21:00" },
   "mineSum": { "editor": "int", "default": 2400 },
   "penalty": { "editor": "int", "default": 600 },
+  "bonus": { "editor": "int", "default": 0 },
   "freeUntil": { "editor": "text", "default": "" },
   "other": { "editor": "text", "default": "" },
   "requested": { "editor": "bool", "default": false },
@@ -107,7 +109,9 @@ class Component extends DCLogic {
     const altSum = Number(v('altSum', 3200)), mineSum = Number(v('mineSum', 2400));
     const penalty = 'penalty' in p ? (p.penalty == null || p.penalty === '' ? null : Number(p.penalty)) : 600;
     const requested = !!p.requested, free = penalty === 0, known = penalty != null;
-    const net = known ? altSum - mineSum - penalty : null;
+    // бонус сервиса на брони пропадёт вместе с ней
+    const bonus = Number(v('bonus', 0)) || 0;
+    const net = known ? altSum - mineSum - penalty - bonus : null;
     const altTitle = v('altTitle', 'X5'), altTime = v('altTime', '17:30–23:00');
     // в заголовке, плашке и кнопке короткое имя: X5 вместо X5 Доставка
     const altShort = String(altTitle).replace(/\s+Доставка$/, '');
@@ -133,6 +137,7 @@ class Component extends DCLogic {
       // у заявки штрафа нет, её просто отзывают
       chip_sub: requested ? 'заявку отзовёте' : (free ? 'без штрафа за отмену' : 'даже со штрафом за отмену'),
       has_net: known, net: net == null ? '' : RRB_SIGNED(net), total_cls: 'rrbk-total' + (net > 0 ? ' rrbk-is-plus' : ''),
+      has_bonus: bonus > 0, bonus_label: 'Бонус ' + (RRB_GEN[mineSvc] || mineTitle), bonus_sum: RRB_SIGNED(-bonus),
       notes,
       has_acts: typeof p.onTake === 'function' || typeof p.onKeep === 'function',
       take_label: takeLabel, take_cls: 'raznos-btn ' + (keep ? 'raznos-btn-secondary' : 'raznos-btn-primary'), keep_cls: 'raznos-btn ' + (keep ? 'raznos-btn-primary' : 'raznos-btn-secondary'),

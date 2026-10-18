@@ -6,6 +6,8 @@
     .rth { gap: 0; cursor: pointer; text-align: left; }
     .rth:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 3px; }
     .rth-top { display: flex; flex-direction: column; gap: 6px; }
+    /* стрелка в углу: видно, что карточка открывает разбор дня */
+    .rth-go { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; color: color-mix(in oklab, var(--raznos-on-dark) 75%, transparent); pointer-events: none; }
     .rth-stats { font: 600 13px var(--raznos-mono); color: var(--raznos-on-dark); opacity: 0.88; margin-top: 2px; }
     .rth-pace { margin-top: 18px; gap: 8px; }
     .rth-legend { font: 500 13px var(--raznos-font); font-variant-numeric: tabular-nums; color: var(--raznos-on-dark); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 12px; }
@@ -38,6 +40,7 @@
   </style>
 </helmet>
 <div class="raznos-hero-dark raznos-hero-today rth" role="button" tabindex="0" onClick="{{ open }}" aria-label="{{ aria }}">
+  <span class="rth-go" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
   <div class="rth-top">
     <span class="raznos-hero-label">Начислено сегодня</span>
     <div class="raznos-fx raznos-ac raznos-gap8"><span class="raznos-hero-value" data-roll="today-earn">{{ earn_label }}</span><span class="raznos-hero-unit">₽</span></div>

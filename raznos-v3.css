@@ -769,6 +769,7 @@ button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: in
 .raznos-cmap-courier-x:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: -2px; }
 .raznos-cmap-courier-open { align-self: stretch; }
 .raznos-cmap-courier-note { margin: 0; font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-cmap-pin-text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
 .raznos-cmap-me { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 0; background: none; text-align: left; font: inherit; cursor: pointer; }
 .raznos-cmap-me-copy { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .raznos-cmap-me-copy > b { font: 650 14px var(--raznos-font); color: var(--raznos-ink); }

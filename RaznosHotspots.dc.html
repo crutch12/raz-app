@@ -70,14 +70,14 @@
       <sc-for list="{{ rows }}" as="z" hint-placeholder-count="8">
         <dc-import name="RaznosRankRow" rank="{{ z.rank }}" title="{{ z.name }}" meta="{{ z.meta }}" fill="{{ z.fill }}" value="{{ z.val }}" action="{{ z.action }}" onAction="{{ z.toMap }}" actionLabel="{{ z.mapAria }}" trend="{{ z.trend }}" trendUp="{{ z.trendUp }}" trendDown="{{ z.trendDown }}" trendTail="{{ z.trendTail }}" divider="{{ z.divider }}"></dc-import>
       </sc-for>
-      <sc-if value="{{ is_empty }}" hint-placeholder-val="{{ false }}"><p class="rhs-empty">В этих районах нет заказов выбранного сервиса</p></sc-if>
+      <sc-if value="{{ is_empty }}" hint-placeholder-val="{{ false }}"><p class="rhs-empty">{{ empty_text }}</p></sc-if>
     </div>
     </sc-if>
     <p class="raznos-text-tiny">{{ source_note }}</p>
     <sc-if value="{{ has_detail }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosMarketDetailLink" hint="Каждый час: где и в каком сервисе выгоднее" onOpen="{{ open_detail }}"></dc-import></sc-if>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"few":{"editor":"boolean","default":false},"mode":{"editor":"text","default":"card"},"open":{"editor":null},"onDetail":{"editor":null},"initialView":{"editor":"text","default":"list"},"initialPick":{"editor":"text","default":""},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"alertFind":{"editor":null},"onAlert":{"editor":null},"$preview":{"width":390,"height":330}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"tr":{"editor":null},"few":{"editor":"boolean","default":false},"mode":{"editor":"text","default":"card"},"open":{"editor":null},"onDetail":{"editor":null},"initialView":{"editor":"text","default":"list"},"initialPick":{"editor":"text","default":""},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"alertFind":{"editor":null},"onAlert":{"editor":null},"$preview":{"width":390,"height":330}}'>
 // где выгоднее по мотивам Gridwise Where to Work: районы по доходу, полоса от лучшего, тренд за 4 недели
 // один компонент на карточку хаба Работа и экран, чтобы цифры совпадали
 // районы те же, что в фильтре Когда выгоднее, демо
@@ -108,6 +108,9 @@ const RHS_TODS = [
   { k: 'night', label: 'Ночь', note: '22–24', i: 3 }
 ];
 const RHS_FMT = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const rhsPlural = (n, one, few, many) => (n % 10 === 1 && n % 100 !== 11) ? one : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? few : many);
+// один район это около 18% выборки города, как в Когда выгоднее
+const RHS_ZONE_SAMPLE = { couriers: 33, orders: 1120 };
 // выборка и период те же, что в Когда выгоднее и Сравнении сервисов: последние 4 недели до вчера
 const RHS_PERIOD = (() => {
   const mon = ['янв', 'февр', 'марта', 'апр', 'мая', 'июня', 'июля', 'авг', 'сент', 'окт', 'нояб', 'дек'];
@@ -130,20 +133,29 @@ class Component extends DCLogic {
     // районы посчитаны только для Москвы
     const hasData = p.hasData !== false && (p.cityKey || 'moscow') === 'moscow';
 
-    // доход в час по району с учётом фильтров, 0 если сервиса в районе нет
+    // транспорт общий для Рынка, множители и выборку даёт модель из приложения, без неё (превью в ДС) считаем по велосипеду
+    const tr = p.tr || null;
+    const perMul = tr ? tr.factor('').per : 1;
+    // выбранный сервис без такого транспорта или с малой выборкой: чисел нет
+    const svcTrNo = !!tr && cat.k !== 'all' && (!tr.svcOk(cat.k) || tr.svcFew(cat.k));
+    // доход в час по району с учётом фильтров и транспорта, 0 если сервиса в районе нет
     const valueOf = (z) => {
       const svc = cat.k === 'all' ? 1 : (z.svc[cat.k] || 0);
-      if (!svc) return 0;
+      if (!svc || svcTrNo) return 0;
       const wk = when.k === 'weekend' ? z.wk : (when.k === 'weekdays' ? (1 - (z.wk - 1) * 0.4) : 1);
       const td = tod.i == null ? 1 : z.tod[tod.i];
-      return Math.round(z.pay * svc * wk * td / 10) * 10;
+      return Math.round(z.pay * svc * wk * td * (tr ? tr.factor(z.k).pay : 1) / 10) * 10;
     };
-    const scored = RHS_ZONES.map((z) => ({ z, v: valueOf(z) })).filter((x) => x.v > 0);
+    // выборка района: пеших в центре хватает, на окраинах нет, у авто наоборот; при малой выборке числа нет
+    const zoneFew = (z) => !!tr && !tr.sample(RHS_ZONE_SAMPLE, z.k).ok;
+    const scoredAll = RHS_ZONES.map((z) => ({ z, v: valueOf(z), few: zoneFew(z) })).filter((x) => x.v > 0);
+    const scored = scoredAll.filter((x) => !x.few);
+    const fewZones = scoredAll.filter((x) => x.few);
     const byValue = scored.slice().sort((a, b) => b.v - a.v);
     byValue.forEach((x, i) => { x.rank = i + 1; });
     const max = byValue.length ? byValue[0].v : 1;
     const min = byValue.length ? byValue[byValue.length - 1].v : 0;
-    const shown = (v) => metric.k === 'pay' ? RHS_FMT(v) + ' ₽' : String(Math.round(v / 260 * 10) / 10).replace('.', ',');
+    const shown = (v) => metric.k === 'pay' ? RHS_FMT(v) + ' ₽' : String(Math.round(v / (260 * perMul) * 10) / 10).replace('.', ',');
     // полоса от минимума к лучшему, чтобы разница читалась
     const fillW = (v) => Math.round(18 + 82 * (max === min ? 1 : (v - min) / (max - min)));
     const rowOf = (x) => ({
@@ -154,15 +166,17 @@ class Component extends DCLogic {
     // экран: сортировка по доходу или по расстоянию, выноски трендов от 10%
     const nearFirst = st.sort === 'near';
     const list = nearFirst ? byValue.slice().sort((a, b) => a.z.km - b.z.km) : byValue;
+    // районы с малой выборкой транспорта в конце списка, без числа и места
+    const listAll = list.concat(nearFirst ? fewZones.slice().sort((a, b) => a.z.km - b.z.km) : fewZones);
     // выноска у тех, кто изменился на 10% и больше, тот же порог, что у стрелки на карте и плашки на главной
-    const rows = list.map((x) => {
-      const r = rowOf(x);
-      const big = Math.abs(x.z.trend) >= 10;
+    const rows = listAll.map((x) => {
+      const r = x.few ? Object.assign(rowOf({ z: x.z, rank: 0, v: 0 }), { val: '—', fill: 0 }) : rowOf(x);
+      const big = !x.few && Math.abs(x.z.trend) >= 10;
       return Object.assign(r, {
-        meta: rhsKm(x.z.km),
+        meta: rhsKm(x.z.km) + (x.few ? ' · ' + tr.fewText : ''),
         routeHref: 'https://yandex.ru/maps/?mode=routes&rtext=~' + encodeURIComponent(city + ', район ' + x.z.name),
         routeAria: 'Маршрут в район ' + x.z.name,
-        action: 'route', divider: x !== list[list.length - 1],
+        action: 'route', divider: x !== listAll[listAll.length - 1],
         // в списке стрелка открывает район на карте спроса, маршрут в Яндекс Картах в карточке района под картой
         mapAria: 'Район ' + x.z.name + ' на карте спроса',
         toMap: () => { set({ view: 'map', pick: x.z.k, pickName: '' }); const sc = typeof document !== 'undefined' && document.querySelector('.rhs-list'); const box = sc && sc.closest('.raznos-phone-scroll'); if (box) box.scrollTo({ top: 0 }); },
@@ -175,7 +189,9 @@ class Component extends DCLogic {
     const view = st.view || p.initialView || 'list';
     // пустая строка значит, что район на карте сняли
     const pickK = st.pick === '' ? '' : (st.pick || p.initialPick);
-    const pickX = pickK === '' ? null : (byValue.find((x) => x.z.k === pickK) || (st.pickName ? null : byValue[0]));
+    // район с малой выборкой транспорта: говорим об этом под картой, а не подменяем другим
+    const pickFew = pickK ? fewZones.find((x) => x.z.k === pickK) : null;
+    const pickX = pickK === '' || pickFew ? null : (byValue.find((x) => x.z.k === pickK) || (st.pickName ? null : byValue[0]));
     const pickRow = pickX ? { k: pickX.z.k, row: Object.assign(rows.find((r) => r.name === pickX.z.name) || rowOf(pickX), { trend: Math.abs(pickX.z.trend) >= 10 ? pickX.z.trend : 0, divider: false }) } : null;
     // карточка: топ-3 и район, который растёт быстрее всех вне топа
     const top = byValue.slice(0, 3);
@@ -186,6 +202,7 @@ class Component extends DCLogic {
 
     const optsOf = (l) => l.map((o) => ({ k: o.k, label: o.label, note: o.note }));
     const filters = [
+      ...(tr ? [tr.filter] : []),
       { key: 'when', title: 'Когда', value: when.k, def: 'week', options: optsOf(RHS_WHEN) },
       { key: 'tod', title: 'Время суток', value: tod.k, def: 'all', options: optsOf(RHS_TODS) },
       { key: 'metric', title: 'Показатель', value: metric.k, def: 'pay', options: optsOf(RHS_METRICS) },
@@ -195,10 +212,10 @@ class Component extends DCLogic {
     return {
       no_data: !hasData, no_data_title: p.few ? 'Мало данных по городу' : 'Нет данных по городу ' + city, no_data_text: p.few ? 'Цифры появятся, когда в городе будет больше заказов' : 'Рейтинга районов для этого города пока нет, районы других городов не показываем',
       is_card: !full && hasData, is_full: full && hasData,
-      card_sub: city + ' · ₽ в час · район за всю неделю',
+      card_sub: city + ' · ₽ в час' + (tr ? ' ' + tr.forText : '') + ' · район за всю неделю',
       // растущий район отделяем чертой от топа
       card_rows: top.map((x) => rowOf(x)).concat(rising ? [rising] : []).map((r, i) => Object.assign(r, { tap: () => open({ view: 'map', pick: (byValue.find((x) => x.z.name === r.name) || {}).z.k }), divider: false })),
-      more_label: (() => { const n = Math.max(0, byValue.length - 3 - (rising ? 1 : 0)); const w = (n % 10 === 1 && n % 100 !== 11) ? 'район' : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'района' : 'районов'); return 'Ещё ' + n + ' ' + w; })(),
+      more_label: (() => { const n = Math.max(0, byValue.length + fewZones.length - 3 - (rising ? 1 : 0)); const w = (n % 10 === 1 && n % 100 !== 11) ? 'район' : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'района' : 'районов'); return 'Ещё ' + n + ' ' + w; })(),
       open_more: () => open({ view: 'list' }),
       has_detail: typeof p.onDetail === 'function',
       // в По часам переезжают выбранный на карте район, время суток и сервис
@@ -207,19 +224,19 @@ class Component extends DCLogic {
       seg_rank_cls: 'raznos-segment' + (!nearFirst ? ' raznos-is-active' : ''),
       seg_near_cls: 'raznos-segment' + (nearFirst ? ' raznos-is-active' : ''),
       sort_rank: () => set({ sort: 'rank' }), sort_near: () => set({ sort: 'near' }),
-      filters, on_filter: (key, k) => set({ [key]: k }),
-      rows, is_empty: rows.length === 0,
+      filters, on_filter: (key, k) => (key === 'mkTransport' && tr ? tr.set(k) : set({ [key]: k })),
+      rows, is_empty: rows.length === 0, empty_text: svcTrNo ? 'Мало данных ' + tr.forText + ' по сервису ' + cat.label + ', выберите другой транспорт или сервис' : 'В этих районах нет заказов выбранного сервиса',
       // карта: те же районы и цифры, что в списке, цвет от худшего к лучшему
       is_map: view === 'map', is_list: view !== 'map',
       view_list_cls: 'raznos-segment' + (view !== 'map' ? ' raznos-is-active' : ''), view_map_cls: 'raznos-segment' + (view === 'map' ? ' raznos-is-active' : ''),
       view_list: () => set({ view: 'list' }), view_map: () => set({ view: 'map' }),
       map_zones: RHS_ZONES.map((z) => {
         const x = scored.find((y) => y.z === z);
-        return { k: z.k, name: z.name, val: x ? shown(x.v) + (metric.k === 'pay' ? '/ч' : '') : 'нет заказов', t: x ? (max === min ? 1 : (x.v - min) / (max - min)) : null, up: !!x && z.trend >= 10, top: !!x && x.rank === 1, sel: pickRow && pickRow.k === z.k, tap: () => set({ pick: z.k }) };
+        return { k: z.k, name: z.name, val: x ? shown(x.v) + (metric.k === 'pay' ? '/ч' : '') : (fewZones.some((f) => f.z === z) ? 'мало данных' : 'нет заказов'), t: x ? (max === min ? 1 : (x.v - min) / (max - min)) : null, up: !!x && z.trend >= 10, top: !!x && x.rank === 1, sel: pickRow && pickRow.k === z.k, tap: () => set({ pick: z.k }) };
       }),
       map_sel: pickRow ? pickRow.k : (st.pickName ? pickK : ''), map_pick: (k, info) => set({ pick: k || '', pickName: info && info.name ? info.name : '' }),
       // выбрали район без цифр: говорим об этом под картой, а не подменяем другим районом
-      pick_none: !pickRow && !!st.pickName && !!pickK, pick_none_text: (st.pickName || '') + ': нет данных по району с этими фильтрами',
+      pick_none: (!pickRow && !!st.pickName && !!pickK) || !!pickFew, pick_none_text: pickFew ? pickFew.z.name + ': ' + tr.fewText : (st.pickName || '') + ': нет данных по району с этими фильтрами',
       // час для сот и подпись на карте из фильтра Время суток
       map_hour: ({ morning: 10, day: 14, evening: 19, night: 23 })[tod.k] || 12, map_chip: tod.k === 'all' ? '' : tod.label + ' ' + tod.note,
       has_pick: !!pickRow, pick: pickRow ? pickRow.row : {},
@@ -234,7 +251,7 @@ class Component extends DCLogic {
           alert_tap: () => { if (has) p.onAlert(pre); }
         };
       })(),
-      source_note: 'Обычный доход в час, ' + city + ' · 184 курьера Разноса · 6 240 заказов · ' + RHS_PERIOD + '. Расстояние считаем от вашего района'
+      source_note: (() => { const s = tr ? tr.sample({ couriers: 184, orders: 6240 }) : { couriers: 184, orders: 6240 }; return 'Обычный доход в час' + (tr ? ' ' + tr.forText : '') + ', ' + city + ' · ' + s.couriers + ' ' + rhsPlural(s.couriers, 'курьер', 'курьера', 'курьеров') + ' Разноса · ' + RHS_FMT(s.orders) + ' ' + rhsPlural(s.orders, 'заказ', 'заказа', 'заказов') + ' · ' + RHS_PERIOD + '. Расстояние считаем от вашего района'; })()
     };
   }
 }

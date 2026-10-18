@@ -12,6 +12,7 @@
     <div class="{{ grid_class }}">
       <sc-if value="{{ earn_visible }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-stats-summary-cell" onClick="{{ on_earn }}"><span class="raznos-stats-summary-number">{{ earn_label }}</span><span class="raznos-stats-summary-note">Начислено</span></button></sc-if>
       <sc-if value="{{ fines_visible }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-stats-summary-cell raznos-is-fines" onClick="{{ on_fines }}"><span class="raznos-stats-summary-number">{{ fines_label }}</span><span class="raznos-stats-summary-note">Удержано</span></button></sc-if>
+      <sc-if value="{{ cash_visible }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-stats-summary-cell raznos-is-cash" onClick="{{ on_cash }}"><span class="raznos-stats-summary-number">{{ cash_label }}</span><span class="raznos-stats-summary-note">Наличные</span></button></sc-if>
       <button type="button" class="raznos-stats-summary-cell" onClick="{{ on_expenses }}"><span class="{{ expenses_class }}">{{ expenses_label }}</span><span class="raznos-stats-summary-note">{{ expenses_note }}</span></button>
       <button type="button" class="raznos-stats-summary-cell" onClick="{{ on_hours }}"><span class="{{ hours_class }}">{{ hours_label }}</span><span class="raznos-stats-summary-note">На линии</span></button>
     </div>
@@ -34,7 +35,7 @@
     </sc-if>
   </div>
 </section>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"headline":{"editor":"text","default":"Центр дал половину дохода"},"mainLabel":{"editor":"text","default":"Осталось после расходов"},"mainValue":{"editor":"text","default":"7 400 ₽"},"netKnown":{"editor":"boolean","default":true},"statusLabel":{"editor":"text","default":"Период идёт"},"delta":{"editor":null},"prevWord":{"editor":"text","default":"чем на прошлой неделе"},"earnLabel":{"editor":"text","default":"8 000 ₽"},"finesLabel":{"editor":"text","default":""},"onEarn":{"editor":null},"onFines":{"editor":null},"onExpenses":{"editor":null},"onHours":{"editor":null},"expensesLabel":{"editor":"text","default":"600 ₽"},"expensesPartial":{"editor":"boolean","default":false},"hoursLabel":{"editor":"text","default":"11,5 ч"},"ordersLabel":{"editor":"text","default":"30"},"goalTitle":{"editor":"text","default":"Цель недели"},"goalFact":{"editor":null},"goalTotal":{"editor":null},"goalPace":{"editor":null},"goalNote":{"editor":"text","default":""},"chart":{"editor":null},"chartMode":{"editor":"text","default":"week"},"chartMonth":{"editor":"text","default":""},"$preview":{"width":360,"height":620}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"headline":{"editor":"text","default":"Центр дал половину дохода"},"mainLabel":{"editor":"text","default":"Осталось после расходов"},"mainValue":{"editor":"text","default":"7 400 ₽"},"netKnown":{"editor":"boolean","default":true},"statusLabel":{"editor":"text","default":"Период идёт"},"delta":{"editor":null},"prevWord":{"editor":"text","default":"чем на прошлой неделе"},"earnLabel":{"editor":"text","default":"8 000 ₽"},"finesLabel":{"editor":"text","default":""},"cashLabel":{"editor":"text","default":""},"onCash":{"editor":null},"onEarn":{"editor":null},"onFines":{"editor":null},"onExpenses":{"editor":null},"onHours":{"editor":null},"expensesLabel":{"editor":"text","default":"600 ₽"},"expensesPartial":{"editor":"boolean","default":false},"hoursLabel":{"editor":"text","default":"11,5 ч"},"ordersLabel":{"editor":"text","default":"30"},"goalTitle":{"editor":"text","default":"Цель недели"},"goalFact":{"editor":null},"goalTotal":{"editor":null},"goalPace":{"editor":null},"goalNote":{"editor":"text","default":""},"chart":{"editor":null},"chartMode":{"editor":"text","default":"week"},"chartMonth":{"editor":"text","default":""},"$preview":{"width":360,"height":620}}'>
 const RSS_FMT = (value) => String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const RSS_PLURAL = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; };
 const RSS_DAY = { 'Пн': 'в понедельник', 'Вт': 'во вторник', 'Ср': 'в среду', 'Чт': 'в четверг', 'Пт': 'в пятницу', 'Сб': 'в субботу', 'Вс': 'в воскресенье' };
@@ -78,9 +79,10 @@ class Component extends DCLogic {
     const bestName = !best ? '' : (chartMode === 'year' ? (RSS_MONTH[best.label] || best.label) : (chartMode === 'month' || chartMode === 'long' ? rssSpan(best.label, p.chartMonth) : (RSS_DAY[best.label] || best.label)));
     const expensesKnown = /\d/.test(String(p.expensesLabel || ''));
     const finesShown = /[1-9]/.test(String(p.finesLabel || ''));
+    const cashShown = /[1-9]/.test(String(p.cashLabel || ''));
     const fn = (cb) => (typeof cb === 'function' ? cb : RSS_NOOP);
     return {
-      on_earn: fn(p.onEarn), on_fines: fn(p.onFines), on_expenses: fn(p.onExpenses), on_hours: fn(p.onHours),
+      on_earn: fn(p.onEarn), on_cash: fn(p.onCash), on_fines: fn(p.onFines), on_expenses: fn(p.onExpenses), on_hours: fn(p.onHours),
       headline, headline_visible: headline !== '',
       status_visible: !!p.statusLabel, status_label: p.statusLabel || '',
       status_class: 'raznos-stats-recap-status' + (/идёт/.test(p.statusLabel || '') ? ' raznos-is-live' : ''),
@@ -94,7 +96,9 @@ class Component extends DCLogic {
       // когда главная сумма и есть начисленное, колонку не повторяем
       earn_visible: netKnown, earn_label: p.earnLabel || 'Нет данных',
       fines_visible: finesShown, fines_label: finesShown ? '−' + p.finesLabel : '',
-      grid_class: 'raznos-stats-summary-grid' + (finesShown && netKnown ? ' raznos-has-fines' : ''),
+      // наличные чаевые входят в чистые, поэтому стоят в сводке отдельной ячейкой
+      cash_visible: cashShown && netKnown, cash_label: cashShown ? '+' + p.cashLabel : '',
+      grid_class: 'raznos-stats-summary-grid' + (finesShown && netKnown ? ' raznos-has-fines' : '') + (cashShown && netKnown ? ' raznos-has-cash' : ''),
       expenses_label: expensesKnown ? '−' + p.expensesLabel : 'Нет данных',
       expenses_note: p.expensesPartial && expensesKnown ? 'Внесено расходов' : 'Расходы',
       expenses_class: 'raznos-stats-summary-number' + (expensesKnown ? '' : ' raznos-is-unknown'),

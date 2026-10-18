@@ -53,7 +53,7 @@
     <sc-if value="{{ has_detail }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosMarketDetailLink" hint="Каждый час: где и в каком сервисе выгоднее" onOpen="{{ open_detail }}"></dc-import></sc-if>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"few":{"editor":"boolean","default":false},"mode":{"editor":"text","default":"card"},"open":{"editor":null},"onDetail":{"editor":null},"connected":{"editor":null},"onConnect":{"editor":null},"onOpenService":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"$preview":{"width":390,"height":340}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"tr":{"editor":null},"few":{"editor":"boolean","default":false},"mode":{"editor":"text","default":"card"},"open":{"editor":null},"onDetail":{"editor":null},"connected":{"editor":null},"onConnect":{"editor":null},"onOpenService":{"editor":null},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"$preview":{"width":390,"height":340}}'>
 // сравнение сервисов по мотивам Gridwise Compare Companies и Solo Jobs: доход по сервисам города, тренд, горячие дни
 // hot: индексы дней Пн=0, tod: утро, день, вечер, ночь, демо
 const RSR_SERVICES = [
@@ -113,21 +113,30 @@ class Component extends DCLogic {
     const connected = Array.isArray(p.connected) ? p.connected : ['vkusvill', 'samokat'];
     const isMine = (k) => connected.indexOf(k) !== -1;
 
-    // доход в час с учётом фильтров, из него считаем показатель
+    // транспорт общий для Рынка, множители и выборку даёт модель из приложения, без неё (превью в ДС) считаем по велосипеду
+    const tr = p.tr || null;
+    const trF = tr ? tr.factor('') : { pay: 1, per: 1, ord: 1 };
+    // свой доход показываем, пока смотрим на свой транспорт: у другого транспорта он был бы чужим
+    const ownTr = !tr || tr.k === tr.def;
+
+    // доход в час с учётом фильтров и транспорта, из него считаем показатель
     const payOf = (x) => {
       const wk = when.k === 'weekend' ? x.wk : (when.k === 'weekdays' ? (1 - (x.wk - 1) * 0.4) : 1);
       const td = tod.i == null ? 1 : x.tod[tod.i];
-      return Math.round(x.pay * wk * td * cityMul / 10) * 10;
+      return Math.round(x.pay * wk * td * cityMul * trF.pay / 10) * 10;
     };
     const metricOf = (x) => {
       const pay = payOf(x);
-      if (metric.k === 'per') return Math.round(x.per / 10) * 10;
-      if (metric.k === 'ord') return Math.round(pay / x.per * 10) / 10;
+      if (metric.k === 'per') return Math.round(x.per * trF.per / 10) * 10;
+      if (metric.k === 'ord') return Math.round(pay / (x.per * trF.per) * 10) / 10;
       return pay;
     };
     const shown = (v) => metric.k === 'ord' ? String(v).replace('.', ',') : RSR_FMT(v) + ' ₽';
 
-    const scored = RSR_SERVICES.filter((x) => cat.k === 'all' || x.cat === cat.k).map((x) => ({ x, v: metricOf(x), pay: payOf(x) }));
+    // сервисы, где такого транспорта нет, скрываем, где мало курьеров этого транспорта, показываем без числа в конце
+    const inScope = RSR_SERVICES.filter((x) => (cat.k === 'all' || x.cat === cat.k) && (!tr || tr.svcOk(x.k)));
+    const scored = inScope.filter((x) => !tr || !tr.svcFew(x.k)).map((x) => ({ x, v: metricOf(x), pay: payOf(x) }));
+    const fewList = inScope.filter((x) => tr && tr.svcFew(x.k)).map((x) => ({ x, v: 0, pay: 0, rank: 0, few: true }));
     const byValue = scored.slice().sort((a, b) => b.v - a.v);
     byValue.forEach((r, i) => { r.rank = i + 1; });
     const max = byValue.length ? byValue[0].v : 1;
@@ -144,16 +153,18 @@ class Component extends DCLogic {
     const upR = byValue.filter((r) => r.x.trend >= 10).sort((a, b) => b.x.trend - a.x.trend)[0];
     const downR = byValue.filter((r) => r.x.trend <= -10).sort((a, b) => a.x.trend - b.x.trend)[0];
     const onlyMine = st.show === 'mine';
-    const list = onlyMine ? byValue.filter((r) => isMine(r.x.k)) : byValue;
+    // сервисы с малой выборкой транспорта в конце, без числа и места
+    const list = (onlyMine ? byValue.filter((r) => isMine(r.x.k)) : byValue).concat(onlyMine ? fewList.filter((r) => isMine(r.x.k)) : fewList);
     const onConnect = typeof p.onConnect === 'function' ? p.onConnect : (() => {});
     const rows = list.map((r, i) => {
       const mine = isMine(r.x.k);
       const days = r.x.hot.map((d) => RSR_DAYS[d]).join(', ');
       // для подключённых показываем свой доход, демо чуть ниже среднего по городу
       const own = Math.round(r.pay * 0.94 / 10) * 10;
-      return Object.assign(rowOf(r), {
-        meta: mine ? ('у вас ≈ ' + RSR_FMT(own) + ' ₽/ч') : days,
-        hot: !mine,
+      const showOwn = mine && ownTr && !r.few;
+      return Object.assign(rowOf(r), r.few ? { val: '—', fill: 0 } : {}, {
+        meta: r.few ? tr.fewText : (showOwn ? ('у вас ≈ ' + RSR_FMT(own) + ' ₽/ч') : days),
+        hot: !showOwn && !r.few,
         action: mine ? 'done' : 'connect',
         actionLabel: mine ? r.x.name + ' подключён' : 'Подключить ' + r.x.name,
         connect: () => onConnect(r.x.k),
@@ -170,10 +181,11 @@ class Component extends DCLogic {
     const cardRows = top.map((r) => rowOf(r));
     if (risingR) cardRows.push(Object.assign(rowOf(risingR), { rank: 0, badge: 'растёт на ' + risingR.x.trend + '% за месяц' }));
     cardRows.forEach((c) => { c.tap = () => openService(c.svc); });
-    const rest = Math.max(0, byValue.length - cardRows.length);
+    const rest = Math.max(0, byValue.length + fewList.length - cardRows.length);
 
     const optsOf = (l) => l.map((o) => ({ k: o.k, label: o.label, note: o.note }));
     const filters = [
+      ...(tr ? [tr.filter] : []),
       { key: 'metric', title: 'Показатель', value: metric.k, def: 'pay', options: optsOf(RSR_METRICS) },
       { key: 'cat', title: 'Тип заказов', value: cat.k, def: 'all', options: optsOf(RSR_CATS) },
       { key: 'when', title: 'Когда', value: when.k, def: 'week', options: optsOf(RSR_WHEN) },
@@ -185,7 +197,7 @@ class Component extends DCLogic {
     return {
       no_data: !hasData, no_data_title: p.few ? 'Мало данных по городу' : 'Нет данных по городу ' + city, no_data_text: p.few ? 'Цифры появятся, когда в городе будет больше заказов' : 'Сравнения для этого города пока нет, цифры других городов не показываем',
       is_card: !full && hasData, is_full: full && hasData,
-      card_sub: city + ' · ₽ в час · вся неделя',
+      card_sub: city + ' · ₽ в час' + (tr ? ' ' + tr.forText : '') + ' · вся неделя',
       card_rows: cardRows,
       more_label: 'Ещё ' + rest + ' ' + rsrPlural(rest, 'сервис', 'сервиса', 'сервисов'),
       open_more: () => open(),
@@ -196,10 +208,10 @@ class Component extends DCLogic {
       seg_mine_cls: 'raznos-segment' + (onlyMine ? ' raznos-is-active' : ''),
       mine_label: 'Мои сервисы' + (mineCount ? ' · ' + mineCount : ''),
       pick_all: () => set({ show: 'all' }), pick_mine: () => set({ show: 'mine' }),
-      filters, on_filter: (key, k) => set({ [key]: k }),
+      filters, on_filter: (key, k) => (key === 'mkTransport' && tr ? tr.set(k) : set({ [key]: k })),
       rows, is_empty: rows.length === 0,
       empty_text: onlyMine ? 'Среди этих сервисов нет подключённых. Нажмите + у сервиса, чтобы подключить' : 'Нет сервисов с такими заказами',
-      source_note: (() => { const m = RSR_SAMPLE[cityKey] || RSR_SAMPLE.moscow; return 'Обычный доход в час, ' + city + ' · ' + m.couriers + ' ' + rsrPlural(m.couriers, 'курьер', 'курьера', 'курьеров') + ' · ' + RSR_FMT(m.orders) + ' ' + rsrPlural(m.orders, 'заказ', 'заказа', 'заказов') + ' · ' + RSR_PERIOD + '. Горячие дни это дни с самым высоким доходом. Через парк доход ниже на комиссию посредника, это касается Яндекса'; })()
+      source_note: (() => { const m0 = RSR_SAMPLE[cityKey] || RSR_SAMPLE.moscow, m = tr ? tr.sample(m0) : m0; return 'Обычный доход в час' + (tr ? ' ' + tr.forText : '') + ', ' + city + ' · ' + m.couriers + ' ' + rsrPlural(m.couriers, 'курьер', 'курьера', 'курьеров') + ' · ' + RSR_FMT(m.orders) + ' ' + rsrPlural(m.orders, 'заказ', 'заказа', 'заказов') + ' · ' + RSR_PERIOD + '. Горячие дни это дни с самым высоким доходом. Через парк доход ниже на комиссию посредника, это касается Яндекса'; })()
     };
   }
 }

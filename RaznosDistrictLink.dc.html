@@ -13,13 +13,15 @@
 <sc-if value="{{ has_area }}" hint-placeholder-val="{{ true }}">
   <button type="button" class="rdl-row" onClick="{{ open }}" aria-label="{{ aria }}">
     <span class="rdl-pin" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg></span>
-    <span class="rdl-text"><b>{{ name }}</b> · <span>на карте</span></span>
+    <span class="rdl-text"><b>{{ name }}</b> · {{ km }} · <span>на карте</span></span>
     <span class="raznos-row-chevron" aria-hidden="true">›</span>
   </button>
 </sc-if>
 </x-dc><script type="text/x-dc" data-dc-script data-props='{"place":{"editor":"text","default":"Даркстор Беговая, 7"},"svc":{"editor":"text","default":"samokat"},"onOpen":{"editor":null},"$preview":{"width":358,"height":60}}'>
 // строка района слота или окна плана: по месту работы находим район города и точку даркстора, открывает карту района
 // сервисы границ зон не отдают, поэтому даркстор рисуем кругом примерного радиуса, свободный выход только районом
+// расстояние от курьера до района, те же цифры, что в Где выгоднее
+const RDL_KM = { tverskoy: 4.6, presnya: 3.1, begovoy: 2.7, khoroshevsky: 3.8, savelovsky: 3.3 };
 const RDL_PLACES = [
   { re: /Беговая, 7/, k: 'begovoy', name: 'Беговой', at: [37.55578, 55.7781], r: 2000 },
   { re: /Локация Беговая/, k: 'begovoy', name: 'Беговой', at: [37.553, 55.777], r: 3000 },
@@ -28,7 +30,7 @@ const RDL_PLACES = [
   { re: /Нижней Масловке/, k: 'savelovsky', name: 'Савёловский', at: [37.57917, 55.79297], r: 2000 },
   { re: /Нижняя Масловка, 3/, k: 'begovoy', name: 'Беговой', at: [37.58548, 55.79161], r: 1500 },
   { re: /Ленинградский пр-т, 15/, k: 'begovoy', name: 'Беговой', at: [37.5795, 55.783], r: 1500 },
-  { re: /^Центр$|Тверская|Белорусская/, k: 'tverskoy', name: 'Тверской' },
+  { re: /^(Центр|Тверской)$|Тверская|Белорусская/, k: 'tverskoy', name: 'Тверской' },
   { re: /Баррикадная/, k: 'presnya', name: 'Пресненский' }
 ];
 class Component extends DCLogic {
@@ -39,7 +41,7 @@ class Component extends DCLogic {
     const on = !!hit && typeof p.onOpen === 'function';
     return {
       has_area: !!hit && (on || p.onOpen === undefined),
-      name: hit ? hit.name : '', aria: hit ? 'Район ' + hit.name + ' на карте' : '',
+      name: hit ? hit.name : '', km: hit && RDL_KM[hit.k] ? String(RDL_KM[hit.k]).replace('.', ',') + ' км' : '', aria: hit ? 'Район ' + hit.name + ' на карте' : '',
       // зона: точка и радиус, если знаем даркстор, иначе только район
       open: () => { if (on) p.onOpen({ k: hit.k, name: hit.name, place, svc: p.svc || '', center: hit.at || null, radius_m: hit.r || 0 }); }
     };

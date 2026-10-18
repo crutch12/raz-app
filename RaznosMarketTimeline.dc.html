@@ -217,6 +217,14 @@
       <div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="Что показать" onClick="{{ close_sheet }}">
         <div class="raznos-dialog rmt-sheet" onClick="{{ stop }}">
           <span class="raznos-text-h3">Что показать</span>
+          <sc-if value="{{ has_tr }}" hint-placeholder-val="{{ true }}">
+            <span class="rmt-sec">Транспорт</span>
+            <div>
+              <sc-for list="{{ tr_opts }}" as="o" hint-placeholder-count="3">
+                <button type="button" class="rmt-opt" onClick="{{ o.tap }}" aria-pressed="{{ o.on }}"><span class="rmt-opt-main"><span>{{ o.label }}</span><span class="rmt-opt-note">{{ o.note }}</span></span><span class="{{ o.check }}">{{ o.mark }}</span></button>
+              </sc-for>
+            </div>
+          </sc-if>
           <span class="rmt-sec">Сервисы</span>
           <div>
             <sc-for list="{{ svc_opts }}" as="o" hint-placeholder-count="3">
@@ -251,7 +259,7 @@
     </sc-if>
   </div>
 </sc-if>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"card"},"myRate":{"editor":"number","default":0},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"few":{"editor":"boolean","default":false},"connected":{"editor":null},"weather":{"editor":null},"slots":{"editor":null},"initialDay":{"editor":"number","default":0},"initialHour":{"editor":"number"},"initialBy":{"editor":"text","default":"zone"},"initialScope":{"editor":"text","default":"all"},"initialView":{"editor":"text","default":"list"},"initialZones":{"editor":null},"initialPick":{"editor":"text","default":""},"initialTod":{"editor":"text","default":""},"open":{"editor":null},"onBack":{"editor":null},"onSlots":{"editor":null},"onMyDay":{"editor":null},"alertFind":{"editor":null},"onAlert":{"editor":null},"$preview":{"width":390,"height":360}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"tr":{"editor":null},"mode":{"editor":"text","default":"card"},"myRate":{"editor":"number","default":0},"cityTitle":{"editor":"text","default":"Москва"},"cityKey":{"editor":"text","default":"moscow"},"hasData":{"editor":"boolean","default":true},"few":{"editor":"boolean","default":false},"connected":{"editor":null},"weather":{"editor":null},"slots":{"editor":null},"initialDay":{"editor":"number","default":0},"initialHour":{"editor":"number"},"initialBy":{"editor":"text","default":"zone"},"initialScope":{"editor":"text","default":"all"},"initialView":{"editor":"text","default":"list"},"initialZones":{"editor":null},"initialPick":{"editor":"text","default":""},"initialTod":{"editor":"text","default":""},"open":{"editor":null},"onBack":{"editor":null},"onSlots":{"editor":null},"onMyDay":{"editor":null},"alertFind":{"editor":null},"onAlert":{"editor":null},"$preview":{"width":390,"height":360}}'>
 // таймлайн выгодности: когда и где выгоднее сейчас, в прошлые дни и по прогнозу
 // одна модель час × день × сервис × район, районы и сервисы те же, что в Где выгоднее, основа та же, что в Когда выгоднее
 // mode card: карточка, в приложении не используется; mode full: полная версия Подробно по часам, входы из простых экранов Рынка
@@ -290,6 +298,8 @@ const RMT_ZONES = [
 ];
 // быстрый пункт фильтра Рядом со мной
 const RMT_NEAR_KM = 3.5;
+// один район это около 18% выборки города, как в Когда выгоднее
+const RMT_ZONE_SAMPLE = { couriers: 33, orders: 1120 };
 // время суток из фильтра Где выгоднее
 const RMT_TOD = { morning: [8, 12], day: [12, 17], evening: [17, 22], night: [22, 24] };
 // в среднем как в Когда выгоднее: те же множители района и сервиса, если выбран один
@@ -358,6 +368,14 @@ class Component extends DCLogic {
       };
     }
     const hasZones = city.zones;
+    // транспорт общий для Рынка, множители и выборку даёт модель из приложения, без неё (превью в ДС) считаем по велосипеду
+    const tr = p.tr || null;
+    // свои часы сравниваем с рынком только на своём транспорте, у другого сравнение было бы чужим
+    const ownTr = !tr || tr.k === tr.def;
+    // район с малой выборкой транспорта: числа нет, в списки не попадает
+    const zoneFew = (z) => !!tr && !!z && !tr.sample(RMT_ZONE_SAMPLE, z.k).ok;
+    // сервис, где такого транспорта нет или мало
+    const svcTrOk = (k) => !tr || (tr.svcOk(k) && !tr.svcFew(k));
     const connected = Array.isArray(p.connected) ? p.connected : ['vkusvill', 'samokat'];
     const isMine = (k) => connected.indexOf(k) !== -1;
     const hasMine = RMT_SVC.some((s) => isMine(s.k));
@@ -391,7 +409,7 @@ class Component extends DCLogic {
       const dow = (rmtDate(d).getDay() + 6) % 7;
       const w = wx.find((x) => x.day === d && h >= x.from && h < x.to);
       const n = 0.95 + rmtHash(d + 9, h, RMT_SVC.indexOf(s) * 7 + (z ? RMT_ZONES.indexOf(z) : 0)) * 0.1;
-      return RMT_BASE[h] * RMT_SCALE * RMT_DAY_MUL[dow] * city.mul * s.mul[b] * zf2 * (w ? w.k : 1) * n;
+      return RMT_BASE[h] * RMT_SCALE * RMT_DAY_MUL[dow] * city.mul * s.mul[b] * zf2 * (w ? w.k : 1) * n * (tr ? tr.factor(z ? z.k : '').pay : 1);
     };
     // все пары сервис и район в этот час, от лучшей, первая пара это лидер часа и в шапке, и в списке
     const options = (d, H) => {
@@ -399,7 +417,7 @@ class Component extends DCLogic {
       const key = dd + ':' + hh;
       if (cache[key]) return cache[key];
       const out = [];
-      svcs.forEach((s) => { zones.forEach((z) => { const v = pay(dd, hh, s, z); if (v > 0) out.push({ s, z, v }); }); });
+      svcs.forEach((s) => { if (!svcTrOk(s.k)) return; zones.forEach((z) => { if (zoneFew(z)) return; const v = pay(dd, hh, s, z); if (v > 0) out.push({ s, z, v }); }); });
       out.sort((a, b) => b.v - a.v);
       return (cache[key] = out);
     };
@@ -417,9 +435,11 @@ class Component extends DCLogic {
 
     // выборка: Мои и часть районов это часть города, при малой выборке вывод предварительный
     const share = (p.few ? 0.12 : 1) * (scope === 'mine' ? 0.45 : (Array.isArray(scope) ? Math.min(1, 0.4 * svcs.length) : 1)) * (hasZones ? Math.max(0.18, zones.length / RMT_ZONES.length) : 1);
-    const sCour = Math.max(1, Math.round(city.couriers * share)), sOrd = rmtR10(city.orders * share);
+    // у пеших и авто выборка меньше велосипедной, район один или весь город
+    const trS = tr ? tr.sample({ couriers: Math.max(1, Math.round(city.couriers * share)), orders: rmtR10(city.orders * share) }, hasZones && zones.length === 1 ? zones[0].k : '') : null;
+    const sCour = trS ? trS.couriers : Math.max(1, Math.round(city.couriers * share)), sOrd = trS ? trS.orders : rmtR10(city.orders * share);
     const low = sCour < 30 || sOrd < 100;
-    const basis = sCour + ' ' + rmtPlural(sCour, 'курьер', 'курьера', 'курьеров') + ' · ' + rmtFmt(sOrd) + ' заказов · ' + RMT_PERIOD;
+    const basis = (tr ? tr.forText + ' · ' : '') + sCour + ' ' + rmtPlural(sCour, 'курьер', 'курьера', 'курьеров') + ' · ' + rmtFmt(sOrd) + ' заказов · ' + RMT_PERIOD;
     const open = typeof p.open === 'function' ? p.open : (() => {});
 
     if (!full) {
@@ -446,7 +466,7 @@ class Component extends DCLogic {
     const dayPeak = (d) => { let b = RMT_FROM + 6; for (let h = RMT_FROM; h < RMT_END; h++) if (bestAt(d, h).v > bestAt(d, b).v) b = h; return b; };
 
     // ваши часы: только прошедшие, у подключённого сервиса и в городе с районами
-    const myOf = (d) => { const m = RMT_MY[String(d)]; return m && hasZones && isMine(m[2]) ? m : null; };
+    const myOf = (d) => { const m = RMT_MY[String(d)]; return m && hasZones && ownTr && isMine(m[2]) ? m : null; };
     const meAt = (d, H) => { const [dd, hh] = at(d, H); const m = myOf(dd); return !!m && hh >= m[0] && hh < m[1] && (dd < 0 || (dd === 0 && hh < RMT_NOW_H)); };
     // ваш доход в час: ваш сервис и район, чуть ниже рынка
     const myPayRaw = (d, H) => {
@@ -565,22 +585,25 @@ class Component extends DCLogic {
     const oneZone = hasZones && Array.isArray(zf) && zf.length === 1 && RMT_AVG_ZONE[zf[0]] ? RMT_AVG_ZONE[zf[0]] : null;
     const avgAt = (d, h) => {
       const dw = (rmtDate(d).getDay() + 6) % 7;
-      return rmtR10(RMT_BASE[h] * RMT_SCALE * (RMT_DAY_MUL[dw] + (oneZone ? oneZone.tilt[dw] : 0)) * (oneZone ? oneZone.mul : 1) * (oneSvc ? RMT_AVG_SVC[oneSvc.k] : 1) * city.mul);
+      return rmtR10(RMT_BASE[h] * RMT_SCALE * (RMT_DAY_MUL[dw] + (oneZone ? oneZone.tilt[dw] : 0)) * (oneZone ? oneZone.mul : 1) * (oneSvc ? RMT_AVG_SVC[oneSvc.k] : 1) * city.mul * (tr ? tr.factor(oneZone ? zf[0] : '').pay : 1));
     };
-    const avgLabel = 'в среднем ' + (oneSvc ? 'у ' + oneSvc.gen + ' ' : '') + (oneZone ? oneZone.dat : 'по городу');
+    const avgLabel = 'обычно ' + (oneSvc ? 'у ' + oneSvc.gen + ' ' : '') + (oneZone ? oneZone.dat : 'по городу');
 
     // карта районов на выбранный час: те же цифры, что в списке районов
     const zoneBest = hasZones ? zones.map((z) => ({ z, o: options(day, hour).find((x) => x.z === z) })).filter((x) => x.o) : [];
     zoneBest.sort((a, b) => b.o.v - a.o.v);
     const zMax = zoneBest.length ? zoneBest[0].o.v : 1, zMin = zoneBest.length ? zoneBest[zoneBest.length - 1].o.v : 0;
     // пустая строка значит, что район на карте сняли
-    const mapPickK = st.mapPick === '' ? '' : (zoneBest.find((x) => x.z.k === mapPickRaw) || (st.mapPickName ? { z: {} } : zoneBest[0]) || { z: {} }).z.k || '';
+    // районы с малой выборкой транспорта на карте без числа, выбор такого района объясняем под картой
+    const zoneFewList = hasZones ? zones.filter(zoneFew) : [];
+    const mapPickFew = zoneFewList.find((z) => z.k === mapPickRaw) || null;
+    const mapPickK = st.mapPick === '' || mapPickFew ? '' : (zoneBest.find((x) => x.z.k === mapPickRaw) || (st.mapPickName ? { z: {} } : zoneBest[0]) || { z: {} }).z.k || '';
     const mapPickX = zoneBest.find((x) => x.z.k === mapPickK);
 
     // слоты на этот час: только у будущего часа, все, что покрывают час, сначала у лидера; недоступные с причиной по переключателю
     const onSlots = typeof p.onSlots === 'function' ? p.onSlots : null;
     const rdIso = rmtIso(rd);
-    const svcBest = (k) => { const s = RMT_SVC.find((x) => x.k === k); let b = 0; if (s) zones.forEach((z) => { b = Math.max(b, pay(rd, rh, s, z)); }); return b; };
+    const svcBest = (k) => { const s = RMT_SVC.find((x) => x.k === k); let b = 0; if (s) zones.forEach((z) => { if (!zoneFew(z)) b = Math.max(b, pay(rd, rh, s, z)); }); return b; };
     const isLead = (sl) => (top && sl.svc === top.s.k ? 1 : 0);
     const offOf = (sl) => sl.off || (isMine(sl.svc) ? '' : 'Сервис не подключён');
     const slotsAt = onSlots && fc && Array.isArray(p.slots) ? p.slots.filter((sl) => sl.iso === rdIso && rh >= sl.from && rh < sl.to).sort((a, b) => isLead(b) - isLead(a) || svcBest(b.svc) - svcBest(a.svc)) : [];
@@ -597,7 +620,8 @@ class Component extends DCLogic {
     const shortList = (names) => (names.length <= 2 ? names.join(', ') : names.slice(0, 2).join(', ') + ' и ещё ' + (names.length - 2));
     const svcLabel = smode === 'mine' ? 'мои сервисы' : (Array.isArray(scope) ? (svcs.length === 1 ? svcs[0].title : svcs.length + ' ' + rmtPlural(svcs.length, 'сервис', 'сервиса', 'сервисов')) : 'все сервисы');
     const zoneLabel = !hasZones ? '' : (zf === 'near' ? 'рядом со мной' : (Array.isArray(zf) ? (zones.length === 1 ? zones[0].name : zones.length + ' ' + rmtPlural(zones.length, 'район', 'района', 'районов')) : 'все районы'));
-    const filtered = smode === 'mine' || Array.isArray(scope) || zf !== 'all';
+    const trLabel = tr ? tr.label.toLowerCase() : '';
+    const filtered = smode === 'mine' || Array.isArray(scope) || zf !== 'all' || !ownTr;
     const mineList = RMT_SVC.filter((s) => isMine(s.k)).map((s) => s.title);
     const radio = (on) => ({ check: 'rmt-check' + (on ? ' rmt-check-on' : ''), mark: on ? '✓' : '', on: String(on) });
     const toggle = (list, k) => { const cur = list.slice(); const i = cur.indexOf(k); if (i === -1) cur.push(k); else cur.splice(i, 1); return cur; };
@@ -605,8 +629,11 @@ class Component extends DCLogic {
     return {
       no_data: false, is_card: false, is_full: true, low, uid: this._uid,
       has_back: typeof p.onBack === 'function', on_back: typeof p.onBack === 'function' ? p.onBack : (() => {}),
-      scope_label: [cityTitle, svcLabel, zoneLabel].filter(Boolean).join(' · '), scope_cls: 'rmt-scope' + (filtered ? ' rmt-scope-on' : ''),
-      has_filter: true, filter_aria: 'Что показать: ' + [svcLabel, zoneLabel].filter(Boolean).join(', '),
+      scope_label: [cityTitle, trLabel, svcLabel, zoneLabel].filter(Boolean).join(' · '), scope_cls: 'rmt-scope' + (filtered ? ' rmt-scope-on' : ''),
+      has_filter: true, filter_aria: 'Что показать: ' + [trLabel, svcLabel, zoneLabel].filter(Boolean).join(', '),
+      // транспорт один на весь Рынок, здесь он меняется той же шторкой
+      has_tr: !!tr,
+      tr_opts: tr ? tr.filter.options.map((o) => Object.assign({ label: o.label, note: o.note, tap: () => tr.set(o.k) }, radio(tr.k === o.k))) : [],
       open_filter: () => set({ sheet: true }), close_sheet: () => set({ sheet: false }),
       stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
       sheet_open: !!st.sheet,
@@ -667,16 +694,16 @@ class Component extends DCLogic {
       has_by: hasZones, by_zone: String(by === 'zone'), by_svc: String(by === 'svc'), by_map: String(by === 'map'),
       by_zone_cls: 'raznos-segment' + (by === 'zone' ? ' raznos-is-active' : ''), by_svc_cls: 'raznos-segment' + (by === 'svc' ? ' raznos-is-active' : ''), by_map_cls: 'raznos-segment' + (by === 'map' ? ' raznos-is-active' : ''),
       pick_zone: () => flipSet({ by: 'zone' }), pick_svc: () => flipSet({ by: 'svc' }), pick_map: () => set({ by: 'map' }),
-      rows, rows_cls: 'rmt-rows rmt-rows-' + listBy + (spread ? ' rmt-rows-range' : ''), is_empty: rows.length === 0, empty_text: 'В этот час заказов в выбранных сервисах и районах нет',
+      rows, rows_cls: 'rmt-rows rmt-rows-' + listBy + (spread ? ' rmt-rows-range' : ''), is_empty: rows.length === 0, empty_text: tr && hasZones && zones.length && zones.every(zoneFew) ? 'Мало данных ' + tr.forText + ' по выбранным районам' : (tr && svcs.length && svcs.every((s) => !svcTrOk(s.k)) ? 'Мало данных ' + tr.forText + ' по выбранным сервисам' : 'В этот час заказов в выбранных сервисах и районах нет'),
       has_unit: rows.length > 0, unit_cls: 'rmt-unit' + (listBy === 'zone' ? ' rmt-unit-act' : ''), unit_left: listBy === 'zone' ? 'Район и лучший сервис' : 'Сервис и лучший район',
       has_all: rest > 0, all_open: String(allOpen),
       all_label: allOpen ? 'Свернуть' : 'Ещё ' + rest + ' ' + restWord, all_cls: 'rmt-all-chev' + (allOpen ? ' rmt-all-open' : ''),
       toggle_all: () => flipSet({ all: !allOpen }),
       // у трёх лучших районов на карте название рядом с числом
-      map_zones: zoneBest.map((x, i) => ({ k: x.z.k, name: x.z.name, val: rangeMid(x.o.v).replace(/\u00a0/g, ' ') + '/ч', t: zMax === zMin ? 1 : (x.o.v - zMin) / (zMax - zMin), top: x === zoneBest[0], named: i < 3, sel: x.z.k === mapPickK, tap: () => set({ mapPick: x.z.k }) })),
-      map_sel: mapPickK || (st.mapPickName ? st.mapPick || '' : ''), map_pick_k: (k, info) => set({ mapPick: k || '', mapPickName: info && info.name ? info.name : '' }),
+      map_zones: zoneBest.map((x, i) => ({ k: x.z.k, name: x.z.name, val: rangeMid(x.o.v).replace(/\u00a0/g, ' ') + '/ч', t: zMax === zMin ? 1 : (x.o.v - zMin) / (zMax - zMin), top: x === zoneBest[0], named: i < 3, sel: x.z.k === mapPickK, tap: () => set({ mapPick: x.z.k }) })).concat(zoneFewList.map((z) => ({ k: z.k, name: z.name, val: 'мало данных', t: null, top: false, named: false, sel: !!mapPickFew && mapPickFew.k === z.k, tap: () => set({ mapPick: z.k }) }))),
+      map_sel: mapPickFew ? mapPickFew.k : mapPickK || (st.mapPickName ? st.mapPick || '' : ''), map_pick_k: (k, info) => set({ mapPick: k || '', mapPickName: info && info.name ? info.name : '' }),
       // район без цифр на этот час: говорим об этом под картой
-      map_none: !mapPickX && !!st.mapPickName && !!st.mapPick, map_none_text: (st.mapPickName || '') + ': нет данных по району за этот час', map_hour: hour % 24, map_chip: String(hour % 24).padStart(2, '0') + ':00',
+      map_none: (!mapPickX && !!st.mapPickName && !!st.mapPick) || !!mapPickFew, map_none_text: mapPickFew ? mapPickFew.name + ': ' + tr.fewText : (st.mapPickName || '') + ': нет данных по району за этот час', map_hour: hour % 24, map_chip: String(hour % 24).padStart(2, '0') + ':00',
       has_map_pick: !!mapPickX,
       map_pick: mapPickX ? {
         title: mapPickX.z.name, meta: rmtKm(mapPickX.z.km) + ' · ' + mapPickX.o.s.title, metaMine: markMine && isMine(mapPickX.o.s.k),
@@ -689,7 +716,7 @@ class Component extends DCLogic {
         const off = offOf(sl);
         return {
           ok: !off, off: !!off, svc: s.k, svcTitle: s.title, title: s.title + ' ' + slotWhen(sl),
-          sub: off || [isLead(sl) ? 'Лидер этого часа' : '', range(svcBest(sl.svc)) + RMT_RPH, sl.bonus || ''].filter(Boolean).join(' · '),
+          sub: off || [isLead(sl) ? 'Лидер этого часа' : '', (sl.rate ? '≈ ' + rmtFmt(sl.rate) + RMT_RPH : range(svcBest(sl.svc)) + RMT_RPH), sl.bonus || ''].filter(Boolean).join(' · '),
           aria: 'Взять слот ' + s.gen + ' ' + slotWhen(sl),
           tap: () => { if (onSlots && !off) onSlots(Object.assign({}, ctx, { iso: rdIso, svc: sl.svc, id: sl.id || '', from: sl.from, to: sl.to })); }
         };

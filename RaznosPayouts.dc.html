@@ -81,7 +81,7 @@
       <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ lt.tap }}">{{ lt.action }}</button>
     </div>
   </sc-for>
-  <div class="rpay-sum"><span class="rpay-sum-label">Ждёт выплаты</span><span class="rpay-sum-val">{{ total }} ₽</span><sc-if value="{{ next_show }}" hint-placeholder-val="{{ true }}"><p class="rpay-sum-next">{{ next_a }}<b>{{ next_b }}</b>{{ next_c }}</p></sc-if></div>
+  <div class="rpay-sum"><span class="rpay-sum-label">Всего ждёт выплаты, не только за период</span><span class="rpay-sum-val">{{ total }} ₽</span><sc-if value="{{ next_show }}" hint-placeholder-val="{{ true }}"><p class="rpay-sum-next">{{ next_a }}<b>{{ next_b }}</b>{{ next_c }}</p></sc-if></div>
   <div class="rpay-week" role="img" aria-label="{{ week_aria }}">
     <sc-for list="{{ week }}" as="d" hint-placeholder-count="7">
       <div class="{{ d.cls }}"><span class="rpay-day-amt">{{ d.amt }}</span><span class="rpay-day-col"><sc-for list="{{ d.parts }}" as="pt" hint-placeholder-count="1"><i class="{{ pt.cls }}" style="{{ pt.style }}"></i></sc-for></span><span class="rpay-day-name">{{ d.name }}</span></div>

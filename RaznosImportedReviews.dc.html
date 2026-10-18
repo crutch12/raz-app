@@ -73,6 +73,7 @@
       "hideRatings": { "editor": "boolean", "default": false },
       "hideReviews": { "editor": "boolean", "default": false },
       "orders": { "editor": null },
+      "scores": { "editor": null },
       "full": { "editor": "boolean", "default": false },
       "compact": { "editor": "boolean", "default": false },
       "onAll": { "editor": null },
@@ -122,7 +123,8 @@
           const visitor = !anon && !!p.visitor;
           const scaled = (v) => (v == null ? "" : String(v).replace(".", ",") + " из 5");
           // обезличенный профиль всегда про один сервис, иначе сочетание сервисов связывает человека
-          const allGroups = (DEMO_BY_COURIER[p.courierId] || []).filter((g) => !p.svc || g.svc === p.svc);
+          // scores: оценки сервисов из приложения, те же, что в Профиле и ссылке работодателю
+          const allGroups = (DEMO_BY_COURIER[p.courierId] || []).filter((g) => !p.svc || g.svc === p.svc).map((g) => (p.scores ? Object.assign({}, g, { score: p.scores[g.svc] || null }) : g));
           // orders: заказы за период по сервисам, тогда один список, справа заказы, оценка подписью под сервисом
           const orders = !full && !anon && Array.isArray(p.orders) ? p.orders : null;
           const merged = orders ? orders.map((o) => Object.assign({ svc: o.key, title: o.title, score: null, reviews: [] }, allGroups.find((g) => g.svc === o.key) || {}, { count: o.count })).concat(allGroups.filter((g) => !orders.some((o) => o.key === g.svc))) : null;
@@ -135,7 +137,7 @@
               title: g.title,
               hasRating: merged ? g.count != null : !p.hideRatings,
               ratingLabel: merged ? (g.count != null ? String(g.count) : "") : (!g.score ? "Нет данных из сервиса" : (anon ? (g.score.num != null ? ratingRangeLabel(g.score.num) : "Есть, " + g.score.source.split(",")[0].toLowerCase()) : g.score.label)),
-              countLabel: merged ? (g.score ? g.score.label + " · " + g.score.source.split(",")[0] : "") : (g.score ? g.score.source : ""),
+              countLabel: merged ? (p.hideRatings ? "" : (g.score ? g.score.label + " · " + g.score.source.split(",")[0] : "Нет данных из сервиса")) : (g.score ? g.score.source : ""),
               valueCls: "raznos-imp-reviews__value" + (merged || g.score ? "" : " raznos-imp-reviews__value--none"),
               hasCards: reviews.length > 0,
               cards: reviews.map((r) => ({

@@ -92,6 +92,10 @@
 .raznos-stats-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding-top: 18px; border-top: 1px solid var(--stats-track); }
 .raznos-stats-summary-grid.raznos-has-fines { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .raznos-stats-summary-grid.raznos-has-fines .raznos-stats-summary-number { font-size: 16px; }
+.raznos-stats-summary-grid.raznos-has-cash { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.raznos-stats-summary-grid.raznos-has-cash .raznos-stats-summary-number { font-size: 14px; }
+.raznos-stats-summary-grid.raznos-has-cash .raznos-stats-summary-note { font-size: 11px; }
+.raznos-stats-summary-cell.raznos-is-cash .raznos-stats-summary-number { color: var(--raznos-green-deep); }
 .raznos-stats-summary-grid > .raznos-stats-summary-cell { min-width: 0; min-height: 44px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .raznos-stats-summary-cell.raznos-is-fines .raznos-stats-summary-number { color: var(--raznos-red); }
 .raznos-stats-summary-grid .raznos-stats-summary-number { color: var(--stats-ink); font: 750 18px/1.15 var(--raznos-font); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }

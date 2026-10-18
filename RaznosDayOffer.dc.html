@@ -108,7 +108,9 @@ class Component extends DCLogic {
     // сколько минут не хватает до дороги: на столько уйти раньше или опоздать
     const need = c ? Math.max(1, travel - gap) : 0;
     const penalty = s ? (s.penalty == null ? null : Number(s.penalty)) : null;
-    const net = s ? (s.net != null ? Number(s.net) : (penalty == null ? null : s.altSum - s.mineSum - penalty)) : null;
+    // бонус сервиса на своей брони пропадёт вместе с ней, это тоже цена замены
+    const bonus = s && s.bonus ? Number(s.bonus) : 0;
+    const net = s ? (s.net != null ? Number(s.net) : (penalty == null ? null : s.altSum - s.mineSum - penalty - bonus)) : null;
     const hasSwap = !!s && net != null;
     const altShort = s ? String(s.altTitle).replace(/\s+Доставка$/, '') : '';
     const dh = s && s.altMin && s.mineMin ? (s.altMin - s.mineMin) / 60 : 0;
@@ -122,6 +124,7 @@ class Component extends DCLogic {
     // последствие замены одной строкой: часы, честно про доход в час, что будет с записью
     const swapParts = [];
     if (s) {
+      if (bonus) swapParts.push('потеряете бонус ' + rdoFmt(bonus) + ' ₽');
       if (dh) swapParts.push(hoursTxt);
       if (onlyLonger) swapParts.push('но в час меньше');
       else if (!dh && s.altRate > s.mineRate) swapParts.push('в час больше');
@@ -150,6 +153,7 @@ class Component extends DCLogic {
         row(cap(mineWord) + ' ' + (RDO_GEN[s.mineSvc] || s.mineTitle) + ', ≈ ' + rdoFmt(s.mineRate) + ' ₽/ч', rdoSigned(-s.mineSum))
       ];
       if (!s.plan) rows.push(penalty ? row('Штраф за отмену брони', rdoSigned(-penalty)) : row(s.requested ? 'Заявку отзовёте без штрафа' : (s.freeUntil ? 'Отмена без штрафа до ' + s.freeUntil : 'Отмена без штрафа'), '0 ₽'));
+      if (bonus) rows.push(row('Бонус ' + (RDO_GEN[s.mineSvc] || s.mineTitle), rdoSigned(-bonus)));
       rows.push(row('Итого', rdoSigned(net), true));
       calc.push({ title: 'Заменить на ' + altShort, rows });
     }

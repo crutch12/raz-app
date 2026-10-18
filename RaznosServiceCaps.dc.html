@@ -72,8 +72,8 @@ class Component extends DCLogic {
     const shared = !!first && rows.length > 1 && rows.every((r) => r.src === first);
     if (shared) rows.forEach((r) => { r.src = ''; });
     // что видит Разнос про посредника, строка только когда экран передал её
-    if (via && p.viaSeen) rows.push({ label: 'В Разносе будет видно', value: p.viaSeen, src: '' });
-    return { rows, has_via: !!via, via_verdict: via ? via.verdict : '', via_variants: via && via.kinds && via.kinds.length ? via.kinds.map((kd) => ({ label: RSC_VIA[kd.k] || kd.k })) : (via ? [{ label: via.verdict }] : []), via_mine: p.viaMine || '', via_aria: 'Оформление: ' + (via ? via.verdict : '') + ', подробнее', via_tap: typeof p.onVia === 'function' ? p.onVia : () => {}, has_shared_src: shared, shared_src: shared ? first : '', unverified_note: (c.unverified && c.unverified.length) ? 'Точно не известно: ' + c.unverified.join(', ') : '' };
+    if (via && p.viaSeen) rows.push({ label: 'Что увидит Разнос', value: p.viaSeen, src: '' });
+    return { rows, has_via: !!via, via_verdict: via ? via.verdict : '', via_variants: via && via.kinds && via.kinds.length ? via.kinds.map((kd) => ({ label: RSC_VIA[kd.k] || kd.k })) : (via ? [{ label: via.verdict }] : []), via_mine: p.viaMine || '', via_aria: 'Оформление: ' + (via ? via.verdict : '') + ', подробнее', via_tap: typeof p.onVia === 'function' ? p.onVia : () => {}, has_shared_src: shared, shared_src: shared ? first : '', unverified_note: (c.unverified && c.unverified.length) ? 'Уточните в сервисе: ' + c.unverified.join(', ') : '' };
   }
 }
 </script></body></html>

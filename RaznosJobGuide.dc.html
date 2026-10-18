@@ -43,7 +43,8 @@
   </sc-if>
 
   <sc-if value="{{ is_newbies }}" hint-placeholder-val="{{ true }}">
-    <p class="raznos-text-small">Сколько обычно получают новички в первые 4 недели на велосипеде, {{ median_period }}. Нажмите на сервис, чтобы сравнить с опытными</p>
+    <sc-if value="{{ has_tr }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosFilterChips" filters="{{ tr_filters }}" onChange="{{ tr_change }}"></dc-import></sc-if>
+    <p class="raznos-text-small">Сколько обычно получают новички в первые 4 недели {{ nb_on }}, {{ median_period }}. Нажмите на сервис, чтобы сравнить с опытными</p>
     <sc-for list="{{ newbies_full }}" as="n" hint-placeholder-count="3">
       <div class="{{ n.cls }}">
         <button type="button" class="rjg-nb-head" aria-expanded="{{ n.open }}" onClick="{{ n.toggle }}">
@@ -65,6 +66,7 @@
         <button type="button" class="rjg-link" onClick="{{ n.start_tap }}">Затраты на старт ›</button>
       </div>
     </sc-for>
+    <sc-if value="{{ has_few }}" hint-placeholder-val="{{ false }}"><div class="raznos-card raznos-card-pad"><span class="raznos-list-title">{{ few_title }}</span><span class="raznos-text-small">{{ few_names }}</span></div></sc-if>
   </sc-if>
 
   <sc-if value="{{ is_start }}">
@@ -95,6 +97,7 @@
   </sc-if>
 
   <sc-if value="{{ is_schedule }}">
+    <sc-if value="{{ has_tr }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosFilterChips" filters="{{ tr_filters }}" onChange="{{ tr_change }}"></dc-import></sc-if>
     <span class="raznos-text-h3">Когда готовы работать</span>
     <div class="raznos-guide-days"><sc-for list="{{ days }}" as="d" hint-placeholder-count="7"><button type="button" class="{{ d.cls }}" onClick="{{ d.tap }}">{{ d.label }}</button></sc-for></div>
     <div class="raznos-chip-row"><sc-for list="{{ windows }}" as="w" hint-placeholder-count="3"><button type="button" class="{{ w.cls }}" onClick="{{ w.tap }}">{{ w.label }}</button></sc-for></div>
@@ -115,7 +118,7 @@
         <sc-if value="{{ f.has_range }}" hint-placeholder-val="{{ true }}"><div class="raznos-breakdown-row"><span class="raznos-text-small">Доход в час в эти часы</span><span class="raznos-num" style="flex:none;white-space:nowrap">{{ f.range }}</span></div></sc-if>
       </div>
     </sc-for>
-    <p class="raznos-text-tiny">Данные курьеров Разноса, {{ median_period }}. Это не обещание дохода</p>
+    <p class="raznos-text-tiny">Данные курьеров Разноса {{ nb_for }}, {{ median_period }}. Это не обещание дохода</p>
   </sc-if>
 
   <sc-if value="{{ is_terms }}">
@@ -132,7 +135,7 @@
     <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ open_reviews }}">Отзывы и вопросы · {{ svc_title }}</button>
   </sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"city":{"editor":"text","default":"moscow"},"section":{"editor":"enum","default":"newbies","options":["newbies","start","schedule","terms"]},"svc":{"editor":"text","default":"vkusvill"},"services":{"editor":null},"connected":{"editor":null},"week":{"editor":null},"onBack":{"editor":null},"onOpenService":{"editor":null},"via":{"editor":null},"onOpenVia":{"editor":null},"onSection":{"editor":null},"onSvc":{"editor":null},"onRegister":{"editor":null},"onConnect":{"editor":null},"$preview":{"width":390,"height":900}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"tr":{"editor":null},"city":{"editor":"text","default":"moscow"},"section":{"editor":"enum","default":"newbies","options":["newbies","start","schedule","terms"]},"svc":{"editor":"text","default":"vkusvill"},"services":{"editor":null},"connected":{"editor":null},"week":{"editor":null},"onBack":{"editor":null},"onOpenService":{"editor":null},"via":{"editor":null},"onOpenVia":{"editor":null},"onSection":{"editor":null},"onSvc":{"editor":null},"onRegister":{"editor":null},"onConnect":{"editor":null},"$preview":{"width":390,"height":900}}'>
 const JG_CITIES = { moscow: 'Москва', spb: 'Санкт-Петербург' };
 function jgPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
 // запасной список сервисов, когда App не передал каталог
@@ -205,6 +208,12 @@ class Component extends DCLogic {
     const hasData = !!JG_CITIES[city];
     const tab = st.tab || p.section || 'newbies';
     const list = Array.isArray(p.services) && p.services.length ? p.services : JG_FALLBACK;
+    // транспорт общий для Рынка, множители и выборку даёт модель из приложения, без неё (превью в ДС) считаем по велосипеду
+    const tr = p.tr || null;
+    const trF = tr ? tr.factor('') : { pay: 1 };
+    // сервисы, где такого транспорта нет, в сравнении не показываем
+    const trList = tr ? list.filter((x) => tr.svcOk(x.key)) : list;
+    const trCut = (k) => !!tr && tr.svcFew(k);
     const svc = list.some((x) => x.key === (st.svc || p.svc)) ? (st.svc || p.svc) : list[0].key;
     const titleOf = (k) => (list.filter((x) => x.key === k)[0] || {}).title || k;
     const connected = p.connected && typeof p.connected === 'object' ? p.connected : {};
@@ -241,13 +250,17 @@ class Component extends DCLogic {
       connect: () => call('onConnect', svc),
       is_connected: !!connected[svc], not_connected: !connected[svc],
       open_service: () => call('onOpenService', svc),
-      newbies_all: !hasData ? [] : list.map((x) => {
+      newbies_all: !hasData ? [] : trList.map((x) => {
         const r = (JG_NEWBIES[city] || {})[x.key];
-        const enough = !!r && r[5] > 0 && !!r[6];
+        // у пеших и авто новичков меньше: при малой выборке числа нет
+        const trS = tr && r ? tr.sample({ couriers: r[5], orders: r[5] * 25 }) : null;
+        const few = !!trS && r[5] > 0 && !trS.ok;
+        const enough = !!r && r[5] > 0 && !!r[6] && !few;
+        const nbN = trS ? trS.couriers : (r ? r[5] : 0);
         const stayN = r && r[4] ? parseInt(r[4], 10) : 0;
         const fast = stayN >= 58;
         const isOpen = openNb.indexOf(x.key) !== -1;
-        return { key: x.key, title: x.title, soon: JG_SOON.indexOf(x.key) !== -1, cls: 'raznos-card raznos-card-pad raznos-svc-border-' + x.key, sortH: r ? r[0] : 0, open: isOpen, toggle: () => this.setState({ nbOpen: toggle(openNb, x.key) }), pill: fast ? 'быстро осваиваются' : 'сложно на старте', pill_class: 'raznos-status-pill ' + (fast ? 'raznos-pill-ok' : 'raznos-pill-warn'), chev_class: 'rjg-nb-chev' + (isOpen ? ' rjg-nb-chev-open' : ''), sample: r && r[5] > 0 ? r[5] + ' ' + jgPlural(r[5], 'новичок', 'новичка', 'новичков') + (JG_BASE[x.key] ? ' · все ' + Math.round(JG_BASE[x.key] * (city === 'spb' ? 0.93 : 1) / 10) * 10 + ' ₽/ч' : '') : '', enough, not_enough: !enough, newH: r ? r[0] + ' ₽' : '', oldH: r ? r[1] + ' ₽' : '', newWait: r ? r[2] + ' мин' : '', oldWait: r ? r[3] + ' мин' : '', stayed: r && r[4] ? r[4] : 'нет данных', oldStayed: r && r[7] ? r[7] : 'нет данных', hard: r ? r[6] : '', start_tap: () => goTab('start', x.key) };
+        return { key: x.key, title: x.title, soon: JG_SOON.indexOf(x.key) !== -1, cls: 'raznos-card raznos-card-pad raznos-svc-border-' + x.key, sortH: r ? r[0] : 0, open: isOpen, toggle: () => this.setState({ nbOpen: toggle(openNb, x.key) }), pill: fast ? 'быстро осваиваются' : 'сложно на старте', pill_class: 'raznos-status-pill ' + (fast ? 'raznos-pill-ok' : 'raznos-pill-warn'), chev_class: 'rjg-nb-chev' + (isOpen ? ' rjg-nb-chev-open' : ''), sample: r && r[5] > 0 ? (trS ? tr.forText + ' · ' : '') + nbN + ' ' + jgPlural(nbN, 'новичок', 'новичка', 'новичков') + (JG_BASE[x.key] ? ' · все ' + Math.round(JG_BASE[x.key] * (city === 'spb' ? 0.93 : 1) * trF.pay / 10) * 10 + ' ₽/ч' : '') : '', enough, not_enough: !enough, few, newH: r ? Math.round(r[0] * trF.pay / 10) * 10 + ' ₽' : '', oldH: r ? Math.round(r[1] * trF.pay / 10) * 10 + ' ₽' : '', newWait: r ? r[2] + ' мин' : '', oldWait: r ? r[3] + ' мин' : '', stayed: r && r[4] ? r[4] : 'нет данных', oldStayed: r && r[7] ? r[7] : 'нет данных', hard: r ? r[6] : '', start_tap: () => goTab('start', x.key) };
       }),
       start: !start ? {} : {
         title: titleOf(svc),
@@ -260,7 +273,7 @@ class Component extends DCLogic {
       days: JG_DAYS.map((d, i) => ({ label: d, cls: 'raznos-chip' + (days.indexOf(i) !== -1 ? ' raznos-is-active' : ''), tap: () => this.setState({ days: toggle(days, i) }) })),
       windows: JG_WINDOWS.map((w) => ({ label: w[1], cls: 'raznos-chip' + (wins.indexOf(w[0]) !== -1 ? ' raznos-is-active' : ''), tap: () => this.setState({ wins: toggle(wins, w[0]) }) })),
       schedule_summary: days.length && wins.length ? 'Выбрано ' + days.length + ' ' + jgPlural(days.length, 'день', 'дня', 'дней') + ' в неделю: ' + winLabels.join(', ') : 'Отметьте дни и время, чтобы подобрать сервисы',
-      fits: !hasData || !days.length || !wins.length ? [] : list.map((x) => {
+      fits: !hasData || !days.length || !wins.length ? [] : trList.map((x) => {
         const sc = (JG_DATA[x.key] || {}).schedule || null;
         const base = { key: x.key, title: x.title, soon: JG_SOON.indexOf(x.key) !== -1, cls: 'raznos-card raznos-card-pad raznos-svc-border-' + x.key };
         if (!sc || !Array.isArray(sc.windows)) return Object.assign(base, { order: 3, pill: JG_UNKNOWN, pill_class: 'raznos-status-pill raznos-pill-muted', note: sc && sc.note ? sc.note : 'Время смен сервис не публикует', has_range: false, range: '' });
@@ -268,13 +281,15 @@ class Component extends DCLogic {
         const missing = JG_WINDOWS.filter((w) => wins.indexOf(w[0]) !== -1 && sc.windows.indexOf(w[0]) === -1).map((w) => w[1].split(' ')[0].toLowerCase());
         const free = JG_FREE.indexOf(x.key) !== -1;
         const kind = free ? 'ok' : (!covered.length ? 'no' : (missing.length ? 'part' : 'ok'));
-        const rg = JG_RANGE[x.key];
+        // диапазон велосипеда умножаем на транспорт, при малой выборке вместо него подпись
+        const rg0 = JG_RANGE[x.key], cut = trCut(x.key);
+        const rg = rg0 && !cut ? [Math.round(rg0[0] * trF.pay / 10) * 10, Math.round(rg0[1] * trF.pay / 10) * 10] : null;
         return Object.assign(base, {
           order: kind === 'ok' ? 0 : (kind === 'part' ? 1 : 2), mid: rg ? (rg[0] + rg[1]) / 2 : 0,
           pill: kind === 'ok' ? 'Подходит' : (kind === 'part' ? 'Частично' : 'Не подходит'),
           pill_class: 'raznos-status-pill ' + (kind === 'ok' ? 'raznos-pill-ok' : (kind === 'part' ? 'raznos-pill-warn' : 'raznos-pill-muted')),
           note: free ? 'Можно выходить в любое время' : (!covered.length ? 'В выбранное время смен нет' : (missing.length ? 'Нет смен: ' + missing.join(', ') + ', остальное время подходит' : 'Смены есть во всё выбранное время')),
-          has_range: kind !== 'no' && !!rg, range: rg ? rg[0] + '–' + rg[1] + ' ₽/ч' : ''
+          has_range: kind !== 'no' && (!!rg || (cut && !!rg0)), range: rg ? rg[0] + '–' + rg[1] + ' ₽/ч' : (cut && rg0 ? 'мало данных ' + tr.forText : '')
         });
       }).sort((a, b) => (a.soon - b.soon) || a.order - b.order || (b.mid || 0) - (a.mid || 0)),
       terms: {
@@ -284,7 +299,10 @@ class Component extends DCLogic {
           rows: g.rows.map((r) => ({ label: r[1], text: (termsOf[g.k] || {})[r[0]] || JG_UNKNOWN }))
         }))
       },
-      open_reviews: () => call('onOpenService', svc)
+      open_reviews: () => call('onOpenService', svc),
+      // выбор транспорта общий с Рынком
+      has_tr: !!tr, tr_filters: tr ? [tr.filter] : [], tr_change: (key, k) => { if (tr) tr.set(k); },
+      nb_on: tr ? tr.on : 'на велосипеде', nb_for: tr ? tr.forText : 'для велосипеда'
     };
     // подходящие по всему времени одной группой, фраза один раз
     const fitAll = out.fits.filter((f) => f.note === 'Смены есть во всё выбранное время');
@@ -292,6 +310,11 @@ class Component extends DCLogic {
     out.has_ok = fitAll.length > 0;
     out.fits = out.fits.filter((f) => fitAll.indexOf(f) === -1);
     // по доходу новичка, первые три с акцентом
+    // сервисы с малой выборкой транспорта одной строкой, без числа
+    const fewNb = out.newbies_all.filter((n) => n.few);
+    out.has_few = fewNb.length > 0;
+    out.few_title = tr ? 'Мало данных ' + tr.forText : '';
+    out.few_names = fewNb.map((n) => n.title).join(', ');
     out.newbies_full = out.newbies_all.filter((n) => n.enough).sort((a, b) => (a.soon - b.soon) || b.sortH - a.sortH).map((n, i) => Object.assign(n, { cls: n.cls + (i < 3 ? ' rjg-nb-top' : ''), income_class: 'rjg-nb-income' + (i < 3 ? ' rjg-nb-income-top' : '') }));
     // период тот же, что в Рынке: последние 4 недели до вчера
     out.median_period = (() => {

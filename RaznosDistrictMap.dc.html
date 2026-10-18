@@ -57,8 +57,8 @@
     .rdm.rdm-locked .rdm-canvas { filter: saturate(0.7) blur(3px); transform: scale(1.04); }
     .rdm-quiet { pointer-events: none; font: 700 9.5px var(--raznos-font); letter-spacing: .08em; text-transform: uppercase; color: var(--raznos-ink-3); text-shadow: 0 0 3px var(--rdm-land), 0 0 3px var(--rdm-land); white-space: nowrap; }
     .rdm-mk-courier { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--rdm-ring); box-sizing: border-box; box-shadow: 0 1px 4px rgba(20, 25, 40, .3); pointer-events: none; }
-    /* курьера можно выбрать: точка та же, зона нажатия 44, выбранная крупнее с кольцом */
-    button.rdm-mk-courier { position: relative; padding: 0; margin: 0; cursor: pointer; pointer-events: auto; }
+    /* курьера можно выбрать: точка та же, зона нажатия 44, выбранная крупнее с кольцом; position не задаём, метка уже absolute от MapLibre, иначе точка уезжает при зуме */
+    button.rdm-mk-courier { padding: 0; margin: 0; cursor: pointer; pointer-events: auto; }
     button.rdm-mk-courier::before { content: ''; position: absolute; inset: -16px; border-radius: 50%; }
     button.rdm-mk-courier:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 50%, transparent); outline-offset: 3px; }
     .rdm-mk-courier.rdm-mk-on { width: 20px; height: 20px; border-width: 3px; box-shadow: 0 0 0 4px color-mix(in oklab, var(--raznos-ink) 22%, transparent), 0 2px 8px rgba(20, 25, 40, .35); z-index: 2; }
@@ -214,7 +214,7 @@ const RDM_MAP = (() => {
       el.setAttribute('aria-hidden', 'true');
     }
     if (m.kind !== 'me') el.style[m.kind === 'drop' ? 'color' : 'background'] = m.color;
-    return { el, at: m.at, anchor: m.kind === 'drop' ? 'bottom' : 'center' };
+    return { el, at: m.at, anchor: m.kind === 'drop' ? 'bottom' : 'center', ci: m.ci };
   };
   const addOwn = (map, o) => {
     ['rdm-d', 'rdm-hc', 'rdm-hf', 'rdm-mask', 'rdm-z', 'rdm-sel'].forEach((id) => map.addSource(id, { type: 'geojson', data: EMPTY }));
@@ -293,14 +293,19 @@ const RDM_MAP = (() => {
     setZones(h, fc) { h.map.getSource('rdm-z').setData(fc); },
     setSelection(h, f) { h.map.getSource('rdm-sel').setData(f || EMPTY); },
     // markers: [{ el, at: [lng, lat], anchor: 'center'|'bottom' }] или готовые типы с цветом от нашего кода:
-    // { kind: 'courier', at, color, active, label, onTap }, { kind: 'drop', at, color, active, label, onTap }, { kind: 'me', at, color }
+    // { kind: 'courier', at, color, active, label, onTap, ci }, { kind: 'drop', at, color, active, label, onTap }, { kind: 'me', at, color }
     setMarkers(h, list) {
       h.markers.forEach((m) => m.remove());
+      h.cm = {};
       h.markers = list.map(rdmMark).map((m) => {
         m.el.addEventListener('click', () => { h.markerTap = Date.now(); });
-        return new h.L.Marker({ element: m.el, anchor: m.anchor || 'center' }).setLngLat(m.at).addTo(h.map);
+        const mk = new h.L.Marker({ element: m.el, anchor: m.anchor || 'center' }).setLngLat(m.at).addTo(h.map);
+        if (m.ci != null) h.cm[m.ci] = mk;
+        return mk;
       });
     },
+    // сдвинуть метку курьера по индексу, не пересоздавая её
+    moveCourier(h, ci, at) { const m = h.cm && h.cm[ci]; if (m) m.setLngLat(at); },
     // свои слои уже нарисованы: ждём простоя карты, но не дольше 800 мс, подложка может грузиться дольше
     whenDrawn(h, cb) { let done = false; const go = () => { if (!done && !h.gone) { done = true; cb(); } }; h.map.once('idle', go); setTimeout(go, 800); },
     fitTo(h, box, o) { h.map.fitBounds([[box[0], box[1]], [box[2], box[3]]], { padding: o.padding, maxZoom: o.maxZoom, duration: o.animate ? 650 : 0 }); },
@@ -391,6 +396,14 @@ const RDM_COURIERS_DEMO = [
   [300, 250, 'samokat'], [130, 318, 'yandex-eda'], [190, 330, 'samokat'], [240, 350, 'yandex-eda'], [70, 350, 'x5'],
   [320, 330, 'yandex-eda'], [150, 400, 'vkusvill'], [36, 190, 'yandex-eda'], [330, 90, 'samokat'], [226, 60, 'yandex-eda']
 ].map(([x, y, svc]) => ({ at: [+(37.505 + x / 360 * 0.19).toFixed(5), +(55.8 - y / 440 * 0.082).toFixed(5)], svc }));
+// демо-движение: шаг раз в 15 секунд, плавный переход 2,4 секунды
+const RDM_MOVE_MS = 15000, RDM_MOVE_GLIDE = 2400;
+// маршрут курьера от его индекса: тот же каждый раз, часть курьеров стоит
+const rdmRoute = (i, at) => {
+  let a = (i + 1) * 2654435761 >>> 0;
+  const rnd = () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  return { rnd, still: rnd() < 0.3, hd: rnd() * 2 * Math.PI };
+};
 // ваша примерная точка в демо, Беговая ул.
 const RDM_ME_DEMO = [37.5565, 55.7768];
 
@@ -470,12 +483,13 @@ class Component extends DCLogic {
   componentDidMount() { this._alive = true; if (!this._adopt()) this._init(); }
   componentWillUnmount() {
     this._alive = false;
+    this._moveStop();
     const p = this.props || {};
     // готовую карту с ключом экрана не удаляем, а кладём в пул вместе с видом
     if (p.poolKey && this._h && this._h.ready && (this.state || {}).drawn && this._el) {
       RDM_POOL.put(p.poolKey, {
         h: this._h, el: this._el, sink: this._sink, view: RDM_MAP.view(this._h), data: this._data, c: this._c, dark: this._dark, off: this._off,
-        cityBox: this._cityBox, svcC: this._svcC, fly: this._fly, lastSel: this._lastSel, target: this._target(), mode: (this.state || {}).mode
+        cityBox: this._cityBox, svcC: this._svcC, cs: this._cs, cur: this._cur, fly: this._fly, lastSel: this._lastSel, target: this._target(), mode: (this.state || {}).mode
       });
       this._el.remove();
       this._h = null;
@@ -503,7 +517,7 @@ class Component extends DCLogic {
     box.appendChild(e.el);
     this._gen = (this._gen || 0) + 1;
     e.sink.cmp = this; e.sink.gen = this._gen;
-    Object.assign(this, { _h: e.h, _el: e.el, _sink: e.sink, _data: e.data, _c: e.c, _dark: e.dark, _off: e.off, _cityBox: e.cityBox, _svcC: e.svcC, _fly: e.fly, _lastSel: e.lastSel, _sig: '' });
+    Object.assign(this, { _h: e.h, _el: e.el, _sink: e.sink, _data: e.data, _c: e.c, _dark: e.dark, _off: e.off, _cityBox: e.cityBox, _svcC: e.svcC, _cs: e.cs, _cur: e.cur, _fly: e.fly, _lastSel: e.lastSel, _sig: '' });
     RDM_MAP.reattach(e.h, e.view);
     this.setState({ net: e.sink.net, drawn: true, mode: e.mode });
     // слои и метки собираем заново под новые пропсы, вид трогаем, только если сменилась цель
@@ -518,7 +532,7 @@ class Component extends DCLogic {
     this._sync(false);
   }
 
-  _drop() { if (this._h) RDM_MAP.destroy(this._h); if (this._el) this._el.remove(); this._h = null; this._el = null; this._sig = ''; }
+  _drop() { this._moveStop(); if (this._h) RDM_MAP.destroy(this._h); if (this._el) this._el.remove(); this._h = null; this._el = null; this._sig = ''; }
   _net(v) { if (this._alive && (this.state || {}).net !== v) this.setState({ net: v }); }
 
   // повтор после ошибки: библиотека, данные и стили карты заново
@@ -722,7 +736,7 @@ class Component extends DCLogic {
       const marks = [];
       if (!p.compact) feats.forEach((f) => { const el = document.createElement('div'); el.className = 'rdm-quiet'; el.textContent = f.properties.name; el.setAttribute('aria-hidden', 'true'); marks.push({ el, at: f.properties.label }); });
       // выбранный курьер поверх остальных
-      const courier = (x) => ({ kind: 'courier', at: x.at, color: svcColor(x.svc), active: x.i === p.activeCourier, label: x.label || 'Курьер на смене', onTap: pickable ? () => { const f = (this.props || {}).onCourier; if (typeof f === 'function') f(x.i, x.svc); } : null });
+      const courier = (x) => ({ kind: 'courier', ci: x.i, at: (this._cur && this._cur[x.i]) || x.at, color: svcColor(x.svc), active: x.i === p.activeCourier, label: x.label || 'Курьер на смене', onTap: pickable ? () => { const f = (this.props || {}).onCourier; if (typeof f === 'function') f(x.i, x.svc); } : null });
       couriers.filter((x) => x.i !== p.activeCourier).forEach((x) => marks.push(courier(x)));
       couriers.filter((x) => x.i === p.activeCourier).forEach((x) => marks.push(courier(x)));
       const drop = (pn) => ({
@@ -735,12 +749,57 @@ class Component extends DCLogic {
       RDM_MAP.setMarkers(h, marks);
       requestAnimationFrame(() => this._declutter());
     }
+    if (couriers.length && !this._mvT) this._mvT = setInterval(() => this._moveStep(), RDM_MOVE_MS);
     if (first || fly !== this._fly) {
       this._fly = fly;
       const d = 0.0035;
       this._fit(at ? [at[0] - d, at[1] - d, at[0] + d, at[1] + d] : this._cityBox, { animate: !first && !rdmReduced(), maxZoom: at ? 15 : 12.5 });
     }
   }
+
+  // демо-движение: раз в RDM_MOVE_MS каждый курьер проходит свой шаг, часть стоит на месте
+  _moveStep() {
+    const h = this._h, p = this.props || {};
+    if (!this._alive || !h || !h.ready || !this._cityBox || this._mode() !== 'people' || (typeof document !== 'undefined' && document.hidden)) return;
+    const all = Array.isArray(p.couriers) ? p.couriers : (p.couriers === true ? RDM_COURIERS_DEMO : []);
+    this._cs = this._cs || {};
+    this._cur = this._cur || {};
+    const b = this._cityBox, mx = (b[2] - b[0]) * 0.04, my = (b[3] - b[1]) * 0.04;
+    const from = {}, to = {};
+    all.forEach((c, i) => {
+      const r = this._cs[i] || (this._cs[i] = rdmRoute(i, c.at));
+      if (r.still) return;
+      const cur = this._cur[i] || c.at;
+      let nx, ny;
+      for (let t = 0; t < 4; t++) {
+        const m = r.rnd() * 190 + 60;
+        r.hd += (r.rnd() - 0.5) * 1.1 + (t ? Math.PI / 2 : 0);
+        nx = cur[0] + Math.cos(r.hd) * m / (111320 * Math.cos(cur[1] * Math.PI / 180));
+        ny = cur[1] + Math.sin(r.hd) * m / 110574;
+        if (nx > b[0] + mx && nx < b[2] - mx && ny > b[1] + my && ny < b[3] - my) break;
+        nx = cur[0]; ny = cur[1];
+      }
+      from[i] = cur; to[i] = [nx, ny];
+    });
+    const ids = Object.keys(to);
+    const apply = (k) => ids.forEach((i) => {
+      const a = from[i], z = to[i], at = [a[0] + (z[0] - a[0]) * k, a[1] + (z[1] - a[1]) * k];
+      this._cur[i] = at;
+      RDM_MAP.moveCourier(h, i, at);
+    });
+    if (rdmReduced()) { apply(1); return; }
+    const t0 = performance.now();
+    const frame = (now) => {
+      this._mvF = 0;
+      if (!this._alive || this._h !== h) return;
+      const k = Math.min(1, (now - t0) / RDM_MOVE_GLIDE);
+      apply(k * k * (3 - 2 * k));
+      if (k < 1) this._mvF = requestAnimationFrame(frame);
+    };
+    cancelAnimationFrame(this._mvF);
+    this._mvF = requestAnimationFrame(frame);
+  }
+  _moveStop() { clearInterval(this._mvT); this._mvT = 0; cancelAnimationFrame(this._mvF); this._mvF = 0; }
 
   // тихие подписи районов не налезают друг на друга: при отдалении часть прячем, порядок как в данных
   _declutter() {
