@@ -26,6 +26,9 @@
     .rth-reached .rth-mark-hex { background: var(--raznos-green); }
     .raznos-theme-dark .rth-reached .rth-goal-label { color: oklch(0.5 0.12 75); }
     .rth-note { margin-top: 16px; }
+    .rth-goal-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+    .rth-goal-ask { min-height: 44px; margin: -12px 0; padding: 0 4px; border: 0; background: none; color: var(--raznos-on-dark); font: 600 13px var(--raznos-font); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+    .rth-goal-ask:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
     /* строка денег течёт текстом: при переносе точка остаётся в конце строки, а не в начале следующей */
     .rth-money { margin-top: 18px; font: 500 13px/1.5 var(--raznos-font); font-variant-numeric: tabular-nums; color: var(--raznos-on-dark); }
     .rth-money > span { opacity: 0.78; }
@@ -59,14 +62,14 @@
       </div>
     </div>
   </sc-if>
-  <sc-if value="{{ no_goal }}" hint-placeholder-val="{{ false }}"><span class="raznos-hero-pace-note rth-note">{{ plain_note }}</span></sc-if>
+  <sc-if value="{{ no_goal }}" hint-placeholder-val="{{ false }}"><div class="rth-note rth-goal-row"><span class="raznos-hero-pace-note">{{ plain_note }}</span><sc-if value="{{ ask_goal }}" hint-placeholder-val="{{ false }}"><button type="button" class="rth-goal-ask" onClick="{{ on_goal }}">Задать цель</button></sc-if></div></sc-if>
   <div class="{{ money_cls }}"><span class="{{ tips_cls }}" data-delta-host="gain" data-roll-host="today-tips"><sc-if value="{{ tips_show }}" hint-placeholder-val="{{ true }}"><span class="rth-seg">чаевые наличными <b data-roll="today-tips">{{ tips_label }}</b></span></sc-if></span><sc-if value="{{ fine_show }}" hint-placeholder-val="{{ false }}"><span><sc-if value="{{ fine_sep }}" hint-placeholder-val="{{ true }}"><i aria-hidden="true">&nbsp;· </i></sc-if><span class="rth-seg">удержано <b>{{ fine_label }}</b></span></span></sc-if><span class="{{ exp_cls }}" data-delta-host="cost" data-roll-host="today-exp"><sc-if value="{{ exp_show }}" hint-placeholder-val="{{ true }}"><sc-if value="{{ exp_sep }}" hint-placeholder-val="{{ true }}"><i aria-hidden="true">&nbsp;· </i></sc-if><span class="rth-seg">расходы <b data-roll="today-exp">{{ exp_label }}</b></span></sc-if></span><sc-if value="{{ net_show }}" hint-placeholder-val="{{ true }}"><span><sc-if value="{{ net_sep }}" hint-placeholder-val="{{ true }}"><i aria-hidden="true">&nbsp;· </i></sc-if><span class="rth-seg">чистыми <b>{{ net_label }}</b></span></span></sc-if></div>
   <div class="rth-actions">
     <button type="button" class="rth-add" onClick="{{ on_tip }}" aria-label="Добавить чаевые наличными"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Чаевые</button>
     <button type="button" class="rth-add" onClick="{{ on_expense }}" aria-label="Добавить расход"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Расход</button>
   </div>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"open":{"editor":null},"onTip":{"editor":null},"fines":{"editor":"number","default":0},"onExpense":{"editor":null},"$preview":{"width":390,"height":330}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"open":{"editor":null},"onTip":{"editor":null},"onGoal":{"editor":null},"askGoal":{"editor":"boolean","default":false},"fines":{"editor":"number","default":0},"onExpense":{"editor":null},"$preview":{"width":390,"height":330}}'>
 // карточка Начислено сегодня на Сегодня: цель дня полосой, прогноз риской, деньги строкой, действия кнопками
 const RTH_FMT = (n) => { const v = Math.round((Number(n) || 0) * 100) / 100; return v.toLocaleString('ru-RU', { minimumFractionDigits: Number.isInteger(v) ? 0 : 2, maximumFractionDigits: 2 }); };
 const RTH_PLURAL = (n, a, b, c) => { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return a; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return b; return c; };
@@ -92,7 +95,7 @@ class Component extends DCLogic {
     const netShow = Math.round(net) !== Math.round(earn);
     return {
       open: typeof p.open === 'function' ? p.open : (() => {}),
-      on_tip: stop(p.onTip), on_expense: stop(p.onExpense),
+      on_tip: stop(p.onTip), on_expense: stop(p.onExpense), on_goal: stop(p.onGoal), ask_goal: !!p.askGoal && !hasGoal,
       earn_label: RTH_FMT(earn),
       stats: orders + ' ' + RTH_PLURAL(orders, 'заказ', 'заказа', 'заказов') + ' · ' + String(hours).replace('.', ',') + ' ч · ' + RTH_FMT(hourly) + ' ₽/ч',
       has_goal: hasGoal, no_goal: !hasGoal,

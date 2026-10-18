@@ -69,7 +69,7 @@
   </sc-if>
 
   <sc-if value="{{ show_sheet }}" hint-placeholder-val="{{ false }}">
-    <dc-import name="RaznosShiftSheet" svc="{{ sh.svc }}" title="{{ sh.title }}" place="{{ sh.place }}" time="{{ sh.time }}" status="{{ sh.status }}" tone="{{ sh.tone }}" whenNote="{{ sh.whenNote }}" svcLine="{{ sh.svcLine }}" money="{{ sh.money }}" moneyNote="{{ sh.moneyNote }}" conflict="{{ sh.conflict }}" rebook="{{ sh.rebook }}" rule="{{ sh.rule }}" ruleTone="{{ sh.ruleTone }}" ruleSrc="{{ sh.ruleSrc }}" action="{{ sh.action }}" actionNote="{{ sh.actionNote }}" onAction="{{ sh.act }}" onArea="{{ area_map }}" onClose="{{ close_sheet }}"></dc-import>
+    <dc-import name="RaznosShiftSheet" svc="{{ sh.svc }}" title="{{ sh.title }}" place="{{ sh.place }}" pid="{{ sh.pid }}" time="{{ sh.time }}" status="{{ sh.status }}" tone="{{ sh.tone }}" whenNote="{{ sh.whenNote }}" svcLine="{{ sh.svcLine }}" money="{{ sh.money }}" moneyNote="{{ sh.moneyNote }}" conflict="{{ sh.conflict }}" rebook="{{ sh.rebook }}" rule="{{ sh.rule }}" ruleTone="{{ sh.ruleTone }}" ruleSrc="{{ sh.ruleSrc }}" action="{{ sh.action }}" actionNote="{{ sh.actionNote }}" onAction="{{ sh.act }}" onArea="{{ area_map }}" onClose="{{ close_sheet }}"></dc-import>
   </sc-if>
 
   <sc-if value="{{ show_fix }}" hint-placeholder-val="{{ false }}">
@@ -78,7 +78,7 @@
 
   <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div class="raznos-shifts-toast" data-toast role="status"><button type="button" class="raznos-toast-x" data-toast-close onClick="{{ toast_close }}" aria-label="Закрыть"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span>{{ toast }}</span><sc-if value="{{ toast_has_act }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-shifts-toast-act" onClick="{{ toast_show }}">Показать</button></sc-if><sc-if value="{{ toast_has_undo }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-shifts-toast-act" onClick="{{ toast_undo }}">Отменить</button></sc-if></div></sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"caps":{"editor":null},"onAreaMap":{"editor":null},"focus":{"editor":null},"days":{"editor":null},"shifts":{"editor":null},"slots":{"editor":null},"rules":{"editor":null},"openings":{"editor":null},"deficits":{"editor":null},"watches":{"editor":null},"facts":{"editor":null},"quests":{"editor":null},"today":{"editor":"text","default":""},"nowMinutes":{"editor":null},"initialTab":{"editor":"text","default":"mine"},"initialWeek":{"editor":null},"onTake":{"editor":null},"onShowInPlan":{"editor":null},"initialDay":{"editor":"text","default":""},"initialPast":{"editor":null},"initialSvc":{"editor":"text","default":""},"onBack":{"editor":null},"onOpenService":{"editor":null},"alertRules":{"editor":null},"alertServices":{"editor":null},"alertFind":{"editor":null},"onAlert":{"editor":null},"onAlertNew":{"editor":null},"onAlertOpen":{"editor":null},"onAlertToggle":{"editor":null},"onTab":{"editor":null},"$preview":{"width":390,"height":1600}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"caps":{"editor":null},"onAreaMap":{"editor":null},"focus":{"editor":null},"days":{"editor":null},"shifts":{"editor":null},"slots":{"editor":null},"rules":{"editor":null},"openings":{"editor":null},"deficits":{"editor":null},"watches":{"editor":null},"facts":{"editor":null},"dayFacts":{"editor":null},"quests":{"editor":null},"today":{"editor":"text","default":""},"nowMinutes":{"editor":null},"initialTab":{"editor":"text","default":"mine"},"initialWeek":{"editor":null},"onTake":{"editor":null},"onShowInPlan":{"editor":null},"initialDay":{"editor":"text","default":""},"initialPast":{"editor":null},"initialSvc":{"editor":"text","default":""},"onBack":{"editor":null},"onOpenService":{"editor":null},"alertRules":{"editor":null},"alertServices":{"editor":null},"alertFind":{"editor":null},"onAlert":{"editor":null},"onAlertNew":{"editor":null},"onAlertOpen":{"editor":null},"onAlertToggle":{"editor":null},"onTab":{"editor":null},"$preview":{"width":390,"height":1600}}'>
 // Смены: что уже взято в сервисах и что требует действия, плюс слоты, которые можно взять, и слежение
 // решения когда и где работать живут в Плане, здесь журнал броней недели
 const RSH_FMT = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
@@ -127,8 +127,8 @@ const RSH_MONTH = ['января', 'февраля', 'марта', 'апреля
 // демо-сегодня для показа отдельно от приложения, в приложении дата приходит пропсом today
 const RSH_TODAY_ISO = (() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();
 const RSH_DEMO_SHIFTS = [
-  { id: 'd1', iso: RSH_TODAY_ISO, svc: 'vkusvill', title: 'ВкусВилл', place: 'Даркстор на Правды, 24', from: 840, to: 1020, status: 'active', rate: 400 },
-  { id: 'd2', iso: RSH_TODAY_ISO, svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Локация Беговая', from: 1020, to: 1200, status: 'confirmed', rate: 390 }
+  { id: 'd1', iso: RSH_TODAY_ISO, svc: 'vkusvill', title: 'ВкусВилл', pid: 'vv-5773739', place: 'Даркстор · ул. Правды, д. 24 стр. 3 · 2,9 км', from: 840, to: 1020, status: 'active', rate: 400 },
+  { id: 'd2', iso: RSH_TODAY_ISO, svc: 'yandex-eda', title: 'Яндекс Еда', pid: 'yeda-loc-begovoy', place: 'Локация · Беговой', from: 1020, to: 1200, status: 'confirmed', rate: 390 }
 ];
 const RSH_DOW_SHORT = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 class Component extends DCLogic {
@@ -149,6 +149,30 @@ class Component extends DCLogic {
     const slots = (p.slots || []).filter((x) => weekIsos.indexOf(x.iso) !== -1);
     const rules = p.rules || {};
     const facts = p.facts || {};
+    // итог прошедших дней как в Плане: день делим между выполненными сменами, сервисы со своими суммами берут свои
+    const dayFacts = p.dayFacts || {};
+    const dayFactCache = {};
+    const dayFactOf = (iso) => {
+      if (dayFactCache[iso] !== undefined) return dayFactCache[iso];
+      const df = dayFacts[iso], ws = df ? shifts.filter((b) => b.iso === iso && b.status === 'completed') : [];
+      if (!ws.length) return (dayFactCache[iso] = null);
+      const out = {};
+      const split = (list, earn, orders) => {
+        const tot = list.reduce((sum, b) => sum + b.to - b.from, 0);
+        let eLeft = earn, oLeft = orders;
+        list.forEach((b, i) => {
+          const last = i === list.length - 1;
+          const e = last ? eLeft : Math.round(earn * (b.to - b.from) / tot / 10) * 10, o = last ? oLeft : Math.round(orders * (b.to - b.from) / tot);
+          eLeft -= e; oLeft -= o; out[b.id] = { earn: e, orders: o };
+        });
+      };
+      const vv = ws.filter((b) => b.svc === 'vkusvill'), sk = ws.filter((b) => b.svc === 'samokat');
+      const keys = ws.map((b) => b.svc).filter((k, i, arr) => arr.indexOf(k) === i);
+      if (df.svc && keys.every((k) => df.svc[k])) keys.forEach((k) => split(ws.filter((b) => b.svc === k), df.svc[k].earn, df.svc[k].orders));
+      else if (vv.length && sk.length && vv.length + sk.length === ws.length) { split(vv, df.vvEarn, df.vvOrders); split(sk, df.samokatEarn, df.samokatOrders); }
+      else split(ws, df.earn, df.orders);
+      return (dayFactCache[iso] = out);
+    };
     // профиль возможностей сервисов из приложения: слова статусов, слежение, подпись кнопки, ставка
     const caps = p.caps || {};
     const capOf = (svc) => caps[svc] || {};
@@ -196,11 +220,13 @@ class Component extends DCLogic {
     };
     // деньги: прошедшая сегодня бронь берёт факт из интеграции, остальное оценка той же моделью, что в Плане
     const moneyOf = (s) => {
-      const f = s.iso === today && s.status === 'completed' ? facts[s.svc] : null;
+      const f = s.status === 'completed' ? (s.iso === today ? facts[s.svc] : (s.iso < today ? (dayFactOf(s.iso) || {})[s.id] : null)) : null;
       const rate = RSH_RATE(s.svc, s.from, s.to);
       // идущая смена: уже начисленное плюс оценка остатка, итог не меньше начисленного
       const run = s.iso === today && s.status === 'active' ? facts[s.svc] : null;
       if (run) { const left = Math.max(0, s.to - now), rest = Math.round(rate * left / 600) * 10; return { sum: run.earn + rest, rate, pay: RSH_FMT(run.earn) + ' ₽ уже', text: '≈ ' + RSH_FMT(Math.round((run.earn + rate * left / 60) / 10) * 10) + ' ₽ за смену', note: 'Уже ' + RSH_FMT(run.earn) + ' ₽, ещё ≈ ' + RSH_FMT(rest) + ' ₽ за ' + RSH_LEFT(left) }; }
+      // прошедшая смена без факта: оценку не показываем, как в Плане
+      if (!f && s.iso < today && s.status === 'completed') return { sum: rate * (s.to - s.from) / 60, rate, pay: '—', text: 'Данные ещё не пришли', note: 'Заработок придёт из приложения сервиса' };
       if (f) return { sum: f.earn, pay: RSH_FMT(f.earn) + ' ₽', text: RSH_FMT(f.earn) + ' ₽ за смену', note: f.orders + ' заказов, это факт из приложения сервиса' };
       return { sum: rate * (s.to - s.from) / 60, rate, pay: '≈ ' + RSH_FMT(Math.round(rate * (s.to - s.from) / 60 / 10) * 10) + ' ₽', text: '≈ ' + RSH_FMT(Math.round(rate * (s.to - s.from) / 60 / 10) * 10) + ' ₽ за смену', note: '≈ ' + RSH_FMT(rate) + ' ₽/ч, оценка ' + RSH_CONF_TEXT(s.from, s.to) + (s.rate && rateKnown(s.svc) ? '. Ставка сервиса ' + s.rate + ' ₽/ч входит в оценку' : '') };
     };
@@ -283,7 +309,7 @@ class Component extends DCLogic {
       const when = dayTitle(s.iso) + (s.status === 'active' ? ', осталось ' + RSH_LEFT(s.to - now) : (isToday && s.from > now ? ', через ' + RSH_LEFT(s.from - now) : ''));
       const rule = past || s.status === 'active' ? { text: '', tone: '' } : ruleFor(s.svc, s.iso, s.from);
       return {
-        svc: s.svc, title: s.title, place: s.place, time: RSH_TIME(s.from) + '–' + RSH_TIME(s.to), status: stt[0], tone: stt[2],
+        svc: s.svc, title: s.title, place: s.place, pid: s.pid || '', time: RSH_TIME(s.from) + '–' + RSH_TIME(s.to), status: stt[0], tone: stt[2],
         whenNote: when + (stt[3] ? '. ' + stt[3] : '') + (s.transfer ? '. Смену передали вам' : ''), svcLine: svcLineOf(s.svc, s.status),
         money: m.text, moneyNote: m.note, conflict: past ? '' : (conflictOf[s.id] || ''), rule: rule.text, ruleTone: rule.tone, ruleSrc: rule.text && rules[s.svc] ? rules[s.svc].src || '' : '',
         action: past ? '' : 'Открыть в приложении ' + s.title, act: () => openService(s.svc, whenOf(s)),
@@ -296,7 +322,7 @@ class Component extends DCLogic {
       const stt = statusOf(s);
       const m = moneyOf(s);
       const past = s.status === 'completed' || s.status === 'cancelled' || s.status === 'missed';
-      const f = s.iso === today && s.status === 'completed' && facts[s.svc];
+      const f = s.status === 'completed' && (s.iso === today ? facts[s.svc] : (dayFactOf(s.iso) || {})[s.id]);
       return {
         from: RSH_TIME(s.from), to: RSH_TIME(s.to), svc: s.svc, title: s.title, sub: s.place, pay: m.pay,
         kind: stt[1] === 'booked' && modeOf(s.svc) === 'restaurant' ? 'shift' : stt[1], badge: f ? 'отработано' : stt[0], state: past ? 'past' : (s.status === 'active' ? 'now' : ''),
@@ -395,7 +421,7 @@ class Component extends DCLogic {
       const m = moneyOf(sl);
       const clash = sl.taken ? null : clashOf(sl);
       return {
-        svc: sl.svc, title: sl.title, place: sl.place, time: RSH_TIME(sl.from) + '–' + RSH_TIME(sl.to),
+        svc: sl.svc, title: sl.title, place: sl.place, pid: sl.pid || '', time: RSH_TIME(sl.from) + '–' + RSH_TIME(sl.to),
         status: r.badge, tone: sl.gone ? 'muted' : (sl.apply || sl.taken === 'requested' ? 'warn' : 'ok'),
         whenNote: dayTitle(sl.iso) + ', ' + RSH_DUR(sl.to - sl.from) + (sl.bonus ? '. ' + sl.bonus : '') + (sl.apply ? '. Отклик это заявка, смену подтвердит сервис' : '') + (sl.svc === 'vkusvill' ? '. ' + RSH_VV_NOTE : '') + (sl.gone && !watchOk(sl.svc) ? '. Слежение для этого сервиса недоступно' : ''), svcLine: svcLineOf(sl.svc, sl.taken === 'requested' ? 'requested' : (sl.taken ? 'confirmed' : '')),
         money: m.text, moneyNote: m.note,

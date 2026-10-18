@@ -66,7 +66,7 @@
       <li><i class="rgs-earned"></i><span>Заработано</span><b>{{ earned }}</b></li>
       <li><i class="rgs-booked"></i><span>Брони</span><b>{{ booked }}</b></li>
       <sc-if value="{{ has_req }}" hint-placeholder-val="{{ false }}"><li><i class="rgs-req"></i><span>Заявки, ждут ответа</span><b>{{ requested }}</b></li></sc-if>
-      <li><i class="rgs-plan"></i><span>План</span><b>{{ planned }}</b></li>
+      <sc-if value="{{ has_plan }}" hint-placeholder-val="{{ true }}"><li><i class="rgs-plan"></i><span>План</span><b>{{ planned }}</b></li></sc-if>
     </ul>
 
     <sc-if value="{{ has_rely }}" hint-placeholder-val="{{ true }}"><p class="rgs-rely">{{ rely }}</p></sc-if>
@@ -132,7 +132,7 @@ class Component extends DCLogic {
       goal_text: RGS_FMT(goal),
       goal_change: (e) => setGoal(parseInt(String((e && e.target ? e.target.value : e) || '').replace(/\D/g, ''), 10) || 0),
       presets, preset_on: presetOn, set_preset: (k) => setGoal(Number(k)),
-      earned: RGS_FMT(earned) + ' ₽', booked: '≈ ' + RGS_FMT(booked) + ' ₽', requested: '≈ ' + RGS_FMT(requested) + ' ₽', has_req: requested > 0, planned: '≈ ' + RGS_FMT(planned) + ' ₽',
+      earned: RGS_FMT(earned) + ' ₽', booked: '≈ ' + RGS_FMT(booked) + ' ₽', requested: '≈ ' + RGS_FMT(requested) + ' ₽', has_req: requested > 0, planned: '≈ ' + RGS_FMT(planned) + ' ₽', has_plan: planned > 0,
       earned_style: 'width:' + pct(earned), booked_style: 'width:' + pct(booked), req_style: 'width:' + pct(requested), plan_style: 'width:' + pct(planned),
       mark_style: 'left:' + pct(goal),
       bar_aria: 'Заработано ' + RGS_FMT(earned) + ', брони ' + RGS_FMT(booked) + (requested ? ', заявки ' + RGS_FMT(requested) : '') + ', план ' + RGS_FMT(planned) + ' из цели ' + RGS_FMT(goal) + ' рублей',
@@ -144,7 +144,7 @@ class Component extends DCLogic {
       verdict: short ? 'Не хватает ≈ ' + RGS_FMT(RGS_R(gap)) + ' ₽, это ≈ ' + orders + ' ' + RGS_ORDERS(orders) + ', ' + perDay : (earned >= goal ? 'Цель уже выполнена, сверху ≈ ' + RGS_FMT(RGS_R(earned - goal)) + ' ₽' : 'Плана хватит на цель, запас ≈ ' + RGS_FMT(RGS_R(gap)) + ' ₽'),
       // план это прогноз, поэтому отдельно говорим, если цель держится на них
       has_risk: !short && sure < goal,
-      risk: 'Без плана не хватит ≈ ' + RGS_FMT(RGS_R(goal - sure)) + ' ₽',
+      risk: 'Без ' + (planned > 0 ? (requested > 0 ? 'плана и заявок' : 'плана') : 'заявок') + ' не хватит ≈ ' + RGS_FMT(RGS_R(goal - sure)) + ' ₽',
       fix: () => { if (typeof p.onFix === 'function') p.onFix(); },
       close, stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
     };

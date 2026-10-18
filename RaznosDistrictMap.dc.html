@@ -47,6 +47,7 @@
     .rdm-pill.rdm-pill-none { color: var(--raznos-ink-3); }
     .rdm-pill.rdm-pill-sel.rdm-pill-none { color: var(--raznos-on-dark); }
     .rdm-pill-few { font: 600 11px var(--raznos-font); opacity: .8; }
+    .rdm-ds.rdm-ds-sm { width: 10px; height: 10px; border-width: 2px; }
     .rdm-ds { width: 18px; height: 18px; border-radius: 50%; border: 3px solid #fff; box-sizing: border-box; box-shadow: 0 2px 6px rgba(20, 25, 40, .35); }
     .rdm-zone-tag { margin-bottom: 4px; padding: 4px 9px; border-radius: 999px; background: var(--raznos-surface); color: var(--raznos-ink-2); box-shadow: 0 1px 5px rgba(20, 25, 40, .2); font: 600 11.5px var(--raznos-font); white-space: nowrap; }
     /* режим люди: Карта курьеров, районы тихо на фоне, поверх курьеры, капли сообщений и ваша точка */
@@ -664,7 +665,7 @@ class Component extends DCLogic {
     const list = Array.isArray(p.districts) ? p.districts : [];
     const zones = Array.isArray(p.zones) ? p.zones : [];
     const hour = typeof p.hour === 'number' ? p.hour : 12;
-    const sig = JSON.stringify([mode, sel, hour, list.map((d) => [d.k, d.t, d.val, d.up, d.few, d.nodata, d.name, !!d.named]), zones.map((z) => [z.center, z.radius_m, z.svc, z.approx, z.label])]);
+    const sig = JSON.stringify([mode, sel, hour, list.map((d) => [d.k, d.t, d.val, d.up, d.few, d.nodata, d.name, !!d.named]), zones.map((z) => [z.center, z.radius_m, z.svc, z.approx, z.label, z.tag, z.polygon ? z.polygon.length : 0])]);
     if (sig === this._sig) return;
     const prevSel = this._lastSel;
     this._sig = sig; this._lastSel = sel;
@@ -845,22 +846,34 @@ class Component extends DCLogic {
     return out;
   }
 
-  // точка даркстора и подпись радиуса над кругом
+  // точка даркстора и подпись радиуса над кругом, у полигона точки магазинов и подпись у верхней точки контура
   _zoneMarks(zones, svcColor) {
     const out = [];
     zones.forEach((z) => {
-      if (!z.center) return;
-      const dot = document.createElement('div');
-      dot.className = 'rdm-ds';
-      dot.style.background = svcColor(z);
-      dot.setAttribute('role', 'img');
-      dot.setAttribute('aria-label', z.label || 'Даркстор');
-      out.push({ el: dot, at: z.center, anchor: 'center' });
-      if (!z.polygon && z.radius_m) {
+      (z.points || []).forEach((pt) => {
+        const dot = document.createElement('div');
+        dot.className = 'rdm-ds rdm-ds-sm';
+        dot.style.background = svcColor(z);
+        dot.setAttribute('role', 'img');
+        dot.setAttribute('aria-label', 'Магазин полигона');
+        out.push({ el: dot, at: pt, anchor: 'center' });
+      });
+      if (z.center) {
+        const dot = document.createElement('div');
+        dot.className = 'rdm-ds';
+        dot.style.background = svcColor(z);
+        dot.setAttribute('role', 'img');
+        dot.setAttribute('aria-label', z.label || 'Даркстор');
+        out.push({ el: dot, at: z.center, anchor: 'center' });
+      }
+      // подпись источника или примерности, у круга над точкой, у контура у верхней точки
+      const text = z.tag || (!z.polygon && z.radius_m ? 'радиус ≈ ' + rdmFmtKm(z.radius_m) + (z.approx === false ? '' : ', примерно') : '');
+      const top = z.polygon ? z.polygon.reduce((m, pt) => (pt[1] > m[1] ? pt : m), z.polygon[0]) : (z.center ? [z.center[0], z.center[1] + z.radius_m / 110574] : null);
+      if (text && top) {
         const tag = document.createElement('div');
         tag.className = 'rdm-zone-tag';
-        tag.textContent = 'радиус ≈ ' + rdmFmtKm(z.radius_m) + (z.approx === false ? '' : ', примерно');
-        out.push({ el: tag, at: [z.center[0], z.center[1] + z.radius_m / 110574], anchor: 'bottom' });
+        tag.textContent = text;
+        out.push({ el: tag, at: top, anchor: 'bottom' });
       }
     });
     return out;

@@ -212,10 +212,10 @@
   </sc-if>
 
   <sc-if value="{{ show_gap_sheet }}" hint-placeholder-val="{{ false }}">
-    <dc-import name="RaznosGapSheet" from="{{ gs_from }}" to="{{ gs_to }}" current="{{ gs_current }}" options="{{ gs_options }}" extra="{{ gs_extra }}" rely="{{ gs_rely }}" doneNote="{{ gs_done_note }}" closeLabel="{{ gs_close_label }}" onRemove="{{ gs_remove }}" place="{{ gs_place }}" svc="{{ gs_svc }}" onArea="{{ area_map }}" onClose="{{ gs_close }}"></dc-import>
+    <dc-import name="RaznosGapSheet" from="{{ gs_from }}" to="{{ gs_to }}" current="{{ gs_current }}" options="{{ gs_options }}" extra="{{ gs_extra }}" rely="{{ gs_rely }}" doneNote="{{ gs_done_note }}" closeLabel="{{ gs_close_label }}" onRemove="{{ gs_remove }}" place="{{ gs_place }}" pid="{{ gs_pid }}" svc="{{ gs_svc }}" onArea="{{ area_map }}" onClose="{{ gs_close }}"></dc-import>
   </sc-if>
   <sc-if value="{{ show_book_sheet }}" hint-placeholder-val="{{ false }}">
-    <dc-import name="RaznosShiftSheet" offer="{{ bs.offer }}" onOffer="{{ bs.onOffer }}" svc="{{ bs.svc }}" title="{{ bs.title }}" place="{{ bs.place }}" time="{{ bs.time }}" status="{{ bs.status }}" tone="{{ bs.tone }}" whenNote="{{ bs.whenNote }}" svcLine="{{ bs.svcLine }}" fallback="{{ bs.fallback }}" money="{{ bs.money }}" moneyNote="{{ bs.moneyNote }}" conflict="{{ bs.conflict }}" rebook="{{ bs.rebook }}" rule="{{ bs.rule }}" ruleTone="{{ bs.ruleTone }}" ruleSrc="{{ bs.ruleSrc }}" action="{{ bs.action }}" actionNote="{{ bs.actionNote }}" onAction="{{ bs.act }}" onArea="{{ area_map }}" onClose="{{ bs_close }}"></dc-import>
+    <dc-import name="RaznosShiftSheet" offer="{{ bs.offer }}" onOffer="{{ bs.onOffer }}" svc="{{ bs.svc }}" title="{{ bs.title }}" place="{{ bs.place }}" pid="{{ bs.pid }}" time="{{ bs.time }}" status="{{ bs.status }}" tone="{{ bs.tone }}" whenNote="{{ bs.whenNote }}" svcLine="{{ bs.svcLine }}" fallback="{{ bs.fallback }}" money="{{ bs.money }}" moneyNote="{{ bs.moneyNote }}" conflict="{{ bs.conflict }}" rebook="{{ bs.rebook }}" rule="{{ bs.rule }}" ruleTone="{{ bs.ruleTone }}" ruleSrc="{{ bs.ruleSrc }}" action="{{ bs.action }}" actionNote="{{ bs.actionNote }}" onAction="{{ bs.act }}" onArea="{{ area_map }}" onClose="{{ bs_close }}"></dc-import>
   </sc-if>
   <sc-if value="{{ show_offer }}" hint-placeholder-val="{{ false }}">
     <dc-import name="RaznosDayOffer" variant="sheet" conflict="{{ ofs.conflict }}" swap="{{ ofs.swap }}" transport="{{ fx_transport }}" onSwap="{{ ofs.onSwap }}" onLeave="{{ ofs.onLeave }}" onLate="{{ ofs.onLate }}" onKeep="{{ ofs.onKeep }}" onClose="{{ ofs_close }}"></dc-import>
@@ -270,6 +270,7 @@ const RSS_TODAY = (() => { const d = new Date(); return new Date(d.getFullYear()
 const RSS_NOW = 15 * 60 + 40;
 const RSS_WD = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 const RSS_WD_FULL = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+const RSS_WD_ACC = ['воскресенье', 'понедельник', 'вторник', 'среду', 'четверг', 'пятницу', 'субботу'];
 const RSS_MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const RSS_MONTHS_SHORT = ['янв', 'февр', 'марта', 'апр', 'мая', 'июня', 'июля', 'авг', 'сент', 'окт', 'нояб', 'дек'];
 const rssIso = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -318,42 +319,50 @@ const rssLeft = (m) => ((m >= 60 ? Math.floor(m / 60) + ' ч ' : '') + (m % 60 ?
 const rssHours = (m) => { const h = Math.round(m / 6) / 10; return String(h).replace('.', ',') + ' ч'; };
 const rssVsMine = (rate) => { const d = Math.round((rate - RSS_MY_RATE) * 100 / RSS_MY_RATE); return d >= 6 ? '+' + d + '% к вашему среднему' : (d <= -6 ? '−' + Math.abs(d) + '% к вашему среднему' : 'как ваш средний'); };
 const RSS_BOOK_STATUS = { requested: ['заявка', 'pending'], tentative: ['предварительная', 'pending'], confirmed: ['бронь', 'booked'], active: ['бронь', 'booked'], completed: ['бронь', 'booked'] };
+// места демо из справочника RaznosApp, строка как в Слотах, подписи заданы текстом: без приложения справочника нет
+const RSS_P = {
+  sam: { pid: 'sam-ae20d027', place: 'Даркстор · Хорошёвское шоссе, 52 к1 · 0,8 км' },
+  vv: { pid: 'vv-5773739', place: 'Даркстор · ул. Правды, д. 24 стр. 3 · 2,9 км' },
+  eda: { pid: 'yeda-loc-begovoy', place: 'Локация · Беговой' },
+  x5s: { pid: 'osm:node/5256784721', place: 'Магазин · Хорошёвское шоссе, 48 · 0,7 км' },
+  x5p: { pid: 'x5-poly-khoroshevsky', place: 'Полигон · Хорошёвский · 19 магазинов · 0,5 км' }
+};
 // демо на случай, когда экран открыт отдельно от приложения
 const RSS_DEMO_BOOKED = [
-  { id: 's3', iso: rssAt(0), svc: 'samokat', title: 'Самокат', place: 'Даркстор Беговая, 7', from: 540, to: 720, status: 'completed' },
-  { id: 's4', iso: rssAt(0), svc: 'vkusvill', title: 'ВкусВилл', place: 'Даркстор на Правды, 24', from: 840, to: 1020, status: 'active' },
-  { id: 's5', iso: rssAt(0), svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Локация Беговая', from: 1020, to: 1260, status: 'confirmed' },
-  { id: 's6', iso: rssAt(1), svc: 'samokat', title: 'Самокат', place: 'Даркстор Беговая, 7', from: 630, to: 810, status: 'confirmed' },
-  { id: 's7', iso: rssAt(1), svc: 'vkusvill', title: 'ВкусВилл', place: 'Даркстор на Правды, 24', from: 840, to: 1080, status: 'requested' },
-  { id: 's8', iso: rssAt(2), svc: 'x5', title: 'X5 Доставка', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 660, to: 1020, status: 'confirmed' },
-  { id: 's9', iso: rssAt(3), svc: 'samokat', title: 'Самокат', place: 'Даркстор Беговая, 7', from: 1080, to: 1320, status: 'confirmed' },
-  { id: 's10', iso: rssAt(4), svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Локация Беговая', from: 720, to: 960, status: 'confirmed' }
+  { id: 's3', iso: rssAt(0), svc: 'samokat', title: 'Самокат', ...RSS_P.sam, from: 540, to: 720, status: 'completed' },
+  { id: 's4', iso: rssAt(0), svc: 'vkusvill', title: 'ВкусВилл', ...RSS_P.vv, from: 840, to: 1020, status: 'active' },
+  { id: 's5', iso: rssAt(0), svc: 'yandex-eda', title: 'Яндекс Еда', ...RSS_P.eda, from: 1020, to: 1260, status: 'confirmed' },
+  { id: 's6', iso: rssAt(1), svc: 'samokat', title: 'Самокат', ...RSS_P.sam, from: 630, to: 810, status: 'confirmed' },
+  { id: 's7', iso: rssAt(1), svc: 'vkusvill', title: 'ВкусВилл', ...RSS_P.vv, from: 840, to: 1080, status: 'requested' },
+  { id: 's8', iso: rssAt(2), svc: 'x5', title: 'X5 Доставка', ...RSS_P.x5s, from: 660, to: 1020, status: 'confirmed' },
+  { id: 's9', iso: rssAt(3), svc: 'samokat', title: 'Самокат', ...RSS_P.sam, from: 1080, to: 1320, status: 'confirmed' },
+  { id: 's10', iso: rssAt(4), svc: 'yandex-eda', title: 'Яндекс Еда', ...RSS_P.eda, from: 720, to: 960, status: 'confirmed' }
 ];
 const RSS_DEMO_SLOTS = [
-  { id: 'f1', iso: rssAt(0), svc: 'samokat', place: 'Даркстор Беговая, 7', from: 1080, to: 1320, apply: true },
-  { id: 'f3', iso: rssAt(1), svc: 'samokat', place: 'Даркстор Беговая, 7', from: 1080, to: 1320, apply: true },
-  { id: 'f5', iso: rssAt(1), svc: 'x5', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 540, to: 900 },
-  { id: 'f6', iso: rssAt(1), svc: 'vkusvill', place: 'Даркстор на Правды, 24', from: 1140, to: 1320, apply: true },
-  { id: 'f9', iso: rssAt(3), svc: 'x5', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 720, to: 1080 },
-  { id: 'f12', iso: rssAt(5), svc: 'samokat', place: 'Даркстор Беговая, 7', from: 720, to: 960, apply: true },
+  { id: 'f1', iso: rssAt(0), svc: 'samokat', ...RSS_P.sam, from: 1080, to: 1320, apply: true },
+  { id: 'f3', iso: rssAt(1), svc: 'samokat', ...RSS_P.sam, from: 1080, to: 1320, apply: true },
+  { id: 'f5', iso: rssAt(1), svc: 'x5', ...RSS_P.x5p, from: 540, to: 900 },
+  { id: 'f6', iso: rssAt(1), svc: 'vkusvill', ...RSS_P.vv, from: 1140, to: 1320, apply: true },
+  { id: 'f9', iso: rssAt(3), svc: 'x5', ...RSS_P.x5p, from: 720, to: 1080 },
+  { id: 'f12', iso: rssAt(5), svc: 'samokat', ...RSS_P.sam, from: 720, to: 960, apply: true },
   { id: 'f13', iso: rssAt(5), svc: 'yandex-eda', from: 840, to: 1080, gone: true }
 ];
 // слоты, которые план сам ставит в свободные часы, остальное закрывает свободный выход
 // соседние недели для демо: прошлая выполнена, на следующей часть записи уже открылась
 const RSS_EXTRA_BOOKED = [
-  { id: 'p1', iso: rssAt(-8), svc: 'samokat', title: 'Самокат', place: 'Даркстор Беговая, 7', from: 540, to: 780, status: 'completed' },
-  { id: 'p2', iso: rssAt(-8), svc: 'vkusvill', title: 'ВкусВилл', place: 'Даркстор на Правды, 24', from: 840, to: 1080, status: 'completed' },
-  { id: 'p3', iso: rssAt(-7), svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Локация Беговая', from: 720, to: 1080, status: 'completed' },
-  { id: 'p4', iso: rssAt(-6), svc: 'x5', title: 'X5 Доставка', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 660, to: 1020, status: 'completed' },
-  { id: 'p5', iso: rssAt(-5), svc: 'samokat', title: 'Самокат', place: 'Даркстор Беговая, 7', from: 1080, to: 1320, status: 'completed' },
-  { id: 'p6', iso: rssAt(-4), svc: 'vkusvill', title: 'ВкусВилл', place: 'Даркстор на Правды, 24', from: 600, to: 840, status: 'completed' },
-  { id: 'p7', iso: rssAt(-3), svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Локация Беговая', from: 720, to: 1200, status: 'completed' },
-  { id: 'n1', iso: rssAt(7), svc: 'yandex-eda', title: 'Яндекс Еда', place: 'Локация Беговая', from: 720, to: 960, status: 'confirmed' },
-  { id: 'n2', iso: rssAt(9), svc: 'x5', title: 'X5 Доставка', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 660, to: 1020, status: 'confirmed' }
+  { id: 'p1', iso: rssAt(-8), svc: 'samokat', title: 'Самокат', ...RSS_P.sam, from: 540, to: 780, status: 'completed' },
+  { id: 'p2', iso: rssAt(-8), svc: 'vkusvill', title: 'ВкусВилл', ...RSS_P.vv, from: 840, to: 1080, status: 'completed' },
+  { id: 'p3', iso: rssAt(-7), svc: 'yandex-eda', title: 'Яндекс Еда', ...RSS_P.eda, from: 720, to: 1080, status: 'completed' },
+  { id: 'p4', iso: rssAt(-6), svc: 'x5', title: 'X5 Доставка', ...RSS_P.x5s, from: 660, to: 1020, status: 'completed' },
+  { id: 'p5', iso: rssAt(-5), svc: 'samokat', title: 'Самокат', ...RSS_P.sam, from: 1080, to: 1320, status: 'completed' },
+  { id: 'p6', iso: rssAt(-4), svc: 'vkusvill', title: 'ВкусВилл', ...RSS_P.vv, from: 600, to: 840, status: 'completed' },
+  { id: 'p7', iso: rssAt(-3), svc: 'yandex-eda', title: 'Яндекс Еда', ...RSS_P.eda, from: 720, to: 1200, status: 'completed' },
+  { id: 'n1', iso: rssAt(7), svc: 'yandex-eda', title: 'Яндекс Еда', ...RSS_P.eda, from: 720, to: 960, status: 'confirmed' },
+  { id: 'n2', iso: rssAt(9), svc: 'x5', title: 'X5 Доставка', ...RSS_P.x5s, from: 660, to: 1020, status: 'confirmed' }
 ];
 const RSS_EXTRA_SLOTS = [
   { id: 'n3', iso: rssAt(6), svc: 'yandex-eda', from: 1020, to: 1260 },
-  { id: 'n4', iso: rssAt(10), svc: 'x5', place: 'Пятёрочка, Ленинградский пр-т, 15', from: 720, to: 1080 }
+  { id: 'n4', iso: rssAt(10), svc: 'x5', ...RSS_P.x5p, from: 720, to: 1080 }
 ];
 // сколько начислено на прошлой неделе и какая была цель, демо-цифры
 const RSS_PREV_WEEK = { earned: 27240, goal: 30000 };
@@ -581,7 +590,7 @@ class Component extends DCLogic {
     // все окна дня: брони из Смен, план в свободные часы графика, добавленное курьером
     const windowsOf = (iso, withRemoved) => {
       const d = new Date(iso + 'T00:00:00');
-      const own = booked.filter((b) => b.iso === iso).map((b) => ({ key: 'b:' + b.id, iso, svc: b.svc, from: b.from, to: b.to, zone: '', place: b.place, source: 'booking', status: b.status }));
+      const own = booked.filter((b) => b.iso === iso).map((b) => ({ key: 'b:' + b.id, iso, svc: b.svc, from: b.from, to: b.to, zone: '', place: b.place, pid: b.pid, source: 'booking', status: b.status }));
       const list = own.slice();
       // прошедший день это только факт броней, план и свободные часы не показываем
       if (iso < RSS_TODAY_ISO) return list.sort((a, b) => a.from - b.from);
@@ -598,7 +607,7 @@ class Component extends DCLogic {
             .find((sl) => sl && sl.from >= f && sl.to <= t && slotState(sl) !== 'full' && rssRate(sl.svc, sl.from, sl.to) - rssRate('yandex-eda', sl.from, sl.to) >= 40);
           const parts = pick ? [[f, pick.from, null], [pick.from, pick.to, pick], [pick.to, t, null]] : [[f, t, null]];
           parts.filter(([a, b]) => b - a >= 60).forEach(([a, b, sl]) => {
-            if (sl) list.push({ key: 'p:' + iso + ':' + a, iso, svc: sl.svc, from: a, to: b, zone: 'Тверской', source: 'plan', slot: sl });
+            if (sl) list.push({ key: 'p:' + iso + ':' + a, iso, svc: sl.svc, from: a, to: b, zone: 'Тверской', place: sl.place, pid: sl.pid, source: 'plan', slot: sl });
             else list.push({ key: 'p:' + iso + ':' + a, iso, svc: 'yandex-eda', from: a, to: b, zone: 'Тверской', source: 'plan' });
           });
         });
@@ -616,6 +625,10 @@ class Component extends DCLogic {
         .map((w) => (w.source === 'booking' || w.source === 'gap' ? w : Object.assign({}, w, { svc: swaps[w.key] || w.svc, zone: zonesOf[w.key] || w.zone })))
         .sort((a, b) => a.from - b.from);
     };
+    const RP = typeof window !== 'undefined' ? window.RAZNOS_PLACES : null;
+    const pidOk = (w) => !!(RP && w.pid && RP.get(w.pid) && RP.get(w.pid).svc === w.svc);
+    const prevAtOf = (ws, w) => { const x = ws.filter((y) => y.key !== w.key && y.from < w.from && pidOk(y) && RP.at(y.pid)).sort((a, b) => b.from - a.from)[0]; return x ? RP.at(x.pid) : null; };
+    const whereOf = (w, ws, past) => (pidOk(w) ? RP.line(w.pid, { from: prevAtOf(ws, w), km: !past }) : (w.place || w.zone));
     const rateOf = (w) => rssRate(w.svc, w.from, w.to, rssZoneF(w.zone));
     const kindOf = (w) => {
       if (w.source === 'booking') return bookStat(w.status, w.svc)[1];
@@ -752,12 +765,13 @@ class Component extends DCLogic {
       // прошедшая бронь сегодня показывает факт из интеграции, а не прогноз
       const f = factOf(w, past);
       const noFact = selIso < RSS_TODAY_ISO && w.source === 'booking' && !f;
+      const where = whereOf(w, dayWins, past);
       // идущая смена показывает, сколько в ней уже начислено, чтобы сумма дня складывалась из видимых смен
       const nf = now && w.source === 'booking' ? (fact[w.svc] || null) : null;
       rows.push({
         _past: past, _earn: f ? f.earn : 0, _prevB: !past && prevB ? prevB : null,
-        is_window: true, _t: w.from, key: w.key, src: w.source, mine: w.source === 'added' || w.source === 'bt', from: rssTime(w.from), to: rssTime(w.to), svc: w.svc, title: RSS_SVC[w.svc].title,
-        sub: f ? (w.place || w.zone) + ' · ' + f.orders + ' заказов, ' + rssFmt(Math.round(f.earn * 60 / (w.to - w.from) / 10) * 10) + ' ₽/ч' : nf ? (w.place || w.zone) + ' · ' + nf.orders + ' заказов' : (noFact ? (w.place || w.zone) + ' · данные ещё не пришли' : (w.source === 'booking' && w.status === 'requested' ? (w.place || w.zone) + ' · ждёт подтверждения' : (w.place || w.zone))),
+        is_window: true, _t: w.from, key: w.key, pid: w.pid || '', src: w.source, mine: w.source === 'added' || w.source === 'bt', from: rssTime(w.from), to: rssTime(w.to), svc: w.svc, title: RSS_SVC[w.svc].title,
+        sub: f ? where + ' · ' + f.orders + ' заказов, ' + rssFmt(Math.round(f.earn * 60 / (w.to - w.from) / 10) * 10) + ' ₽/ч' : nf ? where + ' · ' + nf.orders + ' заказов' : (noFact ? where + ' · данные ещё не пришли' : (w.source === 'booking' && w.status === 'requested' ? where + ' · ждёт подтверждения' : where)),
         pay: f ? rssFmt(f.earn) + ' ₽' : (selIso < RSS_TODAY_ISO ? '—' : '≈ ' + rssFmt(rate) + ' ₽/ч'), kind,
         badge: f ? 'отработано' : (selIso < RSS_TODAY_ISO ? 'отработано' : w.source === 'booking' ? bookStat(w.status, w.svc)[0] : ({ free: 'свободный выход', need: 'нужен слот', full: 'нет в списке' })[kind]),
         state: past ? 'past' : (now ? 'now' : ''),
@@ -828,7 +842,7 @@ class Component extends DCLogic {
     }
     if (selIso >= RSS_TODAY_ISO) {
       slots.filter((sl) => sl.iso === selIso && !RSS_SVC[sl.svc].free && (!isToday || sl.to > RSS_NOW) && !booked.some((b) => b.iso === selIso && b.svc === sl.svc && b.from === sl.from))
-        .forEach((sl) => optList.push({ key: 'o:slot:' + sl.id, iso: selIso, svc: sl.svc, from: sl.from, to: sl.to, zone: 'Тверской', place: sl.place || RSS_SVC[sl.svc].title, source: 'option', avail: slotState(sl), slot: sl }));
+        .forEach((sl) => optList.push({ key: 'o:slot:' + sl.id, iso: selIso, svc: sl.svc, from: sl.from, to: sl.to, zone: 'Тверской', place: sl.place || RSS_SVC[sl.svc].title, pid: sl.pid, source: 'option', avail: slotState(sl), slot: sl }));
     }
     // Варианты строятся от дня курьера: свободное время, окна плана, которые выгоднее заменить, и остальное
     // часы дня можно ставить любые в пределах суток, сегодня только не раньше ближайшего часа
@@ -883,7 +897,7 @@ class Component extends DCLogic {
     const addWin = (o, sheet, snap) => {
       const dropKey = sheet && sheet.addedKey ? sheet.addedKey : '';
       const nx = Object.assign({}, added);
-      nx[selIso] = (nx[selIso] || []).filter((a) => a.key !== dropKey).concat([{ key: 'a:' + o.key, svc: o.svc, from: o.from, to: o.to, zone: o.zone, place: o.place, source: 'added', slot: o.slot }]);
+      nx[selIso] = (nx[selIso] || []).filter((a) => a.key !== dropKey).concat([{ key: 'a:' + o.key, svc: o.svc, from: o.from, to: o.to, zone: o.zone, place: o.place, pid: o.pid, source: 'added', slot: o.slot }]);
       const patch = { added: nx };
       if (sheet) patch.gapSheet = Object.assign({}, sheet, { addedKey: 'a:' + o.key, snap: sheet.snap || snap.inside, snapExt: sheet.snapExt || snap.ext });
       set(patch);
@@ -937,15 +951,15 @@ class Component extends DCLogic {
     const keepRebook = (rb) => { setRebookOff(rb.pair, true); flashUndo('Оставили свою смену, ' + rb.altTitle + ' больше не предлагаем', { offerSheet: st.offerSheet || null, bookSheet: st.bookSheet || null, _do: () => setRebookOff(rb.pair, false) }); set({ offerSheet: null, bookSheet: null }); };
     const takeRebook = (rb) => { set({ offerSheet: null, bookSheet: null }); takeSlot(rb.o.slot, rb.o.iso || selIso, rb.o.svc); };
     // лучший слот вместо брони: только если с учётом штрафа выходит от 100 ₽, неизвестный штраф не предлагаем
-    const rebookBest = (w, ok) => cands.filter((o) => o.fit === 'clash' && o.hard && o.hard.key === w.key && o.avail !== 'full' && (!ok || ok(o))).map((o) => rebookOf(o, w)).filter((x) => x.net != null && (x.net >= 100 || (ok && x.bonus && x.net + x.bonus >= 100)) && !rebookOff[x.pair]).sort((a, b) => b.net - a.net)[0] || null;
-    const placeOf = (o) => (o.avail === 'free' || RSS_SVC[o.svc].free ? o.zone : (o.place || RSS_SVC[o.svc].title));
+    const rebookBest = (w, ok) => cands.filter((o) => o.fit === 'clash' && o.hard && o.hard.key === w.key && o.avail !== 'full' && inDayHours(o) && (!ok || ok(o))).map((o) => rebookOf(o, w)).filter((x) => x.net != null && (x.net >= 100 || (ok && x.bonus && x.net + x.bonus >= 100)) && !rebookOff[x.pair]).sort((a, b) => b.net - a.net)[0] || null;
+    const placeOf = (o) => (o.avail === 'free' || RSS_SVC[o.svc].free ? o.zone : (pidOk(o) ? RP.line(o.pid, { from: prevAtOf(planWins, o) }) : (o.place || RSS_SVC[o.svc].title)));
     const rowOf = (o) => {
       const sl = o.slot;
       const on = !!watches[o.key];
       const badge = o.avail === 'free' ? 'свободный выход' : (o.avail === 'full' ? 'нет в списке' : (o.avail === 'apply' ? 'по заявке' : 'слот'));
       const row = {
         from: rssTime(o.from), to: rssTime(o.to), svc: o.svc, title: RSS_SVC[o.svc].title,
-        sub: placeOf(o), pay: '≈ ' + rssFmt(o.rate) + ' ₽/ч', kind: o.avail === 'free' ? 'free' : (o.avail === 'full' ? 'full' : 'need'), badge,
+        sub: placeOf(o), pid: o.avail === 'free' ? '' : (o.pid || ''), pay: '≈ ' + rssFmt(o.rate) + ' ₽/ч', kind: o.avail === 'free' ? 'free' : (o.avail === 'full' ? 'full' : 'need'), badge,
         tap: () => {}, onBadge: () => set({ term: RSS_TERMS[badge] ? badge : (o.avail === 'free' ? 'свободный выход' : 'нужен слот') })
       };
       const slotTail = o.avail === 'free' ? '' : (o.svc === 'vkusvill' ? ', часы обычно согласуют с куратором' : (o.avail === 'apply' ? ', нужна заявка' : ', слот нужно взять'));
@@ -1085,7 +1099,7 @@ class Component extends DCLogic {
     })() : null;
     const applyRebuild = () => {
       const nx = Object.assign({}, added);
-      nx[selIso] = (keepMine ? (added[selIso] || []) : []).concat(rb.fill.map((w) => ({ key: 'a:r:' + selIso + ':' + w.from, svc: w.svc, from: w.from, to: w.to, zone: 'Тверской', source: 'added', slot: w.slot })));
+      nx[selIso] = (keepMine ? (added[selIso] || []).filter((a) => a.source !== 'plan') : []).concat(rb.fill.map((w) => ({ key: 'a:r:' + selIso + ':' + w.from, svc: w.svc, from: w.from, to: w.to, zone: 'Тверской', source: 'added', slot: w.slot })));
       const strip = (obj) => { const o = {}; Object.keys(obj).forEach((k) => { if (k.indexOf(selIso) === -1) o[k] = obj[k]; }); return o; };
       const delta = Math.round((winsSum(rb.after) - winsSum(liveWins)) / 10) * 10;
       set({ added: nx, removed: strip(removed), swaps: strip(swaps), zones: strip(zonesOf), freed: strip(freed), rebuild: false });
@@ -1103,7 +1117,7 @@ class Component extends DCLogic {
     const replaceWith = (o) => {
       const rp = replacePlan(o), d = rp.delta;
       const nx = Object.assign({}, added);
-      nx[selIso] = (added[selIso] || []).filter((a) => !rp.out.some((x) => x.key === a.key)).concat([o].concat(rp.pieces).map((x) => ({ key: 'a:r:' + selIso + ':' + x.from + ':' + x.svc, svc: x.svc, from: x.from, to: x.to, zone: 'Тверской', place: x.place, source: 'added', slot: x.slot })));
+      nx[selIso] = (added[selIso] || []).filter((a) => !rp.out.some((x) => x.key === a.key)).concat([o].concat(rp.pieces).map((x) => ({ key: 'a:r:' + selIso + ':' + x.from + ':' + x.svc, svc: x.svc, from: x.from, to: x.to, zone: 'Тверской', place: x.place, pid: x.pid, source: 'added', slot: x.slot })));
       const rm = Object.assign({}, removed);
       rp.out.filter((x) => x.source === 'plan').forEach((x) => { rm[x.key] = true; });
       set({ added: nx, removed: rm, gapSheet: null });
@@ -1207,7 +1221,7 @@ class Component extends DCLogic {
     })() : null;
     const removeWin = () => {
       const w = sheetWin;
-      if (w.source === 'added') { const nx = Object.assign({}, added); nx[selIso] = (added[selIso] || []).filter((a) => a.key !== w.key); set({ added: nx, freed: Object.assign({}, freed, { [selIso]: (freed[selIso] || []).concat([[w.from, w.to]]) }), gapSheet: null }); }
+      if (w.source === 'added' || (added[selIso] || []).some((a) => a.key === w.key)) { const nx = Object.assign({}, added); nx[selIso] = (added[selIso] || []).filter((a) => a.key !== w.key); set({ added: nx, freed: Object.assign({}, freed, { [selIso]: (freed[selIso] || []).concat([[w.from, w.to]]) }), gapSheet: null }); }
       else set({ removed: Object.assign({}, removed, { [w.key]: true }), gapSheet: null });
       flashUndo('Убрали ' + rssTime(w.from) + '–' + rssTime(w.to), prevPlan());
     };
@@ -1234,7 +1248,7 @@ class Component extends DCLogic {
         return { text: (open ? 'Отменить без последствий до ' + lbl : 'Отмена без последствий закончилась ' + lbl) + '. ' + r.late, tone: open ? '' : 'warn', src: r.src || '' };
       })();
       return {
-        svc: w.svc, title: RSS_SVC[w.svc].title, place: w.place || w.zone || '', time: rssTime(w.from) + '–' + rssTime(w.to),
+        svc: w.svc, title: RSS_SVC[w.svc].title, place: whereOf(w, planWins, past) || '', pid: w.pid || '', time: rssTime(w.from) + '–' + rssTime(w.to),
         status: f ? 'отработано' : (live ? 'идёт' : (past ? 'отработано' : stt[0])), svcLine: svcLineOf(w.svc, w.status),
         fallback: !past && w.status === 'requested' && !RSS_SVC[w.svc].free ? 'Если ' + RSS_SVC[w.svc].title + (capOf(w.svc).status === 'wish' ? ' не одобрит пожелание' : ' откажет в заявке') + ', подставим Яндекс Еду на ' + rssTime(w.from) + '–' + rssTime(w.to) + ', ≈ ' + rssFmt(rssRate('yandex-eda', w.from, w.to)) + ' ₽/ч, и пришлём пуш' : '', tone: live ? 'live' : (stt[1] === 'pending' ? 'warn' : 'ok'),
         whenNote: RSS_WD_FULL[d.getDay()] + ', ' + d.getDate() + ' ' + RSS_MONTHS[d.getMonth()] + (live ? ', осталось ' + rssLeft(w.to - RSS_NOW) : (w.iso === RSS_TODAY_ISO && !past ? ', через ' + rssLeft(w.from - RSS_NOW) : '')),
@@ -1298,9 +1312,9 @@ class Component extends DCLogic {
       pool.forEach((o) => { if (picked.length < 2 && !picked.some((x) => x.from < o.to && x.to > o.from)) picked.push(o); });
       if (!picked.length) { flash('На этот день нечего предложить'); return; }
       const nx = Object.assign({}, added);
-      nx[selIso] = (nx[selIso] || []).concat(picked.map((o) => ({ key: 'a:' + o.key, svc: o.svc, from: o.from, to: o.to, place: o.place, source: 'added', slot: o.slot })));
+      nx[selIso] = (nx[selIso] || []).concat(picked.map((o) => ({ key: 'a:' + o.key, svc: o.svc, from: o.from, to: o.to, place: o.place, pid: o.pid, source: 'plan', slot: o.slot })));
       set({ added: nx });
-      flashUndo('Собрали план на ' + RSS_WD_FULL[selDate.getDay()].toLowerCase(), prevPlan());
+      flashUndo('Собрали план на ' + RSS_WD_ACC[selDate.getDay()], prevPlan());
     };
     const dayChanged = !!(added[selIso] && added[selIso].length) || Object.keys(removed).some((k) => k.indexOf(selIso) !== -1) || Object.keys(swaps).some((k) => k.indexOf(selIso) !== -1);
 
@@ -1395,7 +1409,7 @@ class Component extends DCLogic {
       total_delta_cls: 'rss-total-delta' + (dayAnim ? ' rss-is-' + dayAnim.dir : ''), total_cap: isToday ? 'К концу дня' : 'За день', total_aria: (isToday ? 'К концу дня' : 'За день') + ' ≈ ' + rssFmt(r10(dayEarn)) + ' рублей, как считаем',
       open_forecast: () => set({ term: 'оценка дня' }),
       rows: (topNudge ? [topNudge] : []).concat(dueNudges, rowsShown), has_rows: rowsShown.length > 0 || !!topNudge || dueNudges.length > 0,
-      show_empty: !realWins.length,
+      show_empty: !realWins.length && selIso >= RSS_TODAY_ISO,
       // в день с погодой, которая поднимает спрос: вход Сообщать о спросе из-за погоды под окнами
       ...(() => {
         const wx = typeof p.onAlert === 'function' && selIso >= RSS_TODAY_ISO ? (p.weather || []).find((x) => x.iso === selIso) : null;
@@ -1407,7 +1421,7 @@ class Component extends DCLogic {
       })(),
       empty_title: isWorkDay(selDate) ? 'Пока пусто' : 'Выходной по графику',
       empty_text: isWorkDay(selDate) ? 'Соберём день из лучших вариантов, лишнее потом уберёте' : 'Если захотите поработать, соберём план из лучших вариантов этого дня',
-      can_assemble: selIso >= RSS_TODAY_ISO, assemble_label: 'Собрать план на ' + ['воскресенье', 'понедельник', 'вторник', 'среду', 'четверг', 'пятницу', 'субботу'][selDate.getDay()], assemble: assembleDay,
+      can_assemble: selIso >= RSS_TODAY_ISO, assemble_label: 'Собрать план на ' + RSS_WD_ACC[selDate.getDay()], assemble: assembleDay,
       // итог прошедшего дня открывается в Результатах на этом же дне
       has_result_link: selIso < RSS_TODAY_ISO && realWins.length > 0, open_result: () => { if (typeof p.onOpenResult === 'function') p.onOpenResult(selIso); },
       can_rebuild: selIso >= RSS_TODAY_ISO && realWins.length > 0,
@@ -1421,7 +1435,7 @@ class Component extends DCLogic {
       show_ext: !!extO, ext_text: extView, ext_cancel: () => set({ extConfirm: null }), ext_ok: () => { if (extO) { addWin(extO, gapSheet, { inside: gsInside, ext: gsExt }); set({ extConfirm: null }); } },
       // район окна плана и брони: строка ведёт на карту района
       area_map: typeof p.onAreaMap === 'function' ? p.onAreaMap : null,
-      gs_place: (sheetCurrent || gapOptions[0] || {}).sub || '', gs_svc: (sheetCurrent || gapOptions[0] || {}).svc || '',
+      gs_place: (sheetCurrent || gapOptions[0] || {}).sub || '', gs_pid: (sheetCurrent || gapOptions[0] || {}).pid || '', gs_svc: (sheetCurrent || gapOptions[0] || {}).svc || '',
       gs_current: sheetCurrent, gs_remove: sheetWin ? removeWin : null,
       show_book_sheet: !!bookWin, bs: bookView, bs_close: () => set({ bookSheet: null }),
       // одна шторка предложения: конфликт и замена вместе, у каждого варианта цена

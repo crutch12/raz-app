@@ -40,6 +40,7 @@
     .rpay-row-when { font: 600 12.5px var(--raznos-font); color: var(--raznos-ink-3); white-space: nowrap; }
     .rpay-row-when.rpay-is-soon { color: var(--raznos-green-deep); }
     .rpay-row-when.rpay-is-late { color: var(--raznos-amber); }
+    .rpay-self { margin: 0; font: 500 13px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
     .rpay-note { margin: -4px 0 0; font: 500 12px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
     /* строка на Сегодня: плитка с входящими деньгами, мягкий зелёный отлив, при задержке янтарный */
     .rpay-line { box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 12px 10px 12px 14px; border: 0; border-radius: 16px; background: linear-gradient(100deg, color-mix(in oklch, var(--raznos-green-tint) 70%, var(--raznos-surface)) 0%, var(--raznos-surface) 62%); font: inherit; color: var(--raznos-ink); text-align: left; cursor: pointer; }
@@ -87,6 +88,7 @@
       <div class="{{ d.cls }}"><span class="rpay-day-amt">{{ d.amt }}</span><span class="rpay-day-col"><sc-for list="{{ d.parts }}" as="pt" hint-placeholder-count="1"><i class="{{ pt.cls }}" style="{{ pt.style }}"></i></sc-for></span><span class="rpay-day-name">{{ d.name }}</span></div>
     </sc-for>
   </div>
+  <sc-if value="{{ self_show }}" hint-placeholder-val="{{ false }}"><p class="rpay-self">{{ self_text }}</p></sc-if>
   <div class="rpay-list">
     <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
       <div class="rpay-row"><dc-import name="RaznosIcon" svc="{{ r.key }}" alt="{{ r.title }}" size="sm"></dc-import><span class="rpay-row-main"><span class="rpay-row-title">{{ r.title }}</span><span class="rpay-row-rule">{{ r.rule }}</span></span><span class="rpay-row-side"><span class="rpay-row-amt">{{ r.amt }} ₽</span><span class="{{ r.when_cls }}">{{ r.when }}</span></span></div>
@@ -138,7 +140,8 @@ class Component extends DCLogic {
     const nextSum = nextSame.reduce((s, i) => s + i.amount, 0);
     const lateSum = late.reduce((s, i) => s + i.amount, 0);
     // неделя от сегодня: части дня в цвет сервиса, высота столбика по самой большой сумме дня
-    const days = [0, 1, 2, 3, 4, 5, 6].map((off) => ({ off, list: soon.filter((i) => i.off === off) }));
+    // в столбики входят только выплаты сервисов, деньги к самостоятельному выводу идут отдельной строкой
+    const days = [0, 1, 2, 3, 4, 5, 6].map((off) => ({ off, list: soon.filter((i) => i.off === off && !i.self) }));
     const maxDay = Math.max(1, ...days.map((d) => d.list.reduce((s, i) => s + i.amount, 0)));
     const short = (n) => n >= 1000 ? (Math.round(n / 100) / 10).toString().replace('.', ',') + 'к' : RPAY_FMT(n);
     const week = days.map((d) => {
@@ -170,10 +173,12 @@ class Component extends DCLogic {
         text: 'Ждали ' + lateDate(i.off) + ', прошло ' + daysAgo(i.off) + '. ' + (i.lateHint || 'Напишите в поддержку сервиса, номер выплаты есть в его приложении'),
         action: 'Написать в ' + (i.supportIn || i.title), tap: () => onSupport(i.key)
       })),
+      self_show: selfSum > 0,
+      self_text: selfSum > 0 ? 'Ещё ' + RPAY_FMT(selfSum).replace(/ /g, ' ') + ' ₽ можно вывести самим, в график не входят' : '',
       next_show: !!next,
       next_a: next ? (next.off === 0 ? 'Сегодня придёт ' : next.off === 1 ? 'Завтра придёт ' : 'Ближайшая ' + whenOf(next.off) + ', ') : '',
       next_b: next ? RPAY_FMT(nextSum) + ' ₽' : '',
-      next_c: next ? (nextSame.length === 1 ? ' от ' + (next.from || next.title) : ' от ' + nextSame.length + ' ' + rpayPlural(nextSame.length, 'сервиса', 'сервисов', 'сервисов')) + (lateSum ? ', ещё ' + RPAY_FMT(lateSum) + ' ₽ задерживается' : selfSum ? ', ' + RPAY_FMT(selfSum) + ' ₽ можно вывести самим' : '') : '',
+      next_c: next ? (nextSame.length === 1 ? ' от ' + (next.from || next.title) : ' от ' + nextSame.length + ' ' + rpayPlural(nextSame.length, 'сервиса', 'сервисов', 'сервисов')) + (lateSum ? ', ещё ' + RPAY_FMT(lateSum) + ' ₽ задерживается' : '') : '',
       week, week_aria: 'Выплаты на неделю: ' + days.filter((d) => d.list.length).map((d) => whenOf(d.off) + ' ' + RPAY_FMT(d.list.reduce((s, i) => s + i.amount, 0)) + ' ₽').join(', '),
       rows: late.concat(soon).map((i) => ({
         key: i.key, title: i.title, rule: i.rule || '', amt: RPAY_FMT(i.amount),

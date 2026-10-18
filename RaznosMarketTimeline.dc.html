@@ -206,7 +206,7 @@
         <span class="rmt-slots-head">{{ slots_head }}</span>
         <sc-if value="{{ slots_none }}" hint-placeholder-val="{{ false }}"><p class="rmt-slots-none">Свободных слотов на этот час нет</p></sc-if>
         <sc-for list="{{ slots_list }}" as="s" hint-placeholder-count="2">
-          <sc-if value="{{ s.ok }}" hint-placeholder-val="{{ true }}"><button type="button" class="rmt-slots" onClick="{{ s.tap }}" aria-label="{{ s.aria }}"><dc-import name="RaznosIcon" svc="{{ s.svc }}" alt="{{ s.svcTitle }}" size="sm"></dc-import><span class="rmt-slots-main"><span class="raznos-list-title">{{ s.title }}</span><span class="raznos-text-small">{{ s.sub }}</span></span><span class="raznos-row-chevron" aria-hidden="true">›</span></button></sc-if>
+          <sc-if value="{{ s.ok }}" hint-placeholder-val="{{ true }}"><button type="button" class="rmt-slots" onClick="{{ s.tap }}" aria-label="{{ s.aria }}"><dc-import name="RaznosIcon" svc="{{ s.svc }}" alt="{{ s.svcTitle }}" size="sm"></dc-import><span class="rmt-slots-main"><span class="raznos-list-title">{{ s.title }}</span><sc-if value="{{ s.where }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-small">{{ s.where }}</span></sc-if><span class="raznos-text-small">{{ s.sub }}</span></span><span class="raznos-row-chevron" aria-hidden="true">›</span></button></sc-if>
           <sc-if value="{{ s.off }}" hint-placeholder-val="{{ false }}"><div class="rmt-slots rmt-slots-off"><dc-import name="RaznosIcon" svc="{{ s.svc }}" alt="{{ s.svcTitle }}" size="sm"></dc-import><span class="rmt-slots-main"><span class="raznos-list-title">{{ s.title }}</span><span class="rmt-slots-why">{{ s.sub }}</span></span></div></sc-if>
         </sc-for>
         <sc-if value="{{ has_slots_off }}" hint-placeholder-val="{{ false }}"><button type="button" class="rmt-slots-toggle" onClick="{{ slots_off_tap }}" role="switch" aria-checked="{{ slots_off_on }}"><span>{{ slots_off_label }}</span><span class="{{ slots_off_cls }}"><span class="raznos-switch-knob"></span></span></button></sc-if>
@@ -557,8 +557,8 @@ class Component extends DCLogic {
         mine: !zr && markMine && isMine(o.s.k), metaMine: zr && markMine && isMine(o.s.k),
         meta: zr ? rmtKm(o.z.km) + ' · ' + o.s.title : (o.z ? o.z.name + ', ' + rmtKm(o.z.km) : ''),
         fill: fillW(o.v), val: range(o.v), fc, divider: i < order.length - 1,
-        // стрелка и строка открывают район на карте спроса, маршрут в Яндекс Картах под картой
-        action: zr ? 'route' : '', aria: zr ? 'Район ' + o.z.name + ' на карте спроса' : '',
+        // метка места и строка открывают район на карте спроса, маршрут в Яндекс Картах под картой
+        action: zr ? 'map' : '', aria: zr ? 'Район ' + o.z.name + ' на карте спроса' : '',
         tap: zr ? () => set({ by: 'map', mapPick: o.z.k }) : null
       };
     });
@@ -667,11 +667,14 @@ class Component extends DCLogic {
         const h = hour % 24;
         const part = h >= 7 && h < 12 ? 'morning' : (h >= 12 && h < 17 ? 'day' : (h >= 17 && h < 23 ? 'evening' : 'all'));
         const dw = rmtDate(rd).getDay();
-        const pre = has ? { what: 'demand', where: top.z ? [top.z.name] : [], svcs: [top.s.k], days: [(dw + 6) % 7], time: part } : null;
+        // лидер часа не подключён: правило по вашим сервисам, пример пуша по лучшему из них в этот час
+        const leadOwn = has && hasMine && !isMine(top.s.k);
+        const hintO = !has ? null : (leadOwn ? (options(day, hour).find((o) => isMine(o.s.k) && o.z === top.z) || options(day, hour).find((o) => isMine(o.s.k))) : top);
+        const pre = has ? { what: 'demand', where: top.z ? [top.z.name] : [], svcs: leadOwn ? [] : [top.s.k], days: [(dw + 6) % 7], time: part, hint: hintO ? { svc: hintO.s.k, rate: rangeMid(hintO.v) + RMT_RPH } : null } : null;
         return {
           has_alert: has, alert_on: has && typeof p.alertFind === 'function' && !!p.alertFind(pre),
           alert_label: 'Сообщать о высоком спросе' + (has && top.z ? ': ' + top.z.name : ''),
-          alert_sub: has ? [top.s.title, ({ morning: 'утро', day: 'день', evening: 'вечер', all: 'весь день' })[part], 'по ' + ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][dw]].join(' · ') : '',
+          alert_sub: has ? [leadOwn ? 'по вашим сервисам' : top.s.title, ({ morning: 'утро', day: 'день', evening: 'вечер', all: 'весь день' })[part], 'по ' + ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][dw]].join(' · ') : '',
           alert_tap: () => { if (has) p.onAlert(pre); }
         };
       })(),
@@ -715,7 +718,7 @@ class Component extends DCLogic {
         const s = RMT_SVC.find((x) => x.k === sl.svc) || { k: sl.svc, title: sl.svc, gen: sl.svc };
         const off = offOf(sl);
         return {
-          ok: !off, off: !!off, svc: s.k, svcTitle: s.title, title: s.title + ' ' + slotWhen(sl),
+          ok: !off, off: !!off, svc: s.k, svcTitle: s.title, title: s.title + ' ' + slotWhen(sl), where: sl.place || '',
           sub: off || [isLead(sl) ? 'Лидер этого часа' : '', (sl.rate ? '≈ ' + rmtFmt(sl.rate) + RMT_RPH : range(svcBest(sl.svc)) + RMT_RPH), sl.bonus || ''].filter(Boolean).join(' · '),
           aria: 'Взять слот ' + s.gen + ' ' + slotWhen(sl),
           tap: () => { if (onSlots && !off) onSlots(Object.assign({}, ctx, { iso: rdIso, svc: sl.svc, id: sl.id || '', from: sl.from, to: sl.to })); }

@@ -176,8 +176,8 @@ class Component extends DCLogic {
         meta: rhsKm(x.z.km) + (x.few ? ' · ' + tr.fewText : ''),
         routeHref: 'https://yandex.ru/maps/?mode=routes&rtext=~' + encodeURIComponent(city + ', район ' + x.z.name),
         routeAria: 'Маршрут в район ' + x.z.name,
-        action: 'route', divider: x !== listAll[listAll.length - 1],
-        // в списке стрелка открывает район на карте спроса, маршрут в Яндекс Картах в карточке района под картой
+        action: 'map', divider: x !== listAll[listAll.length - 1],
+        // в списке метка места открывает район на карте спроса, маршрут в Яндекс Картах в карточке района под картой
         mapAria: 'Район ' + x.z.name + ' на карте спроса',
         toMap: () => { set({ view: 'map', pick: x.z.k, pickName: '' }); const sc = typeof document !== 'undefined' && document.querySelector('.rhs-list'); const box = sc && sc.closest('.raznos-phone-scroll'); if (box) box.scrollTo({ top: 0 }); },
         trend: big ? x.z.trend : 0,
@@ -192,7 +192,7 @@ class Component extends DCLogic {
     // район с малой выборкой транспорта: говорим об этом под картой, а не подменяем другим
     const pickFew = pickK ? fewZones.find((x) => x.z.k === pickK) : null;
     const pickX = pickK === '' || pickFew ? null : (byValue.find((x) => x.z.k === pickK) || (st.pickName ? null : byValue[0]));
-    const pickRow = pickX ? { k: pickX.z.k, row: Object.assign(rows.find((r) => r.name === pickX.z.name) || rowOf(pickX), { trend: Math.abs(pickX.z.trend) >= 10 ? pickX.z.trend : 0, divider: false }) } : null;
+    const pickRow = pickX ? { k: pickX.z.k, row: Object.assign(rows.find((r) => r.name === pickX.z.name) || rowOf(pickX), { trend: Math.abs(pickX.z.trend) >= 10 ? pickX.z.trend : 0, divider: false, action: 'route', routeHref: 'https://yandex.ru/maps/?mode=routes&rtext=~' + encodeURIComponent(city + ', район ' + pickX.z.name), routeAria: 'Маршрут в район ' + pickX.z.name }) } : null;
     // карточка: топ-3 и район, который растёт быстрее всех вне топа
     const top = byValue.slice(0, 3);
     const risingX = byValue.slice(3).filter((x) => x.z.trend >= 10).sort((a, b) => b.z.trend - a.z.trend)[0];

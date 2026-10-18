@@ -233,7 +233,7 @@
                 </button>
               </sc-if>
               <sc-if value="{{ home_shift_not_ended }}" hint-placeholder-val="{{ true }}">
-              <dc-import name="RaznosTodayHero" earn="{{ today_earn }}" orders="{{ today_orders }}" hours="{{ today_hours }}" hourly="{{ today_hourly }}" target="{{ today_target_n }}" forecast="{{ today_forecast_n }}" tips="{{ today_tips_n }}" fines="{{ today_fines_n }}" expenses="{{ today_exp_n }}" net="{{ today_net_n }}" open="{{ today_sheet_open }}" onTip="{{ qt_open_tap }}" onExpense="{{ go_expense_form_from_home }}"></dc-import>
+              <dc-import name="RaznosTodayHero" earn="{{ today_earn }}" orders="{{ today_orders }}" hours="{{ today_hours }}" hourly="{{ today_hourly }}" target="{{ today_target_n }}" askGoal="{{ today_goal_ask }}" onGoal="{{ today_goal_ask_tap }}" forecast="{{ today_forecast_n }}" tips="{{ today_tips_n }}" fines="{{ today_fines_n }}" expenses="{{ today_exp_n }}" net="{{ today_net_n }}" open="{{ today_sheet_open }}" onTip="{{ qt_open_tap }}" onExpense="{{ go_expense_form_from_home }}"></dc-import>
               <sc-if value="{{ today_mix_show }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-today-mix" onClick="{{ today_sheet_open }}" aria-label="{{ today_mix_aria }}"><span class="raznos-today-mix-bar" aria-hidden="true"><sc-for list="{{ today_mix }}" as="mx" hint-placeholder-count="2"><i style="{{ mx.style }}"></i></sc-for></span><span class="raznos-today-mix-legend"><sc-for list="{{ today_mix }}" as="mx" hint-placeholder-count="2"><span><i style="{{ mx.dot }}" aria-hidden="true"></i>{{ mx.title }} <b>{{ mx.sum }} ₽</b></span></sc-for></span></button></sc-if>
               <sc-if value="{{ today_sheet }}" hint-placeholder-val="{{ false }}">
                 <div class="raznos-dialog-layer raznos-dialog-bottom" role="dialog" aria-modal="true" aria-label="Начислено сегодня" onClick="{{ today_sheet_close }}">
@@ -356,6 +356,7 @@
                   </div>
                 </div>
               </sc-if>
+              <sc-if value="{{ home_due_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosPlanNudge" icon="swap" title="{{ home_due_title }}" text="{{ home_due_text }}" meta="{{ home_due_meta }}" action="{{ home_due_action }}" dismiss="Отменил" onAction="{{ home_due_open }}" onDismiss="{{ home_due_done }}"></dc-import></sc-if>
               <sc-if value="{{ home_nudge_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosPlanNudge" icon="{{ home_nudge_icon }}" title="{{ home_nudge_title }}" onTitle="{{ home_nudge_title_tap }}" text="{{ home_nudge_text }}" meta="{{ home_nudge_meta }}" action="{{ home_nudge_action }}" dismiss="{{ home_nudge_dismiss }}" onAction="{{ home_nudge_accept }}" onDismiss="{{ home_nudge_close }}"></dc-import></sc-if>
               <dc-import name="RaznosRecentOrders" orders="{{ recent_orders }}" empty="{{ recent_empty }}" onEmpty="{{ go_best_times_now }}" dayLabel="{{ recent_day_label }}" onAll="{{ go_history }}" onOpenOrder="{{ open_recent_order }}" onOpenTrip="{{ open_recent_trip }}"onAddExpense="{{ go_expense_form_from_home }}" onSaveTip="{{ save_recent_tip }}" onNote="{{ open_recent_note }}"></dc-import>
 
@@ -488,7 +489,7 @@
           </sc-if>
 
           <sc-if value="{{ is_work_filters }}"><dc-import name="RaznosWorkFilters" value="{{ work_filters }}" onChange="{{ save_work_filters }}" activeValue="{{ active_filter }}" onActiveChange="{{ set_active_filter }}" onBack="{{ back_work_tools }}"></dc-import></sc-if>
-          <sc-if value="{{ is_slots }}"><sc-if value="{{ own_none }}" hint-placeholder-val="{{ false }}"><div class="raznos-phone-body" data-screen-label="Shifts empty"><div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ slots_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Слоты</h1></div><dc-import name="RaznosEmptyState" glyph="₽" title="Броней пока нет" text="Подключите сервис, и здесь появятся ваши смены и свободные слоты" actionLabel="Подключить сервис" actionKind="primary" onAction="{{ go_integrations }}"></dc-import></div></sc-if><sc-if value="{{ own_data }}" hint-placeholder-val="{{ true }}"><div class="raznos-phone-body" data-screen-label="Shifts"><dc-import name="RaznosShifts" quests="{{ smart_quests }}" onAreaMap="{{ dmap_show }}" caps="{{ shifts_caps }}" facts="{{ smart_fact }}" onTake="{{ shifts_take }}" rebookOff="{{ rebook_off }}" onRebookKeep="{{ rebook_keep }}" onShowInPlan="{{ shifts_show_plan }}" shifts="{{ shifts_week }}" slots="{{ shifts_slots }}" rules="{{ shifts_rules }}" openings="{{ shifts_openings }}" deficits="{{ shifts_deficits }}" watches="{{ shifts_watches }}" today="{{ today_iso }}" nowMinutes="{{ 940 }}" initialTab="{{ slots_tab }}" initialWeek="{{ slots_week }}" initialDay="{{ slots_day }}" initialSvc="{{ slots_svc }}" initialPast="{{ slots_past }}" focus="{{ slots_focus }}" onBack="{{ slots_back }}" onOpenService="{{ slots_open_service }}" alertRules="{{ ar_rules }}" alertServices="{{ ar_svcs }}" alertFind="{{ ar_find }}" onAlert="{{ ar_entry }}" onAlertNew="{{ ar_new }}" onAlertOpen="{{ ar_open }}" onAlertToggle="{{ ar_toggle }}" onTab="{{ slots_tab_seen }}"></dc-import></div></sc-if></sc-if>
+          <sc-if value="{{ is_slots }}"><sc-if value="{{ own_none }}" hint-placeholder-val="{{ false }}"><div class="raznos-phone-body" data-screen-label="Shifts empty"><div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ slots_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Слоты</h1></div><dc-import name="RaznosEmptyState" glyph="₽" title="Броней пока нет" text="Подключите сервис, и здесь появятся ваши смены и свободные слоты" actionLabel="Подключить сервис" actionKind="primary" onAction="{{ go_integrations }}"></dc-import></div></sc-if><sc-if value="{{ own_data }}" hint-placeholder-val="{{ true }}"><div class="raznos-phone-body" data-screen-label="Shifts"><dc-import name="RaznosShifts" dayFacts="{{ smart_day_facts }}" quests="{{ smart_quests }}" onAreaMap="{{ dmap_show }}" caps="{{ shifts_caps }}" facts="{{ smart_fact }}" onTake="{{ shifts_take }}" rebookOff="{{ rebook_off }}" onRebookKeep="{{ rebook_keep }}" onShowInPlan="{{ shifts_show_plan }}" shifts="{{ shifts_week }}" slots="{{ shifts_slots }}" rules="{{ shifts_rules }}" openings="{{ shifts_openings }}" deficits="{{ shifts_deficits }}" watches="{{ shifts_watches }}" today="{{ today_iso }}" nowMinutes="{{ 940 }}" initialTab="{{ slots_tab }}" initialWeek="{{ slots_week }}" initialDay="{{ slots_day }}" initialSvc="{{ slots_svc }}" initialPast="{{ slots_past }}" focus="{{ slots_focus }}" onBack="{{ slots_back }}" onOpenService="{{ slots_open_service }}" alertRules="{{ ar_rules }}" alertServices="{{ ar_svcs }}" alertFind="{{ ar_find }}" onAlert="{{ ar_entry }}" onAlertNew="{{ ar_new }}" onAlertOpen="{{ ar_open }}" onAlertToggle="{{ ar_toggle }}" onTab="{{ slots_tab_seen }}"></dc-import></div></sc-if></sc-if>
           <sc-if value="{{ is_work_schedule }}"><dc-import name="RaznosWorkSchedule" onBack="{{ work_schedule_back }}" onSave="{{ save_work_graph }}" value="{{ work_graph }}"></dc-import></sc-if>
 
           <sc-if value="{{ is_work_hub }}">
@@ -1861,6 +1862,9 @@
                 <sc-if value="{{ pv_not_closing }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-danger" onClick="{{ pv_ask_close }}">Закрыть аккаунт</button></sc-if>
                 <sc-if value="{{ pv_confirming_close }}">
                   <div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Аккаунт уйдёт в архив</span><span class="raznos-text-small">Выданные ссылки работодателям отзовутся, история останется в архиве и не будет видна на Рынке, публичный профиль исчезнет из списка Курьеры</span></div>
+                  <sc-if value="{{ pv_close_money_show }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">На балансе чаевые через Разнос</span><span class="raznos-text-small">{{ pv_close_money_text }}</span></div></sc-if>
+                  <sc-if value="{{ pv_close_withdraw_show }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ go_wallet_withdraw }}">{{ pv_close_withdraw_label }}</button></sc-if>
+                  <sc-if value="{{ pv_close_svcs_show }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Подключённые сервисы отключатся</span><span class="raznos-text-small">{{ pv_close_svcs_text }}</span></div></sc-if>
                   <div class="raznos-btn-row"><button type="button" class="raznos-btn raznos-btn-danger raznos-btn-small" onClick="{{ pv_confirm_close }}">Подтвердить закрытие</button><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ pv_cancel_close }}">Передумал</button></div>
                 </sc-if>
                 <sc-if value="{{ pv_closed }}"><div class="raznos-notice raznos-notice-ok"><span class="raznos-notice-title">Аккаунт помечен к закрытию (демо)</span><span class="raznos-text-small">Ссылки отозваны, профиль скрыт из списка Курьеры</span></div><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ pv_reopen }}">Отменить закрытие</button></sc-if>
@@ -1953,7 +1957,7 @@
 
           <sc-if value="{{ is_tips }}">
             <div class="raznos-phone-body" data-screen-label="30 Tips">
-              <div class="raznos-app-bar"><h1 class="raznos-text-h1" style="margin:0">Чаевые курьеру</h1></div>
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ tip_back }}" aria-label="Назад">‹</button><h1 class="raznos-text-h1" style="margin:0">Чаевые курьеру</h1></div>
               <div class="raznos-fx raznos-ac raznos-gap12">
                 <dc-import name="RaznosAvatar" kind="{{ tip_recipient_photo_kind }}" alt="{{ tip_recipient_name }}" size="md"></dc-import>
                 <div class="raznos-list-main"><span class="raznos-list-title">{{ tip_recipient_name }}</span></div>
@@ -1967,6 +1971,7 @@
               <sc-if value="{{ tip_is_done }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-ok"><span class="raznos-notice-title">Демо-платёж отправлен</span><span class="raznos-text-small">Это демонстрация, реальная оплата не выполнялась</span></div></sc-if>
               <sc-if value="{{ tip_is_error }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Демо-ошибка платежа</span><span class="raznos-text-small">Перевод не прошёл, деньги остались у вас. Попробуйте ещё раз</span></div></sc-if>
               <sc-if value="{{ tip_show_submit }}" hint-placeholder-val="{{ true }}"><div class="raznos-sticky-actions"><button type="button" class="{{ tip_submit_class }}" onClick="{{ tip_submit }}">{{ tip_submit_label }}</button></div></sc-if>
+              <sc-if value="{{ tip_is_done }}" hint-placeholder-val="{{ false }}"><div class="raznos-sticky-actions"><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ tip_back }}">Готово</button></div></sc-if>
               <div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Отзыв на курьера недоступен</span><span class="raznos-text-small">В Разносе пользователи не пишут отзывы и не ставят оценки курьерам, отзывы приходят только из сервисов доставки</span></div>
             </div>
           </sc-if>
@@ -2285,62 +2290,62 @@
       // src: источник неофициальных фактов (отзывы, вторичный, не подтверждено), показываем словами, официальные без пометки, APK не показываем
       const SERVICE_CAPS = {
         'yandex-eda': {
-          title: 'Яндекс Еда', prep: 'Яндекс Еде', app: 'Яндекс Про', modes: ['plan', 'free'], zone: 'локация', orders: 'offers',
+          title: 'Яндекс Еда', prep: 'Яндекс Еде', app: 'Яндекс Про', modes: ['plan', 'free'], orders: 'offers',
           transport: ['foot', 'bike', 'ebike', 'moto', 'car'], status: 'bron', slots: true, take: 'Взять в Яндекс Еде', rate: 'known', watch: true,
           cancel: { kind: 'noonBefore', late: 'Позже это невыход, штраф равен минималке за пропущенные часы' },
           opening: { text: 'пт 15:00 Платина, 18:00 Золото · сб 15:00 Серебро, 18:00 Бронза', byLevel: true, mine: { level: 'Золото', wd: 5, time: '18:00' } }, ratings: true, tips: 'service', link: 'app', src: {}
         },
         'yandex-lavka': {
-          title: 'Яндекс Лавка', prep: 'Яндекс Лавке', app: 'Яндекс Про', modes: ['plan'], zone: 'даркстор', orders: 'offers',
+          title: 'Яндекс Лавка', prep: 'Яндекс Лавке', app: 'Яндекс Про', modes: ['plan'], orders: 'offers',
           transport: ['bike', 'ebike', 'moto', 'car'], transportNote: 'пеших нет', status: 'bron', slots: true, take: 'Взять в Яндекс Лавке', rate: 'estimate', watch: false,
           cancel: { kind: 'noonBefore', late: 'Позже доход может быть снижен, за невыход штраф' },
           opening: { text: 'пятница вечером в Москве, суббота в других городах' }, ratings: true, tips: 'service', link: 'app',
           src: { transport: 'партнёрские материалы' }, unverified: ['свободный выход']
         },
         vkusvill: {
-          title: 'ВкусВилл', prep: 'ВкусВилле', app: 'ВкусВилл', modes: ['plan', 'auto'], zone: 'даркстор', orders: 'auto',
+          title: 'ВкусВилл', prep: 'ВкусВилле', app: 'ВкусВилл', modes: ['plan', 'auto'], orders: 'auto',
           transport: ['car', 'bike', 'ebike'], status: 'zayavka', slots: true, take: 'Подать заявку во ВкусВилле', rate: 'estimate', watch: null,
           cancel: { kind: 'none', note: 'Срок отмены не опубликован, штрафов у ВкусВилла нет, смену согласует куратор даркстора' },
           opening: null, ratings: false, tips: 'income', link: 'order', src: { transport: 'не подтверждено' }
         },
         samokat: {
-          title: 'Самокат', prep: 'Самокате', app: 'Доставка Про', modes: ['plan', 'auto'], zone: 'даркстор', orders: 'auto',
+          title: 'Самокат', prep: 'Самокате', app: 'Доставка Про', modes: ['plan', 'auto'], orders: 'auto',
           transport: ['foot', 'bike', 'ebike', 'moto', 'car'], status: 'zayavka', slots: true, take: 'Запросить часы в Самокате', rate: 'known', watch: true,
           cancel: { kind: 'hours', hours: 48, late: 'Позже падает рейтинг, денежных штрафов нет по словам представителя' },
           opening: null, ratings: false, tips: 'service', link: 'task', src: { cancel: 'отзывы', transport: 'не подтверждено' }
         },
         'ozon-fresh': {
-          title: 'Ozon fresh', prep: 'Ozon fresh', app: 'Вози Ozon', modes: ['plan'], zone: 'даркстор', orders: 'route',
+          title: 'Ozon fresh', prep: 'Ozon fresh', app: 'Вози Ozon', modes: ['plan'], orders: 'route',
           transport: null, status: 'bron', slots: true, take: 'Взять в Ozon fresh', rate: 'known', watch: true,
           cancel: { kind: 'hours', hours: 1, late: 'Отмена позже чем за час до начала или невыход: блокировка на 2 дня' },
           opening: { text: 'горизонт слотов зависит от рейтинга' }, ratings: true, tips: 'service', link: 'task', src: {}
         },
         kuper: {
-          title: 'Купер', prep: 'Купере', app: 'Купер', modes: ['plan', 'birzha'], zone: 'магазин и район', orders: 'offers',
+          title: 'Купер', prep: 'Купере', app: 'Купер', modes: ['plan', 'birzha'], orders: 'offers',
           transport: ['foot', 'bike', 'car'], status: 'bron', slots: true, take: 'Взять в Купере', rate: 'estimate', watch: true,
           cancel: null, opening: { text: 'по титулу, известен только день', byLevel: true }, ratings: true, tips: 'sber', link: 'app', src: {}
         },
         x5: {
-          title: 'X5 Доставка', prep: 'X5 Доставке', app: 'X5', modes: ['plan', 'birzha'], zone: 'полигон', orders: 'auto',
+          title: 'X5 Доставка', prep: 'X5 Доставке', app: 'X5', modes: ['plan', 'birzha'], orders: 'auto',
           transport: null, status: 'bron', slots: true, take: 'Взять в X5', rate: 'estimate', watch: true,
           cancel: { kind: 'hours', hours: 24, late: 'Позже снизят рейтинг' },
           opening: { text: 'по рейтингу, время не опубликовано', byLevel: true }, ratings: true, tips: 'sber', link: 'app',
           src: { cancel: 'вторичный', opening: 'вторичный' }, unverified: ['несколько слотов в день']
         },
         magnit: {
-          title: 'Магнит Доставка', prep: 'Магнит Доставке', app: 'Магнит Курьер', modes: ['plan'], zone: 'зона', orders: 'offers',
+          title: 'Магнит Доставка', prep: 'Магнит Доставке', app: 'Магнит Курьер', modes: ['plan'], orders: 'offers',
           transport: null, status: 'bron', slots: true, take: 'Взять в Магнит Доставке', rate: 'known', watch: false,
           cancel: { kind: 'words', late: 'Отмена за 18 или 40 часов до слота, пропуск после 15 минут считается невыходом, суммы штрафов неизвестны' },
           opening: null, ratings: true, tips: 'income', link: 'order', src: {}
         },
         dodo: {
-          title: 'Додо', prep: 'Додо', app: 'Додо курьер', modes: ['restaurant', 'auto'], zone: 'пиццерия', orders: 'auto',
+          title: 'Додо', prep: 'Додо', app: 'Додо курьер', modes: ['restaurant', 'auto'], orders: 'auto',
           transport: null, transportNote: 'зависит от пиццерии', status: 'wish', slots: false, take: '', rate: 'estimate', watch: null,
           cancel: { kind: 'none', note: 'Денежных штрафов нет, отказ от заказа уводит в конец очереди' },
           opening: null, ratings: false, tips: 'cloudtips', link: 'app', src: {}
         },
         dostaevsky: {
-          title: 'Достаевский', prep: 'Достаевском', app: 'Достаевский', modes: ['restaurant'], zone: 'производство', orders: 'route',
+          title: 'Достаевский', prep: 'Достаевском', app: 'Достаевский', modes: ['restaurant'], orders: 'route',
           transport: ['bike', 'ebike', 'car'], status: 'draft', slots: false, take: '', rate: 'known', watch: null,
           cancel: { kind: 'none', note: 'Штрафов нет, срок отмены смены не опубликован' },
           opening: null, ratings: false, tips: null, link: 'app', src: {}
@@ -2352,7 +2357,7 @@
         },
         // посылки: pro.yandex.ru knowledge-base delivery-foot и delivery-auto, грузовой отдельный бренд и сюда не входит
         'yandex-delivery': {
-          title: 'Яндекс Доставка', prep: 'Яндекс Доставке', app: 'Яндекс Про', modes: ['plan', 'free'], zone: 'район', orders: 'offers',
+          title: 'Яндекс Доставка', prep: 'Яндекс Доставке', app: 'Яндекс Про', modes: ['plan', 'free'], orders: 'offers',
           transport: ['foot', 'car'], transportNote: 'пеший и авто', status: 'bron', slots: true, take: 'Взять в Яндекс Доставке', rate: 'estimate', watch: null,
           cancel: { kind: 'hours', hours: 12, late: 'Позже 12 часов до начала отмена может быть платной, выгодные слоты отменяются без корректировки' },
           opening: null, ratings: true, tips: null, link: 'app',
@@ -2366,22 +2371,47 @@
           opening: { text: 'горизонт слотов зависит от рейтинга' }, ratings: true, tips: 'service', link: 'app', src: {}
         },
         dostavista: {
-          title: 'Достависта', prep: 'Достависте', app: 'Достависта', modes: ['birzha', 'auto'], zone: 'весь город', orders: 'feed',
+          title: 'Достависта', prep: 'Достависте', app: 'Достависта', modes: ['birzha', 'auto'], orders: 'feed',
           transport: null, status: null, slots: false, take: '', rate: 'estimate', watch: false,
           cancel: { kind: 'words', late: 'Отказ менее чем за 2 часа до прибытия: роялти-штраф, считается автоматически' },
           opening: null, ratings: true, tips: null, link: 'app', src: {}
         },
         'wb-courier': {
-          title: 'WB курьер', prep: 'WB', app: 'WB Курьер', modes: ['free', 'auto'], zone: 'весь город', orders: 'feed',
+          title: 'WB курьер', prep: 'WB', app: 'WB Курьер', modes: ['free', 'auto'], orders: 'feed',
           transport: ['foot', 'bike', 'car'], status: null, slots: false, take: '', rate: 'estimate', watch: null,
           cancel: null, opening: null, ratings: false, tips: 'wb', link: 'app', src: { transport: 'вторичный' }
         },
         flowwow: {
-          title: 'Flowwow', prep: 'Flowwow', app: 'Flowwow', modes: ['free', 'birzha'], zone: 'весь город', orders: 'feed',
+          title: 'Flowwow', prep: 'Flowwow', app: 'Flowwow', modes: ['free', 'birzha'], orders: 'feed',
           transport: ['foot', 'car'], status: null, slots: false, take: '', rate: 'estimate', watch: false,
           cancel: null, opening: null, ratings: true, tips: null, link: 'app', src: {}
         }
       };
+      // место работы по сервисам (раздел 2 docs/analysis/WORK-PLACES-MODEL.md): тип места, как выбирается, режим и территория
+      // binding: fixed при найме или per_slot при записи, choose: hire, slot, curator, server или none, у Деливери и Ozon курьера данных нет
+      // radius только где радиус известен из источника, иначе у территории круг примерно по типу места
+      const PLACE_MODEL = {
+        'yandex-eda': { modes: ['place'], binding: 'per_slot', kind: 'zone', label: 'локация', choose: 'slot', how: 'Локацию выбираете при записи на слот, есть избранные', list: 'api', favorites: true, territory: 'polygon', radius: null },
+        'yandex-lavka': { modes: ['place'], binding: 'per_slot', kind: 'darkstore', label: 'даркстор', choose: 'slot', how: 'Лавку выбираете при записи на слот, есть избранные', list: 'api', favorites: true, territory: 'radius_estimated', radius: null },
+        vkusvill: { modes: ['place'], binding: 'fixed', kind: 'darkstore', label: 'даркстор', choose: 'curator', how: 'Даркстор назначает куратор, слоты по районам', list: 'public', favorites: false, territory: 'radius_official', radius: { kind: 'circle', min_km: 5, max_km: 7, src: 'по словам ВкусВилла' } },
+        samokat: { modes: ['place'], binding: 'fixed', kind: 'darkstore', label: 'даркстор', choose: 'hire', how: 'Даркстор выбирается при найме, сменить можно через координатора', list: 'api', favorites: false, territory: 'radius_estimated', radius: null },
+        'ozon-fresh': { modes: ['place'], binding: 'per_slot', kind: 'darkstore', label: 'даркстор', choose: 'slot', how: 'Склад выбираете при каждой записи в Ozon Job', list: 'api', favorites: false, territory: 'radius_estimated', radius: null },
+        kuper: { modes: ['place', 'around_point'], binding: 'per_slot', kind: 'store', label: 'магазин', choose: 'slot', how: 'Магазин выбираете при записи на плановую смену, экспресс работает по району', list: 'api', favorites: false, territory: 'radius_estimated', radius: { kind: 'area', min_km: null, max_km: 3, src: 'пеший, по правилам Купера' } },
+        x5: { modes: ['polygon', 'around_point'], binding: null, kind: 'polygon', label: 'полигон', choose: 'curator', how: 'Полигон назначает куратор, магазин внутри ведёт X5', list: 'api', favorites: false, territory: 'polygon', radius: null },
+        magnit: { modes: ['place'], binding: 'per_slot', kind: 'zone', label: 'зона', choose: 'slot', how: 'Зону выбираете при каждой брони, есть избранная', list: 'api', favorites: true, territory: 'polygon', radius: null },
+        dodo: { modes: ['place'], binding: 'fixed', kind: 'restaurant', label: 'пиццерия', choose: 'hire', how: 'Пиццерия закреплена при найме, график ведёт пиццерия', list: 'public', favorites: false, territory: 'radius_estimated', radius: null },
+        dostaevsky: { modes: ['place'], binding: 'fixed', kind: 'hub', label: 'кухня', choose: 'hire', how: 'Кухню назначают на собеседовании, есть основное и второе производство', list: 'none', favorites: false, territory: 'radius_official', radius: { kind: 'circle', min_km: 3, max_km: 7, src: 'официально, по транспорту' } },
+        'yandex-delivery': { modes: ['exchange', 'around_point'], binding: null, kind: null, label: 'район', choose: 'none', how: 'Заказы по городу, радиус Моего района 3–7 км выбираете в Яндекс Про', list: 'none', favorites: false, territory: 'none', radius: { kind: 'circle', min_km: 3, max_km: 7, src: 'со слов курьеров' } },
+        dostavista: { modes: ['exchange', 'around_point'], binding: null, kind: null, label: 'весь город', choose: 'server', how: 'Заказы назначает сервис, Мой район и радиус выбираете в Достависте', list: 'none', favorites: false, territory: 'none', radius: { kind: 'area', min_km: null, max_km: null, src: 'районы региона из сервиса' } },
+        'wb-courier': { modes: ['exchange', 'around_point'], binding: null, kind: null, label: 'весь город', choose: 'server', how: 'Заказы назначает сервис, автоназначение работает около 2 км', list: 'none', favorites: false, territory: 'none', radius: { kind: 'circle', min_km: 2, max_km: 2, src: 'со слов курьеров' } },
+        flowwow: { modes: ['exchange'], binding: null, kind: null, label: 'весь город', choose: 'none', how: 'Места нет, заказы по всему городу', list: 'none', favorites: false, territory: 'none', radius: null }
+      };
+      Object.keys(SERVICE_CAPS).forEach((k) => {
+        const pl = PLACE_MODEL[k] || null;
+        SERVICE_CAPS[k].place = pl;
+        // подпись зоны для старых мест считаем из блока place, у сервисов без данных остаётся прежняя
+        if (pl) SERVICE_CAPS[k].zone = pl.label + (pl.binding && pl.modes.includes('around_point') ? ' и район' : '');
+      });
       // слова статусов смены по профилю: бронь у Яндекса, Магнита, X5, Купера и Ozon, заявка у Самоката и ВкусВилла, пожелание у Додо
       const SHIFT_WORDS = {
         bron: { confirmed: 'бронь', requested: 'заявка' }, zayavka: { confirmed: 'подтверждена', requested: 'заявка' },
@@ -2856,14 +2886,110 @@
       // платформа сама удерживает НПД по условиям сервиса
       const NPD_WITHHELD_SVCS = ['dostavista', 'ozon-fresh'];
       const NPD_RATE = 0.06, NPD_BONUS_RATE = 0.02, NPD_BONUS = 10000, NPD_LIMIT = 2400000;
+      // справочник мест работы по шагам 1-4 модели docs/analysis/WORK-PLACES-MODEL.md: места из integrations/work-places/*.moscow.json, ключ это id из файла
+      // at это [lng, lat], k район как в карте районов, addr как у сервиса, r радиус круга территории в метрах (без r круг примерно по типу места)
+      // official значит радиус с источником, без него круг примерно, адрес не выдумываем, без адреса пишем район
+      // точка отсчёта в демо у метро Беговая, она же дом: геопозиции в прототипе нет
+      const WORK_HOME = { at: [37.545, 55.7735], name: 'у метро Беговая' };
+      const WORK_WORD = { darkstore: 'Даркстор', store: 'Магазин', restaurant: 'Ресторан', zone: 'Зона', polygon: 'Полигон', hub: 'Хаб' };
+      const WORK_ZONE_R = { darkstore: 2000, store: 1500, restaurant: 3000 };
+      const WORK_DISTRICTS = { begovoy: 'Беговой', khoroshevsky: 'Хорошёвский', presnya: 'Пресненский' };
+      // 19 магазинов OSM из x5.moscow.json в 2 км от точки, настоящие названия и состав полигона придут из X5, в демо полигон назван по району
+      const X5_POLY_STORES = [[37.54227, 55.77808], [37.55505, 55.77559], [37.5346, 55.77626], [37.55921, 55.76736], [37.52745, 55.77702], [37.5607, 55.78145], [37.52533, 55.77828], [37.52365, 55.77708], [37.55962, 55.78357], [37.56841, 55.77076], [37.56701, 55.76554], [37.5648, 55.7833], [37.53786, 55.78841], [37.54812, 55.758], [37.55683, 55.75917], [37.53885, 55.75787], [37.54334, 55.75717], [37.57358, 55.7704], [37.56808, 55.76177]];
+      const WORK_PLACES = {
+        // Самокат, ЦФЗ СберЛогистики
+        'sam-ae20d027': { svc: 'samokat', kind: 'darkstore', addr: 'Хорошёвское шоссе, 52 к1', at: [37.53314, 55.77669], k: 'khoroshevsky' },
+        'sam-9a61f162': { svc: 'samokat', kind: 'darkstore', addr: 'Верхняя улица, 20 к1', at: [37.57291, 55.77949], k: 'begovoy' },
+        // ВкусВилл, официальный список, радиус 5-7 км по словам ВкусВилла, рисуем 5 км
+        'vv-5773739': { svc: 'vkusvill', kind: 'darkstore', addr: 'ул. Правды, д. 24 стр. 3', at: [37.58363, 55.78809], k: 'begovoy', r: 5000, official: '5–7 км по словам ВкусВилла' },
+        'vv-5746584': { svc: 'vkusvill', kind: 'darkstore', addr: 'ул. Большая Декабрьская, д. 3 стр. 1', at: [37.55755, 55.76509], k: 'presnya', r: 5000, official: '5–7 км по словам ВкусВилла' },
+        // X5: до брони полигон, магазин только после брони, магазины с адресом из OSM
+        'x5-poly-khoroshevsky': { svc: 'x5', kind: 'polygon', name: 'Хорошёвский', members: X5_POLY_STORES, k: 'khoroshevsky' },
+        'osm:node/5256784721': { svc: 'x5', kind: 'store', addr: 'Хорошёвское шоссе, 48', at: [37.5346, 55.77626], k: 'khoroshevsky' },
+        'osm:way/46914741': { svc: 'x5', kind: 'store', addr: 'Беговая аллея, 3А', at: [37.5648, 55.7833], k: 'begovoy' },
+        'osm:node/10616585037': { svc: 'x5', kind: 'store', addr: 'Ходынский бульвар, 2', at: [37.53786, 55.78841], k: 'khoroshevsky' },
+        // Додо, публичный unitinfo/all
+        '000D3A22FA54A81411E985F2E8939CCC': { svc: 'dodo', kind: 'restaurant', word: 'Пиццерия', addr: '2-й Хорошёвский проезд, 3А', at: [37.53571, 55.77462], k: 'khoroshevsky' },
+        // Яндекс Еда: название локации придёт из Про, в демо локация названа по району, точку старта не рисуем
+        'yeda-loc-begovoy': { svc: 'yandex-eda', kind: 'zone', word: 'Локация', name: 'Беговой', k: 'begovoy' },
+        // для Рынка и сценариев
+        'magnit-dark:москва-68-стилихон': { svc: 'magnit', kind: 'darkstore', addr: 'Хорошёвское шоссе, 38 с3', at: [37.53793, 55.77718], k: 'khoroshevsky', r: 2500 },
+        'osm-node-13828191581': { svc: 'yandex-lavka', kind: 'darkstore', addr: 'Пресненская набережная, 10 с2', at: [37.53473, 55.74764], k: 'presnya' },
+        'ozf-d3d70afb': { svc: 'ozon-fresh', kind: 'darkstore', addr: 'улица Пресненский Вал, 14', at: [37.56595, 55.76685], k: 'presnya' }
+      };
+      const workRad = (d) => d * Math.PI / 180;
+      const workDist = (a, b) => {
+        const dl = workRad(b[1] - a[1]), dn = workRad(b[0] - a[0]);
+        const h = Math.sin(dl / 2) ** 2 + Math.cos(workRad(a[1])) * Math.cos(workRad(b[1])) * Math.sin(dn / 2) ** 2;
+        return 12742 * Math.asin(Math.sqrt(h));
+      };
+      // оболочка точек полигона, чуть раздутая от центра, это контур примерно, не граница X5
+      const workHull = (pts) => {
+        const s = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+        const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+        const half = (list) => { const h = []; list.forEach((pt) => { while (h.length > 1 && cr(h[h.length - 2], h[h.length - 1], pt) <= 0) h.pop(); h.push(pt); }); h.pop(); return h; };
+        const hull = half(s).concat(half(s.slice().reverse()));
+        const c = hull.reduce((m, pt) => [m[0] + pt[0] / hull.length, m[1] + pt[1] / hull.length], [0, 0]);
+        const ring = hull.map((pt) => {
+          const dx = (pt[0] - c[0]) * Math.cos(workRad(c[1])) * 111320, dy = (pt[1] - c[1]) * 110574, len = Math.hypot(dx, dy) || 1;
+          return [pt[0] + (dx / len) * 250 / (111320 * Math.cos(workRad(c[1]))), pt[1] + (dy / len) * 250 / 110574];
+        });
+        return ring.concat([ring[0]]);
+      };
+      const workPlural = (n, a, b, c) => (n % 10 === 1 && n % 100 !== 11 ? a : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? b : c));
+      const workKm = (km) => km.toFixed(1).replace('.', ',') + ' км';
+      const WORK = {
+        home: WORK_HOME,
+        get: (id) => WORK_PLACES[id] || null,
+        // точка места: у полигона ближайший магазин, у места без координат null
+        at: (id, from) => {
+          const p = WORK_PLACES[id];
+          if (!p) return null;
+          if (p.members) { const o = from || WORK_HOME.at; return p.members.slice().sort((a, b) => workDist(o, a) - workDist(o, b))[0]; }
+          return p.at || null;
+        },
+        km: (id, from) => { const a = WORK.at(id, from); return a ? workDist(from || WORK_HOME.at, a) : null; },
+        district: (id) => { const p = WORK_PLACES[id]; return p && p.k ? { k: p.k, name: WORK_DISTRICTS[p.k] || '' } : null; },
+        // строка места одной формы: Даркстор · Хорошёвское шоссе, 52 к1 · 0,8 км, без адреса район, без координат нет км
+        line: (id, o) => {
+          const p = WORK_PLACES[id];
+          if (!p) return '';
+          const opt = o || {};
+          const where = p.members ? p.name + ' · ' + p.members.length + ' ' + workPlural(p.members.length, 'магазин', 'магазина', 'магазинов') : (p.addr || p.name || WORK_DISTRICTS[p.k] || '');
+          const km = opt.km === false ? null : WORK.km(id, opt.from);
+          return [p.word || WORK_WORD[p.kind], where, km == null ? '' : workKm(km)].filter(Boolean).join(' · ');
+        },
+        // территория на карте: контур полигона X5 примерно, круг с источником или круг примерно по типу места, у места без координат пусто
+        zones: (id) => {
+          const p = WORK_PLACES[id];
+          if (!p) return [];
+          const label = WORK.line(id, { km: false });
+          if (p.members) return [{ polygon: workHull(p.members), points: p.members, svc: p.svc, approx: true, label, tag: 'контур по магазинам, примерно' }];
+          if (!p.at) return [];
+          if (p.official) return [{ center: p.at, radius_m: p.r, svc: p.svc, approx: false, label, tag: 'радиус ' + p.official }];
+          return [{ center: p.at, radius_m: p.r || WORK_ZONE_R[p.kind] || 2000, svc: p.svc, approx: true, label }];
+        },
+        note: (id) => {
+          const p = WORK_PLACES[id], z = p ? WORK.zones(id)[0] : null;
+          if (!z) return 'Сервис не отдаёт границы зоны, показываем район, где обычно ждут заказы';
+          if (p.members) return 'Магазин внутри полигона назначит X5, показываем магазины полигона и контур по ним примерно';
+          if (p.official) return 'Радиус ' + p.official + ', рисуем ' + String(z.radius_m / 1000).replace('.', ',') + ' км';
+          return 'Сервис не отдаёт границы зоны, поэтому показываем точку и круг ≈ ' + String(z.radius_m / 1000).replace('.', ',') + ' км примерно';
+        }
+      };
+      window.RAZNOS_PLACES = WORK;
       // смены вокруг сегодня, сдвигом в днях, один набор для экрана Смены, виджета в Работе и умного расписания
       // время в минутах от полуночи, rateVerified: ставка известна заранее по профилю сервиса, иначе это оценка Разноса
-      // место по зоне сервиса: локация у Яндекс Еды, даркстор у Самоката и ВкусВилла, пиццерия у Додо
-      const SHIFT_PLACES = { samokat: 'Даркстор Беговая, 7', vkusvill: 'Даркстор на Правды, 24', 'yandex-eda': 'Локация Беговая', x5: 'Пятёрочка, Ленинградский пр-т, 15', dodo: 'Пиццерия на Беговой, 3' };
+      // место смены и слота по place_id из справочника выше: Самокат и ВкусВилл привязаны к даркстору, Додо к пиццерии, Яндекс Еда к локации
+      // до брони у X5 полигон, у брони магазин из смены, поэтому для слотов и броней два набора
+      const SHIFT_PIDS = { samokat: 'sam-ae20d027', vkusvill: 'vv-5773739', 'yandex-eda': 'yeda-loc-begovoy', x5: 'x5-poly-khoroshevsky', dodo: '000D3A22FA54A81411E985F2E8939CCC' };
+      const BOOKED_PIDS = Object.assign({}, SHIFT_PIDS, { x5: 'osm:node/5256784721' });
+      // км до места в строке не нужны у уже отработанных смен
+      const placeText = (pid, status) => WORK.line(pid, { km: status !== 'completed' && status !== 'missed' });
       const SHIFT_TITLES = {};
       Object.keys(SERVICE_CAPS).forEach((k) => { SHIFT_TITLES[k] = SERVICE_CAPS[k].title; });
       const SHIFT_RATES = { samokat: 370, vkusvill: 400, 'yandex-eda': 390, x5: 380, dodo: 320 };
-      const shiftRow = (id, iso, svc, from, to, status, extra) => Object.assign({ id, iso, svc, title: SHIFT_TITLES[svc], place: SHIFT_PLACES[svc], from: from * 60, to: to * 60, status, rate: SHIFT_RATES[svc], rateVerified: SERVICE_CAPS[svc].rate === 'known' }, extra || {});
+      const shiftRow = (id, iso, svc, from, to, status, extra) => Object.assign({ id, iso, svc, title: SHIFT_TITLES[svc], pid: (extra && extra.pid) || BOOKED_PIDS[svc], place: placeText((extra && extra.pid) || BOOKED_PIDS[svc], status), from: from * 60, to: to * 60, status, rate: SHIFT_RATES[svc], rateVerified: SERVICE_CAPS[svc].rate === 'known' }, extra || {});
       // в демо один выходной на следующей неделе без смен, чтобы был пример пустого дня в Плане
       const DEMO_EMPTY_ISO = (() => { for (let k = 6; k <= 12; k++) { const g = dayAt(k).getDay(); if (g === 0 || g === 6) return isoAt(k); } return ''; })();
       const SHIFTS_WEEK = [
@@ -2881,17 +3007,19 @@
         shiftRow('p3', isoAt(-7), 'yandex-eda', 12, 18, 'completed'), shiftRow('p8', isoAt(-7), 'samokat', 19, 22, 'completed'),
         shiftRow('p4', isoAt(-6), 'x5', 11, 17, 'completed'), shiftRow('p9', isoAt(-6), 'yandex-eda', 18, 21, 'completed'),
         shiftRow('p5', isoAt(-5), 'samokat', 18, 22, 'completed'), shiftRow('p10', isoAt(-5), 'vkusvill', 10, 14, 'missed'),
-        shiftRow('p6', isoAt(-4), 'vkusvill', 10, 14, 'completed'), shiftRow('p11', isoAt(-4), 'x5', 15, 20, 'completed'),
+        shiftRow('p6', isoAt(-4), 'vkusvill', 10, 14, 'completed'), shiftRow('p11', isoAt(-4), 'x5', 15, 20, 'completed', { pid: 'osm:node/10616585037' }),
         shiftRow('p7', isoAt(-3), 'yandex-eda', 12, 20, 'completed'), shiftRow('p12', isoAt(-2), 'samokat', 12, 16, 'completed'),
         shiftRow('p13', isoAt(-2), 'vkusvill', 16, 19, 'cancelled'),
         shiftRow('p14', isoAt(-5), 'dodo', 14, 18, 'completed'), shiftRow('p15', isoAt(-2), 'dodo', 17, 21, 'completed'),
-        shiftRow('n1', isoAt(7), 'yandex-eda', 12, 16, 'confirmed'), shiftRow('n2', isoAt(9), 'x5', 11, 17, 'confirmed'),
+        shiftRow('n1', isoAt(7), 'yandex-eda', 12, 16, 'confirmed'), shiftRow('n2', isoAt(9), 'x5', 11, 17, 'confirmed', { pid: 'osm:way/46914741' }),
         shiftRow('n5', isoAt(6), 'samokat', 9, 13, 'confirmed'), shiftRow('n6', isoAt(8), 'vkusvill', 14, 18, 'confirmed'),
         shiftRow('n7', isoAt(11), 'samokat', 12, 16, 'requested')
       ].filter((sh) => sh.iso !== DEMO_EMPTY_ISO);
       // числа мест у слотов нет, gone: слот пропал из списка сервиса, где слежение разрешено, можно следить за возвращением
       // apply и подпись приложения идут из профиля сервиса: у Самоката и ВкусВилла отклик это заявка
-      const slotRow = (id, iso, svc, from, to, extra) => Object.assign({ id, iso, svc, title: SHIFT_TITLES[svc], place: SHIFT_PLACES[svc], from: from * 60, to: to * 60, apply: SERVICE_CAPS[svc].status === 'zayavka', rate: SHIFT_RATES[svc], rateVerified: SERVICE_CAPS[svc].rate === 'known', appName: SERVICE_CAPS[svc].app }, extra || {});
+      const slotRow = (id, iso, svc, from, to, extra) => Object.assign({ id, iso, svc, title: SHIFT_TITLES[svc], pid: (extra && extra.pid) || SHIFT_PIDS[svc], place: placeText((extra && extra.pid) || SHIFT_PIDS[svc]), from: from * 60, to: to * 60, apply: SERVICE_CAPS[svc].status === 'zayavka', rate: SHIFT_RATES[svc], rateVerified: SERVICE_CAPS[svc].rate === 'known', appName: SERVICE_CAPS[svc].app }, extra || {});
+      // взятый слот становится бронью, у X5 место после брони это магазин из смены, а не полигон
+      const takenBooking = (sl) => Object.assign({}, sl, { id: 't' + sl.id, status: sl.apply ? 'requested' : 'confirmed' }, sl.svc === 'x5' ? { pid: BOOKED_PIDS.x5, place: placeText(BOOKED_PIDS.x5) } : {});
       const SHIFT_SLOTS = [
         slotRow('f1', isoAt(0), 'samokat', 18, 22), slotRow('f2', isoAt(0), 'yandex-eda', 19, 23),
         // вечер X5 длиннее сегодняшней брони Яндекс Еды: пример цены перебронирования после срока бесплатной отмены
@@ -2907,32 +3035,32 @@
         slotRow('n10', isoAt(9), 'vkusvill', 18, 22), slotRow('n11', isoAt(11), 'yandex-eda', 18, 22, { gone: true }),
         slotRow('n12', isoAt(12), 'samokat', 11, 15),
         // ещё слоты разных дарксторов и магазинов, утро, день и вечер, с надбавками
-        slotRow('m1', isoAt(0), 'samokat', 21, 23, { place: 'Даркстор Ходынский бульвар, 4' }),
-        slotRow('m2', isoAt(1), 'vkusvill', 9, 13, { place: 'Даркстор на Нижней Масловке, 8' }),
-        slotRow('m3', isoAt(1), 'samokat', 19, 22, { place: 'Даркстор Ходынский бульвар, 4', bonus: '+60 ₽/ч вечером' }),
+        slotRow('m1', isoAt(0), 'samokat', 21, 23, { pid: 'sam-9a61f162' }),
+        slotRow('m2', isoAt(1), 'vkusvill', 9, 13, { pid: 'vv-5746584' }),
+        slotRow('m3', isoAt(1), 'samokat', 19, 22, { pid: 'sam-9a61f162', bonus: '+60 ₽/ч вечером' }),
         slotRow('m5', isoAt(2), 'samokat', 18, 22),
         slotRow('m6', isoAt(2), 'vkusvill', 7, 10),
         slotRow('m7', isoAt(2), 'yandex-eda', 18, 22, { bonus: '+15% за пиковые часы' }),
         slotRow('m9', isoAt(3), 'vkusvill', 12, 16),
-        slotRow('m10', isoAt(3), 'samokat', 13, 17, { place: 'Даркстор Ходынский бульвар, 4', gone: true }),
+        slotRow('m10', isoAt(3), 'samokat', 13, 17, { pid: 'sam-9a61f162', gone: true }),
         slotRow('m11', isoAt(4), 'x5', 9, 13),
-        slotRow('m12', isoAt(4), 'samokat', 17, 21, { place: 'Даркстор Ходынский бульвар, 4' }),
-        slotRow('m13', isoAt(5), 'vkusvill', 9, 13, { place: 'Даркстор на Нижней Масловке, 8' }),
+        slotRow('m12', isoAt(4), 'samokat', 17, 21, { pid: 'sam-9a61f162' }),
+        slotRow('m13', isoAt(5), 'vkusvill', 9, 13, { pid: 'vv-5746584' }),
         slotRow('m14', isoAt(5), 'x5', 16, 22, { bonus: '+40 ₽/ч в выходные' }),
         slotRow('m15', isoAt(5), 'yandex-eda', 10, 14),
         slotRow('k1', isoAt(6), 'vkusvill', 14, 18),
-        slotRow('k2', isoAt(6), 'x5', 18, 22, { place: 'Пятёрочка, Нижняя Масловка, 3' }),
-        slotRow('k3', isoAt(7), 'samokat', 9, 12, { place: 'Даркстор Ходынский бульвар, 4' }),
+        slotRow('k2', isoAt(6), 'x5', 18, 22),
+        slotRow('k3', isoAt(7), 'samokat', 9, 12, { pid: 'sam-9a61f162' }),
         slotRow('k4', isoAt(7), 'x5', 17, 21, { bonus: '+50 ₽/ч вечером' }),
         slotRow('k5', isoAt(8), 'yandex-eda', 9, 13),
         slotRow('k6', isoAt(8), 'samokat', 19, 22),
-        slotRow('k7', isoAt(9), 'samokat', 7, 10, { place: 'Даркстор Ходынский бульвар, 4' }),
-        slotRow('k8', isoAt(10), 'vkusvill', 9, 13, { place: 'Даркстор на Нижней Масловке, 8' }),
+        slotRow('k7', isoAt(9), 'samokat', 7, 10, { pid: 'sam-9a61f162' }),
+        slotRow('k8', isoAt(10), 'vkusvill', 9, 13, { pid: 'vv-5746584' }),
         slotRow('k9', isoAt(10), 'samokat', 14, 18, { bonus: '+30 ₽/ч днём' }),
         slotRow('k10', isoAt(11), 'x5', 9, 13),
         slotRow('k11', isoAt(11), 'vkusvill', 17, 21),
         slotRow('k12', isoAt(12), 'yandex-eda', 18, 22),
-        slotRow('k13', isoAt(12), 'x5', 12, 16, { place: 'Пятёрочка, Нижняя Масловка, 3', gone: true })
+        slotRow('k13', isoAt(12), 'x5', 12, 16, { gone: true })
       ];
       // правила отмены и неявки берём из профиля сервиса, это справка, а не данные аккаунта
       // срок есть только у noonBefore и hours, у остальных последствие словами, src это подпись неофициального источника
@@ -2963,14 +3091,17 @@
       // @ai-data-end
       Object.keys(REBOOK_PENALTIES).forEach((k) => { if (SHIFT_RULES[k]) SHIFT_RULES[k].penalty = REBOOK_PENALTIES[k]; });
       // открытие записи показываем только там, где оно связано с уровнем или рейтингом по профилю
+      // ближайшее открытие от сегодняшнего дня, прошедшее не показываем
+      const OPEN_MINE = SERVICE_CAPS['yandex-eda'].opening.mine;
+      const OPEN_RANGE_OFF = (OPEN_MINE.wd - DEMO_TODAY.getDay() + 7) % 7 + ((8 - OPEN_MINE.wd) % 7 || 7);
       const SHIFT_OPENINGS = [
-        { id: 'o1', svc: 'yandex-eda', title: 'Запись в Яндекс на ' + isoRangeLabel(isoAt(WEEK_MON_OFF + 7), isoAt(WEEK_MON_OFF + 13)), text: 'пт ' + SERVICE_CAPS['yandex-eda'].opening.mine.time + ', уровень ' + SERVICE_CAPS['yandex-eda'].opening.mine.level, line: 'пт ' + SERVICE_CAPS['yandex-eda'].opening.mine.time + ' откроется запись на ' + dayAt(WEEK_MON_OFF + 7).getDate() + '–' + dayAt(WEEK_MON_OFF + 13).getDate() + ' ' + RU_MONTHS_SHORT[dayAt(WEEK_MON_OFF + 13).getMonth()], meta: 'Москва, в других городах время другое · правила Яндекс Про', remind: false }
+        { id: 'o1', svc: 'yandex-eda', title: 'Запись в Яндекс на ' + isoRangeLabel(isoAt(OPEN_RANGE_OFF), isoAt(OPEN_RANGE_OFF + 6)), text: 'пт ' + SERVICE_CAPS['yandex-eda'].opening.mine.time + ', уровень ' + SERVICE_CAPS['yandex-eda'].opening.mine.level, line: 'пт ' + SERVICE_CAPS['yandex-eda'].opening.mine.time + ' откроется запись на ' + dayAt(OPEN_RANGE_OFF).getDate() + (dayAt(OPEN_RANGE_OFF).getMonth() === dayAt(OPEN_RANGE_OFF + 6).getMonth() ? '' : ' ' + RU_MONTHS_SHORT[dayAt(OPEN_RANGE_OFF).getMonth()]) + '–' + dayAt(OPEN_RANGE_OFF + 6).getDate() + ' ' + RU_MONTHS_SHORT[dayAt(OPEN_RANGE_OFF + 6).getMonth()], meta: 'Москва, в других городах время другое · правила Яндекс Про', remind: false }
       ].filter((o) => SERVICE_CAPS[o.svc].opening);
       // дефицит словами по наблюдениям Разноса, без чисел мест
       const SHIFT_DEFICITS = [
         { iso: isoAt(4), svc: 'samokat', title: 'На ' + wdOf(WD_ACC, 4) + ' в Самокате почти всё занято', text: 'Слоты на Беговой почти разобраны, по наблюдениям Разноса', meta: 'По курьерам Разноса в Москве, обезличено' },
         { iso: isoAt(1), svc: 'yandex-eda', title: 'Дневной слот Яндекса на ' + wdOf(WD_ACC, 1) + ' пропал из списка', text: 'Можно следить: пришлём пуш, если слот вернётся', meta: 'По курьерам Разноса в Москве, обезличено' },
-        { iso: isoAt(2), svc: 'x5', title: inWd(2) + ' у X5 слоты почти разобраны', text: 'На Ленинградском, по наблюдениям Разноса, на прошлой неделе закончились к обеду ' + wdOf(WD_GEN, 1), meta: 'По курьерам Разноса в Москве, обезличено' },
+        { iso: isoAt(2), svc: 'x5', title: inWd(2) + ' у X5 слоты почти разобраны', text: 'В полигоне Хорошёвский, по наблюдениям Разноса, на прошлой неделе закончились к обеду ' + wdOf(WD_GEN, 1), meta: 'По курьерам Разноса в Москве, обезличено' },
         { iso: isoAt(3), svc: 'x5', title: inWd(3) + ' у X5 спокойнее обычного', text: 'Слоты ещё есть, в прошлые ' + wdOf(WD_PL, 3) + ' к этому времени их почти не оставалось', meta: 'По курьерам Разноса в Москве, обезличено' },
         { iso: isoAt(4), svc: 'yandex-eda', title: 'Вечер ' + wdOf(WD_GEN, 4) + ' в Яндексе разбирают первым', text: 'Вечерние слоты разбирают сразу после открытия записи, по наблюдениям Разноса', meta: 'По курьерам Разноса в Москве, обезличено' },
         { iso: isoAt(5), svc: 'samokat', title: inWd(5) + ' в Самокате свободнее обычного', text: 'Слотов больше обычного, в прошлые ' + wdOf(WD_PL, 5) + ' к этому времени их почти не было', meta: 'По курьерам Разноса в Москве, обезличено' }
@@ -3724,8 +3855,8 @@
       const shiftOrdersOf = (svc, iso) => HISTORY.filter((o) => o.svc === svc && o.dateISO === iso && o.delivery === 'Доставлен').map((o) => o.date.slice(-5)).sort();
       const shiftOrdersLine = (svc, iso, withFirst) => { const t = shiftOrdersOf(svc, iso); return t.length + ' ' + ruPlural(t.length, 'заказ', 'заказа', 'заказов') + (withFirst ? ' с ' + t[0] + ' до ' + t[t.length - 1] + ', последний закрыт в ' + t[t.length - 1] : ', последний в ' + t[t.length - 1]); };
       const UNPAID_HOURS = [
-        { id: 'uh-x5', key: 'x5', title: 'X5 Доставка', short: 'X5', iso: isoAt(-4), day: unpaidDay(-4), from: 15 * 60, to: 20 * 60, unpaidFrom: 18 * 60, rate: 290, place: SHIFT_PLACES.x5, proofs: ['Бронь подтверждена X5 накануне в 21:14', 'Отметка начала в приложении X5 в 14:56', shiftOrdersLine('x5', isoAt(-4), true)] },
-        { id: 'uh-vv', key: 'vkusvill', title: 'ВкусВилл', short: 'ВкусВилла', iso: isoAt(-4), day: unpaidDay(-4), from: 10 * 60, to: 14 * 60, unpaidFrom: 13 * 60, rate: 320, place: SHIFT_PLACES.vkusvill, proofs: ['Слот подтверждён ВкусВиллом', 'Отметка на точке в 9:52 и уход в 14:04', shiftOrdersLine('vkusvill', isoAt(-4), false)], savedAt: dayMonShort(-3) + ' в 10:12' }
+        { id: 'uh-x5', key: 'x5', title: 'X5 Доставка', short: 'X5', iso: isoAt(-4), day: unpaidDay(-4), from: 15 * 60, to: 20 * 60, unpaidFrom: 18 * 60, rate: 290, place: placeText(BOOKED_PIDS.x5, 'completed'), proofs: ['Бронь подтверждена X5 накануне в 21:14', 'Отметка начала в приложении X5 в 14:56', shiftOrdersLine('x5', isoAt(-4), true)] },
+        { id: 'uh-vv', key: 'vkusvill', title: 'ВкусВилл', short: 'ВкусВилла', iso: isoAt(-4), day: unpaidDay(-4), from: 10 * 60, to: 14 * 60, unpaidFrom: 13 * 60, rate: 320, place: placeText(BOOKED_PIDS.vkusvill, 'completed'), proofs: ['Слот подтверждён ВкусВиллом', 'Отметка на точке в 9:52 и уход в 14:04', shiftOrdersLine('vkusvill', isoAt(-4), false)], savedAt: dayMonShort(-3) + ' в 10:12' }
       ];
       // @ai-data-end
       const MARKET_PERIOD = (() => {
@@ -5547,6 +5678,8 @@
           // в демо подключены все сервисы, по которым есть брони и варианты в Плане и Слотах
           const integrationStatus = st.integrationStatus || (demoOn ? { vkusvill: 'connected', samokat: 'connected', 'yandex-eda': 'limited', x5: 'connected', dodo: 'connected' } : {});
           const connectedKeys = Object.keys(integrationStatus).filter((k) => integrationStatus[k] === 'connected' || integrationStatus[k] === 'limited');
+          // брони и слоты Сегодня берём только у подключённых сервисов, в демо у всех
+          const ownSvc = (k) => demoOn || connectedKeys.indexOf(k) !== -1;
           const trCaps = (connectedKeys.length ? connectedKeys : Object.keys(SERVICE_CAPS)).map((k) => SERVICE_CAPS[k]).filter(Boolean);
           const transportOptions = TRANSPORT_CHIPS.filter((c) => trCaps.some((cap) => (cap.transport || []).indexOf(c[1]) !== -1)).map((c) => ({ k: c[0], label: c[2], cls: transport === c[0] ? 'raznos-chip raznos-is-active' : 'raznos-chip', pick: () => set({ transport: c[0] }) }));
           const transportHint = connectedKeys.length ? 'Набор по подключённым сервисам' : 'Набор уточнится после подключения сервисов';
@@ -5641,7 +5774,7 @@
           };
           const goalHoursOf = (iso) => {
             const g = goalGraphOf(iso);
-            const spans = SHIFTS_WEEK.filter((sh) => sh.iso === iso && sh.status !== 'cancelled').map((sh) => [sh.from, sh.to]).concat(g.on ? [[g.from, g.to]] : []).sort((x, y) => x[0] - y[0]);
+            const spans = SHIFTS_WEEK.filter((sh) => ownSvc(sh.svc) && sh.iso === iso && sh.status !== 'cancelled').map((sh) => [sh.from, sh.to]).concat(g.on ? [[g.from, g.to]] : []).sort((x, y) => x[0] - y[0]);
             let mins = 0, cur = -1;
             spans.forEach(([f, t]) => { const ff = Math.max(f, cur); if (t > ff) { mins += t - ff; cur = t; } });
             return mins / 60;
@@ -5654,7 +5787,8 @@
           // остаток недели делим по часам: длинный день получает больше, короткий меньше
           const goalHoursLeft = goalDaysLeft.reduce((sum, d) => sum + d.h, 0);
           const goalTodayH = goalTodayOn ? goalDaysLeft.find((d) => d.iso === TODAY_ISO).h : 0;
-          const todayTarget = goalTodayOn && goalHoursLeft ? Math.round(goalLeft * goalTodayH / goalHoursLeft / 100) * 100 : 0;
+          const goalSet = demoOn || !!st.workGoal;
+          const todayTarget = goalSet && goalTodayOn && goalHoursLeft ? Math.round(goalLeft * goalTodayH / goalHoursLeft / 100) * 100 : 0;
           const goalDayDoneWeek = goalEarnedBefore + (goalTodayH ? Math.round(4000 * goalHoursLeft / goalTodayH / 100) * 100 : 0);
           // день ещё не начался или выходной: в демо задаётся сценарием, ближайшая смена берётся из броней
           // тур подсказок: шаг 0 про демо, дальше пять вкладок; если демо уже включено, нулевой шаг пропускаем
@@ -5800,7 +5934,7 @@
           // вкладка продвигает тур, только если подсказка на экране видна
           const tourVisible = tourStep != null && role === 'courier' && TOUR_SCREENS.indexOf(s) !== -1 && (tourStep > 0 || s === 'courier-empty');
           const homePre = role === 'courier' && (st.homeDay === 'before' || st.homeDay === 'off') ? st.homeDay : '';
-          const homeShifts = SHIFTS_WEEK.filter((sh) => sh.status !== 'cancelled' && sh.status !== 'completed' || (homePre === 'before' && sh.iso === TODAY_ISO && sh.status !== 'cancelled'));
+          const homeShifts = SHIFTS_WEEK.filter((sh) => ownSvc(sh.svc) && sh.status !== 'cancelled' && sh.status !== 'completed' || (homePre === 'before' && sh.iso === TODAY_ISO && sh.status !== 'cancelled'));
           const homePreShift = homePre === 'before'
             ? homeShifts.filter((sh) => sh.iso === TODAY_ISO).sort((a, b) => a.from - b.from)[0] || null
             : homeShifts.filter((sh) => sh.iso > TODAY_ISO).sort((a, b) => (a.iso < b.iso ? -1 : a.iso > b.iso ? 1 : a.from - b.from))[0] || null;
@@ -5897,13 +6031,15 @@
             expensesComplete: statsSavedServices.length === 2 && statsBaseSource.expensesComplete !== false
           });
           const statsSvcFilterNow = st.statsSvcFilter || 'all';
+          // сервисы кроме ВкусВилла и Самоката: сумма, заказы и часы из их строк, тренды и дневной ритм неизвестны
+          const statsExtraSvc = ['all', 'vkusvill', 'samokat'].indexOf(statsSvcFilterNow) === -1 ? statsSvcFilterNow : '';
           const statsDistrictNow = st.statsDistrict || 'all';
           const statsTransportNow = st.statsTransport || 'all';
           const statsShiftNow = st.statsShift || 'all';
           const statsFilterCount = [statsSvcFilterNow, statsDistrictNow, statsTransportNow, statsShiftNow].filter((value) => value !== 'all').length;
           const statsFilterSummary = statsFilterCount ? 'Фильтры · ' + statsFilterCount : 'Все данные';
           const statsFilterNames = [
-            ({ vkusvill: 'ВкусВилл', samokat: 'Самокат' })[statsSvcFilterNow], statsDistrictNow !== 'all' ? statsDistrictNow : '',
+            ({ vkusvill: 'ВкусВилл', samokat: 'Самокат' })[statsSvcFilterNow] || (statsExtraSvc && SERVICES[statsExtraSvc] ? SERVICES[statsExtraSvc].title : ''), statsDistrictNow !== 'all' ? statsDistrictNow : '',
             ({ bike: 'Велосипед', foot: 'Пешком', car: 'Авто' })[statsTransportNow], ({ morning: 'Утро', evening: 'Вечер' })[statsShiftNow]
           ].filter(Boolean).join(' · ');
           const statsFilterGroup = (key, label, stateKey, selected, options) => ({
@@ -5917,6 +6053,7 @@
           const statsServiceOptions = [['all', 'Все сервисы']];
           if (demoOn || statsSavedServices.indexOf('vkusvill') !== -1) statsServiceOptions.push(['vkusvill', 'ВкусВилл']);
           if (demoOn || statsSavedServices.indexOf('samokat') !== -1) statsServiceOptions.push(['samokat', 'Самокат']);
+          if (demoOn) connectedKeys.filter((k) => k !== 'vkusvill' && k !== 'samokat' && SERVICES[k]).forEach((k) => statsServiceOptions.push([k, SERVICES[k].title]));
           const statsFilterGroups = [
             statsFilterGroup('service', 'Сервис', 'statsSvcFilter', statsSvcFilterNow, statsServiceOptions),
             statsFilterGroup('district', 'Район получения', 'statsDistrict', statsDistrictNow, [['all', 'Все районы']].concat(STATS_DISTRICTS.map((name) => [name, name]))),
@@ -5934,13 +6071,14 @@
           const statsVisibleOrders = statsNoGranularData ? [] : statsPersonalOrders;
           // заказы по штукам в демо есть только в подробной истории, раньше срезы по заказам неизвестны, а не равны нулю
           const statsOrdersCovered = statsRange[0] >= ITEMIZED_FROM;
+          const statsExtraRow = statsExtraSvc ? (statsSource.extra || []).find((r) => r.key === statsExtraSvc) || null : null;
           const statsGross = statsNoGranularData || statsByDistrict && !statsOrdersCovered ? null : (statsByDistrict
             ? statsVisibleOrders.reduce((sum, o) => sum + o.pay, 0)
-            : (statsSvcFilterNow === 'vkusvill' ? statsSource.vvEarn : (statsSvcFilterNow === 'samokat' ? statsSource.samokatEarn : statsSource.earn)));
+            : (statsSvcFilterNow === 'vkusvill' ? statsSource.vvEarn : (statsSvcFilterNow === 'samokat' ? statsSource.samokatEarn : (statsExtraSvc ? (statsExtraRow ? statsExtraRow.earn : null) : statsSource.earn))));
           const statsHours = statsNoGranularData || statsByDistrict ? null :
-            (statsSvcFilterNow === 'vkusvill' ? statsSource.vvHours : (statsSvcFilterNow === 'samokat' ? statsSource.samokatHours : statsSource.hours));
+            (statsSvcFilterNow === 'vkusvill' ? statsSource.vvHours : (statsSvcFilterNow === 'samokat' ? statsSource.samokatHours : (statsExtraSvc ? (statsExtraRow ? statsExtraRow.hours : null) : statsSource.hours)));
           const statsOrdersCount = statsNoGranularData || statsByDistrict && !statsOrdersCovered ? null : (statsByDistrict ? statsVisibleOrders.length :
-            (statsSvcFilterNow === 'vkusvill' ? statsSource.vvOrders : (statsSvcFilterNow === 'samokat' ? statsSource.samokatOrders : statsSource.orders)));
+            (statsSvcFilterNow === 'vkusvill' ? statsSource.vvOrders : (statsSvcFilterNow === 'samokat' ? statsSource.samokatOrders : (statsExtraSvc ? (statsExtraRow ? statsExtraRow.orders : null) : statsSource.orders))));
           const statsWithOrderHours = statsNoGranularData || statsByDistrict || statsSvcFilterNow !== 'all' ? null : statsSource.withOrderHours;
           const statsFullOrderCoverage = statsOrdersCount != null && statsVisibleOrders.length === statsOrdersCount;
           const statsCohortOrders = statsHistory.filter((o) => (statsCohortService === 'all' || o.svc === statsCohortService) &&
@@ -5959,6 +6097,7 @@
           const statsPickSvc = (src, allKey, vvKey, skKey) => {
             if (!src) return null;
             const keep = (key) => demoOn || statsSavedServices.indexOf(key) !== -1;
+            if (statsExtraSvc) return null;
             if (statsSvcFilterNow === 'vkusvill') return src[vvKey] == null ? null : src[vvKey];
             if (statsSvcFilterNow === 'samokat') return src[skKey] == null ? null : src[skKey];
             if (demoOn || statsSavedServices.length === 2 || allKey === 'hours') return src[allKey] == null ? null : src[allKey];
@@ -5967,6 +6106,7 @@
           // часы для трендов: у сервиса его часы, у общего итога часы без пересечений, как в сводке и на Сегодня
           const statsLinesHours = (src, filter) => {
             if (!src) return null;
+            if (['all', 'vkusvill', 'samokat'].indexOf(filter) === -1) return null;
             if (filter === 'vkusvill') return src.vvHours == null ? null : src.vvHours;
             if (filter === 'samokat') return src.samokatHours == null ? null : src.samokatHours;
             if (demoOn || statsSavedServices.length === 2) return src.hours == null ? null : src.hours;
@@ -5976,6 +6116,7 @@
           };
           const statsTrendValuesFor = (src, filter) => {
             const pick = (allKey, vvKey, skKey) => {
+              if (['all', 'vkusvill', 'samokat'].indexOf(filter) === -1) return null;
               if (filter === 'vkusvill') return src[vvKey] == null ? null : src[vvKey];
               if (filter === 'samokat') return src[skKey] == null ? null : src[skKey];
               if (demoOn || statsSavedServices.length === 2) return src[allKey] == null ? null : src[allKey];
@@ -6012,7 +6153,8 @@
           const statsPrevious = statsPrevValues.earn != null ? statsPrevValues.earn : null;
           const statsDelta = statsGross != null && statsPrevious > 0 ? Math.round((statsGross - statsPrevious) * 100 / statsPrevious) : null;
           const statsCurrentPeriod = statsRange[0] <= TODAY_ISO && statsRange[1] >= TODAY_ISO;
-          const statsDaysElapsed = statsCurrentPeriod ? isoRange(statsRange[0], TODAY_ISO).length : 0;
+          // первая неделя: дни до подключения в цель не входят
+          const statsDaysElapsed = statsCurrentPeriod ? isoRange(edgeStatsFrom && statsRange[0] < edgeStatsFrom ? edgeStatsFrom : statsRange[0], TODAY_ISO).length : 0;
           const statsGoalKey = statsRange.join(':');
           const statsGoalSnapshot = (st.statsGoalSnapshots || {})[statsGoalKey];
           // завершённый период берёт сохранённую цель, без снимка цель недели из Работы на число дней периода
@@ -6095,7 +6237,7 @@
           // брони есть в демо только с 8 дней назад по 11 дней вперёд, за другие даты тип смены неизвестен и строку не показываем
           const statsShiftsCovered = statsRange[0] >= isoAt(-8) && statsRange[0] <= isoAt(11);
           const statsShiftRows = !statsShiftsCovered || statsNoGranularData || statsByDistrict ? [] : SHIFTS_WEEK
-            .concat(SHIFT_SLOTS.filter((sl) => (st.takenSlots || {})[sl.id]).map((sl) => Object.assign({}, sl, { id: 't' + sl.id, status: sl.apply ? 'requested' : 'confirmed' })))
+            .concat(SHIFT_SLOTS.filter((sl) => (st.takenSlots || {})[sl.id]).map((sl) => takenBooking(sl)))
             .filter((row) => row.iso >= statsRange[0] && row.iso <= statsRange[1] && (statsSvcFilterNow === 'all' || row.svc === statsSvcFilterNow) &&
               (demoOn || statsSavedServices.indexOf(row.svc) !== -1));
           const statsNowMin = 15 * 60 + 40;
@@ -6143,9 +6285,9 @@
           const statsRangeDays = isoRange(statsRange[0], statsRange[1]);
           // сумма дня для ритма: в подробной истории по заказам, раньше из демо-раскладки, срезов по району там нет
           const statsDayAmount = (date) => {
-            if (date > TODAY_ISO || date < STATS_DEMO_FROM) return null;
+            if (date > TODAY_ISO || date < STATS_DEMO_FROM || (edgeStatsFrom && date < edgeStatsFrom)) return null;
             if (date >= ITEMIZED_FROM) return statsDateAmount[date] || 0;
-            if (statsByDistrict || statsNoGranularData) return null;
+            if (statsByDistrict || statsNoGranularData || statsExtraSvc) return null;
             const demo = statsDemoDay(date);
             if (!demo) return null;
             const vv = demo.vv[0] || 0, sk = demo.sk[0] || 0;
@@ -6186,10 +6328,10 @@
           statsChart = statsChart.map((bar) => Object.assign(bar, { tap: !bar.from || bar.from > TODAY_ISO || (bar.month != null && bar.from.slice(0, 4) !== String(CUR_YEAR)) ? null : () => set(Object.assign({ statsRet: { label: ({ week: 'Назад к неделе', month: 'Назад к месяцу', year: 'Назад к году', custom: 'Назад к датам' })[statsPeriod] || 'Назад', patch: { statsPeriod, statsStep, statsFrom: st.statsFrom, statsTo: st.statsTo } } }, bar.month != null ? { statsPeriod: 'month', statsStep: bar.month - DEMO_TODAY.getMonth(), statsDetail: '' } : bar.from === bar.to ? { statsPeriod: 'today', statsStep: 1 - isoRange(bar.from, TODAY_ISO).length, statsDetail: '' } : { statsPeriod: 'custom', statsFrom: bar.from, statsTo: bar.to < TODAY_ISO ? bar.to : TODAY_ISO, statsFromRaw: null, statsToRaw: null, statsStep: 0, statsDetail: '' })) }));
           const statsGoalProgress = statsGoal != null && statsGross != null && statsGoal > 0 ? Math.round(statsGross * 100 / statsGoal) : null;
           // цель на весь период и сколько по норме должно быть к сегодня
-          const statsGoalTotal = statsGoalIsToday ? todayTarget : statsCurrentPeriod ? workGoalFor(statsRangeDays.length, st.workGoal) : statsGoal;
+          const statsGoalTotal = statsGoalIsToday ? todayTarget : statsCurrentPeriod ? workGoalFor(edgeStatsFrom ? statsRangeDays.filter((d) => d >= edgeStatsFrom).length : statsRangeDays.length, st.workGoal) : statsGoal;
           // у года и своих дат только прогресс, без отметки, где надо быть сегодня
           const statsGoalPace = statsCurrentPeriod && statsPeriod !== 'year' && statsPeriod !== 'custom' ? statsGoal : null;
-          const statsGoalTitle = ({ today: 'Цель дня', week: 'Цель недели', month: 'Цель месяца', year: 'Цель года' })[statsPeriod] || 'Цель периода';
+          const statsGoalTitle = edgeStatsFrom && statsPeriod === 'week' && statsCurrentPeriod ? 'Цель с подключения' : ({ today: 'Цель дня', week: 'Цель недели', month: 'Цель месяца', year: 'Цель года' })[statsPeriod] || 'Цель периода';
           const statsGoalNote = statsGoalTotal == null ? 'Цель для периода не сохранена' : (statsGross == null ? 'Нет данных' :
             (statsGross >= statsGoalTotal ? 'Цель выполнена' : (statsPeriod === 'year' || statsPeriod === 'custom' ? 'Выполнено ' + Math.round(statsGross * 100 / statsGoalTotal) + '%' :
               (statsGoalPace != null && statsGoalPace < statsGoalTotal
@@ -7032,7 +7174,7 @@
           liveMineReplies.sort((a, b) => b.r.createdAt - a.r.createdAt);
 
           const navRole = role;
-          const tabOf = { 'profile-edit': 'profile', 'courier-home': 'home', 'courier-empty': 'home', 'work-hub': 'work', 'work-setup': 'work', offers: 'work', 'offer-detail': 'work', 'active-order': st.activeFrom || 'work', 'confirm-decline': 'work', 'offer-result': 'work', 'service-open-demo': st.openDemoFrom === 'courier-home' ? 'home' : 'work', 'work-summary': 'work', slots: 'work', 'job-guide': 'market', 'tax-forms': 'profile', stats: 'stats', market: 'market', 'market-services': 'market', profile: 'profile', history: 'home', order: 'home', integrations: 'home', 'integration-connect': 'home', zones: 'home', service: 'market', 'form-review': 'market', questions: 'market', 'anon-courier': 'market', top: 'profile', photo: 'profile', share: 'profile', privacy: 'profile', contest: 'profile', 'my-activity': 'profile', 'imported-reviews': 'profile', 'live-feed': 'home', 'live-mine': 'profile', 'user-home': 'home', favorites: 'favorites', couriers: 'couriers', 'public-profile': 'couriers', tips: 'market', 'tips-sent': 'profile', expenses: st.expBack === 'profile' ? 'profile' : 'home', 'expense-form': 'home', recurring: 'profile', 'recurring-form': 'profile', wallet: 'profile', 'wallet-income': 'profile', 'wallet-withdraw': 'profile', 'wallet-withdraw-history': 'profile', notifications: 'profile', inbox: 'profile', support: 'profile', settings: 'profile', faq: 'profile', 'worker-data': 'home', 'common-states': 'home', 'work-tasks': 'work', 'demo-settings': 'profile' };
+          const tabOf = { 'profile-edit': 'profile', 'courier-home': 'home', 'courier-empty': 'home', 'work-hub': 'work', 'work-setup': 'work', offers: 'work', 'offer-detail': 'work', 'active-order': st.activeFrom || 'work', 'confirm-decline': 'work', 'offer-result': 'work', 'service-open-demo': st.openDemoFrom === 'courier-home' ? 'home' : 'work', 'work-summary': 'work', slots: 'work', 'job-guide': 'market', 'tax-forms': 'profile', stats: 'stats', market: 'market', 'market-services': 'market', profile: 'profile', history: 'home', order: 'home', integrations: 'home', 'integration-connect': 'home', zones: 'home', service: 'market', 'form-review': 'market', questions: 'market', 'anon-courier': 'market', top: 'profile', photo: 'profile', share: 'profile', privacy: 'profile', contest: 'profile', 'my-activity': 'profile', 'imported-reviews': 'profile', 'live-feed': 'home', 'live-mine': 'profile', 'user-home': 'home', favorites: 'favorites', couriers: 'couriers', 'public-profile': 'couriers', tips: role === 'user' ? 'couriers' : 'market', 'tips-sent': 'profile', expenses: st.expBack === 'profile' ? 'profile' : 'home', 'expense-form': 'home', recurring: 'profile', 'recurring-form': 'profile', wallet: 'profile', 'wallet-income': 'profile', 'wallet-withdraw': 'profile', 'wallet-withdraw-history': 'profile', notifications: 'profile', inbox: 'profile', support: 'profile', settings: 'profile', faq: 'profile', 'worker-data': 'home', 'common-states': 'home', 'work-tasks': 'work', 'demo-settings': 'profile' };
           const activeTab = tabOf[s];
           const showNav = (role === 'courier' && !!activeTab && s !== 'history' && s !== 'order' && s !== 'integrations' && s !== 'integration-connect' && s !== 'courier-map' && s !== 'photo' && s !== 'service' && s !== 'form-review' && s !== 'questions' && s !== 'anon-courier' && !(s === 'expenses' && st.expBack !== 'profile') && s !== 'expense-form' && s !== 'recurring-form' && s !== 'worker-data' && s !== 'common-states') || (role === 'user' && !!activeTab && s !== 'privacy' && s !== 'notifications' && s !== 'support');
           const showNavFinal = showNav && !st.pvPreview && (s.indexOf('live-') !== 0 || s === 'live-feed' || s === 'live-mine');
@@ -7147,11 +7289,12 @@
             ].filter(Boolean).join(' · '),
             today_target: formatMoney(todayTarget), today_delta_pct: todayDeltaPct,
             // тёмная карточка RaznosTodayHero: числа как есть, подписи собирает компонент, прогноз тот же, что К концу дня в Плане
+            today_goal_ask: !goalSet, today_goal_ask_tap: () => set({ s: 'work-hub' }),
             today_target_n: todayTarget, today_forecast_n: todayPlanEnd(st.takenSlots || {}, st.cancelDue || {}, st.cancelDone || {}), today_tips_n: todayTipsCash, today_fines_n: todayFines, today_exp_n: todayExpenses, today_net_n: todayRemain,
             work_week_goal: st.workGoal || WORK_WEEK_GOAL, set_work_goal: (v) => set({ workGoal: v }), work_week_earned: STATS_CALENDAR_WEEK.earn,
             // взятые в прототипе слоты становятся бронями (по заявке заявками) и уходят из свободных
             // бронь, вместо которой взяли другую смену, помечена cancelDue до отмены в приложении сервиса, после неё её нет
-            shifts_week: SHIFTS_WEEK.filter((sh) => !(st.cancelDone || {})[sh.id]).map((sh) => ((st.cancelDue || {})[sh.id] ? Object.assign({}, sh, { cancelDue: true }) : sh)).concat(SHIFT_SLOTS.filter((sl) => (st.takenSlots || {})[sl.id]).map((sl) => Object.assign({}, sl, { id: 't' + sl.id, status: sl.apply ? 'requested' : 'confirmed' }))),
+            shifts_week: SHIFTS_WEEK.filter((sh) => !(st.cancelDone || {})[sh.id]).map((sh) => ((st.cancelDue || {})[sh.id] ? Object.assign({}, sh, { cancelDue: true }) : sh)).concat(SHIFT_SLOTS.filter((sl) => (st.takenSlots || {})[sl.id]).map((sl) => takenBooking(sl))),
             cancel_due_set: (id, done) => { const cur = this.state || {}; const due = Object.assign({}, cur.cancelDue || {}), dn = Object.assign({}, cur.cancelDone || {}); if (done) { delete due[id]; dn[id] = true; } else { delete dn[id]; due[id] = true; } set({ cancelDue: due, cancelDone: dn }); },
             // взятый слот остаётся в списке с отметкой, чтобы было видно, куда он делся
             shifts_slots: SHIFT_SLOTS.map((sl) => ((st.takenSlots || {})[sl.id] ? Object.assign({}, sl, { taken: sl.apply ? 'requested' : 'confirmed' }) : sl)),
@@ -7185,11 +7328,14 @@
               // Сейчас и дальше: бронь из Смен важнее плана, план закрывает только свободные часы рабочего дня
               const nowMin = 15 * 60 + 40, fmt = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
               const left = (m) => ((m >= 60 ? Math.floor(m / 60) + ' ч ' : '') + (m % 60 ? (m % 60) + ' мин' : '')).trim();
-              const dayRows = SHIFTS_WEEK.concat(SHIFT_SLOTS.filter((sl) => (st.takenSlots || {})[sl.id]).map((sl) => Object.assign({}, sl, { id: 't' + sl.id, status: sl.apply ? 'requested' : 'confirmed' }))).filter((row) => row.iso === TODAY_ISO && row.status !== 'cancelled' && !(st.cancelDue || {})[row.id] && !(st.cancelDone || {})[row.id]).sort((a, b) => a.from - b.from);
+              const dayRows = SHIFTS_WEEK.concat(SHIFT_SLOTS.filter((sl) => (st.takenSlots || {})[sl.id]).map((sl) => takenBooking(sl))).filter((row) => ownSvc(row.svc) && row.iso === TODAY_ISO && row.status !== 'cancelled' && !(st.cancelDue || {})[row.id] && !(st.cancelDone || {})[row.id]).sort((a, b) => a.from - b.from);
               const todayRows = dayRows.filter((row) => row.to > nowMin);
               // в демо вечер можно оставить без брони: тогда Дальше это окно плана без записи
               const current = todayRows.find((row) => row.from <= nowMin), next = edge.evening === 'plan' ? null : todayRows.find((row) => row.from > nowMin);
-              const graphStart = (st.graphStart != null ? st.graphStart : 9) * 60, graphEnd = (st.graphEnd != null ? st.graphEnd : 18) * 60;
+              // у своего аккаунта окно дня берём из сохранённого графика на сегодня, без графика в этот день остаются брони
+              const gToday = demoOn ? null : goalGraphOf(TODAY_ISO);
+              const graphStart = gToday ? (gToday.on ? gToday.from : (dayRows.length ? dayRows[0].from : 9 * 60)) : (st.graphStart != null ? st.graphStart : 9) * 60;
+              const graphEnd = gToday ? (gToday.on ? gToday.to : (dayRows.length ? dayRows[dayRows.length - 1].to : 18 * 60)) : (st.graphEnd != null ? st.graphEnd : 18) * 60;
               // рабочий день растягивается до последней брони, иначе остаток времени врёт
               const dayStart = Math.min(graphStart, dayRows.length ? dayRows[0].from : graphStart);
               const lastBooking = dayRows.length ? dayRows[dayRows.length - 1] : null;
@@ -7206,7 +7352,7 @@
               };
               const booking = (row, kind) => ({ id: row.id, svc: row.svc, kind, source: 'booking', title: row.title, place: row.place, time: fmt(row.from) + '–' + fmt(row.to), hint: kind === 'now' ? 'ещё ' + left(row.to - nowMin) : 'через ' + left(row.from - nowMin), word: row.status === 'requested' ? (SERVICE_CAPS[row.svc].words || SHIFT_WORDS.bron).requested : (SERVICE_CAPS[row.svc].status === 'bron' ? 'бронь' : 'смена'), deadline: kind === 'next' ? cancelBy(row) : '' });
               // без брони план ставит только то, куда можно выйти сразу: свободный выход в Яндекс Еде
-              const best = { key: 'yandex-eda', name: 'Яндекс Еда' };
+              const best = ownSvc('yandex-eda') ? { key: 'yandex-eda', name: 'Яндекс Еда' } : null;
               const planRow = (kind, from) => best ? { svc: best.key, kind, source: 'plan', title: best.name, time: fmt(from) + '–' + fmt(from + 60), pay: '', hint: kind === 'now' ? '' : 'через ' + left(from - nowMin) } : null;
               const rows = [];
               if (current) rows.push(booking(current, 'now'));
@@ -7236,7 +7382,7 @@
                 const busy = dayRows.filter((x) => x.id !== next.id);
                 const hits = (sl, x) => sl.from < x.to + (x.svc === sl.svc ? 0 : 20) && x.from < sl.to + (x.svc === sl.svc ? 0 : 20);
                 const off = st.rebookOff || {};
-                const best = SHIFT_SLOTS.filter((sl) => sl.iso === TODAY_ISO && !sl.gone && !(st.takenSlots || {})[sl.id] && sl.from > nowMin && hits(sl, next) && !busy.some((x) => hits(sl, x)) && !off[next.id + '>' + sl.id])
+                const best = SHIFT_SLOTS.filter((sl) => ownSvc(sl.svc) && sl.iso === TODAY_ISO && !sl.gone && !(st.takenSlots || {})[sl.id] && sl.from > nowMin && hits(sl, next) && !busy.some((x) => hits(sl, x)) && !off[next.id + '>' + sl.id])
                   .map((sl) => { const altSum = earn(sl), mineSum = earn(next); return { sl, altSum, mineSum, net: penalty == null ? null : altSum - mineSum - penalty - bonus }; })
                   .filter((x) => x.net != null && (x.net >= 100 || (conflict && bonus && x.net + bonus >= 100))).sort((a, b) => b.net - a.net)[0];
                 if (!best) return null;
@@ -7254,7 +7400,23 @@
                 onKeep: () => { if (!rebook) return; const pair = rebook.pair; set({ homeFix: false, rebookOff: Object.assign({}, st.rebookOff || {}, { [pair]: true }) }); uxShowToast('Оставили свою смену', 'Отменить', () => set({ rebookOff: Object.assign({}, st.rebookOff || {}, { [pair]: false }) })); }
               } : null;
               return {
+                // взяли смену вместо брони: бронь отменяют только в приложении сервиса, как в Плане
+                ...(() => {
+                  const d = SHIFTS_WEEK.find((sh) => ownSvc(sh.svc) && sh.iso === TODAY_ISO && (st.cancelDue || {})[sh.id] && !(st.cancelDone || {})[sh.id]);
+                  if (!d) return { home_due_show: false };
+                  const svcTitle = (SERVICES[d.svc] || {}).title || d.title;
+                  return {
+                    home_due_show: role === 'courier' && !st.homeShiftEnded,
+                    home_due_title: 'Отмените ' + (d.status === 'requested' ? 'заявку' : 'бронь') + ' ' + ((SERVICE_CASES[d.svc] || {}).gen || svcTitle) + ' в приложении сервиса',
+                    home_due_text: fmt(d.from) + '–' + fmt(d.to) + '. Пока не отменили, в прогноз дня и цели не входит',
+                    home_due_meta: '', home_due_action: 'Открыть ' + svcTitle.replace(/а$/, 'у'),
+                    home_due_open: () => set({ s: 'service-open-demo', openDemoSection: '', openDemoLabel: SHIFT_TITLES[d.svc] || svcTitle, openDemoFrom: 'courier-home', openDemoKind: '', openDemoShift: fmt(d.from) + '–' + fmt(d.to), openDemoSlot: '' }),
+                    home_due_done: () => { vals.cancel_due_set(d.id, true); uxShowToast('Отметили, что бронь отменена', 'Отменить', () => vals.cancel_due_set(d.id, false)); }
+                  };
+                })(),
                 home_offer: homeOffer || {}, home_offer_show: !!st.homeFix && !!homeOffer, home_offer_swap: rebook,
+                // у своего аккаунта прогноз дня: начислено плюс оставшиеся брони, а не готовая сумма демо
+                ...(demoOn ? {} : { today_forecast_n: todayEarn + todayRows.reduce((sum, row) => sum + dayEarn({ svc: row.svc, from: Math.max(row.from, nowMin), to: row.to }), 0) }),
                 home_now_rows: rows.filter(Boolean),
                 home_now_day: fmt(dayStart) + '–' + fmt(dayEnd) + (nowMin < dayEnd ? ' · осталось ' + left(dayEnd - nowMin) : ''),
                 // подсказка момента решения: конец последней брони, спрос вечером выше обычного
@@ -7896,7 +8058,7 @@
               return SHIFT_SLOTS.map((sl) => {
                 const clash = busy.find((w) => w.id !== sl.id && w.iso === sl.iso && sl.from < w.to + (w.svc === sl.svc ? 0 : 20) && w.from < sl.to + (w.svc === sl.svc ? 0 : 20));
                 const off = taken[sl.id] ? 'Уже в плане' : (sl.gone ? 'Нет в списке сервиса' : (connectedKeys.indexOf(sl.svc) === -1 ? 'Сервис не подключён' : (clash ? 'Пересекается со сменой ' + SHIFT_TITLES[clash.svc] + ' ' + hm(clash.from) + '–' + hm(clash.to) : '')));
-                return { id: sl.id, iso: sl.iso, svc: sl.svc, from: sl.from / 60, to: sl.to / 60, bonus: sl.bonus || '', rate: slotRate(sl.svc, sl.from, sl.to), off };
+                return { id: sl.id, iso: sl.iso, svc: sl.svc, from: sl.from / 60, to: sl.to / 60, bonus: sl.bonus || '', rate: slotRate(sl.svc, sl.from, sl.to), place: sl.place || '', off };
               });
             })(),
             mt_back: navBack(() => set({ s: (this.state && this.state.mtFrom) || 'market' })),
@@ -9236,6 +9398,20 @@
             pv_toggle_cmap_link: () => { set({ cmapProfileLink: !st.cmapProfileLink }); uxShowToast(st.cmapProfileLink ? 'С карты профиль не открыть' : 'С карты откроют ваш профиль', 'Отменить', () => set({ cmapProfileLink: !!st.cmapProfileLink })); },
             pv_toggle_cmap: () => { set({ cmapShare: !st.cmapShare }); uxShowToast(st.cmapShare ? 'Вас не видно на карте' : 'Вы видны на карте', 'Отменить', () => set({ cmapShare: !!st.cmapShare })); },
             pv_not_closing: pvCloseStage === 'idle', pv_confirming_close: pvCloseStage === 'confirming', pv_closed: pvCloseStage === 'closed',
+            // перед закрытием курьер видит деньги на балансе и что станет с сервисами
+            ...(() => {
+              const fm = (n) => formatMoney(n) + ' ₽';
+              const parts = [wallet.available > 0 ? 'доступно ' + fm(wallet.available) : '', wallet.reserved > 0 ? 'выводится ' + fm(wallet.reserved) : '', wallet.pending > 0 ? 'ждёт подтверждения ' + fm(wallet.pending) : ''].filter(Boolean);
+              const names = connectedKeys.filter((k) => SERVICES[k]).map((k) => SERVICES[k].title);
+              const listed = names.length > 3 ? names.slice(0, 3).join(', ') + ' и ещё ' + (names.length - 3) : names.join(', ');
+              return {
+                pv_close_money_show: parts.length > 0,
+                pv_close_money_text: parts.join(', ').replace(/^./, (c) => c.toUpperCase()) + '. ' + (wallet.available > 0 ? 'Доступное лучше вывести до закрытия' : 'Выводимое придёт на выбранный способ как обычно'),
+                pv_close_withdraw_show: wallet.available > 0, pv_close_withdraw_label: 'Вывести ' + fm(wallet.available),
+                pv_close_svcs_show: names.length > 0,
+                pv_close_svcs_text: listed + ': Разнос перестанет читать их данные. Передумаете, вернуться можно: войдите по тому же номеру и подключите сервисы заново, история восстановится'
+              };
+            })(),
             pv_ask_close: () => set({ pvCloseStage: 'confirming' }),
             pv_confirm_close: () => set({ pvCloseStage: 'closed', shLinks: shLinks.map((x) => Object.assign({}, x, { revoked: true })) }),
             pv_cancel_close: () => set({ pvCloseStage: 'idle' }),
@@ -9301,6 +9477,7 @@
             tip_is_idle: tipStage === 'idle', tip_is_done: tipStage === 'done', tip_is_error: tipStage === 'error',
             tip_amount_invalid: tipAmount <= 0,
             tip_show_submit: tipStage !== 'done',
+            tip_back: navBack(() => set({ s: 'public-profile' })),
             tip_submit_class: tipAmount > 0 ? 'raznos-btn raznos-btn-primary' : 'raznos-btn-disabled',
             tip_submit_label: tipStage === 'error' ? 'Повторить' : 'Отправить как демо',
             tip_submit: () => {
@@ -9500,7 +9677,7 @@
             // чаевые наличными сейчас: шторка с суммой в фокусе, чипы трёх последних заказов
             qt_open_tap: (e) => { if (e && e.stopPropagation) e.stopPropagation(); set({ qtOpen: true, todaySheet: false, tipsDaySheet: false }); },
             // цель дня: остаток до цели недели на оставшиеся рабочие дни
-            today_goal_show: goalTodayOn,
+            today_goal_show: goalTodayOn && goalSet,
             // цель недели уже набрана: вместо «из 0 ₽» так и пишем
             today_goal_line: goalLeft <= 0 ? 'цель недели есть' : formatMoney(todayEarn) + ' из ' + formatMoney(todayTarget) + ' ₽',
             goal_day_sheet: !!st.goalDaySheet, goal_day_open: () => set({ goalDaySheet: true }), goal_day_close: () => set({ goalDaySheet: false }),
@@ -9570,15 +9747,18 @@
             // карта района из шторок Плана и Слотов: слой поверх экрана, Назад возвращает в ту же шторку
             ...(() => {
               const z = st.dmap || null;
+              // место из справочника: территория, подпись и маршрут по place_id, без него только район
+              const zp = z && z.placeId && WORK.get(z.placeId) ? z.placeId : '';
+              const zAt = zp ? WORK.at(zp) : (z && z.center) || null;
               const km = z && z.radius_m ? String(Math.round(z.radius_m / 100) / 10).replace('.', ',') + ' км' : '';
               const svcTitle = z && z.svc ? ((typeof SERVICES !== 'undefined' && SERVICES[z.svc]) || {}).title || '' : '';
               return {
                 dmap_visible: !!z, dmap_show: (v) => set({ dmap: v || null }), dmap_back: () => set({ dmap: null }),
                 dmap_k: z ? z.k : '', dmap_name: z ? z.name : '', dmap_sub: 'Район города, Москва', dmap_aria: z ? 'Карта района ' + z.name : '',
-                dmap_place: z ? (svcTitle ? svcTitle + ' · ' : '') + (z.place === z.name || z.place === 'Центр' ? 'свободный выход' : z.place) : '', dmap_svc: z ? z.svc : '', dmap_svc_title: svcTitle,
-                dmap_zones: z && z.center ? [{ center: z.center, radius_m: z.radius_m, svc: z.svc, approx: true, label: z.place }] : [],
-                dmap_note: z && z.center ? 'Сервис не отдаёт границы зоны, поэтому показываем точку и круг ≈ ' + km + ' примерно' : 'Сервис не отдаёт границы зоны, показываем район, где обычно ждут заказы',
-                dmap_route: z ? 'https://yandex.ru/maps/?mode=routes&rtext=~' + (z.center ? z.center[1] + ',' + z.center[0] : encodeURIComponent('Москва, район ' + z.name)) : ''
+                dmap_place: z ? (svcTitle && !zp ? svcTitle + ' · ' : '') + (zp ? WORK.line(zp) : (z.place === z.name || z.place === 'Центр' ? 'свободный выход' : z.place)) : '', dmap_svc: z ? z.svc : '', dmap_svc_title: svcTitle,
+                dmap_zones: zp ? WORK.zones(zp) : (z && z.center ? [{ center: z.center, radius_m: z.radius_m, svc: z.svc, approx: true, label: z.place }] : []),
+                dmap_note: zp ? WORK.note(zp) : z && z.center ? 'Сервис не отдаёт границы зоны, поэтому показываем точку и круг ≈ ' + km + ' примерно' : 'Сервис не отдаёт границы зоны, показываем район, где обычно ждут заказы',
+                dmap_route: z ? 'https://yandex.ru/maps/?mode=routes&rtext=~' + (zAt ? zAt[1] + ',' + zAt[0] : encodeURIComponent('Москва, район ' + z.name)) : ''
               };
             })(),
             leave_guard_visible: !!st.leavePatch,

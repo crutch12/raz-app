@@ -56,8 +56,8 @@ class Component extends DCLogic {
     const openPlan = typeof p.onOpenPlan === 'function' ? p.onOpenPlan : noop;
     const state = p.state || 'on';
     const rows = (p.rows || [
-      { svc: 'vkusvill', kind: 'now', source: 'booking', title: 'ВкусВилл', time: '14:00–17:00', place: 'Даркстор на Правды, 24', word: 'смена', hint: 'ещё 1 ч 20 мин' },
-      { svc: 'yandex-eda', kind: 'next', source: 'booking', title: 'Яндекс Еда', time: '17:00–20:00', place: 'Локация Беговая', word: 'бронь', hint: 'через 1 ч 20 мин' }
+      { svc: 'vkusvill', kind: 'now', source: 'booking', title: 'ВкусВилл', time: '14:00–17:00', place: 'Даркстор · ул. Правды, д. 24 стр. 3 · 2,9 км', word: 'смена', hint: 'ещё 1 ч 20 мин' },
+      { svc: 'yandex-eda', kind: 'next', source: 'booking', title: 'Яндекс Еда', time: '17:00–20:00', place: 'Локация · Беговой', word: 'бронь', hint: 'через 1 ч 20 мин' }
     ]).map((row) => {
       const now = row.kind === 'now';
       // слово статуса по профилю сервиса: бронь, заявка, подтверждена

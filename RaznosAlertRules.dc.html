@@ -133,10 +133,12 @@ class Component extends DCLogic {
     const sub = (r) => [svcLabel(r.svcs), RAR_WHERE_LABEL(r.where), RAR_DAYS_LABEL(r.days) + ' ' + RAR_TIME_LABEL(r.time), 'до ' + r.max + ' раз в день'].join(' · ');
     // пример пуша: первое место и первый сервис из правила, время из выбранного окна
     const push = (r) => {
-      const svc = svcName((r.svcs || [])[0] || svcs[0].key);
+      // сервис и ставку берёт из выбранного часа вход со стороны Рынка, пока сервис есть в правиле
+      const hint = r.hint && (r.svcs || []).indexOf(r.hint.svc) !== -1 ? r.hint : null;
+      const svc = svcName(hint ? hint.svc : (r.svcs || [])[0] || svcs[0].key);
       const where = !r.where || !r.where.length || r.where.indexOf('city') !== -1 ? 'рядом с вами' : r.where[0];
       const win = { morning: '9:00–12:00', day: '13:00–17:00', evening: '18:00–22:00', all: '18:00–22:00' }[r.time] || '18:00–22:00';
-      if (r.what === 'demand') return ['Высокий спрос: ' + where, svc + ': заказов больше обычного, ≈ 620 ₽/ч в ближайшие 2 часа'];
+      if (r.what === 'demand') return ['Высокий спрос: ' + where, svc + ': заказов больше обычного, ' + (hint ? hint.rate : '≈ 620 ₽/ч') + ' в ближайшие 2 часа'];
       // погода по прогнозу Open-Meteo: пишем заранее, за 1–2 часа до дождя, снега или мороза
       if (r.what === 'weather') return ['Дождь с 18:00, спрос выше', svc + ', ' + where + ': заказов в дождь обычно больше на 15–25%'];
       if (r.what === 'bonus') return ['Новое задание в ' + svc, '+1 500 ₽ за 20 заказов до воскресенья, условия в приложении сервиса'];
