@@ -1,0 +1,48 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
+<div class="raznos-dialog-layer raznos-stats-filter-layer" onClick="{{ close }}" onKeyDown="{{ close_key }}">
+  <section class="raznos-stats-filter-sheet" role="dialog" aria-modal="true" aria-label="Срез данных" onClick="{{ stop }}">
+    <span class="raznos-stats-filter-handle" aria-hidden="true"></span>
+    <header class="raznos-stats-filter-head">
+      <h2>Срез данных</h2>
+      <div class="raznos-stats-filter-head-actions">
+        <sc-if value="{{ active }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-stats-filter-reset" onClick="{{ reset }}">Сбросить</button></sc-if>
+        <button type="button" class="raznos-stats-filter-close" onClick="{{ close }}" aria-label="Закрыть фильтры"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+    </header>
+    <div class="raznos-stats-filter-groups">
+      <sc-for list="{{ groups }}" as="group" hint-placeholder-count="4">
+        <section class="raznos-stats-filter-group">
+          <h3>{{ group.label }}</h3>
+          <div class="raznos-stats-filter-options">
+            <sc-for list="{{ group.options }}" as="option" hint-placeholder-count="4">
+              <button type="button" class="{{ option.cls }}" aria-pressed="{{ option.selected }}" onClick="{{ option.tap }}"><span>{{ option.label }}</span><i aria-hidden="true"></i></button>
+            </sc-for>
+          </div>
+        </section>
+      </sc-for>
+    </div>
+    <p class="raznos-stats-filter-note">Меняются только ваши данные, группа сравнения остаётся прежней</p>
+  </section>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"groups":{"editor":null},"active":{"editor":"boolean","default":false},"onReset":{"editor":null},"onClose":{"editor":null},"$preview":{"width":390,"height":740}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const close = typeof p.onClose === 'function' ? p.onClose : (() => {});
+    const idle = () => {};
+    const previewGroups = [
+      { label: 'Сервис', options: ['Все сервисы', 'ВкусВилл', 'Самокат'].map((label, index) => ({ label, selected: index === 0, cls: 'raznos-stats-filter-option' + (index === 0 ? ' raznos-is-selected' : ''), tap: idle })) },
+      { label: 'Район получения', options: ['Все районы', 'Пресненский', 'Беговой', 'Тверской'].map((label, index) => ({ label, selected: index === 0, cls: 'raznos-stats-filter-option' + (index === 0 ? ' raznos-is-selected' : ''), tap: idle })) },
+      { label: 'Способ доставки', options: ['Все способы', 'Велосипед', 'Пешком', 'Авто'].map((label, index) => ({ label, selected: index === 0, cls: 'raznos-stats-filter-option' + (index === 0 ? ' raznos-is-selected' : ''), tap: idle })) },
+      { label: 'Смена', options: ['Все смены', 'Утро', 'Вечер'].map((label, index) => ({ label, selected: index === 0, cls: 'raznos-stats-filter-option' + (index === 0 ? ' raznos-is-selected' : ''), tap: idle })) }
+    ];
+    return {
+      groups: p.groups || previewGroups, active: !!p.active,
+      reset: typeof p.onReset === 'function' ? p.onReset : idle, close,
+      close_key: (e) => { if (e && e.key === 'Escape') close(); },
+      stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
+    };
+  }
+}
+</script></body></html>

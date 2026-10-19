@@ -1,0 +1,44 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+<sc-if value="{{ shown }}" hint-placeholder-val="{{ true }}"><div class="raznos-undo-toast" data-toast role="status" aria-live="polite" style="display:flex;align-items:center;gap:6px;min-height:48px;padding:2px 8px 2px 2px;border-radius:14px;box-sizing:border-box;background:var(--raznos-ink);color:var(--raznos-on-dark);box-shadow:0 8px 20px rgba(20,25,40,0.22)">
+  <button type="button" class="raznos-toast-x" data-toast-close onClick="{{ close }}" aria-label="Закрыть"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <span class="raznos-text-small" style="flex:1;min-width:0;color:inherit">{{ text }}</span>
+  <sc-if value="{{ hasAction }}" hint-placeholder-val="{{ true }}">
+    <button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" style="min-height:44px;color:inherit;font-weight:700" onClick="{{ onAction }}">{{ actionLabel }}</button>
+  </sc-if>
+</div></sc-if>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "text": { "editor": "text", "default": "Ссылка скопирована" },
+  "actionLabel": { "editor": "text", "default": "" },
+  "onAction": { "editor": null },
+  "toastId": { "editor": "text", "default": "" },
+  "seconds": { "editor": "text", "default": "6" },
+  "onClose": { "editor": null },
+  "$preview": { "width": 340, "height": 64 }
+}'>
+class Component extends DCLogic {
+  // автоскрытие только если передан onClose, новый toastId перезапускает отсчёт
+  componentDidMount() { this.arm(); }
+  componentDidUpdate(prevProps) { if ((prevProps || {}).toastId !== (this.props || {}).toastId) { if (this.state && this.state.hidden) this.setState({ hidden: false }); this.arm(); } }
+  componentWillUnmount() { clearTimeout(this._timer); }
+  arm() {
+    clearTimeout(this._timer);
+    const p = this.props || {};
+    if (typeof p.onClose !== 'function') return;
+    const sec = Number(p.seconds) > 0 ? Number(p.seconds) : 6;
+    this._timer = setTimeout(() => { const close = (this.props || {}).onClose; if (typeof close === 'function') close(); }, sec * 1000);
+  }
+  renderVals() {
+    const p = this.props || {};
+    return {
+      // крестик и смахивание закрывают тост, без onClose прячем у себя
+      shown: !(this.state || {}).hidden,
+      close: () => { clearTimeout(this._timer); if (typeof p.onClose === 'function') p.onClose(); else this.setState({ hidden: true }); },
+      text: p.text || '',
+      hasAction: !!p.actionLabel,
+      actionLabel: p.actionLabel || '',
+      onAction: p.onAction || (() => {})
+    };
+  }
+}
+</script></body></html>

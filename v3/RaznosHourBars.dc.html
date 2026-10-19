@@ -1,0 +1,150 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* столбики лучшей ставки по часам: было сплошным, прогноз штрихом, выбор тапом и ведением пальцем */
+    .rhb { --rhb-past: color-mix(in oklab, var(--raznos-green) 78%, var(--raznos-surface)); --rhb-fc: color-mix(in oklab, var(--raznos-green) 90%, var(--raznos-ink)); --rhb-fc-bg: color-mix(in oklab, var(--raznos-green) 32%, var(--raznos-surface));
+      display: flex; flex-direction: column; gap: 4px; width: 100%; min-width: 0; user-select: none; -webkit-user-select: none; }
+    .rhb-plot { position: relative; touch-action: pan-y; }
+    .rhb-cols { position: absolute; inset: 0; display: flex; }
+    .rhb-col { position: relative; flex: 1 1 0; min-width: 0; height: 100%; margin: 0; padding: 0; border: 0; border-radius: 8px; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .rhb-col:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: -2px; }
+    .rhb-col[aria-pressed="true"] { background: var(--raznos-surface-2); }
+    .rhb-bar { position: absolute; left: 50%; bottom: 0; width: 62%; max-width: 16px; transform: translateX(-50%); border-radius: 4px 4px 2px 2px; background: var(--rhb-past); transition: height .32s cubic-bezier(.16, 1, .3, 1), background-color .16s ease; }
+    .rhb-fc .rhb-bar { box-sizing: border-box; border: 1.5px solid var(--rhb-fc); background: var(--rhb-fc-bg) repeating-linear-gradient(135deg, var(--rhb-fc) 0 2px, transparent 2px 5px); }
+    .rhb-col[aria-pressed="true"] .rhb-bar { background: var(--raznos-ink); }
+    .rhb-fc[aria-pressed="true"] .rhb-bar { border-color: var(--raznos-ink); background: var(--raznos-surface) repeating-linear-gradient(135deg, var(--raznos-ink) 0 3.5px, transparent 3.5px 5px); }
+    /* ночь после 24:00 тише: столбики бледнее, под ними едва заметная подложка */
+    .rhb-night-band { position: absolute; top: 0; bottom: 0; border-radius: 8px; background: color-mix(in oklab, var(--raznos-ink) 5%, transparent); pointer-events: none; }
+    .rhb-night-band > span { position: absolute; z-index: 2; top: 2px; left: 0; right: 0; text-align: center; font: 600 10.5px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rhb-night:not([aria-pressed="true"]) .rhb-bar { opacity: 0.55; }
+    /* разброс прогноза тонкой засечкой: шире, чем дальше час */
+    .rhb-rng { position: absolute; left: 50%; width: 7px; transform: translateX(-50%); box-sizing: border-box; border-top: 1.5px solid var(--raznos-ink-3); border-bottom: 1.5px solid var(--raznos-ink-3); background: linear-gradient(var(--raznos-ink-3), var(--raznos-ink-3)) center / 1.5px 100% no-repeat; pointer-events: none; transition: bottom .32s cubic-bezier(.16, 1, .3, 1), height .32s cubic-bezier(.16, 1, .3, 1); }
+    .rhb-col[aria-pressed="true"] .rhb-rng { border-color: var(--raznos-ink); background-image: linear-gradient(var(--raznos-ink), var(--raznos-ink)); }
+    .rhb-ico { position: absolute; left: 50%; transform: translateX(-50%); line-height: 0; pointer-events: none; transition: bottom .32s cubic-bezier(.16, 1, .3, 1); }
+    .rhb-ico .raznos-svc-icon-sm { box-sizing: border-box; width: 15px; height: 15px; border-radius: 4px; border-width: 1px; }
+    .rhb-val { position: absolute; left: 50%; transform: translateX(-50%); font: 700 11.5px var(--raznos-font); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; color: var(--raznos-ink); white-space: nowrap; pointer-events: none; }
+    /* лучшее окно скобкой над столбиками */
+    .rhb-win { position: absolute; top: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+    .rhb-win-label { font: 700 11px var(--raznos-font); color: var(--raznos-green-deep); white-space: nowrap; }
+    .rhb-win-line { align-self: stretch; height: 5px; margin: 1px 3px 0; border: 1.5px solid var(--raznos-green-deep); border-bottom: 0; border-radius: 3px 3px 0 0; }
+    /* ось: точки ваших часов у основания и подписи времени */
+    .rhb-axis { display: flex; border-top: 1px solid var(--raznos-line); }
+    .rhb-tick { position: relative; flex: 1 1 0; min-width: 0; height: 26px; display: flex; flex-direction: column; align-items: center; }
+    .rhb-me { width: 5px; height: 5px; margin-top: 3px; border-radius: 50%; background: var(--raznos-ink); }
+    .rhb-me-off { background: transparent; }
+    .rhb-t { position: absolute; top: 9px; font: 600 11px var(--raznos-font); font-variant-numeric: tabular-nums; color: var(--raznos-ink-3); white-space: nowrap; }
+    .rhb-t-now { color: var(--raznos-green-deep); font-weight: 750; }
+    .rhb-t-now::before { content: ''; position: absolute; left: 50%; top: -6px; width: 0; height: 0; margin-left: -4px; border: 4px solid transparent; border-top: 0; border-bottom: 4px solid var(--raznos-green-deep); }
+    .rhb-sm .rhb-tick { height: 22px; }
+    .rhb-sm .rhb-t { top: 7px; }
+    .rhb-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rhb-legend > span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .rhb-key { width: 9px; height: 12px; border-radius: 2px; background: var(--rhb-past); }
+    .rhb-key-fc { box-sizing: border-box; border: 1.5px solid var(--rhb-fc); background: var(--rhb-fc-bg) repeating-linear-gradient(135deg, var(--rhb-fc) 0 2px, transparent 2px 5px); }
+    .rhb-key-me { width: 5px; height: 5px; border-radius: 50%; background: var(--raznos-ink); }
+    @media (prefers-reduced-motion: reduce) { .rhb-bar, .rhb-ico, .rhb-rng { transition: none; } }
+  </style>
+</helmet>
+<div class="{{ cls }}" role="group" aria-label="{{ label }}">
+  <div class="rhb-plot" style="{{ plot_style }}" onPointerDown="{{ on_down }}" onPointerMove="{{ on_move }}" onPointerUp="{{ on_up }}" onPointerCancel="{{ on_up }}">
+    <sc-if value="{{ has_win }}" hint-placeholder-val="{{ true }}"><div class="rhb-win" style="{{ win_style }}"><sc-if value="{{ has_win_label }}" hint-placeholder-val="{{ true }}"><span class="rhb-win-label">{{ win_label }}</span></sc-if><span class="rhb-win-line"></span></div></sc-if>
+    <sc-if value="{{ has_night }}" hint-placeholder-val="{{ false }}"><div class="rhb-night-band" style="{{ night_style }}" aria-hidden="true"><span>ночь</span></div></sc-if>
+    <div class="rhb-cols">
+      <sc-for list="{{ cols }}" as="c" hint-placeholder-count="18">
+        <button type="button" class="{{ c.cls }}" aria-pressed="{{ c.sel }}" aria-label="{{ c.aria }}" tabindex="{{ c.tab }}" onClick="{{ c.tap }}">
+          <span class="rhb-bar" style="{{ c.bar_style }}"></span>
+          <sc-if value="{{ c.has_rng }}" hint-placeholder-val="{{ false }}"><span class="rhb-rng" style="{{ c.rng_style }}"></span></sc-if>
+          <sc-if value="{{ c.has_icon }}" hint-placeholder-val="{{ false }}"><span class="rhb-ico" style="{{ c.top_style }}"><dc-import name="RaznosIcon" svc="{{ c.svc }}" alt="{{ c.svc_title }}" size="sm"></dc-import></span></sc-if>
+          <sc-if value="{{ c.has_val }}" hint-placeholder-val="{{ false }}"><span class="rhb-val" style="{{ c.top_style }}">{{ c.val }}</span></sc-if>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+  <div class="rhb-axis" aria-hidden="true">
+    <sc-for list="{{ ticks }}" as="t" hint-placeholder-count="18">
+      <span class="rhb-tick"><i class="{{ t.me_cls }}"></i><sc-if value="{{ t.has_text }}" hint-placeholder-val="{{ false }}"><span class="{{ t.cls }}">{{ t.text }}</span></sc-if></span>
+    </sc-for>
+  </div>
+  <sc-if value="{{ has_legend }}" hint-placeholder-val="{{ true }}">
+    <div class="rhb-legend"><sc-if value="{{ legend_past }}" hint-placeholder-val="{{ true }}"><span><i class="rhb-key" aria-hidden="true"></i>было</span></sc-if><sc-if value="{{ legend_fc }}" hint-placeholder-val="{{ true }}"><span><i class="rhb-key rhb-key-fc" aria-hidden="true"></i>прогноз</span></sc-if><sc-if value="{{ legend_me }}" hint-placeholder-val="{{ true }}"><span><i class="rhb-key-me" aria-hidden="true"></i>вы на линии</span></sc-if></div>
+  </sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"bars":{"editor":null},"win":{"editor":null},"size":{"editor":"text","default":"md"},"legend":{"editor":"boolean","default":true},"legendMe":{"editor":"boolean","default":true},"label":{"editor":"text","default":"Лучшая ставка по часам"},"onPick":{"editor":null},"$preview":{"width":358,"height":200}}'>
+// столбики по часам для таймлайна выгодности: высота это лучшая ставка часа, над столбиком логотип сервиса-лидера
+// bars: [{ key, val, lo, hi, fc, night, now, sel, me, svc, svcTitle, tick, label, aria }], lo и hi вилка прогноза засечкой, night тихая ночь, tick подпись под столбиком, label цифра над ним (в sm)
+// win: { from, to, label } ключи первого и последнего часа лучшего окна, onPick(key) тап и ведение пальцем
+// size md: экран, выбор ведением пальцем; sm: карточка, без логотипов и выделения, цифры только где есть label
+// логотип лидера только над выбранным столбиком; в легенде одной строкой только то, что есть на этом дне
+const RHB_PREVIEW = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23].map((h) => {
+  const v = [420, 480, 520, 560, 620, 700, 860, 980, 900, 760, 720, 820, 1040, 1220, 1300, 1180, 920, 700][h - 6];
+  const sp = h > 15 ? 0.04 + (h - 15) * 0.006 : 0;
+  return { key: String(h), val: v, lo: sp ? Math.round(v * (1 - sp)) : null, hi: sp ? Math.round(v * (1 + sp)) : null, fc: h > 15, now: h === 15, me: h >= 9 && h < 15, svc: h >= 17 ? 'samokat' : (h >= 12 ? 'yandex-eda' : 'vkusvill'), tick: h % 3 === 0 ? String(h).padStart(2, '0') : '' };
+});
+const RHB_SIZE = { md: { h: 112, top: 18, head: 18 }, sm: { h: 74, top: 8, head: 16 } };
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const sm = p.size === 'sm';
+    const dim = RHB_SIZE[sm ? 'sm' : 'md'];
+    const list = Array.isArray(p.bars) && p.bars.length ? p.bars : RHB_PREVIEW;
+    const ext = typeof p.onPick === 'function';
+    // без onPick (превью в ДС) выбор держим у себя
+    const selKey = sm ? null : (ext ? (list.find((b) => b.sel) || {}).key : (st.sel != null ? st.sel : (list.find((b) => b.now) || list[0] || {}).key));
+    const pick = (key) => { if (key == null || key === this._picked) return; this._picked = key; if (ext) p.onPick(key); else this.setState({ sel: key }); };
+    this._picked = selKey;
+    this._keys = list.map((b) => b.key);
+    const max = Math.max.apply(null, list.map((b) => Math.max(+b.val || 0, +b.hi || 0)).concat([1]));
+    const room = dim.h - dim.top - dim.head;
+    const hOf = (v) => Math.max(3, Math.round((+v || 0) / max * room));
+    const n = list.length;
+    const win = p.win || (Array.isArray(p.bars) ? null : { from: '19', to: '21', label: 'лучше 19–22' });
+    const wFrom = win ? this._keys.indexOf(String(win.from)) : -1, wTo = win ? this._keys.indexOf(String(win.to)) : -1;
+    const hasWin = wFrom !== -1 && wTo >= wFrom;
+    // ведение пальцем: столбик под пальцем становится выбранным, вертикальный жест остаётся прокруткой
+    const idxAt = (e) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      return Math.max(0, Math.min(n - 1, Math.floor((e.clientX - r.left) / (r.width / n))));
+    };
+    const scrub = !sm;
+    const nFirst = list.findIndex((b) => b.night);
+    let nLast = -1; list.forEach((b, i) => { if (b.night) nLast = i; });
+    return {
+      cls: 'rhb' + (sm ? ' rhb-sm' : ''), label: p.label || 'Лучшая ставка по часам',
+      plot_style: 'height:' + dim.h + 'px',
+      on_down: (e) => { if (!scrub || (e.pointerType === 'mouse' && e.button !== 0)) return; this._drag = true; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {} pick(this._keys[idxAt(e)]); },
+      on_move: (e) => { if (this._drag) pick(this._keys[idxAt(e)]); },
+      on_up: () => { this._drag = false; },
+      has_night: !sm && nFirst !== -1, night_style: nFirst === -1 ? '' : 'left:' + (nFirst / n * 100) + '%;width:' + ((nLast - nFirst + 1) / n * 100) + '%',
+      has_win: hasWin, has_win_label: hasWin && !sm && !!win.label, win_label: win ? win.label || '' : '',
+      win_style: hasWin ? 'left:' + (wFrom / n * 100) + '%;width:' + ((wTo - wFrom + 1) / n * 100) + '%' : '',
+      cols: list.map((b, i) => {
+        const bh = hOf(b.val), sel = b.key === selKey;
+        const rng = !sm && b.lo != null && b.hi != null && +b.hi > +b.lo;
+        const lo = rng ? hOf(b.lo) : bh, hi = rng ? hOf(b.hi) : bh;
+        return {
+          cls: 'rhb-col' + (b.fc ? ' rhb-fc' : '') + (b.now ? ' rhb-now' : '') + (b.night ? ' rhb-night' : ''),
+          sel: sm ? null : String(sel), tab: sm ? '-1' : '0',
+          aria: b.aria || ((b.tick || b.key) + ', ' + b.val),
+          tap: () => pick(b.key),
+          bar_style: 'height:' + bh + 'px',
+          top_style: 'bottom:' + (Math.max(bh, hi) + 3) + 'px',
+          has_rng: rng, rng_style: 'bottom:' + lo + 'px;height:' + Math.max(4, hi - lo) + 'px',
+          has_icon: !sm && !!b.svc && sel, svc: b.svc || '', svc_title: b.svcTitle || '',
+          has_val: sm && !!b.label, val: b.label || ''
+        };
+      }),
+      // подпись сейчас шире столбика, соседние подписи под ней прячем
+      ticks: list.map((b, i) => {
+        const nearNow = (list[i - 1] && list[i - 1].now) || (list[i + 1] && list[i + 1].now);
+        const text = b.now ? 'сейчас' : (nearNow ? '' : (b.tick || ''));
+        return { me_cls: 'rhb-me' + (b.me ? '' : ' rhb-me-off'), has_text: !!text, text, cls: 'rhb-t' + (b.now ? ' rhb-t-now' : '') };
+      }),
+      has_legend: p.legend !== false && !sm,
+      legend_past: list.some((b) => !b.fc), legend_fc: list.some((b) => b.fc),
+      legend_me: p.legendMe !== false && list.some((b) => b.me)
+    };
+  }
+}
+</script></body></html>

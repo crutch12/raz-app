@@ -1,0 +1,37 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-final.css" /></helmet>
+<div class="raznos-card raznos-card-pad">
+  <div class="raznos-head-row"><span class="raznos-text-h3 raznos-head-title">Данные сервисов</span><span class="raznos-text-tiny raznos-head-side">{{ schedule_label }}</span></div>
+  <sc-if value="{{ is_running }}" hint-placeholder-val="{{ false }}">
+    <div class="raznos-sync-progress"><span class="raznos-sync-progress-fill" style="{{ progress_style }}"></span></div>
+    <span class="raznos-text-small">{{ progress_label }}</span>
+  </sc-if>
+  <sc-if value="{{ has_summary }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-small">{{ summary }}, подробности у каждого сервиса ниже</span></sc-if>
+  <sc-if value="{{ has_manual }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">{{ manual_note }}</p></sc-if>
+  <sc-if value="{{ has_joined }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">Обновление уже идёт, повторный запрос присоединён к нему</p></sc-if>
+  <button type="button" class="{{ button_class }}" onClick="{{ onRequest }}"><sc-if value="{{ is_idle }}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg></sc-if>{{ button_label }}<sc-if value="{{ is_running }}" hint-placeholder-val="{{ false }}"><span class="raznos-hex-loader" aria-hidden="true"><i></i><i></i><i></i></span></sc-if></button>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"summary":{"editor":"text","default":""},"running":{"editor":"boolean","default":false},"done":{"editor":"int","default":0},"total":{"editor":"int","default":0},"joined":{"editor":"boolean","default":false},"manualNote":{"editor":"text","default":""},"onRequest":{"editor":null},"$preview":{"width":360,"height":360}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const running = !!p.running;
+    const total = p.total || 0;
+    const done = Math.min(p.done || 0, total);
+    return {
+      schedule_label: 'по расписанию каждые 5 мин',
+      is_running: running,
+      progress_style: 'width:' + (total ? Math.round((done / total) * 100) : 0) + '%',
+      progress_label: 'Ответили ' + done + ' из ' + total + ', сервисы опрашиваются по очереди',
+      has_summary: !running && !!p.summary, summary: p.summary || '',
+      // сервисы, которые обновляем только вручную, и почему
+      has_manual: !!p.manualNote, manual_note: p.manualNote || '',
+      has_joined: running && !!p.joined,
+      // видимая кнопка со значком, чтобы было понятно, что её можно нажать
+      button_class: 'raznos-btn raznos-btn-secondary raznos-sync-btn', is_idle: !running,
+      button_label: running ? 'Обновляем' : 'Обновить сейчас',
+      onRequest: p.onRequest || (() => {})
+    };
+  }
+}
+</script></body></html>

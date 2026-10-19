@@ -1,0 +1,118 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* строка аккаунта в сервисе для Профиля: главное число сервиса и одна строка самого важного, риск и блокировка меткой словами */
+    .rar-row { width: 100%; display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border: 0; border-bottom: 1px solid var(--raznos-line); background: transparent; font: inherit; color: var(--raznos-ink); text-align: left; cursor: pointer; }
+    .rar-row.rar-is-last { border-bottom: 0; }
+    .rar-row:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 12px; }
+    .rar-row > :first-child { flex: none; margin-top: 2px; }
+    .rar-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+    .rar-top { display: flex; align-items: baseline; gap: 8px; }
+    .rar-title { flex: 1; min-width: 0; font: 650 15px/1.3 var(--raznos-font); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rar-val { flex: none; display: inline-flex; align-items: baseline; gap: 4px; white-space: nowrap; }
+    .rar-val > b { font: 800 20px/1.1 var(--raznos-font); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+    .rar-val > small { font: 600 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rar-line { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .rar-tag { flex: none; padding: 1px 7px; border-radius: 999px; font: 650 12px/1.5 var(--raznos-font); }
+    .rar-text { min-width: 0; font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rar-bar { display: block; height: 4px; margin-top: 2px; border-radius: 999px; background: var(--raznos-surface-2); box-shadow: inset 0 0 0 1px var(--raznos-line); overflow: hidden; }
+    .rar-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--raznos-green); }
+    .rar-bar.rar-is-warn > i { background: var(--raznos-amber); }
+    .rar-bar.rar-is-over > i { background: var(--raznos-red); }
+    /* прогресс цели нейтральным, цвет сервиса бывает красным и читается как потеря */
+    .rar-bar.rar-is-goal > i { background: var(--raznos-ink-2); }
+    .rar-bar.rar-is-done > i { background: var(--raznos-green); }
+    .rar-chev { flex: none; align-self: center; }
+    /* сервисы без данных одной строкой */
+    .rar-none { display: flex; align-items: center; gap: 10px; padding: 12px 0 0; font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rar-none-icons { display: inline-flex; flex: none; }
+    .rar-none-icons > * + * { margin-left: -6px; }
+    .rar-none-icons > * { opacity: 0.75; }
+    @media (prefers-reduced-motion: no-preference) {
+      .rar-bar > i { transform-origin: left; animation: rar-fill 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      @keyframes rar-fill { from { transform: scaleX(0); } }
+    }
+  </style>
+</helmet>
+<sc-if value="{{ is_row }}" hint-placeholder-val="{{ true }}">
+  <button type="button" class="{{ row_cls }}" onClick="{{ open }}" aria-label="{{ aria }}">
+    <dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ title }}" size="md"></dc-import>
+    <span class="rar-main">
+      <span class="rar-top"><span class="rar-title">{{ title }}</span><sc-if value="{{ has_val }}" hint-placeholder-val="{{ true }}"><span class="rar-val"><b>{{ val }}</b><small>{{ unit }}</small></span></sc-if></span>
+      <sc-if value="{{ has_line }}" hint-placeholder-val="{{ true }}"><span class="rar-line"><sc-if value="{{ has_tag }}" hint-placeholder-val="{{ false }}"><span class="{{ tag_cls }}">{{ tag }}</span></sc-if><span class="rar-text">{{ line }}</span></span></sc-if>
+      <sc-if value="{{ has_bar }}" hint-placeholder-val="{{ true }}"><i class="{{ bar_cls }}" aria-hidden="true"><i style="{{ bar_fill }}"></i></i></sc-if>
+    </span>
+    <span class="raznos-row-chevron rar-chev" aria-hidden="true">›</span>
+  </button>
+</sc-if>
+<sc-if value="{{ is_none }}" hint-placeholder-val="{{ false }}">
+  <div class="rar-none"><span class="rar-none-icons"><sc-for list="{{ none_items }}" as="nd" hint-placeholder-count="2"><dc-import name="RaznosIcon" svc="{{ nd.key }}" alt="{{ nd.title }}" size="sm"></dc-import></sc-for></span><span>{{ none_text }}</span></div>
+</sc-if>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "svc": { "editor": "text", "default": "x5" },
+  "title": { "editor": "text", "default": "X5 Доставка" },
+  "state": { "editor": null },
+  "quests": { "editor": null },
+  "mode": { "editor": "enum", "options": ["row", "none"], "default": "row" },
+  "sample": { "editor": "enum", "options": ["ok", "level", "limit", "doc", "goal", "risk", "block"], "default": "limit" },
+  "none": { "editor": null },
+  "last": { "editor": "boolean", "default": false },
+  "onOpen": { "editor": null },
+  "$preview": { "width": 360, "height": 90 }
+}'>
+// состояние то же, что у RaznosAccountState (ACCOUNT_STATES), quests из SERVICE_QUESTS этого сервиса
+// одна строка под числом по важности: блокировка, риск у лимита, документ скоро истекает, уровень, лимит, задание, документ, подпись рейтинга
+const RAR_SAMPLES = {
+  ok: { state: { rating: 4.9, ratingNote: 'из 5, рейтинг ВкусВилла' } },
+  level: { state: { level: 'Золото', levelPerk: '+10% к оплате', rating: 412, ratingUnit: 'баллов', ratingNote: 'баллов за неделю' } },
+  limit: { state: { rating: 4.8, ratingNote: 'из 5, рейтинг X5', risks: [{ label: 'Пауза за неделю', value: 9, limit: 15, unit: '%' }] } },
+  doc: { state: { rating: 4.9, ratingNote: 'из 5, рейтинг ВкусВилла', facts: [{ label: 'Медкнижка', value: 'до 9 ноября', days: 24, soon: true }] } },
+  goal: { state: {}, quests: [{ name: 'Вечерние заказы', rewardText: '×1,2 к оплате', kind: 'text', untilLabel: 'до воскресенья' }] },
+  risk: { state: { rating: 4.8, ratingNote: 'из 5, рейтинг X5', risks: [{ label: 'Пауза за неделю', value: 13, limit: 15, unit: '%' }] } },
+  block: { state: { rating: 4.6, ratingNote: 'из 5, рейтинг X5', block: { reason: 'Пауза 18% за прошлую неделю при лимите 15%', until: 'до 20 октября' } } }
+};
+const fmt = (v) => String(v).replace('.', ',');
+const money = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    if (p.mode === 'none') {
+      const items = p.none || [{ key: 'dodo', title: 'Додо' }];
+      return { is_row: false, is_none: true, none_items: items, none_text: 'Не отдают оценки: ' + items.map((x) => x.title).join(', ') };
+    }
+    const smp = RAR_SAMPLES[p.sample || 'limit'] || RAR_SAMPLES.limit;
+    const st = p.state || smp.state;
+    const quests = p.quests || (p.state ? [] : smp.quests || []);
+    const title = p.title || 'X5 Доставка';
+    const risks = (st.risks || []).map((r) => Object.assign({ share: r.value / r.limit }, r));
+    const hot = risks.find((r) => r.share >= 0.8);
+    const soon = (st.facts || []).find((f) => f.soon);
+    const doc = (st.facts || []).find((f) => f.days != null);
+    const q = quests[0];
+    const riskText = (r) => r.label + ' ' + fmt(r.value) + (r.unit || '') + ' из ' + fmt(r.limit) + (r.unit || '');
+    let tag = '', tone = '', line = '', bar = null, barTone = '';
+    if (st.block) { tag = 'Приостановлен'; tone = 'error'; line = st.block.until || ''; }
+    else if (hot) { tag = hot.share > 1 ? 'Лимит превышен' : 'Риск'; tone = hot.share > 1 ? 'error' : 'warn'; line = riskText(hot); bar = hot.share; barTone = hot.share > 1 ? 'over' : 'warn'; }
+    else if (soon) { tag = 'Истекает'; tone = 'warn'; line = soon.label + ' ' + soon.value; }
+    else if (st.level) line = st.level + (st.levelPerk ? ': ' + st.levelPerk : '');
+    else if (risks.length) { line = riskText(risks[0]); bar = risks[0].share; }
+    else if (q) {
+      if (q.kind === 'count') { line = q.name + ' ' + q.done + ' из ' + q.target; bar = q.done / q.target; barTone = q.done >= q.target ? 'done' : 'goal'; }
+      else line = q.name + ', ' + (q.reward ? '+' + money(q.reward) + ' ₽' : q.rewardText || '');
+    }
+    else if (doc) line = doc.label + ' ' + doc.value;
+    else if (st.ratingNote) line = (st.ratingNote.split(', ')[1] || '').replace(/^./, (c) => c.toUpperCase());
+    const hasVal = st.rating != null;
+    const unit = st.ratingUnit || (st.ratingNote ? st.ratingNote.split(',')[0] : '');
+    return {
+      is_row: true, is_none: false, svc: p.svc || 'x5', title,
+      row_cls: 'rar-row' + (p.last ? ' rar-is-last' : ''),
+      has_val: hasVal, val: hasVal ? fmt(st.rating) : '', unit,
+      has_line: !!line, line, has_tag: !!tag, tag, tag_cls: 'rar-tag raznos-pill-' + (tone || 'muted'),
+      has_bar: bar != null, bar_cls: 'rar-bar' + (barTone ? ' rar-is-' + barTone : ''), bar_fill: 'width:' + Math.max(4, Math.min(100, Math.round((bar || 0) * 100))) + '%',
+      aria: [title, hasVal ? fmt(st.rating) + ' ' + unit : '', tag, line, st.block ? st.block.reason : ''].filter(Boolean).join('. ') + '. Открыть аккаунт',
+      open: () => { if (p.onOpen) p.onOpen(p.svc); }
+    };
+  }
+}
+</script></body></html>

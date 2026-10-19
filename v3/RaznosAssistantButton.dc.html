@@ -1,0 +1,155 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* зона нажатия 44px, сама кнопка таблетка 40px: со словом Спросить там, где хватает места, иначе только знак */
+    .rab-btn { --fx: 0; --fy: 0; --press: 0; position: relative; flex: none; min-width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 999px; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .rab-btn:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 0; }
+    .rab-orb { position: relative; box-sizing: border-box; height: 40px; min-width: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0; border-radius: 999px; overflow: hidden; isolation: isolate; background: oklch(0.31 0.04 205); color: #fff; font: 600 14px var(--raznos-font); white-space: nowrap; box-shadow: 0 2px 8px rgba(20, 25, 40, 0.18); }
+    .rab-pill .rab-orb { padding: 0 14px 0 11px; }
+    /* пятна плывут сами и тянутся к пальцу */
+    .rab-blob { position: absolute; z-index: -1; width: 70%; aspect-ratio: 1; border-radius: 50%; filter: blur(6px); translate: calc(var(--fx) * 9px) calc(var(--fy) * 9px); scale: calc(1 + var(--press) * 0.25); transition: translate 0.5s cubic-bezier(.16, 1, .3, 1), scale 0.5s cubic-bezier(.16, 1, .3, 1); }
+    .rab-pill .rab-blob { width: 60%; }
+    .rab-blob-a { left: -15%; top: -15%; background: oklch(0.56 0.13 150); }
+    .rab-blob-b { right: -20%; top: 5%; background: oklch(0.5 0.09 188); }
+    .rab-blob-c { left: 10%; bottom: -25%; background: oklch(0.7 0.14 140); opacity: 0.7; }
+    .rab-icon { position: relative; flex: none; display: block; }
+    .rab-label { position: relative; }
+    .rab-attention .rab-orb { box-shadow: 0 0 0 3px color-mix(in oklab, oklch(0.56 0.13 150) 28%, transparent), 0 3px 12px rgba(20, 25, 40, 0.24); }
+    .rab-dot { position: absolute; z-index: 2; top: 1px; right: 1px; width: 9px; height: 9px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px oklch(0.56 0.13 150); }
+    /* нажатие: из кнопки мягко расходится свет */
+    .rab-bloom { position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; pointer-events: none; opacity: 0; background: radial-gradient(circle, color-mix(in oklab, oklch(0.7 0.14 140) 70%, transparent) 0%, color-mix(in oklab, oklch(0.5 0.09 188) 40%, transparent) 45%, transparent 70%); filter: blur(4px); }
+    @media (prefers-reduced-motion: no-preference) {
+      .rab-blob-a { animation: rab-drift-a 9s ease-in-out infinite alternate; }
+      .rab-blob-b { animation: rab-drift-b 11s ease-in-out infinite alternate; }
+      .rab-blob-c { animation: rab-drift-c 13s ease-in-out infinite alternate; }
+      .rab-attention .rab-blob-a { animation-duration: 5s; } .rab-attention .rab-blob-b { animation-duration: 6s; } .rab-attention .rab-blob-c { animation-duration: 7s; }
+      .rab-btn[data-rab-off] .rab-blob { animation-play-state: paused; }
+      @keyframes rab-drift-a { 50% { transform: translate(35%, 20%) scale(1.15); } 100% { transform: translate(15%, 45%) scale(0.95); } }
+      @keyframes rab-drift-b { 50% { transform: translate(-40%, 25%) scale(0.9); } 100% { transform: translate(-15%, -20%) scale(1.12); } }
+      @keyframes rab-drift-c { 50% { transform: translate(30%, -35%) scale(0.92); } 100% { transform: translate(-10%, -15%) scale(1.1); } }
+      .rab-orb { transition: transform 0.25s cubic-bezier(.16, 1, .3, 1); }
+      .rab-btn:active .rab-orb { transform: scale(0.94); }
+      .rab-burst .rab-orb { animation: rab-pop 0.55s cubic-bezier(.34, 1.4, .5, 1); }
+      .rab-burst .rab-icon { animation: rab-turn 0.6s cubic-bezier(.16, 1, .3, 1); }
+      .rab-burst .rab-bloom { animation: rab-bloom 0.7s cubic-bezier(.16, 1, .3, 1); }
+      @keyframes rab-pop { 0% { transform: scale(1); } 25% { transform: scale(0.9); } 65% { transform: scale(1.05); } 100% { transform: scale(1); } }
+      @keyframes rab-turn { 0% { transform: rotate(0) scale(1); } 30% { transform: rotate(-12deg) scale(0.88); } 100% { transform: rotate(90deg) scale(1); } }
+      @keyframes rab-bloom { 0% { opacity: 0; transform: scale(0.9); } 30% { opacity: 1; } 100% { opacity: 0; transform: scale(2.8); } }
+    }
+  </style>
+</helmet>
+<button type="button" class="{{ cls }}" onClick="{{ tap }}" aria-label="{{ aria }}">
+  <i class="rab-bloom" aria-hidden="true"></i>
+  <span class="rab-orb"><i class="rab-blob rab-blob-a" aria-hidden="true"></i><i class="rab-blob rab-blob-b" aria-hidden="true"></i><i class="rab-blob rab-blob-c" aria-hidden="true"></i><svg class="rab-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10.5 3.5 12.3 9l5.5 1.8-5.5 1.8-1.8 5.5-1.8-5.5L3.2 10.8 8.7 9z"/><path d="M18.2 3.2l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></svg><sc-if value="{{ has_label }}" hint-placeholder-val="{{ true }}"><span class="rab-label">{{ label }}</span></sc-if></span>
+  <sc-if value="{{ attention }}" hint-placeholder-val="{{ false }}"><i class="rab-dot" aria-hidden="true"></i></sc-if>
+</button>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"attention":{"editor":"boolean","default":false},"aria":{"editor":"text","default":"Открыть помощника"},"label":{"editor":"text","default":""},"onClick":{"editor":null},"$preview":{"width":120,"height":80}}'>
+// кнопка входа в помощника: таблетка Спросить или только знак, внутри плывут мягкие пятна фирменных цветов, на паузе вне экрана и в скрытой вкладке
+const RAB_SEEN = typeof WeakSet !== 'undefined' ? new WeakSet() : null;
+let rabIo = null;
+let rabTabBound = false;
+function rabBind() {
+  if (typeof document === 'undefined') return;
+  if (!rabTabBound) {
+    rabTabBound = true;
+    // скрытая вкладка: все кнопки замирают
+    document.addEventListener('visibilitychange', () => {
+      document.querySelectorAll('.rab-btn').forEach((el) => { if (document.hidden) el.setAttribute('data-rab-off', 'tab'); else if (el.getAttribute('data-rab-off') === 'tab') el.removeAttribute('data-rab-off'); });
+    });
+  }
+  if (typeof IntersectionObserver === 'undefined' || !RAB_SEEN) return;
+  if (!rabIo) {
+    rabIo = new IntersectionObserver((entries) => {
+      entries.forEach((en) => { if (en.isIntersecting) { if (en.target.getAttribute('data-rab-off') === 'view') en.target.removeAttribute('data-rab-off'); } else if (!en.target.hasAttribute('data-rab-off')) en.target.setAttribute('data-rab-off', 'view'); });
+    });
+  }
+  document.querySelectorAll('.rab-btn').forEach((el) => { if (!RAB_SEEN.has(el)) { RAB_SEEN.add(el); rabIo.observe(el); rabFollow(el); } });
+}
+// палец и курсор: пятна смещаются к точке, при нажатии собираются и растут
+function rabFollow(el) {
+  const at = (e) => {
+    const r = el.getBoundingClientRect();
+    const x = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width - 0.5) * 2));
+    const y = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height - 0.5) * 2));
+    el.style.setProperty('--fx', x.toFixed(2));
+    el.style.setProperty('--fy', y.toFixed(2));
+  };
+  const off = () => { el.style.setProperty('--fx', '0'); el.style.setProperty('--fy', '0'); el.style.setProperty('--press', '0'); };
+  el.addEventListener('pointermove', at);
+  el.addEventListener('pointerdown', (e) => { at(e); el.style.setProperty('--press', '1'); });
+  el.addEventListener('pointerup', () => el.style.setProperty('--press', '0'));
+  el.addEventListener('pointerleave', off);
+  el.addEventListener('pointercancel', off);
+}
+// нажатие: одним движением сама шторка помощника растягивается из формы кнопки в свой контур, содержимое проявляется по ходу
+function rabPour(el, go) {
+  const orb = el.querySelector('.rab-orb') || el;
+  const frame = el.closest('.raznos-phone-frame') || document.body;
+  if (!frame || !frame.animate || typeof requestAnimationFrame === 'undefined') return false;
+  const br = orb.getBoundingClientRect();
+  // пока идёт раскрытие, шторка скрыта с первого кадра: при первом открытии её компонент ещё грузится и успел бы начать свой выезд
+  frame.setAttribute('data-rab-pour', '1');
+  go();
+  const t0 = Date.now();
+  const find = () => {
+    const sheet = frame.querySelector('.ras-sheet');
+    if (!sheet) { if (Date.now() - t0 < 1500) requestAnimationFrame(find); else frame.removeAttribute('data-rab-pour'); return; }
+    const sr = sheet.getBoundingClientRect();
+    const clamp = (v) => Math.max(0, v);
+    const from = 'inset(' + clamp(br.top - sr.top) + 'px ' + clamp(sr.right - br.right) + 'px ' + clamp(sr.bottom - br.bottom) + 'px ' + clamp(br.left - sr.left) + 'px round 20px 20px 20px 20px)';
+    const to = 'inset(0px 0px 0px 0px round 22px 22px 0px 0px)';
+    const ease = 'cubic-bezier(.32, .72, 0, 1)';
+    sheet.classList.add('ras-sheet-morph');
+    // уже видимое содержимое проявляется вместе с раскрытием, своя стартовая анимация ему не нужна; пришедшее позже всплывает как обычно
+    sheet.querySelectorAll('.ras-empty b, .ras-empty-sub, .ras-empty-chips .ras-chip').forEach((x) => x.setAttribute('data-ras-still', ''));
+    sheet.style.animation = 'none';
+    sheet.animate([{ clipPath: from }, { clipPath: to }], { duration: 440, easing: ease });
+    // затемнение проявляется вместе с раскрытием, а не раньше него
+    const layer = sheet.closest('.raznos-dialog-layer');
+    frame.removeAttribute('data-rab-pour');
+    if (layer) layer.animate([{ backgroundColor: 'rgba(0, 0, 0, 0)' }, { backgroundColor: getComputedStyle(layer).backgroundColor }], { duration: 320, easing: 'ease-out' });
+    sheet.querySelectorAll('.ras-head, .ras-feed, .ras-foot').forEach((x) => x.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 0, transform: 'translateY(8px)', offset: 0.3 }, { opacity: 1, transform: 'none' }], { duration: 440, easing: 'ease-out' }));
+    // класс ras-sheet-morph не снимаем: иначе стартовые анимации содержимого сыграют второй раз; кнопка остаётся на месте под затемнением
+  };
+  requestAnimationFrame(find);
+  return true;
+}
+class Component extends DCLogic {
+  componentDidMount() {
+    rabBind();
+    // шторку помощника подгружаем заранее, чтобы первое раскрытие не ждало её файл
+    if (!window.__rabPrefetch && typeof fetch === 'function') {
+      window.__rabPrefetch = true;
+      const warm = () => { fetch('./RaznosAssistantSheet.dc.html').catch(() => {}); fetch('./RaznosAssistantMessage.dc.html').catch(() => {}); };
+      if (typeof requestIdleCallback === 'function') requestIdleCallback(warm, { timeout: 3000 }); else setTimeout(warm, 1500);
+    }
+  }
+  componentDidUpdate() { rabBind(); }
+  renderVals() {
+    const p = this.props || {};
+    const attention = !!p.attention;
+    // без подписи остаётся только знак, для тесных шапок
+    const label = p.label == null ? '' : String(p.label);
+    return {
+      cls: 'rab-btn' + (label ? ' rab-pill' : '') + (attention ? ' rab-attention' : ''),
+      label, has_label: !!label,
+      attention,
+      aria: p.aria || 'Открыть помощника',
+      // при нажатии вспышка, помощник открывается, когда она дошла до пика; без анимаций открываем сразу
+      tap: (e) => {
+        if (e && e.stopPropagation) e.stopPropagation();
+        const go = () => { if (typeof p.onClick === 'function') p.onClick(); };
+        const el = e && e.currentTarget;
+        const calm = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!el || calm) return go();
+        if (el.classList.contains('rab-burst')) return;
+        if (rabPour(el, go)) return;
+        el.classList.add('rab-burst');
+        setTimeout(() => el.classList.remove('rab-burst'), 700);
+        setTimeout(go, 200);
+      }
+    };
+  }
+}
+</script></body></html>

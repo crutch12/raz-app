@@ -1,0 +1,210 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rtc-me { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-radius: 18px; background: var(--raznos-dark); color: var(--raznos-on-dark); }
+    .rtc-me-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .rtc-me-col { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .rtc-me-place { font: 800 20px var(--raznos-font); letter-spacing: -0.01em; }
+    .rtc-me-sub { font: 500 13px var(--raznos-font); color: color-mix(in oklab, var(--raznos-on-dark) 72%, transparent); }
+    .rtc-me-end { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+    .rtc-me-val { font: 800 22px var(--raznos-mono); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rtc-me-metric { font: 500 12px var(--raznos-font); color: color-mix(in oklab, var(--raznos-on-dark) 70%, transparent); }
+    /* до места выше: тонкая полоса под строкой с местом */
+    .rtc-me { flex-wrap: wrap; row-gap: 12px; }
+    /* сумма отдельной строкой под местом, подпись рядом с ней, а не под правым краем */
+    .rtc-me .rtc-me-end { flex-basis: 100%; flex-direction: row; align-items: baseline; gap: 8px; }
+    .rtc-me-up { flex-basis: 100%; display: flex; flex-direction: column; gap: 6px; }
+    .rtc-me-up-track { height: 6px; border-radius: 999px; background: color-mix(in oklab, var(--raznos-on-dark) 16%, transparent); overflow: hidden; }
+    .rtc-me-up-fill { display: block; height: 100%; border-radius: inherit; background: var(--raznos-green); }
+    .rtc-board { display: flex; flex-direction: column; gap: 10px; padding: 4px 14px 6px; border-radius: 16px; background: var(--raznos-surface); }
+    /* ступень пьедестала: сумма на ней, высота по месту */
+    /* остальные места: полоса суммы относительно лидера, отрыв видно глазом */
+    .rtc-list { display: flex; flex-direction: column; }
+    .rtc-row { display: grid; grid-template-columns: 30px 1fr auto; align-items: center; gap: 12px; min-height: 48px; border-top: 1px solid var(--raznos-line); }
+    .rtc-rank { font: 700 14px var(--raznos-mono); color: var(--raznos-ink-2); text-align: center; font-variant-numeric: tabular-nums; }
+    .rtc-mid { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .rtc-who { font: 700 13px var(--raznos-font); color: var(--raznos-green-deep); }
+    .rtc-bar { height: 6px; border-radius: 999px; background: var(--raznos-surface-2); overflow: hidden; }
+    .rtc-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--raznos-line-strong); }
+    .rtc-val { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+    .rtc-row.rtc-is-me { margin: 0 -8px; padding: 0 8px; border-radius: 12px; border-top-color: transparent; background: color-mix(in oklab, var(--raznos-green) 14%, var(--raznos-surface)); }
+    .rtc-row.rtc-is-me + .rtc-row { border-top-color: transparent; }
+    .rtc-row.rtc-is-me .rtc-rank, .rtc-row.rtc-is-me .rtc-val { font-weight: 800; color: var(--raznos-green-deep); }
+    .rtc-row.rtc-is-me .rtc-bar > i { background: var(--raznos-green); }
+    /* над первым местом линии нет */
+    .rtc-list > :first-child .rtc-row, .rtc-list > .rtc-row:first-child { border-top-color: transparent; }
+    /* медали первых трёх мест: номер в шестиграннике и полоса того же оттенка */
+    .rtc-medal .rtc-rank { justify-self: center; width: 26px; height: 30px; display: inline-flex; align-items: center; justify-content: center; clip-path: var(--raznos-hex); font-weight: 800; color: var(--raznos-ink); }
+    .rtc-medal-1 .rtc-rank { background: oklch(0.86 0.12 85); }
+    .rtc-medal-2 .rtc-rank { background: oklch(0.88 0.01 250); }
+    .rtc-medal-3 .rtc-rank { background: oklch(0.8 0.08 55); }
+    .rtc-medal-1:not(.rtc-is-me) .rtc-bar > i { background: oklch(0.78 0.13 85); }
+    .rtc-medal-2:not(.rtc-is-me) .rtc-bar > i { background: oklch(0.74 0.04 235); }
+    .rtc-medal-3:not(.rtc-is-me) .rtc-bar > i { background: oklch(0.7 0.09 55); }
+    .rtc-gap { display: flex; align-items: center; gap: 10px; min-height: 40px; font: 600 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rtc-gap::before, .rtc-gap::after { content: ''; flex: 1; border-top: 1px dashed var(--raznos-line-strong); }
+    .rtc-gap + .rtc-row { border-top-color: transparent; }
+    .rtc-out-plan { align-self: flex-start; }
+  </style>
+</helmet>
+<div class="raznos-phone-body" data-screen-label="Top couriers">
+  <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Топ курьеров</h1></div>
+
+  <dc-import name="RaznosFilterChips" filters="{{ filters }}" onChange="{{ set_filter }}"></dc-import>
+
+  <div class="rtc-me">
+    <div class="rtc-me-left">
+      <dc-import name="RaznosAvatar" kind="portrait1" alt="Вы" size="sm"></dc-import>
+      <div class="rtc-me-col"><span class="rtc-me-place">{{ my_place }}</span><span class="rtc-me-sub">{{ my_sub }}</span></div>
+    </div>
+    <div class="rtc-me-end"><span class="rtc-me-val">{{ my_val }}</span><span class="rtc-me-metric">{{ my_metric }}</span></div>
+    <sc-if value="{{ has_up }}" hint-placeholder-val="{{ true }}"><div class="rtc-me-up" role="img" aria-label="{{ my_sub }}"><span class="rtc-me-up-track"><i class="rtc-me-up-fill" style="{{ up_style }}"></i></span></div></sc-if>
+  </div>
+
+  <sc-if value="{{ out }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small rtc-out-plan" onClick="{{ on_plan }}">Открыть План</button></sc-if>
+  <span class="raznos-text-h3">{{ list_title }}</span>
+  <div class="rtc-board">
+    <div class="rtc-list">
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+        <sc-if value="{{ r.gap }}" hint-placeholder-val="{{ false }}"><div class="rtc-gap" aria-label="{{ r.aria }}">{{ r.gapLabel }}</div></sc-if>
+        <sc-if value="{{ r.row }}" hint-placeholder-val="{{ true }}"><div class="{{ r.cls }}"><span class="rtc-rank">{{ r.rank }}</span><span class="rtc-mid"><sc-if value="{{ r.who }}" hint-placeholder-val="{{ false }}"><span class="rtc-who">{{ r.who }}</span></sc-if><span class="rtc-bar" aria-hidden="true"><i style="{{ r.bar }}"></i></span></span><span class="rtc-val">{{ r.val }}</span></div></sc-if>
+      </sc-for>
+    </div>
+  </div>
+  <sc-if value="{{ few }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ show_all }}">Топ по всем городам</button></sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"edge":{"editor":"enum","default":"","options":["","out","few"]},"onPlan":{"editor":null},"onBack":{"editor":null},"onOpenAnon":{"editor":null},"me":{"editor":null},"$preview":{"width":390,"height":760}}'>
+const RTC_METRICS = [
+  { key: 'money', label: 'Начислено', unit: 'money' },
+  { key: 'orders', label: 'Заказы', unit: 'plain' },
+  { key: 'tips', label: 'Чаевые', unit: 'money' },
+  { key: 'hour', label: 'Доход в час', unit: 'hour' },
+  { key: 'dist', label: 'Расстояние', unit: 'dist' }
+];
+// демо-когорта, каждый курьер со всеми показателями
+const RTC_COURIERS = [
+  { money: 41900, orders: 212, tips: 980, hour: 960, dist: 690 },
+  { money: 39400, orders: 198, tips: 720, hour: 930, dist: 640 },
+  { money: 37100, orders: 231, tips: 610, hour: 880, dist: 720 },
+  { money: 35800, orders: 176, tips: 860, hour: 1010, dist: 520 },
+  { money: 34200, orders: 205, tips: 540, hour: 900, dist: 610 },
+  { money: 32900, orders: 189, tips: 690, hour: 940, dist: 470 }
+];
+// демо-цифры за прошлую неделю
+const RTC_ME = { money: 27240, orders: 92, tips: 105, hour: 650, dist: 210 };
+// демо-место среди всех участников города по каждому показателю
+const RTC_ME_OUT = { money: 1840, orders: 6, tips: 0, hour: 460, dist: 24 };
+const RTC_TOP_MIN_ORDERS = 20;
+const RTC_MY_RANK = { money: 28, orders: 64, tips: 118, hour: 71, dist: 56 };
+// прошлая неделя пн–вс и прошлый месяц от сегодня
+const RTC_PERIODS = (() => {
+  const gen = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+  const nom = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+  const t = new Date(), a = new Date(t.getFullYear(), t.getMonth(), t.getDate() - (t.getDay() + 6) % 7 - 7), b = new Date(a.getFullYear(), a.getMonth(), a.getDate() + 6);
+  const week = a.getMonth() === b.getMonth() ? a.getDate() + '–' + b.getDate() + ' ' + gen[b.getMonth()] : a.getDate() + ' ' + gen[a.getMonth()] + ' – ' + b.getDate() + ' ' + gen[b.getMonth()];
+  return { week: 'Неделя ' + week, month: nom[(t.getMonth() + 11) % 12] };
+})();
+const rtcFmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const rtcVal = (v, unit) => unit === 'money' ? (rtcFmt(v) + ' ₽') : unit === 'hour' ? (rtcFmt(v) + ' ₽/ч') : unit === 'dist' ? (rtcFmt(v) + ' км') : rtcFmt(v);
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const set = (patch) => this.setState(patch);
+    const metric = st.metric || 'money';
+    const scope = st.scope || 'city';
+    const period = st.period || 'week';
+    const md = RTC_METRICS.find((m) => m.key === metric) || RTC_METRICS[0];
+    // демо: по всем городам лидеры чуть сильнее и мест больше, за месяц суммы примерно вчетверо, ₽/ч не растёт
+    const k = (m) => (period === 'month' && m !== 'hour' ? 4.2 : 1) * (scope === 'all' ? 1.08 : 1);
+    const scaled = (o) => Object.keys(o).reduce((a, m) => Object.assign(a, { [m]: Math.round(o[m] * k(m)) }), {});
+    const couriers = RTC_COURIERS.map(scaled);
+    // свои цифры за прошлую неделю приходят из приложения, те же, что в профиле
+    // в демо: мало заказов, чтобы попасть в топ, или в городе всего четыре участника
+    const out = p.edge === 'out';
+    const few = p.edge === 'few' && scope === 'city';
+    const meWeek = out ? Object.assign({}, RTC_ME_OUT) : Object.assign({}, RTC_ME, p.me || {});
+    const me = Object.keys(meWeek).reduce((a, m) => Object.assign(a, { [m]: Math.round(meWeek[m] * (period === 'month' && m !== 'hour' ? 4.2 : 1)) }), {});
+    const myRank = Object.keys(RTC_MY_RANK).reduce((a, m) => Object.assign(a, { [m]: RTC_MY_RANK[m] * (scope === 'all' ? 9 : 1) + (period === 'month' ? 3 : 0) }), {});
+    const ranked = couriers.slice().sort((a, b) => b[metric] - a[metric]);
+    // демо: своё место задано сценарием (первое, в тройке, рядом с лидерами), сумма встаёт между соседями
+    const pinRank = { first: 1, podium: 3, near: 7 }[p.edge] || 0;
+    const roundTo = (v) => (md.unit === 'money' || md.unit === 'hour' ? Math.round(v / 10) * 10 : Math.round(v));
+    if (pinRank) {
+      const vals = ranked.map((c) => c[metric]);
+      me[metric] = pinRank === 1 ? roundTo(vals[0] * 1.05) : (pinRank <= vals.length ? roundTo((vals[pinRank - 2] + vals[pinRank - 1]) / 2) : roundTo(vals[vals.length - 1] * 0.96));
+      myRank[metric] = pinRank;
+    }
+    const aboveVal = pinRank > 1 ? ranked[pinRank - 2][metric] : null;
+    // до места выше в демо около 4%, деньги до десятков, чтобы не выглядело точнее, чем есть
+    const rtcUp = aboveVal != null ? Math.max(1, roundTo(aboveVal - me[metric])) : Math.max(1, md.unit === 'money' || md.unit === 'hour' ? Math.round(me[metric] * 0.043 / 10) * 10 : Math.round(me[metric] * 0.043));
+    const scopeLabel = scope === 'all' ? 'Все города' : 'Москва';
+    // мало участников: весь город одним списком, вы в нём же
+    const fewList = few ? couriers.slice(0, 3).map((c) => ({ c, me: false })).concat([{ c: me, me: true }]).sort((a, b) => b.c[metric] - a.c[metric]) : [];
+    const fewRank = fewList.findIndex((x) => x.me) + 1;
+    return {
+      onBack: p.onBack || (() => {}),
+      out, few,
+      on_plan: p.onPlan || (() => {}),
+      show_all: () => set({ scope: 'all' }),
+      list_title: few ? 'Всего ' + fewList.length + ' участника · ' + scopeLabel : 'Топ · ' + scopeLabel,
+      scope_label: scopeLabel,
+      // показатель, охват и период чипами со шторкой, как на остальных экранах
+      filters: [
+        { key: 'metric', title: 'Показатель', value: metric, def: 'money', options: RTC_METRICS.map((m) => ({ k: m.key, label: m.label })) },
+        { key: 'scope', title: 'Где', value: scope, def: 'city', options: [{ k: 'city', label: 'Москва' }, { k: 'all', label: 'Все города' }] },
+        { key: 'period', title: 'Период', value: period, def: 'week', options: [{ k: 'week', label: RTC_PERIODS.week }, { k: 'month', label: RTC_PERIODS.month }] }
+      ],
+      set_filter: (key, v) => set({ [key]: v }),
+      // размер выборки: все участники города, по всем городам в девять раз больше
+      my_place: out ? 'Вне топа' : few ? fewRank + ' из ' + fewList.length : myRank[metric] + ' из ' + rtcFmt(scope === 'all' ? 11160 : 1240),
+      // под местом сразу, сколько до места выше; вне топа, сколько заказов не хватает
+      my_sub: out ? 'Ещё ' + (RTC_TOP_MIN_ORDERS - RTC_ME_OUT.orders) + ' заказов, и вы в топе' : few ? 'Вы · ' + scopeLabel : (myRank[metric] > 1 ? 'До ' + (myRank[metric] - 1) + ' места ещё ' + rtcVal(rtcUp, md.unit) : 'Вы первый'),
+      my_val: rtcVal(me[metric], md.unit),
+      my_metric: md.label,
+      // один список: лидеры, потом ваше место с соседями; между ними разрыв, если места не подряд
+      ...(() => {
+        const row = (rank, v, isMe) => ({ row: true, gap: false, rank: String(rank), num: v, who: isMe ? 'Вы' : '', val: rtcVal(v, md.unit), cls: 'rtc-row' + (isMe ? ' rtc-is-me' : ''), aria: '', gapLabel: '', bar: '' });
+        let list;
+        if (few) list = fewList.map((x, i) => ({ rank: i + 1, r: row(i + 1, x.c[metric], x.me) }));
+        else if (pinRank) {
+          // вы встаёте на своё место среди лидеров, остальные сдвигаются вниз
+          const arr = ranked.map((c) => ({ v: c[metric], me: false }));
+          arr.splice(pinRank - 1, 0, { v: me[metric], me: true });
+          if (pinRank === arr.length) arr.push({ v: roundTo(me[metric] * 0.97), me: false });
+          list = arr.map((x, i) => ({ rank: i + 1, r: row(i + 1, x.v, x.me) }));
+        } else {
+          list = ranked.map((c, i) => ({ rank: i + 1, r: row(i + 1, c[metric], false) }));
+          if (!out) {
+            // соседи по месту в демо на 4% выше и 3% ниже вас
+            const r0 = myRank[metric];
+            [[r0 - 1, me[metric] + rtcUp, false], [r0, me[metric], true], [r0 + 1, Math.round(me[metric] * 0.97), false]]
+              .filter(([rk]) => rk > list.length).forEach(([rk, v, isMe]) => list.push({ rank: rk, r: row(rk, v, isMe) }));
+          }
+        }
+        // полоса суммы считается от лидера, у всех одна шкала
+        const top = Math.max(...list.map((x) => x.r.num), 1);
+        list.forEach((x) => { x.r.bar = 'width:' + Math.max(4, Math.round(x.r.num / top * 100)) + '%'; });
+        // первые три места в общем списке, но с медалью: золото, серебро, бронза
+        list.forEach((x) => { if (x.rank <= 3) { x.r.cls += ' rtc-medal rtc-medal-' + x.rank; x.r.aria = x.rank + ' место'; } });
+        const rows = [];
+        list.forEach((x, i) => {
+          const prev = i ? list[i - 1].rank : 0;
+          if (x.rank - prev > 1) {
+            const skip = x.rank - prev - 1;
+            rows.push({ row: false, gap: true, rank: '', who: '', val: '', cls: '', bar: '', aria: 'Места с ' + (prev + 1) + ' по ' + (x.rank - 1), gapLabel: 'ещё ' + skip + ' ' + (skip % 10 === 1 && skip % 100 !== 11 ? 'место' : (skip % 10 >= 2 && skip % 10 <= 4 && (skip % 100 < 12 || skip % 100 > 14) ? 'места' : 'мест')) });
+          }
+          rows.push(x.r);
+        });
+        return {
+          rows
+        };
+      })(),
+      // положение между соседями: от места ниже до места выше
+      has_up: !out && !few && myRank[metric] > 1 && !pinRank,
+      up_style: (() => { const below = Math.round(me[metric] * 0.97), above = me[metric] + rtcUp; return 'width:' + Math.max(4, Math.min(100, Math.round((me[metric] - below) / Math.max(1, above - below) * 100))) + '%'; })(),
+    };
+  }
+}
+</script></body></html>

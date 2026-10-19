@@ -1,0 +1,226 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-opportunities.css" />
+<style>
+.rwf-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; padding: 14px 16px; border-radius: 14px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); width: 100%; text-align: left; cursor: pointer; }
+.rwf-row.rwf-active { border-color: var(--raznos-green); background: var(--raznos-green-tint); }
+.rwf-row-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.rwf-row-title { font: 600 15px var(--raznos-font); color: var(--raznos-ink); }
+.rwf-row-sub { font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
+.rwf-row-end { display: flex; align-items: center; gap: 8px; flex: none; }
+.rwf-edit-link { font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); background: none; border: 0; padding: 6px; cursor: pointer; flex: none; }
+.rwf-scope { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.rwf-scope .raznos-chip { white-space: nowrap; flex: none; }
+</style>
+</helmet>
+
+<sc-if value="{{ is_list }}">
+<div class="raznos-phone-body" data-screen-label="Work filters">
+<div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ onBack }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Мои фильтры</h1></div>
+<p class="raznos-text-small">Тонкий фильтр конкретных заказов для ракурса Сейчас, когда виден пул одного сервиса. Заказ всегда принимаете вы</p>
+<div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Плановые предпочтения (районы, сервисы, часы, цель дохода) теперь в графике и цели умного расписания. Здесь остаются только параметры конкретного заказа</span></div>
+<div class="raznos-fx raznos-col raznos-gap8"><sc-for list="{{ sets }}" as="s" hint-placeholder-count="4">
+<div class="raznos-fx raznos-ac raznos-gap8">
+<button type="button" class="{{ s.rowCls }}" onClick="{{ s.apply }}"><span class="rwf-row-main"><span class="rwf-row-title">{{ s.title }}</span><span class="rwf-row-sub">{{ s.sub }}</span></span><span class="rwf-row-end"><span class="{{ s.badgeCls }}">{{ s.badge }}</span></span></button>
+<sc-if value="{{ s.canEdit }}" hint-placeholder-val="{{ false }}"><button type="button" class="rwf-edit-link" onClick="{{ s.edit }}">{{ s.editLabel }}</button></sc-if>
+</div>
+</sc-for></div>
+<button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ create }}">Создать набор</button>
+<button type="button" class="raznos-list-row raznos-card" onClick="{{ go_eff }}"><span class="raznos-list-main"><span class="raznos-list-title">Проверить фильтр</span><span class="raznos-text-small">Сколько предложений проходит активный набор</span></span><span class="raznos-row-chevron">›</span></button>
+<div class="raznos-notice raznos-notice-info"><span class="raznos-text-small">Фильтры подсвечивают и отсекают неподходящее в ленте, но не отправляют отказ сервису. Неизвестные данные требуют вашей проверки</span></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ is_editor }}">
+<div class="raznos-phone-body" data-screen-label="Filter editor">
+<div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ ed_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">{{ ed_title }}</h1></div>
+<label class="raznos-field"><span class="raznos-field-label">Название набора</span><input class="raznos-input" value="{{ ed_name }}" onChange="{{ ed_change_name }}" /></label>
+<sc-if value="{{ ed_adv }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny">Значения для: {{ ed_scope_label }}</p></sc-if>
+<div class="raznos-opportunity-fields"><sc-for list="{{ ed_fields }}" as="f"><label class="raznos-field"><span class="raznos-field-label">{{ f.label }}</span><input class="raznos-input" type="number" min="0" step="{{ f.step }}" value="{{ f.value }}" onChange="{{ f.change }}" /></label></sc-for></div>
+<p class="raznos-text-tiny">Расходы на километр включают вашу оценку аренды, зарядки и обслуживания, налоги отдельно. Район и часы задаются в графике умного расписания</p>
+
+<button type="button" class="{{ ed_adv_btn_cls }}" onClick="{{ ed_toggle_adv }}">{{ ed_adv_label }}</button>
+<sc-if value="{{ ed_adv }}" hint-placeholder-val="{{ false }}">
+<span class="raznos-text-h3">Настроить под сервис</span>
+<p class="raznos-text-tiny">Выберите сервис, чтобы задать ему свои значения. Без своей настройки сервис берёт общие</p>
+<div class="raznos-card"><sc-for list="{{ ed_scopes }}" as="sc" hint-placeholder-count="4"><button type="button" class="raznos-list-row" onClick="{{ sc.tap }}"><span class="raznos-list-main"><span class="raznos-list-title">{{ sc.title }}</span><span class="raznos-text-small">{{ sc.sub }}</span></span><span class="{{ sc.badgeCls }}">{{ sc.badge }}</span></button></sc-for></div>
+<sc-if value="{{ ed_scope_over }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ ed_reset_scope }}">Сбросить {{ ed_scope_label }} на общие</button></sc-if>
+</sc-if>
+<sc-if value="{{ ed_error }}"><p class="raznos-notice raznos-notice-warn">{{ ed_error }}</p></sc-if>
+<button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ ed_save }}">Сохранить и применить</button>
+<sc-if value="{{ ed_can_delete }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ ed_delete }}">Удалить набор</button></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ is_eff }}">
+<div class="raznos-phone-body" data-screen-label="Filter effectiveness">
+<div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ eff_back }}">‹</button><h1 class="raznos-text-h1" style="margin:0">Проверить фильтр</h1></div>
+<p class="raznos-text-small">Активный набор: {{ active_label }}</p>
+<div class="raznos-chip-row"><sc-for list="{{ eff_periods }}" as="ep"><button type="button" class="{{ ep.cls }}" onClick="{{ ep.tap }}">{{ ep.label }}</button></sc-for></div>
+<span class="raznos-text-body">{{ eff_summary }}</span>
+<div class="raznos-progress-track"><span class="raznos-progress-fill" style="{{ eff_bar_style }}"></span></div>
+<sc-for list="{{ eff_reasons }}" as="er"><div class="raznos-breakdown-row"><span class="raznos-text-small">{{ er.label }}</span><span class="raznos-num">{{ er.count }}</span></div></sc-for>
+<sc-if value="{{ eff_has_tip }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">{{ eff_tip_title }}</span><span class="raznos-text-small">{{ eff_tip_note }}</span></div></sc-if>
+<sc-if value="{{ eff_no_tip }}" hint-placeholder-val="{{ true }}"><p class="raznos-text-small">Набор не выглядит слишком строгим, менять ничего не предлагаем</p></sc-if>
+<p class="raznos-text-tiny">Считаем полученные предложения, а не упущенный заработок. Отдельная статистика по фильтрам, не совпадает со счётчиком в Истории предложений</p>
+</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"value":{"editor":null},"onChange":{"editor":null},"activeValue":{"editor":"text"},"onActiveChange":{"editor":null},"onBack":{"editor":null}}'>
+const FIELDS = [
+  { k: 'minPay', label: 'Оплата от, ₽', step: '1' },
+  { k: 'minHourly', label: 'После расходов от, ₽/ч', step: '1' },
+  { k: 'maxDistance', label: 'Маршрут с переездом до, км', step: '0.1' },
+  { k: 'maxWeight', label: 'Вес до, кг', step: '0.1' },
+  { k: 'maxPackages', label: 'Пакетов до', step: '1' },
+  { k: 'maxMinutes', label: 'Вместе с переездом до, мин', step: '1' },
+  { k: 'costPerKm', label: 'Мои расходы на 1 км, ₽', step: '0.1' }
+];
+const DEF = { minPay: 250, minHourly: 600, maxDistance: 3, maxWeight: 8, maxPackages: 4, maxMinutes: 35, costPerKm: 12 };
+const SVCS = [{ key: 'vkusvill', title: 'ВкусВилл' }, { key: 'samokat', title: 'Самокат' }, { key: 'x5', title: 'X5' }];
+const PRESETS = [
+  { name: 'Рядом с домом', vals: Object.assign({}, DEF, { maxDistance: 2 }) },
+  { name: 'Без тяжёлых заказов', vals: Object.assign({}, DEF, { maxWeight: 3, maxPackages: 2 }) },
+  { name: 'Работаю два часа', vals: Object.assign({}, DEF, { maxMinutes: 25 }) }
+];
+const wfSummary = (v) => {
+  const parts = [];
+  parts.push('оплата от ' + v.minPay + ' ₽');
+  parts.push('до ' + v.maxDistance + ' км');
+  parts.push('вес до ' + v.maxWeight + ' кг');
+  return parts.slice(0, 3).join(' · ');
+};
+
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {}, p = this.props || {};
+    const view = st.view || 'list';
+    const savedSets = st.savedSets || [];
+    const active = st.active != null ? st.active : (p.activeValue || '');
+    const reportActive = (name) => { if (p.onActiveChange) p.onActiveChange(name); };
+    const findSet = (name) => savedSets.find((s) => s.name === name) || PRESETS.find((s) => s.name === name) || null;
+
+    // экран список
+    const rowFor = (name, title, sub, kind) => ({
+      title, sub,
+      rowCls: 'rwf-row' + (name === active ? ' rwf-active' : ''),
+      badge: name === active ? 'Активен' : 'Применить',
+      badgeCls: name === active ? 'raznos-status-pill raznos-pill-ok' : 'raznos-pill-action',
+      apply: () => { this.setState({ active: name }); reportActive(name); },
+      canEdit: kind === 'own',
+      editLabel: 'Изменить',
+      edit: () => this.openEditor(kind, name)
+    });
+    const sets = [];
+    sets.push(rowFor('', 'Без фильтра', 'Показываем все предложения, ничего не отсекаем', 'none'));
+    PRESETS.filter((pr) => !savedSets.some((s) => s.name === pr.name)).forEach((pr) => sets.push(rowFor(pr.name, pr.name, wfSummary(pr.vals), 'preset')));
+    savedSets.forEach((s) => sets.push(rowFor(s.name, s.name, wfSummary(s.vals), 'own')));
+
+    // редактор
+    const ed = st.ed || null;
+    const edScope = (ed && ed.scope) || 'all';
+    const edEffVals = ed ? (edScope === 'all' ? ed.vals : Object.assign({}, ed.vals, ed.over[edScope] || {})) : DEF;
+    const patchField = (k, raw) => {
+      if (!ed) return;
+      const val = raw;
+      if (edScope === 'all') {
+        this.setState({ ed: Object.assign({}, ed, { vals: Object.assign({}, ed.vals, { [k]: val }), error: '' }) });
+      } else {
+        const cur = Object.assign({}, ed.vals, ed.over[edScope] || {}, { [k]: val });
+        this.setState({ ed: Object.assign({}, ed, { over: Object.assign({}, ed.over, { [edScope]: cur }), error: '' }) });
+      }
+    };
+
+    const vals = {
+      onBack: p.onBack || (() => {}),
+      is_list: view === 'list', is_editor: view === 'editor', is_eff: view === 'eff',
+      sets,
+      create: () => this.openEditor('create', ''),
+      go_eff: () => this.setState({ view: 'eff' }),
+      eff_back: () => this.setState({ view: 'list' }),
+      active_label: active || 'Без фильтра'
+    };
+
+    if (view === 'editor' && ed) {
+      Object.assign(vals, {
+        ed_title: ed.mode === 'edit' ? 'Изменить набор' : 'Новый набор',
+        ed_name: ed.name,
+        ed_change_name: (e) => this.setState({ ed: Object.assign({}, ed, { name: e && e.target ? e.target.value : ed.name, error: '' }) }),
+        ed_fields: FIELDS.map((f) => ({ label: f.label, step: f.step, value: edEffVals[f.k], change: (e) => patchField(f.k, e.target.value) })),
+        ed_adv: !!ed.adv,
+        ed_adv_label: ed.adv ? 'Скрыть настройку по сервисам' : 'Разные настройки по сервисам',
+        ed_adv_btn_cls: 'raznos-btn raznos-btn-secondary',
+        ed_toggle_adv: () => this.setState({ ed: Object.assign({}, ed, { adv: !ed.adv, scope: 'all' }) }),
+        ed_scope_label: edScope === 'all' ? 'Все сервисы' : ((SVCS.find((s) => s.key === edScope) || {}).title || edScope),
+        ed_scopes: [{ key: 'all', title: 'Все сервисы' }].concat(SVCS).map((s) => ({
+          title: s.title,
+          sub: s.key === 'all' ? 'общие значения для всех сервисов' : (ed.over[s.key] ? 'своя настройка' : 'берёт общие'),
+          badge: edScope === s.key ? 'Редактируется' : (s.key !== 'all' && ed.over[s.key] ? 'своя' : ''),
+          badgeCls: edScope === s.key ? 'raznos-status-pill raznos-pill-ok' : (s.key !== 'all' && ed.over[s.key] ? 'raznos-status-pill raznos-pill-muted' : 'raznos-text-tiny'),
+          tap: () => this.setState({ ed: Object.assign({}, ed, { scope: s.key }) })
+        })),
+        ed_scope_over: edScope !== 'all' && !!ed.over[edScope],
+        ed_reset_scope: () => { const o = Object.assign({}, ed.over); delete o[edScope]; this.setState({ ed: Object.assign({}, ed, { over: o }) }); },
+        ed_error: ed.error || '',
+        ed_can_delete: ed.mode === 'edit',
+        ed_back: () => this.setState({ view: 'list', ed: null }),
+        ed_delete: () => {
+          const next = savedSets.filter((s) => s.name !== ed.origName);
+          const nextActive = active === ed.origName ? '' : active;
+          this.setState({ savedSets: next, active: nextActive, view: 'list', ed: null });
+          reportActive(nextActive);
+        },
+        ed_save: () => {
+          const nm = (ed.name || '').trim();
+          const bad = FIELDS.some((f) => { const n = Number(ed.vals[f.k]); return ed.vals[f.k] === '' || !Number.isFinite(n) || n < 0; }) || !Number.isInteger(Number(ed.vals.maxPackages));
+          if (!nm || bad) { this.setState({ ed: Object.assign({}, ed, { error: 'Укажите название и числа от нуля, пакеты целым числом' }) }); return; }
+          const norm = (o) => { const r = Object.assign({}, o); FIELDS.forEach((f) => { r[f.k] = Number(o[f.k]); }); return r; };
+          const over = {};
+          Object.keys(ed.over).forEach((k) => { over[k] = norm(Object.assign({}, ed.vals, ed.over[k])); });
+          const saved = { name: nm, vals: norm(ed.vals), over };
+          const next = savedSets.filter((s) => s.name !== ed.origName && s.name !== nm).concat([saved]);
+          this.setState({ savedSets: next, active: nm, view: 'list', ed: null });
+          reportActive(nm);
+          if (p.onChange) p.onChange({ sets: next, active: nm });
+        }
+      });
+    }
+
+    if (view === 'eff') {
+      const EFF = {
+        today: { got: 20, passed: 3, reasons: [['Далеко ехать', 11], ['Низкая оплата', 4], ['Большой вес', 2]] },
+        week: { got: 134, passed: 29, reasons: [['Далеко ехать', 71], ['Низкая оплата', 25], ['Большой вес', 9]] }
+      };
+      const effPeriod = st.effPeriod || 'today';
+      const eff = EFF[effPeriod];
+      const activeVals = (findSet(active) || {}).vals;
+      const tip = active && activeVals && Number(activeVals.maxDistance) < 4;
+      Object.assign(vals, {
+        eff_periods: [['today', 'Сегодня'], ['week', '7 дней']].map((x) => ({ label: x[1], cls: 'raznos-chip' + (effPeriod === x[0] ? ' raznos-is-active' : ''), tap: () => this.setState({ effPeriod: x[0] }) })),
+        eff_summary: active ? ('Из ' + eff.got + ' предложений набор пропустил ' + eff.passed) : ('Без фильтра проходят все ' + eff.got + ' предложений'),
+        eff_bar_style: 'width:' + (active ? Math.round(eff.passed / eff.got * 100) : 100) + '%',
+        eff_reasons: active ? eff.reasons.map((r) => ({ label: r[0], count: r[1] })) : [],
+        eff_has_tip: !!tip,
+        eff_no_tip: !tip,
+        eff_tip_title: tip ? 'Маршрут до 4 км вместо ' + activeVals.maxDistance : '',
+        eff_tip_note: tip ? 'С таким набором прошли бы ещё несколько заказов. Решение за вами, сами фильтры мы не меняем' : ''
+      });
+    }
+    return vals;
+  }
+
+  openEditor(kind, name) {
+    const st = this.state || {};
+    const savedSets = st.savedSets || [];
+    if (kind === 'create') {
+      this.setState({ view: 'editor', ed: { mode: 'create', origName: '', name: '', vals: Object.assign({}, DEF), over: {}, adv: false, scope: 'all', error: '' } });
+    } else if (kind === 'preset') {
+      const pr = PRESETS.find((s) => s.name === name);
+      this.setState({ view: 'editor', ed: { mode: 'create', origName: '', name: pr.name + ' (моя копия)', vals: Object.assign({}, pr.vals), over: {}, adv: false, scope: 'all', error: '' } });
+    } else {
+      const s = savedSets.find((x) => x.name === name);
+      this.setState({ view: 'editor', ed: { mode: 'edit', origName: s.name, name: s.name, vals: Object.assign({}, s.vals), over: Object.assign({}, s.over || {}), adv: Object.keys(s.over || {}).length > 0, scope: 'all', error: '' } });
+    }
+  }
+}
+</script></body></html>

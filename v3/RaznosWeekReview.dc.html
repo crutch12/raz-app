@@ -1,0 +1,47 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rwr { box-sizing: border-box; width: 100%; display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 16px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
+    .rwr-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .rwr-head-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .rwr-title { margin: 0; font: 700 16px/1.3 var(--raznos-font); color: var(--raznos-ink); }
+    .rwr-range { font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rwr-x { flex: none; width: 44px; height: 44px; margin: -10px -10px 0 0; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; background: none; color: var(--raznos-ink-3); cursor: pointer; border-radius: 12px; }
+    .rwr-x:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .rwr-nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .rwr-num { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .rwr-num b { font: 800 19px var(--raznos-font); letter-spacing: -0.02em; color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rwr-num span { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rwr-goal { margin: 0; font: 500 13.5px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
+    .rwr-fix { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--raznos-amber-tint); font: 500 13.5px/1.4 var(--raznos-font); color: var(--raznos-ink); }
+  </style>
+</helmet>
+<section class="rwr" aria-label="Разбор недели">
+  <div class="rwr-head">
+    <div class="rwr-head-copy"><h3 class="rwr-title">Разбор недели</h3><span class="rwr-range">{{ range }}</span></div>
+    <button type="button" class="rwr-x" onClick="{{ dismiss }}" aria-label="Скрыть разбор недели"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="rwr-nums">
+    <div class="rwr-num"><b>{{ earn }}</b><span>начислено</span></div>
+    <div class="rwr-num"><b>{{ hours }}</b><span>на линии</span></div>
+    <div class="rwr-num"><b>{{ hourly }}</b><span>в час</span></div>
+  </div>
+  <p class="rwr-goal">{{ goal_line }}</p>
+  <sc-if value="{{ has_fix }}" hint-placeholder-val="{{ true }}"><p class="rwr-fix">{{ fix }}</p></sc-if>
+  <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ open }}">Спросить про неделю</button>
+</section>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"range":{"editor":"text","default":"Прошлая неделя, 5–11 окт"},"earn":{"editor":"text","default":"28 400 ₽"},"hours":{"editor":"text","default":"41 ч"},"hourly":{"editor":"text","default":"690 ₽"},"goalLine":{"editor":"text","default":"Цель недели 30 000 ₽, выполнено на 95%"},"fix":{"editor":"text","default":"Подтянуть: во вторник вышло 410 ₽/ч, это меньше остальных дней"},"onOpen":{"editor":null},"onDismiss":{"editor":null},"$preview":{"width":366,"height":300}}'>
+// карточка разбора недели на экране Сегодня: числа считает приложение, подробности объясняет помощник
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    return {
+      range: p.range || '', earn: p.earn || '', hours: p.hours || '', hourly: p.hourly || '',
+      goal_line: p.goalLine || '', has_fix: !!p.fix, fix: p.fix || '',
+      open: () => { if (typeof p.onOpen === 'function') p.onOpen(); },
+      dismiss: () => { if (typeof p.onDismiss === 'function') p.onDismiss(); }
+    };
+  }
+}
+</script></body></html>

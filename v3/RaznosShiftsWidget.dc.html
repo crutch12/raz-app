@@ -1,0 +1,79 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rsw { box-sizing: border-box; width: 100%; max-width: 100%; text-align: left; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; font: inherit; color: inherit; }
+    .rsw:hover { border-color: var(--raznos-ink-3); }
+    .rsw:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .rsw-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .rsw-title { font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
+    .rsw-sum { font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); font-variant-numeric: tabular-nums; }
+    .rsw-flags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .rsw-flag { padding: 3px 8px; border-radius: 999px; font: 600 12px var(--raznos-font); }
+    .rsw-flag-danger { background: color-mix(in oklab, var(--raznos-red) 12%, var(--raznos-surface)); color: var(--raznos-red); }
+    .rsw-flag-warn { background: var(--raznos-amber-tint); color: var(--raznos-ink); }
+    .rsw-deadline { font: 500 12px var(--raznos-font); color: var(--raznos-ink-2); }
+  </style>
+</helmet>
+<button type="button" class="rsw" onClick="{{ open }}" aria-label="{{ aria }}">
+  <div class="rsw-head"><span style="display:inline-flex;align-items:center;gap:8px;color:var(--raznos-ink-2)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 1.8"/></svg><span class="rsw-title">Смены</span></span><span class="raznos-row-chevron">›</span></div>
+  <span class="rsw-sum">{{ summary }}</span>
+  <sc-if value="{{ has_flags }}" hint-placeholder-val="{{ true }}"><span class="rsw-flags"><sc-for list="{{ flags }}" as="flag" hint-placeholder-count="2"><span class="{{ flag.cls }}">{{ flag.label }}</span></sc-for></span></sc-if>
+  <sc-if value="{{ deadline }}" hint-placeholder-val="{{ false }}"><span class="rsw-deadline">{{ deadline }}</span></sc-if>
+</button>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"caps":{"editor":null},"shifts":{"editor":null},"rules":{"editor":null},"today":{"editor":"text","default":""},"nowMinutes":{"editor":null},"open":{"editor":null},"$preview":{"width":390,"height":130}}'>
+// вход в Смены из Работы: сколько смен на неделе и что требует внимания, подробности на самом экране
+// демо-сегодня: реальная дата устройства
+const rswAt = (off) => { const d = new Date(); d.setDate(d.getDate() + off); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const RSW_DEMO = [
+  { id: 'a', iso: rswAt(0), svc: 'vkusvill', title: 'ВкусВилл', from: 840, to: 1020, status: 'active' },
+  { id: 'b', iso: rswAt(0), svc: 'yandex-eda', title: 'Яндекс Еда', from: 1020, to: 1200, status: 'confirmed' },
+  { id: 'c', iso: rswAt(1), svc: 'samokat', title: 'Самокат', from: 630, to: 810, status: 'confirmed' },
+  { id: 'd', iso: rswAt(1), svc: 'vkusvill', title: 'ВкусВилл', from: 840, to: 1080, status: 'requested' }
+];
+const RSW_TRAVEL = 20;
+const RSW_DOW = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+const RSW_PLURAL = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; };
+const RSW_TIME = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const open = typeof p.open === 'function' ? p.open : (() => {});
+    const today = p.today || rswAt(0);
+    const now = p.nowMinutes == null ? 940 : p.nowMinutes;
+    const rules = p.rules || {};
+    const live = (p.shifts || RSW_DEMO).filter((s) => s.status !== 'cancelled' && s.status !== 'missed');
+    const minutes = live.reduce((sum, s) => sum + s.to - s.from, 0);
+    // пересечения и дорога между разными сервисами, как на экране Смены
+    const clashes = new Set();
+    Array.from(new Set(live.map((s) => s.iso))).forEach((iso) => {
+      const list = live.filter((s) => s.iso === iso).sort((a, b) => a.from - b.from);
+      list.forEach((a, i) => { const b = list[i + 1]; if (b && (b.from < a.to || (a.svc !== b.svc && b.from - a.to < RSW_TRAVEL))) clashes.add(a.id + b.id); });
+    });
+    const requestedList = live.filter((s) => s.status === 'requested');
+    const requested = requestedList.length;
+    // слово статуса из профиля сервиса: заявка у Самоката и ВкусВилла, пожелание у Додо
+    const caps = p.caps || {};
+    const allZayavka = requestedList.every((s) => ((caps[s.svc] || {}).words || { requested: 'заявка' }).requested === 'заявка');
+    const flags = [];
+    if (clashes.size) flags.push({ label: clashes.size + ' ' + RSW_PLURAL(clashes.size, 'пересечение', 'пересечения', 'пересечений'), cls: 'rsw-flag rsw-flag-danger' });
+    if (requested) flags.push({ label: requested + ' ' + (allZayavka ? RSW_PLURAL(requested, 'заявка ждёт', 'заявки ждут', 'заявок ждут') : RSW_PLURAL(requested, 'смена ждёт', 'смены ждут', 'смен ждут')) + ' ответа', cls: 'rsw-flag rsw-flag-warn' });
+    // ближайший дедлайн бесплатной отмены, только если до него меньше суток
+    const nowDate = new Date(today + 'T00:00:00'); nowDate.setMinutes(now);
+    const deadlines = live.filter((s) => s.status === 'confirmed' && rules[s.svc] && rules[s.svc].freeCancel !== 'none').map((s) => {
+      const r = rules[s.svc];
+      const start = new Date(s.iso + 'T00:00:00'); start.setMinutes(s.from);
+      const d = r.freeCancel === 'noonBefore' ? (() => { const x = new Date(s.iso + 'T00:00:00'); x.setDate(x.getDate() - 1); x.setHours(12); return x; })() : new Date(start.getTime() - (r.hoursBefore || 24) * 3600000);
+      return { s, d };
+    }).filter((x) => x.d > nowDate && x.d - nowDate <= 24 * 3600000).sort((a, b) => a.d - b.d);
+    const RSW_SRC = { 'отзывы': '', 'вторичный': 'со слов курьеров', 'не подтверждено': 'уточните в сервисе', 'партнёрские материалы': 'по словам партнёров' };
+    const soon = deadlines[0];
+    const summary = live.length + ' ' + RSW_PLURAL(live.length, 'смена', 'смены', 'смен') + ' на неделе · ' + Math.round(minutes / 60) + ' ч';
+    const deadline = soon ? 'Отменить ' + soon.s.title + ' без последствий можно до ' + RSW_DOW[soon.d.getDay()] + ' ' + RSW_TIME(soon.d.getHours() * 60 + soon.d.getMinutes()) + (rules[soon.s.svc].src && rules[soon.s.svc].src !== 'отзывы' ? ' · ' + (RSW_SRC[rules[soon.s.svc].src] || rules[soon.s.svc].src) : '') : '';
+    return {
+      open, summary, flags, has_flags: flags.length > 0, deadline,
+      aria: 'Смены, ' + summary + (flags.length ? ', ' + flags.map((f) => f.label).join(', ') : '') + (deadline ? ', ' + deadline : '')
+    };
+  }
+}
+</script></body></html>

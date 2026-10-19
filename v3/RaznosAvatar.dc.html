@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+      <sc-if value="{{ is_photo }}" hint-placeholder-val="{{ true }}">
+        <img class="{{ css_class }}" src="{{ photoSrc }}" alt="{{ alt }}" />
+      </sc-if>
+      <sc-if value="{{ is_silhouette }}" hint-placeholder-val="{{ false }}">
+        <svg class="{{ css_class }}" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{ alt }}">
+          <circle cx="32" cy="32" r="32" fill="var(--raznos-surface-2)" />
+          <circle cx="32" cy="26" r="11" fill="var(--raznos-ink-3)" />
+          <path d="M12 56c3-11 11-17 20-17s17 6 20 17" fill="var(--raznos-ink-3)" />
+        </svg>
+      </sc-if>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "kind": { "editor": "enum", "default": "portrait1", "options": ["portrait1", "portrait2", "portrait3", "neutral", "upload"] },
+      "uploadedSrc": { "editor": "text", "default": "" },
+      "alt": { "editor": "text", "default": "Демо-фото" },
+      "size": { "editor": "enum", "default": "md", "options": ["sm", "md"] },
+      "$preview": { "width": 100, "height": 100 }
+    }'>
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const kind = p.kind || 'portrait1';
+          const photos = {
+            portrait1: './assets/portrait-1.jpg',
+            portrait2: './assets/portrait-2.jpg',
+            portrait3: './assets/portrait-3.jpg'
+          };
+          const isUpload = kind === 'upload' && !!p.uploadedSrc;
+          const photoSrc = isUpload ? p.uploadedSrc : photos[kind];
+          const isSilhouette = kind === 'neutral' || (!photoSrc);
+          return {
+            is_photo: !isSilhouette,
+            is_silhouette: isSilhouette,
+            css_class: p.size === 'sm' ? 'raznos-avatar raznos-avatar-sm' : 'raznos-avatar',
+            photoSrc: photoSrc || '',
+            alt: p.alt || 'Демо-фото'
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

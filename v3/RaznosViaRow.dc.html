@@ -1,0 +1,44 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rvr { box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--raznos-line); border-radius: 16px; background: var(--raznos-surface); color: var(--raznos-ink); text-align: left; cursor: pointer; }
+    .rvr:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .rvr-dot { flex: none; width: 10px; height: 10px; border-radius: 999px; background: var(--raznos-ink-3); }
+    .rvr-dot.rvr-is-no { background: var(--raznos-green); }
+    .rvr-dot.rvr-is-cond { background: var(--raznos-amber); }
+    .rvr-dot.rvr-is-yes { background: var(--raznos-red); }
+    .rvr-copy { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+    .rvr-kicker { font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rvr-verdict { font: 700 15px/1.3 var(--raznos-font); }
+    .rvr-chips { display: flex; flex-wrap: wrap; gap: 4px 6px; margin-top: 2px; }
+    .rvr-chip { padding: 1px 8px; border-radius: 999px; background: var(--raznos-surface-2); font: 600 11px/1.5 var(--raznos-font); color: var(--raznos-ink-2); white-space: nowrap; }
+    .rvr-mine { font: 600 12px var(--raznos-font); color: var(--raznos-green-deep); }
+  </style>
+</helmet>
+<button type="button" class="rvr" onClick="{{ on_open }}" aria-label="{{ aria }}">
+  <span class="{{ dot_cls }}" aria-hidden="true"></span>
+  <span class="rvr-copy">
+    <span class="rvr-kicker">Оформление</span>
+    <span class="rvr-verdict">{{ verdict }}</span>
+    <sc-if value="{{ has_forms }}" hint-placeholder-val="{{ true }}"><span class="rvr-chips"><sc-for list="{{ forms }}" as="f" hint-placeholder-count="3"><span class="rvr-chip">{{ f.label }}</span></sc-for></span></sc-if>
+    <sc-if value="{{ mine }}" hint-placeholder-val="{{ false }}"><span class="rvr-mine">{{ mine }}</span></sc-if>
+  </span>
+  <span class="raznos-row-chevron">›</span>
+</button>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"verdict":{"editor":"text","default":"Можно напрямую самозанятым"},"tone":{"editor":"enum","default":"no","options":["no","cond","yes","unknown"]},"forms":{"editor":null},"mine":{"editor":"text","default":""},"onOpen":{"editor":null},"$preview":{"width":360,"height":150}}'>
+// строка вывода про оформление: одна фраза, формы чипами, у вас помечен вариант пользователя, по нажатию шторка
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const forms = (Array.isArray(p.forms) ? p.forms : ['Самозанятый', 'ИП', 'Через парк']).map((label) => ({ label }));
+    const verdict = p.verdict === undefined ? 'Можно напрямую самозанятым' : p.verdict;
+    return {
+      verdict, forms, has_forms: forms.length > 0, mine: p.mine || '',
+      dot_cls: 'rvr-dot rvr-is-' + (p.tone || 'no'),
+      aria: 'Оформление: ' + verdict + ', подробнее',
+      on_open: typeof p.onOpen === 'function' ? p.onOpen : () => {}
+    };
+  }
+}
+</script></body></html>

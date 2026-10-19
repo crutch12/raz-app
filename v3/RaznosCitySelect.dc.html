@@ -1,0 +1,89 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc><helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet><div class="raznos-city-field"><span class="raznos-field-label">{{ label }}</span><button type="button" class="raznos-city-trigger" onClick="{{ open_modal }}"><span class="raznos-city-trigger-text">{{ current_title }}</span><svg class="raznos-city-trigger-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg></button><sc-if value="{{ is_open }}"><div class="raznos-city-modal-layer" role="dialog" aria-modal="true" aria-label="Выбор города"><button type="button" class="raznos-city-modal-backdrop" aria-label="Закрыть" onClick="{{ close_modal }}"></button><div class="raznos-city-modal"><div class="raznos-city-modal-head"><span class="raznos-text-h3">Выбор города</span><button type="button" class="raznos-icon-btn" aria-label="Закрыть" onClick="{{ close_modal }}">✕</button></div><div class="raznos-city-search-box"><svg class="raznos-city-search-icon" width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="9" cy="9" r="5.5" stroke="currentColor" stroke-width="1.6" /><path d="m13.5 13.5 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg><input class="raznos-city-search" type="text" placeholder="Поиск города" value="{{ query }}" onInput="{{ change_query }}" autofocus="true" /></div><div class="raznos-city-list"><sc-for list="{{ visible }}" as="opt"><button type="button" class="{{ opt.cls }}" onClick="{{ opt.tap }}"><span class="raznos-city-option-title">{{ opt.title }}</span><sc-if value="{{ opt.active }}"><span class="raznos-city-option-check">✓</span></sc-if></button></sc-for><sc-if value="{{ truncated }}"><div class="raznos-city-truncated raznos-text-tiny">{{ truncated_text }}</div></sc-if><sc-if value="{{ empty }}"><div class="raznos-city-empty raznos-text-small">Город не найден</div></sc-if></div></div></div></sc-if></div></x-dc><script type="text/x-dc" data-dc-script data-props='{"value":{"editor":"text","default":"moscow"},"onChange":{"editor":null},"label":{"editor":"text","default":"Город"}}'>const COUR_CITIES = [
+  { key: "moscow", title: "Москва" },
+  { key: "spb", title: "Санкт-Петербург" },
+  { key: "mg-0003", title: "Абакан" },
+  { key: "mg-0004", title: "Абинск" },
+  { key: "mg-0005", title: "Агидель" },
+  { key: "mg-0006", title: "Адамовка" },
+  { key: "mg-0007", title: "Азнакаево" },
+  { key: "mg-0008", title: "Азов" },
+  { key: "mg-0009", title: "Азово" },
+  { key: "mg-0010", title: "Акбулак" },
+  { key: "mg-0011", title: "Аксай" },
+  { key: "mg-0012", title: "Аксарка" },
+  { key: "mg-0013", title: "Алапаевск" },
+  { key: "mg-0014", title: "Алатырь" },
+  { key: "mg-0015", title: "Алейск" },
+  { key: "mg-0016", title: "Александров" },
+  { key: "mg-0017", title: "Александровское" },
+  { key: "mg-0018", title: "Алексеевка" },
+  { key: "mg-0019", title: "Алексин" },
+  { key: "mg-0020", title: "Алтайское" },
+  { key: "mg-0021", title: "Альметьевск" },
+  { key: "mg-0022", title: "Анапа" },
+  { key: "mg-0023", title: "Анастасиевская" },
+  { key: "mg-0024", title: "Ангарск" },
+  { key: "mg-0025", title: "Анжеро-Судженск" },
+  { key: "mg-0026", title: "Анкудиновка" },
+  { key: "mg-0027", title: "Анна" },
+  { key: "mg-0028", title: "Апатиты" },
+  { key: "mg-0029", title: "Апрелевка" },
+  { key: "mg-0030", title: "Апшеронск" },
+  { key: "mg-0031", title: "Арамиль" },
+  { key: "mg-0032", title: "Аргаяш" },
+  { key: "mg-0033", title: "Ардатов" },
+  { key: "mg-0034", title: "Арзамас" },
+  { key: "mg-0035", title: "Арзгир" },
+  { key: "mg-0036", title: "Аркадак" },
+  { key: "mg-0037", title: "Армавир" },
+  { key: "mg-0038", title: "Артемовский" },
+  { key: "mg-0039", title: "Арти" },
+  { key: "mg-0040", title: "Архангельск" },
+  { key: "mg-0041", title: "Архангельская" },
+  { key: "mg-0042", title: "Архипо-Осиповка" },
+  { key: "mg-0043", title: "Асбест" },
+  { key: "mg-0044", title: "Асино" },
+  { key: "mg-0045", title: "Астрахань" },
+  { key: "mg-0046", title: "Атаманово" },
+  { key: "mg-0047", title: "Ахтубинск" },
+  { key: "mg-0048", title: "Ачинск" },
+  { key: "mg-0049", title: "Аша" },
+  { key: "mg-0050", title: "Бабаево" },
+];
+const CITY_CAP = 60;
+function cityTitleOf(key) {
+  const found = COUR_CITIES.find((c) => c.key === key);
+  return found ? found.title : key;
+}
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const value = p.value || 'moscow';
+    const query = st.query || '';
+    const norm = (s) => s.toLowerCase().replace(/ё/g, 'е');
+    const q = norm(query.trim());
+    const matched = q ? COUR_CITIES.filter((c) => norm(c.title).includes(q)) : COUR_CITIES;
+    const shown = matched.slice(0, CITY_CAP);
+    const choose = (key) => { if (p.onChange) p.onChange(key); this.setState({ open: false, query: '' }); };
+    return {
+      label: p.label || 'Город',
+      current_title: cityTitleOf(value),
+      is_open: !!st.open,
+      query,
+      open_modal: () => this.setState({ open: true, query: '' }),
+      close_modal: () => this.setState({ open: false, query: '' }),
+      change_query: (e) => this.setState({ query: e.target.value }),
+      visible: shown.map((c) => ({
+        title: c.title,
+        active: c.key === value,
+        cls: 'raznos-city-option' + (c.key === value ? ' raznos-is-active' : ''),
+        tap: () => choose(c.key)
+      })),
+      empty: matched.length === 0,
+      truncated: matched.length > CITY_CAP,
+      truncated_text: 'Показаны первые ' + CITY_CAP + ' из ' + matched.length + ', уточните запрос'
+    };
+  }
+}
+</script></body></html>

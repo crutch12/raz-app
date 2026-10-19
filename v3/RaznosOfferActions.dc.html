@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-work.css" /></helmet>
+      <div class="raznos-fx raznos-col raznos-gap8">
+        <sc-if value="{{ showBlockedNotice }}" hint-placeholder-val="{{ false }}">
+          <div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Нельзя принять вслепую</span><span class="raznos-text-small">По этому предложению уже был результат «Неизвестен», сначала проверьте статус в приложении сервиса</span></div>
+          <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ onCheckStatus }}">Открыть приложение сервиса</button>
+        </sc-if>
+        <sc-if value="{{ showAccept }}" hint-placeholder-val="{{ true }}">
+          <div class="{{ timerTrackClass }}"><span class="raznos-progress-fill" style="{{ timerFillStyle }}"></span></div>
+        </sc-if>
+        <sc-if value="{{ showIdleActions }}" hint-placeholder-val="{{ true }}">
+          <div class="raznos-fx raznos-col raznos-gap8">
+            <sc-if value="{{ showAccept }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-accept" onClick="{{ onAccept }}">Принять · {{ timerLabel }}</button></sc-if>
+            <sc-if value="{{ canDecline }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-danger" onClick="{{ onDecline }}">Отказаться</button></sc-if>
+            <sc-if value="{{ hideOnly }}"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ onHide }}">Скрыть у себя</button></sc-if>
+          </div>
+        </sc-if>
+        <sc-if value="{{ showProcessing }}"><p class="raznos-text-body" style="text-align:center">Проверяем…</p></sc-if>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "timerLabel": { "editor": "text", "default": "00:25" },
+      "timerFillStyle": { "editor": "text", "default": "width:100%" },
+      "timerWarn": { "editor": "boolean", "default": false },
+      "isIdle": { "editor": "boolean", "default": true },
+      "isProcessing": { "editor": "boolean", "default": false },
+      "acceptBlocked": { "editor": "boolean", "default": false },
+      "canDecline": { "editor": "boolean", "default": true },
+      "onAccept": { "editor": null },
+      "onDecline": { "editor": null },
+      "onHide": { "editor": null },
+      "onCheckStatus": { "editor": null },
+      "$preview": { "width": 360, "height": 160 }
+    }'>
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const isIdle = !!p.isIdle;
+          const acceptBlocked = !!p.acceptBlocked;
+          const canDecline = !!p.canDecline;
+          return {
+            timerLabel: p.timerLabel || '00:25',
+            timerFillStyle: p.timerFillStyle || 'width:100%',
+            timerTrackClass: p.timerWarn ? 'raznos-progress-track raznos-is-warn' : 'raznos-progress-track',
+            showBlockedNotice: isIdle && acceptBlocked,
+            showAccept: isIdle && !acceptBlocked,
+            showIdleActions: isIdle,
+            canDecline,
+            hideOnly: !canDecline,
+            showProcessing: !!p.isProcessing,
+            onAccept: p.onAccept || (() => {}),
+            onDecline: p.onDecline || (() => {}),
+            onHide: p.onHide || (() => {}),
+            onCheckStatus: p.onCheckStatus || (() => {})
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

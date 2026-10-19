@@ -1,0 +1,75 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* цель на сегодня: сумма, одна фраза, откуда она, и полоса недели, где видно уже заработанное и остаток по рабочим дням */
+    .rdg { display: flex; flex-direction: column; gap: 14px; font-family: var(--raznos-font); color: var(--raznos-ink); }
+    .rdg-sum { display: flex; flex-direction: column; gap: 4px; }
+    .rdg-val { font: 800 34px/1.05 var(--raznos-font); letter-spacing: -0.02em; color: var(--raznos-green-deep); font-variant-numeric: tabular-nums; }
+    .rdg-why { margin: 0; font: 500 15px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
+    .rdg-why b { font-weight: 700; color: var(--raznos-ink); }
+    .rdg-week { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 16px; background: var(--raznos-surface); }
+    .rdg-week-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font: 600 13px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rdg-week-top b { font: 700 14px var(--raznos-font); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rdg-bar { display: flex; gap: 3px; height: 14px; }
+    .rdg-seg { min-width: 6px; border-radius: 4px; }
+    .rdg-seg-done { background: var(--raznos-green); }
+    .rdg-seg-today { background: color-mix(in oklab, var(--raznos-green) 45%, var(--raznos-surface)); box-shadow: inset 0 0 0 2px var(--raznos-green-deep); }
+    .rdg-seg-later { background: var(--raznos-surface-2); box-shadow: inset 0 0 0 1px var(--raznos-line-strong); }
+    .rdg-earned { color: var(--raznos-green-deep) !important; }
+    /* дни с часами строкой под полосой, сегодня жирным, переносятся, если дней много */
+    .rdg-days { display: flex; flex-wrap: wrap; gap: 2px 0; margin: 0; font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rdg-days > span:not(:last-child)::after { content: '·'; margin: 0 6px; color: var(--raznos-line-strong); }
+    .rdg-days > .rdg-day-today { font-weight: 700; color: var(--raznos-ink); }
+    .rdg-note { margin: -4px 0 0; font: 500 12px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
+  </style>
+</helmet>
+<div class="rdg">
+  <div class="rdg-sum"><span class="rdg-val">{{ value }}</span><p class="rdg-why">{{ why_a }}<b>{{ why_b }}</b>{{ why_c }}</p></div>
+  <div class="rdg-week" role="img" aria-label="{{ aria }}">
+    <div class="rdg-week-top"><span>заработано <b class="rdg-earned">{{ earned_label }} ₽</b></span><span>цель <b>{{ goal }} ₽</b></span></div>
+    <div class="rdg-bar"><sc-for list="{{ segs }}" as="sg" hint-placeholder-count="3"><i class="{{ sg.cls }}" style="{{ sg.style }}"></i></sc-for></div>
+    <sc-if value="{{ has_days }}" hint-placeholder-val="{{ true }}"><p class="rdg-days"><sc-for list="{{ day_items }}" as="dy" hint-placeholder-count="3"><span class="{{ dy.cls }}">{{ dy.label }}</span></sc-for></p></sc-if>
+  </div>
+  <sc-if value="{{ has_note }}" hint-placeholder-val="{{ true }}"><p class="rdg-note">{{ note }}</p></sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "goal": { "editor": "int", "default": 30000 },
+  "earned": { "editor": "int", "default": 23200 },
+  "days": { "editor": null },
+  "$preview": { "width": 360, "height": 260 }
+}'>
+const RDG_FMT = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+// цель недели, заработанное с понедельника до вчера и оставшиеся рабочие дни (первый сегодня)
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const goal = p.goal || 30000, earned = Math.max(0, p.earned != null ? p.earned : 23200);
+    // дни массивом { label, h } из приложения или строкой вида сегодня 9, чт 8 в примерах дизайн-системы
+    const raw = typeof p.days === 'string' ? p.days.split(',').map((x) => x.trim()).filter(Boolean).map((x) => { const m = /^(.*?)\s+(\d+(?:[.,]\d+)?)$/.exec(x); return m ? { label: m[1], h: parseFloat(m[2].replace(',', '.')) } : { label: x, h: 8 }; }) : p.days;
+    const days = (Array.isArray(raw) && raw.length ? raw : [{ label: 'сегодня', h: 9 }]).map((d) => (typeof d === 'string' ? { label: d, h: 8 } : d));
+    const left = Math.max(0, goal - earned);
+    const hours = days.reduce((sum, d) => sum + d.h, 0) || 1;
+    // остаток делим по часам дней, как в приложении
+    const per = Math.round(left * days[0].h / hours / 100) * 100;
+    const reached = left <= 0;
+    const hh = (h) => (Math.round(h * 10) / 10).toString().replace('.', ',') + ' ч';
+    // полоса: заработанное и куски остатка по дням, ширина пропорциональна деньгам
+    const scale = Math.max(goal, earned) || 1;
+    const segs = [{ cls: 'rdg-seg rdg-seg-done', lcls: 'rdg-leg-done', label: earned > 0 ? RDG_FMT(earned) + ' ₽' : '', w: earned }]
+      .concat(reached ? [] : days.map((d, i) => ({ cls: 'rdg-seg ' + (i === 0 ? 'rdg-seg-today' : 'rdg-seg-later'), lcls: i === 0 ? 'rdg-leg-today' : '', label: d.label + ' ' + hh(d.h), w: left * d.h / hours })))
+      .filter((x) => x.w > 0)
+      .map((x) => Object.assign(x, { style: 'flex:' + Math.max(0.001, x.w / scale).toFixed(4) + ' 1 0' }));
+    const more = days.length > 1;
+    return {
+      value: reached ? 'Цель недели есть' : RDG_FMT(per) + ' ₽',
+      why_a: reached ? 'Заработали ' : 'До цели недели осталось ',
+      why_b: reached ? RDG_FMT(earned) + ' ₽' : RDG_FMT(left) + ' ₽',
+      why_c: reached ? ' из ' + RDG_FMT(goal) + ' ₽, сегодня можно не спешить' : (more ? ', делим по часам работы: сегодня ' + hh(days[0].h) + ' из ' + hh(hours) + ' до конца недели' : ', сегодня последний рабочий день недели'),
+      goal: RDG_FMT(goal), segs, earned_label: RDG_FMT(earned),
+      has_days: !reached, day_items: days.map((d, i) => ({ label: d.label + ' ' + hh(d.h), cls: i === 0 ? 'rdg-day-today' : '' })),
+      aria: 'Неделя: заработано ' + RDG_FMT(earned) + ' из ' + RDG_FMT(goal) + ' ₽' + (reached ? '' : ', осталось ' + RDG_FMT(left) + ' ₽ на ' + days.map((d) => d.label + ' ' + hh(d.h)).join(', ')),
+      has_note: more, note: 'Часы по графику и броням. Не доберёте сегодня, цель следующих дней вырастет'
+    };
+  }
+}
+</script></body></html>

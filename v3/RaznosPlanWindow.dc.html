@@ -1,0 +1,176 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    .rpw { box-sizing: border-box; width: 100%; display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 14px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); }
+    .rpw.rpw-booked { background: var(--raznos-green-tint); border-color: color-mix(in oklab, var(--raznos-green) 40%, var(--raznos-line)); }
+    .rpw.rpw-pending { border: 1.5px dashed var(--raznos-amber); background: color-mix(in oklab, var(--raznos-amber) 9%, var(--raznos-surface)); }
+    .rpw.rpw-pending .rpw-pay { color: var(--raznos-ink-2); }
+    /* окно, на которое привёл тост Показать */
+    .rpw.rpw-hl { box-shadow: 0 0 0 3px color-mix(in oklab, var(--raznos-green) 55%, transparent); }
+    .rpw.rpw-changed { box-shadow: 0 0 0 2px var(--raznos-amber); }
+    /* бонус сервиса в окне: зелёная строка, деньги и успех */
+    .rpw-quest { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--raznos-green-tint); font: 650 12.5px/1.3 var(--raznos-font); color: var(--raznos-green-deep); }
+    .rpw-quest svg { flex: none; }
+    .rpw-changed-tag { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; margin-bottom: -2px; padding: 3px 9px; border-radius: 999px; background: var(--raznos-amber-tint); font: 650 12px var(--raznos-font); color: var(--raznos-ink); }
+    @media (prefers-reduced-motion: no-preference) {
+      .rpw.rpw-hl { animation: rpw-hl 2.6s ease-out both; }
+      @keyframes rpw-hl { 0%, 55% { box-shadow: 0 0 0 4px color-mix(in oklab, var(--raznos-green) 60%, transparent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+    }
+    .rpw.rpw-need { border: 1px dashed var(--raznos-line-strong); }
+    .rpw.rpw-past { opacity: 0.55; }
+    .rpw.rpw-inline .rpw-hit { grid-template-columns: 1fr; }
+    .rpw.rpw-inline .rpw-time { display: none; }
+    .rpw.rpw-inline .rpw-sub { white-space: pre-line; }
+    /* окно идёт сейчас: яркая рамка, пульс у бейджа, полоска прошедшего времени */
+    .rpw.rpw-now { position: relative; border: 1.5px solid color-mix(in oklab, var(--raznos-green) 55%, var(--raznos-line)); }
+    .rpw-now-left { flex: none; font: 650 12.5px var(--raznos-font); color: var(--raznos-green-deep); font-variant-numeric: tabular-nums; }
+    .rpw-badge.rpw-badge-live { display: inline-flex; align-items: center; gap: 5px; }
+    .rpw-badge.rpw-badge-live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--raznos-green); }
+    @media (prefers-reduced-motion: no-preference) {
+      .rpw-badge.rpw-badge-live::before { animation: rpw-live 1.6s ease-in-out infinite; }
+      @keyframes rpw-live { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--raznos-green) 70%, transparent); } 50% { box-shadow: 0 0 0 4px transparent; } }
+    }
+    .rpw-main { position: relative; display: flex; align-items: center; gap: 10px; width: 100%; }
+    .rpw-hit { flex: 1; min-width: 0; display: grid; grid-template-columns: 48px 1fr; align-items: center; gap: 10px; padding: 0; border: 0; background: none; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+    .rpw-hit:focus-visible, .rpw-end > button:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 3px; border-radius: 8px; }
+    .rpw-pay-btn { padding: 0; border: 0; background: none; cursor: pointer; font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rpw-time { display: flex; flex-direction: column; gap: 1px; font: 700 13px/1.2 var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rpw-time > small { font: 600 12px/1.2 var(--raznos-mono); color: var(--raznos-ink-3); }
+    .rpw-body { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .rpw-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .rpw-title { font: 650 15px var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rpw-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; min-width: 0; }
+    .rpw-mine { flex: none; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--raznos-line-strong); font: 600 10.5px/1.3 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rpw-sub { font: 500 12px/1.3 var(--raznos-font); color: var(--raznos-ink-3); overflow-wrap: anywhere; }
+    .rpw-end { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+    /* шеврон подсказывает, что окно открывается и его можно поменять */
+    .rpw-pay-btn { display: inline-flex; align-items: center; gap: 2px; }
+    .rpw-chev { flex: none; margin-right: -4px; color: var(--raznos-ink-3); }
+    /* plain: строка внутри шторки, открывать нечего, поэтому без шеврона и без нажатия */
+    .rpw-plain .rpw-chev { display: none; }
+    .rpw-plain .rpw-hit, .rpw-plain .rpw-pay-btn { cursor: default; }
+    .rpw-pay { font: 700 14px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rpw-badge { border: 0; cursor: pointer; font: 600 11px var(--raznos-font); padding: 2px 8px; border-radius: 999px; white-space: nowrap; background: var(--raznos-surface-2); color: var(--raznos-ink-2); }
+    .rpw-badge.rpw-badge-ok { background: color-mix(in oklab, var(--raznos-green) 16%, var(--raznos-surface)); color: var(--raznos-green-deep); }
+    .rpw-badge.rpw-badge-warn { background: var(--raznos-amber-tint); color: var(--raznos-ink); }
+    .rpw-badge.rpw-badge-off { background: var(--raznos-surface-2); color: var(--raznos-ink-3); }
+    .rpw-badge.rpw-badge-live { background: var(--raznos-dark); color: var(--raznos-on-dark); }
+    .rpw-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 10px; border-top: 1px solid var(--raznos-line); }
+    .rpw-note { font: 500 12.5px/1.35 var(--raznos-font); color: var(--raznos-ink-2); min-width: 0; }
+    .rpw.rpw-urgent { background: var(--raznos-amber-tint); border: 1.5px solid var(--raznos-amber); }
+    .rpw.rpw-urgent .rpw-badge { background: var(--raznos-surface); color: var(--raznos-ink); }
+    .rpw.rpw-urgent .rpw-foot { border-top-color: color-mix(in oklab, var(--raznos-amber) 45%, transparent); }
+    .rpw-note.rpw-note-urgent { display: flex; align-items: flex-start; gap: 6px; font-weight: 700; font-size: 13.5px; color: var(--raznos-ink); }
+    .rpw-urgent-icon { flex: none; margin-top: 1px; color: var(--raznos-amber); }
+    .rpw-note.rpw-note-added { font-weight: 700; font-size: 13.5px; color: var(--raznos-green-deep); }
+    /* вторая кнопка рядом с основной: подпись уходит строкой выше, кнопки справа */
+    .rpw-foot.rpw-foot-two { flex-wrap: wrap; justify-content: flex-end; }
+    .rpw-foot.rpw-foot-two > .rpw-note { flex: 1 0 100%; }
+    .rpw-note.rpw-note-loss { font-weight: 700; font-size: 13.5px; color: var(--raznos-red); font-variant-numeric: tabular-nums; }
+    .rpw-note.rpw-note-gain { font-weight: 700; font-size: 13.5px; color: var(--raznos-green-deep); font-variant-numeric: tabular-nums; }
+    .rpw-in-plan { flex: none; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--raznos-green); color: var(--raznos-on-dark); }
+    .rpw-foot .raznos-btn { flex: none; white-space: nowrap; }
+    /* длинная кнопка вроде Подать заявку во ВкусВилле уходит строкой ниже, подпись не сжимается в столбик */
+    .rpw-foot { flex-wrap: wrap; }
+    .rpw-foot > .rpw-note { flex: 1 1 150px; }
+    .rpw-foot:not(.rpw-foot-two) > .raznos-btn { margin-left: auto; }
+    .rpw-more { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 44px; margin-bottom: -6px; padding: 0; border: 0; border-top: 1px solid var(--raznos-line); background: none; text-align: left; font: 600 13px var(--raznos-font); color: var(--raznos-ink-3); cursor: pointer; }
+    .rpw-more:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 6px; }
+    .rpw-more > svg { flex: none; color: var(--raznos-ink-3); }
+    .rpw-more-copy { display: inline-flex; align-items: center; gap: 8px; }
+    .rpw-watch { gap: 6px; }
+    .rpw-watch.rpw-watch-on { border-color: transparent; background: color-mix(in oklab, var(--raznos-green) 14%, var(--raznos-surface)); color: var(--raznos-green-deep); }
+    /* спокойные карточки: без заливки, сервис узнаётся по полоске слева; цвет фона только у идущей смены и у проблемы */
+    .rpw { box-shadow: inset 3px 0 0 var(--rpw-svc, transparent); }
+    .rpw.rpw-booked, .rpw.rpw-pending { background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
+    /* заявка уже есть в сервисе: рамка сплошная, как у брони, отличается меткой */
+    .rpw.rpw-pending { border-color: var(--raznos-line-strong); }
+    /* без записи: в сервисе вас на это время нет, карточка полая с пунктиром и меткой без записи */
+    .rpw.rpw-norec { background: transparent; border: 1.5px dashed var(--raznos-line-strong); }
+    .rpw.rpw-norec.rpw-urgent { background: var(--raznos-amber-tint); border-color: var(--raznos-amber); }
+    .rpw.rpw-norec.rpw-now { background: var(--raznos-green-tint); border-color: color-mix(in oklab, var(--raznos-green) 55%, var(--raznos-line)); }
+    .rpw-norec-tag { flex: none; padding: 0 6px; border-radius: 999px; border: 1px dashed var(--raznos-line-strong); font: 600 10.5px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
+    .rpw.rpw-now { background: var(--raznos-green-tint); }
+    .rpw.rpw-changed { box-shadow: inset 3px 0 0 var(--rpw-svc, transparent), 0 0 0 2px var(--raznos-amber); }
+    .rpw.rpw-hl { box-shadow: inset 3px 0 0 var(--rpw-svc, transparent), 0 0 0 3px color-mix(in oklab, var(--raznos-green) 55%, transparent); }
+    /* ₽/ч мелко и серым, одно число на окно */
+    .rpw-pay, .rpw-pay-btn { font: 600 13px var(--raznos-font); color: var(--raznos-ink-2); }
+  </style>
+</helmet>
+<div class="{{ cls }}" style="{{ svc_style }}">
+  <sc-if value="{{ has_changed }}" hint-placeholder-val="{{ false }}"><span class="rpw-changed-tag">{{ changed_text }}</span></sc-if>
+  <div class="rpw-main">
+    <button type="button" class="rpw-hit" onClick="{{ on_tap }}" aria-label="{{ aria }}">
+      <span class="rpw-time">{{ from }}<small>{{ to }}</small></span>
+      <span class="rpw-body"><dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ title }}" size="sm"></dc-import><span class="rpw-copy"><span class="rpw-title">{{ title }}</span><span class="rpw-title-row"><span class="rpw-sub">{{ sub }}</span><sc-if value="{{ mine }}" hint-placeholder-val="{{ false }}"><span class="rpw-mine">ваше</span></sc-if><sc-if value="{{ norec_tag }}" hint-placeholder-val="{{ false }}"><span class="rpw-norec-tag">без записи</span></sc-if></span></span></span>
+    </button>
+    <span class="rpw-end"><button type="button" class="rpw-pay-btn" onClick="{{ on_tap }}" tabindex="-1" aria-hidden="true">{{ pay }}<svg class="rpw-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button><button type="button" class="{{ badge_cls }}" onClick="{{ on_badge }}" aria-label="{{ badge_aria }}">{{ badge }}</button></span>
+  </div>
+  <sc-if value="{{ has_quest }}" hint-placeholder-val="{{ false }}"><span class="rpw-quest"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.8" fill="currentColor"/></svg>{{ quest }}</span></sc-if>
+  <sc-if value="{{ has_weather }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosWeather" mode="tag" tag="{{ weather }}" kind="{{ weather_kind }}"></dc-import></sc-if>
+  <sc-if value="{{ is_now }}" hint-placeholder-val="{{ false }}"><span class="rpw-now-left">{{ now_left }}</span></sc-if>
+  <sc-if value="{{ has_foot }}" hint-placeholder-val="{{ false }}">
+    <div class="{{ foot_cls }}"><sc-if value="{{ offer_foot }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosDayOffer" variant="line" conflict="{{ offer.conflict }}" swap="{{ offer.swap }}" onOpen="{{ on_offer }}"></dc-import></sc-if><sc-if value="{{ rb_list }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosRebookLine" variant="list" altSvc="{{ rb.altSvc }}" altTitle="{{ rb.altTitle }}" altTime="{{ rb.altTime }}" altSum="{{ rb.altSum }}" mineSvc="{{ rb.mineSvc }}" mineTitle="{{ rb.mineTitle }}" mineTime="{{ rb.mineTime }}" mineSum="{{ rb.mineSum }}" penalty="{{ rb.penalty }}" bonus="{{ rb.bonus }}" freeUntil="{{ rb.freeUntil }}" requested="{{ rb.requested }}"></dc-import></sc-if><sc-if value="{{ has_note }}" hint-placeholder-val="{{ true }}"><span class="{{ note_cls }}"><sc-if value="{{ urgent }}" hint-placeholder-val="{{ false }}"><svg class="rpw-urgent-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/><path d="M12 16.5h.01"/></svg></sc-if>{{ note }}</span></sc-if><sc-if value="{{ has_alt }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small rpw-alt" onClick="{{ on_alt }}">{{ alt_label }}</button></sc-if><sc-if value="{{ has_action }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ action_cls }}" onClick="{{ on_action }}" aria-pressed="{{ watch_on }}"><sc-if value="{{ is_watch }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></sc-if>{{ action }}</button></sc-if><sc-if value="{{ in_plan }}" hint-placeholder-val="{{ false }}"><span class="rpw-in-plan" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4.5 4.5L19 7"/></svg></span></sc-if></div>
+  </sc-if>
+  <sc-if value="{{ offer_chip }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosDayOffer" variant="line" conflict="{{ offer.conflict }}" swap="{{ offer.swap }}" onOpen="{{ on_offer }}"></dc-import></sc-if>
+  <sc-if value="{{ rb_chip }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosRebookLine" variant="chip" altSvc="{{ rb.altSvc }}" altTitle="{{ rb.altTitle }}" altTime="{{ rb.altTime }}" altSum="{{ rb.altSum }}" mineSvc="{{ rb.mineSvc }}" mineTitle="{{ rb.mineTitle }}" mineTime="{{ rb.mineTime }}" mineSum="{{ rb.mineSum }}" penalty="{{ rb.penalty }}" bonus="{{ rb.bonus }}" freeUntil="{{ rb.freeUntil }}" requested="{{ rb.requested }}" onOpen="{{ on_rebook }}"></dc-import></sc-if>
+  <sc-if value="{{ has_more }}" hint-placeholder-val="{{ false }}"><button type="button" class="rpw-more" onClick="{{ on_more }}"><span class="rpw-more-copy">{{ more }}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"12:00"},"rebook":{"editor":null},"offer":{"editor":null},"onOffer":{"editor":null},"rebookMode":{"editor":"enum","options":["chip","list"],"default":"chip"},"onRebook":{"editor":null},"to":{"editor":"text","default":"14:00"},"svc":{"editor":"text","default":"yandex-eda"},"progress":{"editor":"number"},"timeInline":{"editor":"boolean","default":false},"changed":{"editor":"text","default":""},"altLabel":{"editor":"text","default":""},"onAlt":{"editor":null},"loss":{"editor":"boolean","default":false},"left":{"editor":"text"},"title":{"editor":"text","default":"Яндекс Еда"},"sub":{"editor":"text","default":"Тверской"},"pay":{"editor":"text","default":"≈ 740 ₽/ч"},"kind":{"editor":"enum","options":["free","booked","pending","need","full","option","auto","shift"],"default":"free"},"badge":{"editor":"text","default":"свободный выход"},"state":{"editor":"enum","options":["","now","past"],"default":""},"note":{"editor":"text","default":""},"action":{"editor":"text","default":""},"actionKind":{"editor":"enum","options":["primary","secondary","ghost"],"default":"secondary"},"onTap":{"editor":null},"onBadge":{"editor":null},"added":{"editor":null},"highlight":{"editor":null},"urgent":{"editor":null},"gain":{"editor":null},"plain":{"editor":null},"more":{"editor":"text","default":""},"mine":{"editor":"boolean","default":false},"recTag":{"editor":"boolean","default":true},"quest":{"editor":"text","default":""},"weather":{"editor":"text","default":""},"weatherKind":{"editor":"text","default":"rain"},"onMore":{"editor":null},"onAction":{"editor":null},"$preview":{"width":366,"height":130}}'>
+// окно в умном расписании: бронь из Смен, окно плана или вариант, доступность бейджем, действие внизу
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const kind = p.kind || 'free';
+    const state = p.state || '';
+    // auto: автоназначение без брони, заказы приходят сами, shift: смена в ресторане или пиццерии, график утверждает сервис
+    const badgeTone = state === 'now' ? 'live' : ({ booked: 'ok', free: '', pending: 'warn', need: 'warn', full: 'off', option: '', auto: 'ok', shift: 'ok' })[kind] || '';
+    const note = p.note || '';
+    const action = p.action || '';
+    const title = p.title || 'Яндекс Еда';
+    // свободный выход, нужен слот и нет в списке: записи в сервисе нет, это намерение, а не обязательство
+    const norec = ['free', 'need', 'full'].indexOf(kind) !== -1 && state !== 'past';
+    const from = p.from || '12:00', to = p.to || '14:00';
+    const offer = p.offer && (p.offer.conflict || p.offer.swap) ? p.offer : null, offerFoot = !!(offer && offer.conflict);
+    return {
+      from, to, svc: p.svc || 'yandex-eda', title, sub: p.timeInline ? [(p.from || '') + '–' + (p.to || ''), p.sub === undefined ? 'Тверской' : p.sub].filter(Boolean).join(String.fromCharCode(10)) : (p.sub === undefined ? 'Тверской' : p.sub),
+      pay: p.pay == null ? '≈ 740 ₽/ч' : p.pay, badge: state === 'now' ? 'идёт' : (p.badge || 'свободный выход'),
+      badge_cls: 'rpw-badge' + (badgeTone ? ' rpw-badge-' + badgeTone : ''),
+      // срочно: окно уже в плане, но без брони сервис заказы не даст
+      // полоска слева цветом сервиса, остальная карточка спокойная
+      svc_style: p.svc ? '--rpw-svc: var(--raznos-svc-' + p.svc + ')' : '',
+      cls: 'rpw' + (p.urgent ? ' rpw-urgent' : (({ booked: ' rpw-booked', shift: ' rpw-booked', auto: ' rpw-booked', pending: ' rpw-pending', need: ' rpw-need' })[kind] || '')) + (state === 'past' ? ' rpw-past' : '') + (p.timeInline ? ' rpw-inline' : '') + (state === 'now' ? ' rpw-now' : '') + (p.plain ? ' rpw-plain' : '') + (p.highlight ? ' rpw-hl' : '') + (p.changed ? ' rpw-changed' : '') + (norec ? ' rpw-norec' : ''),
+      urgent: !!p.urgent, mine: !!p.mine, norec_tag: norec && p.recTag !== false,
+      // окно уже в расписании: зелёная подпись и галочка в кружке на месте кнопки
+      in_plan: !!p.added && !action, note_cls: 'rpw-note' + (p.added ? ' rpw-note-added' : '') + (p.gain ? ' rpw-note-gain' : '') + (p.loss ? ' rpw-note-loss' : '') + (p.urgent ? ' rpw-note-urgent' : ''),
+      // цена перебронирования: плашка под предупреждением или строка списка вместо текста
+      rb: p.rebook || {}, rb_chip: !!p.rebook && !offer && p.rebookMode !== 'list', rb_list: !!p.rebook && !offer && p.rebookMode === 'list',
+      on_rebook: typeof p.onRebook === 'function' ? p.onRebook : (() => {}),
+      has_note: !!note && !offer && !(p.rebook && p.rebookMode === 'list'),
+      has_foot: !!(offerFoot || (!offer && (note || action || (p.rebook && p.rebookMode === 'list')))), note, has_action: !!action && !offer, action,
+      // предложение дня: конфликт строкой в подвале карточки, замена плашкой под ней, вместо подписи и кнопки
+      offer: offer || {}, offer_foot: offerFoot, offer_chip: !!offer && !offerFoot, on_offer: typeof p.onOffer === 'function' ? p.onOffer : (() => {}),
+      // есть другие варианты на это время: тихая строка внизу, если больше в карточке ничего нет
+      has_more: !!p.more && !offer && !(note || action), more: p.more || '',
+      on_more: typeof p.onMore === 'function' ? p.onMore : (typeof p.onTap === 'function' ? p.onTap : (() => {})),
+      // слежение за местом как в Сменах: колокольчик, включённое с зелёным фоном
+      is_watch: p.actionKind === 'watch' || p.actionKind === 'watch-on', watch_on: p.actionKind === 'watch-on',
+      action_cls: 'raznos-btn raznos-btn-small' + (p.actionKind === 'primary' ? ' raznos-btn-primary' : (p.actionKind === 'ghost' ? ' raznos-btn-ghost' : (p.actionKind === 'watch-on' ? ' rpw-watch rpw-watch-on' : (p.actionKind === 'watch' ? ' raznos-btn-secondary rpw-watch' : ' raznos-btn-secondary')))),
+      aria: from + '–' + to + ', ' + title + ', ' + (p.pay || '') + ', ' + (p.badge || '') + (norec ? ', без записи' : ''),
+      on_tap: typeof p.onTap === 'function' ? p.onTap : (() => {}),
+      // тап по метке объясняет, что она значит
+      on_badge: typeof p.onBadge === 'function' ? p.onBadge : (typeof p.onTap === 'function' ? p.onTap : (() => {})),
+      foot_cls: 'rpw-foot' + (p.altLabel ? ' rpw-foot-two' : ''), has_alt: !!p.altLabel, alt_label: p.altLabel || '', on_alt: typeof p.onAlt === 'function' ? p.onAlt : (() => {}),
+      // бонус сервиса в этом окне: одна строка с суммой и остатком
+      has_quest: !!p.quest, quest: p.quest || '',
+      // погода, из-за которой в это окно спрос выше: тихая метка, без цвета денег
+      has_weather: !!p.weather, weather: p.weather || '', weather_kind: p.weatherKind || 'rain',
+      has_changed: !!p.changed, changed_text: typeof p.changed === 'string' ? p.changed : 'Изменилось без вас',
+      is_now: state === 'now' && p.progress != null, now_left: p.left || '',
+      badge_aria: 'Что значит ' + (state === 'now' ? 'идёт' : (p.badge || 'свободный выход')),
+      on_action: typeof p.onAction === 'function' ? p.onAction : (() => {})
+    };
+  }
+}
+</script></body></html>

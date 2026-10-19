@@ -1,0 +1,17 @@
+.raznos-opportunity-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: end; }
+.raznos-opportunity-fields .raznos-field-label { min-height: 36px; }
+.raznos-opportunity-hero { background: var(--raznos-dark); color: var(--raznos-on-dark); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+.raznos-opportunity-value { font: 700 32px/1.2 var(--raznos-mono); }
+.raznos-opportunity-sub { font: 400 13px/1.45 var(--raznos-font); }
+.raznos-opportunity-reason { display: block; color: var(--raznos-amber); font: 600 13px/1.4 var(--raznos-font); }
+.raznos-opportunity-good { color: var(--raznos-green-deep); }
+.raznos-opportunity-log { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.raznos-opportunity-log summary { cursor: pointer; font: 600 14px var(--raznos-font); }
+.raznos-opportunity-log p { margin: 8px 0 0; }
+.raznos-opportunity-status-row { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--raznos-line); }
+.raznos-opportunity-status-row:last-child { border-bottom: 0; }
+.raznos-opportunity-status-row .raznos-status-pill { white-space: normal; max-width: 118px; text-align: center; }
+.raznos-opportunity-map { position: relative; height: 260px; border: 1px solid var(--raznos-line); background: #dfebe1; border-radius: 18px; overflow: hidden; }
+.raznos-opportunity-map svg { position: absolute; width: 100%; height: 100%; }
+.raznos-opportunity-map-label { position: absolute; padding: 10px; border-radius: 12px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); font: 600 12px/1.5 var(--raznos-font); display: flex; flex-direction: column; }
+.raznos-opportunity-map-label b { color: var(--raznos-green-deep); font: 700 17px var(--raznos-mono); }

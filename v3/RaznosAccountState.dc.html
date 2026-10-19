@@ -1,0 +1,145 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* состояние аккаунта в сервисе: уровень, рейтинг, риски счётчиками, блокировка с причиной и сроком */
+    .ras { display: flex; flex-direction: column; gap: 12px; font-family: var(--raznos-font); color: var(--raznos-ink); }
+    .ras-title { margin: 0; font: 700 16px/1.3 var(--raznos-font); }
+    .ras-block { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 16px; background: var(--raznos-red-tint); }
+    .ras-block-head { display: flex; align-items: center; gap: 8px; font: 700 15.5px/1.3 var(--raznos-font); color: var(--raznos-ink); }
+    .ras-block-head svg { flex: none; color: var(--raznos-red); }
+    .ras-block-line { margin: 0; font: 500 14px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
+    .ras-block-line b { font-weight: 650; color: var(--raznos-ink); }
+    .ras-block .raznos-btn { align-self: flex-start; margin-top: 2px; }
+    .ras-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .ras-fact { display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; border-radius: 14px; background: var(--raznos-surface); min-width: 0; }
+    .ras-fact-label { font: 600 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+    .ras-fact-val { font: 750 19px/1.2 var(--raznos-font); font-variant-numeric: tabular-nums; }
+    .ras-fact-note { font: 500 12px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
+    .ras-fact-wide { grid-column: 1 / -1; }
+    /* документ скоро истекает: янтарный фон и слово, не только цвет */
+    .ras-fact.ras-is-soon { background: var(--raznos-amber-tint); }
+    .ras-fact.ras-is-soon .ras-fact-note { color: var(--raznos-ink-2); }
+    /* риск: полоса до лимита, отметка лимита в конце, цвет по близости */
+    .ras-risks { display: flex; flex-direction: column; border-radius: 16px; background: var(--raznos-surface); }
+    .ras-risk { display: flex; flex-direction: column; gap: 7px; padding: 12px 14px; border-bottom: 1px solid var(--raznos-line); }
+    .ras-risk:last-child { border-bottom: 0; }
+    .ras-risk-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+    .ras-risk-label { font: 600 14.5px/1.3 var(--raznos-font); }
+    .ras-risk-val { font: 700 14.5px var(--raznos-font); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .ras-risk-val small { font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+    .ras-track { position: relative; height: 8px; border-radius: 999px; background: var(--raznos-surface-2); box-shadow: inset 0 0 0 1px var(--raznos-line); }
+    .ras-track > i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: inherit; background: var(--raznos-green); }
+    .ras-is-warn .ras-track > i { background: var(--raznos-amber); }
+    .ras-is-over .ras-track > i { background: var(--raznos-red); }
+    .ras-is-warn .ras-risk-val, .ras-is-over .ras-risk-val { color: var(--raznos-amber); }
+    .ras-is-over .ras-risk-val { color: var(--raznos-red); }
+    .ras-risk-rule { margin: 0; font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+    .ras-note { margin: -2px 0 0; font: 500 12px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+    /* плашка на Сегодня: только риск или блокировка */
+    .ras-alert { width: 100%; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 0; border-radius: 16px; background: var(--raznos-amber-tint); font: inherit; color: var(--raznos-ink); text-align: left; cursor: pointer; }
+    .ras-alert.ras-is-block { background: var(--raznos-red-tint); }
+    .ras-alert:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .ras-alert-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+    .ras-alert-title { font: 700 14.5px/1.3 var(--raznos-font); }
+    .ras-alert-text { font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-2); }
+    @media (prefers-reduced-motion: no-preference) {
+      .ras-track > i { transform-origin: left; animation: ras-fill 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      @keyframes ras-fill { from { transform: scaleX(0); } }
+      .ras-alert { animation: ras-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      @keyframes ras-in { from { opacity: 0; transform: translateY(-6px); } }
+    }
+  </style>
+</helmet>
+<sc-if value="{{ is_alert }}" hint-placeholder-val="{{ false }}">
+  <button type="button" class="{{ alert_cls }}" onClick="{{ open }}">
+    <dc-import name="RaznosIcon" svc="{{ svc }}" alt="{{ title }}" size="sm"></dc-import>
+    <span class="ras-alert-main"><span class="ras-alert-title">{{ alert_title }}</span><span class="ras-alert-text">{{ alert_text }}</span></span>
+    <span class="raznos-row-chevron" aria-hidden="true">›</span>
+  </button>
+</sc-if>
+<sc-if value="{{ is_full }}" hint-placeholder-val="{{ true }}">
+<div class="ras">
+  <h3 class="ras-title">Аккаунт в {{ title_in }}</h3>
+  <sc-if value="{{ has_block }}" hint-placeholder-val="{{ false }}">
+    <div class="ras-block" role="status">
+      <span class="ras-block-head"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.7 5.7l12.6 12.6"/></svg>{{ block_head }}</span>
+      <p class="ras-block-line"><b>Причина:</b> {{ block.reason }}</p>
+      <p class="ras-block-line"><b>Куда писать:</b> {{ block.contact }}</p>
+      <button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ contact }}">{{ contact_label }}</button>
+    </div>
+  </sc-if>
+  <sc-if value="{{ has_facts }}" hint-placeholder-val="{{ true }}">
+    <div class="ras-facts"><sc-for list="{{ facts }}" as="f" hint-placeholder-count="2"><div class="{{ f.cls }}"><span class="ras-fact-label">{{ f.label }}</span><span class="ras-fact-val">{{ f.value }}</span><sc-if value="{{ f.note }}" hint-placeholder-val="{{ true }}"><span class="ras-fact-note">{{ f.note }}</span></sc-if></div></sc-for></div>
+  </sc-if>
+  <sc-if value="{{ has_risks }}" hint-placeholder-val="{{ true }}">
+    <div class="ras-risks"><sc-for list="{{ risks }}" as="r" hint-placeholder-count="1"><div class="{{ r.cls }}"><div class="ras-risk-top"><span class="ras-risk-label">{{ r.label }}</span><span class="ras-risk-val">{{ r.value }} <small>из {{ r.limit }}</small></span></div><span class="ras-track" role="img" aria-label="{{ r.aria }}"><i style="{{ r.fill }}"></i></span><p class="ras-risk-rule">{{ r.rule }}</p></div></sc-for></div>
+  </sc-if>
+  <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}"><p class="ras-risk-rule">{{ title }} не отдаёт уровень, рейтинг и ограничения, показать нечего</p></sc-if>
+  <p class="ras-note">{{ note }}</p>
+</div>
+</sc-if>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "svc": { "editor": "text", "default": "x5" },
+  "title": { "editor": "text", "default": "X5 Доставка" },
+  "titleIn": { "editor": "text", "default": "" },
+  "state": { "editor": null },
+  "quests": { "editor": null },
+  "mode": { "editor": "enum", "options": ["full", "alert"], "default": "full" },
+  "sample": { "editor": "enum", "options": ["ok", "risk", "block"], "default": "ok" },
+  "updated": { "editor": "text", "default": "" },
+  "onOpen": { "editor": null },
+  "onContact": { "editor": null },
+  "$preview": { "width": 360, "height": 360 }
+}'>
+const RAS_SAMPLES = {
+  ok: { rating: 4.8, ratingNote: 'из 5, по оценкам за 30 дней', risks: [{ label: 'Пауза за неделю', value: 9, limit: 15, unit: '%', rule: 'Больше 15% нарушает правила X5, могут ограничить слоты' }] },
+  risk: { rating: 4.8, ratingNote: 'из 5, по оценкам за 30 дней', risks: [{ label: 'Пауза за неделю', value: 13, limit: 15, unit: '%', rule: 'Больше 15% нарушает правила X5, могут ограничить слоты' }] },
+  block: { rating: 4.6, ratingNote: 'из 5, по оценкам за 30 дней', block: { reason: 'Пауза 18% за прошлую неделю при лимите 15%', until: 'до 18 октября', contact: 'чат поддержки в приложении X5 Курьер, раздел Помощь' }, risks: [] }
+};
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = p.state || RAS_SAMPLES[p.sample || 'ok'] || RAS_SAMPLES.ok;
+    const title = p.title || 'X5 Доставка';
+    const fmt = (v) => String(v).replace('.', ',');
+    const risks = (st.risks || []).map((r) => {
+      const share = r.value / r.limit;
+      const tone = share >= 1 ? 'over' : share >= 0.8 ? 'warn' : '';
+      return {
+        cls: 'ras-risk' + (tone ? ' ras-is-' + tone : ''), label: r.label,
+        value: fmt(r.value) + (r.unit || ''), limit: fmt(r.limit) + (r.unit || ''),
+        fill: 'width:' + Math.min(100, Math.round(share * 100)) + '%',
+        aria: r.label + ' ' + fmt(r.value) + (r.unit || '') + ' из ' + fmt(r.limit) + (r.unit || ''),
+        rule: r.rule || '', tone
+      };
+    });
+    const facts = [];
+    if (st.level) facts.push({ label: 'Уровень', value: st.level, note: st.levelNote || '' });
+    if (st.rating != null) facts.push({ label: 'Рейтинг', value: fmt(st.rating), note: st.ratingNote || '' });
+    (st.facts || []).forEach((f) => facts.push(Object.assign({}, f, f.soon ? { wide: true, label: f.label + ', скоро истекает', note: 'Осталось ' + f.days + ' ' + (f.days % 10 === 1 && f.days % 100 !== 11 ? 'день' : f.days % 10 >= 2 && f.days % 10 <= 4 && (f.days % 100 < 12 || f.days % 100 > 14) ? 'дня' : 'дней') + (f.note ? ', ' + f.note : '') } : {})));
+    // задания сервиса (SERVICE_QUESTS) плиткой во всю ширину, прогресс числом, если сервис отдаёт порог
+    const money = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    (p.quests || []).forEach((q) => facts.push({ label: 'Задание сервиса', value: q.name, wide: true,
+      note: [q.kind === 'count' ? q.done + ' из ' + q.target + ' заказов' : '', q.reward ? '+' + money(q.reward) + ' ₽' : q.rewardText || '', q.untilLabel || ''].filter(Boolean).join(', ') }));
+    const narrow = facts.filter((f) => !f.wide);
+    facts.forEach((f) => { f.cls = 'ras-fact' + (f.wide || (narrow.length % 2 && f === narrow[narrow.length - 1]) ? ' ras-fact-wide' : '') + (f.soon ? ' ras-is-soon' : ''); });
+    const hot = risks.find((r) => r.tone);
+    const block = st.block || null;
+    return {
+      is_alert: p.mode === 'alert', is_full: p.mode !== 'alert',
+      svc: p.svc || 'x5', title, title_in: p.titleIn || title,
+      alert_cls: 'ras-alert' + (block ? ' ras-is-block' : ''),
+      alert_title: block ? title + ' приостановил аккаунт ' + (block.until || '') : (hot ? title + ': ' + hot.label.toLowerCase() + ' ' + hot.value + ' из ' + hot.limit : ''),
+      alert_text: block ? block.reason : (hot ? hot.rule : ''),
+      open: () => { if (p.onOpen) p.onOpen(p.svc); },
+      has_block: !!block, block: block || {}, block_head: block ? 'Аккаунт приостановлен ' + (block.until || '') : '',
+      contact_label: 'Открыть поддержку ' + ((p.svc || 'x5') === 'x5' ? 'X5' : title),
+      contact: () => { if (p.onContact) p.onContact(p.svc); },
+      has_facts: facts.length > 0, facts,
+      has_risks: risks.length > 0, risks,
+      empty: !block && !facts.length && !risks.length,
+      note: 'Из приложения сервиса' + (p.updated ? ', ' + p.updated : '') + '. Правила и лимиты задаёт сервис, Разнос только показывает'
+    };
+  }
+}
+</script></body></html>

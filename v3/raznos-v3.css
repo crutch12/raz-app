@@ -1,0 +1,896 @@
+@import url("https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap");
+
+:root {
+  /* сота, фирменная форма Разноса: соты на карте, цель дня, место в топе, пустые состояния */
+  --raznos-hex: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  --raznos-bg: oklch(0.94 0.012 250);
+  --raznos-surface: oklch(0.995 0.002 250);
+  --raznos-surface-2: oklch(0.98 0.004 250);
+  --raznos-line: oklch(0.82 0.014 250);
+  --raznos-line-strong: oklch(0.68 0.018 250);
+  --raznos-ink: oklch(0.22 0.012 250);
+  --raznos-ink-2: oklch(0.42 0.012 250);
+  --raznos-ink-3: oklch(0.52 0.012 250);
+  --raznos-dark: oklch(0.24 0.02 250);
+  --raznos-dark-2: oklch(0.32 0.02 250);
+  --raznos-on-dark: oklch(0.97 0.004 250);
+  --raznos-green: oklch(0.52 0.12 150);
+  --raznos-green-deep: oklch(0.42 0.11 150);
+  --raznos-green-tint: oklch(0.94 0.04 150);
+  --raznos-amber: oklch(0.5 0.13 70);
+  --raznos-amber-tint: oklch(0.95 0.05 85);
+  --raznos-red: oklch(0.5 0.16 25);
+  --raznos-red-tint: oklch(0.95 0.03 25);
+  --raznos-font: "Onest", "Helvetica Neue", Helvetica, sans-serif;
+  --raznos-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+  --raznos-svc-vkusvill: oklch(0.5 0.14 150);
+  --raznos-svc-vkusvill-tint: oklch(0.94 0.045 150);
+  --raznos-svc-samokat: oklch(0.62 0.2 355);
+  --raznos-svc-samokat-tint: oklch(0.95 0.045 355);
+  --raznos-svc-x5: oklch(0.62 0.17 55);
+  --raznos-svc-x5-tint: oklch(0.95 0.06 55);
+  --raznos-svc-yandex-eda: oklch(0.6 0.19 35);
+  --raznos-svc-yandex-eda-tint: oklch(0.95 0.06 35);
+  --raznos-svc-magnit: oklch(0.5 0.18 25);
+  --raznos-svc-magnit-tint: oklch(0.95 0.04 25);
+  --raznos-svc-ozon-fresh: oklch(0.58 0.11 200);
+  --raznos-svc-ozon-fresh-tint: oklch(0.95 0.03 200);
+  --raznos-svc-lenta: oklch(0.5 0.16 255);
+  --raznos-svc-lenta-tint: oklch(0.94 0.03 255);
+  --raznos-svc-delivery: oklch(0.62 0.19 138);
+  --raznos-svc-delivery-tint: oklch(0.95 0.05 138);
+  --raznos-svc-dostavista: oklch(0.4 0.1 155);
+  --raznos-svc-dostavista-tint: oklch(0.94 0.03 155);
+  --raznos-svc-kuper: oklch(0.55 0.15 142);
+  --raznos-svc-kuper-tint: oklch(0.94 0.04 142);
+  --raznos-svc-dostaevsky: oklch(0.32 0.12 300);
+  --raznos-svc-dostaevsky-tint: oklch(0.94 0.03 300);
+  --raznos-svc-yandex-lavka: oklch(0.62 0.16 235);
+  --raznos-svc-yandex-lavka-tint: oklch(0.95 0.04 235);
+  --raznos-svc-yandex-delivery: oklch(0.62 0.21 35);
+  --raznos-svc-yandex-delivery-tint: oklch(0.95 0.04 35);
+  --raznos-svc-ozon-courier: oklch(0.52 0.2 262);
+  --raznos-svc-ozon-courier-tint: oklch(0.94 0.04 262);
+  --raznos-svc-wb-courier: oklch(0.48 0.22 325);
+  --raznos-svc-wb-courier-tint: oklch(0.94 0.04 325);
+  --raznos-svc-dodo: oklch(0.62 0.19 45);
+  --raznos-svc-dodo-tint: oklch(0.95 0.05 45);
+  --raznos-svc-flowwow: oklch(0.4 0.1 350);
+  --raznos-svc-flowwow-tint: oklch(0.94 0.03 350);
+}
+
+/* Светлее основа приложения и свой зелёный бренда, только внутри рамки телефона */
+.raznos-phone-frame {
+  --raznos-bg: oklch(0.965 0.008 250);
+  --raznos-line: oklch(0.88 0.01 250);
+  --raznos-brand: oklch(0.62 0.16 150);
+}
+.raznos-phone-frame [data-screen-label="32 Admin login"],
+.raznos-phone-frame [data-screen-label="33 Admin queue"],
+.raznos-phone-frame [data-screen-label="34 Admin case"] {
+  --raznos-bg: oklch(0.94 0.012 250);
+  --raznos-line: oklch(0.82 0.014 250);
+}
+.raznos-phone-frame :is(.raznos-card, .raznos-metric-card, .raznos-notice-info, .raznos-avatar, .raznos-icon-btn, .raznos-empty-glyph) {
+  border: none;
+}
+.raznos-phone-frame :is([data-screen-label="32 Admin login"], [data-screen-label="33 Admin queue"], [data-screen-label="34 Admin case"]) :is(.raznos-card, .raznos-metric-card, .raznos-notice-info, .raznos-avatar, .raznos-icon-btn, .raznos-empty-glyph) {
+  border: 1px solid var(--raznos-line);
+}
+
+body { margin: 0; background: var(--raznos-bg); color: var(--raznos-ink); font-family: var(--raznos-font); -webkit-font-smoothing: antialiased; overscroll-behavior-x: none; }
+a { color: var(--raznos-green-deep); }
+a:hover { color: var(--raznos-ink); }
+
+.raznos-text-h1 { font: 700 24px/1.25 var(--raznos-font); margin: 0 0 12px; color: var(--raznos-ink); }
+.raznos-text-h2 { font: 600 18px/1.3 var(--raznos-font); margin: 0; color: var(--raznos-ink); }
+.raznos-text-h3 { font: 600 16px/1.3 var(--raznos-font); margin: 0; color: var(--raznos-ink); }
+.raznos-text-body { font: 400 16px/1.45 var(--raznos-font); color: var(--raznos-ink); margin: 0; }
+.raznos-text-small { font: 400 14px/1.4 var(--raznos-font); color: var(--raznos-ink-2); margin: 0; }
+.raznos-text-tiny { font: 500 14px/1.35 var(--raznos-font); color: var(--raznos-ink-2); margin: 0; }
+.raznos-text-muted { color: var(--raznos-ink-3); }
+.raznos-num { font: 600 16px/1 var(--raznos-mono); font-variant-numeric: tabular-nums; }
+
+.raznos-fx { display: flex; }
+.raznos-col { flex-direction: column; }
+.raznos-ac { align-items: center; }
+.raznos-jb { justify-content: space-between; }
+.raznos-wrap { flex-wrap: wrap; }
+.raznos-gap4 { gap: 4px; }
+.raznos-gap8 { gap: 8px; }
+.raznos-gap12 { gap: 12px; }
+.raznos-gap16 { gap: 16px; }
+
+/* Каркас телефона */
+.raznos-phone-frame { width: 390px; max-width: 100%; height: 844px; max-height: 92vh; background: var(--raznos-bg); border-radius: 34px; border: 1px solid var(--raznos-line); box-shadow: 0 20px 50px rgba(20, 25, 40, 0.16); overflow: hidden; position: relative; display: flex; flex-direction: column; box-sizing: border-box; }
+.raznos-phone-frame.raznos-frame-360 { width: 360px; }
+.raznos-phone-status { display: flex; justify-content: space-between; padding: 10px 20px 2px; font: 600 13px var(--raznos-mono); color: var(--raznos-ink-2); }
+.raznos-demo-ribbon { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: var(--raznos-dark); color: var(--raznos-on-dark); font: 600 14px var(--raznos-font); letter-spacing: 0.02em; }
+.raznos-demo-ribbon-text { flex: 1; min-width: 0; }
+/* помощник раскрывается из кнопки: до начала раскрытия шторка не видна и не выезжает сама */
+/* слот шторки помощника не занимает места: заглушка на время загрузки компонента не сдвигает экран */
+.raznos-ai-slot { position: absolute; inset: 0; z-index: 60; pointer-events: none; }
+.raznos-ai-slot .raznos-dialog-layer { pointer-events: auto; }
+[data-rab-pour] .ras-sheet { visibility: hidden; animation: none !important; }
+[data-rab-pour] .raznos-dialog-layer { background: transparent !important; }
+.raznos-demo-ribbon-close { position: relative; flex: 0 0 auto; width: 20px; height: 20px; padding: 0; background: rgba(255, 255, 255, 0.18); border: 0; border-radius: 999px; color: var(--raznos-on-dark); font: 700 13px/20px var(--raznos-font); text-align: center; }
+.raznos-demo-ribbon-close::before { content: ""; position: absolute; inset: -12px; }
+.raznos-demo-ribbon-gear { display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; }
+/* Настройки демо: заголовок переключателя над рядом чипов */
+.raznos-demo-toggles { display: flex; flex-direction: column; gap: 14px; }
+.raznos-demo-toggle { display: flex; flex-direction: column; gap: 8px; }
+.raznos-demo-toggle-title { font: 650 14px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-demo-toggle-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.raznos-demo-toggle-go { flex: none; min-height: 44px; margin: -10px -4px -10px 0; padding: 0 4px 0 12px; background: none; border: 0; cursor: pointer; font: 600 14px var(--raznos-font); color: var(--raznos-green-deep); }
+.raznos-demo-ribbon-close:focus { outline: 2px solid var(--raznos-on-dark); outline-offset: 2px; }
+.raznos-phone-scroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; overscroll-behavior-x: none; overscroll-behavior-y: contain; }
+/* потянуть, чтобы обновить: кольцо дорисовывается вслед за пальцем, после порога пружинит, при обновлении крутится короткая дуга, в конце замыкается и гаснет */
+.raznos-ptr { --ptr-p: 0; position: absolute; left: 50%; top: 0; z-index: 4; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--raznos-surface); color: var(--raznos-green); box-shadow: 0 3px 12px rgba(20, 25, 40, .14); opacity: 0; pointer-events: none; transform: translate(-50%, -20px); }
+.raznos-ptr-ring { width: 24px; height: 24px; display: block; transform: rotate(-90deg); transition: scale .35s cubic-bezier(.34, 1.56, .64, 1); }
+.raznos-ptr-track { fill: none; stroke: var(--raznos-line); stroke-width: 2.5; }
+.raznos-ptr-arc { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: calc(var(--ptr-p) * 100) 100; opacity: calc(.35 + var(--ptr-p) * .65); }
+.raznos-ptr.raznos-ptr-ready .raznos-ptr-ring { scale: 1.12; }
+.raznos-ptr.raznos-ptr-spin .raznos-ptr-arc { stroke-dasharray: 30 100; opacity: 1; transition: stroke-dasharray .3s ease; }
+.raznos-ptr.raznos-ptr-spin .raznos-ptr-ring { animation: raznos-ptr-spin .9s linear infinite; }
+.raznos-ptr.raznos-ptr-done .raznos-ptr-arc { stroke-dasharray: 100 100; opacity: 1; transition: stroke-dasharray .32s cubic-bezier(.16, 1, .3, 1); }
+.raznos-ptr.raznos-ptr-done .raznos-ptr-ring { scale: .9; transition: scale .3s ease; }
+@keyframes raznos-ptr-spin { from { transform: rotate(-90deg); } to { transform: rotate(270deg); } }
+/* на один кадр снимаем анимации, чтобы после обновления они сыграли заново */
+.raznos-ptr-replay, .raznos-ptr-replay *, .raznos-ptr-replay *::before, .raznos-ptr-replay *::after { animation: none !important; }
+/* отступ от краёв экрана до блоков и между основными блоками, плотнее как у Gridwise */
+.raznos-phone-body { --raznos-screen-x: 12px; --raznos-screen-gap: 12px; flex: 1; padding: 12px var(--raznos-screen-x) 20px; display: flex; flex-direction: column; gap: var(--raznos-screen-gap); background: var(--raznos-bg); }
+
+.raznos-app-bar { display: flex; align-items: center; justify-content: space-between; min-height: 48px; }
+/* заголовок экрана чуть отодвинут от края, чтобы не прилипал при узких полях */
+.raznos-phone-body > .raznos-app-bar { padding-inline: 6px; }
+.raznos-icon-btn { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font: 600 18px var(--raznos-font); background: var(--raznos-surface); border: 1px solid var(--raznos-line); cursor: pointer; }
+.raznos-tap { cursor: pointer; }
+
+/* Кнопки, инпуты */
+/* мобильный браузер не подсвечивает нажатие синим: отклик дают сами табы, чипы и кнопки, фокус с клавиатуры виден по focus-visible */
+:where(*) { -webkit-tap-highlight-color: transparent; }
+:where(button.raznos-btn, button.raznos-btn-disabled, button.raznos-icon-btn, button.raznos-chip, button.raznos-segment, button.raznos-nav-tab, button.raznos-check-box, button.raznos-row-btn) { font-family: var(--raznos-font); appearance: none; -webkit-appearance: none; margin: 0; text-align: left; }
+:where(button.raznos-row-btn) { width: 100%; background: transparent; border: 0; padding: 0; display: flex; align-items: center; }
+:where(button.raznos-list-row, button.raznos-consent-row) { appearance: none; -webkit-appearance: none; background: transparent; border: 0; margin: 0; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; box-sizing: border-box; }
+:where(button.raznos-order-card) { appearance: none; -webkit-appearance: none; margin: 0; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+button.raznos-list-row:focus-visible, button.raznos-consent-row:focus-visible, button.raznos-order-card:focus-visible { outline: 2px solid var(--raznos-green-deep); outline-offset: -2px; }
+.raznos-btn { min-height: 48px; padding: 12px 18px; line-height: 1.3; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; font: 600 15px var(--raznos-font); border: 1px solid transparent; box-sizing: border-box; }
+.raznos-btn-primary { background: var(--raznos-dark); color: var(--raznos-on-dark); }
+.raznos-btn-secondary { background: var(--raznos-surface); color: var(--raznos-ink); border-color: var(--raznos-line-strong); }
+.raznos-btn-ghost { background: transparent; color: var(--raznos-ink-2); }
+.raznos-btn-danger { background: var(--raznos-surface); color: var(--raznos-red); border-color: var(--raznos-red); }
+.raznos-btn-disabled { min-height: 48px; padding: 0 18px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: var(--raznos-surface-2); color: var(--raznos-ink-3); border: 1px solid var(--raznos-line); font: 600 15px var(--raznos-font); }
+.raznos-btn-small { min-height: 44px; padding: 0 14px; font-size: 14px; }
+.raznos-onboarding-top .raznos-btn-ghost { color: var(--raznos-ink-2); text-decoration: underline; text-underline-offset: 3px; }
+.raznos-btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.raznos-sticky-actions { position: sticky; bottom: 0; display: flex; flex-direction: column; gap: 8px; padding: 12px 0 4px; background: linear-gradient(to top, var(--raznos-bg) 70%, transparent); margin-top: auto; }
+/* экран без нижнего меню доходит до края телефона: кнопкам и концу прокрутки нужна зона жеста домой */
+.raznos-phone-frame:not(:has(.raznos-bottom-nav)) .raznos-sticky-actions { padding-bottom: calc(4px + env(safe-area-inset-bottom, 0px)); }
+.raznos-phone-frame:not(:has(.raznos-bottom-nav)) .raznos-phone-body { padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
+/* строка под основной кнопкой входа и онбординга одной высоты, чтобы кнопка не прыгала между шагами */
+.raznos-sticky-actions > .raznos-entry-foot { min-height: 72px; box-sizing: border-box; }
+/* онбординг на всю высоту экрана, как экраны входа */
+.raznos-welcome-host, .raznos-welcome-host > .sc-host { flex: 1 0 auto; display: flex; flex-direction: column; }
+
+.raznos-field { display: flex; flex-direction: column; gap: 6px; }
+.raznos-field-label { font: 500 14px var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-field-box { min-height: 48px; border-radius: 12px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); display: flex; align-items: center; gap: 6px; padding: 0 14px; font: 500 16px var(--raznos-font); }
+.raznos-field-box.raznos-is-focus { border-color: var(--raznos-ink); border-width: 2px; }
+.raznos-field-prefix { color: var(--raznos-ink-3); }
+.raznos-segmented { display: flex; gap: 6px; background: var(--raznos-surface-2); border-radius: 12px; padding: 4px; }
+.raznos-segment { flex: 1; min-width: 0; text-align: center; padding: 8px 4px; border-radius: 9px; font: 600 14px var(--raznos-font); color: var(--raznos-ink-2); background: transparent; border: 0; cursor: pointer; overflow-wrap: break-word; }
+.raznos-segment.raznos-is-active { background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 1px 3px rgba(20,25,40,.14); }
+.raznos-consent-row { display: flex; align-items: flex-start; gap: 10px; }
+.raznos-inline-link { color: var(--raznos-green-deep); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; background: none; border: 0; padding: 4px 0; margin: 0; font-family: inherit; font-size: inherit; cursor: pointer; }
+.raznos-check-box { width: 24px; height: 24px; min-width: 24px; border-radius: 7px; border: 2px solid var(--raznos-ink-3); background: var(--raznos-surface); display: flex; align-items: center; justify-content: center; font: 700 14px var(--raznos-font); color: var(--raznos-on-dark); }
+.raznos-check-box.raznos-is-on { background: var(--raznos-dark); border-color: var(--raznos-dark); }
+.raznos-check-box.raznos-is-error { border-color: var(--raznos-red); background: var(--raznos-red-tint); }
+.raznos-field-error { font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-red); }
+.raznos-radio-mark { width: 20px; height: 20px; min-width: 20px; border-radius: 50%; border: 1.5px solid var(--raznos-line-strong); position: relative; }
+.raznos-radio-mark.raznos-is-on { border-color: var(--raznos-green-deep); }
+.raznos-radio-mark.raznos-is-on::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: var(--raznos-green-deep); }
+.raznos-delta { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font: 700 12px var(--raznos-font); }
+.raznos-delta-up { background: rgba(70, 180, 120, 0.18); color: var(--raznos-green-deep); }
+.raznos-delta-down { background: rgba(220, 80, 80, 0.16); color: var(--raznos-red); }
+
+.raznos-otp-cells { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.raznos-otp-cell { height: 52px; border-radius: 12px; border: 1.5px solid var(--raznos-line-strong); background: var(--raznos-surface); display: flex; align-items: center; justify-content: center; font: 700 20px var(--raznos-mono); }
+.raznos-otp-cell.raznos-is-error { border-color: var(--raznos-red); color: var(--raznos-red); }
+
+.raznos-chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.raznos-chip { min-height: 44px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--raznos-line-strong); font: 600 14px var(--raznos-font); color: var(--raznos-ink-2); background: var(--raznos-surface); }
+/* выбор чипа: тёмный круг растекается из точки нажатия, при снятии стягивается в неё; точку и радиус ставит RaznosTabMotion
+   raznos-chip-ink даёт тот же эффект чипам компонентов со своей формой */
+@property --raznos-chip-r { syntax: '<length>'; inherits: false; initial-value: 0px; }
+.raznos-chip, .raznos-chip-ink { background-image: radial-gradient(circle at var(--raznos-chip-x, 50%) var(--raznos-chip-y, 50%), var(--raznos-dark) calc(var(--raznos-chip-r) - .5px), transparent var(--raznos-chip-r)); }
+.raznos-chip.raznos-is-active, .raznos-chip-ink.raznos-is-active { --raznos-chip-r: var(--raznos-chip-max, 120px); color: var(--raznos-on-dark); border-color: var(--raznos-dark); }
+@media (prefers-reduced-motion: no-preference) {
+  .raznos-chip, .raznos-chip-ink { transition: --raznos-chip-r .42s cubic-bezier(.3, .6, .2, 1), color .2s ease .08s, border-color .2s ease; }
+}
+
+/* Карточки и списки */
+.raznos-card { background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 16px; }
+.raznos-card-pad { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.raznos-card-heading { display: block; padding: 14px 16px 0; }
+.raznos-list-row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--raznos-line); min-height: 44px; box-sizing: border-box; }
+.raznos-list-row:last-child { border-bottom: 0; }
+.raznos-list-main { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.raznos-list-title { font: 600 15px var(--raznos-font); color: var(--raznos-ink); overflow-wrap: anywhere; }
+.raznos-list-main .raznos-text-small { overflow-wrap: anywhere; }
+.raznos-list-end { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex: none; }
+.raznos-list-end .raznos-num { white-space: nowrap; }
+.raznos-row-chevron { color: var(--raznos-ink-3); font: 600 16px var(--raznos-font); }
+/* раскрывающаяся строка: выглядит как строка списка, стрелка поворачивается вниз при раскрытии */
+.raznos-disclosure-head { list-style: none; min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; }
+.raznos-disclosure-head::-webkit-details-marker { display: none; }
+.raznos-disclosure-head .raznos-row-chevron { transition: transform .2s ease; }
+.raznos-disclosure[open] > .raznos-disclosure-head .raznos-row-chevron { transform: rotate(90deg); }
+.raznos-sync-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.raznos-kv-row { display: flex; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--raznos-line); }
+.raznos-kv-row:last-child { border-bottom: 0; }
+.raznos-kv-key { font: 500 14px var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-kv-val { font: 600 14px var(--raznos-font); color: var(--raznos-ink); text-align: right; overflow-wrap: anywhere; min-width: 0; }
+.raznos-kv-row.raznos-is-unknown .raznos-kv-val { color: var(--raznos-ink-3); font-weight: 500; }
+.raznos-card-pad > .raznos-kv-row { padding-left: 0; padding-right: 0; }
+.raznos-card-pad > .raznos-kv-row:last-of-type { border-bottom: 0; }
+
+/* Заголовок с боковым элементом (карточка отзыва, секция + кнопка) */
+.raznos-head-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.raznos-head-title { min-width: 0; flex: 1 1 auto; overflow-wrap: anywhere; }
+.raznos-head-side { flex: none; white-space: nowrap; }
+
+/* Статус-плашки */
+.raznos-status-pill { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font: 600 14px var(--raznos-font); white-space: nowrap; flex: none; max-width: 45%; overflow: hidden; text-overflow: ellipsis; } /* статус не сжимает название сервиса */
+.raznos-list-row .raznos-status-pill { white-space: normal; text-align: center; }
+.raznos-market-row { row-gap: 6px; }
+/* плашка под названием сервиса, а не рядом, ограничение ширины ей не нужно */
+.raznos-market-row .raznos-status-pill { max-width: 100%; }
+.raznos-pill-ok { background: var(--raznos-green-tint); color: var(--raznos-green-deep); }
+.raznos-pill-warn { background: var(--raznos-amber-tint); color: var(--raznos-amber); }
+.raznos-pill-error { background: var(--raznos-red-tint); color: var(--raznos-red); }
+.raznos-pill-muted { background: var(--raznos-surface-2); color: var(--raznos-ink-3); border: 1px solid var(--raznos-line); }
+.raznos-pill-concept { background: var(--raznos-surface-2); color: var(--raznos-ink-2); border: 1px dashed var(--raznos-line-strong); }
+
+/* Уведомления */
+.raznos-notice { border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+.raznos-notice-warn { background: var(--raznos-amber-tint); }
+.raznos-notice-info { background: var(--raznos-surface-2); border: 1px solid var(--raznos-line); }
+.raznos-notice-ok { background: var(--raznos-green-tint); }
+.raznos-notice-error { background: var(--raznos-red-tint); border: 1px solid var(--raznos-red); }
+.raznos-notice-title { font: 600 14px var(--raznos-font); color: var(--raznos-ink); }
+
+/* Главный блок заработка */
+.raznos-hero-dark { background: var(--raznos-dark); color: var(--raznos-on-dark); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+/* до смены и в выходной: светлая фирменная карточка, тёмная остаётся для денег смены */
+.raznos-hero-pre { appearance: none; border: 0; width: 100%; text-align: left; font-family: var(--raznos-font); cursor: pointer; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 6px; background: var(--raznos-green-tint); color: var(--raznos-ink); }
+.raznos-hero-pre-off { background: var(--raznos-surface-2); }
+.raznos-hero-pre-label { font: 600 14px var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-hero-pre-off .raznos-hero-pre-label { font: 750 26px/1.15 var(--raznos-font); color: var(--raznos-ink); }
+.raznos-hero-pre-value { font: 700 40px/1.1 var(--raznos-mono); letter-spacing: -0.02em; color: var(--raznos-green-deep); }
+.raznos-hero-pre-value small { font-size: 24px; }
+.raznos-hero-pre-line { font: 500 14px/1.35 var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-hero-pre-cta { margin-top: 6px; min-height: 44px; display: inline-flex; align-items: center; align-self: flex-start; padding: 0 16px; border-radius: 999px; background: var(--raznos-dark); color: var(--raznos-on-dark); font: 650 14px var(--raznos-font); }
+.raznos-hero-label { font: 500 14px var(--raznos-font); opacity: 0.72; }
+/* свежесть данных отдельно под полосой сервисов: тихая серая строка, точка зелёная, при сбое янтарная */
+/* подзаголовок Сегодня: транспорт, дата и свежесть данных одной тихой строкой, при сбое свежесть янтарная */
+.raznos-home-sub { display: flex; align-items: center; flex-wrap: wrap; column-gap: 8px; white-space: nowrap; font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-home-fresh-wrap { display: inline-flex; align-items: center; }
+.raznos-hero-fresh { position: relative; display: inline-flex; align-items: center; gap: 3px; padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
+.raznos-hero-fresh::before { content: ''; position: absolute; inset: -14px -6px; }
+.raznos-hero-fresh.raznos-is-warn { color: var(--raznos-amber); font-weight: 600; }
+.raznos-hero-fresh:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 4px; }
+.raznos-hero-value { font: 700 40px/1 var(--raznos-mono); letter-spacing: -0.01em; }
+.raznos-hero-unit { font: 600 16px var(--raznos-font); opacity: 0.8; }
+.raznos-hero-today { position: relative; }
+/* полоска долей сервисов под карточкой Заработано сегодня */
+.raznos-today-mix { width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: -4px; padding: 10px 4px 2px; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.raznos-today-mix-bar { display: flex; gap: 3px; height: 8px; }
+.raznos-today-mix-bar > i { display: block; min-width: 6px; border-radius: 999px; }
+.raznos-today-mix-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font: 500 13px var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-today-mix-legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.raznos-today-mix-legend i { width: 8px; height: 8px; border-radius: 50%; }
+.raznos-today-mix-legend b { font-weight: 700; color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+.raznos-today-mix:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 10px; }
+/* новый телефон: иконки сервисов, куда войти, одной стопкой */
+.raznos-conn-device-icons { display: inline-flex; flex: none; }
+.raznos-conn-device-icons > * + * { margin-left: -8px; }
+.raznos-client-note { display: flex; flex-direction: column; gap: 2px; padding-bottom: 10px; margin-bottom: 4px; border-bottom: 1px solid var(--raznos-line); }
+/* шторка Сегодня: ответ сверху, карточки ниже, суммы одной гарнитурой */
+.raznos-dialog-bottom > .raznos-dialog.raznos-day-sheet { max-height: 86%; gap: 12px; padding: 8px 16px calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--raznos-bg); }
+/* с липким подвалом отступ уходит в подвал, иначе он двоится */
+.raznos-dialog-bottom > .raznos-dialog.raznos-day-sheet:has(> .raznos-day-foot) { padding-bottom: 0; }
+.raznos-day-handle { flex: none; align-self: center; width: 40px; height: 4px; border-radius: 999px; background: var(--raznos-line-strong); }
+.raznos-day-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -2px -4px -6px 4px; }
+.raznos-day-close { font-size: 24px; line-height: 1; }
+.raznos-day-net { display: flex; flex-direction: column; gap: 2px; padding: 0 4px; }
+.raznos-day-net-label { font: 600 14px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-day-net-value { font: 800 34px/1.1 var(--raznos-font); letter-spacing: -0.02em; color: var(--raznos-green-deep); font-variant-numeric: tabular-nums; }
+.raznos-day-net-sub { font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-day-card { display: flex; flex-direction: column; padding: 4px 14px; border-radius: 18px; background: var(--raznos-surface); }
+.raznos-day-line { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; font: 500 15px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-day-line > b, .raznos-day-svc-top > b, .raznos-day-exp-open > b, .raznos-day-tip > b { font: 700 15px var(--raznos-font); color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.raznos-day-line-head { font-weight: 700; }
+.raznos-day-minus { color: var(--raznos-red) !important; }
+.raznos-day-svc, .raznos-day-exp-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 8px 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.raznos-day-svc { width: 100%; border-top: 1px solid var(--raznos-line); }
+/* разделитель только между сервисами, над первым линии нет */
+.raznos-day-svc:first-of-type { border-top: 0; }
+.raznos-day-svc-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.raznos-day-svc-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.raznos-day-svc-name { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; font: 600 14.5px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-day-svc-name > small { font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-day-bar { display: block; height: 6px; border-radius: 999px; background: var(--raznos-surface-2); overflow: hidden; }
+.raznos-day-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--raznos-green); }
+.raznos-day-bar-goal { height: 8px; }
+.raznos-day-goal { gap: 8px; padding-bottom: 12px; }
+button.raznos-day-goal { width: 100%; border: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+button.raznos-day-goal:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+.raznos-day-goal .raznos-day-line { min-height: 36px; }
+.raznos-day-note { font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-day-fines, .raznos-day-exp { border-top: 1px solid var(--raznos-line); }
+.raznos-day-exp { display: flex; align-items: center; gap: 8px; }
+.raznos-day-exp-ico { width: 32px; height: 32px; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: var(--raznos-red-tint); color: var(--raznos-red); }
+/* строка чаевых как расходы, значок зелёный: это плюс к деньгам */
+.raznos-day-tips-ico { background: var(--raznos-green-tint); color: var(--raznos-green-deep); font: 700 16px var(--raznos-font); }
+.raznos-day-exp-add { width: 40px; height: 40px; flex: none; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--raznos-line-strong); border-radius: 12px; background: var(--raznos-surface); color: var(--raznos-ink); cursor: pointer; }
+.raznos-day-exp-add:focus-visible, .raznos-day-exp-open:focus-visible, .raznos-day-svc:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+.raznos-day-tip { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--raznos-line); }
+.raznos-day-tip-cash { width: 32px; height: 32px; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: color-mix(in oklab, var(--raznos-green) 16%, var(--raznos-surface)); color: var(--raznos-green-deep); font: 800 15px var(--raznos-font); }
+.raznos-day-tip-none { display: flex; align-items: center; gap: 10px; padding: 10px 0 8px; border-top: 1px solid var(--raznos-line); font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-day-tip-none-icons { display: inline-flex; flex: none; gap: 4px; opacity: 0.7; }
+.raznos-day-foot { position: sticky; bottom: 0; margin: 0 -16px; padding: 10px 16px calc(16px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to bottom, transparent, var(--raznos-bg) 30%); }
+.raznos-day-foot > .raznos-btn { width: 100%; }
+.raznos-hero-today { cursor: pointer; }
+.raznos-hero-today:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 3px; }
+.raznos-hero-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.raznos-hero-chip { display: inline-flex; align-items: baseline; gap: 6px; padding: 5px 10px; border-radius: 999px; background: color-mix(in oklab, var(--raznos-on-dark) 12%, transparent); font: 500 13px var(--raznos-font); color: color-mix(in oklab, var(--raznos-on-dark) 80%, transparent); }
+.raznos-hero-chip-add { position: relative; align-items: center; gap: 6px; min-height: 44px; padding-inline: 14px; border: 0; font-family: inherit; cursor: pointer; color: var(--raznos-on-dark); }
+.raznos-hero-chip-add:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+.raznos-hero-chip > b { font-weight: 700; color: var(--raznos-on-dark); font-variant-numeric: tabular-nums; }
+.raznos-hero-formula { font: 500 14px var(--raznos-font); font-variant-numeric: tabular-nums; opacity: 0.85; }
+.raznos-hero-dark .raznos-text-tiny, .raznos-hero-dark .raznos-text-small { color: var(--raznos-on-dark); opacity: 0.78; }
+.raznos-hero-pace { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.raznos-hero-pace-track { position: relative; height: 4px; border-radius: 999px; background: color-mix(in oklab, var(--raznos-on-dark) 18%, transparent); }
+.raznos-hero-pace-fill { display: block; height: 100%; border-radius: 999px; background: var(--raznos-green); transform-origin: left center; }
+/* цель дня сотой на полосе плана, после цели сота закрашивается */
+.raznos-hero-pace-goal { position: absolute; top: 50%; width: 16px; height: 18px; transform: translate(-50%, -50%); clip-path: var(--raznos-hex); background: var(--raznos-dark); }
+.raznos-hero-pace-goal::after { content: ""; position: absolute; inset: 3px; clip-path: var(--raznos-hex); background: color-mix(in oklab, var(--raznos-on-dark) 55%, transparent); }
+.raznos-hero-pace-goal.raznos-is-reached::after { background: var(--raznos-green); }
+.raznos-hero-pace-done .raznos-hero-pace-fill { background: linear-gradient(90deg, var(--raznos-amber), oklch(0.86 0.15 90)); }
+.raznos-hero-pace-done .raznos-hero-pace-note { opacity: 1; color: oklch(0.86 0.15 90); font-weight: 700; }
+/* темп дня растёт раз за сессию или когда сумма поменялась, класс ставит RaznosApp */
+@media (prefers-reduced-motion: no-preference) {
+  .raznos-pace-play .raznos-hero-pace-fill { animation: raznos-pace-grow .9s cubic-bezier(.16, 1, .3, 1) both .15s; }
+  .raznos-pace-play .raznos-hero-pace-goal { animation: raznos-hex-pop .4s cubic-bezier(.34, 1.56, .64, 1) both .7s; }
+}
+@keyframes raznos-pace-grow { from { transform: scaleX(0); } }
+@keyframes raznos-hex-pop { from { transform: translate(-50%, -50%) scale(0); } }
+.raznos-hero-pace-note { font: 500 12.5px var(--raznos-font); font-variant-numeric: tabular-nums; color: var(--raznos-on-dark); opacity: 0.72; }
+.raznos-metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.raznos-metric-card { background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+.raznos-metric-value { font: 700 22px var(--raznos-mono); }
+.raznos-metric-value-text { font: 700 20px var(--raznos-font); font-variant-numeric: tabular-nums; }
+button.raznos-metric-card { appearance: none; -webkit-appearance: none; font: inherit; text-align: left; cursor: pointer; }
+.raznos-expense-auto-row { color: var(--raznos-ink-3); cursor: default; }
+.raznos-expense-auto-row .raznos-list-title { color: var(--raznos-ink-3); font-weight: 500; }
+
+/* Пусто/состав */
+.raznos-empty-state { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 36px 16px; }
+.raznos-empty-state-compact { padding: 12px 8px 4px; }
+.raznos-empty-glyph { width: 56px; height: 62px; clip-path: var(--raznos-hex); background: var(--raznos-surface-2); border: 1px solid var(--raznos-line); display: flex; align-items: center; justify-content: center; font: 700 24px var(--raznos-font); font-variant-numeric: tabular-nums; color: var(--raznos-ink-2); }
+.raznos-breakdown-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--raznos-line); font: 500 14px var(--raznos-font); }
+.raznos-breakdown-row:last-child { border-bottom: 0; }
+
+/* Иконки сервисов */
+.raznos-svc-icon { width: 40px; height: 40px; border-radius: 12px; object-fit: cover; flex: none; background: var(--raznos-surface-2); }
+.raznos-icon-bordered { border-width: 2px; border-style: solid; }
+.raznos-svc-icon-sm { width: 28px; height: 28px; border-radius: 8px; }
+.raznos-app-glyph { width: 64px; height: 64px; }
+.raznos-welcome-icon { width: 80px; height: 80px; border-radius: 20px; display: block; }
+
+/* Диаграммы */
+.raznos-bar-chart { display: flex; align-items: flex-end; gap: 18px; height: 150px; padding: 8px 4px 0; box-sizing: border-box; }
+.raznos-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; box-sizing: border-box; }
+.raznos-bar-track { flex: 1; min-height: 0; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+.raznos-bar-fill { display: block; width: 100%; max-width: 40px; border-radius: 8px 8px 0 0; background: var(--raznos-dark); }
+.raznos-bar-fill.raznos-is-alt { background: var(--raznos-green); }
+.raznos-bar-value { font: 600 14px var(--raznos-mono); }
+.raznos-bar-label { font: 500 14px var(--raznos-font); color: var(--raznos-ink-2); }
+
+/* Карта зон */
+.raznos-map-box { position: relative; border-radius: 16px; background: var(--raznos-surface-2); border: 1px solid var(--raznos-line); overflow: hidden; }
+.raznos-zone-spot { position: absolute; border-radius: 14px; background: var(--raznos-green-tint); border: 1.5px solid var(--raznos-green); }
+.raznos-zone-spot.raznos-is-best { background: var(--raznos-green-tint); border-color: var(--raznos-green-deep); }
+.raznos-me-dot { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--raznos-dark); border: 2px solid var(--raznos-surface); }
+
+/* Нижняя навигация */
+.raznos-bottom-nav { flex: none; display: flex; background: var(--raznos-surface); border-top: 1px solid var(--raznos-line); padding: 4px 8px calc(4px + env(safe-area-inset-bottom, 0)); }
+.raznos-nav-tab { flex: 1 1 0; min-width: 0; white-space: nowrap; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 2px; border-radius: 12px; font: 600 11px var(--raznos-font); letter-spacing: -0.01em; color: var(--raznos-ink-3); min-height: 44px; justify-content: center; background: transparent; border: 0; }
+/* активный пункт нижнего меню: фирменный зелёный, иконка и подпись белые; тон один для светлой и тёмной темы, чтобы белый читался */
+.raznos-bottom-nav { --raznos-nav-active: oklch(0.52 0.12 150); }
+.raznos-nav-tab.raznos-is-active { color: #fff; background: var(--raznos-nav-active); }
+.raznos-nav-glyph { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+.raznos-nav-tab.raznos-is-active .raznos-nav-glyph { stroke: currentColor; }
+
+/* Демо-панель разработчика (снаружи телефона) */
+.raznos-dev-panel { width: 300px; max-width: 100%; max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; box-sizing: border-box; }
+.raznos-dev-jump { min-height: 44px; padding: 0 14px; border-radius: 12px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); display: flex; align-items: center; font: 500 14px var(--raznos-font); cursor: pointer; }
+.raznos-dev-jump:hover { border-color: var(--raznos-green); }
+.raznos-dev-label { font: 600 12px var(--raznos-font); font-variant-numeric: tabular-nums; color: var(--raznos-ink-2); }
+
+.raznos-page { min-height: 100vh; display: flex; flex-wrap: wrap; gap: 32px; padding: 32px; box-sizing: border-box; align-items: flex-start; justify-content: center; background: var(--raznos-bg); }
+.raznos-page-fixed { height: 100vh; min-height: 0; flex-wrap: nowrap; align-items: center; overflow: hidden; }
+.raznos-page-fixed .raznos-phone-frame { flex: none; max-height: calc(100vh - 64px); }
+
+/* Часть 2: рейтинги, профиль, аватары */
+.raznos-avatar { width: 64px; height: 64px; border-radius: 50%; flex: none; object-fit: cover; background: var(--raznos-surface-2); border: 1px solid var(--raznos-line); }
+.raznos-avatar-sm { width: 40px; height: 40px; }
+.raznos-stars { display: inline-flex; gap: 2px; }
+.raznos-star { width: 14px; height: 14px; fill: var(--raznos-line-strong); }
+.raznos-star.raznos-is-on { fill: var(--raznos-amber); }
+.raznos-rate { display: inline-flex; gap: 2px; margin: 2px 0; align-self: flex-start; }
+.raznos-rate button { appearance: none; -webkit-appearance: none; background: transparent; border: 0; padding: 3px; margin: 0; cursor: pointer; line-height: 0; border-radius: 8px; }
+.raznos-rate button:focus-visible { outline: 2px solid var(--raznos-green-deep); outline-offset: 0; }
+.raznos-rate-star { width: 26px; height: 26px; fill: var(--raznos-line-strong); transition: fill .12s ease, transform .12s ease; }
+.raznos-rate .raznos-is-on .raznos-rate-star { fill: var(--raznos-amber); }
+.raznos-rate:hover button .raznos-rate-star { fill: var(--raznos-amber); }
+.raznos-rate button:hover ~ button .raznos-rate-star { fill: var(--raznos-line-strong); }
+.raznos-rate button:hover .raznos-rate-star { transform: scale(1.08); }
+.raznos-review-block { display: flex; flex-direction: column; gap: 6px; padding-top: 12px; }
+.raznos-review-block + .raznos-review-block { border-top: 1px solid var(--raznos-line); margin-top: 4px; }
+.raznos-review-label { font-weight: 600; }
+/* отзыв о заказе: части разделены линией, у каждой свой отступ сверху */
+.raznos-ord-review .rrb { border-top: 1px solid var(--raznos-line); margin-top: 4px; }
+/* наличные чаевые строкой в начислении: нажатие открывает правку на месте */
+.raznos-ord-cash { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 52px; margin-top: 2px; padding: 8px 0 0; border: 0; border-top: 1px solid var(--raznos-line); background: none; font: inherit; color: var(--raznos-ink); text-align: left; cursor: pointer; }
+.raznos-ord-cash-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.raznos-ord-cash-sub { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-ord-cash-add { font: 650 14px var(--raznos-font); color: var(--raznos-green-deep); }
+.raznos-ord-cash:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 8px; }
+.raznos-ord-cash-edit { display: flex; flex-direction: column; gap: 10px; margin-top: 2px; padding-top: 10px; border-top: 1px solid var(--raznos-line); }
+.raznos-ord-cash-field { display: flex; align-items: center; justify-content: space-between; gap: 12px; font: 500 15px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-ord-cash-input { width: 110px; text-align: right; font: 700 17px var(--raznos-mono); font-variant-numeric: tabular-nums; }
+.raznos-ord-cash-del { margin-left: auto; color: var(--raznos-red); }
+.raznos-focus-card { box-shadow: 0 0 0 2px var(--raznos-green-deep); }
+.raznos-order-card { border-left-width: 4px; border-left-style: solid; }
+
+.raznos-svc-border-vkusvill { border-color: var(--raznos-svc-vkusvill); }
+.raznos-svc-border-samokat { border-color: var(--raznos-svc-samokat); }
+.raznos-svc-border-x5 { border-color: var(--raznos-svc-x5); }
+.raznos-svc-border-yandex-eda { border-color: var(--raznos-svc-yandex-eda); }
+.raznos-svc-border-magnit { border-color: var(--raznos-svc-magnit); }
+.raznos-svc-border-ozon-fresh { border-color: var(--raznos-svc-ozon-fresh); }
+.raznos-svc-border-lenta { border-color: var(--raznos-svc-lenta); }
+.raznos-svc-border-delivery { border-color: var(--raznos-svc-delivery); }
+.raznos-svc-border-dostavista { border-color: var(--raznos-svc-dostavista); }
+.raznos-svc-border-kuper { border-color: var(--raznos-svc-kuper); }
+.raznos-svc-border-dostaevsky { border-color: var(--raznos-svc-dostaevsky); }
+.raznos-svc-border-yandex-lavka { border-color: var(--raznos-svc-yandex-lavka); }
+.raznos-svc-border-yandex-delivery { border-color: var(--raznos-svc-yandex-delivery); }
+.raznos-svc-border-ozon-courier { border-color: var(--raznos-svc-ozon-courier); }
+.raznos-svc-border-wb-courier { border-color: var(--raznos-svc-wb-courier); }
+.raznos-svc-border-dodo { border-color: var(--raznos-svc-dodo); }
+.raznos-svc-border-flowwow { border-color: var(--raznos-svc-flowwow); }
+.raznos-svc-select-card { display: flex; align-items: center; gap: 12px; width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--raznos-line); border-left-width: 4px; border-left-style: solid; background: var(--raznos-surface); cursor: pointer; }
+.raznos-svc-select-card.raznos-is-active { background: var(--raznos-surface-2); }
+.raznos-svc-select-card .raznos-list-main { flex: 1; }
+.raznos-textarea { min-height: 84px; border-radius: 12px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); padding: 10px 14px; font: 400 15px/1.4 var(--raznos-font); color: var(--raznos-ink); resize: vertical; box-sizing: border-box; width: 100%; }
+.raznos-input { min-height: 48px; border-radius: 12px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); padding: 0 14px; font: 500 16px var(--raznos-font); color: var(--raznos-ink); box-sizing: border-box; width: 100%; }
+.raznos-input:focus { outline: none; border-color: var(--raznos-ink); box-shadow: inset 0 0 0 1px var(--raznos-ink); }
+.raznos-input.raznos-is-error, .raznos-field-box.raznos-is-error { border-color: var(--raznos-red); }
+.raznos-input.raznos-is-success, .raznos-field-box.raznos-is-success { border-color: var(--raznos-green); }
+.raznos-input.raznos-is-warn, .raznos-field-box.raznos-is-warn { border-color: var(--raznos-amber); }
+.raznos-input::placeholder { color: var(--raznos-ink-3); opacity: 1; }
+.raznos-pill-action { display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--raznos-green); background: transparent; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); white-space: nowrap; }
+.raznos-file-input { display: flex; align-items: center; justify-content: center; min-height: 96px; border-radius: 14px; border: 1.5px dashed var(--raznos-line-strong); background: var(--raznos-surface-2); font: 500 14px var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-badge-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.raznos-badge { padding: 6px 12px; border-radius: 10px; background: var(--raznos-green-tint); color: var(--raznos-green-deep); font: 600 14px var(--raznos-font); }
+.raznos-service-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 10px; background: var(--raznos-surface-2); color: var(--raznos-ink); font: 600 14px var(--raznos-font); }
+.raznos-progress-track { height: 10px; border-radius: 6px; background: var(--raznos-surface-2); border: 1px solid var(--raznos-line); overflow: hidden; }
+.raznos-progress-fill { display: block; height: 100%; background: var(--raznos-brand, var(--raznos-green)); }
+.raznos-pagination-btn { width: 100%; }
+.raznos-hist-pager { gap: 8px; }
+.raznos-hist-pager .raznos-btn-small { flex: none; }
+.raznos-desktop-shell { width: 100%; max-width: 1180px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); border-radius: 20px; padding: 28px; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px; }
+.raznos-desktop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.raznos-table-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 100px; gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--raznos-line); font: 500 14px var(--raznos-font); }
+.raznos-table-row.raznos-table-head { font: 600 14px var(--raznos-font); color: var(--raznos-ink-3); text-transform: uppercase; letter-spacing: 0.02em; }
+.raznos-imp-reviews { display: flex; flex-direction: column; gap: 12px; }
+.raznos-imp-reviews__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.raznos-imp-reviews__empty { padding: 12px 0; }
+.raznos-imp-reviews__group { display: flex; flex-direction: column; gap: 8px; }
+.raznos-imp-reviews__group-head { display: flex; align-items: center; gap: 8px; }
+.raznos-imp-reviews__group-head .raznos-list-title { flex: 1; }
+.raznos-scores { padding: 4px 16px 14px; }
+.raznos-score-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--raznos-line); }
+.raznos-score-name { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.raznos-score-name > b { font: 650 15px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-score-name > span { font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-score-val { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.raznos-score-num { display: inline-flex; align-items: baseline; gap: 4px; white-space: nowrap; }
+.raznos-score-num > b { font: 800 22px var(--raznos-font); letter-spacing: -0.02em; color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+.raznos-score-num > small { font: 600 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-score-bar { display: block; width: 64px; height: 4px; border-radius: 999px; background: var(--raznos-surface-2); overflow: hidden; }
+.raznos-score-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--raznos-green); }
+.raznos-score-none { display: flex; align-items: center; gap: 10px; padding: 12px 0 0; font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-score-none-icons { display: inline-flex; flex: none; }
+.raznos-score-none-icons > * + * { margin-left: -6px; }
+.raznos-score-none-icons img, .raznos-score-none-icons > * { opacity: 0.75; }
+/* подключение сервиса: одна строка сверху, факты списком под формой */
+.raznos-conn-lead { margin: -6px 0 0; font: 500 15px/1.4 var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-conn-nudge { margin: -4px 0 0; font: 600 13px var(--raznos-font); color: var(--raznos-red); }
+.raznos-conn-why { align-self: flex-start; min-height: 36px; margin: -8px 0 -4px; padding: 0; border: 0; background: none; font: 600 13px var(--raznos-font); color: var(--raznos-green-deep); cursor: pointer; }
+.raznos-conn-facts { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 16px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); }
+.raznos-conn-facts-title { font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-conn-fact { display: flex; align-items: center; gap: 10px; font: 500 14.5px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-conn-fact > i { width: 24px; height: 24px; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font: 800 13px var(--raznos-font); font-style: normal; }
+.raznos-conn-fact-ok { background: color-mix(in oklab, var(--raznos-green) 16%, var(--raznos-surface)); color: var(--raznos-green-deep); }
+.raznos-conn-fact-no { background: color-mix(in oklab, var(--raznos-red) 12%, var(--raznos-surface)); color: var(--raznos-red); }
+.raznos-conn-note { margin: 0; font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-tax-src-auto { color: var(--raznos-green-deep); font-weight: 600; }
+.raznos-score-foot { margin: 10px 0 0; font: 500 12px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-imp-reviews__name { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.raznos-imp-reviews__value { flex: none; font: 700 15px var(--raznos-font); color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.raznos-imp-reviews__value--none { font: 500 13px var(--raznos-font); color: var(--raznos-ink-3); }
+
+/* Текстовая кнопка без фона, используется вместо ссылки (например, автор отзыва) */
+.raznos-link-btn { background: none; border: none; padding: 0; margin: 0; text-align: left; cursor: pointer; color: inherit; font: inherit; text-decoration: underline dotted; }
+
+/* Реакции: две компактные группы, курьеры сервиса и остальные пользователи */
+.raznos-reaction-rows { display: flex; flex-direction: column; gap: 6px; }
+.raznos-reaction-groups { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+.raznos-reaction-group { display: inline-flex; align-items: center; gap: 4px; }
+.raznos-reaction-who { display: inline-flex; align-items: center; justify-content: center; width: 32px; min-height: 32px; padding: 0; border-radius: 8px; border: 1px solid transparent; background: none; color: var(--raznos-ink-3); cursor: pointer; }
+.raznos-reaction-who.raznos-is-open { border-color: var(--raznos-line-strong); background: var(--raznos-surface-2); color: var(--raznos-ink); }
+.raznos-reaction-who-glyph { width: 18px; height: 18px; fill: currentColor; }
+.raznos-reaction-btn { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0 8px; border-radius: 8px; border: 1px solid var(--raznos-line); background: var(--raznos-surface); font: 600 13px var(--raznos-font); font-variant-numeric: tabular-nums; color: var(--raznos-ink-2); cursor: pointer; }
+.raznos-reaction-glyph { width: 15px; height: 15px; fill: currentColor; }
+.raznos-reaction-count { min-width: 1ch; }
+.raznos-reaction-btn.raznos-is-on { background: var(--raznos-green-tint); color: var(--raznos-green-deep); border-color: var(--raznos-green-deep); }
+.raznos-reaction-btn:disabled { opacity: 0.55; cursor: default; }
+.raznos-reaction-hint { color: var(--raznos-ink-3); max-width: 46ch; }
+.raznos-imp-reviews__card { background: var(--raznos-surface-2); border: 1px solid var(--raznos-line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+
+/* Часть 3: каркас профиля курьера, свой/публичный/обезличенный */
+.raznos-profile-head { display: flex; align-items: center; gap: 16px; }
+.raznos-profile-hero { background: var(--raznos-dark); color: var(--raznos-on-dark); border-radius: 20px; padding: 22px 18px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+.raznos-profile-hero .raznos-avatar { width: 92px; height: 92px; border-color: var(--raznos-dark-2); }
+.raznos-profile-hero .raznos-text-h2 { color: var(--raznos-on-dark); }
+.raznos-profile-hero-meta { font: 500 13px var(--raznos-font); color: color-mix(in oklab, var(--raznos-on-dark) 72%, transparent); }
+.raznos-profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; margin-top: 6px; }
+.raznos-profile-stat { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 6px; }
+.raznos-profile-stat + .raznos-profile-stat { border-left: 1px solid color-mix(in oklab, var(--raznos-on-dark) 16%, transparent); }
+.raznos-profile-stat-value { font: 700 18px var(--raznos-mono); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.raznos-profile-stat-label { font: 500 12px var(--raznos-font); color: color-mix(in oklab, var(--raznos-on-dark) 70%, transparent); }
+.raznos-profile-panel { display: flex; flex-direction: column; border-radius: 14px; background: var(--raznos-surface); padding: 0 14px; }
+.raznos-profile-panel-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 0; }
+.raznos-profile-panel-row-divided { border-top: 1px solid var(--raznos-line); }
+.raznos-profile-panel-label { font: 500 14px var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-profile-panel-value, .raznos-profile-panel-value-text { font: 700 15px var(--raznos-font); color: var(--raznos-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.raznos-profile-panel-light .raznos-profile-panel-row { border-bottom: 1px solid var(--raznos-line); }
+.raznos-profile-panel-light .raznos-profile-panel-label { color: var(--raznos-ink-2); opacity: 1; }
+.raznos-profile-panel-light .raznos-profile-panel-value,
+.raznos-profile-panel-light .raznos-profile-panel-value-text { color: var(--raznos-ink); }
+.raznos-profile-services { display: flex; flex-direction: column; }
+.raznos-profile-service-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--raznos-line); }
+.raznos-profile-service-row:last-child { border-bottom: 0; }
+.raznos-profile-service-name { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; }
+
+/* Блокирующий вопрос поверх экрана: уход с изменённой формы */
+/* обёртка шторки не занимает место в колонке экрана, иначе при открытии блоки ниже съезжают на отступ */
+.sc-host:has(> .raznos-dialog-layer:only-child) { display: contents; }
+/* тур подсказок: слой не мешает нажимать экран, тултип переезжает между целями */
+.raznos-tour-layer { position: absolute; inset: 0; z-index: 70; pointer-events: none; }
+.raznos-tour-tip { position: absolute; left: 12px; top: 0; width: 300px; pointer-events: auto; opacity: 0; }
+@media (prefers-reduced-motion: no-preference) { .raznos-tour-tip { transition: left .32s cubic-bezier(.16, 1, .3, 1), top .32s cubic-bezier(.16, 1, .3, 1), opacity .2s ease; } }
+.raznos-tour-target { position: relative; z-index: 1; box-shadow: 0 0 0 3px color-mix(in oklab, var(--raznos-green) 60%, transparent); border-radius: 12px; }
+.raznos-dialog-layer { position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 24px; background: oklch(0.22 0.012 250 / 0.42); }
+.raznos-dialog { width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 18px; background: var(--raznos-surface); border: 1px solid var(--raznos-line); box-shadow: 0 18px 44px rgba(20, 25, 40, 0.28); }
+.raznos-dialog .raznos-btn-row { gap: 8px; }
+
+/* Выбор города: поле-триггер и модалка с поиском */
+.raznos-city-field { display: flex; flex-direction: column; gap: 6px; }
+.raznos-city-trigger { min-height: 48px; border-radius: 12px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 14px; font: 500 16px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; text-align: left; }
+.raznos-city-trigger-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.raznos-city-trigger-icon { flex: 0 0 auto; color: var(--raznos-ink-2); display: block; }
+.raznos-city-modal-layer { position: absolute; inset: 0; z-index: 70; display: flex; flex-direction: column; justify-content: flex-end; background: oklch(0.22 0.012 250 / 0.42); }
+.raznos-city-modal-backdrop { position: absolute; inset: 0; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.raznos-city-modal { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; max-height: 76%; padding: 16px 16px calc(8px + env(safe-area-inset-bottom, 0px)); border-radius: 20px 20px 0 0; background: var(--raznos-surface); border: 1px solid var(--raznos-line); box-shadow: 0 -12px 40px rgba(20, 25, 40, 0.22); }
+.raznos-city-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.raznos-city-search-box { min-height: 46px; border-radius: 12px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-bg); display: flex; align-items: center; gap: 8px; padding: 0 12px; }
+.raznos-city-search-box:focus-within { border-color: var(--raznos-ink); border-width: 2px; padding: 0 11px; }
+.raznos-city-search-icon { flex: 0 0 auto; color: var(--raznos-ink-2); display: block; }
+.raznos-city-search { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; font: 500 16px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-city-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; padding-bottom: 8px; }
+.raznos-city-option { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 46px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; font: 500 16px var(--raznos-font); color: var(--raznos-ink); cursor: pointer; text-align: left; }
+.raznos-city-option:hover { background: var(--raznos-surface-2); }
+.raznos-city-option.raznos-is-active { background: var(--raznos-surface-2); color: var(--raznos-brand); }
+.raznos-city-option-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.raznos-city-option-check { color: var(--raznos-brand); font-size: 15px; }
+.raznos-city-truncated { padding: 8px 12px; color: var(--raznos-ink-2); }
+.raznos-city-empty { padding: 20px 12px; text-align: center; color: var(--raznos-ink-2); }
+
+/* Обезличенный автор: цветной кружок с первой буквой клички вместо портрета */
+.raznos-anon-avatar { width: 64px; height: 64px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: 700 26px var(--raznos-font); }
+
+/* Общий блок настроек приложения в профиле обеих ролей */
+.raznos-app-settings { display: flex; flex-direction: column; gap: 10px; }
+
+/* Тёмная тема: переопределяем только токены, компоненты и цвета сервисов остаются своими */
+.raznos-phone-frame.raznos-theme-dark,
+.raznos-theme-dark {
+  --raznos-bg: oklch(0.21 0.012 250);
+  --raznos-surface: oklch(0.26 0.014 250);
+  --raznos-surface-2: oklch(0.30 0.014 250);
+  --raznos-line: oklch(0.38 0.016 250);
+  --raznos-line-strong: oklch(0.50 0.018 250);
+  --raznos-ink: oklch(0.96 0.006 250);
+  --raznos-ink-2: oklch(0.82 0.008 250);
+  --raznos-ink-3: oklch(0.70 0.010 250);
+  --raznos-dark: oklch(0.90 0.010 250);
+  --raznos-dark-2: oklch(0.80 0.012 250);
+  --raznos-on-dark: oklch(0.18 0.012 250);
+  --raznos-brand: oklch(0.72 0.15 150);
+  --raznos-green: oklch(0.74 0.14 150);
+  --raznos-green-deep: oklch(0.84 0.12 150);
+  --raznos-green-tint: oklch(0.32 0.06 150);
+  --raznos-amber: oklch(0.82 0.13 80);
+  --raznos-amber-tint: oklch(0.32 0.06 80);
+  --raznos-red: oklch(0.74 0.15 25);
+  --raznos-red-tint: oklch(0.31 0.07 25);
+
+  --raznos-svc-vkusvill: oklch(0.68 0.13 150);
+  --raznos-svc-vkusvill-tint: oklch(0.31 0.06 150);
+  --raznos-svc-samokat: oklch(0.70 0.14 355);
+  --raznos-svc-samokat-tint: oklch(0.31 0.06 355);
+  --raznos-svc-x5: oklch(0.74 0.13 55);
+  --raznos-svc-x5-tint: oklch(0.32 0.07 55);
+  --raznos-svc-yandex-eda: oklch(0.70 0.14 35);
+  --raznos-svc-yandex-eda-tint: oklch(0.32 0.07 35);
+  --raznos-svc-magnit: oklch(0.67 0.13 25);
+  --raznos-svc-magnit-tint: oklch(0.31 0.06 25);
+  --raznos-svc-ozon-fresh: oklch(0.71 0.10 200);
+  --raznos-svc-ozon-fresh-tint: oklch(0.31 0.05 200);
+  --raznos-svc-lenta: oklch(0.67 0.13 255);
+  --raznos-svc-lenta-tint: oklch(0.31 0.05 255);
+  --raznos-svc-delivery: oklch(0.72 0.13 138);
+  --raznos-svc-delivery-tint: oklch(0.32 0.06 138);
+  --raznos-svc-dostavista: oklch(0.68 0.10 155);
+  --raznos-svc-dostavista-tint: oklch(0.31 0.05 155);
+  --raznos-svc-kuper: oklch(0.70 0.12 142);
+  --raznos-svc-kuper-tint: oklch(0.31 0.06 142);
+  --raznos-svc-dostaevsky: oklch(0.66 0.12 300);
+  --raznos-svc-dostaevsky-tint: oklch(0.31 0.06 300);
+  --raznos-svc-yandex-lavka: oklch(0.76 0.13 235);
+  --raznos-svc-yandex-lavka-tint: oklch(0.31 0.06 235);
+  --raznos-svc-yandex-delivery: oklch(0.72 0.17 35);
+  --raznos-svc-yandex-delivery-tint: oklch(0.31 0.06 35);
+  --raznos-svc-ozon-courier: oklch(0.68 0.16 262);
+  --raznos-svc-ozon-courier-tint: oklch(0.31 0.06 262);
+  --raznos-svc-wb-courier: oklch(0.66 0.18 325);
+  --raznos-svc-wb-courier-tint: oklch(0.31 0.06 325);
+  --raznos-svc-dodo: oklch(0.72 0.16 45);
+  --raznos-svc-dodo-tint: oklch(0.31 0.06 45);
+  --raznos-svc-flowwow: oklch(0.7 0.1 350);
+  --raznos-svc-flowwow-tint: oklch(0.31 0.05 350);
+
+  color-scheme: dark;
+  color: var(--raznos-ink);
+}
+.raznos-phone-frame.raznos-theme-dark ::selection,
+.raznos-theme-dark ::selection { background: oklch(0.45 0.10 150); color: oklch(0.97 0.006 250); }
+.raznos-phone-frame.raznos-theme-dark .raznos-icon-bordered,
+.raznos-theme-dark .raznos-icon-bordered { background: oklch(0.95 0.004 250); }
+.raznos-phone-frame.raznos-theme-dark .raznos-demo-ribbon { background: oklch(0.29 0.016 250); color: var(--raznos-ink); border-bottom: 1px solid var(--raznos-line); }
+/* в тёмной теме кнопки на плашке демо светлые, иначе тёмный значок тонет в сером */
+.raznos-phone-frame.raznos-theme-dark .raznos-demo-ribbon-close { background: rgba(255, 255, 255, 0.12); color: var(--raznos-ink); }
+.raznos-phone-frame.raznos-theme-dark .raznos-demo-ribbon-close:focus { outline-color: var(--raznos-ink); }
+.raznos-dialog-layer.raznos-dialog-bottom { align-items: flex-end; padding: 0; }
+/* нижние шторки: под последней кнопкой обычный отступ плюс зона жеста домой на телефоне */
+.raznos-dialog-bottom > .raznos-dialog { max-width: none; max-height: 92%; overflow-y: auto; padding: 18px 20px calc(20px + env(safe-area-inset-bottom, 0px)); border: 0; border-radius: 22px 22px 0 0; box-shadow: 0 -18px 44px rgba(20, 25, 40, .18); }
+/* ручка сверху у каждой шторки снизу: говорит, что её можно смахнуть; у шторок со своей ручкой второй не рисуем */
+.raznos-dialog-bottom > .raznos-dialog:not(:has(> [class*="handle"]))::before, .raznos-city-modal::before { content: ''; flex: none; align-self: center; width: 38px; height: 4px; margin: -8px 0 2px; border-radius: 999px; background: var(--raznos-line-strong); }
+/* у шторок дня верхний отступ и так маленький, ручку не поднимаем */
+.raznos-dialog-bottom > .raznos-dialog.raznos-day-sheet::before { margin-top: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .raznos-dialog-bottom > .raznos-dialog { animation: raznos-sheet-up .24s cubic-bezier(.16, 1, .3, 1) both; }
+  @keyframes raznos-sheet-up { from { transform: translateY(100%); } to { transform: none; } }
+}
+.raznos-phone-frame.raznos-theme-dark .raznos-dialog-layer { background: oklch(0.12 0.012 250 / 0.62); }
+.raznos-phone-frame.raznos-theme-dark .raznos-city-modal-layer { background: oklch(0.12 0.012 250 / 0.62); }
+
+/* Общие состояния: сообщения и блоки, которые ведут себя одинаково на всех экранах */
+.raznos-alert { display: flex; flex-direction: row; align-items: flex-start; gap: 8px; }
+.raznos-alert-main { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; flex: 1; min-width: 0; }
+.raznos-alert-action { margin-top: 4px; }
+.raznos-alert-close { flex: none; width: 28px; height: 28px; border-radius: 8px; border: 0; background: transparent; color: var(--raznos-ink-2); font: 600 18px var(--raznos-font); cursor: pointer; }
+.raznos-alert-blocking { border-width: 2px; }
+.raznos-block-state { align-items: flex-start; gap: 8px; }
+.raznos-block-action { margin-top: 4px; }
+.raznos-block-progress { width: 100%; height: 6px; border-radius: 999px; background: var(--raznos-surface-2); overflow: hidden; }
+.raznos-block-progress-bar { display: block; height: 100%; border-radius: 999px; background: var(--raznos-brand, var(--raznos-green)); }
+
+/* Значок пальца в строках ленты стоит на базовой линии текста */
+.raznos-live-foot .raznos-reaction-glyph, .raznos-live-today-meta .raznos-reaction-glyph { vertical-align: -2px; }
+
+/* RaznosOrderCard: бейдж активного заказа и пилюля оценки */
+.raznos-order-badge { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; background: var(--raznos-green-deep); color: var(--raznos-on-dark); font: 700 10px var(--raznos-font); padding: 2px 7px; border-radius: 999px; vertical-align: middle; }
+.raznos-order-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: #fff; animation: raznosBadgePulse 1.4s ease-in-out infinite; }
+@keyframes raznosBadgePulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.6); } }
+@media (prefers-reduced-motion: reduce) { .raznos-order-badge-dot { animation: none; } }
+
+/* RaznosOrderCard: пилюля оценки в углу, не двигает контент */
+.raznos-order-card { position: relative; }
+.raznos-order-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
+.raznos-order-foot-lines { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.raznos-order-quality { flex: none; }
+/* экран маршрута и плашка заказа в маршруте */
+.raznos-trip-warn { color: var(--raznos-amber); }
+.raznos-trip-stop-num { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--raznos-green-tint); color: var(--raznos-green-deep); font: 700 14px var(--raznos-font); display: flex; align-items: center; justify-content: center; }
+.raznos-trip-of { font: 600 12px var(--raznos-font); color: var(--raznos-ink-3); white-space: nowrap; }
+.raznos-trip-plate { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; padding: 8px 14px; border: 1px solid var(--raznos-line); border-radius: 12px; background: var(--raznos-green-tint); color: var(--raznos-green-deep); font: 600 14px var(--raznos-font); text-align: left; cursor: pointer; width: 100%; box-sizing: border-box; }
+/* группы раздела Сегодня: сейчас, деньги, вокруг */
+.raznos-home-group { margin: 12px 2px -2px; font: 750 18px var(--raznos-font); letter-spacing: -0.01em; color: var(--raznos-ink); }
+/* строки одной карточкой с разделителем: деньги на Сегодня (Ждёт выплаты, Итог недели) */
+.raznos-row-group { display: flex; flex-direction: column; border-radius: 16px; background: var(--raznos-surface); overflow: hidden; }
+.raznos-row-group > * + * { border-top: 1px solid var(--raznos-line); }
+
+/* карта курьеров: карта на весь экран, чипы сервисов сверху, сводка и переключатель снизу */
+.raznos-cmap-screen { padding-bottom: 12px; }
+.raznos-cmap-stage { position: relative; flex: 1; min-height: 520px; border-radius: 18px; overflow: hidden; }
+/* фильтры карты лежат поверх карты сверху, с тенью, чтобы читались на любом фоне */
+.raznos-cmap-filters { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; align-items: center; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
+.raznos-cmap-filters .rfc-chip, .raznos-cmap-filters > button { box-shadow: 0 2px 8px rgba(20, 25, 40, .16); }
+.raznos-cmap-filters::-webkit-scrollbar { display: none; }
+/* полоска и нижний блок только раскладывают кнопки: карту между ними можно тянуть и нажимать */
+.raznos-cmap-filters, .raznos-cmap-filters .rfc-row, .raznos-cmap-dock { pointer-events: none; }
+.raznos-cmap-filters .rfc-chip, .raznos-cmap-filters > button, .raznos-cmap-filters .raznos-dialog-layer, .raznos-cmap-dock > * { pointer-events: auto; }
+/* шторка выбора сервисов открывается на весь телефон, а не внутри полоски фильтров */
+.raznos-phone-frame { contain: layout; }
+.raznos-cmap-filters .raznos-dialog-layer { position: fixed; }
+.raznos-cmap-toggle { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--raznos-line-strong); background: var(--raznos-surface); font: 600 14px var(--raznos-font); color: var(--raznos-ink); white-space: nowrap; cursor: pointer; }
+.raznos-cmap-toggle.raznos-is-active { border-color: var(--raznos-dark); background: var(--raznos-dark); color: var(--raznos-on-dark); }
+/* сводка выше нижнего края, чтобы подпись источников карты не пряталась под ней */
+.raznos-cmap-dock { position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.raznos-cmap-locate { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%; background: var(--raznos-surface); box-shadow: 0 4px 14px rgba(20, 25, 40, 0.18); color: var(--raznos-ink); cursor: pointer; }
+.raznos-cmap-locate.raznos-is-active { background: var(--raznos-dark); color: var(--raznos-on-dark); }
+.raznos-cmap-panel { align-self: stretch; display: flex; flex-direction: column; border-radius: 16px; background: var(--raznos-surface); box-shadow: 0 10px 30px rgba(20, 25, 40, 0.16); }
+.raznos-cmap-count { display: flex; flex-direction: column; gap: 2px; padding: 14px 16px 12px; border-bottom: 1px solid var(--raznos-line); }
+.raznos-cmap-count > b { font: 700 16px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-cmap-count > span { font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+/* выбранный на карте курьер вместо счётчика: кто это, сервис и профиль, если курьер его открыл */
+.raznos-cmap-courier { display: flex; flex-direction: column; gap: 8px; padding: 12px 12px 12px 16px; border-bottom: 1px solid var(--raznos-line); }
+.raznos-cmap-courier-head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.raznos-cmap-courier-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.raznos-cmap-courier-copy > b { font: 700 16px var(--raznos-font); color: var(--raznos-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.raznos-cmap-courier-copy > span { font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-cmap-courier-x { flex: none; width: 44px; height: 44px; margin: -6px -4px -6px 0; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 12px; background: none; color: var(--raznos-ink-2); cursor: pointer; }
+.raznos-cmap-courier-x:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: -2px; }
+.raznos-cmap-courier-open { align-self: stretch; }
+.raznos-cmap-courier-note { margin: 0; font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-cmap-pin-text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.raznos-cmap-me { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 0; background: none; text-align: left; font: inherit; cursor: pointer; }
+.raznos-cmap-me-copy { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.raznos-cmap-me-copy > b { font: 650 14px var(--raznos-font); color: var(--raznos-ink); }
+.raznos-cmap-me-copy > span { font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-cmap-gate { position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; flex-direction: column; gap: 10px; padding: 18px 16px 12px; border-radius: 18px; background: var(--raznos-surface); box-shadow: 0 10px 30px rgba(20, 25, 40, 0.18); }
+.raznos-cmap-gate > h2 { margin: 0; font: 750 19px/1.25 var(--raznos-font); letter-spacing: -0.01em; color: var(--raznos-ink); text-wrap: balance; }
+.raznos-cmap-gate > p { margin: 0; font: 500 13.5px/1.45 var(--raznos-font); color: var(--raznos-ink-2); }
+.raznos-cmap-gate > p.raznos-cmap-gate-note { font-size: 12.5px; color: var(--raznos-ink-3); }
+.raznos-cmap-toggle:focus-visible, .raznos-cmap-locate:focus-visible, .raznos-cmap-me:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+
+/* сота-метка рядом с главной мыслью */
+.raznos-hex-mark { flex: none; display: inline-block; width: 14px; height: 16px; clip-path: var(--raznos-hex); background: var(--raznos-green); }
+
+/* заметка к адресу доставки в карточке заказа и маршруте */
+.raznos-addr-note-btn { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; margin: -8px 0; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.raznos-addr-note-btn:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+.raznos-addr-note-line { font: 500 12px var(--raznos-font); color: var(--raznos-amber); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* идущее окно в Плане: по тонкой рамке медленно бежит светлый отрезок */
+@property --rpw-a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@media (prefers-reduced-motion: no-preference) {
+  .rpw.rpw-now::before { content: ""; position: absolute; inset: -1.5px; padding: 2.5px; border-radius: 15px; pointer-events: none; background: conic-gradient(from var(--rpw-a), transparent 0deg 210deg, oklch(0.62 0.15 150) 320deg, oklch(0.88 0.09 150) 345deg, transparent 360deg); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: rpw-run 3.2s linear infinite; }
+  @keyframes rpw-run { to { --rpw-a: 360deg; } }
+}
+
+/* перетекающая плашка активного таба: одна на ряд, передний край уходит первым, задний догоняет */
+.raznos-segmented, .raznos-shifts-tabs, .raznos-bottom-nav, .raznos-stats-periods { position: relative; isolation: isolate; }
+.raznos-segmented[data-ind]::before, .raznos-shifts-tabs[data-ind]::before, .raznos-bottom-nav[data-ind]::before, .raznos-stats-periods[data-ind]::before { content: ""; position: absolute; z-index: -1; left: var(--ind-l); right: var(--ind-r); top: var(--ind-t); height: var(--ind-h); pointer-events: none; }
+.raznos-segmented[data-ind]::before { border-radius: 9px; background: var(--raznos-surface); box-shadow: 0 1px 3px rgba(20, 25, 40, .14); }
+.raznos-shifts-tabs[data-ind]::before { border-radius: 10px; background: var(--raznos-dark); }
+.raznos-bottom-nav[data-ind]::before { border-radius: 12px; background: var(--raznos-nav-active); }
+.raznos-stats-periods[data-ind]::before { border-radius: 999px; background: var(--raznos-dark); }
+.raznos-stats-periods[data-ind] > .raznos-chip[aria-pressed="true"] { background: transparent; }
+/* выбор с явным контрастом на входе и в анкете: тёмная плашка, текст берут и копии из RaznosTabMotion */
+.raznos-segmented-bold .raznos-segment.raznos-is-active { background: var(--raznos-dark); color: var(--raznos-on-dark); box-shadow: none; }
+.raznos-segmented-bold[data-ind]::before { background: var(--raznos-dark); box-shadow: none; }
+.raznos-segmented-bold[data-ind] > .raznos-segment.raznos-is-active { background: transparent; }
+.raznos-segmented[data-ind] > .raznos-segment.raznos-is-active, .raznos-shifts-tabs[data-ind] > .raznos-shifts-tab.raznos-is-active, .raznos-bottom-nav[data-ind] > .raznos-nav-tab.raznos-is-active { background: transparent; box-shadow: none; }
+/* пока плашка едет, ряд показывают две копии пунктов из RaznosTabMotion, настоящие пункты прозрачные и уже в конечном цвете */
+.raznos-stats-periods > .raznos-chip { transition: none; }
+[data-ind-moving] > :not([data-ind-layer]) { opacity: 0; }
+/* переезд плашки играет RaznosApp через transform, края идут с задержкой */
+[data-ind]::before { transform-origin: 0 0; }
+
+/* тосты: крестик слева по центру, смахивание в сторону */
+[data-toast] { touch-action: pan-y; }
+.raznos-toast-x { flex: none; width: 40px; height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 10px; background: none; color: inherit; opacity: .7; cursor: pointer; }
+.raznos-toast-x:hover { opacity: 1; }
+.raznos-toast-x:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: -2px; }
+
+/* кнопка настроек в уведомлениях: значок и подпись, чтобы было ясно, что она настраивает */
+.raznos-inbox-settings { flex: none; min-height: 40px; padding: 0 12px; font-size: 13px; }
+
+/* Движение: словарь событий в ТЗ, раздел Движение и анимации. Входы здесь, выходы и переходы экранов играет RaznosApp */
+@media (prefers-reduced-motion: no-preference) {
+  .raznos-dialog-layer:not(.raznos-dialog-bottom) > .raznos-dialog { animation: raznos-dialog-in .18s cubic-bezier(.16, 1, .3, 1) both; }
+  @keyframes raznos-dialog-in { from { opacity: 0; transform: scale(.96); } }
+  [data-toast] { animation: raznos-toast-in .2s cubic-bezier(.16, 1, .3, 1) both; }
+  @keyframes raznos-toast-in { from { opacity: 0; transform: translateY(16px); } }
+  .raznos-empty-state > .raznos-empty-glyph { animation: raznos-empty-in .24s cubic-bezier(.34, 1.56, .64, 1) both; }
+  @keyframes raznos-empty-in { from { opacity: 0; transform: scale(.9); } }
+}
+.raznos-dialog-layer { animation: raznos-fade-in .18s cubic-bezier(.16, 1, .3, 1) both; }
+.raznos-empty-state > .raznos-btn { animation: raznos-fade-in .24s cubic-bezier(.16, 1, .3, 1) .08s both; }
+@keyframes raznos-fade-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .raznos-dialog-bottom > .raznos-dialog, [data-toast] { animation: raznos-fade-in .18s ease both; }
+}
+/* копия ушедшего слоя доигрывает выход и не ловит нажатия */
+.raznos-leaving, .raznos-leaving * { pointer-events: none !important; animation: none !important; }
+
+/* петли на паузе, когда их не видно */
+[data-paused], [data-paused]::before, [data-paused]::after, [data-paused] *, .raznos-doc-hidden *, .raznos-doc-hidden *::before { animation-play-state: paused !important; }
+
+/* дельта денег на чипе: пилюля над чипом, видна и при уменьшенном движении */
+[data-delta-host] { position: relative; }
+[data-delta-host][data-delta]::before { content: attr(data-delta); position: absolute; left: 50%; bottom: calc(100% + 4px); padding: 2px 7px; border-radius: 999px; background: var(--raznos-green); color: #fff; font: 700 11.5px var(--raznos-font); font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; transform: translateX(-50%); animation: raznos-delta-fade 1.6s ease-out both; }
+/* на цветном фоне текст всегда белый: плюс зелёным, минус денег красным */
+[data-delta-host][data-delta-dir="bad"]::before { background: var(--raznos-red); }
+[data-delta-host][data-delta-dir="back"]::before { background: color-mix(in oklab, var(--raznos-on-dark) 80%, transparent); color: var(--raznos-ink); }
+[data-delta-host][data-delta] b { animation: raznos-money-glow 1.6s ease-out; }
+[data-delta-host][data-delta-dir="bad"] b { animation-name: raznos-money-glow-bad; }
+[data-delta-host][data-delta-static]::before, [data-delta-host][data-delta-static] b { animation: none !important; }
+@keyframes raznos-delta-fade { 0% { opacity: 0; } 10%, 75% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes raznos-money-glow { 0%, 100% { color: inherit; } 12%, 60% { color: oklch(0.86 0.15 150); } }
+@keyframes raznos-money-glow-bad { 0%, 100% { color: inherit; } 12%, 60% { color: oklch(0.8 0.14 25); } }
+@media (prefers-reduced-motion: no-preference) {
+  [data-delta-host][data-delta]::before { animation: raznos-delta-float 1.6s cubic-bezier(.16, 1, .3, 1) both; }
+  @keyframes raznos-delta-float { 0% { opacity: 0; transform: translate(-50%, 6px); } 12% { opacity: 1; transform: translate(-50%, 0); } 75% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -4px); } }
+}
+
+/* ожидание: три соты мигают по очереди */
+.raznos-hex-loader { display: inline-flex; align-items: center; gap: 3px; margin-left: 8px; vertical-align: middle; }
+.raznos-hex-loader > i { width: 8px; height: 9px; clip-path: var(--raznos-hex); background: currentColor; opacity: .25; animation: raznos-hex-blink .9s ease-in-out infinite; }
+.raznos-hex-loader > i:nth-child(2) { animation-delay: .15s; }
+.raznos-hex-loader > i:nth-child(3) { animation-delay: .3s; }
+@keyframes raznos-hex-blink { 0%, 60%, 100% { opacity: .25; } 30% { opacity: 1; } }
+
+/* цель дня достигнута: соты разлетаются от сотой на полосе, элементы ставит RaznosApp */
+.raznos-goal-spark { position: absolute; z-index: 2; width: 8px; height: 9px; margin: -4.5px 0 0 -4px; clip-path: var(--raznos-hex); background: var(--raznos-green); pointer-events: none; }
+
+/* карта района из шторок Плана и Слотов: слой поверх экрана под строкой статуса, Назад возвращает в шторку */
+/* карта района на весь экран: шапка сверху и карточка с маршрутом снизу лежат поверх карты */
+.raznos-dmap-layer { position: absolute; inset: 29px 0 0; z-index: 90; display: block; padding: 0; background: var(--raznos-bg); overflow: hidden; }
+.raznos-dmap-layer > .raznos-app-bar { position: absolute; z-index: 2; top: 0; left: 0; right: 0; margin: 0; padding: 4px 12px 22px; background: linear-gradient(var(--raznos-bg) 62%, color-mix(in oklab, var(--raznos-bg) 0%, transparent)); pointer-events: none; }
+.raznos-dmap-layer > .raznos-app-bar > * { pointer-events: auto; }
+.raznos-dmap-head { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.raznos-dmap-box { position: absolute; inset: 0; }
+.raznos-dmap-card { position: absolute; z-index: 2; left: 12px; right: 12px; bottom: calc(80px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: row; align-items: center; gap: 12px; box-shadow: 0 6px 20px oklch(0 0 0 / 0.16); }
+.raznos-dmap-layer > a.raznos-btn { position: absolute; z-index: 2; left: 12px; right: 12px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); gap: 8px; text-decoration: none; background: var(--raznos-surface); box-shadow: 0 6px 20px oklch(0 0 0 / 0.16); }
+.raznos-dmap-card-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; font: 500 13px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-dmap-card-text > b { font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
+@media (prefers-reduced-motion: no-preference) {
+  .raznos-dmap-layer { animation: raznos-dmap-in .26s cubic-bezier(.16, 1, .3, 1) both; }
+  @keyframes raznos-dmap-in { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+}
+
+/* пустой старт: ответ на вопрос Уже работаете в сервисе доставки двумя карточками рядом */
+.raznos-ready-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.raznos-ready-opt { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 92px; padding: 12px 12px 14px; border: 1px solid var(--raznos-line-strong); border-radius: 14px; background: var(--raznos-surface); color: var(--raznos-ink); text-align: left; cursor: pointer; font: inherit; }
+.raznos-ready-opt b { font: 700 16px var(--raznos-font); }
+.raznos-ready-opt span { font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
+.raznos-ready-opt:active { background: var(--raznos-surface-2); }
+.raznos-ready-opt:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 42%, transparent); outline-offset: 2px; }

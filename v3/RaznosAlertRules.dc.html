@@ -1,0 +1,215 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-work.css" />
+  <style>
+    /* оповещения по своим правилам: список правил с переключателями, редактор в шторке, вид пуша */
+    .rar { display: flex; flex-direction: column; gap: 12px; font-family: var(--raznos-font); color: var(--raznos-ink); }
+    .rar-list { display: flex; flex-direction: column; border-radius: 16px; background: var(--raznos-surface); overflow: hidden; }
+    .rar-rule { display: flex; align-items: center; gap: 4px; border-bottom: 1px solid var(--raznos-line); }
+    .rar-rule-main { flex: 1; min-width: 0; display: flex; align-items: flex-start; gap: 12px; padding: 14px 4px 14px 14px; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+    .rar-ico { flex: none; width: 36px; height: 36px; border-radius: 11px; display: inline-flex; align-items: center; justify-content: center; background: var(--raznos-surface-2); color: var(--raznos-ink-2); transition: background-color 0.2s ease, color 0.2s ease; }
+    .rar-rule.rar-is-on .rar-ico { background: var(--raznos-green-tint); color: var(--raznos-green-deep); }
+    .rar-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+    .rar-txt b { font: 650 15px/1.3 var(--raznos-font); overflow-wrap: anywhere; }
+    .rar-txt .rar-txt-sub { font: 500 13px/1.4 var(--raznos-font); color: var(--raznos-ink-2); overflow-wrap: anywhere; }
+    .rar-rule:not(.rar-is-on) .rar-txt b { color: var(--raznos-ink-2); }
+    .rar-sw { flex: none; min-width: 60px; min-height: 48px; margin-right: 6px; display: inline-flex; align-items: center; justify-content: center; border: 0; background: none; cursor: pointer; }
+    .rar-rule-main:focus-visible, .rar-sw:focus-visible, .rar-add:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: -2px; border-radius: 12px; }
+    .rar-add { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 0 14px; border: 0; background: none; font: 650 15px var(--raznos-font); color: var(--raznos-green-deep); text-align: left; cursor: pointer; }
+    .rar-add i { width: 36px; height: 36px; flex: none; border-radius: 11px; display: inline-flex; align-items: center; justify-content: center; border: 1.5px dashed var(--raznos-line-strong); font-style: normal; }
+    .rar-empty { margin: 0; padding: 16px 14px 4px; font: 500 14px/1.45 var(--raznos-font); color: var(--raznos-ink-2); }
+    .rar-note { margin: 0; font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+    /* редактор */
+    .rar-group { display: flex; flex-direction: column; gap: 8px; }
+    .rar-label { font: 600 13px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rar-sub { margin: -2px 0 0; font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rar-actions { display: flex; flex-direction: column; gap: 4px; }
+    .rar-del { min-height: 48px; border: 0; background: none; font: 650 15px var(--raznos-font); color: var(--raznos-red); cursor: pointer; }
+    .rar-del:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 12px; }
+    /* вид пуша: как придёт на экран блокировки */
+    .rar-push { display: flex; gap: 10px; padding: 12px 14px; border-radius: 18px; background: var(--raznos-surface-2); box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.28); }
+    .rar-push-logo { flex: none; width: 28px; height: 28px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; background: var(--raznos-green); color: #fff; font: 800 15px var(--raznos-font); }
+    .rar-push-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .rar-push-meta { display: flex; justify-content: space-between; gap: 8px; font: 500 12px var(--raznos-font); color: var(--raznos-ink-3); }
+    .rar-push-body b { font: 650 14.5px/1.3 var(--raznos-font); overflow-wrap: anywhere; }
+    .rar-push-body .rar-push-text { font: 500 13.5px/1.4 var(--raznos-font); color: var(--raznos-ink-2); overflow-wrap: anywhere; }
+    @media (prefers-reduced-motion: no-preference) {
+      .rar-push { animation: rar-drop 0.42s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      @keyframes rar-drop { from { opacity: 0; transform: translateY(-10px) scale(0.98); } }
+    }
+  </style>
+</helmet>
+<sc-if value="{{ is_list }}" hint-placeholder-val="{{ true }}">
+<div class="rar">
+  <div class="rar-list">
+    <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}"><p class="rar-empty">Правил пока нет. Например: свободный слот вечером в вашем районе или ставка от 500 ₽/ч</p></sc-if>
+    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="2">
+      <div class="{{ r.cls }}">
+        <button type="button" class="rar-rule-main" onClick="{{ r.open }}" aria-label="{{ r.aria }}">
+          <span class="rar-ico" aria-hidden="true">
+            <sc-if value="{{ r.is_slot }}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M8.5 3.5v4M15.5 3.5v4M4 10h16M12 13v4M10 15h4"/></svg></sc-if>
+            <sc-if value="{{ r.is_demand }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 7-8"/><path d="M15 7h4v4"/></svg></sc-if>
+            <sc-if value="{{ r.is_bonus }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.5"/><path d="M8.5 13.5L7 21l5-2.5 5 2.5-1.5-7.5"/></svg></sc-if>
+            <sc-if value="{{ r.is_rate }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M10 16.5V7.5h3a2.5 2.5 0 0 1 0 5h-4.5M8.5 14.5H13"/></svg></sc-if>
+            <sc-if value="{{ r.is_weather }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15.5a4.5 4.5 0 1 1 1.2-8.8A5.5 5.5 0 0 1 18.5 9 3.3 3.3 0 0 1 18 15.5z"/><path d="M9 19.5v1.5M15 19.5v1.5M12 18.5v2"/></svg></sc-if>
+            <sc-if value="{{ r.is_ref }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M18 8v6M15 11h6"/></svg></sc-if>
+          </span>
+          <span class="rar-txt"><b>{{ r.title }}</b><span class="rar-txt-sub">{{ r.sub }}</span></span>
+        </button>
+        <button type="button" class="rar-sw" role="switch" aria-checked="{{ r.on }}" aria-label="{{ r.sw_aria }}" onClick="{{ r.toggle }}"><span class="{{ r.sw_cls }}"><span class="raznos-switch-knob"></span></span></button>
+      </div>
+    </sc-for>
+    <sc-if value="{{ can_add }}" hint-placeholder-val="{{ true }}"><button type="button" class="rar-add" onClick="{{ add }}"><i aria-hidden="true">+</i>Добавить оповещение</button></sc-if>
+  </div>
+  <p class="rar-note">{{ note }}</p>
+</div>
+</sc-if>
+<sc-if value="{{ is_edit }}" hint-placeholder-val="{{ false }}">
+<div class="rar">
+  <div class="rar-group"><span class="rar-label">Что ловим</span><dc-import name="RaznosChipGroup" options="{{ what_opts }}" value="{{ d.what }}" size="sm" label="Что ловим" onChange="{{ set_what }}"></dc-import></div>
+  <sc-if value="{{ is_rate_rule }}" hint-placeholder-val="{{ false }}"><div class="rar-group"><span class="rar-label">Ставка не ниже</span><dc-import name="RaznosChipGroup" options="{{ rate_opts }}" value="{{ d.rate }}" size="sm" label="Ставка не ниже" onChange="{{ set_rate }}"></dc-import></div></sc-if>
+  <div class="rar-group"><span class="rar-label">Сервисы</span><dc-import name="RaznosChipGroup" options="{{ svc_opts }}" value="{{ d.svcs }}" multi="{{ true }}" nullable="{{ false }}" size="sm" label="Сервисы" onChange="{{ set_svcs }}"></dc-import></div>
+  <sc-if value="{{ is_window_rule }}" hint-placeholder-val="{{ false }}"><div class="rar-group"><span class="rar-label">Предупредить</span><dc-import name="RaznosChipGroup" options="{{ ahead_opts }}" value="{{ d.ahead }}" size="sm" label="Предупредить" onChange="{{ set_ahead }}"></dc-import><p class="rar-sub">В день, когда окно откроется, напишем в любом случае</p></div></sc-if>
+  <sc-if value="{{ is_ref_rule }}" hint-placeholder-val="{{ false }}"><p class="rar-sub">Город берём из профиля, пишем один раз на событие и не раньше 08:00</p></sc-if>
+  <sc-if value="{{ show_when }}" hint-placeholder-val="{{ true }}">
+  <div class="rar-group"><span class="rar-label">Где</span><dc-import name="RaznosChipGroup" options="{{ where_opts }}" value="{{ d.where }}" multi="{{ true }}" nullable="{{ false }}" size="sm" label="Где" onChange="{{ set_where }}"></dc-import></div>
+  <div class="rar-group"><span class="rar-label">Дни</span><dc-import name="RaznosChipGroup" options="{{ day_opts }}" value="{{ d.days }}" multi="{{ true }}" nullable="{{ false }}" size="sm" label="Дни" onChange="{{ set_days }}"></dc-import></div>
+  <div class="rar-group"><span class="rar-label">Время</span><dc-import name="RaznosChipGroup" options="{{ time_opts }}" value="{{ d.time }}" size="sm" label="Время" onChange="{{ set_time }}"></dc-import></div>
+  <div class="rar-group"><span class="rar-label">Не чаще</span><dc-import name="RaznosChipGroup" options="{{ max_opts }}" value="{{ d.max }}" size="sm" label="Не чаще" onChange="{{ set_max }}"></dc-import><p class="rar-sub">Ночью с 23:00 до 08:00 не пишем</p></div>
+  </sc-if>
+  <div class="rar-group"><span class="rar-label">Так придёт</span>
+    <div class="rar-push" aria-label="{{ push_aria }}"><span class="rar-push-logo" aria-hidden="true">Р</span><span class="rar-push-body"><span class="rar-push-meta"><span>Разнос · ваше правило</span><span>сейчас</span></span><b>{{ push_title }}</b><span class="rar-push-text">{{ push_text }}</span></span></div>
+  </div>
+  <div class="rar-actions">
+    <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ save }}">{{ save_label }}</button>
+    <sc-if value="{{ can_delete }}" hint-placeholder-val="{{ false }}"><button type="button" class="rar-del" onClick="{{ del }}">Удалить оповещение</button></sc-if>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{ is_push }}" hint-placeholder-val="{{ false }}">
+  <div class="rar-push" aria-label="{{ push_aria }}"><span class="rar-push-logo" aria-hidden="true">Р</span><span class="rar-push-body"><span class="rar-push-meta"><span>Разнос · ваше правило</span><span>сейчас</span></span><b>{{ push_title }}</b><span class="rar-push-text">{{ push_text }}</span></span></div>
+</sc-if>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "mode": { "editor": "enum", "options": ["list", "edit", "push"], "default": "list" },
+  "rules": { "editor": null },
+  "rule": { "editor": null },
+  "services": { "editor": null },
+  "refServices": { "editor": null },
+  "areas": { "editor": null },
+  "onOpen": { "editor": null },
+  "onToggle": { "editor": null },
+  "onAdd": { "editor": null },
+  "onSave": { "editor": null },
+  "onDelete": { "editor": null },
+  "$preview": { "width": 360, "height": 640 }
+}'>
+// пример для дизайн-системы, в приложении правила приходят из ALERT_RULES_SEED
+const RAR_SVCS = [{ key: 'samokat', label: 'Самокат' }, { key: 'x5', label: 'X5 Доставка' }, { key: 'vkusvill', label: 'ВкусВилл' }];
+const RAR_AREAS = ['Беговой', 'Тверской', 'Пресненский', 'Арбат'];
+const RAR_RULES = [
+  { id: 'r1', what: 'slot', svcs: ['samokat', 'x5'], where: ['Тверской', 'Пресненский'], days: [0, 1, 2, 3, 4], time: 'evening', max: 3, on: true },
+  { id: 'r2', what: 'rate', rate: 500, svcs: ['vkusvill'], where: ['city'], days: [5, 6], time: 'day', max: 1, on: false }
+];
+const RAR_WHAT = [
+  { key: 'slot', label: 'Свободный слот' }, { key: 'demand', label: 'Высокий спрос' },
+  { key: 'bonus', label: 'Бонус или задание' }, { key: 'rate', label: 'Ставка от' }, { key: 'weather', label: 'Спрос из-за погоды' },
+  { key: 'ref_program', label: 'Новая программа приглашения' }, { key: 'ref_window', label: 'Снова новичок' }, { key: 'referrer', label: 'Появился реферер' }
+];
+// рефералки: правила без дней, времени и района, пишем в день события, ahead это за сколько дней предупредить об окне новичка
+const RAR_REF = ['ref_program', 'ref_window', 'referrer'];
+const RAR_TIME = { all: ['Весь день', ''], morning: ['Утро', '7–12'], day: ['День', '12–17'], evening: ['Вечер', '17–23'] };
+const RAR_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+const RAR_TIMES_WORD = (n) => (n === 1 ? 'раз' : (n >= 2 && n <= 4 ? 'раза' : 'раз'));
+const RAR_DAYS_LABEL = (days) => {
+  const d = (days || []).slice().sort();
+  if (d.length === 7) return 'каждый день';
+  if (d.join() === '0,1,2,3,4') return 'будни';
+  if (d.join() === '5,6') return 'выходные';
+  return d.map((i) => RAR_DAYS[i].toLowerCase()).join(', ');
+};
+const RAR_WHERE_LABEL = (w) => (!w || !w.length || w.indexOf('city') !== -1 ? 'весь город' : w.join(', '));
+const RAR_TIME_LABEL = (t) => { const x = RAR_TIME[t] || RAR_TIME.all; return t === 'all' || !RAR_TIME[t] ? 'весь день' : x[0].toLowerCase() + ' ' + x[1]; };
+const RAR_TITLE = (r) => ({ slot: 'Свободный слот', demand: 'Высокий спрос', bonus: 'Бонус или задание', rate: 'Ставка от ' + (r.rate || 500) + ' ₽/ч', weather: 'Спрос из-за погоды', ref_program: 'Новая программа приглашения', ref_window: 'Снова новичок', referrer: 'Появился реферер' }[r.what] || 'Оповещение');
+const RAR_AHEAD_LABEL = (n) => (n > 0 ? 'за ' + n + ' ' + (n === 3 ? 'дня' : 'дней') + ' и в день окна' : 'в день окна');
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const set = (patch) => this.setState(patch);
+    const mode = p.mode || 'list';
+    const svcs = Array.isArray(p.services) && p.services.length ? p.services : RAR_SVCS;
+    const areas = Array.isArray(p.areas) && p.areas.length ? p.areas : RAR_AREAS;
+    const refSvcs = Array.isArray(p.refServices) ? p.refServices : [];
+    const svcName = (k) => { const s = svcs.concat(refSvcs).find((x) => x.key === k); return s ? s.label : k; };
+    const svcLabel = (list) => (list || []).map(svcName).join(', ');
+    const sub = (r) => (r.what === 'ref_window' ? [svcLabel(r.svcs), RAR_AHEAD_LABEL(r.ahead || 0)] : (RAR_REF.indexOf(r.what) !== -1 ? [svcLabel(r.svcs), 'ваш город', 'сразу, как появится'] : [svcLabel(r.svcs), RAR_WHERE_LABEL(r.where), RAR_DAYS_LABEL(r.days) + ' ' + RAR_TIME_LABEL(r.time), 'до ' + r.max + ' раз в день'])).join(' · ');
+    // пример пуша: первое место и первый сервис из правила, время из выбранного окна
+    const push = (r) => {
+      // сервис и ставку берёт из выбранного часа вход со стороны Рынка, пока сервис есть в правиле
+      const hint = r.hint && (r.svcs || []).indexOf(r.hint.svc) !== -1 ? r.hint : null;
+      const svc = svcName(hint ? hint.svc : (r.svcs || [])[0] || svcs[0].key);
+      const where = !r.where || !r.where.length || r.where.indexOf('city') !== -1 ? 'рядом с вами' : r.where[0];
+      const win = { morning: '9:00–12:00', day: '13:00–17:00', evening: '18:00–22:00', all: '18:00–22:00' }[r.time] || '18:00–22:00';
+      if (r.what === 'ref_program') return ['Новая программа приглашения: ' + svc, 'Условия уже в карточке программы: сумма, число заказов и срок'];
+      if (r.what === 'ref_window') return ['Снова новичок: ' + svc, 'Сначала получите ссылку, потом регистрируйтесь. Курьеров готовы привести: 3'];
+      if (r.what === 'referrer') return ['Появился реферер: ' + svc, 'Выдра 27, рейтинг 4,9, свободно 2 места'];
+      if (r.what === 'demand') return ['Высокий спрос: ' + where, svc + ': заказов больше обычного, ' + (hint ? hint.rate : '≈ 620 ₽/ч') + ' в ближайшие 2 часа'];
+      // погода по прогнозу Open-Meteo: пишем заранее, за 1–2 часа до дождя, снега или мороза
+      if (r.what === 'weather') return ['Дождь с 18:00, спрос выше', svc + ', ' + where + ': заказов в дождь обычно больше на 15–25%'];
+      if (r.what === 'bonus') return ['Новое задание в ' + svc, '+1 500 ₽ за 20 заказов до воскресенья, условия в приложении сервиса'];
+      if (r.what === 'rate') return ['Ставка ' + ((r.rate || 500) + 40) + ' ₽/ч: ' + svc, where + ', ' + win + ', выше вашего порога ' + (r.rate || 500) + ' ₽/ч'];
+      return ['Свободный слот: ' + svc + ', ' + win, where + ', взять можно в приложении сервиса, пока свободен'];
+    };
+    if (mode === 'push') {
+      const pr = push(p.rule || RAR_RULES[0]);
+      return { is_list: false, is_edit: false, is_push: true, push_title: pr[0], push_text: pr[1], push_aria: 'Так придёт: ' + pr.join('. ') };
+    }
+    if (mode === 'edit') {
+      const base = p.rule || { id: '', what: 'slot', svcs: [svcs[0].key], where: ['city'], days: [0, 1, 2, 3, 4], time: 'evening', max: 3, on: true };
+      const d = Object.assign({}, base, st.draft || {});
+      const upd = (patch) => set({ draft: Object.assign({}, st.draft || {}, patch) });
+      const pr = push(d);
+      return {
+        is_list: false, is_edit: true, is_push: false, d,
+        what_opts: RAR_WHAT, rate_opts: [400, 500, 600, 700].map((v) => ({ key: v, label: v + ' ₽/ч' })),
+        svc_opts: (RAR_REF.indexOf(d.what) !== -1 && refSvcs.length ? refSvcs : svcs).map((s) => ({ key: s.key, label: s.label, dot: 'var(--raznos-svc-' + s.key + ')' })),
+        where_opts: [{ key: 'city', label: 'Весь город' }].concat(areas.map((a) => ({ key: a, label: a }))),
+        day_opts: RAR_DAYS.map((l, i) => ({ key: i, label: l })),
+        time_opts: Object.keys(RAR_TIME).map((k) => ({ key: k, label: (RAR_TIME[k][0] + ' ' + RAR_TIME[k][1]).trim() })),
+        max_opts: [1, 3, 5].map((n) => ({ key: n, label: n + ' ' + RAR_TIMES_WORD(n) + ' в день' })),
+        is_rate_rule: d.what === 'rate',
+        is_ref_rule: RAR_REF.indexOf(d.what) !== -1, show_when: RAR_REF.indexOf(d.what) === -1,
+        is_window_rule: d.what === 'ref_window', ahead_opts: [0, 3, 7].map((n) => ({ key: n, label: n ? 'За ' + n + ' ' + (n === 3 ? 'дня' : 'дней') : 'В день окна' })),
+        set_ahead: (v) => upd({ ahead: v }),
+        set_what: (v) => upd(Object.assign({ what: v }, v === 'rate' && !d.rate ? { rate: 500 } : {}, v === 'ref_window' && d.ahead == null ? { ahead: 3 } : {})),
+        set_rate: (v) => upd({ rate: v }), set_svcs: (v) => upd({ svcs: v }), set_days: (v) => upd({ days: v }),
+        set_time: (v) => upd({ time: v }), set_max: (v) => upd({ max: v }),
+        // весь город и районы взаимоисключающие: город снимает районы, район снимает город
+        set_where: (v) => {
+          const added = v.find((x) => (d.where || []).indexOf(x) === -1);
+          upd({ where: added === 'city' ? ['city'] : (v.filter((x) => x !== 'city').length ? v.filter((x) => x !== 'city') : ['city']) });
+        },
+        push_title: pr[0], push_text: pr[1], push_aria: 'Так придёт: ' + pr.join('. '),
+        save_label: base.id ? 'Сохранить' : 'Включить оповещение', can_delete: !!base.id,
+        save: () => { if (p.onSave) p.onSave(Object.assign({}, d, { on: base.id ? d.on : true })); },
+        del: () => { if (p.onDelete) p.onDelete(base.id); }
+      };
+    }
+    const rules = Array.isArray(p.rules) ? p.rules : (st.rules || RAR_RULES);
+    const onCount = rules.filter((r) => r.on).length;
+    return {
+      is_list: true, is_edit: false, is_push: false,
+      empty: rules.length === 0, can_add: rules.length < 5,
+      note: rules.length ? 'Включено ' + onCount + ' из ' + rules.length + '. Пишем, только когда сработает ваше правило, и не чаще, чем вы выбрали' : 'Пишем, только когда сработает ваше правило, общих советов не присылаем',
+      rows: rules.map((r) => ({
+        cls: 'rar-rule' + (r.on ? ' rar-is-on' : ''), on: !!r.on,
+        is_slot: r.what === 'slot', is_demand: r.what === 'demand', is_bonus: r.what === 'bonus', is_rate: r.what === 'rate', is_weather: r.what === 'weather', is_ref: RAR_REF.indexOf(r.what) !== -1,
+        title: RAR_TITLE(r), sub: sub(r), aria: 'Изменить: ' + RAR_TITLE(r) + '. ' + sub(r),
+        sw_cls: r.on ? 'raznos-switch raznos-is-on' : 'raznos-switch', sw_aria: RAR_TITLE(r) + (r.on ? ', включено' : ', выключено'),
+        open: () => { if (p.onOpen) p.onOpen(r.id); },
+        toggle: () => { if (p.onToggle) p.onToggle(r.id); else set({ rules: rules.map((x) => (x.id === r.id ? Object.assign({}, x, { on: !x.on }) : x)) }); }
+      })),
+      add: () => { if (p.onAdd) p.onAdd(); }
+    };
+  }
+}
+</script></body></html>

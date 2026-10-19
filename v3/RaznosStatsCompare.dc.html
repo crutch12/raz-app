@@ -1,0 +1,26 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
+<section class="raznos-stats-section raznos-stats-compare-card" aria-label="С прошлым и городом">
+  <button type="button" class="raznos-stats-head-link" onClick="{{ on_open }}"><span class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">С прошлым и городом</h2><small>{{ caption }}</small></span><svg class="raznos-stats-head-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+  <div class="raznos-stats-verdicts">
+    <dc-import name="RaznosCohortCompare" verdictMode="{{ true }}" recapMode="{{ true }}" city="{{ city }}" mineCity="{{ mine_city }}" transport="{{ transport }}" period="{{ period }}" svc="{{ svc }}" district="{{ district }}" mineAmount="{{ mine_amount }}" medianHint="{{ median_hint }}" share="{{ share }}" onSettings="{{ on_settings }}"></dc-import>
+  </div>
+  <dc-import name="RaznosMyTrends" current="{{ current }}" previous="{{ previous }}" keys="{{ keys }}"></dc-import>
+</section>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"caption":{"editor":"text","default":"К прошлому периоду и к курьерам города"},"current":{"editor":null},"previous":{"editor":null},"city":{"editor":"text","default":"moscow"},"mineCity":{"editor":"text","default":"moscow"},"transport":{"editor":"text","default":"bike"},"period":{"editor":"text","default":"week"},"svc":{"editor":"text","default":"all"},"district":{"editor":"text","default":"all"},"mineAmount":{"editor":null},"medianHint":{"editor":null},"share":{"editor":null},"onOpen":{"editor":null},"onSettings":{"editor":null},"$preview":{"width":360,"height":420}}'>
+// сравнение одним блоком: один вывод про курьеров города, ниже тренды к прошлому периоду по ставкам (суммы, заказы и часы уже в сводке)
+const RSC_KEYS = ['rate', 'perOrder', 'ordersPerHour'];
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    return {
+      caption: p.caption || 'К прошлому периоду и к курьерам города',
+      current: p.current, previous: p.previous, keys: RSC_KEYS,
+      city: p.city || 'moscow', mine_city: p.mineCity || 'moscow', transport: p.transport || 'bike', period: p.period || 'week',
+      svc: p.svc || 'all', district: p.district || 'all', mine_amount: p.mineAmount === undefined ? 8000 : p.mineAmount, median_hint: p.medianHint, share: p.share == null ? 1 : p.share,
+      on_open: typeof p.onOpen === 'function' ? p.onOpen : (() => {}),
+      on_settings: typeof p.onSettings === 'function' ? p.onSettings : undefined
+    };
+  }
+}
+</script></body></html>

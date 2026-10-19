@@ -1,0 +1,882 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@6.11.2/dist/maplibre-gl.css" />
+  <style>
+    /* настоящая карта районов: подложка OpenFreeMap, границы районов OSM и соты H3 из локальных данных */
+    .rdm { --rdm-land: oklch(0.955 0.008 95); position: relative; width: 100%; height: 380px; overflow: hidden; isolation: isolate; background: var(--rdm-land); }
+    .raznos-theme-dark .rdm, .rdm.raznos-theme-dark { --rdm-land: oklch(0.25 0.012 250); }
+    .rdm.rdm-fill { position: absolute; inset: 0; height: auto; }
+    /* через .rdm, чтобы стили карты, подключённые заново при повторе, не перебили position */
+    .rdm .rdm-canvas { position: absolute; inset: 0; }
+    /* сама карта во внутреннем узле: при уходе с экрана его вместе с картой забирает пул, при возврате ставим обратно */
+    .rdm .rdm-canvas > .rdm-gl { position: absolute; inset: 0; }
+    .rdm-canvas .maplibregl-canvas:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: -2px; }
+    .rdm-top { position: absolute; z-index: 3; top: calc(10px + var(--rdm-it, 0px)); left: 10px; right: 10px; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; pointer-events: none; }
+    .rdm-top > * { pointer-events: auto; }
+    .rdm-seg { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--raznos-surface); box-shadow: 0 2px 8px rgba(20, 25, 40, .18); }
+    .rdm-seg-btn { min-height: 38px; padding: 0 14px; border: 0; border-radius: 999px; background: none; font: 600 13px var(--raznos-font); color: var(--raznos-ink-2); cursor: pointer; }
+    .rdm-seg-btn[aria-pressed="true"] { background: var(--raznos-dark); color: var(--raznos-on-dark); }
+    .rdm-seg-btn:focus-visible, .rdm-home:focus-visible, .rdm-pill:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .rdm-chip { margin-left: auto; display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border-radius: 999px; background: var(--raznos-surface); box-shadow: 0 2px 8px rgba(20, 25, 40, .18); font: 700 13px var(--raznos-mono); color: var(--raznos-ink); font-variant-numeric: tabular-nums; }
+    .rdm-state { position: absolute; z-index: 3; left: 50%; top: 58px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 6px; max-width: calc(100% - 24px); padding: 6px 12px; border-radius: 999px; background: var(--raznos-surface); box-shadow: 0 2px 8px rgba(20, 25, 40, .18); font: 600 12px var(--raznos-font); color: var(--raznos-ink-2); white-space: nowrap; }
+    .rdm-state.rdm-state-solo { top: 10px; }
+    .rdm-state.rdm-state-warn { background: var(--raznos-amber-tint); color: var(--raznos-ink); }
+    .rdm-state-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--raznos-green); }
+    @media (prefers-reduced-motion: no-preference) {
+      .rdm-state-dot { animation: rdm-blink 1s ease-in-out infinite alternate; }
+      @keyframes rdm-blink { from { opacity: .25; } to { opacity: 1; } }
+    }
+    .rdm-home { position: absolute; z-index: 3; right: 10px; bottom: calc(12px + var(--rdm-ib, 0px)); width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 14px; background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 2px 8px rgba(20, 25, 40, .2); cursor: pointer; }
+    .rdm-legend { position: absolute; z-index: 3; left: 10px; bottom: calc(14px + var(--rdm-ib, 0px)); display: inline-flex; align-items: center; gap: 5px; max-width: calc(100% - 76px); padding: 6px 9px; border-radius: 10px; background: var(--raznos-surface); box-shadow: 0 1px 6px rgba(20, 25, 40, .16); font: 600 11px var(--raznos-font); color: var(--raznos-ink-2); }
+    .rdm-legend i { flex: none; width: 12px; height: 13px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+    .rdm-legend .rdm-l1 { background: oklch(0.8 0.1 150 / 0.7); } .rdm-legend .rdm-l2 { background: oklch(0.7 0.14 150 / 0.85); } .rdm-legend .rdm-l3 { background: oklch(0.58 0.15 150); }
+    .rdm-legend .rdm-ring { width: 12px; height: 12px; border-radius: 50%; border: 2px dashed currentColor; clip-path: none; box-sizing: border-box; }
+    /* источники карты своей тихой строкой вместо значка библиотеки, по тапу полный текст */
+    .rdm-attr { position: absolute; z-index: 2; right: 6px; bottom: 4px; max-width: calc(100% - 12px); padding: 3px 6px; border: 0; border-radius: 6px; background: color-mix(in oklab, var(--rdm-land) 72%, transparent); font: 500 10px/1.35 var(--raznos-font); color: var(--raznos-ink-3); text-align: right; text-wrap: balance; cursor: pointer; }
+    .rdm-attr:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 1px; }
+    .rdm-attr.rdm-attr-plain { pointer-events: none; cursor: default; }
+    /* пилюли районов создаёт карта, стили общие для обоих режимов */
+    /* позицию задаёт маркер карты (absolute), свою не ставим, иначе пилюли съезжают в потоке */
+    .rdm-pill { display: inline-flex; align-items: center; gap: 4px; min-height: 28px; padding: 0 10px; border: 0; border-radius: 999px; background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 2px 6px rgba(20, 25, 40, .24); font: 700 12px var(--raznos-font); font-variant-numeric: tabular-nums; white-space: nowrap; cursor: pointer; }
+    .rdm-pill::before { content: ""; position: absolute; inset: -8px -4px; }
+    .rdm-pill > b { font-weight: 800; color: var(--raznos-green-deep); }
+    .rdm-pill > i { font-style: normal; color: var(--raznos-green-deep); }
+    .rdm-pill.rdm-pill-sel { min-height: 34px; padding: 0 13px; background: var(--raznos-dark); color: var(--raznos-on-dark); font-size: 13px; z-index: 2; }
+    .rdm-pill.rdm-pill-sel > b, .rdm-pill.rdm-pill-sel > i { color: inherit; }
+    .rdm-pill.rdm-pill-none { color: var(--raznos-ink-3); }
+    .rdm-pill.rdm-pill-sel.rdm-pill-none { color: var(--raznos-on-dark); }
+    .rdm-pill-few { font: 600 11px var(--raznos-font); opacity: .8; }
+    .rdm-ds.rdm-ds-sm { width: 10px; height: 10px; border-width: 2px; }
+    .rdm-ds { width: 18px; height: 18px; border-radius: 50%; border: 3px solid #fff; box-sizing: border-box; box-shadow: 0 2px 6px rgba(20, 25, 40, .35); }
+    .rdm-zone-tag { margin-bottom: 4px; padding: 4px 9px; border-radius: 999px; background: var(--raznos-surface); color: var(--raznos-ink-2); box-shadow: 0 1px 5px rgba(20, 25, 40, .2); font: 600 11.5px var(--raznos-font); white-space: nowrap; }
+    /* режим люди: Карта курьеров, районы тихо на фоне, поверх курьеры, капли сообщений и ваша точка */
+    .rdm { --rdm-ring: #fff; }
+    .raznos-theme-dark .rdm, .rdm.raznos-theme-dark { --rdm-ring: oklch(0.22 0.012 250); }
+    .rdm-state.rdm-state-low { top: 66px; }
+    /* до согласия только размытый намёк на точки, сами места не читаются */
+    .rdm.rdm-locked .rdm-canvas { filter: saturate(0.7) blur(3px); transform: scale(1.04); }
+    .rdm-quiet { pointer-events: none; font: 700 9.5px var(--raznos-font); letter-spacing: .08em; text-transform: uppercase; color: var(--raznos-ink-3); text-shadow: 0 0 3px var(--rdm-land), 0 0 3px var(--rdm-land); white-space: nowrap; }
+    .rdm-mk-courier { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--rdm-ring); box-sizing: border-box; box-shadow: 0 1px 4px rgba(20, 25, 40, .3); pointer-events: none; }
+    /* курьера можно выбрать: точка та же, зона нажатия 44, выбранная крупнее с кольцом; position не задаём, метка уже absolute от MapLibre, иначе точка уезжает при зуме */
+    button.rdm-mk-courier { padding: 0; margin: 0; cursor: pointer; pointer-events: auto; }
+    button.rdm-mk-courier::before { content: ''; position: absolute; inset: -16px; border-radius: 50%; }
+    button.rdm-mk-courier:focus-visible { outline: 3px solid color-mix(in oklab, var(--raznos-green) 50%, transparent); outline-offset: 3px; }
+    .rdm-mk-courier.rdm-mk-on { width: 20px; height: 20px; border-width: 3px; box-shadow: 0 0 0 4px color-mix(in oklab, var(--raznos-ink) 22%, transparent), 0 2px 8px rgba(20, 25, 40, .35); z-index: 2; }
+    .rdm-mk-me { width: 16px; height: 16px; pointer-events: none; }
+    .rdm-mk-me > i { position: absolute; inset: 0; border-radius: 50%; }
+    .rdm-mk-me > .rdm-mk-dot { border: 3px solid var(--rdm-ring); box-shadow: 0 1px 5px rgba(20, 25, 40, .35); }
+    .rdm-mk-me > .rdm-mk-halo { inset: -8px; background: color-mix(in oklab, var(--raznos-dark) 18%, transparent); }
+    .rdm-mk-me > b { position: absolute; left: 21px; top: 50%; transform: translateY(-50%); font: 800 12px var(--raznos-font); color: var(--raznos-dark); text-shadow: 0 0 3px var(--rdm-land), 0 0 3px var(--rdm-land), 0 0 2px var(--rdm-land); }
+    .rdm-mk-drop { display: block; width: 28px; height: 32px; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(0 2px 3px rgba(20, 25, 40, .3)); }
+    .rdm-mk-drop::before { content: ""; position: absolute; inset: -6px -8px 0; }
+    .rdm-mk-drop svg { display: block; width: 28px; height: 32px; }
+    .rdm-mk-drop path { fill: currentColor; stroke: var(--rdm-ring); stroke-width: 1.8; stroke-linejoin: round; }
+    .rdm-mk-drop circle { fill: #fff; }
+    .rdm-mk-drop.rdm-mk-on { z-index: 3; }
+    .rdm-mk-drop.rdm-mk-on svg { width: 34px; height: 39px; margin: -7px -3px 0; }
+    .rdm-mk-drop.rdm-mk-on path { stroke: var(--raznos-ink); stroke-width: 2.4; }
+    .rdm-mk-drop:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 8px; }
+    /* пока библиотека карты грузится и если не загрузилась: подложка цвета карты и тихие контуры районов из того же GeoJSON */
+    .rdm { --rdm-sheen: rgba(255, 255, 255, .6); }
+    .raznos-theme-dark .rdm, .rdm.raznos-theme-dark { --rdm-sheen: rgba(255, 255, 255, .06); }
+    .rdm-ph { position: absolute; inset: 0; z-index: 1; overflow: hidden; background: var(--rdm-land); pointer-events: none; }
+    .rdm-ph svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .rdm-ph path { fill: none; stroke: var(--raznos-ink-3); stroke-opacity: .4; stroke-width: 1; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+    .rdm-ph path.rdm-ph-sel { stroke: var(--raznos-ink-2); stroke-opacity: .7; stroke-width: 2; }
+    .rdm-ph.rdm-ph-off { opacity: 0; visibility: hidden; }
+    .rdm-fail { position: absolute; z-index: 3; left: 50%; top: 50%; transform: translate(-50%, -50%); box-sizing: border-box; width: max-content; max-width: calc(100% - 32px); display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 16px; border: 1px solid var(--raznos-line); border-radius: 16px; background: var(--raznos-surface); box-shadow: 0 4px 16px rgba(20, 25, 40, .18); text-align: center; }
+    .rdm-fail-title { font: 700 15px var(--raznos-font); color: var(--raznos-ink); }
+    .rdm-fail-sub { font: 500 12.5px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rdm-fail-btn { margin-top: 8px; }
+    @media (prefers-reduced-motion: no-preference) {
+      .rdm-ph { transition: opacity .3s ease-out, visibility 0s linear .3s; }
+      .rdm-ph.rdm-ph-loading::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 35%, var(--rdm-sheen) 50%, transparent 65%) 0 0 / 250% 100% no-repeat; animation: rdm-sheen 1.8s ease-in-out infinite; }
+      @keyframes rdm-sheen { from { background-position: 120% 0; } to { background-position: -20% 0; } }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .rdm-mk-me > .rdm-mk-halo { animation: rdm-pulse 2.4s cubic-bezier(.16, 1, .3, 1) infinite; }
+      @keyframes rdm-pulse { from { transform: scale(0.6); opacity: 1; } to { transform: scale(1.8); opacity: 0; } }
+    }
+  </style>
+</helmet>
+<div class="{{ cls }}" style="{{ style }}" data-rdm="{{ uid }}" role="region" aria-label="{{ aria }}">
+  <div class="rdm-canvas"></div>
+  <div class="{{ ph_cls }}" aria-hidden="true"></div>
+  <sc-if value="{{ has_fail }}" hint-placeholder-val="{{ false }}"><div class="rdm-fail" role="alert" style="{{ fail_style }}"><span class="rdm-fail-title">Карта не загрузилась</span><span class="rdm-fail-sub">Проверьте интернет и попробуйте ещё раз</span><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small rdm-fail-btn" onClick="{{ retry }}">Повторить</button></div></sc-if>
+  <sc-if value="{{ has_top }}" hint-placeholder-val="{{ false }}">
+    <div class="rdm-top">
+      <sc-if value="{{ show_switch }}" hint-placeholder-val="{{ false }}"><div class="rdm-seg" role="group" aria-label="Что показать на карте"><button type="button" class="rdm-seg-btn" aria-pressed="{{ is_demand }}" onClick="{{ to_demand }}">Спрос</button><button type="button" class="rdm-seg-btn" aria-pressed="{{ is_contour }}" onClick="{{ to_contour }}">Районы</button></div></sc-if>
+      <sc-if value="{{ has_chip }}" hint-placeholder-val="{{ false }}"><span class="rdm-chip">{{ chip }}</span></sc-if>
+    </div>
+  </sc-if>
+  <sc-if value="{{ has_state }}" hint-placeholder-val="{{ false }}"><span class="{{ state_cls }}" role="status"><sc-if value="{{ state_busy }}" hint-placeholder-val="{{ false }}"><i class="rdm-state-dot" aria-hidden="true"></i></sc-if>{{ state_text }}</span></sc-if>
+  <sc-if value="{{ has_legend_demand }}" hint-placeholder-val="{{ false }}"><span class="rdm-legend">Ставка часа<i class="rdm-l1" aria-hidden="true"></i><i class="rdm-l2" aria-hidden="true"></i><i class="rdm-l3" aria-hidden="true"></i>выше</span></sc-if>
+  <sc-if value="{{ has_legend_zone }}" hint-placeholder-val="{{ false }}"><span class="rdm-legend"><i class="rdm-ring" style="{{ zone_color }}" aria-hidden="true"></i>Зона примерно</span></sc-if>
+  <sc-if value="{{ attr_btn }}" hint-placeholder-val="{{ true }}"><button type="button" class="rdm-attr" aria-expanded="{{ attr_open }}" aria-label="{{ attr_full }}" onClick="{{ attr_tap }}">{{ attr_text }}</button></sc-if>
+  <sc-if value="{{ attr_plain }}" hint-placeholder-val="{{ false }}"><span class="rdm-attr rdm-attr-plain">{{ attr_text }}</span></sc-if>
+  <sc-if value="{{ has_home }}" hint-placeholder-val="{{ false }}"><button type="button" class="rdm-home" aria-label="{{ home_label }}" title="{{ home_label }}" onClick="{{ home }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><circle cx="12" cy="12" r="2.5"/></svg></button></sc-if>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"text","default":"demand"},"districts":{"editor":null},"selected":{"editor":"text","default":""},"hour":{"editor":"number"},"hourLabel":{"editor":"text","default":""},"zones":{"editor":null},"focus":{"editor":"text","default":""},"showModeSwitch":{"editor":"boolean","default":false},"onPick":{"editor":null},"onMode":{"editor":null},"theme":{"editor":"text","default":"auto"},"height":{"editor":"number","default":380},"fill":{"editor":"boolean","default":false},"compact":{"editor":"boolean","default":false},"couriers":{"editor":null},"svcs":{"editor":null},"pins":{"editor":null},"me":{"editor":null},"activeId":{"editor":"text","default":""},"focusAt":{"editor":null},"onCourier":{"editor":null},"activeCourier":{"editor":null},"focusKey":{"editor":"text","default":""},"locked":{"editor":"boolean","default":false},"offline":{"editor":"boolean","default":false},"homeButton":{"editor":"boolean","default":true},"inset":{"editor":"number","default":0},"insetTop":{"editor":"number","default":0},"demoState":{"editor":"text","default":""},"poolKey":{"editor":"text","default":""},"$preview":{"width":390,"height":380}}'>
+
+// карта районов: районы OSM и соты H3 лежат локально в data/, поэтому видны и без сети, подложка подгружается поверх
+// пропсы и события в своих терминах, вся работа с картографической библиотекой только в адаптере RDM_MAP ниже
+// districts: [{ k, name, val, t (0..1 выгода), up, few, nodata, named (в спросе название рядом с числом) }], zones: [{ center: [lng, lat], radius_m, polygon, svc, approx, label }]
+const RDM_H3 = 'https://cdn.jsdelivr.net/npm/h3-js@4.5.0/dist/h3-js.es.js';
+const rdmOnce = (get, reset) => get().catch((e) => { reset(); throw e; });
+// номер попытки после ошибки: неудачный import браузер помнит, поэтому следующая попытка идёт с другим адресом
+let rdmTry = 0;
+const rdmBust = (u) => (rdmTry ? u + '?retry=' + rdmTry : u);
+const rdmJson = (u) => fetch(u).then((r) => (r.ok ? r.json() : Promise.reject(new Error(u))));
+// контуры районов локальные, их рисуем ещё до библиотеки карты
+let rdmGeoP = null;
+const rdmGeo = () => rdmGeoP || (rdmGeoP = rdmOnce(() => rdmJson('data/moscow-districts.geojson'), () => { rdmGeoP = null; }));
+let rdmDataP = null;
+// GeoJSON районов и списки id сот H3 по районам, плюс h3-js, чтобы получить контуры сот
+const rdmData = () => rdmDataP || (rdmDataP = rdmOnce(() => Promise.all([rdmGeo(), rdmJson('data/moscow-hex.json'), import(rdmBust(RDM_H3))]).then(([districts, hex, h3]) => {
+  const cells = (res) => {
+    const out = [];
+    Object.keys(hex[res]).forEach((k) => hex[res][k].forEach((id) => { const [lat, lng] = h3.cellToLatLng(id); out.push({ id, k, at: [lng, lat], ring: h3.cellToBoundary(id, true) }); }));
+    return out;
+  };
+  return { districts, coarse: cells('res8'), fine: cells('res9') };
+}), () => { rdmDataP = null; rdmTry++; }));
+
+// ===== адаптер карты: MapLibre GL 6.11.2 и подложка OpenFreeMap =====
+// чтобы переехать на Яндекс Карты JS API 3, заменить только этот объект с теми же функциями
+// на входе нейтральные данные: GeoJSON с готовыми цветами в properties (fill, fillOpacity, line, lineWidth, lineOpacity, dashed, hatch)
+const RDM_LIB = 'https://cdn.jsdelivr.net/npm/maplibre-gl@6.11.2/dist/maplibre-gl.mjs';
+const RDM_STYLE = 'https://tiles.openfreemap.org/styles/';
+const RDM_SHOW_CREDITS = false;
+const RDM_MAP = (() => {
+  let libP = null;
+  const styleP = {};
+  const lib = () => libP || (libP = rdmOnce(() => import(rdmBust(RDM_LIB)), () => { libP = null; rdmTry++; }));
+  // стиль подложки качаем сами: без ответа за 6 секунд считаем, что сети нет
+  const style = (dark) => {
+    const key = dark ? 'dark' : 'positron';
+    if (!styleP[key]) {
+      styleP[key] = rdmOnce(() => new Promise((ok, no) => {
+        const c = typeof AbortController === 'function' ? new AbortController() : null;
+        const t = setTimeout(() => { if (c) c.abort(); no(new Error('timeout')); }, 6000);
+        fetch(RDM_STYLE + key, c ? { signal: c.signal } : {}).then((r) => (r.ok ? r.json() : Promise.reject(new Error('style')))).then(ok, no).finally(() => clearTimeout(t));
+      }), () => { delete styleP[key]; });
+    }
+    return styleP[key];
+  };
+  // подложка без подписей районов, городов и POI, улицы и вода по-русски
+  const base = (s) => {
+    const ru = ['coalesce', ['get', 'name:ru'], ['get', 'name']];
+    const layers = s.layers.filter((l) => !(l.type === 'symbol' && /^(label_|place_|airport|poi|highway-shield|road_shield)/.test(l.id))).map((l) => {
+      if (l.type !== 'symbol' || !l.layout || !/name/.test(JSON.stringify(l.layout['text-field'] || ''))) return l;
+      return Object.assign({}, l, { layout: Object.assign({}, l.layout, { 'text-field': ru }) });
+    });
+    return Object.assign({}, s, { layers });
+  };
+  const OWN = /^rdm-/;
+  const EMPTY = { type: 'FeatureCollection', features: [] };
+  const hatch = (color) => {
+    const n = 8, c = document.createElement('canvas');
+    c.width = c.height = n;
+    const x = c.getContext('2d', { willReadFrequently: true });
+    x.strokeStyle = color; x.lineWidth = 1.4; x.beginPath();
+    x.moveTo(0, n); x.lineTo(n, 0); x.moveTo(-2, 2); x.lineTo(2, -2); x.moveTo(n - 2, n + 2); x.lineTo(n + 2, n - 2); x.stroke();
+    return x.getImageData(0, 0, n, n);
+  };
+  const g = (k) => ['get', k];
+  // типовые метки Карты курьеров: курьер точкой, сообщение каплей, вы точкой с подписью
+  const DROP = '<svg viewBox="-12 -27 24 28" aria-hidden="true"><path d="M-5-26H5a6 6 0 0 1 6 6v6a6 6 0 0 1-6 6H3L0 0-3-8H-5a6 6 0 0 1-6-6v-6a6 6 0 0 1 6-6z"/><circle cx="-5" cy="-17" r="1.7"/><circle cx="0" cy="-17" r="1.7"/><circle cx="5" cy="-17" r="1.7"/></svg>';
+  const rdmMark = (m) => {
+    if (m.el || !m.kind) return m;
+    let el;
+    if (m.kind === 'drop') {
+      el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'rdm-mk-drop' + (m.active ? ' rdm-mk-on' : '');
+      el.innerHTML = DROP;
+      el.setAttribute('aria-label', m.label || 'Сообщение');
+      if (m.onTap) el.addEventListener('click', (e) => { e.stopPropagation(); m.onTap(); });
+    } else if (m.kind === 'me') {
+      el = document.createElement('div');
+      el.className = 'rdm-mk-me';
+      el.innerHTML = '<i class="rdm-mk-halo"></i><i class="rdm-mk-dot"></i><b>вы</b>';
+      el.querySelector('.rdm-mk-dot').style.background = m.color;
+      el.setAttribute('role', 'img');
+      el.setAttribute('aria-label', 'Вы здесь');
+    } else if (m.onTap) {
+      el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'rdm-mk-courier' + (m.active ? ' rdm-mk-on' : '');
+      el.setAttribute('aria-label', m.label || 'Курьер на смене');
+      el.addEventListener('click', (e) => { e.stopPropagation(); m.onTap(); });
+    } else {
+      el = document.createElement('div');
+      el.className = 'rdm-mk-courier';
+      el.setAttribute('aria-hidden', 'true');
+    }
+    if (m.kind !== 'me') el.style[m.kind === 'drop' ? 'color' : 'background'] = m.color;
+    return { el, at: m.at, anchor: m.kind === 'drop' ? 'bottom' : 'center', ci: m.ci };
+  };
+  const addOwn = (map, o) => {
+    ['rdm-d', 'rdm-hc', 'rdm-hf', 'rdm-mask', 'rdm-z', 'rdm-sel'].forEach((id) => map.addSource(id, { type: 'geojson', data: EMPTY }));
+    if (!map.hasImage('rdm-hatch')) map.addImage('rdm-hatch', hatch(o.hatchColor));
+    const hex = { 'fill-color': g('fill'), 'fill-opacity': g('fillOpacity'), 'fill-outline-color': o.hexEdge };
+    [
+      { id: 'rdm-fill', type: 'fill', source: 'rdm-d', paint: { 'fill-color': g('fill'), 'fill-opacity': g('fillOpacity') } },
+      { id: 'rdm-none', type: 'fill', source: 'rdm-d', filter: ['==', g('hatch'), 1], paint: { 'fill-pattern': 'rdm-hatch', 'fill-opacity': 0.55 } },
+      { id: 'rdm-hc', type: 'fill', source: 'rdm-hc', maxzoom: 13, paint: hex },
+      { id: 'rdm-hf', type: 'fill', source: 'rdm-hf', minzoom: 13, paint: hex },
+      { id: 'rdm-line', type: 'line', source: 'rdm-d', paint: { 'line-color': g('line'), 'line-width': g('lineWidth'), 'line-opacity': g('lineOpacity') } },
+      { id: 'rdm-mask', type: 'fill', source: 'rdm-mask', paint: { 'fill-color': g('fill'), 'fill-opacity': g('fillOpacity') } },
+      { id: 'rdm-zfill', type: 'fill', source: 'rdm-z', paint: { 'fill-color': g('fill'), 'fill-opacity': g('fillOpacity') } },
+      { id: 'rdm-zdash', type: 'line', source: 'rdm-z', filter: ['==', g('dashed'), 1], paint: { 'line-color': g('line'), 'line-width': g('lineWidth'), 'line-dasharray': [2, 1.6] } },
+      { id: 'rdm-zline', type: 'line', source: 'rdm-z', filter: ['!=', g('dashed'), 1], paint: { 'line-color': g('line'), 'line-width': g('lineWidth') } },
+      { id: 'rdm-sel', type: 'line', source: 'rdm-sel', paint: { 'line-color': g('line'), 'line-width': g('lineWidth') } },
+      { id: 'rdm-hit', type: 'fill', source: 'rdm-d', paint: { 'fill-color': '#000', 'fill-opacity': 0 } }
+    ].forEach((l) => map.addLayer(l));
+  };
+  return {
+    // источники для подписи на карте, обязательны по лицензии ODbL и OpenFreeMap
+    credits: { short: '© OpenStreetMap', full: '© участники OpenStreetMap, © OpenMapTiles, подложка OpenFreeMap' },
+    // o: { container, land, dark, bounds, interactive, wheel, hatchColor, hexEdge, onTap(k), onNet(state), onView(), onReady() }
+    create(o) {
+      return lib().then((L) => {
+        const h = { L, markers: [], ready: false };
+        const b = o.bounds;
+        const map = new L.Map({
+          container: o.container,
+          style: { version: 8, sources: {}, layers: [{ id: 'rdm-bg', type: 'background', paint: { 'background-color': o.land } }] },
+          bounds: [[b[0], b[1]], [b[2], b[3]]], fitBoundsOptions: { padding: 16 },
+          // подпись источников рисует компонент своей строкой, тексты в credits
+          attributionControl: false,
+          interactive: o.interactive, dragRotate: false, pitchWithRotate: false, touchPitch: false, scrollZoom: !!o.wheel,
+          minZoom: 9, maxZoom: 16.5, renderWorldCopies: false
+        });
+        h.map = map;
+        if (map.touchZoomRotate) map.touchZoomRotate.disableRotation();
+        if (map.keyboard) map.keyboard.disableRotation();
+        map.setMissingStyleImageResolver((id) => { if (id === 'rdm-hatch' && !map.hasImage(id)) map.addImage(id, hatch(o.hatchColor)); });
+        // ошибки тайлов и стиля значат, что подложки нет, наши слои локальные
+        map.on('error', (e) => { if (!(e && e.sourceId && OWN.test(e.sourceId)) && !h.gone) o.onNet('offline'); });
+        map.on('moveend', () => { if (!h.gone) o.onView(); });
+        map.on('click', (e) => {
+          if (Date.now() - (h.markerTap || 0) < 400) return;
+          const f = map.queryRenderedFeatures(e.point, { layers: ['rdm-hit'] })[0];
+          o.onTap(f ? f.properties.k : '');
+        });
+        map.on('load', () => {
+          addOwn(map, o);
+          h.ready = true;
+          o.onReady();
+          // без сети подложку не просим, наши слои и точки локальные
+          if (o.offline) { o.onNet('offline'); return; }
+          style(o.dark).then((s) => {
+            if (h.gone) return;
+            map.setStyle(base(s), {
+              diff: false,
+              transformStyle: (prev, next) => {
+                const own = {};
+                Object.keys((prev && prev.sources) || {}).filter((k) => OWN.test(k)).forEach((k) => { own[k] = prev.sources[k]; });
+                const ownLayers = ((prev && prev.layers) || []).filter((l) => OWN.test(l.id) && l.id !== 'rdm-bg');
+                return Object.assign({}, next, { sources: Object.assign({}, next.sources, own), layers: next.layers.concat(ownLayers) });
+              }
+            });
+            map.once('idle', () => { if (!h.gone) o.onNet('ok'); });
+          }, () => { if (!h.gone) o.onNet('offline'); });
+        });
+        return h;
+      });
+    },
+    setDistricts(h, fc) { h.map.getSource('rdm-d').setData(fc); },
+    // coarse для города, fine при приближении
+    setHexes(h, coarse, fine) { h.map.getSource('rdm-hc').setData(coarse); h.map.getSource('rdm-hf').setData(fine); },
+    setMask(h, f) { h.map.getSource('rdm-mask').setData(f || EMPTY); },
+    setZones(h, fc) { h.map.getSource('rdm-z').setData(fc); },
+    setSelection(h, f) { h.map.getSource('rdm-sel').setData(f || EMPTY); },
+    // markers: [{ el, at: [lng, lat], anchor: 'center'|'bottom' }] или готовые типы с цветом от нашего кода:
+    // { kind: 'courier', at, color, active, label, onTap, ci }, { kind: 'drop', at, color, active, label, onTap }, { kind: 'me', at, color }
+    setMarkers(h, list) {
+      h.markers.forEach((m) => m.remove());
+      h.cm = {};
+      h.markers = list.map(rdmMark).map((m) => {
+        m.el.addEventListener('click', () => { h.markerTap = Date.now(); });
+        const mk = new h.L.Marker({ element: m.el, anchor: m.anchor || 'center' }).setLngLat(m.at).addTo(h.map);
+        if (m.ci != null) h.cm[m.ci] = mk;
+        return mk;
+      });
+    },
+    // сдвинуть метку курьера по индексу, не пересоздавая её
+    moveCourier(h, ci, at) { const m = h.cm && h.cm[ci]; if (m) m.setLngLat(at); },
+    // свои слои уже нарисованы: ждём простоя карты, но не дольше 800 мс, подложка может грузиться дольше
+    whenDrawn(h, cb) { let done = false; const go = () => { if (!done && !h.gone) { done = true; cb(); } }; h.map.once('idle', go); setTimeout(go, 800); },
+    fitTo(h, box, o) { h.map.fitBounds([[box[0], box[1]], [box[2], box[3]]], { padding: o.padding, maxZoom: o.maxZoom, duration: o.animate ? 650 : 0 }); },
+    // вид карты для пула: что сохранить при уходе и вернуть после пересадки в новый узел
+    view(h) { const c = h.map.getCenter(); return { center: [c.lng, c.lat], zoom: h.map.getZoom() }; },
+    reattach(h, v) { h.map.resize(); if (v) h.map.jumpTo({ center: v.center, zoom: v.zoom }); },
+    destroy(h) { h.gone = true; h.markers.forEach((m) => m.remove()); try { h.map.remove(); } catch (e) { /* уже снята */ } }
+  };
+})();
+// ===== конец адаптера =====
+
+// пул живых карт по ключу экрана: при уходе с экрана карта не удаляется, а ждёт возврата, библиотека и подложка уже загружены
+// работает поверх адаптера: хранит узел с картой, ручку адаптера и вид, сам с библиотекой не говорит
+const RDM_POOL = (() => {
+  const items = new Map();
+  const MAX = 4;
+  return {
+    put(key, e) {
+      const old = items.get(key);
+      if (old) { items.delete(key); RDM_MAP.destroy(old.h); }
+      items.set(key, e);
+      // контекстов WebGL у браузера немного, старые карты отпускаем
+      while (items.size > MAX) { const [k, v] = items.entries().next().value; items.delete(k); RDM_MAP.destroy(v.h); }
+    },
+    peek(key) { return items.get(key) || null; },
+    take(key) { const e = items.get(key) || null; items.delete(key); return e; }
+  };
+})();
+
+// цвета из токенов ДС считаем сами: картам нужен rgb, oklch переводим через canvas
+const rdmCanvas = typeof document !== 'undefined' ? document.createElement('canvas') : null;
+const rdmRgb = (css) => {
+  if (!rdmCanvas) return '#888';
+  rdmCanvas.width = rdmCanvas.height = 1;
+  const x = rdmCanvas.getContext('2d', { willReadFrequently: true });
+  x.clearRect(0, 0, 1, 1); x.fillStyle = '#888'; x.fillStyle = css; x.fillRect(0, 0, 1, 1);
+  const d = x.getImageData(0, 0, 1, 1).data;
+  return 'rgb(' + d[0] + ',' + d[1] + ',' + d[2] + ')';
+};
+const rdmTok = (host, name) => { const s = document.createElement('span'); s.style.color = 'var(' + name + ')'; s.style.display = 'none'; host.appendChild(s); const c = getComputedStyle(s).color; s.remove(); return rdmRgb(c); };
+const rdmBox = (rings) => rings.reduce((b, r) => r.reduce((a, [x, y]) => [Math.min(a[0], x), Math.min(a[1], y), Math.max(a[2], x), Math.max(a[3], y)], b), [180, 90, -180, -90]);
+const rdmCircle = ([lng, lat], r) => {
+  const out = [];
+  for (let i = 0; i <= 64; i++) { const a = i / 64 * 2 * Math.PI; out.push([lng + r / (111320 * Math.cos(lat * Math.PI / 180)) * Math.cos(a), lat + r / 110574 * Math.sin(a)]); }
+  return out;
+};
+// спрос внутри района неровный и меняется по часам, демо-волна поверх ставки района
+const rdmWave = (x, y, h) => 0.5 + 0.5 * Math.sin((x - 37.6) * 95 + h * 0.6) * Math.cos((y - 55.75) * 150 - h * 0.4);
+const rdmLvl = (t, x, y, h) => { const v = t * 0.6 + rdmWave(x, y, h) * 0.4; return v > 0.74 ? 3 : (v > 0.55 ? 2 : (v > 0.36 ? 1 : 0)); };
+const rdmFmtKm = (m) => (m >= 1000 ? String(Math.round(m / 100) / 10).replace('.', ',') + ' км' : Math.round(m / 10) * 10 + ' м');
+const rdmReduced = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const rdmEsc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const RDM_WORLD = [[-180, -85], [180, -85], [180, 85], [-180, 85], [-180, -85]];
+const rdmFC = (features) => ({ type: 'FeatureCollection', features });
+const RDM_CSS = 'https://cdn.jsdelivr.net/npm/maplibre-gl@6.11.2/dist/maplibre-gl.css';
+// стили карты тоже с CDN: если не загрузились вместе с библиотекой, при повторе подключаем ещё раз
+let rdmCssTry = 0;
+const rdmCssAgain = () => {
+  if (!rdmTry || rdmCssTry === rdmTry) return;
+  rdmCssTry = rdmTry;
+  const probe = document.createElement('div');
+  probe.className = 'maplibregl-map';
+  probe.style.display = 'none';
+  document.body.appendChild(probe);
+  const ok = getComputedStyle(probe).overflow === 'hidden';
+  probe.remove();
+  if (ok) return;
+  const l = document.createElement('link');
+  l.rel = 'stylesheet'; l.href = rdmBust(RDM_CSS);
+  document.head.appendChild(l);
+};
+// заглушка до карты: та же проекция, что у карты (меркатор), и тот же первый вид, контуры районов путями SVG
+const rdmMy = (lat) => -Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360)) * 180 / Math.PI;
+const rdmPhSvg = (feats, w, h, view, sel) => {
+  const b = view.box, pad = view.pad;
+  const x0 = b[0], x1 = b[2], y0 = rdmMy(b[3]), y1 = rdmMy(b[1]);
+  const s = Math.min((w - pad.left - pad.right) / Math.max(x1 - x0, 1e-6), (h - pad.top - pad.bottom) / Math.max(y1 - y0, 1e-6), 512 * Math.pow(2, view.maxZoom) / 360);
+  const ox = w / 2 + (pad.left - pad.right) / 2 - (x0 + x1) / 2 * s, oy = h / 2 + (pad.top - pad.bottom) / 2 - (y0 + y1) / 2 * s;
+  const d = (ring) => ring.map(([x, y], i) => (i ? 'L' : 'M') + (ox + x * s).toFixed(1) + ' ' + (oy + rdmMy(y) * s).toFixed(1)).join('') + 'Z';
+  return '<svg viewBox="0 0 ' + Math.round(w) + ' ' + Math.round(h) + '" preserveAspectRatio="xMidYMid slice">' + feats.map((f) => '<path' + (f.properties.k === sel ? ' class="rdm-ph-sel"' : '') + ' d="' + d(f.geometry.coordinates[0]) + '"/>').join('') + '</svg>';
+};
+// Карта курьеров в демо: 30 курьеров на смене в центре Москвы, точки примерные, до квартала, без имён
+const RDM_COURIERS_DEMO = [
+  [70, 60, 'samokat'], [104, 96, 'samokat'], [120, 120, 'vkusvill'], [84, 132, 'yandex-eda'], [150, 104, 'yandex-eda'],
+  [178, 128, 'samokat'], [206, 118, 'x5'], [196, 170, 'yandex-eda'], [230, 150, 'vkusvill'], [160, 180, 'samokat'],
+  [132, 214, 'yandex-eda'], [210, 206, 'yandex-eda'], [244, 222, 'samokat'], [272, 176, 'x5'], [300, 150, 'yandex-eda'],
+  [58, 230, 'vkusvill'], [96, 256, 'samokat'], [168, 270, 'x5'], [212, 280, 'yandex-eda'], [264, 290, 'vkusvill'],
+  [300, 250, 'samokat'], [130, 318, 'yandex-eda'], [190, 330, 'samokat'], [240, 350, 'yandex-eda'], [70, 350, 'x5'],
+  [320, 330, 'yandex-eda'], [150, 400, 'vkusvill'], [36, 190, 'yandex-eda'], [330, 90, 'samokat'], [226, 60, 'yandex-eda']
+].map(([x, y, svc]) => ({ at: [+(37.505 + x / 360 * 0.19).toFixed(5), +(55.8 - y / 440 * 0.082).toFixed(5)], svc }));
+// демо-движение: шаг раз в 15 секунд, плавный переход 2,4 секунды
+const RDM_MOVE_MS = 15000, RDM_MOVE_GLIDE = 2400;
+// маршрут курьера от его индекса: тот же каждый раз, часть курьеров стоит
+const rdmRoute = (i, at) => {
+  let a = (i + 1) * 2654435761 >>> 0;
+  const rnd = () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  return { rnd, still: rnd() < 0.3, hd: rnd() * 2 * Math.PI };
+};
+// ваша примерная точка в демо, Беговая ул.
+const RDM_ME_DEMO = [37.5565, 55.7768];
+
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    if (!this._uid) {
+      this._uid = 'rdm' + Math.random().toString(36).slice(2, 8);
+      // карта этого экрана ждёт в пуле: с первого кадра без заглушки и надписи загрузки
+      this._pre = p.poolKey && !p.demoState ? RDM_POOL.peek(p.poolKey) : null;
+    }
+    const pre = this._pre;
+    const mode = this._mode();
+    const sel = this._sel();
+    const list = Array.isArray(p.districts) ? p.districts : [];
+    const selD = list.find((d) => d.k === sel);
+    const zones = Array.isArray(p.zones) ? p.zones : [];
+    // demoState для галереи: loading или fail, карту тогда не создаём
+    const demo = p.demoState === 'loading' || p.demoState === 'fail' ? p.demoState : '';
+    const net = demo || st.net || (pre && pre.sink.net) || 'loading';
+    const drawn = !demo && (st.drawn != null ? !!st.drawn : !!pre);
+    const showSwitch = !!p.showModeSwitch && !p.compact;
+    const chip = p.hourLabel || '';
+    // ошибку без превью говорит карточка с кнопкой, в превью Сегодня кнопки нет, карту перезапустит открытие экрана
+    const failCard = net === 'fail' && !p.compact;
+    const stateText = net === 'loading' ? 'Загружаем карту' : (net === 'offline' ? 'Карта без подложки, нет сети' : (net === 'fail' && !failCard ? 'Карта не загрузилась' : ''));
+    const setMode = (m) => () => { this.setState({ mode: m }); if (typeof p.onMode === 'function') p.onMode(m); };
+    const people = mode === 'people';
+    const crowd = people ? this._crowd() : null;
+    return {
+      uid: this._uid,
+      cls: 'rdm' + (p.fill ? ' rdm-fill' : '') + (p.theme === 'dark' ? ' raznos-theme-dark' : '') + (people && p.locked ? ' rdm-locked' : ''),
+      // insetTop и inset: сколько карты сверху и снизу закрыто интерфейсом экрана, кнопки карты встают над ними
+      style: [p.fill ? '' : 'height:' + (+p.height > 0 ? +p.height : 380) + 'px', '--rdm-it:' + (+p.insetTop > 0 ? +p.insetTop : 0) + 'px', '--rdm-ib:' + (+p.inset > 0 && this._mode() !== 'people' ? +p.inset : 0) + 'px'].filter(Boolean).join(';'),
+      aria: people ? (p.locked ? 'Карта курьеров скрыта, пока вы не показываете себя' : 'Карта курьеров, на смене ' + crowd.couriers.length + (crowd.pins.length ? ', сообщений с местом ' + crowd.pins.length : ''))
+        : 'Карта районов, ' + (mode === 'demand' ? 'спрос по ставке часа' : 'границы районов') + (selD ? ', выбран ' + selD.name : ''),
+      has_top: showSwitch || !!chip, show_switch: showSwitch, has_chip: !!chip, chip,
+      is_demand: String(mode === 'demand'), is_contour: String(mode !== 'demand'),
+      to_demand: setMode('demand'), to_contour: setMode('contour'),
+      has_state: !!stateText, state_text: stateText, state_busy: net === 'loading',
+      state_cls: 'rdm-state' + (people && !p.compact ? ' rdm-state-low' : (showSwitch || chip ? '' : ' rdm-state-solo')) + (net === 'offline' || net === 'fail' ? ' rdm-state-warn' : ''),
+      has_legend_demand: mode === 'demand' && !p.compact && net !== 'fail', has_legend_zone: mode === 'contour' && zones.some((z) => z.approx !== false) && !p.compact && net !== 'fail',
+      zone_color: zones[0] && zones[0].svc ? 'color:var(--raznos-svc-' + zones[0].svc + ')' : '',
+      ph_cls: 'rdm-ph' + (drawn ? ' rdm-ph-off' : '') + (net === 'loading' && !drawn ? ' rdm-ph-loading' : ''),
+      has_fail: failCard, retry: () => this._retry(),
+      // в превью карточка сама кнопка, поэтому там просто текст
+      // в демо подпись источников скрыта; в рабочем приложении включить, этого требует лицензия OpenStreetMap
+      attr_btn: RDM_SHOW_CREDITS && !p.compact, attr_plain: RDM_SHOW_CREDITS && !!p.compact, attr_open: String(!!st.attrOpen), attr_full: 'Источники карты: ' + RDM_MAP.credits.full,
+      attr_text: st.attrOpen && !p.compact ? RDM_MAP.credits.full : RDM_MAP.credits.short, attr_tap: () => this.setState({ attrOpen: !st.attrOpen }),
+      // на Карте курьеров снизу сводка экрана, карточку ставим по центру видимой части
+      fail_style: people && +p.inset > 0 ? 'top:calc(50% - ' + Math.round(+p.inset / 2) + 'px)' : '',
+      has_home: !p.compact && p.homeButton !== false && drawn, home_label: zones.length ? 'Показать зону целиком' : 'Показать весь город', home: () => this._home()
+    };
+  }
+
+  _mode() { const p = this.props || {}; if (p.mode === 'people') return 'people'; return (this.state || {}).mode || (this._pre && this._pre.mode) || (p.mode === 'contour' ? 'contour' : 'demand'); }
+  // кого рисуем на Карте курьеров: фильтр сервисов действует на точки и капли, до согласия только размытый намёк
+  _crowd() {
+    const p = this.props || {};
+    const svcs = Array.isArray(p.svcs) ? p.svcs : [];
+    const all = Array.isArray(p.couriers) ? p.couriers : (p.couriers === true ? RDM_COURIERS_DEMO : []);
+    const couriers = all.map((c, i) => Object.assign({ i }, c)).filter((c) => !svcs.length || svcs.indexOf(c.svc) !== -1).filter((c, i) => !p.locked || i % 2 === 0);
+    const pins = p.locked ? [] : (Array.isArray(p.pins) ? p.pins : []).filter((pn) => !svcs.length || (pn.svcs || [pn.svc]).some((k) => svcs.indexOf(k) !== -1));
+    const me = p.locked ? null : (Array.isArray(p.me) ? p.me : (p.me === true ? RDM_ME_DEMO : null));
+    return { couriers, pins, me };
+  }
+  _sel() {
+    const p = this.props || {};
+    if (typeof p.onPick !== 'function' && (this.state || {}).pick != null) return this.state.pick;
+    if (p.selected != null && p.selected !== '') return p.selected;
+    const d = (Array.isArray(p.districts) ? p.districts : []).find((x) => x.sel);
+    return d ? d.k : '';
+  }
+  _host() { return document.querySelector('[data-rdm="' + this._uid + '"]'); }
+
+  componentDidMount() { this._alive = true; if (!this._adopt()) this._init(); }
+  componentWillUnmount() {
+    this._alive = false;
+    this._moveStop();
+    const p = this.props || {};
+    // готовую карту с ключом экрана не удаляем, а кладём в пул вместе с видом
+    if (p.poolKey && this._h && this._h.ready && (this.state || {}).drawn && this._el) {
+      RDM_POOL.put(p.poolKey, {
+        h: this._h, el: this._el, sink: this._sink, view: RDM_MAP.view(this._h), data: this._data, c: this._c, dark: this._dark, off: this._off,
+        cityBox: this._cityBox, svcC: this._svcC, cs: this._cs, cur: this._cur, fly: this._fly, lastSel: this._lastSel, target: this._target(), mode: (this.state || {}).mode
+      });
+      this._el.remove();
+      this._h = null;
+      return;
+    }
+    this._drop();
+  }
+
+  // что задаёт вид карты: если с прошлого раза не поменялось, оставляем вид как был
+  _target() {
+    const p = this.props || {};
+    if (this._mode() === 'people') return JSON.stringify(['people', p.focusKey || '', p.focusAt || null]);
+    return JSON.stringify([this._sel(), p.focus || '', (Array.isArray(p.zones) ? p.zones : []).map((z) => [z.center, z.radius_m, z.polygon ? 1 : 0])]);
+  }
+
+  // забрать карту экрана из пула: пересадить узел, вернуть вид и подписаться на её события
+  _adopt() {
+    const p = this.props || {};
+    const e = p.poolKey && !p.demoState ? RDM_POOL.take(p.poolKey) : null;
+    const host = e && this._host();
+    if (!e) { this._pre = null; return false; }
+    if (!host || !!host.closest('.raznos-theme-dark') !== e.dark || !!p.offline !== e.off) { this._pre = null; RDM_MAP.destroy(e.h); return false; }
+    const box = host.querySelector('.rdm-canvas');
+    box.textContent = '';
+    box.appendChild(e.el);
+    this._gen = (this._gen || 0) + 1;
+    e.sink.cmp = this; e.sink.gen = this._gen;
+    Object.assign(this, { _h: e.h, _el: e.el, _sink: e.sink, _data: e.data, _c: e.c, _dark: e.dark, _off: e.off, _cityBox: e.cityBox, _svcC: e.svcC, _cs: e.cs, _cur: e.cur, _fly: e.fly, _lastSel: e.lastSel, _sig: '' });
+    RDM_MAP.reattach(e.h, e.view);
+    this.setState({ net: e.sink.net, drawn: true, mode: e.mode });
+    // слои и метки собираем заново под новые пропсы, вид трогаем, только если сменилась цель
+    this._sync(e.target !== this._target());
+    return true;
+  }
+  componentDidUpdate() {
+    const host = this._host();
+    if (!host || !this._h) return;
+    // тема приложения сменилась: пересобираем карту с другой подложкой
+    if (!!host.closest('.raznos-theme-dark') !== this._dark || !!(this.props || {}).offline !== this._off) { this._drop(); this._init(); return; }
+    this._sync(false);
+  }
+
+  _drop() { this._moveStop(); if (this._h) RDM_MAP.destroy(this._h); if (this._el) this._el.remove(); this._h = null; this._el = null; this._sig = ''; }
+  _net(v) { if (this._alive && (this.state || {}).net !== v) this.setState({ net: v }); }
+
+  // повтор после ошибки: библиотека, данные и стили карты заново
+  _retry() { this._drop(); this._init(); }
+
+  // заглушка в форме карты, пока нет своих слоёв, и под карточкой ошибки
+  _paintPh(geo) {
+    const host = this._host();
+    const el = host && host.querySelector('.rdm-ph');
+    if (!el) return;
+    const r = host.getBoundingClientRect();
+    const feats = geo.features;
+    el.innerHTML = rdmPhSvg(feats, r.width || 360, r.height || 380, this._view(feats), this._mode() === 'people' ? '' : this._sel());
+  }
+
+  // первый вид карты, тот же, что ставит _sync: город, зона или выбранный район
+  _view(feats) {
+    const p = this.props || {};
+    const city = rdmBox(feats.map((f) => f.geometry.coordinates[0]));
+    if (this._mode() === 'people') {
+      const at = Array.isArray(p.focusAt) ? p.focusAt : null, d = 0.0035;
+      return { box: at ? [at[0] - d, at[1] - d, at[0] + d, at[1] + d] : city, pad: this._pad(), maxZoom: at ? 15 : 12.5 };
+    }
+    const zones = Array.isArray(p.zones) ? p.zones : [];
+    const selF = feats.find((f) => f.properties.k === this._sel());
+    if (zones.length || p.focus === 'zone') {
+      const rings = zones.map((z) => (z.polygon ? z.polygon : rdmCircle(z.center, z.radius_m || 1500))).concat(selF ? [selF.geometry.coordinates[0]] : []);
+      if (rings.length) return { box: rdmBox(rings), pad: this._pad(), maxZoom: 14.5 };
+    }
+    if (selF && p.focus !== 'city') return { box: rdmBox([selF.geometry.coordinates[0]]), pad: this._pad(), maxZoom: 13.5 };
+    return { box: city, pad: { top: 16, bottom: 16, left: 16, right: 16 }, maxZoom: 16.5 };
+  }
+
+  async _init() {
+    const gen = (this._gen = (this._gen || 0) + 1);
+    const host = this._host();
+    if (!host) return;
+    if (this._alive) this.setState({ net: 'loading', drawn: false });
+    const p = this.props || {};
+    const live = () => this._alive && gen === this._gen;
+    // события карты идут текущему владельцу: после пула это уже другой экземпляр компонента
+    const sink = { cmp: this, gen, net: 'loading' };
+    const to = (fn) => (...a) => { const c = sink.cmp; if (c._alive && sink.gen === c._gen) fn(c, ...a); };
+    rdmGeo().then((geo) => { if (live()) this._paintPh(geo); }, () => {});
+    if (p.demoState === 'loading' || p.demoState === 'fail') return;
+    rdmCssAgain();
+    let data;
+    try { data = await rdmData(); } catch (e) { if (live()) this._net('fail'); return; }
+    if (!live()) return;
+    this._data = data;
+    this._dark = !!host.closest('.raznos-theme-dark');
+    this._off = !!p.offline;
+    const tok = (n) => rdmTok(host, n);
+    this._c = {
+      land: tok('--rdm-land'), ink: tok('--raznos-ink'), me: tok('--raznos-dark'), deep: tok('--raznos-green-deep'), ink3: tok('--raznos-ink-3'),
+      l1: rdmRgb('oklch(0.8 0.1 150)'), l2: rdmRgb('oklch(0.7 0.14 150)'), l3: rdmRgb('oklch(0.58 0.15 150)')
+    };
+    this._cityBox = rdmBox(data.districts.features.map((f) => f.geometry.coordinates[0]));
+    const box = host.querySelector('.rdm-canvas');
+    box.textContent = '';
+    const el = document.createElement('div');
+    el.className = 'rdm-gl';
+    box.appendChild(el);
+    let h;
+    try {
+      h = await RDM_MAP.create({
+        container: el, land: this._c.land, dark: this._dark, bounds: this._cityBox,
+        // колесо мыши и щипок тачпада зумят любую карту, кроме превью без жестов
+        interactive: !p.compact, wheel: !p.compact, offline: this._off, hatchColor: this._c.ink3, hexEdge: this._dark ? 'rgba(20,25,35,0.5)' : 'rgba(255,255,255,0.7)',
+        onTap: to((c, k) => { if (c._mode() !== 'people') c._pick(k && k === c._sel() ? '' : k); else if (typeof (c.props || {}).onCourier === 'function') c.props.onCourier(null); }),
+        onNet: (v) => { sink.net = v; to((c) => c._net(v))(); },
+        onView: to((c) => c._declutter()),
+        onReady: to((c) => c._sync(true))
+      });
+    } catch (e) { if (live()) this._net('fail'); el.remove(); return; }
+    if (!live()) { RDM_MAP.destroy(h); el.remove(); return; }
+    this._h = h; this._el = el; this._sink = sink;
+    if (h.ready) this._sync(true);
+  }
+
+  _pick(k) {
+    const p = this.props || {};
+    const f = k && this._data ? this._data.districts.features.find((x) => x.properties.k === k) : null;
+    // второй аргумент: название района, чтобы экран мог сказать нет данных и про район вне своего списка
+    if (typeof p.onPick === 'function') p.onPick(k, f ? { name: f.properties.name } : null);
+    else this.setState({ pick: k });
+  }
+
+  _fit(box, opts) {
+    if (!this._h || !this._h.ready || !box) return;
+    const o = Object.assign({ maxZoom: 14.5, animate: !rdmReduced() }, opts || {});
+    RDM_MAP.fitTo(this._h, box, { padding: this._pad(), maxZoom: o.maxZoom, animate: o.animate });
+  }
+
+  _pad() {
+    const p = this.props || {};
+    // над кругом зоны стоит подпись радиуса, оставляем ей место
+    const top = ((p.showModeSwitch || p.hourLabel) && !p.compact ? 60 : 24) + (Array.isArray(p.zones) && p.zones.length ? 32 : 0);
+    // на Карте курьеров сверху чипы фильтров, снизу сводка экрана
+    // inset: сколько снизу закрыто интерфейсом экрана, например сводкой
+    const it = +p.insetTop > 0 ? +p.insetTop : 0, ib = +p.inset > 0 ? +p.inset : 48;
+    return this._mode() === 'people' ? (p.compact ? { top: 8, bottom: 8, left: 8, right: 8 } : { top: 64 + it, bottom: ib, left: 24, right: 24 }) : { top: top + it, bottom: ib, left: 24, right: 24 };
+  }
+
+  _zoneBox() {
+    const zones = Array.isArray((this.props || {}).zones) ? this.props.zones : [];
+    const rings = zones.map((z) => (z.polygon ? z.polygon : rdmCircle(z.center, z.radius_m || 1500)));
+    const d = this._data && this._data.districts.features.find((f) => f.properties.k === this._sel());
+    if (d) rings.push(d.geometry.coordinates[0]);
+    return rings.length ? rdmBox(rings) : null;
+  }
+
+  _home() {
+    const zb = (Array.isArray((this.props || {}).zones) && this.props.zones.length) ? this._zoneBox() : null;
+    this._fit(zb || this._cityBox, { maxZoom: zb ? 14.5 : 12.5 });
+  }
+
+  // пропсы в нейтральные слои: районы, соты, маска, зоны, обводка выбранного и пилюли, только если что-то поменялось
+  _sync(first) {
+    const h = this._h;
+    if (!h || !h.ready || !this._data) return;
+    const p = this.props || {};
+    const c = this._c;
+    const mode = this._mode();
+    // заглушка уходит плавно, когда свои слои уже на карте
+    if (first) { const gen = this._gen; RDM_MAP.whenDrawn(h, () => { if (this._alive && gen === this._gen) this.setState({ drawn: true }); }); }
+    if (mode === 'people') { this._syncPeople(first); return; }
+    const sel = this._sel();
+    const list = Array.isArray(p.districts) ? p.districts : [];
+    const zones = Array.isArray(p.zones) ? p.zones : [];
+    const hour = typeof p.hour === 'number' ? p.hour : 12;
+    const sig = JSON.stringify([mode, sel, hour, list.map((d) => [d.k, d.t, d.val, d.up, d.few, d.nodata, d.name, !!d.named]), zones.map((z) => [z.center, z.radius_m, z.svc, z.approx, z.label, z.tag, z.polygon ? z.polygon.length : 0])]);
+    if (sig === this._sig) return;
+    const prevSel = this._lastSel;
+    this._sig = sig; this._lastSel = sel;
+    const byK = {};
+    list.forEach((d) => { byK[d.k] = d; });
+    const known = list.length > 0;
+    const demand = mode === 'demand';
+    const noneOf = (k) => known && (!byK[k] || byK[k].nodata || byK[k].t == null);
+    const feats = this._data.districts.features;
+    // районы: в спросе тонкая бледная граница, в контуре заливка и линия зелёным, без данных в спросе штриховка
+    RDM_MAP.setDistricts(h, rdmFC(feats.map((f) => {
+      const k = f.properties.k, on = k === sel;
+      return { type: 'Feature', geometry: f.geometry, properties: {
+        k, fill: c.deep, fillOpacity: demand ? 0 : (on ? 0.2 : 0.1), hatch: demand && noneOf(k) ? 1 : 0,
+        line: c.deep, lineWidth: demand ? 0.8 : 1.5, lineOpacity: demand ? 0.4 : 0.85
+      } };
+    })));
+    // соты: уровень по ставке района и часу, ниже среднего без заливки
+    const pal = { 1: [c.l1, 0.4], 2: [c.l2, 0.54], 3: [c.l3, 0.66] };
+    const hexFC = (cells) => rdmFC(demand ? cells.map((cell) => {
+      const d = byK[cell.k];
+      if (!d || d.nodata || d.t == null) return null;
+      const lvl = rdmLvl(d.t, cell.at[0], cell.at[1], hour);
+      if (!lvl) return null;
+      return { type: 'Feature', properties: { id: cell.id, k: cell.k, lvl, fill: pal[lvl][0], fillOpacity: pal[lvl][1] }, geometry: { type: 'Polygon', coordinates: [cell.ring] } };
+    }).filter(Boolean) : []);
+    RDM_MAP.setHexes(h, hexFC(this._data.coarse), hexFC(this._data.fine));
+    const selF = feats.find((f) => f.properties.k === sel);
+    RDM_MAP.setMask(h, selF ? { type: 'Feature', properties: { fill: this._dark ? 'rgb(0,0,0)' : 'rgb(29,35,48)', fillOpacity: this._dark ? 0.42 : 0.26 }, geometry: { type: 'Polygon', coordinates: [RDM_WORLD, selF.geometry.coordinates[0]] } } : null);
+    RDM_MAP.setSelection(h, selF ? { type: 'Feature', properties: { line: c.ink, lineWidth: 3.5 }, geometry: selF.geometry } : null);
+    const host = this._host();
+    const svcColor = (z) => (z.svc && host ? rdmTok(host, '--raznos-svc-' + z.svc) : c.deep);
+    RDM_MAP.setZones(h, rdmFC(zones.map((z) => {
+      const col = svcColor(z);
+      return { type: 'Feature', properties: { fill: col, fillOpacity: 0.14, line: col, lineWidth: 2.2, dashed: z.approx === false ? 0 : 1 }, geometry: { type: 'Polygon', coordinates: [z.polygon || rdmCircle(z.center, z.radius_m || 1500)] } };
+    })));
+    RDM_MAP.setMarkers(h, this._pills(demand, sel, byK, known).concat(this._zoneMarks(zones, svcColor)));
+    if (first) {
+      if (zones.length || p.focus === 'zone') this._fit(this._zoneBox(), { animate: false });
+      else if (selF && p.focus !== 'city') this._fit(rdmBox([selF.geometry.coordinates[0]]), { animate: false, maxZoom: 13.5 });
+    } else if (sel && sel !== prevSel && selF) {
+      this._fit(rdmBox([selF.geometry.coordinates[0]]), { maxZoom: 13.5 });
+    }
+  }
+
+  // Карта курьеров: районы тонкой линией и тихими подписями, поверх курьеры, капли и вы, перелёт по focusKey
+  _syncPeople(first) {
+    const h = this._h;
+    const p = this.props || {};
+    const c = this._c;
+    const { couriers, pins, me } = this._crowd();
+    const at = Array.isArray(p.focusAt) ? p.focusAt : null;
+    this._pinTaps = {};
+    pins.forEach((pn) => { this._pinTaps[pn.id] = pn.tap; });
+    const pickable = !p.compact && !p.locked && typeof p.onCourier === 'function';
+    const sig = JSON.stringify(['people', couriers.map((x) => [x.at, x.svc]), pins.map((x) => [x.id, x.at, x.svc, x.label]), me, p.activeId || '', !!p.compact, pickable, p.activeCourier == null ? '' : p.activeCourier]);
+    const fly = JSON.stringify([p.focusKey || '', at]);
+    if (sig !== this._sig) {
+      this._sig = sig;
+      const feats = this._data.districts.features;
+      RDM_MAP.setDistricts(h, rdmFC(feats.map((f) => ({ type: 'Feature', geometry: f.geometry, properties: { k: f.properties.k, fill: c.deep, fillOpacity: 0, hatch: 0, line: c.deep, lineWidth: 1, lineOpacity: 0.32 } }))));
+      RDM_MAP.setHexes(h, rdmFC([]), rdmFC([]));
+      RDM_MAP.setMask(h, null);
+      RDM_MAP.setSelection(h, null);
+      RDM_MAP.setZones(h, rdmFC([]));
+      const host = this._host();
+      this._svcC = this._svcC || {};
+      const svcColor = (k) => this._svcC[k] || (this._svcC[k] = host ? rdmTok(host, '--raznos-svc-' + k) : c.deep);
+      const marks = [];
+      if (!p.compact) feats.forEach((f) => { const el = document.createElement('div'); el.className = 'rdm-quiet'; el.textContent = f.properties.name; el.setAttribute('aria-hidden', 'true'); marks.push({ el, at: f.properties.label }); });
+      // выбранный курьер поверх остальных
+      const courier = (x) => ({ kind: 'courier', ci: x.i, at: (this._cur && this._cur[x.i]) || x.at, color: svcColor(x.svc), active: x.i === p.activeCourier, label: x.label || 'Курьер на смене', onTap: pickable ? () => { const f = (this.props || {}).onCourier; if (typeof f === 'function') f(x.i, x.svc); } : null });
+      couriers.filter((x) => x.i !== p.activeCourier).forEach((x) => marks.push(courier(x)));
+      couriers.filter((x) => x.i === p.activeCourier).forEach((x) => marks.push(courier(x)));
+      const drop = (pn) => ({
+        kind: 'drop', at: pn.at, color: svcColor(pn.svc), active: pn.id === p.activeId, label: pn.label || 'Сообщение', onTap: () => { const t = (this._pinTaps || {})[pn.id]; if (typeof t === 'function') t(); }
+      });
+      // ваша точка поверх хвостиков капель рядом, выбранная капля поверх всего
+      pins.filter((pn) => pn.id !== p.activeId).forEach((pn) => marks.push(drop(pn)));
+      if (me) marks.push({ kind: 'me', at: me, color: c.me });
+      pins.filter((pn) => pn.id === p.activeId).forEach((pn) => marks.push(drop(pn)));
+      RDM_MAP.setMarkers(h, marks);
+      requestAnimationFrame(() => this._declutter());
+    }
+    if (couriers.length && !this._mvT) this._mvT = setInterval(() => this._moveStep(), RDM_MOVE_MS);
+    if (first || fly !== this._fly) {
+      this._fly = fly;
+      const d = 0.0035;
+      this._fit(at ? [at[0] - d, at[1] - d, at[0] + d, at[1] + d] : this._cityBox, { animate: !first && !rdmReduced(), maxZoom: at ? 15 : 12.5 });
+    }
+  }
+
+  // демо-движение: раз в RDM_MOVE_MS каждый курьер проходит свой шаг, часть стоит на месте
+  _moveStep() {
+    const h = this._h, p = this.props || {};
+    if (!this._alive || !h || !h.ready || !this._cityBox || this._mode() !== 'people' || (typeof document !== 'undefined' && document.hidden)) return;
+    const all = Array.isArray(p.couriers) ? p.couriers : (p.couriers === true ? RDM_COURIERS_DEMO : []);
+    this._cs = this._cs || {};
+    this._cur = this._cur || {};
+    const b = this._cityBox, mx = (b[2] - b[0]) * 0.04, my = (b[3] - b[1]) * 0.04;
+    const from = {}, to = {};
+    all.forEach((c, i) => {
+      const r = this._cs[i] || (this._cs[i] = rdmRoute(i, c.at));
+      if (r.still) return;
+      const cur = this._cur[i] || c.at;
+      let nx, ny;
+      for (let t = 0; t < 4; t++) {
+        const m = r.rnd() * 190 + 60;
+        r.hd += (r.rnd() - 0.5) * 1.1 + (t ? Math.PI / 2 : 0);
+        nx = cur[0] + Math.cos(r.hd) * m / (111320 * Math.cos(cur[1] * Math.PI / 180));
+        ny = cur[1] + Math.sin(r.hd) * m / 110574;
+        if (nx > b[0] + mx && nx < b[2] - mx && ny > b[1] + my && ny < b[3] - my) break;
+        nx = cur[0]; ny = cur[1];
+      }
+      from[i] = cur; to[i] = [nx, ny];
+    });
+    const ids = Object.keys(to);
+    const apply = (k) => ids.forEach((i) => {
+      const a = from[i], z = to[i], at = [a[0] + (z[0] - a[0]) * k, a[1] + (z[1] - a[1]) * k];
+      this._cur[i] = at;
+      RDM_MAP.moveCourier(h, i, at);
+    });
+    if (rdmReduced()) { apply(1); return; }
+    const t0 = performance.now();
+    const frame = (now) => {
+      this._mvF = 0;
+      if (!this._alive || this._h !== h) return;
+      const k = Math.min(1, (now - t0) / RDM_MOVE_GLIDE);
+      apply(k * k * (3 - 2 * k));
+      if (k < 1) this._mvF = requestAnimationFrame(frame);
+    };
+    cancelAnimationFrame(this._mvF);
+    this._mvF = requestAnimationFrame(frame);
+  }
+  _moveStop() { clearInterval(this._mvT); this._mvT = 0; cancelAnimationFrame(this._mvF); this._mvF = 0; }
+
+  // тихие подписи районов не налезают друг на друга: при отдалении часть прячем, порядок как в данных
+  _declutter() {
+    const host = this._host();
+    if (!host) return;
+    const shown = [];
+    host.querySelectorAll('.rdm-quiet').forEach((el) => {
+      el.style.visibility = '';
+      const r = el.getBoundingClientRect();
+      if (shown.some((s) => r.left < s.right + 6 && r.right > s.left - 6 && r.top < s.bottom + 2 && r.bottom > s.top - 2)) el.style.visibility = 'hidden';
+      else shown.push(r);
+    });
+  }
+
+  // пилюли: в спросе только у горячих районов и у выбранного, в контуре у всех
+  _pills(demand, sel, byK, known) {
+    const compact = !!(this.props || {}).compact;
+    const out = [];
+    this._data.districts.features.forEach((f) => {
+      const k = f.properties.k;
+      const d = byK[k] || {};
+      const isSel = k === sel;
+      const none = known && (!byK[k] || d.nodata || d.t == null);
+      const name = d.name || f.properties.name;
+      // ≈ у прогноза оставляем, чтобы число на карте читалось так же, как в строке
+      const num = String(d.val || '').replace(/[^\d\s≈]/g, '').trim();
+      if (demand && !isSel && (none || !(d.t >= 0.45))) return;
+      if (compact && !isSel) return;
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'rdm-pill' + (isSel ? ' rdm-pill-sel' : '') + (none ? ' rdm-pill-none' : '');
+      let html;
+      if (isSel) html = rdmEsc(name) + (none ? ' <span class="rdm-pill-few">нет данных</span>' : (d.val ? ' <b>' + rdmEsc(d.val) + '</b>' : '')) + (d.up && !none ? '<i>↑</i>' : '');
+      else if (demand) html = (d.named ? rdmEsc(name) + ' <b>' + rdmEsc(num) + '</b>' : rdmEsc(num)) + (d.up ? '<i>↑</i>' : '');
+      else html = rdmEsc(name);
+      if (d.few && !none && (isSel || demand)) html += ' <span class="rdm-pill-few">предв.</span>';
+      el.innerHTML = html;
+      el.setAttribute('aria-label', name + (none ? ', нет данных' : (d.val ? ', ' + d.val : '')) + (d.up ? ', растёт' : ''));
+      el.setAttribute('aria-pressed', String(isSel));
+      el.addEventListener('click', (e) => { e.stopPropagation(); this._pick(isSel ? '' : k); });
+      out.push({ el, at: f.properties.label, anchor: 'center' });
+    });
+    return out;
+  }
+
+  // точка даркстора и подпись радиуса над кругом, у полигона точки магазинов и подпись у верхней точки контура
+  _zoneMarks(zones, svcColor) {
+    const out = [];
+    zones.forEach((z) => {
+      (z.points || []).forEach((pt) => {
+        const dot = document.createElement('div');
+        dot.className = 'rdm-ds rdm-ds-sm';
+        dot.style.background = svcColor(z);
+        dot.setAttribute('role', 'img');
+        dot.setAttribute('aria-label', 'Магазин полигона');
+        out.push({ el: dot, at: pt, anchor: 'center' });
+      });
+      if (z.center) {
+        const dot = document.createElement('div');
+        dot.className = 'rdm-ds';
+        dot.style.background = svcColor(z);
+        dot.setAttribute('role', 'img');
+        dot.setAttribute('aria-label', z.label || 'Даркстор');
+        out.push({ el: dot, at: z.center, anchor: 'center' });
+      }
+      // подпись источника или примерности, у круга над точкой, у контура у верхней точки
+      const text = z.tag || (!z.polygon && z.radius_m ? 'радиус ≈ ' + rdmFmtKm(z.radius_m) + (z.approx === false ? '' : ', примерно') : '');
+      const top = z.polygon ? z.polygon.reduce((m, pt) => (pt[1] > m[1] ? pt : m), z.polygon[0]) : (z.center ? [z.center[0], z.center[1] + z.radius_m / 110574] : null);
+      if (text && top) {
+        const tag = document.createElement('div');
+        tag.className = 'rdm-zone-tag';
+        tag.textContent = text;
+        out.push({ el: tag, at: top, anchor: 'bottom' });
+      }
+    });
+    return out;
+  }
+}
+</script></body></html>

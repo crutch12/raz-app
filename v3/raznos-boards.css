@@ -1,0 +1,34 @@
+/* Доски Raznos v3: обзорная доска, галерея компонентов, десктоп-адаптация общего RaznosApp */
+
+/* Обзорная доска */
+.raznos-board-page { padding: 40px; display: flex; flex-direction: column; gap: 28px; background: var(--raznos-bg); min-height: 100vh; box-sizing: border-box; max-width: 1080px; margin: 0 auto; }
+.raznos-board-group { display: flex; flex-direction: column; gap: 14px; }
+.raznos-board-grid { display: flex; flex-wrap: wrap; gap: 20px; }
+.raznos-board-thumb-card { display: flex; flex-direction: column; gap: 8px; width: 176px; }
+.raznos-board-thumb-frame { width: 176px; height: 381px; border-radius: 20px; overflow: hidden; border: 1px solid var(--raznos-line); box-shadow: 0 12px 30px rgba(20, 25, 40, 0.14); background: var(--raznos-surface); }
+.raznos-board-thumb-scale { width: 390px; height: 844px; transform: scale(0.4513); transform-origin: top left; }
+.raznos-board-cta { align-self: flex-start; }
+
+/* Галерея компонентов */
+.raznos-gallery-page { padding: 40px; display: flex; flex-direction: column; gap: 28px; background: var(--raznos-bg); min-height: 100vh; box-sizing: border-box; }
+.raznos-gallery-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+.raznos-board-swatch { width: 108px; display: flex; flex-direction: column; gap: 6px; }
+.raznos-board-swatch-color { height: 56px; border-radius: 12px; border: 1px solid var(--raznos-line); }
+.raznos-board-type-row { display: flex; flex-direction: column; gap: 10px; }
+
+/* Десктоп-адаптация общего RaznosApp: широкая витрина + панель пояснений */
+.raznos-desktop-board-layout { display: grid; grid-template-columns: minmax(380px, 640px) 1fr; gap: 28px; align-items: start; }
+.raznos-desktop-board-notes { display: flex; flex-direction: column; gap: 14px; }
+@media (max-width: 900px) {
+  .raznos-desktop-board-layout { grid-template-columns: 1fr; }
+}
+
+.raznos-desktop-board .raznos-phone-frame { width: 100%; max-width: none; height: auto; min-height: 600px; max-height: none; border-radius: 20px; box-shadow: none; }
+.raznos-desktop-board .raznos-phone-status,
+.raznos-desktop-board .raznos-demo-ribbon { display: none; }
+.raznos-desktop-board .raznos-phone-scroll { overflow: visible; }
+.raznos-desktop-board .raznos-phone-body { padding: 24px 28px 28px; gap: 18px; }
+.raznos-desktop-board .raznos-sticky-actions { position: static; background: none; margin-top: 4px; }
+.raznos-desktop-board .raznos-bottom-nav { position: static; max-width: 420px; margin: 20px auto 0; border-radius: 14px; border: 1px solid var(--raznos-line); }
+
+.raznos-desktop-board--market .raznos-phone-body > .raznos-fx.raznos-col.raznos-gap8 { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }

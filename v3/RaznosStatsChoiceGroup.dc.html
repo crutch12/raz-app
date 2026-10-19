@@ -1,0 +1,20 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-statistics.css" /></helmet>
+<div class="raznos-stats-section raznos-stats-choice">
+  <div class="raznos-stats-head-copy"><h2 class="raznos-stats-section-title">{{ title }}</h2><sc-if value="{{ sub }}" hint-placeholder-val="{{ true }}"><small>{{ sub }}</small></sc-if></div>
+  <sc-for list="{{ groups }}" as="group" hint-placeholder-count="2">
+    <div class="raznos-stats-filter-group"><h3>{{ group.label }}</h3><div class="raznos-stats-filter-options"><sc-for list="{{ group.options }}" as="option" hint-placeholder-count="3"><button type="button" class="{{ option.cls }}" aria-pressed="{{ option.selected }}" onClick="{{ option.tap }}"><span>{{ option.label }}</span><i aria-hidden="true"></i></button></sc-for></div></div>
+  </sc-for>
+</div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"title":{"editor":"text","default":"С кем сравнивать"},"sub":{"editor":"text","default":""},"groups":{"editor":null},"$preview":{"width":360,"height":360}}'>
+// выбор основы сравнения по группам, выбор применяется сразу
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const demo = (label, values, selected) => ({ label, options: values.map((v) => ({ label: v, selected: v === selected, tap: () => {} })) });
+    const groups = (p.groups || [demo('Сервис', ['Все сервисы', 'ВкусВилл', 'Самокат'], 'Все сервисы'), demo('Район', ['Все районы', 'Беговой', 'Пресненский'], 'Все районы')])
+      .map((group) => Object.assign({}, group, { options: group.options.map((option) => Object.assign({}, option, { cls: 'raznos-stats-filter-option' + (option.selected ? ' raznos-is-selected' : '') })) }));
+    return { title: p.title || 'С кем сравнивать', sub: p.sub || '', groups };
+  }
+}
+</script></body></html>

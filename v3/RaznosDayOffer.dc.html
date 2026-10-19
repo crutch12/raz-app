@@ -1,0 +1,199 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* одно предложение дня: строка у окна и одна шторка, где конфликт и замена решаются вместе */
+    .rdo-line { box-sizing: border-box; display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 0; border: 0; background: none; text-align: left; font: inherit; color: var(--raznos-ink); cursor: pointer; }
+    .rdo-line:focus-visible, .rdo-opt:focus-visible, .rdo-close:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 12px; }
+    .rdo-line.rdo-is-swap { padding: 8px 10px 8px 12px; border-radius: 14px; border: 1.5px solid color-mix(in oklab, var(--raznos-green) 60%, var(--raznos-line)); background: var(--raznos-surface); }
+    .rdo-line-ico { flex: none; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; color: var(--raznos-amber); }
+    .rdo-is-swap .rdo-line-ico { color: var(--raznos-green-deep); }
+    .rdo-line-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .rdo-line-copy > b { font: 700 13.5px/1.3 var(--raznos-font); }
+    .rdo-line-copy > span { font: 500 12.5px/1.35 var(--raznos-font); color: var(--raznos-ink-2); font-variant-numeric: tabular-nums; }
+    .rdo-line-copy > span > b { font-weight: 750; color: var(--raznos-green-deep); }
+    .rdo-line-copy > small { font: 500 12px/1.35 var(--raznos-font); color: var(--raznos-ink-3); font-variant-numeric: tabular-nums; }
+    .rdo-line-chev { flex: none; color: var(--raznos-ink-3); }
+    .rdo-is-swap .rdo-line-chev { color: var(--raznos-green-deep); }
+
+    .rdo-layer { align-items: flex-end; padding: 0; }
+    .rdo-sheet { box-sizing: border-box; width: 100%; max-height: 92%; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 8px 20px calc(18px + env(safe-area-inset-bottom, 0px)); border-radius: 22px 22px 0 0; background: var(--raznos-surface); color: var(--raznos-ink); box-shadow: 0 -18px 48px rgba(20, 25, 40, 0.2); }
+    .rdo-handle { width: 38px; height: 4px; align-self: center; flex: none; border-radius: 999px; background: var(--raznos-line-strong); }
+    .rdo-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: -6px; }
+    .rdo-head h2 { margin: 0; font: 700 19px/1.2 var(--raznos-font); letter-spacing: -0.01em; text-wrap: balance; }
+    .rdo-close { width: 44px; height: 44px; flex: none; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 12px; background: var(--raznos-surface-2); color: var(--raznos-ink); cursor: pointer; }
+    .rdo-lead { margin: -4px 0 0; font: 500 13px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rdo-opts { display: flex; flex-direction: column; gap: 8px; }
+    .rdo-opt { box-sizing: border-box; display: grid; grid-template-columns: 20px minmax(0, 1fr); column-gap: 10px; width: 100%; padding: 12px 14px 12px 12px; border: 1px solid var(--raznos-line-strong); border-radius: 14px; background: var(--raznos-surface); text-align: left; font: inherit; color: var(--raznos-ink); cursor: pointer; }
+    .rdo-opt.rdo-is-on { border: 2px solid var(--raznos-green); padding: 11px 13px 11px 11px; background: color-mix(in oklab, var(--raznos-green) 6%, var(--raznos-surface)); }
+    .rdo-radio { width: 18px; height: 18px; margin-top: 3px; box-sizing: border-box; border-radius: 50%; border: 2px solid var(--raznos-line-strong); }
+    .rdo-is-on .rdo-radio { border: 5.5px solid var(--raznos-green); }
+    .rdo-opt-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .rdo-opt-head { display: flex; align-items: flex-start; gap: 8px; }
+    .rdo-opt-end { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+    .rdo-opt-head > b { flex: 1; min-width: 0; align-self: center; font: 700 14.5px/1.3 var(--raznos-font); font-variant-numeric: tabular-nums; }
+    .rdo-val { flex: none; font: 700 15px var(--raznos-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--raznos-ink-3); }
+    .rdo-val.rdo-is-plus { color: var(--raznos-green-deep); }
+    .rdo-opt-line { font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-2); font-variant-numeric: tabular-nums; }
+    .rdo-tag { display: inline-block; padding: 1px 7px; border-radius: 999px; background: color-mix(in oklab, var(--raznos-green) 14%, var(--raznos-surface)); color: var(--raznos-green-deep); font: 700 11.5px/1.45 var(--raznos-font); white-space: nowrap; }
+    .rdo-calc { border-top: 1px solid var(--raznos-line); }
+    .rdo-calc > summary { display: flex; align-items: center; gap: 6px; min-height: 44px; list-style: none; cursor: pointer; font: 650 13px/1.3 var(--raznos-font); color: var(--raznos-ink-2); }
+    .rdo-calc > summary::-webkit-details-marker { display: none; }
+    .rdo-calc > summary:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; border-radius: 8px; }
+    .rdo-calc > summary > svg { transition: transform .18s ease-out; }
+    .rdo-calc[open] > summary > svg { transform: rotate(180deg); }
+    .rdo-calc-group { display: flex; flex-direction: column; gap: 4px; padding: 0 0 10px; }
+    .rdo-calc-group > b { font: 650 12.5px/1.35 var(--raznos-font); color: var(--raznos-ink); }
+    .rdo-calc-row { display: flex; justify-content: space-between; gap: 12px; font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-2); font-variant-numeric: tabular-nums; }
+    .rdo-calc-row > span:last-child { flex: none; font-family: var(--raznos-mono); white-space: nowrap; }
+    .rdo-calc-row.rdo-is-total { font-weight: 700; color: var(--raznos-ink); }
+    .rdo-note { margin: 0; font: 500 12px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+    @media (prefers-reduced-motion: no-preference) {
+      .rdo-sheet { animation: rdo-in .24s cubic-bezier(.16, 1, .3, 1) both; }
+      @keyframes rdo-in { from { transform: translateY(100%); } to { transform: none; } }
+    }
+  </style>
+</helmet>
+<sc-if value="{{ is_line }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ line_cls }}" onClick="{{ on_open }}" aria-label="{{ line_aria }}">
+  <span class="rdo-line-ico" aria-hidden="true"><sc-if value="{{ is_conflict }}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/><path d="M12 16.5h.01"/></svg></sc-if><sc-if value="{{ is_swap_only }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg></sc-if></span>
+  <span class="rdo-line-copy"><b>{{ line_title }}</b><span>{{ line_sub }}<sc-if value="{{ line_val }}" hint-placeholder-val="{{ true }}"><b>{{ line_val }}</b></sc-if>{{ line_tail }}</span></span>
+  <svg class="rdo-line-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+</button></sc-if>
+<sc-if value="{{ is_sheet }}" hint-placeholder-val="{{ false }}"><div class="raznos-dialog-layer rdo-layer" onClick="{{ close }}">
+  <section class="rdo-sheet" role="dialog" aria-modal="true" aria-label="{{ title }}" onClick="{{ stop }}">
+    <span class="rdo-handle" aria-hidden="true"></span>
+    <div class="rdo-head"><h2>{{ title }}</h2><button type="button" class="rdo-close" onClick="{{ close }}" aria-label="Закрыть"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p class="rdo-lead">{{ lead }}</p>
+    <div class="rdo-opts" role="radiogroup" aria-label="Варианты">
+      <sc-for list="{{ opts }}" as="o" hint-placeholder-count="3"><button type="button" role="radio" aria-checked="{{ o.on }}" class="{{ o.cls }}" onClick="{{ o.pick }}">
+        <span class="rdo-radio" aria-hidden="true"></span>
+        <span class="rdo-opt-body">
+          <span class="rdo-opt-head"><dc-import name="RaznosIcon" svc="{{ o.svc }}" alt="" size="sm"></dc-import><b>{{ o.title }}</b><span class="rdo-opt-end"><span class="{{ o.val_cls }}">{{ o.val }}</span><sc-if value="{{ o.best }}" hint-placeholder-val="{{ false }}"><span class="rdo-tag">Советуем</span></sc-if></span></span>
+          <span class="rdo-opt-line">{{ o.sub }}</span>
+        </span>
+      </button></sc-for>
+    </div>
+    <details class="rdo-calc"><summary>Как посчитали<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <sc-for list="{{ calc }}" as="g" hint-placeholder-count="2"><div class="rdo-calc-group"><b>{{ g.title }}</b><sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3"><div class="{{ r.cls }}"><span>{{ r.k }}</span><span>{{ r.v }}</span></div></sc-for></div></sc-for>
+    </details>
+    <p class="rdo-note">{{ note }}</p>
+    <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ go }}">{{ go_label }}</button>
+  </section>
+</div></sc-if>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "variant": { "editor": "enum", "options": ["line", "sheet"], "default": "line" },
+  "conflict": { "editor": null }, "swap": { "editor": null }, "transport": { "editor": "text", "default": "" },
+  "onOpen": { "editor": null }, "onSwap": { "editor": null }, "onLeave": { "editor": null }, "onLate": { "editor": null }, "onKeep": { "editor": null }, "onClose": { "editor": null },
+  "$preview": { "width": 390, "height": 560 }
+}'>
+// одно предложение дня: конфликт дороги и замена смены считаются здесь из данных экрана
+// у варианта итог в рублях за окно и одна строка последствия, ставки ₽/ч и чек под раскрытием Как посчитали
+const RDO_GEN = { 'yandex-eda': 'Яндекс Еды', 'yandex-lavka': 'Яндекс Лавки', samokat: 'Самоката', vkusvill: 'ВкусВилла', x5: 'X5 Доставки', dodo: 'Додо', kuper: 'Купера', magnit: 'Магнита', 'ozon-fresh': 'Ozon Fresh', 'ozon-courier': 'Ozon' };
+const RDO_ACC = { 'yandex-eda': 'Яндекс Еду', 'yandex-lavka': 'Яндекс Лавку', samokat: 'Самокат', vkusvill: 'ВкусВилл', x5: 'X5 Доставку', dodo: 'Додо', kuper: 'Купер', magnit: 'Магнит' };
+const rdoTime = (m) => String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(Math.round(m % 60)).padStart(2, '0');
+const rdoFmt = (n) => String(Math.round(Math.abs(n))).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const rdoSigned = (n) => (n > 0 ? '+' : (n < 0 ? '−' : '')) + rdoFmt(n) + ' ₽';
+const rdoHours = (h) => String(Math.round(h * 10) / 10).replace('.', ',') + ' ч';
+// демо: пт, ВкусВилл до 17:00, бронь Яндекс Еды с 17:00, X5 17:30–23:00 снимает конфликт
+const RDO_DEMO_CONFLICT = { aSvc: 'vkusvill', aTitle: 'ВкусВилл', aTo: 1020, bSvc: 'yandex-eda', bTitle: 'Яндекс Еда', bFrom: 1020, travel: 20, rateA: 680, rateB: 790 };
+const RDO_DEMO_SWAP = { altSvc: 'x5', altTitle: 'X5 Доставка', altTime: '17:30–23:00', altFrom: '17:30', altMin: 330, altSum: 3960, altRate: 720, mineSvc: 'yandex-eda', mineTitle: 'Яндекс Еда', mineTime: '17:00–21:00', mineMin: 240, mineSum: 3160, mineRate: 790, penalty: 600 };
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const st = this.state || {};
+    const fn = (f) => (typeof f === 'function' ? f : () => {});
+    const c = 'conflict' in p ? p.conflict : RDO_DEMO_CONFLICT;
+    const s = 'swap' in p ? p.swap : RDO_DEMO_SWAP;
+    const gap = c ? c.bFrom - c.aTo : 0, travel = c ? c.travel || 20 : 0;
+    // сколько минут не хватает до дороги: на столько уйти раньше или опоздать
+    const need = c ? Math.max(1, travel - gap) : 0;
+    const penalty = s ? (s.penalty == null ? null : Number(s.penalty)) : null;
+    // бонус сервиса на своей брони пропадёт вместе с ней, это тоже цена замены
+    const bonus = s && s.bonus ? Number(s.bonus) : 0;
+    const net = s ? (s.net != null ? Number(s.net) : (penalty == null ? null : s.altSum - s.mineSum - penalty - bonus)) : null;
+    const hasSwap = !!s && net != null;
+    const altShort = s ? String(s.altTitle).replace(/\s+Доставка$/, '') : '';
+    const dh = s && s.altMin && s.mineMin ? (s.altMin - s.mineMin) / 60 : 0;
+    const hoursTxt = dh > 0 ? 'на ' + rdoHours(dh) + ' дольше' : (dh < 0 ? 'на ' + rdoHours(-dh) + ' короче' : 'столько же часов');
+    // выгода только за счёт длины: в час меньше, а часов больше, пишем прямо
+    const onlyLonger = s && dh > 0 && s.altRate < s.mineRate;
+    const mineWord = s && s.requested ? 'заявка' : (s && s.plan ? 'окно плана' : 'бронь');
+    const isConflict = !!c;
+    const bAcc = c ? RDO_ACC[c.bSvc] || c.bTitle : '';
+    const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+    // последствие замены одной строкой: часы, честно про доход в час, что будет с записью
+    const swapParts = [];
+    if (s) {
+      if (bonus) swapParts.push('потеряете бонус ' + rdoFmt(bonus) + ' ₽');
+      if (dh) swapParts.push(hoursTxt);
+      if (onlyLonger) swapParts.push('но в час меньше');
+      else if (!dh && s.altRate > s.mineRate) swapParts.push('в час больше');
+      if (swapParts.length < 2 && s.requested) swapParts.push('заявку отзовёте');
+      else if (swapParts.length < 2 && s.other) swapParts.push((swapParts.length ? 'но ' : '') + s.other);
+    }
+    const swapSub = swapParts.length ? cap(swapParts.join(', ')) : 'Без штрафа';
+    // строка у окна и на Сегодня
+    const lineTitle = isConflict
+      ? (gap < 0 ? 'Смены пересекаются в ' + rdoTime(c.bFrom) : 'Не успеете в ' + bAcc + ' к ' + rdoTime(c.bFrom))
+      : (hasSwap ? 'Выгоднее ' + altShort + ' ' + s.altTime : '');
+    const lineSub = isConflict ? (hasSwap && net > 0 ? 'Можно взять ' + altShort + ' с ' + s.altFrom + ', ' : c.aTitle + ' до ' + rdoTime(c.aTo) + (gap < 0 ? '' : ', дорога ' + travel + ' мин')) : '';
+    const lineVal = hasSwap && (!isConflict || net > 0) ? rdoSigned(net) : '';
+    // в строке одна оговорка: дольше, очередь или заявка
+    const lineNote = !s ? '' : (dh ? hoursTxt : (s.other ? 'но ' + s.other : (s.requested ? 'заявку отзовёте' : '')));
+    const lineTail = !isConflict && hasSwap ? (s.plan ? ' к неделе' : (lineNote ? ', ' + lineNote : '')) : '';
+    // варианты шторки: действие, итог за окно и одна строка последствия, расчёт отдельно под раскрытием
+    const opts = [];
+    const calc = [];
+    const row = (k, v, total) => ({ k, v, cls: 'rdo-calc-row' + (total ? ' rdo-is-total' : '') });
+    if (hasSwap) {
+      opts.push({ id: 'swap', svc: s.altSvc, title: 'Заменить на ' + altShort + ' ' + String(s.altTime).replace('–', '\u2060–\u2060'), value: net, sub: swapSub,
+        act: s.plan ? 'Заменить в плане' : 'Открыть ' + altShort, tap: p.onSwap });
+      const rows = [
+        row(altShort + ', ≈ ' + rdoFmt(s.altRate) + ' ₽/ч', rdoSigned(s.altSum)),
+        row(cap(mineWord) + ' ' + (RDO_GEN[s.mineSvc] || s.mineTitle) + ', ≈ ' + rdoFmt(s.mineRate) + ' ₽/ч', rdoSigned(-s.mineSum))
+      ];
+      if (!s.plan) rows.push(penalty ? row('Штраф за отмену брони', rdoSigned(-penalty)) : row(s.requested ? 'Заявку отзовёте без штрафа' : (s.freeUntil ? 'Отмена без штрафа до ' + s.freeUntil : 'Отмена без штрафа'), '0 ₽'));
+      if (bonus) rows.push(row('Бонус ' + (RDO_GEN[s.mineSvc] || s.mineTitle), rdoSigned(-bonus)));
+      rows.push(row('Итого', rdoSigned(net), true));
+      calc.push({ title: 'Заменить на ' + altShort, rows });
+    }
+    if (isConflict) {
+      const leaveLoss = Math.round((c.rateA || 0) * need / 60 / 10) * 10, lateLoss = Math.round((c.rateB || 0) * need / 60 / 10) * 10;
+      const aGen = RDO_GEN[c.aSvc] || c.aTitle;
+      opts.push({ id: 'leave', svc: c.aSvc, title: 'Уйти из ' + aGen + ' в ' + rdoTime(c.aTo - need), value: -leaveLoss, sub: 'На ' + need + ' мин раньше, успеете к ' + rdoTime(c.bFrom), act: 'Открыть ' + c.aTitle, tap: p.onLeave });
+      opts.push({ id: 'late', svc: c.bSvc, title: 'Опоздать в ' + bAcc + ' на ' + need + ' мин', value: -lateLoss, sub: 'Начнёте в ' + rdoTime(c.bFrom + need), act: 'Открыть ' + bAcc, tap: p.onLate });
+      calc.push({ title: 'Уйти раньше или опоздать', rows: [
+        row(need + ' мин ' + aGen + ', ≈ ' + rdoFmt(c.rateA) + ' ₽/ч', rdoSigned(-leaveLoss)),
+        row(need + ' мин ' + (RDO_GEN[c.bSvc] || c.bTitle) + ', ≈ ' + rdoFmt(c.rateB) + ' ₽/ч', rdoSigned(-lateLoss))
+      ] });
+    } else if (hasSwap) {
+      opts.push({ id: 'keep', svc: s.mineSvc, title: 'Оставить как есть', value: 0, sub: 'Эту замену больше не покажем', act: 'Оставить как есть', tap: p.onKeep });
+    }
+    // от самого выгодного, по умолчанию выбран он же
+    opts.sort((x, y) => y.value - x.value);
+    const best = opts[0] || null;
+    const sel = opts.find((o) => o.id === st.sel) || best;
+    const view = opts.map((o) => ({
+      svc: o.svc, title: o.title, sub: o.sub, best: opts.length > 1 && o === best,
+      val: o.value === 0 ? '0 ₽' : rdoSigned(o.value), val_cls: 'rdo-val' + (o.value > 0 ? ' rdo-is-plus' : ''),
+      on: sel && sel.id === o.id, cls: 'rdo-opt' + (sel && sel.id === o.id ? ' rdo-is-on' : ''), pick: () => this.setState({ sel: o.id })
+    }));
+    const title = isConflict ? (gap < 0 ? 'Смены пересекаются' : 'Не успеете в ' + bAcc + ' к ' + rdoTime(c.bFrom)) : (s && s.plan ? 'Есть окно выгоднее' : 'Есть смена выгоднее');
+    const lead = isConflict
+      ? c.aTitle + ' до ' + rdoTime(c.aTo) + (gap < 0 ? ', ' + c.bTitle + ' с ' + rdoTime(c.bFrom) : ', дорога ' + travel + ' мин' + (p.transport ? ' ' + p.transport : ''))
+      : (s ? 'У вас ' + mineWord + ': ' + s.mineTitle + ' ' + s.mineTime : '');
+    return {
+      is_line: p.variant !== 'sheet', is_sheet: p.variant === 'sheet',
+      is_conflict: isConflict, is_swap_only: !isConflict,
+      line_cls: 'rdo-line' + (isConflict ? ' rdo-is-conflict' : ' rdo-is-swap'),
+      line_title: lineTitle, line_sub: lineSub, line_val: lineVal, line_tail: lineTail,
+      line_aria: lineTitle + ', ' + lineSub + lineVal + lineTail + ', варианты',
+      on_open: fn(p.onOpen),
+      title, lead, opts: view, calc,
+      note: 'Суммы примерные, по похожим сменам курьеров' + (s && s.plan && !isConflict ? '' : '. Менять смены можно только в приложении сервиса'),
+      go_label: sel ? sel.act : 'Закрыть', go: () => { const f = sel && sel.tap; if (typeof f === 'function') f(); else fn(p.onClose)(); },
+      close: fn(p.onClose), stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }
+    };
+  }
+}
+</script></body></html>

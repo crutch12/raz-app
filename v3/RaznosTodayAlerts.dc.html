@@ -1,0 +1,170 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* Важное сейчас на Сегодня: одно место под заголовком. Спокойно это строка связи, при событии на её месте одна строка, остальное в Ещё N */
+    .rta { box-sizing: border-box; width: 100%; display: flex; flex-direction: column; border-radius: 16px; background: var(--raznos-surface); color: var(--raznos-ink); font-family: var(--raznos-font); overflow: hidden; }
+    .rta.rta-is-red { background: var(--raznos-red-tint); }
+    .rta.rta-is-amber { background: var(--raznos-amber-tint); }
+    .rta.rta-is-green { background: var(--raznos-green-tint); }
+    .rta-row { display: flex; align-items: center; }
+    .rta-main { flex: 1; min-width: 0; min-height: 64px; display: flex; align-items: center; gap: 12px; padding: 12px 6px 12px 14px; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+    .rta-main:focus-visible, .rta-more:focus-visible, .rta-x:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: -2px; border-radius: 16px; }
+    .rta-ico { position: relative; flex: none; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 11px; background: var(--raznos-surface-2); color: var(--raznos-ink-2); }
+    .rta-is-amber .rta-ico, .rta-is-red .rta-ico, .rta-is-green .rta-ico { background: var(--raznos-surface); }
+    .rta-is-amber .rta-ico svg { color: var(--raznos-amber); }
+    .rta-is-red .rta-ico svg { color: var(--raznos-red); }
+    /* метка у значка сервиса, чтобы риск читался не только цветом */
+    .rta-flag { position: absolute; right: -4px; bottom: -4px; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--raznos-amber); box-shadow: 0 0 0 2px var(--raznos-amber-tint); }
+    .rta-is-red .rta-flag { background: var(--raznos-red); box-shadow: 0 0 0 2px var(--raznos-red-tint); }
+    .rta-flag svg { color: #fff !important; }
+    .rta-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+    .rta-title { font: 650 15px/1.3 var(--raznos-font); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rta-title b { font-weight: 800; color: var(--raznos-green-deep); }
+    .rta-sub { font: 500 13px/1.35 var(--raznos-font); color: var(--raznos-ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rta-sub.rta-is-tight { color: var(--raznos-amber); font-weight: 650; }
+    /* тонкая полоса прогресса бонуса: набранное нейтральным тёмным, у набранного зелёным */
+    .rta-bar { display: block; height: 4px; margin-top: 4px; border-radius: 999px; background: var(--raznos-surface-2); box-shadow: inset 0 0 0 1px var(--raznos-line); overflow: hidden; }
+    .rta-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--raznos-ink-2); }
+    .rta-is-green .rta-bar > i { background: var(--raznos-green); }
+    .rta-go { flex: none; width: 24px; text-align: center; }
+    .rta-x { flex: none; width: 44px; height: 44px; margin-right: 4px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 12px; background: none; color: var(--raznos-ink-3); cursor: pointer; }
+    .rta-more { width: 100%; min-height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 14px 0 62px; border: 0; border-top: 1px solid color-mix(in oklch, var(--raznos-ink) 10%, transparent); background: none; font: 600 13.5px var(--raznos-font); color: var(--raznos-ink-2); text-align: left; cursor: pointer; }
+    .rta-more span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    /* сбой связи сверху: строка Ещё N отдельной тихой карточкой под ним */
+    .rta-solo { margin-top: 8px; border-radius: 16px; background: var(--raznos-surface); }
+    .rta-solo .rta-more { border-top: 0; padding-left: 14px; }
+    /* шторка Важное: все пункты подряд в полном виде */
+    .rta-sheet { display: flex; flex-direction: column; gap: 16px; }
+    .rta-sheet-item { display: flex; flex-direction: column; gap: 8px; }
+    .rta-sheet-item .rta { background: var(--raznos-surface); }
+    .rta-sheet-item .rta.rta-is-amber { background: var(--raznos-amber-tint); }
+    @media (prefers-reduced-motion: no-preference) {
+      .rta-in { animation: rta-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      @keyframes rta-in { from { opacity: 0; transform: translateY(-6px); } }
+      .rta-bar > i { transform-origin: left; animation: rta-fill 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both; }
+      @keyframes rta-fill { from { transform: scaleX(0.15); } }
+    }
+  </style>
+</helmet>
+<sc-if value="{{ is_slot }}" hint-placeholder-val="{{ true }}">
+  <sc-if value="{{ show_conn }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosConnHealth" items="{{ conn_items }}" okNote="{{ conn_ok }}" netOffline="{{ conn_net }}" onAction="{{ conn_action }}"></dc-import></sc-if>
+  <sc-if value="{{ has_top }}" hint-placeholder-val="{{ true }}">
+  <section class="{{ cls }}" aria-label="Важное сейчас">
+    <div class="rta-row">
+      <button type="button" class="rta-main" onClick="{{ open }}" aria-label="{{ top_aria }}">
+        <span class="rta-ico" aria-hidden="true">
+          <sc-if value="{{ ico_svc }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosIcon" svc="{{ top.svc }}" alt="" size="sm"></dc-import></sc-if>
+          <sc-if value="{{ ico_rain }}" hint-placeholder-val="{{ false }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15.5a4.5 4.5 0 1 1 1.2-8.8A5.5 5.5 0 0 1 18.5 9 3.3 3.3 0 0 1 18 15.5z"/><path d="M8 20.5v-1.5M12 22v-2M16 20.5v-1.5"/></svg></sc-if>
+          <sc-if value="{{ ico_frost }}" hint-placeholder-val="{{ false }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5v19M3.8 7.2l16.4 9.6M3.8 16.8l16.4-9.6"/><path d="M9.5 4l2.5 2 2.5-2M9.5 20l2.5-2 2.5 2"/></svg></sc-if>
+          <sc-if value="{{ ico_route }}" hint-placeholder-val="{{ false }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 1.5M9.5 2.5h5"/></svg></sc-if>
+          <sc-if value="{{ has_flag }}" hint-placeholder-val="{{ false }}"><span class="rta-flag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M12 5v9M12 19h.01"/></svg></span></sc-if>
+        </span>
+        <span class="rta-text">
+          <span class="rta-title">{{ top.title_a }}<sc-if value="{{ top.title_b }}" hint-placeholder-val="{{ false }}"><b>{{ top.title_b }}</b></sc-if><sc-if value="{{ top.title_c }}" hint-placeholder-val="{{ false }}">{{ top.title_c }}</sc-if></span>
+          <span class="{{ sub_cls }}">{{ top.sub }}</span>
+          <sc-if value="{{ has_bar }}" hint-placeholder-val="{{ false }}"><span class="rta-bar" aria-hidden="true"><i style="{{ bar_style }}"></i></span></sc-if>
+        </span>
+        <sc-if value="{{ no_hide }}" hint-placeholder-val="{{ true }}"><span class="raznos-row-chevron rta-go" aria-hidden="true">›</span></sc-if>
+      </button>
+      <sc-if value="{{ can_hide }}" hint-placeholder-val="{{ false }}"><button type="button" class="rta-x" onClick="{{ hide }}" aria-label="{{ hide_aria }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></sc-if>
+    </div>
+    <sc-if value="{{ has_more }}" hint-placeholder-val="{{ true }}"><button type="button" class="rta-more" onClick="{{ more }}" aria-label="{{ more_aria }}"><span>{{ more_label }}</span><span class="raznos-row-chevron" aria-hidden="true">›</span></button></sc-if>
+  </section>
+  </sc-if>
+  <sc-if value="{{ solo_more }}" hint-placeholder-val="{{ false }}"><div class="rta-solo"><button type="button" class="rta-more" onClick="{{ more }}" aria-label="{{ more_aria }}"><span>{{ more_label }}</span><span class="raznos-row-chevron" aria-hidden="true">›</span></button></div></sc-if>
+</sc-if>
+<sc-if value="{{ is_sheet }}" hint-placeholder-val="{{ false }}">
+<div class="rta-sheet">
+  <sc-for list="{{ sheet }}" as="it" hint-placeholder-count="3">
+    <div class="rta-sheet-item">
+      <sc-if value="{{ it.is_acc }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosAccountState" svc="{{ it.acc.svc }}" title="{{ it.acc.title }}" titleIn="{{ it.acc.titleIn }}" state="{{ it.acc.state }}" sample="{{ it.acc.sample }}" onContact="{{ it.contact }}"></dc-import></sc-if>
+      <sc-if value="{{ it.is_conn }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosConnHealth" items="{{ conn_problems }}" netOffline="{{ conn_net }}" onAction="{{ conn_action }}"></dc-import></sc-if>
+      <sc-if value="{{ it.is_weather }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosWeather" weather="{{ it.weather }}"></dc-import></sc-if>
+      <sc-if value="{{ it.is_bonus }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosBonusQuests" items="{{ it.q_items }}" hotId="{{ it.q_hot }}" nowMin="{{ it.q_now }}" onOpen="{{ it.tap }}"></dc-import></sc-if>
+      <sc-if value="{{ it.is_payout }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosPayouts" mode="line" items="{{ it.payouts }}" late="{{ true }}" onOpen="{{ it.tap }}"></dc-import></sc-if>
+      <sc-if value="{{ it.is_row }}" hint-placeholder-val="{{ false }}"><div class="{{ it.cls }}"><div class="rta-row"><button type="button" class="rta-main" onClick="{{ it.tap }}"><span class="rta-ico" aria-hidden="true"><sc-if value="{{ it.svc }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosIcon" svc="{{ it.svc }}" alt="" size="sm"></dc-import></sc-if><sc-if value="{{ it.no_svc }}" hint-placeholder-val="{{ true }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 1.5M9.5 2.5h5"/></svg></sc-if></span><span class="rta-text"><span class="rta-title">{{ it.title }}</span><span class="rta-sub">{{ it.sub }}</span></span><span class="raznos-row-chevron rta-go" aria-hidden="true">›</span></button></div></div></sc-if>
+    </div>
+  </sc-for>
+</div>
+</sc-if>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{
+  "mode": { "editor": "enum", "options": ["slot", "sheet"], "default": "slot" },
+  "items": { "editor": null },
+  "sample": { "editor": "enum", "options": ["calm", "bonus", "all", "block", "weather", "done", "risk", "late", "offer"], "default": "bonus" },
+  "conn": { "editor": null },
+  "onConnAction": { "editor": null },
+  "onOpen": { "editor": null },
+  "onMore": { "editor": null },
+  "onHide": { "editor": null },
+  "onContact": { "editor": null },
+  "$preview": { "width": 360, "height": 150 }
+}'>
+// примеры для дизайн-системы. В приложении список собирает RaznosApp по приоритету: 1 блокировка, 2 сбой связи, 3 не успеете доехать, 4 опасная погода, 5 риск аккаунта, 6 бонус почти набран, 7 задержка выплаты от 2 дней, 8 погода, 9 бонус набран
+const RTA_BLOCK = { id: 'acc-x5', kind: 'block', tone: 'red', svc: 'x5', word: 'аккаунт', title: 'X5 приостановил аккаунт', sub: 'До 18 октября, пауза 18% при лимите 15%', acc: { svc: 'x5', title: 'X5 Доставка', titleIn: 'X5 Доставке', sample: 'block' } };
+const RTA_CONFLICT = { id: 'conflict', kind: 'conflict', tone: 'amber', word: 'дорога', title: 'Не успеете доехать в Яндекс Еду', sub: 'Смены встык, дорога ≈ 20 мин, начало в 17:00' };
+const RTA_OFFER = { id: 'offer', kind: 'offer', tone: '', svc: 'x5', word: 'замена', hide: true, title: 'Выгоднее X5 17:30–23:00', sub: '+200 ₽, ≈ 720 против 790 ₽/ч' };
+const RTA_LATE = { id: 'payout', kind: 'late', tone: 'amber', svc: 'x5', word: 'выплата', hide: true, title: 'X5 задерживает 3 980 ₽', sub: 'Ждали в четверг, прошло 6 дней' };
+const RTA_BONUS = { id: 'bonus', kind: 'bonus', tone: '', svc: 'yandex-eda', word: 'бонус', hide: true, title: 'Ещё 6 заказов до ', titleB: '+1 500 ₽', sub: 'Яндекс Еда, до 20:00, 14 из 20', pct: 70 };
+const RTA_DONE = { id: 'bonus', kind: 'bonus-done', tone: 'green', svc: 'yandex-eda', word: 'бонус', hide: true, title: 'Цель набрана, ', titleB: '+1 500 ₽', sub: 'Яндекс Еда начислит после проверки', pct: 100 };
+const RTA_RAIN = { id: 'weather', kind: 'weather', tone: '', wx: 'rain', word: 'погода', hide: true, title: 'Дождь 18–22, ', titleB: 'спрос выше', sub: 'Заказов обычно больше, к вечеру ставки выше' };
+const RTA_FROST = { id: 'weather', kind: 'weather-danger', tone: 'amber', wx: 'frost', word: 'погода', title: 'Мороз на вашей смене', sub: 'До −14 °C вечером, ветер 7 м/с' };
+const RTA_RISK = { id: 'acc-x5', kind: 'risk', tone: 'amber', svc: 'x5', word: 'аккаунт', hide: true, title: 'Пауза X5 13% из 15%', sub: 'Ещё 2% и могут ограничить слоты', acc: { svc: 'x5', title: 'X5 Доставка', titleIn: 'X5 Доставке', sample: 'risk' } };
+const RTA_SAMPLES = { calm: [], bonus: [RTA_CONFLICT, RTA_BONUS], all: [RTA_FROST, RTA_RISK, RTA_BONUS, RTA_LATE], block: [RTA_BLOCK, RTA_BONUS, RTA_LATE], weather: [RTA_FROST, RTA_BONUS], done: [RTA_DONE], risk: [RTA_RISK], late: [RTA_LATE, RTA_RAIN], offer: [RTA_OFFER] };
+function rtaPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const items = Array.isArray(p.items) ? p.items : (RTA_SAMPLES[p.sample || 'bonus'] || RTA_SAMPLES.bonus);
+    // в ДС строка связи из примера: пять сервисов на связи
+    const conn = p.conn || (Array.isArray(p.items) ? null : { items: ['vkusvill', 'samokat', 'x5', 'yandex-eda', 'kuper'].map((key) => ({ key, title: key, state: 'ok' })), okNote: 'обновлено 26 минут назад', problems: [] });
+    const top = items[0] || null;
+    const rest = items.slice(1);
+    // одно слово на вид, без повторов: два аккаунта всё равно аккаунт
+    const words = rest.map((i) => i.word).filter((w, i, a) => w && a.indexOf(w) === i);
+    const topConn = !!top && top.kind === 'conn';
+    const flag = !!top && !!top.svc && (top.kind === 'block' || top.kind === 'risk' || top.kind === 'late');
+    const onOpen = (it) => () => { if (p.onOpen) p.onOpen(it.id, it.kind); };
+    const moreLabel = 'Ещё ' + rest.length + ': ' + words.join(', ');
+    return {
+      is_slot: p.mode !== 'sheet', is_sheet: p.mode === 'sheet',
+      // спокойно или сбой связи сверху: на месте слота строка связи
+      show_conn: !!topConn,
+      conn_items: conn ? conn.items : undefined, conn_ok: conn ? conn.okNote : undefined, conn_net: conn ? !!conn.netOffline : false,
+      conn_problems: conn ? conn.problems : undefined,
+      conn_action: (...a) => { if (p.onConnAction) p.onConnAction(...a); },
+      has_top: !!top && !topConn, solo_more: topConn && rest.length > 0,
+      cls: 'rta rta-in' + (top && top.tone ? ' rta-is-' + top.tone : ''),
+      top: top ? { svc: top.svc || '', title_a: top.title || '', title_b: top.titleB || '', title_c: top.titleC || '', sub: top.sub || '' } : {},
+      sub_cls: 'rta-sub' + (top && top.tight ? ' rta-is-tight' : ''),
+      top_aria: top ? (top.title || '') + (top.titleB || '') + (top.titleC || '') + ', ' + (top.sub || '') + ', подробнее' : '',
+      ico_svc: !!top && !!top.svc, ico_rain: !!top && !top.svc && !!top.wx && top.wx !== 'frost', ico_frost: !!top && !top.svc && top.wx === 'frost',
+      ico_route: !!top && !top.svc && !top.wx,
+      has_flag: flag,
+      has_bar: !!top && top.pct != null, bar_style: top && top.pct != null ? 'width:' + Math.max(4, Math.min(100, top.pct)) + '%' : '',
+      can_hide: !!top && !!top.hide, no_hide: !(top && top.hide),
+      hide_aria: 'Скрыть до конца дня',
+      hide: () => { if (top && p.onHide) p.onHide(top.id); },
+      has_more: rest.length > 0,
+      more_label: moreLabel,
+      more_aria: 'Ещё ' + rest.length + ' ' + rtaPlural(rest.length, 'событие', 'события', 'событий') + ': ' + words.join(', ') + ', показать все',
+      open: top ? onOpen(top) : () => {},
+      more: () => { if (p.onMore) p.onMore(); },
+      // шторка: полный вид там, где он есть в ДС, иначе такая же строка
+      sheet: items.map((it) => {
+        const k = it.kind;
+        return {
+          is_acc: k === 'block' || k === 'risk', acc: it.acc || {},
+          is_conn: k === 'conn',
+          is_weather: k === 'weather' || k === 'weather-danger', weather: it.weather,
+          is_bonus: k === 'bonus' || k === 'bonus-done', q_items: it.quests ? it.quests.items : undefined, q_hot: it.quests ? it.quests.hotId : '', q_now: it.quests ? it.quests.nowMin : 940,
+          is_payout: k === 'late', payouts: it.payouts,
+          // конфликт и замена смены строкой, у замены иконка сервиса
+          is_row: k === 'conflict' || k === 'offer', svc: k === 'offer' ? it.svc || '' : '', no_svc: !(k === 'offer' && it.svc), cls: 'rta' + (it.tone ? ' rta-is-' + it.tone : ''), title: it.title || '', sub: it.sub || '',
+          tap: onOpen(it),
+          contact: (svc) => { if (p.onContact) p.onContact(svc); }
+        };
+      })
+    };
+  }
+}
+</script></body></html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /></helmet>
+      <div class="{{ cardClass }}">
+        <span class="raznos-text-small">{{ label }}</span>
+        <div class="raznos-fx raznos-ac raznos-gap8"><span class="{{ valueClass }}">{{ value }}</span><sc-if value="{{ hasUnit }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-small">{{ unit }}</span></sc-if></div>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "label": { "editor": "text", "default": "Показатель" },
+      "value": { "editor": "text", "default": "0" },
+      "unit": { "editor": "text", "default": "" },
+      "tone": { "editor": "enum", "default": "light", "options": ["light", "dark"] },
+      "$preview": { "width": 180, "height": 90 }
+    }'>
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          const dark = p.tone === 'dark';
+          const value = p.value != null ? p.value : '';
+          const isNumeric = /^[\d\s.,–−+%₽]*$/.test(String(value));
+          return {
+            label: p.label || '',
+            value,
+            unit: p.unit || '',
+            hasUnit: !!p.unit,
+            cardClass: dark ? 'raznos-metric-card' : 'raznos-metric-card',
+            valueClass: isNumeric ? 'raznos-metric-value' : 'raznos-metric-value-text'
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

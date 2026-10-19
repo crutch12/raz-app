@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics><link rel="stylesheet" href="./raznos-v3.css" /><link rel="stylesheet" href="./raznos-links.css" /></helmet>
+      <div class="{{ boxClass }}">
+        <div class="raznos-offer-fit-row"><span class="{{ pillClass }}"><span class="raznos-offer-fit-dot"></span>&nbsp;{{ label }}</span></div>
+        <span class="raznos-offer-fit-reason">{{ reason }}</span>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{
+      "estimate": { "editor": null },
+      "fit": { "editor": "enum", "default": "good", "options": ["good", "below", "lowdata"] },
+      "reason": { "editor": "text", "default": "" },
+      "compact": { "editor": "boolean", "default": false },
+      "$preview": { "width": 320, "height": 80 }
+    }'>
+      // цвет всегда дублируется текстом и причиной, сама оценка считается в offerEstimate по Моим фильтрам
+      const FIT = {
+        good: { label: 'Подходит вам', pill: 'raznos-pill-ok' },
+        below: { label: 'Ниже вашей цели', pill: 'raznos-pill-warn' },
+        lowdata: { label: 'Мало данных', pill: 'raznos-pill-muted' }
+      };
+      class Component extends DCLogic {
+        renderVals() {
+          const p = this.props || {};
+          // без расчёта берём готовые fit и reason, так компонент показывается в галерее
+          const e = p.estimate || { fit: p.fit, reasons: p.reason ? [p.reason] : [], lowDataReason: p.reason };
+          const fit = FIT[e.fit] ? e.fit : (e.good ? 'good' : 'below');
+          const reasons = e.reasons || [];
+          return {
+            boxClass: 'raznos-offer-fit' + (p.compact ? ' raznos-offer-fit-compact' : ''),
+            pillClass: 'raznos-status-pill ' + FIT[fit].pill,
+            label: FIT[fit].label,
+            reason: fit === 'lowdata' ? (e.lowDataReason || 'Мало ваших заказов в этом сервисе, оценка приблизительная') : (reasons.join(', ') || '')
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

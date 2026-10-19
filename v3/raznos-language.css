@@ -1,0 +1,5 @@
+.raznos-language-compact { flex: none; }
+.raznos-language-compact .raznos-field-label { display: none; }
+.raznos-language-compact .raznos-input { width: 100px; min-height: 38px; padding: 6px; font-size: 13px; }
+.raznos-onboarding-top { gap: 6px; }
+.raznos-onboarding-top .raznos-btn-small { padding-left: 4px; padding-right: 4px; }

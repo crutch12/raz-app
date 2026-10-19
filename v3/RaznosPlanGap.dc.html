@@ -1,0 +1,48 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><script src="./support.js"></script></head><body><x-dc>
+<helmet data-dc-atomics>
+  <link rel="stylesheet" href="./raznos-v3.css" />
+  <style>
+    /* пустое место в расписании с плюсом, как в календаре: тап открывает выбор, чем занять это время */
+    .rpg { box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px; border: 1.5px dashed var(--raznos-line-strong); border-radius: 14px; background: transparent; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+    .rpg:hover { border-color: var(--raznos-green); background: color-mix(in oklab, var(--raznos-green) 4%, transparent); }
+    .rpg:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: 2px; }
+    .rpg-plus { width: 40px; height: 40px; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1.5px dashed var(--raznos-green); color: var(--raznos-green-deep); }
+    .rpg-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .rpg-title { font: 650 15px var(--raznos-font); color: var(--raznos-ink); }
+    .rpg-title .rpg-time { font-family: var(--raznos-mono); font-variant-numeric: tabular-nums; }
+    .rpg-hint { font: 500 12.5px/1.35 var(--raznos-font); color: var(--raznos-ink-3); }
+    .rpg-hint > b { font-weight: 700; color: var(--raznos-green-deep); font-variant-numeric: tabular-nums; }
+    .rpg-chev { flex: none; color: var(--raznos-ink-3); }
+  </style>
+</helmet>
+<button type="button" class="rpg" onClick="{{ open }}" aria-label="{{ aria }}">
+  <span class="rpg-plus" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+  <span class="rpg-copy">
+    <span class="rpg-title">Свободно <span class="rpg-time">{{ from }}–{{ to }}</span> · {{ len_label }}</span>
+    <sc-if value="{{ has_hint }}" hint-placeholder-val="{{ true }}"><span class="rpg-hint">Совет: {{ hint }}, <b>{{ gain }}</b>{{ more_label }}</span></sc-if>
+    <sc-if value="{{ no_hint }}" hint-placeholder-val="{{ false }}"><span class="rpg-hint">Вариантов на это время нет</span></sc-if>
+  </span>
+  <svg class="rpg-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+</button>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"18:00"},"to":{"editor":"text","default":"22:00"},"hint":{"editor":"text","default":"Яндекс Еда"},"gain":{"editor":"text","default":"+3 200 ₽"},"more":{"editor":"number"},"onOpen":{"editor":null},"$preview":{"width":366,"height":80}}'>
+// свободный промежуток в расписании: время, совет и прибавка, выбор открывается шторкой
+const RPG_PLURAL = (n) => { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return 'вариант'; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'варианта'; return 'вариантов'; };
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const from = p.from || '18:00', to = p.to || '22:00';
+    const hint = p.hint == null ? 'Яндекс Еда' : p.hint;
+    const toMin = (t) => { const [h, m] = String(t).split(':').map(Number); return h * 60 + m; };
+    const len = Math.max(0, toMin(to) - toMin(from));
+    const h = Math.floor(len / 60), m = len % 60;
+    const gain = p.gain == null ? '+3 200 ₽' : p.gain;
+    return {
+      from, to, len_label: (h ? h + ' ч' : '') + (m ? (h ? ' ' : '') + m + ' мин' : ''),
+      hint, gain, has_hint: hint !== '', no_hint: hint === '',
+      more_label: p.more > 0 ? ' · ещё ' + p.more + ' ' + RPG_PLURAL(p.more) : '',
+      aria: 'Свободно ' + from + '–' + to + (hint ? ', совет ' + hint + ' ' + gain + ', выбрать, чем занять' : ''),
+      open: typeof p.onOpen === 'function' ? p.onOpen : (() => {})
+    };
+  }
+}
+</script></body></html>
