@@ -65,14 +65,43 @@
             </div>
           </div>
         </sc-if>
-        <sc-if value="{{ via_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosViaSheet" via="{{ via_data }}" onClose="{{ via_close }}"></dc-import></sc-if>
+        <sc-if value="{{ via_open }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosViaSheet" via="{{ via_data }}" onClose="{{ via_close }}" onReferral="{{ via_ref_open }}"></dc-import></sc-if>
         <!-- редактор своего оповещения: одна шторка для списка в Уведомлениях и входов Сообщать на экранах -->
         <sc-if value="{{ ar_sheet }}" hint-placeholder-val="{{ false }}">
           <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="{{ ar_sheet_title }}">
             <div class="raznos-dialog raznos-day-sheet">
               <span class="raznos-day-handle" aria-hidden="true"></span>
               <div class="raznos-day-head"><span class="raznos-text-h3">{{ ar_sheet_title }}</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ ar_close }}" aria-label="Закрыть">×</button></div>
-              <dc-import name="RaznosAlertRules" mode="edit" rule="{{ ar_rule }}" services="{{ ar_svcs }}" areas="{{ ar_areas }}" onSave="{{ ar_save }}" onDelete="{{ ar_delete }}"></dc-import>
+              <dc-import name="RaznosAlertRules" mode="edit" rule="{{ ar_rule }}" services="{{ ar_svcs }}" refServices="{{ ar_ref_svcs }}" areas="{{ ar_areas }}" onSave="{{ ar_save }}" onDelete="{{ ar_delete }}"></dc-import>
+            </div>
+          </div>
+        </sc-if>
+        <!-- рефералки: шторки сделки, отзыв и спор -->
+        <sc-if value="{{ rs_review }}" hint-placeholder-val="{{ false }}">
+          <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="Отзыв по сделке">
+            <div class="raznos-dialog raznos-day-sheet">
+              <span class="raznos-day-handle" aria-hidden="true"></span>
+              <div class="raznos-day-head"><span class="raznos-text-h3">{{ rs_rv_title }}</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ rs_close }}" aria-label="Закрыть">×</button></div>
+              <div class="raznos-fx raznos-ac" style="gap:4px" role="group" aria-label="Оценка">
+                <sc-for list="{{ rs_stars }}" as="sg" hint-placeholder-count="5"><button type="button" class="raznos-icon-btn" aria-label="{{ sg.aria }}" aria-pressed="{{ sg.on }}" onClick="{{ sg.tap }}"><svg class="{{ sg.cls }}" viewBox="0 0 20 20" style="width:28px;height:28px"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></button></sc-for>
+              </div>
+              <span class="raznos-text-small">{{ rs_rv_label }}</span>
+              <textarea class="raznos-textarea" maxlength="500" placeholder="Что важно знать другим" value="{{ rs_rv_text }}" onInput="{{ rs_rv_text_change }}"></textarea>
+              <span class="raznos-text-tiny">{{ rd_review_caption }}</span>
+              <button type="button" class="{{ rs_rv_cls }}" disabled="{{ rs_rv_disabled }}" onClick="{{ rs_rv_submit }}">{{ rs_rv_btn }}</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ rs_dispute }}" hint-placeholder-val="{{ false }}">
+          <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="{{ rs_ds_title }}">
+            <div class="raznos-dialog raznos-day-sheet">
+              <span class="raznos-day-handle" aria-hidden="true"></span>
+              <div class="raznos-day-head"><span class="raznos-text-h3">{{ rs_ds_title }}</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ rs_close }}" aria-label="Закрыть">×</button></div>
+              <sc-if value="{{ rs_reply }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-small">Опишите свою сторону, модерация увидит ответ вместе с историей сделки</span></sc-if>
+              <sc-if value="{{ rs_reply_not }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosChipGroup" options="{{ rs_ds_opts }}" value="{{ rs_ds_reason }}" nullable="{{ false }}" label="Причина" onChange="{{ rs_ds_reason_change }}"></dc-import></sc-if>
+              <textarea class="raznos-textarea" maxlength="500" placeholder="Что случилось" value="{{ rs_ds_text }}" onInput="{{ rs_ds_text_change }}"></textarea>
+              <span class="raznos-text-tiny">Модерация посмотрит историю сделки. Переводы между вами мы не видим и не взыскиваем</span>
+              <button type="button" class="{{ rs_ds_cls }}" disabled="{{ rs_ds_disabled }}" onClick="{{ rs_ds_submit }}">{{ rs_ds_btn }}</button>
             </div>
           </div>
         </sc-if>
@@ -340,7 +369,7 @@
                   <div class="raznos-dialog raznos-day-sheet">
                     <span class="raznos-day-handle" aria-hidden="true"></span>
                     <div class="raznos-day-head"><span class="raznos-text-h3">Бонусы и задания</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ quests_close }}" aria-label="Закрыть">×</button></div>
-                    <dc-import name="RaznosBonusQuests" mode="list" items="{{ quests_items }}" nowMin="{{ 940 }}"></dc-import>
+                    <dc-import name="RaznosBonusQuests" mode="list" items="{{ quests_items }}" crew="{{ ref_crew_items }}" nowMin="{{ 940 }}"></dc-import>
                     <dc-import name="RaznosAlertBell" variant="row" on="{{ quests_alert_on }}" label="Сообщать о новых бонусах" sub="{{ quests_alert_sub }}" onTap="{{ quests_alert_tap }}"></dc-import>
                   </div>
                 </div>
@@ -554,7 +583,7 @@
             <dc-import name="RaznosUserHome" city="{{ uh_city }}" cityTitle="{{ uh_city_title }}" rates="{{ uh_market_rates }}" onCityChange="{{ uh_set_city }}" onNavigate="{{ uh_navigate }}"></dc-import>
           </sc-if>
           <sc-if value="{{ is_job_guide }}">
-            <dc-import name="RaznosJobGuide" tr="{{ mk_tr }}" city="{{ city }}" section="{{ guide_section }}" svc="{{ guide_svc }}" services="{{ guide_services }}" connected="{{ guide_connected }}" week="{{ guide_week }}" via="{{ guide_via }}" onOpenVia="{{ guide_open_via }}" onBack="{{ market_back }}" onOpenService="{{ guide_open_service }}" onSection="{{ guide_set_section }}" onSvc="{{ guide_set_svc }}" onRegister="{{ guide_register }}" onConnect="{{ guide_connect }}"></dc-import>
+            <dc-import name="RaznosJobGuide" tr="{{ mk_tr }}" city="{{ city }}" section="{{ guide_section }}" svc="{{ guide_svc }}" services="{{ guide_services }}" connected="{{ guide_connected }}" week="{{ guide_week }}" via="{{ guide_via }}" onOpenVia="{{ guide_open_via }}" refCounts="{{ guide_ref_counts }}" onReferral="{{ guide_ref_open }}" onBack="{{ market_back }}" onOpenService="{{ guide_open_service }}" onSection="{{ guide_set_section }}" onSvc="{{ guide_set_svc }}" onRegister="{{ guide_register }}" onConnect="{{ guide_connect }}"></dc-import>
           </sc-if>
 
           <sc-if value="{{ is_tax_forms }}">
@@ -878,6 +907,11 @@
                 <span class="raznos-text-small">Карточки сервисов, доход, ожидание и отзывы курьеров</span>
                 <span class="raznos-fx raznos-ac raznos-gap8"><sc-for list="{{ mk_top }}" as="t" hint-placeholder-count="4"><dc-import name="RaznosIcon" svc="{{ t.key }}" alt="{{ t.title }}" size="sm"></dc-import></sc-for><span class="raznos-text-small">{{ mk_count_label }}</span></span>
               </button>
+              <button type="button" class="raznos-card raznos-card-pad" style="width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit" onClick="{{ go_ref_catalog }}" aria-label="Рефералки. {{ ref_market_best }}. {{ ref_market_count }}">
+                <span class="raznos-fx raznos-ac raznos-jb raznos-gap8"><span class="raznos-text-h3">Рефералки</span><span class="raznos-row-chevron">›</span></span>
+                <span class="raznos-text-small">{{ ref_market_best }}</span>
+                <span class="raznos-text-small">{{ ref_market_count }}</span>
+              </button>
             </div>
           </sc-if>
 
@@ -915,6 +949,199 @@
             </div>
           </sc-if>
 
+          <sc-if value="{{ is_ref_catalog }}">
+            <div class="raznos-phone-body" data-screen-label="22b Ref catalog">
+              <div class="raznos-app-bar" style="justify-content:space-between;gap:10px"><span class="raznos-fx raznos-ac" style="gap:10px;min-width:0"><button type="button" class="raznos-icon-btn" onClick="{{ ref_back }}" aria-label="Назад">‹</button><h1 class="raznos-text-h1" style="margin:0">Рефералки</h1></span><dc-import name="RaznosAlertBell" on="{{ rfa_cat_bell_on }}" label="Сообщать о новых программах" onTap="{{ rfa_cat_bell_tap }}"></dc-import></div>
+              <sc-if value="{{ rfa_blocked }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosAlert" kind="warn" title="Приглашения сейчас недоступны" text="Условия остаются для справки, откликнуться и предложить рефералку пока нельзя" dismissible="{{ false }}"></dc-import></sc-if>
+              <sc-if value="{{ rfa_offline }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosAlert" kind="warn" title="Нет связи" text="Показываем условия, которые уже загрузили. Обновим, когда сеть появится" dismissible="{{ false }}" actionLabel="Повторить" onAction="{{ rfa_retry }}"></dc-import></sc-if>
+              <dc-import name="RaznosCitySelect" value="{{ mkCity }}" onChange="{{ set_mk_city }}"></dc-import>
+              <sc-if value="{{ rfa_cat_has_city }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosFilterChips" filters="{{ mk_tr_filters }}" onChange="{{ set_mk_filter }}"></dc-import></sc-if>
+              <div class="raznos-fx" style="gap:8px">
+                <sc-for list="{{ rfa_cat_tiles }}" as="t" hint-placeholder-count="2">
+                  <button type="button" class="raznos-card raznos-card-pad" style="{{ t.style }}" onClick="{{ t.onTap }}" aria-label="{{ t.aria }}">
+                    <span style="{{ t.icoStyle }}" aria-hidden="true">
+                      <sc-if value="{{ t.isJoin }}" hint-placeholder-val="{{ true }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></sc-if>
+                      <sc-if value="{{ t.isRefer }}" hint-placeholder-val="{{ false }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></sc-if>
+                    </span>
+                    <span class="raznos-text-h3">{{ t.title }}</span>
+                    <span class="raznos-text-small">{{ t.sub }}</span>
+                  </button>
+                </sc-for>
+              </div>
+              <sc-if value="{{ rfa_win_show }}" hint-placeholder-val="{{ true }}">
+                <div class="raznos-card">
+                  <span class="raznos-card-heading raznos-text-h3">Когда вы снова новичок</span>
+                  <sc-for list="{{ rfa_win_rows }}" as="w" hint-placeholder-count="3">
+                    <div style="border-bottom:1px solid var(--raznos-line)">
+                      <button type="button" class="raznos-list-row" style="width:100%;border-bottom:0;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit" onClick="{{ w.onTap }}" aria-label="{{ w.aria }}"><dc-import name="RaznosIcon" svc="{{ w.svc }}" alt="{{ w.title }}" size="sm"></dc-import><span class="raznos-list-main"><span class="raznos-list-title">{{ w.title }}</span></span><span class="{{ w.valueCls }}" style="text-align:right;max-width:55%">{{ w.value }}</span></button>
+                      <sc-if value="{{ w.bell }}" hint-placeholder-val="{{ false }}"><div style="padding:0 12px 12px"><dc-import name="RaznosAlertBell" variant="row" on="{{ w.bellOn }}" label="Сообщить в день окна" sub="{{ w.bellSub }}" onTap="{{ w.bellTap }}"></dc-import></div></sc-if>
+                    </div>
+                  </sc-for>
+                  <p class="raznos-text-tiny" style="padding:12px 16px 14px">Считаем по вашей истории в Разносе и правилу сервиса, решает сервис</p>
+                </div>
+              </sc-if>
+              <span class="raznos-text-h3" style="padding:4px 6px 0">{{ rfa_cat_title }}</span>
+              <sc-if value="{{ rfa_cat_no_city }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" title="Пока нет данных по этому городу" text="Раздел работает, но условий приглашения для города в каталоге нет. Выберите другой город или заглянем позже"></dc-import></sc-if>
+              <sc-if value="{{ rfa_cat_no_tr }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" title="{{ rfa_cat_no_tr_title }}" text="Выберите другой транспорт в фильтре выше"></dc-import></sc-if>
+              <sc-if value="{{ rfa_cat_has_city }}" hint-placeholder-val="{{ true }}">
+                <div class="raznos-fx raznos-col raznos-gap8">
+                  <sc-for list="{{ rfa_cat_cards }}" as="c" hint-placeholder-count="3"><dc-import name="RaznosReferralProgram" mode="card" program="{{ c.program }}" svcTitle="{{ c.title }}" count="{{ c.count }}" onOpen="{{ c.open }}" onOffers="{{ c.offers }}"></dc-import></sc-for>
+                </div>
+                <sc-if value="{{ rfa_cat_rows_show }}" hint-placeholder-val="{{ true }}">
+                  <p class="raznos-text-tiny" style="padding:4px 6px 0">Сервисы без условий в каталоге</p>
+                  <div class="raznos-fx raznos-col raznos-gap8">
+                    <sc-for list="{{ rfa_cat_rows }}" as="c" hint-placeholder-count="3"><dc-import name="RaznosReferralProgram" mode="row" program="{{ c.program }}" svcTitle="{{ c.title }}" onOpen="{{ c.open }}"></dc-import></sc-for>
+                  </div>
+                </sc-if>
+              </sc-if>
+              <p class="raznos-text-tiny">Награду платит сервис по своим правилам, Разнос показывает условия и не участвует в расчётах</p>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ is_ref_program }}">
+            <div class="raznos-phone-body" data-screen-label="22c Ref program">
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ ref_back }}" aria-label="Назад">‹</button><dc-import name="RaznosIcon" svc="{{ rfa_pg_svc }}" alt="{{ rfa_pg_svc_title }}" size="md"></dc-import><h1 class="raznos-text-h1" style="margin:0">{{ rfa_pg_svc_title }}</h1></div>
+              <p class="raznos-text-small" style="margin-top:-4px;padding:0 6px">{{ rfa_pg_sub }}</p>
+              <sc-if value="{{ rfa_pg_chips_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosChipGroup" options="{{ rfa_pg_chips }}" value="{{ rfa_pg_chip_val }}" label="Транспорт программы" onChange="{{ rfa_pg_chip_set }}"></dc-import></sc-if>
+              <sc-if value="{{ rfa_pg_closed }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">{{ rfa_pg_closed_text }}</span><span class="raznos-text-small">Новые рефералки по ней не оформляем, идущие сделки не меняются</span></div></sc-if>
+              <sc-if value="{{ rfa_pg_hero }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosReferralProgram" mode="hero" program="{{ rfa_pg_prog }}" svcTitle="{{ rfa_pg_svc_title }}"></dc-import></sc-if>
+              <sc-if value="{{ rfa_pg_noterms }}" hint-placeholder-val="{{ false }}">
+                <div class="raznos-card raznos-card-pad">
+                  <span class="raznos-text-h3">{{ rfa_pg_noterms_title }}</span>
+                  <sc-if value="{{ rfa_pg_known_sum }}" hint-placeholder-val="{{ false }}"><span class="raznos-fx raznos-ac raznos-gap8 raznos-wrap"><span class="raznos-metric-value-text">{{ rfa_pg_sum }}</span><dc-import name="RaznosFactSource" src="{{ rfa_pg_fact }}"></dc-import></span></sc-if>
+                  <p class="raznos-text-small">{{ rfa_pg_noterms_text }}</p>
+                  <sc-if value="{{ rfa_pg_url_noterms }}" hint-placeholder-val="{{ false }}"><a class="raznos-btn raznos-btn-secondary raznos-btn-small" style="align-self:flex-start" href="{{ rfa_pg_url }}" target="_blank" rel="noopener">Страница программы у сервиса</a></sc-if>
+                </div>
+              </sc-if>
+              <p class="raznos-fx raznos-ac raznos-gap8 raznos-wrap raznos-text-tiny" style="padding:0 6px"><span>Источник и дата:</span><dc-import name="RaznosFactSource" src="{{ rfa_pg_stamp_src }}"></dc-import><span>{{ rfa_pg_stamp_date }}</span></p>
+              <sc-if value="{{ rfa_pg_fill_show }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-tiny" style="padding:0 6px">Разбивка заказов по целям примерная, точные цели видны в приложении сервиса</p></sc-if>
+              <sc-if value="{{ rfa_pg_note_show }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">{{ rfa_pg_note_title }}</span><span class="raznos-text-small">{{ rfa_pg_note }}</span></div></sc-if>
+              <sc-if value="{{ rfa_pg_ladder_show }}" hint-placeholder-val="{{ true }}">
+                <div class="raznos-card raznos-card-pad">
+                  <span class="raznos-text-h3">Лесенка наград</span>
+                  <div>
+                    <sc-for list="{{ rfa_pg_ladder }}" as="r" hint-placeholder-count="6"><dc-import name="RaznosRankRow" rank="{{ r.rank }}" title="{{ r.title }}" meta="{{ r.meta }}" value="{{ r.value }}" fill="{{ r.fill }}" action="" divider="{{ r.divider }}"></dc-import></sc-for>
+                  </div>
+                  <p class="raznos-text-tiny">Награда за каждую ступень, ступени идут по порядку</p>
+                </div>
+              </sc-if>
+              <sc-if value="{{ rfa_pg_calc_show }}" hint-placeholder-val="{{ true }}">
+                <span class="raznos-text-h3" style="padding:4px 6px 0">Что нужно, чтобы успеть</span>
+                <div class="raznos-metric-grid">
+                  <sc-if value="{{ rfa_pg_has_day }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosMetric" label="В день" value="{{ rfa_pg_day }}" unit="заказов"></dc-import></sc-if>
+                  <dc-import name="RaznosMetric" label="В среднем за заказ" value="{{ rfa_pg_per }}" unit="₽"></dc-import>
+                </div>
+                <p class="raznos-text-tiny" style="padding:0 6px">Расчёт Разноса, выгодно ли, решаете вы</p>
+              </sc-if>
+              <sc-if value="{{ rfa_pg_rows_show }}" hint-placeholder-val="{{ true }}">
+                <div class="raznos-card raznos-card-pad">
+                  <span class="raznos-text-h3">Условия</span>
+                  <div>
+                    <sc-for list="{{ rfa_pg_rows }}" as="r" hint-placeholder-count="5">
+                      <div style="display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--raznos-line)"><span style="flex:0 0 92px;font:500 13px/1.4 var(--raznos-font);color:var(--raznos-ink-3)">{{ r.label }}</span><span style="flex:1;min-width:0;font:500 14px/1.4 var(--raznos-font);color:var(--raznos-ink);overflow-wrap:anywhere">{{ r.value }} <dc-import name="RaznosFactSource" src="{{ r.src }}"></dc-import></span></div>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ rfa_pg_url_show }}" hint-placeholder-val="{{ false }}"><a class="raznos-btn raznos-btn-secondary raznos-btn-small" href="{{ rfa_pg_url }}" target="_blank" rel="noopener">Страница программы у сервиса</a></sc-if>
+                </div>
+              </sc-if>
+              <sc-if value="{{ rfa_pg_native }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Есть режим Рекомендовать</span><span class="raznos-text-small">В Яндекс Про есть режим Рекомендовать: сервис сам делит бонус между вами и новичком</span></div></sc-if>
+              <sc-if value="{{ rfa_pg_elig }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Пока можно не подойти</span><span class="raznos-text-small">{{ rfa_pg_elig_text }}</span></div></sc-if>
+              <sc-if value="{{ rfa_pg_changed }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Сервис изменил условия</span><span class="raznos-text-small">{{ rfa_pg_changed_text }}</span></div></sc-if>
+              <div class="raznos-fx raznos-col raznos-gap8">
+                <span class="raznos-text-h3" style="padding:4px 6px 0">{{ rfa_pg_offers_title }}</span>
+                <sc-if value="{{ rfa_pg_has_offers }}" hint-placeholder-val="{{ true }}">
+                  <sc-for list="{{ rfa_pg_offers }}" as="o" hint-placeholder-count="3"><dc-import name="RaznosReferralOffer" mode="compact" offer="{{ o.offer }}" svcTitle="{{ rfa_pg_svc_title }}" svcPrep="{{ rfa_pg_prep }}" onOpen="{{ o.open }}"></dc-import></sc-for>
+                  <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ rfa_pg_go_offers }}">Все предложения</button>
+                </sc-if>
+                <sc-if value="{{ rfa_pg_no_offers }}" hint-placeholder-val="{{ false }}">
+                  <dc-import name="RaznosEmptyState" title="{{ rfa_pg_empty_title }}" text="Можно подписаться и узнать, когда появится"></dc-import>
+                  <dc-import name="RaznosAlertBell" variant="row" on="{{ rfa_pg_bell_on }}" label="Сообщить, когда появится" sub="{{ rfa_pg_svc_title }}" onTap="{{ rfa_pg_bell_tap }}"></dc-import>
+                  <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ rfa_pg_guide }}">{{ rfa_pg_guide_label }}</button>
+                </sc-if>
+              </div>
+              <sc-if value="{{ rfa_pg_actions }}" hint-placeholder-val="{{ true }}">
+                <div class="raznos-sticky-actions">
+                  <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ rfa_pg_go_offers }}">Устроиться по рефералке</button>
+                  <button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ rfa_pg_go_refer }}">{{ rfa_pg_refer_label }}</button>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ is_ref_offers }}">
+            <div class="raznos-phone-body" data-screen-label="22d Ref offers">
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ ref_back }}" aria-label="Назад">‹</button><h1 class="raznos-text-h1" style="margin:0">Устроиться по рефералке</h1></div>
+              <dc-import name="RaznosServicePicker" items="{{ rfa_of_items }}" value="{{ rfa_of_svc }}" onChange="{{ rfa_of_pick }}"></dc-import>
+              <sc-if value="{{ rfa_of_has_city }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosFilterChips" filters="{{ rfa_of_filters }}" onChange="{{ rfa_of_filter }}"></dc-import></sc-if>
+              <sc-if value="{{ rfa_of_prog_show }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosReferralProgram" mode="row" program="{{ rfa_of_prog }}" svcTitle="{{ rfa_of_svc_title }}" onOpen="{{ rfa_of_open_prog }}"></dc-import></sc-if>
+              <sc-if value="{{ rfa_of_warn }}" hint-placeholder-val="{{ true }}"><div class="raznos-notice raznos-notice-warn" role="status"><span class="raznos-notice-title">Сначала ссылка, потом регистрация</span><span class="raznos-text-small">{{ rfa_of_warn_text }}</span></div></sc-if>
+              <sc-if value="{{ rfa_of_list_show }}" hint-placeholder-val="{{ true }}">
+                <div class="raznos-fx raznos-col raznos-gap8">
+                  <sc-for list="{{ rfa_of_list }}" as="o" hint-placeholder-count="3"><dc-import name="RaznosReferralOffer" mode="card" offer="{{ o.offer }}" svcTitle="{{ rfa_of_svc_title }}" svcPrep="{{ rfa_of_prep }}" response="{{ o.response }}" onOpen="{{ o.open }}"></dc-import></sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ rfa_of_empty }}" hint-placeholder-val="{{ false }}">
+                <dc-import name="RaznosEmptyState" title="{{ rfa_of_empty_title }}" text="{{ rfa_of_empty_text }}"></dc-import>
+                <sc-if value="{{ rfa_of_bell_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosAlertBell" variant="row" on="{{ rfa_of_bell_on }}" label="Сообщить, когда появится" sub="{{ rfa_of_svc_title }}" onTap="{{ rfa_of_bell_tap }}"></dc-import></sc-if>
+                <sc-if value="{{ rfa_of_guide_show }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ rfa_of_guide }}">{{ rfa_of_guide_label }}</button></sc-if>
+              </sc-if>
+              <p class="raznos-text-tiny">Разнос не передаёт деньги и не гарантирует награду. О доле договариваетесь сами</p>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ is_ref_offer }}">
+            <div class="raznos-phone-body" data-screen-label="22e Ref offer">
+              <div class="raznos-app-bar" style="justify-content:space-between;gap:10px"><span class="raznos-fx raznos-ac" style="gap:10px;min-width:0"><button type="button" class="raznos-icon-btn" onClick="{{ ref_back }}" aria-label="Назад">‹</button><h1 class="raznos-text-h1" style="margin:0">Предложение</h1></span><sc-if value="{{ rfa_o_report_show }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-icon-btn" onClick="{{ rfa_o_report }}" aria-label="Пожаловаться на предложение"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22V4M4 4h13l-2 4 2 4H4"/></svg></button></sc-if></div>
+              <sc-if value="{{ rfa_o_hidden }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" title="{{ rfa_o_hidden_title }}" text="{{ rfa_o_hidden_text }}"></dc-import></sc-if>
+              <sc-if value="{{ rfa_o_ok }}" hint-placeholder-val="{{ true }}">
+                <dc-import name="RaznosReferralOffer" mode="full" offer="{{ rfa_o_offer }}" svcTitle="{{ rfa_o_svc_title }}" svcPrep="{{ rfa_o_prep }}"></dc-import>
+                <div class="raznos-card raznos-card-pad">
+                  <p class="raznos-text-body">{{ rfa_o_text }}</p>
+                  <div style="display:flex;gap:12px;padding-top:10px;border-top:1px solid var(--raznos-line)"><span style="flex:0 0 92px;font:500 13px/1.4 var(--raznos-font);color:var(--raznos-ink-3)">Места</span><span style="flex:1;font:500 14px/1.4 var(--raznos-font)">{{ rfa_o_places }}</span></div>
+                  <div style="display:flex;gap:12px;padding-top:10px;border-top:1px solid var(--raznos-line)"><span style="flex:0 0 92px;font:500 13px/1.4 var(--raznos-font);color:var(--raznos-ink-3)">Связь</span><span style="flex:1;font:500 14px/1.4 var(--raznos-font)">{{ rfa_o_contact }}</span></div>
+                </div>
+                <span class="raznos-text-h3" style="padding:4px 6px 0">Условия программы</span>
+                <dc-import name="RaznosReferralProgram" mode="row" program="{{ rfa_o_prog }}" svcTitle="{{ rfa_o_svc_title }}" showSource="{{ true }}" onOpen="{{ rfa_o_open_prog }}"></dc-import>
+                <sc-if value="{{ rfa_o_changed }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Сервис изменил условия</span><span class="raznos-text-small">{{ rfa_o_changed_text }}</span></div></sc-if>
+                <sc-if value="{{ rfa_o_elig }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Пока можно не подойти</span><span class="raznos-text-small">{{ rfa_o_elig_text }}</span></div></sc-if>
+                <sc-if value="{{ rfa_o_reviews_show }}" hint-placeholder-val="{{ true }}">
+                  <span class="raznos-text-h3" style="padding:4px 6px 0">{{ rfa_o_reviews_title }}</span>
+                  <sc-for list="{{ rfa_o_reviews }}" as="r" hint-placeholder-count="3"><dc-import name="RaznosReviewCard" anonNick="{{ r.nick }}" anonHue="{{ r.hue }}" category="courier" rating="{{ r.rating }}" confirmed="{{ true }}" confirmedLabel="По закрытой сделке" text="{{ r.text }}" date="{{ r.date }}" noReactions="{{ true }}"></dc-import></sc-for>
+                </sc-if>
+                <sc-if value="{{ rfa_o_reviews_none }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small" style="padding:0 6px">Отзывов пока нет, они появляются после закрытых сделок</p></sc-if>
+                <div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Сначала ссылка, потом регистрация</span><span class="raznos-text-small">Если зарегистрируетесь сами, бонуса не будет</span></div>
+                <p class="raznos-text-tiny">Разнос не передаёт деньги и не гарантирует награду. О доле договариваетесь сами</p>
+                <div class="raznos-sticky-actions">
+                  <sc-if value="{{ rfa_o_can }}" hint-placeholder-val="{{ true }}"><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ rfa_o_respond }}">Откликнуться</button></sc-if>
+                  <sc-if value="{{ rfa_o_limit }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn-disabled" disabled="{{ true }}" aria-describedby="rfa-limit-note">Откликнуться</button><span id="rfa-limit-note" class="raznos-text-small" style="text-align:center">Лимит откликов на сегодня, завтра снова</span></sc-if>
+                  <sc-if value="{{ rfa_o_unavail }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn-disabled" disabled="{{ true }}">Приглашения сейчас недоступны</button></sc-if>
+                  <sc-if value="{{ rfa_o_full }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn-disabled" disabled="{{ true }}">Места закончились</button></sc-if>
+                  <sc-if value="{{ rfa_o_done }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ rfa_o_open_deal }}">{{ rfa_o_done_label }}</button></sc-if>
+                  <sc-if value="{{ rfa_o_mine }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-small" style="text-align:center">Это ваше предложение</span><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ rfa_o_manage }}">Управлять</button></sc-if>
+                </div>
+              </sc-if>
+              <sc-if value="{{ rfa_sheet }}" hint-placeholder-val="{{ false }}">
+                <div class="raznos-dialog-layer raznos-dialog-bottom" data-backdrop role="dialog" aria-modal="true" aria-label="{{ rfa_sheet_title }}">
+                  <div class="raznos-dialog raznos-day-sheet">
+                    <span class="raznos-day-handle" aria-hidden="true"></span>
+                    <div class="raznos-day-head"><span class="raznos-text-h3">{{ rfa_sheet_title }}</span><button data-cancel type="button" class="raznos-icon-btn raznos-day-close" onClick="{{ rfa_sheet_close }}" aria-label="Закрыть">×</button></div>
+                    <div class="raznos-field"><span class="raznos-field-label">Как с вами связаться</span><dc-import name="RaznosChipGroup" options="{{ rfa_sheet_kinds }}" value="{{ rfa_sheet_kind }}" size="sm" label="Как с вами связаться" onChange="{{ rfa_sheet_set_kind }}"></dc-import></div>
+                    <label class="raznos-field"><span class="raznos-field-label">{{ rfa_sheet_contact_label }}</span><input class="raznos-input" type="text" enterkeyhint="next" autocomplete="off" placeholder="{{ rfa_sheet_contact_ph }}" value="{{ rfa_sheet_contact }}" onChange="{{ rfa_sheet_set_contact }}" /></label>
+                    <label class="raznos-field"><span class="raznos-field-label">Пара слов о себе</span><textarea class="raznos-textarea" maxlength="300" placeholder="Транспорт, район, когда готовы начать" value="{{ rfa_sheet_text }}" onChange="{{ rfa_sheet_set_text }}"></textarea><span class="raznos-text-tiny" style="text-align:right">{{ rfa_sheet_count }} из 300</span></label>
+                    <p class="raznos-text-small">{{ rfa_sheet_snapshot }}</p>
+                    <button type="button" class="raznos-consent-row" style="background:none;border:0;padding:0;text-align:left;cursor:pointer;font:inherit;color:inherit" onClick="{{ rfa_sheet_toggle_consent }}" role="checkbox" aria-checked="{{ rfa_sheet_consent }}"><span class="{{ rfa_sheet_consent_cls }}">{{ rfa_sheet_consent_mark }}</span><span class="raznos-text-body">{{ rfa_sheet_consent_text }}</span></button>
+                    <sc-if value="{{ rfa_sheet_error }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosAlert" kind="critical" title="Отклик не отправился" text="Нет связи. Текст сохранили, повторите, когда сеть появится" dismissible="{{ false }}" actionLabel="Повторить" onAction="{{ rfa_sheet_send }}"></dc-import></sc-if>
+                    <p class="raznos-text-tiny">Контакт увидит только этот реферер и только после принятия</p>
+                    <div class="raznos-day-foot">
+                      <sc-if value="{{ rfa_sheet_left_show }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small" style="text-align:center;margin-bottom:8px">{{ rfa_sheet_left }}</p></sc-if>
+                      <button type="button" class="{{ rfa_sheet_send_cls }}" disabled="{{ rfa_sheet_blocked }}" onClick="{{ rfa_sheet_send }}">Отправить отклик</button>
+                    </div>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
           <sc-if value="{{ is_service }}">
             <div class="raznos-phone-body" data-screen-label="23 Service">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ service_back }}">‹</button><dc-import name="RaznosIcon" svc="{{ sv_key }}" alt="{{ sv_title }}" size="md"></dc-import><h1 class="raznos-text-h1" style="margin:0">{{ sv_title }}</h1></div>
@@ -930,7 +1157,19 @@
                 <span class="raznos-text-h3">Как работает</span>
                 <dc-import name="RaznosServiceCaps" caps="{{ sv_caps }}" viaMine="{{ sv_via_mine }}" onVia="{{ sv_via_open }}"></dc-import>
               </sc-if>
+              <div class="raznos-card raznos-card-pad">
+                <span class="raznos-text-h3">Бонус за приглашение</span>
+                <sc-if value="{{ sv_ref_has_prog }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosReferralProgram" mode="compact" program="{{ sv_ref_prog }}" svcTitle="{{ sv_title }}" onOpen="{{ sv_ref_open_prog }}"></dc-import></sc-if>
+                <sc-if value="{{ sv_ref_no_prog }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Программы приглашения для курьеров не нашли</p></sc-if>
+                <sc-if value="{{ sv_ref_shared }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Деливери использует программу Яндекс Про</p></sc-if>
+                <sc-if value="{{ sv_ref_has_prog }}" hint-placeholder-val="{{ true }}">
+                  <div class="raznos-breakdown-row"><span>Курьеров готовы привести</span><span class="raznos-num">{{ sv_ref_count }}</span></div>
+                  <sc-if value="{{ sv_ref_win_show }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">{{ sv_ref_win }}</p></sc-if>
+                  <sc-if value="{{ sv_ref_bell_show }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosAlertBell" variant="row" on="{{ sv_ref_bell_on }}" label="Сообщить, когда появится" sub="{{ sv_title }}" onTap="{{ sv_ref_bell_tap }}"></dc-import></sc-if>
+                </sc-if>
+              </div>
               <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ sv_start_guide }}">{{ sv_start_label }}</button>
+              <sc-if value="{{ sv_ref_join_show }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ sv_ref_join }}">Устроиться по рефералке</button></sc-if>
               <sc-if value="{{ sv_ratings_shown }}" hint-placeholder-val="{{ true }}">
               <div class="raznos-card raznos-card-pad">
                 <div class="raznos-fx raznos-jb"><span class="raznos-text-small">Средняя оценка курьеров</span><span class="raznos-num">{{ sv_r_overall }}</span></div>
@@ -1255,6 +1494,205 @@
             </div>
           </sc-if>
 
+          <sc-if value="{{ is_ref_mine }}">
+            <div class="raznos-phone-body" data-screen-label="24d Ref mine">
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ ref_back }}" aria-label="Назад">‹</button><h1 class="raznos-text-h1" style="margin:0">Мои рефералки</h1></div>
+              <div class="raznos-segmented" role="tablist" aria-label="Роль в рефералках">
+                <button type="button" role="tab" class="{{ rm_join_cls }}" aria-selected="{{ rm_join_on }}" onClick="{{ rm_set_join }}">{{ rm_join_label }}</button>
+                <button type="button" role="tab" class="{{ rm_refer_cls }}" aria-selected="{{ rm_refer_on }}" onClick="{{ rm_set_refer }}">{{ rm_refer_label }}</button>
+              </div>
+              <sc-if value="{{ rm_is_join }}" hint-placeholder-val="{{ true }}">
+                <sc-if value="{{ rm_join_need_show }}" hint-placeholder-val="{{ true }}">
+                  <span class="raznos-text-h3">Нужно ваше действие</span>
+                  <div class="raznos-card" style="overflow:hidden"><sc-for list="{{ rm_join_need }}" as="r" hint-placeholder-count="1"><dc-import name="RaznosReferralDeal" item="{{ r }}" onOpen="{{ rm_open }}" onAccept="{{ rm_accept }}" onDecline="{{ rm_decline }}"></dc-import></sc-for></div>
+                </sc-if>
+                <sc-if value="{{ rm_win_show }}" hint-placeholder-val="{{ true }}">
+                  <span class="raznos-text-h3">Когда вы снова новичок</span>
+                  <div class="raznos-card">
+                    <sc-for list="{{ rm_wins }}" as="w" hint-placeholder-count="2">
+                      <div style="border-bottom:1px solid var(--raznos-line)">
+                        <div class="raznos-list-row" style="border-bottom:0"><dc-import name="RaznosIcon" svc="{{ w.key }}" alt="{{ w.title }}" size="sm"></dc-import><div class="raznos-list-main"><span class="raznos-list-title">{{ w.title }}</span><span class="raznos-text-small">{{ w.value }}</span></div></div>
+                        <sc-if value="{{ w.has_bell }}" hint-placeholder-val="{{ false }}"><div style="padding:0 14px 12px"><dc-import name="RaznosAlertBell" variant="row" on="{{ w.bell_on }}" label="Сообщить в день окна" sub="{{ w.bell_sub }}" onTap="{{ w.bell_tap }}"></dc-import></div></sc-if>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <p class="raznos-text-tiny">Считаем по вашей истории в Разносе и правилу сервиса, решает сервис</p>
+                </sc-if>
+                <sc-if value="{{ rm_join_going_show }}" hint-placeholder-val="{{ true }}">
+                  <span class="raznos-text-h3">Идут</span>
+                  <div class="raznos-card" style="overflow:hidden"><sc-for list="{{ rm_join_going }}" as="r" hint-placeholder-count="1"><dc-import name="RaznosReferralDeal" item="{{ r }}" onOpen="{{ rm_open }}"></dc-import></sc-for></div>
+                </sc-if>
+                <sc-if value="{{ rm_join_closed_show }}" hint-placeholder-val="{{ false }}">
+                  <span class="raznos-text-h3">Закрытые</span>
+                  <div class="raznos-card" style="overflow:hidden"><sc-for list="{{ rm_join_closed }}" as="r" hint-placeholder-count="1"><dc-import name="RaznosReferralDeal" item="{{ r }}" onOpen="{{ rm_open }}"></dc-import></sc-for></div>
+                  <sc-if value="{{ rm_join_closed_more }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ rm_closed_all }}">Показать все</button></sc-if>
+                </sc-if>
+                <sc-if value="{{ rm_join_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" title="Здесь появятся ваши рефералки" text="Отклики, ссылки и итоги сделок, когда вы устраиваетесь по приглашению" actionLabel="Найти рефералку" actionKind="primary" onAction="{{ rm_find }}"></dc-import></sc-if>
+              </sc-if>
+              <sc-if value="{{ rm_is_refer }}" hint-placeholder-val="{{ false }}">
+                <sc-if value="{{ rm_refer_need_show }}" hint-placeholder-val="{{ true }}">
+                  <span class="raznos-text-h3">Нужно ваше действие</span>
+                  <div class="raznos-card" style="overflow:hidden"><sc-for list="{{ rm_refer_need }}" as="r" hint-placeholder-count="1"><dc-import name="RaznosReferralDeal" item="{{ r }}" onOpen="{{ rm_open }}" onAccept="{{ rm_accept }}" onDecline="{{ rm_decline }}"></dc-import></sc-for></div>
+                </sc-if>
+                <span class="raznos-text-h3">Мой рейтинг</span>
+                <div class="raznos-card">
+                  <div class="raznos-card-pad" style="gap:6px">
+                    <div class="raznos-fx raznos-ac raznos-gap8 raznos-wrap">
+                      <sc-if value="{{ rm_has_rating }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-h1" style="font-variant-numeric:tabular-nums">{{ rm_rating }}</span><span class="raznos-stars" aria-hidden="true"><sc-for list="{{ rm_stars }}" as="sg" hint-placeholder-count="5"><svg class="{{ sg.cls }}" viewBox="0 0 20 20" style="width:18px;height:18px"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></sc-for></span></sc-if>
+                      <sc-if value="{{ rm_is_new }}" hint-placeholder-val="{{ false }}"><span class="raznos-status-pill raznos-pill-concept">Новый реферер</span></sc-if>
+                    </div>
+                    <span class="raznos-text-small">{{ rm_rating_sub }}</span>
+                  </div>
+                  <button type="button" class="raznos-list-row" onClick="{{ rm_go_reviews }}" style="border-top:1px solid var(--raznos-line);border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">{{ rm_reviews_label }}</span></div><span class="raznos-row-chevron">›</span></button>
+                </div>
+                <span class="raznos-text-h3">Мои сервисы</span>
+                <sc-if value="{{ rm_svc_locked }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosBlockState" kind="locked" pillText="Нет сервиса" blockTitle="Мои сервисы" text="Чтобы приводить новичков, подключите сервис, в котором работаете" actionLabel="Подключить сервис" onAction="{{ rm_go_integrations }}"></dc-import></sc-if>
+                <sc-if value="{{ rm_svcs_show }}" hint-placeholder-val="{{ true }}">
+                  <div class="raznos-card">
+                    <sc-for list="{{ rm_svcs }}" as="sv" hint-placeholder-count="3">
+                      <div class="raznos-list-row"><dc-import name="RaznosIcon" svc="{{ sv.key }}" alt="{{ sv.title }}" size="sm"></dc-import><div class="raznos-list-main"><span class="raznos-list-title">{{ sv.title }}</span><span class="raznos-text-small">{{ sv.sub }}</span></div>
+                        <sc-if value="{{ sv.act_publish }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ sv.tap }}">Предложить рефералку</button></sc-if>
+                        <sc-if value="{{ sv.act_edit }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-status-pill raznos-pill-ok" style="border:0;cursor:pointer;min-height:44px;max-width:45%;white-space:normal;text-align:center" onClick="{{ sv.tap }}" aria-label="Предложение опубликовано, изменить">Предложение опубликовано</button></sc-if>
+                        <sc-if value="{{ sv.act_bell }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ sv.bell_tap }}">{{ sv.bell_label }}</button></sc-if>
+                      </div>
+                    </sc-for>
+                    <button type="button" class="raznos-list-row" onClick="{{ rm_go_integrations }}" style="border-top:1px solid var(--raznos-line);border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">Другие сервисы</span><span class="raznos-text-small">Подключите, чтобы приводить новичков</span></div><span class="raznos-row-chevron">›</span></button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ rm_offers_show }}" hint-placeholder-val="{{ true }}">
+                  <span class="raznos-text-h3">Мои предложения</span>
+                  <sc-for list="{{ rm_offers }}" as="o" hint-placeholder-count="1">
+                    <dc-import name="RaznosReferralOffer" mode="owner" offer="{{ o.offer }}" svcTitle="{{ o.title }}" onEdit="{{ o.edit }}" onRemove="{{ o.remove }}"></dc-import>
+                  </sc-for>
+                </sc-if>
+                <sc-if value="{{ rm_refer_going_show }}" hint-placeholder-val="{{ true }}">
+                  <span class="raznos-text-h3">Сделки</span>
+                  <div class="raznos-card" style="overflow:hidden"><sc-for list="{{ rm_refer_going }}" as="r" hint-placeholder-count="1"><dc-import name="RaznosReferralDeal" item="{{ r }}" onOpen="{{ rm_open }}"></dc-import></sc-for></div>
+                </sc-if>
+                <sc-if value="{{ rm_refer_closed_show }}" hint-placeholder-val="{{ false }}">
+                  <span class="raznos-text-h3">Закрытые</span>
+                  <div class="raznos-card" style="overflow:hidden"><sc-for list="{{ rm_refer_closed }}" as="r" hint-placeholder-count="1"><dc-import name="RaznosReferralDeal" item="{{ r }}" onOpen="{{ rm_open }}"></dc-import></sc-for></div>
+                  <sc-if value="{{ rm_refer_closed_more }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ rm_closed_all }}">Показать все</button></sc-if>
+                </sc-if>
+                <sc-if value="{{ rm_refer_empty_note }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Откликов пока нет. Предложение видно 14 дней</p></sc-if>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ is_ref_publish }}">
+            <div class="raznos-phone-body" data-screen-label="24e Ref publish">
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ ref_back }}" aria-label="Закрыть">×</button><h1 class="raznos-text-h1" style="margin:0">Предложить рефералку</h1></div>
+              <p class="raznos-text-small" style="margin-top:-6px">Моё предложение</p>
+              <sc-if value="{{ rp_locked }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosBlockState" kind="locked" pillText="Недоступно" blockTitle="{{ rp_lock_title }}" text="{{ rp_lock_text }}" actionLabel="{{ rp_lock_action }}" onAction="{{ rp_lock_tap }}"></dc-import></sc-if>
+              <sc-if value="{{ rp_ok }}" hint-placeholder-val="{{ true }}">
+                <sc-if value="{{ rp_pick }}" hint-placeholder-val="{{ false }}"><div class="raznos-field"><span class="raznos-field-label">Сервис</span><dc-import name="RaznosServicePicker" items="{{ rp_items }}" value="{{ rp_svc }}" onChange="{{ rp_pick_change }}"></dc-import></div></sc-if>
+                <div class="raznos-fx raznos-col" style="gap:6px"><dc-import name="RaznosReferralProgram" mode="row" program="{{ rp_prog }}" svcTitle="{{ rp_svc_title }}" onOpen="{{ rp_open_prog }}"></dc-import><span class="raznos-text-tiny" style="color:var(--raznos-ink-3)">Условия из каталога Разноса, свои не вводятся</span></div>
+                <div class="raznos-field"><div class="raznos-fx raznos-jb raznos-ac"><span class="raznos-field-label">О себе и как помогаю</span><span class="raznos-text-tiny" style="color:var(--raznos-ink-3);font-variant-numeric:tabular-nums">{{ rp_count }}</span></div><textarea class="raznos-textarea" maxlength="500" placeholder="Сколько работаете, где, чем поможете на старте" value="{{ rp_text }}" onInput="{{ rp_text_change }}"></textarea><span class="raznos-text-tiny" style="color:var(--raznos-ink-3)">{{ rp_text_hint }}</span></div>
+                <div class="raznos-field"><span class="raznos-field-label">Мест</span><dc-import name="RaznosChipGroup" options="{{ rp_places_opts }}" value="{{ rp_places }}" label="Мест" onChange="{{ rp_places_change }}"></dc-import></div>
+                <div class="raznos-field"><span class="raznos-field-label">Срок</span><dc-import name="RaznosChipGroup" options="{{ rp_days_opts }}" value="{{ rp_days }}" label="Срок" onChange="{{ rp_days_change }}"></dc-import></div>
+                <div class="raznos-field"><span class="raznos-field-label">Способ связи</span><dc-import name="RaznosChipGroup" options="{{ rp_contact_opts }}" value="{{ rp_contact }}" label="Способ связи" onChange="{{ rp_contact_change }}"></dc-import><input class="raznos-input" placeholder="{{ rp_contact_ph }}" value="{{ rp_contact_value }}" onInput="{{ rp_contact_change_value }}" aria-label="Контакт" /><span class="raznos-text-tiny" style="color:var(--raznos-ink-3)">Новичок увидит контакт, только когда вы примете отклик</span></div>
+                <span class="raznos-text-h3">Как увидят новички</span>
+                <dc-import name="RaznosReferralOffer" mode="card" preview="{{ true }}" offer="{{ rp_prev_offer }}" svcTitle="{{ rp_svc_title }}" svcPrep="{{ rp_svc_prep }}"></dc-import>
+                <div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Ссылку отправляете только в сделке</span><span class="raznos-text-small">Ссылку или код отправляете только внутри сделки. Правила приглашения смотрите в условиях сервиса, Разнос в расчётах не участвует</span></div>
+                <div class="raznos-sticky-actions"><button type="button" class="{{ rp_btn_cls }}" onClick="{{ rp_publish }}" disabled="{{ rp_btn_disabled }}">{{ rp_btn_label }}</button></div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ is_ref_deal }}">
+            <div class="raznos-phone-body" data-screen-label="24f Ref deal">
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ ref_back }}" aria-label="Назад">‹</button><h1 class="raznos-text-h1" style="margin:0">{{ rd_title }}</h1></div>
+              <sc-if value="{{ rd_missing }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" title="Сделка не найдена" text="Возможно, её убрали из списка" actionLabel="К моим рефералкам" onAction="{{ ref_back }}"></dc-import></sc-if>
+              <sc-if value="{{ rd_has }}" hint-placeholder-val="{{ true }}">
+                <div class="raznos-card raznos-card-pad">
+                  <div class="raznos-fx raznos-ac raznos-gap8"><span class="raznos-anon-avatar" style="{{ rd_cp_avatar }};width:40px;height:40px;font-size:17px">{{ rd_cp_letter }}</span><div class="raznos-list-main"><span class="raznos-list-title">{{ rd_cp_nick }}</span><span class="raznos-text-small">{{ rd_cp_line }}</span></div></div>
+                  <div class="raznos-fx raznos-ac raznos-gap8 raznos-wrap"><span class="raznos-status-pill raznos-pill-concept" style="max-width:none">{{ rd_me }}</span><sc-if value="{{ rd_cp_verified }}" hint-placeholder-val="{{ false }}"><span class="raznos-status-pill raznos-pill-ok" style="max-width:none">Проверен через сервис</span></sc-if><sc-if value="{{ rd_cp_lost }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">Сервис не подтверждает аккаунт</span></sc-if></div>
+                  <sc-if value="{{ rd_contact_closed }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-small">Контакт откроется, когда отклик примут</span></sc-if>
+                  <sc-if value="{{ rd_contact_open }}" hint-placeholder-val="{{ true }}">
+                    <span class="raznos-text-small">{{ rd_contact_text }}</span>
+                    <sc-if value="{{ rd_contact_link }}" hint-placeholder-val="{{ true }}"><a class="raznos-btn raznos-btn-secondary" href="{{ rd_contact_href }}" target="_blank" rel="noopener" aria-label="{{ rd_contact_aria }}" style="text-decoration:none">{{ rd_contact_label }}</a></sc-if>
+                  </sc-if>
+                </div>
+                <sc-if value="{{ rd_b_wait }}" hint-placeholder-val="{{ false }}">
+                  <div class="raznos-card raznos-card-pad"><span class="raznos-list-title">Ждём ответа {{ rd_cp_nick }}</span><span class="raznos-text-small">Не регистрируйтесь в сервисе, пока не получите ссылку. Если зарегистрируетесь сами, бонуса не будет</span><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ rd_withdraw }}">Отозвать отклик</button></div>
+                </sc-if>
+                <sc-if value="{{ rd_b_decide }}" hint-placeholder-val="{{ false }}">
+                  <div class="raznos-card raznos-card-pad"><span class="raznos-list-title">Новый отклик</span><p class="raznos-text-small">{{ rd_msg }}</p><span class="raznos-text-tiny">{{ rd_snap }}</span><div class="raznos-fx raznos-gap8"><button type="button" class="raznos-btn raznos-btn-primary" style="flex:1" onClick="{{ rd_accept }}">Принять</button><button type="button" class="raznos-btn raznos-btn-secondary" style="flex:1" onClick="{{ rd_decline }}">Отклонить</button></div></div>
+                </sc-if>
+                <sc-if value="{{ rd_b_accepted_new }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Не регистрируйтесь до ссылки</span><span class="raznos-text-small">Сначала ссылка, потом регистрация. Привязать позже не получится, бонуса не будет</span></div></sc-if>
+                <sc-if value="{{ rd_b_accepted_ref }}" hint-placeholder-val="{{ false }}">
+                  <div class="raznos-card raznos-card-pad"><div class="raznos-field"><span class="raznos-field-label">Ссылка или код</span><input class="raznos-input" placeholder="Вставьте реферальную ссылку" value="{{ rd_link_draft }}" onInput="{{ rd_link_draft_change }}" aria-label="Ссылка или код" /></div><button type="button" class="{{ rd_link_cls }}" disabled="{{ rd_link_disabled }}" onClick="{{ rd_link_send }}">Отправить ссылку</button><span class="raznos-text-tiny">Ссылку или код отправляете только внутри сделки, мы её сохраним для спора</span></div>
+                </sc-if>
+                <sc-if value="{{ rd_b_link_new }}" hint-placeholder-val="{{ false }}">
+                  <div class="raznos-card raznos-card-pad"><span class="raznos-list-title">Ссылка от {{ rd_cp_nick }}</span><span class="raznos-text-small" style="overflow-wrap:anywhere;user-select:all">{{ rd_link }}</span>
+                    <div class="raznos-fx raznos-gap8"><button type="button" class="raznos-btn raznos-btn-secondary" style="flex:1" onClick="{{ rd_link_copy }}">Копировать</button><a class="raznos-btn raznos-btn-secondary" style="flex:1;text-decoration:none" href="{{ rd_link }}" target="_blank" rel="noopener">Открыть</a></div>
+                    <span class="raznos-text-small">Сначала ссылка, потом регистрация. Зарегистрируйтесь в сервисе по этой ссылке, а потом вернитесь сюда</span>
+                    <button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ rd_registered }}">Я зарегистрировался по ссылке</button></div>
+                </sc-if>
+                <sc-if value="{{ rd_b_link_ref }}" hint-placeholder-val="{{ false }}">
+                  <div class="raznos-card raznos-card-pad"><span class="raznos-list-title">Ссылка отправлена</span><span class="raznos-text-small" style="overflow-wrap:anywhere">{{ rd_link }}</span><span class="raznos-text-small">Ждём, когда {{ rd_cp_nick }} зарегистрируется. Бонус платит сервис, о доле договариваетесь сами</span></div>
+                </sc-if>
+                <div class="raznos-card raznos-card-pad"><dc-import name="RaznosReferralDeal" mode="full" item="{{ rd_stage_item }}"></dc-import></div>
+                <sc-if value="{{ rd_b_link_show }}" hint-placeholder-val="{{ false }}"><div class="raznos-card raznos-card-pad"><span class="raznos-list-title">Ссылка в сделке</span><span class="raznos-text-small" style="overflow-wrap:anywhere">{{ rd_link }}</span><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" style="align-self:flex-start" onClick="{{ rd_link_copy }}">Копировать</button></div></sc-if>
+                <sc-if value="{{ rd_b_changed }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-warn"><span class="raznos-notice-title">Сервис изменил условия</span><span class="raznos-text-small">{{ rd_changed_text }}</span></div></sc-if>
+                <sc-if value="{{ rd_b_progress }}" hint-placeholder-val="{{ false }}">
+                  <span class="raznos-text-h3">{{ rd_snap_title }}</span>
+                  <div class="raznos-card raznos-card-pad" style="gap:2px"><span class="raznos-text-small">{{ rd_snap_sub }}</span><sc-for list="{{ rd_rows }}" as="r" hint-placeholder-count="4"><dc-import name="RaznosRankRow" rank="{{ r.rank }}" title="{{ r.title }}" meta="{{ r.meta }}" value="{{ r.value }}" fill="{{ r.fill }}" divider="{{ true }}"></dc-import></sc-for></div>
+                </sc-if>
+                <sc-if value="{{ rd_b_noprog }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Прогресс видит сервис. Когда он отдаст данные, ступени закрасятся здесь</p></sc-if>
+
+                <sc-if value="{{ rd_b_confirm }}" hint-placeholder-val="{{ false }}">
+                  <div class="raznos-fx raznos-col raznos-gap8">
+                    <button type="button" class="{{ rd_confirm_cls }}" disabled="{{ rd_confirm_disabled }}" onClick="{{ rd_confirm }}">Всё прошло успешно</button>
+                    <sc-if value="{{ rd_confirm_hint_show }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ rd_confirm_hint }}</span></sc-if>
+                    <button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ rd_dispute_open }}">Что-то пошло не так</button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ rd_b_wait_other }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Вы подтвердили</span><span class="raznos-text-small">{{ rd_wait_other_text }}</span></div></sc-if>
+                <sc-if value="{{ rd_b_dispute }}" hint-placeholder-val="{{ false }}">
+                  <div class="raznos-card raznos-card-pad"><span class="raznos-list-title">Спор открыт: {{ rd_dispute_reason }}</span><sc-if value="{{ rd_dispute_text }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">{{ rd_dispute_text }}</p></sc-if><span class="raznos-text-small">Модерация посмотрит историю сделки. Переводы между вами мы не видим и не взыскиваем</span>
+                    <sc-if value="{{ rd_dispute_reply_show }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-small">Ваш ответ: {{ rd_dispute_reply_text }}</span></sc-if>
+                    <sc-if value="{{ rd_dispute_can_reply }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ rd_dispute_reply }}">Ответить</button></sc-if></div>
+                </sc-if>
+                <sc-if value="{{ rd_b_end }}" hint-placeholder-val="{{ false }}"><div class="raznos-notice raznos-notice-info"><span class="raznos-notice-title">Сделка закрыта</span><span class="raznos-text-small">{{ rd_end_text }}</span></div></sc-if>
+                <sc-if value="{{ rd_b_closed }}" hint-placeholder-val="{{ false }}">
+                  <span class="raznos-text-h3">Отзывы</span>
+                  <sc-if value="{{ rd_review_mine }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosReferralDeal" mode="review" item="{{ rd_my_item }}" onEdit="{{ rd_review_open }}" onDelete="{{ rd_review_delete }}"></dc-import></sc-if>
+                  <sc-if value="{{ rd_review_none }}" hint-placeholder-val="{{ false }}"><div class="raznos-card raznos-card-pad"><span class="raznos-list-title">Оставьте отзыв</span><span class="raznos-text-small">{{ rd_review_caption }}</span><button type="button" class="raznos-btn raznos-btn-primary" onClick="{{ rd_review_open }}">Оставить отзыв</button></div></sc-if>
+                  <sc-if value="{{ rd_review_their }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosReferralDeal" mode="review" item="{{ rd_th_item }}"></dc-import></sc-if>
+                  <sc-if value="{{ rd_review_their_wait }}" hint-placeholder-val="{{ false }}"><p class="raznos-text-small">Отзыв {{ rd_cp_nick }} появится, когда он его оставит</p></sc-if>
+                </sc-if>
+                <button type="button" class="raznos-btn raznos-btn-ghost" onClick="{{ rd_hist_toggle }}" aria-expanded="{{ rd_hist_open }}">{{ rd_hist_label }}</button>
+                <sc-if value="{{ rd_hist_open }}" hint-placeholder-val="{{ false }}"><div class="raznos-card"><sc-for list="{{ rd_events }}" as="e" hint-placeholder-count="3"><div class="raznos-kv-row"><span class="raznos-text-small">{{ e.text }}</span><span class="raznos-text-small" style="white-space:nowrap">{{ e.date }}</span></div></sc-for></div></sc-if>
+                <sc-if value="{{ rd_b_cancel }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost" style="color:var(--raznos-red)" onClick="{{ rd_cancel }}">Отменить сделку</button></sc-if>
+                <p class="raznos-text-tiny">Разнос не передаёт деньги и не гарантирует награду. О доле договариваетесь сами</p>
+                <sc-if value="{{ rd_demo_show }}" hint-placeholder-val="{{ false }}">
+                  <div class="raznos-card raznos-card-pad" style="border-style:dashed;gap:8px"><span class="raznos-text-tiny">Только в макете: данные приходят из сервиса</span>
+                    <div class="raznos-fx raznos-gap8 raznos-wrap">
+                      <sc-if value="{{ rd_demo_progress }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ rd_demo_step }}">Прогресс вперёд</button><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ rd_demo_done }}">Цель выполнена</button></sc-if>
+                      <sc-if value="{{ rd_demo_other }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ rd_demo_confirm }}">Вторая сторона подтвердила</button></sc-if>
+                    </div></div>
+                </sc-if>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ is_ref_reviews }}">
+            <div class="raznos-phone-body" data-screen-label="24g Ref reviews">
+              <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ ref_back }}" aria-label="Назад">‹</button><h1 class="raznos-text-h1" style="margin:0">Отзывы обо мне</h1></div>
+              <div class="raznos-card raznos-card-pad" style="gap:6px">
+                <div class="raznos-fx raznos-ac raznos-gap8 raznos-wrap">
+                  <sc-if value="{{ rr_has_rating }}" hint-placeholder-val="{{ true }}"><span class="raznos-text-h1" style="font-variant-numeric:tabular-nums">{{ rr_rating }}</span><span class="raznos-stars" aria-hidden="true"><sc-for list="{{ rr_stars }}" as="sg" hint-placeholder-count="5"><svg class="{{ sg.cls }}" viewBox="0 0 20 20" style="width:18px;height:18px"><path d="M10 1l2.7 6 6.3.6-4.8 4.2 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.6l6.3-.6z" /></svg></sc-for></span></sc-if>
+                  <sc-if value="{{ rm_is_new }}" hint-placeholder-val="{{ false }}"><span class="raznos-status-pill raznos-pill-concept">Новый реферер</span></sc-if>
+                </div>
+                <span class="raznos-text-small">{{ rr_sub }}</span>
+                <span class="raznos-text-tiny" style="color:var(--raznos-ink-3)">Так вас видят новички в предложениях. Публичного рейтинга новичка нет</span>
+              </div>
+              <sc-if value="{{ rr_empty }}" hint-placeholder-val="{{ false }}"><dc-import name="RaznosEmptyState" title="Отзывов пока нет" text="Они появятся после закрытых сделок"></dc-import></sc-if>
+              <sc-if value="{{ rr_has }}" hint-placeholder-val="{{ true }}"><sc-for list="{{ rr_cards }}" as="rv" hint-placeholder-count="3"><dc-import name="RaznosReferralDeal" mode="review" item="{{ rv }}"></dc-import></sc-for></sc-if>
+            </div>
+          </sc-if>
+
           <sc-if value="{{ is_imported_reviews }}">
             <div class="raznos-phone-body" data-screen-label="24c Imported reviews history">
               <div class="raznos-app-bar" style="justify-content:flex-start;gap:10px"><button type="button" class="raznos-icon-btn" onClick="{{ nav_back_profile }}">‹</button><h1 class="raznos-text-h1" style="margin:0">История отзывов</h1></div>
@@ -1329,7 +1767,8 @@
                   <button type="button" class="raznos-list-row" onClick="{{ go_tax_forms }}"><div class="raznos-list-main"><span class="raznos-list-title">Оформление в сервисах</span><span class="raznos-text-small">{{ tax_forms_summary }}</span></div><span class="raznos-row-chevron">›</span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ go_expenses_from_profile }}"><div class="raznos-list-main"><span class="raznos-list-title">Расходы</span><span class="raznos-text-small">Журнал расходов и шаблоны</span></div><span class="raznos-row-chevron">›</span></button>
                   <button type="button" class="raznos-list-row" onClick="{{ go_my_activity }}"><div class="raznos-list-main"><span class="raznos-list-title">Мои отзывы, вопросы и ответы</span><span class="raznos-text-small">{{ my_activity_count_label }}</span></div><span class="raznos-row-chevron">›</span></button>
-                  <button type="button" class="raznos-list-row" onClick="{{ live_go_mine }}" style="border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">Мои сообщения</span><span class="raznos-text-small">{{ live_profile_label }}</span></div><span class="raznos-row-chevron">›</span></button>
+                  <button type="button" class="raznos-list-row" onClick="{{ live_go_mine }}"><div class="raznos-list-main"><span class="raznos-list-title">Мои сообщения</span><span class="raznos-text-small">{{ live_profile_label }}</span></div><span class="raznos-row-chevron">›</span></button>
+                  <button type="button" class="raznos-list-row" onClick="{{ go_ref_mine }}" style="border-bottom:0"><div class="raznos-list-main"><span class="raznos-list-title">Мои рефералки</span><span class="raznos-text-small">{{ ref_profile_label }}</span></div><span class="raznos-row-chevron">›</span></button>
                 </div>
                 <span class="raznos-text-h3">Работа</span>
                 <div class="raznos-card">
@@ -1571,7 +2010,7 @@
               <!-- свои оповещения: правила курьера, редактор в шторке -->
               <sc-if value="{{ is_role_courier }}" hint-placeholder-val="{{ true }}">
                 <span class="raznos-text-h3">Мои оповещения</span>
-                <dc-import name="RaznosAlertRules" rules="{{ ar_rules }}" services="{{ ar_svcs }}" areas="{{ ar_areas }}" onOpen="{{ ar_open }}" onToggle="{{ ar_toggle }}" onAdd="{{ ar_add }}"></dc-import>
+                <dc-import name="RaznosAlertRules" rules="{{ ar_rules }}" services="{{ ar_svcs }}" refServices="{{ ar_ref_svcs }}" areas="{{ ar_areas }}" onOpen="{{ ar_open }}" onToggle="{{ ar_toggle }}" onAdd="{{ ar_add }}"></dc-import>
                 <span class="raznos-text-h3">Категории</span>
               </sc-if>
               <div class="raznos-card">
@@ -2268,6 +2707,82 @@
         dostavista: { title: 'Достависта', method: 'soon' },
         flowwow: { title: 'Flowwow', method: 'soon' }
       };
+      // рефералки: общие демо-данные только для чтения, контракт в docs/analysis/REFERRALS-UX.md раздел 5
+      // шаги программы это приращения: заказы и награда на ступень, сумма наград равна rewardTotal
+      // factSrc: '' официально, 'вторичный' со слов курьеров, demoFilled перечисляет поля, которых в источнике нет
+      const refProg = (p) => Object.assign({ city: 'moscow', transports: ['foot', 'bike'], audience: 'newcomer', rewardTotal: null, rewardUnit: null, rewardRange: null, observations: 0, totalOrders: null, steps: [], durationDays: null, durationText: '', windowUntilIso: '', dormantDays: null, dormantText: '', payTo: null, inviteMethod: 'link', sharePolicy: 'unknown', shareNote: '', limitsText: '', howTo: [], factSrc: '', sourceUrl: '', observedIso: '', state: 'active', demoFilled: [] }, p);
+      const refSteps = (rows) => rows.map(([orders, reward, sharePercent]) => ({ orders, reward, sharePercent: sharePercent || null }));
+      const REF_ALL_TR = ['foot', 'bike', 'electric', 'car', 'moto'];
+      // условия из docs/analysis/REFERRALS-CATALOG.md и REFERRALS-CATALOG-OTHER.md, источник по достоверности: '' официально, 'вторичный' со слов курьеров, 'партнёрские материалы' партнёр, 'вакансия' объявление работодателя, 'источники расходятся' и 'не подтверждено' уточнить в сервисе
+      const REF_PROGRAMS = [
+        refProg({ id: 'kuper-msk-foot', svc: 'kuper', rewardTotal: 140000, rewardUnit: 'rub', observations: 1, totalOrders: 420, steps: refSteps([[30, 7000], [40, 14000], [40, 14000], [70, 21000], [70, 21000], [170, 63000]]), durationDays: 30, durationText: '30 дней на выполнение', windowUntilIso: '2026-11-12', dormantDays: 60, dormantText: 'не работали в Купере 60+ дней', payTo: 'referrer', shareNote: 'Витрина Купера обещает до 33 000 ₽ за рекомендацию, а лесенка 140 000 ₽ взята из аккаунта курьера. Суммы расходятся, условия Купер показывает только в приложении', factSrc: 'вторичный', observedIso: '2026-10-18' }),
+        refProg({ id: 'ya-eda-msk-bike', svc: 'yandex-eda', transports: ['foot', 'bike', 'electric'], rewardTotal: 65080, rewardUnit: 'rub', observations: 1, totalOrders: 240, steps: refSteps([[80, 6508, 10], [80, 26032, 40], [80, 32540, 50]]), durationDays: 20, durationText: '20 дней с доступа к заказам', dormantDays: 60, dormantText: '60+ дней с последнего заказа', payTo: 'both', sharePolicy: 'native', shareNote: 'В Яндекс Про есть режим Рекомендовать: сервис сам делит бонус между пригласившим и новичком', limitsText: 'Повторно пригласить того же человека можно через 7 дней', howTo: ['Новичок регистрируется по ссылке и активируется в течение 7 дней'], sourceUrl: 'https://pro.yandex.ru/ru-ru/moskva/knowledge-base/courier/dohod/vyplaty-za-novichkov', factSrc: 'вторичный', observedIso: '2026-10-18', demoFilled: ['steps.orders'] }),
+        refProg({ id: 'ya-eda-msk-car', svc: 'yandex-eda', transports: ['car', 'moto'], rewardTotal: 580, rewardUnit: 'rub', observations: 1, totalOrders: 240, steps: refSteps([[80, 58, 10], [80, 232, 40], [80, 290, 50]]), durationDays: 20, durationText: '20 дней с доступа к заказам', dormantDays: 60, dormantText: '60+ дней с последнего заказа', payTo: 'both', sharePolicy: 'native', shareNote: 'В Яндекс Про есть режим Рекомендовать: сервис сам делит бонус между пригласившим и новичком', limitsText: 'Повторно пригласить того же человека можно через 7 дней', howTo: ['Новичок регистрируется по ссылке и активируется в течение 7 дней'], sourceUrl: 'https://pro.yandex.ru/ru-ru/moskva/knowledge-base/courier/dohod/vyplaty-za-novichkov', factSrc: 'вторичный', observedIso: '2026-10-18', demoFilled: ['steps.orders'] }),
+        refProg({ id: 'x5-msk-store', svc: 'x5', transports: ['foot', 'bike', 'electric'], rewardTotal: 35000, rewardUnit: 'rub', totalOrders: 300, steps: refSteps([[50, 6500], [100, 11000], [150, 17500]]), durationText: 'месяц регистрации и следующий', payTo: 'referrer', shareNote: 'Страницы X5 расходятся: на rabota.x5.ru в шапке 40 000 ₽, на x5staff.ru 45 000 ₽. По таблице магазины в Москве 35 000 ₽, склады ОДС 45 000 ₽', limitsText: 'Нельзя рекомендовать себя, рекомендателя после отправки не поменять', howTo: ['Анкета на сайте в течение 30 дней', 'Выплата в течение 2 недель после проверки'], factSrc: 'источники расходятся', sourceUrl: 'https://rabota.x5.ru/dostavka/friends/', observedIso: '2026-10-18' }),
+        refProg({ id: 'magnit-msk', svc: 'magnit', transports: ['bike', 'electric', 'car'], rewardTotal: 40000, rewardUnit: 'rub', totalOrders: 70, steps: refSteps([[30, 10000], [20, 10000], [20, 20000]]), durationDays: 30, durationText: '30 дней после активации', dormantDays: 40, dormantText: 'без заказов в Магните 40 дней', payTo: 'referrer', limitsText: 'До 100 приглашённых в месяц, у пригласившего 3+ заказа за 30 дней', howTo: ['Ссылка в профиле: Пригласить друга', 'Друг самозанятый, 18+, раньше не был в рефералке', 'Выплата в платёжный день следующей недели'], sourceUrl: 'https://rabotamagnit.online/referralrules', observedIso: '2026-10-18' }),
+        refProg({ id: 'wb-courier-msk', svc: 'wb-courier', transports: REF_ALL_TR, rewardTotal: 1500, rewardUnit: 'rub', totalOrders: 60, steps: refSteps([[60, 1500]]), durationDays: 14, durationText: '14 дней', payTo: 'referrer', inviteMethod: 'code', limitsText: 'Считаются только экспресс-доставки, пакетные нет', howTo: ['Друг вводит ваш код в анкете WB Job'], factSrc: 'вторичный', observedIso: '2026-10-18' }),
+        refProg({ id: 'dodo-msk', svc: 'dodo', transports: REF_ALL_TR, rewardTotal: 10000, rewardUnit: 'rub', payTo: 'referrer', inviteMethod: 'application', shareNote: 'Программа есть не во всех городах. Друг проходит собеседование и оформляется', sourceUrl: 'https://hrdodo.ru/referal', observedIso: '2026-10-18' }),
+        refProg({ id: 'ozon-fresh-msk', svc: 'ozon-fresh', rewardTotal: 40000, rewardUnit: 'rub', payTo: 'referrer', inviteMethod: 'code', shareNote: 'Сумма до налога и только для складов у некоторых станций метро. Есть вариант 10 000 баллов Ozon. Друг указывает ваш Ozon ID в анкете', factSrc: 'не подтверждено', observedIso: '2026-10-18' }),
+        refProg({ id: 'samokat-msk', svc: 'samokat', transports: ['foot', 'bike', 'electric'], rewardUnit: 'rub', rewardRange: [15000, 25000], payTo: 'referrer', inviteMethod: 'application', shareNote: 'Самокат суммы не публикует, условия у партнёров: друг отрабатывает 120-150 часов', factSrc: 'партнёрские материалы', observedIso: '2026-10-18' }),
+        refProg({ id: 'vkusvill-msk', svc: 'vkusvill', transports: ['bike'], rewardUnit: 'rub', rewardRange: [null, 10000], payTo: 'referrer', inviteMethod: 'application', shareNote: 'Сумма взята из объявлений о работе, это реклама работодателя', factSrc: 'вакансия', observedIso: '2026-10-18' }),
+        refProg({ id: 'dostavista-msk', svc: 'dostavista', transports: REF_ALL_TR, rewardUnit: 'rub', rewardRange: [500, 2000], payTo: 'referrer', inviteMethod: 'code', shareNote: 'Страница Достависты называет 500 ₽, 800 ₽ и до 2 000 ₽. Деньги за первый и пятый заказ друга по вашему промокоду, самозанятым в рублях', factSrc: 'источники расходятся', sourceUrl: 'https://dostavista.ru/couriers/referalnaya-programma-dlya-kurerov', observedIso: '2026-10-18' })
+      ];
+      const refTrust = (rating, closed, ok, disputes) => ({ rating, closed, ok, disputes, isNew: closed < 3 });
+      const REF_OFFERS = [
+        { id: 'o1', programId: 'kuper-msk-foot', svc: 'kuper', nick: 'Выдра 27', hue: 200, tenureLabel: '6–12 мес', transports: ['foot', 'bike'], verified: true, verifiedNote: '', trust: refTrust(4.9, 11, 10, 0), placesTotal: 3, placesFree: 2, contactKind: 'telegram', contactValue: '@vydra27_demo', untilIso: isoAt(11), createdIso: isoAt(-3), text: 'Работаю в Купере второй год, помогу с первым заказом и объясню, как выбирать районы', status: 'active', mine: false },
+        { id: 'o2', programId: 'kuper-msk-foot', svc: 'kuper', nick: 'Филин 03', hue: 280, tenureLabel: '1–3 мес', transports: ['foot'], verified: true, verifiedNote: '', trust: refTrust(null, 1, 1, 0), placesTotal: 3, placesFree: 3, contactKind: 'whatsapp', contactValue: '+7 900 000-00-03', untilIso: isoAt(13), createdIso: isoAt(-1), text: 'Недавно в Купере, пройду ступени вместе с вами и подскажу по приложению', status: 'active', mine: false },
+        { id: 'o3', programId: 'kuper-msk-foot', svc: 'kuper', nick: 'Шмель 64', hue: 60, tenureLabel: '1–2 года', transports: ['bike'], verified: false, verifiedNote: 'Сервис не подтверждает аккаунт', trust: refTrust(4.2, 6, 4, 1), placesTotal: 2, placesFree: 1, contactKind: 'telegram', contactValue: '@shmel64_demo', untilIso: isoAt(5), createdIso: isoAt(-9), text: 'Много езжу на велосипеде, знаю дворы и склады в центре', status: 'active', mine: false },
+        { id: 'o4', programId: 'ya-eda-msk-bike', svc: 'yandex-eda', nick: 'Ласточка 19', hue: 330, tenureLabel: '2+ года', transports: ['foot', 'bike', 'electric'], verified: true, verifiedNote: '', trust: refTrust(4.8, 23, 22, 0), placesTotal: 3, placesFree: 1, contactKind: 'telegram', contactValue: '@lastochka19_demo', untilIso: isoAt(9), createdIso: isoAt(-5), text: 'Рекомендую через режим Рекомендовать, расскажу, как проходить ступени', status: 'active', mine: false },
+        { id: 'o5', programId: 'ya-eda-msk-bike', svc: 'yandex-eda', nick: 'Барсук 40', hue: 25, tenureLabel: '3–6 мес', transports: ['foot', 'electric'], verified: true, verifiedNote: '', trust: refTrust(null, 0, 0, 0), placesTotal: 2, placesFree: 2, contactKind: 'phone', contactValue: '+7 900 000-00-40', untilIso: isoAt(12), createdIso: isoAt(-2), text: 'Работаю вечерами в Беговом, могу показать, где быстрее набрать первые заказы', status: 'active', mine: false },
+        { id: 'o6', programId: 'x5-msk-store', svc: 'x5', nick: 'Тюлень 11', hue: 150, tenureLabel: '1–2 года', transports: ['foot', 'bike'], verified: true, verifiedNote: '', trust: refTrust(4.7, 4, 3, 0), placesTotal: 2, placesFree: 1, contactKind: 'telegram', contactValue: '@tyulen11_demo', untilIso: isoAt(14), createdIso: isoAt(-6), text: 'Работаю в X5 с магазинами в центре, помогу с анкетой и первыми слотами', status: 'active', mine: true }
+      ];
+      const refReview = (id, dealId, aboutNick, aboutRole, authorNick, authorHue, rating, text, off) => ({ id, dealId, aboutNick, aboutRole, authorNick, authorHue, rating, text, dateIso: isoAt(off), edited: false });
+      const REF_REVIEWS = [
+        refReview('rv1', 'x1', 'Выдра 27', 'referrer', 'Сурок 33', 120, 5, 'Быстро прислала ссылку и ответила на вопросы', -20),
+        refReview('rv2', 'x2', 'Выдра 27', 'referrer', 'Лось 08', 250, 5, 'Всё по порядку, ссылка пришла сразу', -34),
+        refReview('rv3', 'x3', 'Выдра 27', 'referrer', 'Кролик 71', 20, 4, 'Помогла, но отвечала не сразу', -51),
+        refReview('rv4', 'x4', 'Ласточка 19', 'referrer', 'Бобёр 12', 300, 5, 'Объяснила, как включить режим Рекомендовать', -15),
+        refReview('rv5', 'x5', 'Ласточка 19', 'referrer', 'Хорёк 45', 90, 4, 'Хорошо, но долго ждал ссылку', -40),
+        refReview('rv6', 'x6', 'Шмель 64', 'referrer', 'Заяц 29', 180, 2, 'Ссылку прислал через неделю', -26),
+        refReview('rv7', 'd3', 'Ёжик 52', 'newcomer', 'Тюлень 11', 150, 5, 'Прошёл ступени без напоминаний', -8),
+        refReview('rv8', 'd3', 'Тюлень 11', 'referrer', 'Ёжик 52', 40, 5, 'Всё объяснил, ссылка пришла в тот же день', -7)
+      ];
+      const refSnap = (transport, services) => ({ city: 'moscow', transport, services });
+      const REF_RESPONSES = [
+        { id: 'r0', offerId: 'o1', fromNick: 'Тюлень 11', fromHue: 150, fromTrust: refTrust(null, 0, 0, 0), message: 'Хожу пешком по центру, готов начать на этой неделе', contactKind: 'telegram', contactValue: '@tyulen11_demo', snapshot: refSnap('foot', ['samokat', 'vkusvill', 'x5']), progressConsent: false, status: 'accepted', createdIso: isoAt(-4), mine: true },
+        { id: 'r1', offerId: 'o6', fromNick: 'Цапля 08', fromHue: 210, fromTrust: refTrust(null, 0, 0, 0), message: 'Пока нигде не работал, хожу пешком, район Хорошёво, готов начать в понедельник', contactKind: 'telegram', contactValue: '@tsaplya08_demo', snapshot: refSnap('foot', []), progressConsent: false, status: 'sent', createdIso: isoAt(-1), mine: false },
+        { id: 'r2', offerId: 'o6', fromNick: 'Сурок 14', fromHue: 70, fromTrust: refTrust(null, 0, 0, 0), message: 'Хочу в X5, езжу на велосипеде, свободен по вечерам', contactKind: 'whatsapp', contactValue: '+7 900 000-00-14', snapshot: refSnap('bike', []), progressConsent: true, status: 'accepted', createdIso: isoAt(-12), mine: false },
+        { id: 'r3', offerId: 'o6', fromNick: 'Ёжик 52', fromHue: 40, fromTrust: refTrust(null, 0, 0, 0), message: 'Готов начать сразу, хожу пешком', contactKind: 'telegram', contactValue: '@ezhik52_demo', snapshot: refSnap('foot', []), progressConsent: false, status: 'accepted', createdIso: isoAt(-30), mine: false }
+      ];
+      const refSnapOf = (id, off) => ({ programSnapshot: Object.assign({}, REF_PROGRAMS.find((p) => p.id === id)), snapshotIso: isoAt(off) });
+      const REF_DEALS = [
+        Object.assign({ id: 'd1', offerId: 'o1', responseId: 'r0', role: 'newcomer', counterpart: { nick: 'Выдра 27', hue: 200, trust: refTrust(4.9, 11, 10, 0), verified: true, contactKind: 'telegram', contactValue: '@vydra27_demo' }, status: 'link_sent', link: 'https://referrals.kuper.ru/demo-vydra27', progress: null, confirmedBy: [], dispute: null, reviews: { mine: null, theirs: null }, events: [{ iso: isoAt(-4), text: 'Отклик отправлен' }, { iso: isoAt(-3), text: 'Отклик принят, контакты открыты' }, { iso: isoAt(-3), text: 'Ссылка получена' }], conditionsChanged: null }, refSnapOf('kuper-msk-foot', -3)),
+        Object.assign({ id: 'd2', offerId: 'o6', responseId: 'r2', role: 'referrer', counterpart: { nick: 'Сурок 14', hue: 70, trust: refTrust(null, 0, 0, 0), verified: false, contactKind: 'whatsapp', contactValue: '+7 900 000-00-14' }, status: 'in_progress', link: 'https://rabota.x5.ru/demo-tyulen11', progress: { stepIndex: 0, done: 38, target: 50 }, confirmedBy: [], dispute: null, reviews: { mine: null, theirs: null }, events: [{ iso: isoAt(-12), text: 'Отклик получен' }, { iso: isoAt(-11), text: 'Отклик принят' }, { iso: isoAt(-11), text: 'Ссылка отправлена' }, { iso: isoAt(-9), text: 'Новичок зарегистрирован' }], conditionsChanged: null }, refSnapOf('x5-msk-store', -11)),
+        Object.assign({ id: 'd3', offerId: 'o6', responseId: 'r3', role: 'referrer', counterpart: { nick: 'Ёжик 52', hue: 40, trust: refTrust(null, 0, 0, 0), verified: false, contactKind: 'telegram', contactValue: '@ezhik52_demo' }, status: 'closed_ok', link: 'https://rabota.x5.ru/demo-tyulen11', progress: { stepIndex: 2, done: 300, target: 300 }, confirmedBy: ['me', 'them'], dispute: null, reviews: { mine: 'rv8', theirs: 'rv7' }, events: [{ iso: isoAt(-30), text: 'Отклик получен' }, { iso: isoAt(-29), text: 'Отклик принят' }, { iso: isoAt(-28), text: 'Ссылка отправлена' }, { iso: isoAt(-27), text: 'Новичок зарегистрирован' }, { iso: isoAt(-8), text: 'Сделка закрыта успешно' }], conditionsChanged: null }, refSnapOf('x5-msk-store', -28))
+      ];
+      const REF_ME = { referrer: refTrust(4.7, 4, 3, 0), newcomer: { rating: null, closed: 0 } };
+      // окно новичка считаем по дате последнего заказа и сроку из условий программы (dormantDays): soon дата в availableIso, now можно сейчас, working заказы были на этой неделе, unknown нет истории или срока
+      // последний заказ берём из HISTORY, у Магнита и Купера в демо-истории заказов нет, поэтому дни назад с последнего заказа заданы здесь
+      const REF_LAST_ORDER_DEMO = { magnit: 28, kuper: 80 };
+      const REF_WINDOW_SVCS = ['yandex-eda', 'samokat', 'vkusvill', 'x5', 'dodo', 'magnit', 'kuper'];
+      const refWindows = () => REF_WINDOW_SVCS.map((svc) => {
+        const dates = HISTORY.filter((o) => o.svc === svc).map((o) => o.dateISO).sort();
+        const lastOrderIso = dates.length ? dates[dates.length - 1] : (REF_LAST_ORDER_DEMO[svc] != null ? isoAt(-REF_LAST_ORDER_DEMO[svc]) : '');
+        const prog = REF_PROGRAMS.find((p) => p.svc === svc && p.dormantDays);
+        const ruleDays = prog ? prog.dormantDays : null;
+        const ago = lastOrderIso ? Math.round((DEMO_TODAY - new Date(lastOrderIso + 'T00:00:00')) / 86400000) : null;
+        if (ago != null && ago <= 7) return { svc, state: 'working', lastOrderIso, ruleDays, availableIso: '' };
+        if (ago == null || !ruleDays) return { svc, state: 'unknown', lastOrderIso, ruleDays, availableIso: '' };
+        if (ago >= ruleDays) return { svc, state: 'now', lastOrderIso, ruleDays, availableIso: '' };
+        return { svc, state: 'soon', lastOrderIso, ruleDays, availableIso: isoAt(ruleDays - ago) };
+      });
+      // данные раздела под переключатель демо edge.referrals: full, empty, new, changed (blocked это только флаг интерфейса)
+      const refByEdge = (mode) => {
+        if (mode === 'empty') return { offers: [], responses: [], deals: [], windows: [], me: REF_ME };
+        const me = mode === 'new' ? Object.assign({}, REF_ME, { referrer: refTrust(null, 1, 1, 0) }) : REF_ME;
+        const deals = mode === 'changed' ? REF_DEALS.map((d) => (d.id === 'd2' ? Object.assign({}, d, { conditionsChanged: { was: { rewardTotal: 35000, totalOrders: 300 }, now: { rewardTotal: 30000, totalOrders: 280 } } }) : d)) : REF_DEALS;
+        return { offers: REF_OFFERS, responses: REF_RESPONSES, deals, windows: refWindows(), me };
+      };
       const SERVICE_CASES = {
         vkusvill: { dat: 'ВкусВиллу', prep: 'ВкусВилле', gen: 'ВкусВилла' },
         samokat: { dat: 'Самокату', prep: 'Самокате', gen: 'Самоката' },
@@ -2280,7 +2795,9 @@
         'yandex-delivery': { dat: 'Яндекс Доставке', prep: 'Яндекс Доставке', gen: 'Яндекс Доставки' },
         kuper: { dat: 'Куперу', prep: 'Купере', gen: 'Купера' },
         dodo: { dat: 'Додо', prep: 'Додо', gen: 'Додо' },
-        dostaevsky: { dat: 'Достаевскому', prep: 'Достаевском', gen: 'Достаевского' }
+        dostaevsky: { dat: 'Достаевскому', prep: 'Достаевском', gen: 'Достаевского' },
+        dostavista: { dat: 'Достависте', prep: 'Достависте', gen: 'Достависты' },
+        'wb-courier': { dat: 'WB курьеру', prep: 'WB курьере', gen: 'WB курьера' }
       };
       function svcDat(key) { return (SERVICE_CASES[key] || {}).dat || SERVICES[key].title; }
       function svcGen(key) { return (SERVICE_CASES[key] || {}).gen || SERVICES[key].title; }
@@ -2598,6 +3115,12 @@
         'payouts': { s: 'courier-home', homeDay: '', payoutsSheet: true },
         'payout-late': { s: 'courier-home', homeDay: '', demoEdge: { payouts: 'late' }, taSheet: true },
         'bonus-near': { s: 'courier-home', homeDay: '', questsSheet: true },
+        // рефералки: Мои рефералки в крайних случаях переключателя edge.referrals
+        'ref-mine-empty': { s: 'ref-mine', refMineTab: 'refer', demoEdge: { referrals: 'empty' } },
+        'ref-mine-new': { s: 'ref-mine', refMineTab: 'refer', demoEdge: { referrals: 'new' } },
+        'ref-mine-blocked': { s: 'ref-mine', refMineTab: 'refer', demoEdge: { referrals: 'blocked' } },
+        'ref-publish-blocked': { s: 'ref-publish', refSvc: 'x5', demoEdge: { referrals: 'blocked' } },
+        'ref-deal-changed': { s: 'ref-deal', refDealId: 'd2', demoEdge: { referrals: 'changed' } },
         'weather-rain': { s: 'courier-home', homeDay: '', weather: 'rain', weatherSheet: true },
         'weather-frost': { s: 'courier-home', homeDay: '', weather: 'frost' },
         'weather-plan': { s: 'work-hub', planOnboarded: true, smartFocusIso: TODAY_ISO, smartFocusKey: '', weather: 'rain' },
@@ -3943,6 +4466,7 @@
         { key: 'conn', title: 'Интеграции', note: 'Новый телефон и повторный вход в сервис' },
         { key: 'money', title: 'Деньги', note: 'Выплаты, чаевые, сроки налога' },
         { key: 'answers', title: 'Отзывы и обсуждения', note: 'Ответы на ваши вопросы, отзывы и сообщения' },
+        { key: 'referral', title: 'Рефералки: отклики и сделки', note: 'Отклики, ссылки, итоги сделок, окно новичка' },
         { key: 'raznos', title: 'Важное от Разноса', note: 'Всегда включено', locked: true },
         { key: 'news', title: 'Маркетинг', note: 'Акции и новости сервисов' }
       ];
@@ -4249,11 +4773,12 @@
         'anonSvcKey', 'anonAuthor', 'anonBack', 'anonCtx', 'anonOrders', 'liveThreadId', 'liveThreadBack', 'liveBack', 'liveViewBack', 'liveReportId', 'liveReportBack',
         'lcBack', 'cmapBack', 'cmapFocus', 'subFrom', 'wsFrom', 'expBack', 'recBack', 'slotsFrom', 'bpFrom', 'btFrom', 'scFrom', 'mtFrom', 'guideSvc', 'guideSection',
         'ppSelectedId', 'shViewLinkId', 'openDemoFrom', 'openDemoLabel', 'openDemoSection', 'openDemoShift', 'openDemoSlot', 'openDemoKind', 'pvPreview',
-        'activeFrom', 'selectedOfferId', 'tipRecipientId', 'statsDetailBack', 'inboxRet'];
+        'activeFrom', 'selectedOfferId', 'tipRecipientId', 'statsDetailBack', 'inboxRet', 'refSvc', 'refProgramId', 'refOfferId', 'refDealId', 'refMineTab'];
       // день Плана сюда не входит: План сам передаёт его при уходе, и возврат открывает тот же день
       // какой объект открыт на экране, по нему отличаем один заказ от другого в стеке назад
       const NAV_ID = { order: ['histSelectedId'], trip: ['tripSelectedId'], service: ['svKey'], questions: ['svKey'], 'integration-connect': ['connKey'], 'worker-data': ['connKey'],
-        'live-thread': ['liveThreadId'], 'live-report': ['liveReportId'], 'public-profile': ['ppSelectedId'], 'share-link-view': ['shViewLinkId'], 'anon-courier': ['anonSvcKey', 'anonAuthor'] };
+        'live-thread': ['liveThreadId'], 'live-report': ['liveReportId'], 'public-profile': ['ppSelectedId'], 'share-link-view': ['shViewLinkId'], 'anon-courier': ['anonSvcKey', 'anonAuthor'],
+        'ref-program': ['refProgramId'], 'ref-offers': ['refSvc'], 'ref-offer': ['refOfferId'], 'ref-publish': ['refSvc'], 'ref-deal': ['refDealId'] };
       function routeStateOf(key) {
         const route = String(key || '').replace(/^#/, '');
         if (route === 'stats') return { s: 'stats', statsDetail: '' };
@@ -5523,7 +6048,8 @@
           // если правило уже покрывает эти условия, вход показывает Сообщаем и открывает его, а не новое
           const alertNorm = (v) => {
             const own = connectedKeys.length ? connectedKeys : ['vkusvill', 'samokat', 'x5'];
-            const svcs = (v.svcs || []).filter((k) => own.indexOf(k) !== -1);
+            // рефералки не привязаны к подключённым сервисам: реферера и программу ждут в любом
+            const svcs = String(v.what).indexOf('ref') === 0 ? (v.svcs || []) : (v.svcs || []).filter((k) => own.indexOf(k) !== -1);
             return Object.assign({ id: '', time: 'all', max: 3, on: true }, v, {
               svcs: svcs.length ? svcs : own.slice(), where: v.where && v.where.length ? v.where : ['city'], days: v.days && v.days.length ? v.days : [0, 1, 2, 3, 4, 5, 6]
             });
@@ -5532,7 +6058,7 @@
             if (!pre || !pre.what) return null;
             const v = alertNorm(pre);
             const has = (a, x) => (a || []).indexOf(x) !== -1;
-            return alertRules.find((r) => r.what === v.what && (v.what === 'bonus' || v.what === 'weather' || (
+            return alertRules.find((r) => r.what === v.what && (v.what === 'bonus' || v.what === 'weather' || (v.what.indexOf('ref') === 0 && v.svcs.every((k) => has(r.svcs, k))) || (
               v.svcs.every((k) => has(r.svcs, k)) && v.days.some((d) => has(r.days, d)) && (r.time === 'all' || r.time === v.time)
               && (v.what === 'slot' || has(r.where, 'city') || (!has(v.where, 'city') && v.where.every((w) => has(r.where, w))))
               && (v.what !== 'rate' || (r.rate || 500) <= (v.rate || 500))
@@ -5664,7 +6190,8 @@
             'favorites', 'couriers', 'public-profile', 'tips', 'tips-sent', 'contest',
             'expenses', 'expense-form', 'recurring', 'recurring-form', 'my-activity', 'imported-reviews', 'live-feed', 'live-thread', 'live-compose', 'live-place-pick', 'live-photo', 'live-place', 'live-report', 'live-mine',
             'wallet', 'wallet-income', 'wallet-withdraw', 'wallet-withdraw-history', 'work-hub', 'slots', 'smart', 'work-schedule', 'job-guide', 'tax-forms', 'settings',
-            'notifications', 'inbox', 'worker-data', 'common-states', 'work-tasks', 'faq', 'best-times', 'market-timeline', 'best-places', 'services-compare', 'demo-settings'
+            'notifications', 'inbox', 'worker-data', 'common-states', 'work-tasks', 'faq', 'best-times', 'market-timeline', 'best-places', 'services-compare', 'demo-settings',
+            'ref-catalog', 'ref-program', 'ref-offers', 'ref-offer', 'ref-mine', 'ref-publish', 'ref-deal', 'ref-reviews'
           ];
           const vals = {};
           screens.forEach((name) => { vals['is_' + name.replace(/-/g, '_')] = s === name; });
@@ -6437,6 +6964,17 @@
           const inboxSeen = st.inboxSeen || {};
           const connAskKeys = connHealthItems.filter((i) => i.state === 'device' || i.state === 'relogin').map((i) => i.key);
           const connAskDevice = connHealthItems.some((i) => i.state === 'device');
+          // рефералки: строки категории Рефералки, данные те же, что в Мои рефералки, окно новичка приходит всегда
+          const refInbox = (() => {
+            if (!(demoOn && role === 'courier' && edge.inbox !== 'none')) return [];
+            const base = refByEdge(edge.referrals || 'full'), pD = st.refDeals || {}, pR = st.refRespState || {}, out = [];
+            if (base.responses.some((r) => r.id === 'r1')) out.push({ id: 'n-ref-resp', cat: 'referral', day: 'today', at: '10:24', need: !pR.r1, done: !!pR.r1, to: 'ref-deal', refId: 'r1', title: 'Новый отклик на ваше предложение в X5', text: 'Цапля 08: пока нигде не работал, хожу пешком, район Хорошёво' });
+            const d1 = base.deals.find((d) => d.id === 'd1');
+            if (d1) { const live = ((pD.d1 || {}).status || d1.status) === 'link_sent'; out.push({ id: 'n-ref-link', cat: 'referral', day: 'today', at: '09:40', need: live, done: !live, to: 'ref-deal', refId: 'd1', title: 'Выдра 27 прислала ссылку', text: 'Зарегистрируйтесь в Купере по ссылке, а не самостоятельно, иначе бонуса не будет' }); }
+            if (base.windows.some((w) => w.svc === 'kuper' && w.state === 'now')) out.push({ id: 'n-ref-win', cat: 'referral', always: true, day: 'today', at: '08:00', to: 'ref-offers', refSvc: 'kuper', title: 'Вы снова новичок в Купере', text: 'Сначала получите ссылку, потом регистрируйтесь. Курьеров готовы привести: 3' });
+            if (base.deals.some((d) => d.id === 'd3')) out.push({ id: 'n-ref-closed', cat: 'referral', day: 'earlier', at: 'Вчера', read: true, to: 'ref-deal', refId: 'd3', title: 'Сделка с Ёжиком 52 закрыта успешно', text: 'Ёжик 52 оставил отзыв о вас' });
+            return out;
+          })();
           const INBOX_SEED = (demoOn && role === 'courier' && edge.inbox !== 'none') ? [
             // как только вошли в сервис, строка пропадает сама
             connAskKeys.length ? { id: 'n-conn', cat: 'conn', day: 'today', at: '15:02', need: true, to: 'integrations',
@@ -6444,6 +6982,7 @@
               text: connAskKeys.map((k) => SERVICES[k].title).join(', ') + ', пока не войдёте, новые заказы и выплаты не придут' } : null,
             // сработало правило курьера: приходит, пока правило включено, категории не подчиняется
             alertRules.some((r) => r.id === 'r1' && r.on && r.what === 'slot') ? { id: 'n-rule', cat: 'rule', day: 'today', at: '14:48', to: 'slots', title: 'Свободный слот: Самокат, 18:00–22:00', text: 'Тверской, взять можно в приложении Самоката, пока свободен', rule: 'По правилу Свободный слот' } : null,
+            ...refInbox,
             { id: 'n-withdraw', cat: 'money', day: 'today', at: '14:20', need: true, to: 'wallet-withdraw-history', title: 'Вывод 50 ₽ не прошёл', text: 'Банк отклонил платёж, проверьте карту и повторите' },
             { id: 'n-booking', cat: 'shifts', day: 'today', at: '13:05', to: 'work-hub', title: 'Самокат отменил бронь на завтра', text: 'Бронь 10:30–13:30 снята, в Плане на это время Яндекс Еда без записи' },
             { id: 'n-answers', cat: 'answers', day: 'today', at: '12:40', to: 'my-activity', title: '3 ответа на ваш отзыв о Самокате', text: 'Последний: у нас тоже так, пишите в поддержку склада' },
@@ -6464,7 +7003,7 @@
           ] : [];
           const inboxArchived = INBOX_SEED.filter((n) => inboxHidden[n.id]).concat(INBOX_OLD).map((n) => Object.assign({}, n, { unread: false, time: n.at }));
           const inboxItems = INBOX_SEED
-            .filter((n) => !inboxHidden[n.id] && (n.cat === 'raznos' || n.cat === 'rule' || notifOff.indexOf(n.cat) === -1))
+            .filter((n) => !inboxHidden[n.id] && (n.cat === 'raznos' || n.cat === 'rule' || n.always || notifOff.indexOf(n.cat) === -1))
             .map((n) => Object.assign({}, n, { unread: !(n.read || inboxRead[n.id]), time: n.at }));
           const inboxNeedFirst = (list) => list.filter((n) => n.need && !n.done && n.unread).concat(list.filter((n) => !(n.need && !n.done && n.unread)));
           const inboxUnread = inboxItems.filter((n) => n.unread).length;
@@ -7174,10 +7713,692 @@
           liveMineReplies.sort((a, b) => b.r.createdAt - a.r.createdAt);
 
           const navRole = role;
-          const tabOf = { 'profile-edit': 'profile', 'courier-home': 'home', 'courier-empty': 'home', 'work-hub': 'work', 'work-setup': 'work', offers: 'work', 'offer-detail': 'work', 'active-order': st.activeFrom || 'work', 'confirm-decline': 'work', 'offer-result': 'work', 'service-open-demo': st.openDemoFrom === 'courier-home' ? 'home' : 'work', 'work-summary': 'work', slots: 'work', 'job-guide': 'market', 'tax-forms': 'profile', stats: 'stats', market: 'market', 'market-services': 'market', profile: 'profile', history: 'home', order: 'home', integrations: 'home', 'integration-connect': 'home', zones: 'home', service: 'market', 'form-review': 'market', questions: 'market', 'anon-courier': 'market', top: 'profile', photo: 'profile', share: 'profile', privacy: 'profile', contest: 'profile', 'my-activity': 'profile', 'imported-reviews': 'profile', 'live-feed': 'home', 'live-mine': 'profile', 'user-home': 'home', favorites: 'favorites', couriers: 'couriers', 'public-profile': 'couriers', tips: role === 'user' ? 'couriers' : 'market', 'tips-sent': 'profile', expenses: st.expBack === 'profile' ? 'profile' : 'home', 'expense-form': 'home', recurring: 'profile', 'recurring-form': 'profile', wallet: 'profile', 'wallet-income': 'profile', 'wallet-withdraw': 'profile', 'wallet-withdraw-history': 'profile', notifications: 'profile', inbox: 'profile', support: 'profile', settings: 'profile', faq: 'profile', 'worker-data': 'home', 'common-states': 'home', 'work-tasks': 'work', 'demo-settings': 'profile' };
+          const tabOf = { 'profile-edit': 'profile', 'courier-home': 'home', 'courier-empty': 'home', 'work-hub': 'work', 'work-setup': 'work', offers: 'work', 'offer-detail': 'work', 'active-order': st.activeFrom || 'work', 'confirm-decline': 'work', 'offer-result': 'work', 'service-open-demo': st.openDemoFrom === 'courier-home' ? 'home' : 'work', 'work-summary': 'work', slots: 'work', 'job-guide': 'market', 'tax-forms': 'profile', stats: 'stats', market: 'market', 'market-services': 'market', profile: 'profile', history: 'home', order: 'home', integrations: 'home', 'integration-connect': 'home', zones: 'home', service: 'market', 'form-review': 'market', questions: 'market', 'anon-courier': 'market', top: 'profile', photo: 'profile', share: 'profile', privacy: 'profile', contest: 'profile', 'my-activity': 'profile', 'imported-reviews': 'profile', 'live-feed': 'home', 'live-mine': 'profile', 'user-home': 'home', favorites: 'favorites', couriers: 'couriers', 'public-profile': 'couriers', tips: role === 'user' ? 'couriers' : 'market', 'tips-sent': 'profile', expenses: st.expBack === 'profile' ? 'profile' : 'home', 'expense-form': 'home', recurring: 'profile', 'recurring-form': 'profile', wallet: 'profile', 'wallet-income': 'profile', 'wallet-withdraw': 'profile', 'wallet-withdraw-history': 'profile', notifications: 'profile', inbox: 'profile', support: 'profile', settings: 'profile', faq: 'profile', 'worker-data': 'home', 'common-states': 'home', 'work-tasks': 'work', 'demo-settings': 'profile', 'ref-catalog': 'market', 'ref-program': 'market', 'ref-offers': 'market', 'ref-offer': 'market', 'ref-mine': 'profile', 'ref-publish': 'profile', 'ref-deal': 'profile', 'ref-reviews': 'profile' };
           const activeTab = tabOf[s];
           const showNav = (role === 'courier' && !!activeTab && s !== 'history' && s !== 'order' && s !== 'integrations' && s !== 'integration-connect' && s !== 'courier-map' && s !== 'photo' && s !== 'service' && s !== 'form-review' && s !== 'questions' && s !== 'anon-courier' && !(s === 'expenses' && st.expBack !== 'profile') && s !== 'expense-form' && s !== 'recurring-form' && s !== 'worker-data' && s !== 'common-states') || (role === 'user' && !!activeTab && s !== 'privacy' && s !== 'notifications' && s !== 'support');
           const showNavFinal = showNav && !st.pvPreview && (s.indexOf('live-') !== 0 || s === 'live-feed' || s === 'live-mine');
+
+          // рефералки: каркас шага 0, маршруты и переходы, содержимое экранов делают блоки A и B в своих участках ниже
+          const refEdge = edge.referrals || 'full';
+          const refDemo = refByEdge(refEdge);
+          // назад без истории: каталог в Рынок, Мои рефералки в Профиль, сделка в Мои рефералки
+          const REF_BACK = { 'ref-catalog': 'market', 'ref-program': 'ref-catalog', 'ref-offers': 'ref-catalog', 'ref-offer': 'ref-offers', 'ref-mine': 'profile', 'ref-publish': 'ref-mine', 'ref-deal': 'ref-mine', 'ref-reviews': 'ref-mine' };
+          const refStr = (v, def) => (typeof v === 'string' && v ? v : def);
+          // предложения: демо плюс мои из экрана Предложить рефералку (st.refOffers), снятые и не активные в списки не попадают, мои с пометкой Ваше
+          const refPatchO = st.refOffers || {};
+          const refAllOffers = refDemo.offers.map((o) => Object.assign({}, o, refPatchO[o.id])).concat(Object.keys(refPatchO).filter((id) => !REF_OFFERS.some((o) => o.id === id)).map((id) => refPatchO[id]));
+          const refOpen = refAllOffers.filter((o) => o.status === 'active' && o.placesFree > 0);
+          // в карточке Рынка только официальные суммы, пересказы туда не выносим
+          const refBest = REF_PROGRAMS.filter((p) => p.rewardTotal && p.totalOrders && p.rewardUnit === 'rub' && !p.factSrc).sort((a, b) => b.rewardTotal - a.rewardTotal)[0];
+          // заглушки экранов: куда ведёт кнопка Дальше, блоки A и B заменят экраны целиком
+          const refStubNext = { 'ref-catalog': ['Программа', () => vals.go_ref_program('kuper-msk-foot')], 'ref-program': ['Предложения', () => vals.go_ref_offers('kuper')], 'ref-offers': ['Предложение', () => vals.go_ref_offer('o1')], 'ref-mine': ['Предложить рефералку', () => vals.go_ref_publish('x5')], 'ref-publish': ['Сделка', () => vals.go_ref_deal('d1')], 'ref-deal': ['Отзывы обо мне', () => vals.go_ref_reviews()] }[s];
+          Object.assign(vals, {
+            ref_edge: refEdge, ref_blocked: refEdge === 'blocked',
+            ref_back: navBack(() => set({ s: REF_BACK[s] || 'market' })),
+            go_ref_catalog: () => set({ s: 'ref-catalog' }),
+            go_ref_program: (id) => set({ s: 'ref-program', refProgramId: refStr(id, REF_PROGRAMS[0].id) }),
+            go_ref_offers: (svc) => set({ s: 'ref-offers', refSvc: refStr(svc, (refOpen[0] || REF_OFFERS[0]).svc) }),
+            go_ref_offer: (id) => set({ s: 'ref-offer', refOfferId: refStr(id, REF_OFFERS[0].id) }),
+            go_ref_mine: (tab) => set({ s: 'ref-mine', refMineTab: tab === 'join' || tab === 'refer' ? tab : (st.refMineTab || 'join') }),
+            go_ref_publish: (svc) => set({ s: 'ref-publish', refSvc: refStr(svc, 'x5') }),
+            go_ref_deal: (id) => set({ s: 'ref-deal', refDealId: refStr(id, REF_DEALS[0].id) }),
+            go_ref_reviews: () => set({ s: 'ref-reviews' }),
+            // карточка Рефералки в Рынке
+            ref_market_best: refBest ? SERVICES[refBest.svc].title + ' до ' + formatMoney(refBest.rewardTotal) + ' ₽ за ' + refBest.totalOrders + ' ' + ruPlural(refBest.totalOrders, 'заказ', 'заказа', 'заказов') + ', ' + refBest.durationDays + ' дней' : 'Условия бонусов за приглашение по сервисам',
+            ref_market_count: refOpen.length ? refOpen.length + ' ' + ruPlural(refOpen.length, 'курьер готов', 'курьера готовы', 'курьеров готовы') + ' привести' : 'Работаете в сервисе? Предложите рефералку',
+            // строка в Профиле
+            ref_profile_label: (() => { const need = refDemo.responses.filter((r) => !r.mine && r.status === 'sent').length + refDemo.deals.filter((d) => d.role === 'newcomer' && d.status === 'link_sent').length, going = refDemo.deals.filter((d) => ['accepted', 'link_sent', 'registered', 'in_progress'].indexOf(d.status) !== -1).length; return need || going ? [need ? need + ' ' + ruPlural(need, 'нужно действие', 'нужны действия', 'нужно действий') : '', going ? going + ' ' + ruPlural(going, 'сделка идёт', 'сделки идут', 'сделок идут') : ''].filter(Boolean).join(' · ') : 'Отклики, сделки и отзывы'; })(),
+            // заглушки
+            ref_stub_note: [s === 'ref-catalog' || s === 'ref-program' || s === 'ref-offers' || s === 'ref-offer' ? 'Блок A' : 'Блок B', st.refProgramId, st.refSvc, st.refOfferId, st.refDealId, st.refMineTab].filter(Boolean).join(' · '),
+            ref_stub_has_next: !!refStubNext, ref_stub_next_label: refStubNext ? 'Дальше: ' + refStubNext[0] : '', ref_stub_next: refStubNext ? refStubNext[1] : () => {}
+          });
+          // рефералки: поиск (блок A)
+          const refSvcTitle = (k) => (SERVICES[k] ? SERVICES[k].title : k);
+          const refCityOk = mkCity === 'moscow';
+          const refDays = (iso) => Math.round((new Date(iso + 'T00:00:00') - DEMO_TODAY) / 86400000);
+          const refShort = (iso) => { const d = new Date(iso + 'T00:00:00'); return d.getDate() + ' ' + RU_MONTHS_SHORT[d.getMonth()]; };
+          const REF_TR_WORD = { foot: 'пешком', bike: 'вело', electric: 'электро', car: 'авто', moto: 'мото' };
+          const refTrText = (list) => { const w = (list || []).map((t) => REF_TR_WORD[t]).filter(Boolean); return w.length > 1 ? w.slice(0, -1).join(', ') + ' и ' + w[w.length - 1] : (w[0] || ''); };
+          // электровелосипед считаем велосипедом, мото авто, как в фильтре Рынка
+          const refTrIn = (list, k) => (k === 'bike' ? list.indexOf('bike') !== -1 || list.indexOf('electric') !== -1 : k === 'car' ? list.indexOf('car') !== -1 || list.indexOf('moto') !== -1 : list.indexOf(k) !== -1);
+          const refKnown = (p) => p.rewardUnit === 'rub' && (p.rewardTotal != null || (Array.isArray(p.rewardRange) && p.rewardRange[1] != null));
+          const refTop = (p) => (p.rewardTotal != null ? p.rewardTotal : (p.rewardRange ? p.rewardRange[1] : 0));
+          // режим Недоступно: программы остаются для справки, но откликнуться и предложить рефералку нельзя
+          const refView = (p) => (refEdge === 'blocked' ? Object.assign({}, p, { state: 'unavailable' }) : p);
+          const refProgOf = (id) => refView(REF_PROGRAMS.find((p) => p.id === id) || REF_PROGRAMS[0]);
+          const refProgsOfSvc = (svc) => REF_PROGRAMS.filter((p) => p.svc === svc).map(refView);
+          const refPickProg = (svc, tr) => { const ps = refProgsOfSvc(svc); return ps.find((p) => refTrIn(p.transports, tr || mkTr.k)) || ps[0] || null; };
+          const refCountSvc = (svc) => refOpen.filter((o) => o.svc === svc).length;
+          const refCountProg = (id) => refOpen.filter((o) => o.programId === id).length;
+          const refOffer = (o) => (o.mine ? Object.assign({}, o, { trust: refDemo.me.referrer }) : o);
+          // мои отклики: из демо и новые из этой сессии, отозванные и истёкшие не считаем
+          const refMyResp = refDemo.responses.filter((r) => r.mine).concat(st.refResponses || []).map((r) => ((st.refRespState || {})[r.id] ? Object.assign({}, r, { status: st.refRespState[r.id] }) : r));
+          const refRespOf = (offerId) => { const l = refMyResp.filter((r) => r.offerId === offerId && r.status !== 'withdrawn' && r.status !== 'expired'); return l.length ? l[l.length - 1] : null; };
+          // лимит откликов 10 в сутки, из них 7 уже потрачено в демо (demoFilled), чтобы лимит можно было дойти
+          const REF_LIMIT = 10;
+          const refUsed = 7 + (st.refResponses || []).filter((r) => r.createdIso === TODAY_ISO).length;
+          const refLeft = Math.max(0, REF_LIMIT - refUsed);
+          const refRank = (o) => { const t = refOffer(o).trust; return (o.verified ? 1000 : 0) + (t.rating != null && !t.isNew ? t.rating * 10 : 0) + Math.min(t.closed, 99) / 100; };
+          const refSortOffers = (list, mode) => list.slice().sort((a, b) => (mode === 'fresh' ? 0 : refRank(b) - refRank(a)) || (a.createdIso < b.createdIso ? 1 : -1));
+          const refDative = (nick) => { const w = String(nick).split(' '); w[0] = w[0].replace(/ок$/, 'ку').replace(/[ая]$/, 'е').replace(/ь$/, 'ю').replace(/([бвгджзклмнпрстфхцчшщ])$/, '$1у'); return w.join(' '); };
+          const refWinOf = (svc) => refDemo.windows.find((w) => w.svc === svc) || null;
+          // подсказка пригодности: последний заказ у вас был недавно, по правилу сервиса нужно больше
+          const refEligText = (svc) => { const w = refWinOf(svc); return w && w.state === 'soon' && w.lastOrderIso && w.ruleDays ? 'Последний заказ в ' + svcPrep(svc) + ' у вас был ' + (-refDays(w.lastOrderIso)) + ' ' + ruPlural(-refDays(w.lastOrderIso), 'день', 'дня', 'дней') + ' назад, по правилу нужно ' + w.ruleDays + ' дней. Окно откроется ' + refShort(w.availableIso) + '. Решает сервис' : ''; };
+          // условия сменились у сервиса: берём из сделки в режиме Условия изменились
+          const refChangedText = (svc) => { const d = refDemo.deals.find((x) => x.conditionsChanged && x.programSnapshot && x.programSnapshot.svc === svc); if (!d) return ''; const c = d.conditionsChanged; return 'Было ' + formatMoney(c.was.rewardTotal) + ' ₽ за ' + c.was.totalOrders + ' ' + ruPlural(c.was.totalOrders, 'заказ', 'заказа', 'заказов') + ', сейчас ' + formatMoney(c.now.rewardTotal) + ' ₽ за ' + c.now.totalOrders + '. В идущих сделках остаётся снимок'; };
+          // оповещения рефералок: новая программа и появился реферер, правило в общем редакторе
+          const refOwnSvcs = REF_PROGRAMS.map((p) => p.svc).filter((k, i, a) => a.indexOf(k) === i && connectedKeys.indexOf(k) !== -1);
+          const refAlertFind = (what, svcs) => alertFind({ what, svcs });
+          const refAlertOpen = (what, svcs) => alertOpen({ what, svcs });
+          const refSwap = () => { if (this._nav) this._nav.swap = true; };
+          const refGuide = (svc) => () => set({ s: 'job-guide', guideSection: 'start', guideSvc: svc });
+          const refToOffers = (svc) => () => vals.go_ref_offers(svc);
+          const refJoinSub = refOpen.length ? refOpen.length + ' ' + ruPlural(refOpen.length, 'курьер готов', 'курьера готовы', 'курьеров готовы') + ' привести' : 'Пока никто не предлагает';
+
+          // 22b Рефералки
+          const refCatAll = refCityOk ? REF_PROGRAMS.filter((p) => p.city === 'moscow').map(refView) : [];
+          const refCatCards = refCatAll.filter((p) => refKnown(p) && refTrIn(p.transports, mkTr.k)).sort((a, b) => refTop(b) - refTop(a));
+          const refCatRows = refCatAll.filter((p) => !refKnown(p));
+          const refMineActive = refAllOffers.filter((o) => o.mine && o.status === 'active').length;
+          const refTileBase = 'flex:1 1 0;min-width:0;width:auto;text-align:left;cursor:pointer;font:inherit;color:inherit;gap:8px;min-height:136px;';
+          const refIco = (bg, fg) => 'display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;background:' + bg + ';color:' + fg;
+          const refWinRows = role === 'courier' ? refDemo.windows.slice().sort((a, b) => ({ soon: 0, now: 1, unknown: 2, working: 3 }[a.state] - { soon: 0, now: 1, unknown: 2, working: 3 }[b.state])).map((w) => {
+            const title = refSvcTitle(w.svc);
+            const days = w.state === 'soon' ? Math.max(0, refDays(w.availableIso)) : 0;
+            const value = { soon: 'через ' + days + ' ' + ruPlural(days, 'день', 'дня', 'дней') + ', ' + (w.availableIso ? refShort(w.availableIso) : ''), now: 'можно сейчас', working: 'вы работаете сейчас', unknown: 'Проверьте в приложении сервиса' }[w.state];
+            const prog = refPickProg(w.svc);
+            const on = !!(st.refWin || {})[w.svc];
+            return {
+              svc: w.svc, title, value, valueCls: w.state === 'soon' ? 'raznos-list-title' : w.state === 'now' ? 'raznos-status-pill raznos-pill-ok' : 'raznos-text-small', aria: title + ': ' + value,
+              onTap: w.state === 'soon' || w.state === 'now' || !prog ? refToOffers(w.svc) : () => vals.go_ref_program(prog.id),
+              bell: w.state === 'soon', bellOn: on, bellSub: title + ', ' + (w.availableIso ? refShort(w.availableIso) : ''),
+              bellTap: () => { const prev = st.refWin || {}; set({ refWin: Object.assign({}, prev, { [w.svc]: !on }) }); uxShowToast(on ? 'Не сообщаем про окно в ' + svcPrep(w.svc) : 'Сообщим ' + refShort(w.availableIso) + ', когда снова станете новичком', 'Отменить', () => set({ refWin: prev })); }
+            };
+          }) : [];
+          const refBellSvcs = refOwnSvcs.length ? refOwnSvcs : ['kuper'];
+          Object.assign(vals, {
+            rfa_blocked: refEdge === 'blocked', rfa_offline: !!st.netOffline, rfa_retry: () => set({ netOffline: false }),
+            rfa_cat_bell_on: !!refAlertFind('ref_program', refBellSvcs), rfa_cat_bell_tap: () => refAlertOpen('ref_program', refBellSvcs),
+            rfa_cat_has_city: refCityOk, rfa_cat_no_city: !refCityOk,
+            rfa_cat_title: refCityOk ? 'Программы · ' + mkCityShort + ', ' + mkTr.on : 'Программы',
+            rfa_cat_tiles: [
+              { isJoin: true, isRefer: false, title: 'Устроиться по рефералке', sub: refJoinSub, aria: 'Устроиться по рефералке. ' + refJoinSub, style: refTileBase + 'background:var(--raznos-green-tint);border-color:color-mix(in oklab,var(--raznos-green) 35%,var(--raznos-line))', icoStyle: refIco('var(--raznos-surface)', 'var(--raznos-green-deep)'), onTap: refToOffers(refOpen[0] ? refOpen[0].svc : 'kuper') },
+              (() => { const sub = refMineActive ? 'Ваши предложения: ' + refMineActive + ' активно' : 'Работаете в сервисе? Предложите рефералку'; return { isJoin: false, isRefer: true, title: 'Устроить по рефералке', sub, aria: 'Устроить по рефералке. ' + sub, style: refTileBase, icoStyle: refIco('var(--raznos-surface-2)', 'var(--raznos-ink-2)'), onTap: () => vals.go_ref_mine('refer') }; })()
+            ],
+            rfa_win_show: refWinRows.length > 0, rfa_win_rows: refWinRows,
+            rfa_cat_no_tr: refCityOk && refCatCards.length === 0, rfa_cat_no_tr_title: 'Для этого транспорта программ в Москве пока нет',
+            rfa_cat_cards: refCatCards.map((p) => ({ program: p, title: refSvcTitle(p.svc), count: refCountProg(p.id), open: () => vals.go_ref_program(p.id), offers: refToOffers(p.svc) })),
+            rfa_cat_rows_show: refCatRows.length > 0, rfa_cat_rows: refCatRows.map((p) => ({ program: p, title: refSvcTitle(p.svc), open: () => vals.go_ref_program(p.id) }))
+          });
+
+          // 22c Программа
+          const refPg = refProgOf(st.refProgramId);
+          const refPgSibs = refProgsOfSvc(refPg.svc);
+          const refPgHero = refKnown(refPg) && refPg.steps.length > 0 && refPg.totalOrders > 0;
+          const refPgMaxStep = Math.max.apply(null, refPg.steps.map((x) => x.reward).concat([1]));
+          let refPgAcc = 0;
+          const refPgLadder = refPg.steps.map((x, i) => { refPgAcc += x.orders; return { rank: i + 1, title: x.orders + ' ' + ruPlural(x.orders, 'заказ', 'заказа', 'заказов'), meta: 'всего ' + refPgAcc, value: formatMoney(x.reward) + ' ₽', fill: Math.round(x.reward / refPgMaxStep * 100), divider: i < refPg.steps.length - 1 }; });
+          const refPgSrc = refPg.factSrc || '';
+          // у Яндекса и X5 спорна только сумма, остальные условия официальные и без пометки
+          const refRowSrc = refPg.svc === 'yandex-eda' || refPgSrc === 'источники расходятся' ? '' : refPgSrc;
+          const refPgPartner = refPgSrc === 'партнёрские материалы';
+          const refSumText = (p) => (p.rewardTotal != null ? formatMoney(p.rewardTotal) + ' ₽' : (p.rewardRange ? (p.rewardRange[0] != null ? formatMoney(p.rewardRange[0]) + '–' : 'до ') + formatMoney(p.rewardRange[1]) + ' ₽' : ''));
+          const refPgUntil = refPg.windowUntilIso ? ruDateLabel(refPg.windowUntilIso) : '';
+          const refPgOffers = refSortOffers(refOpen.filter((o) => o.programId === refPg.id), 'rating');
+          const refPgPrep = svcPrep(refPg.svc);
+          const refPgClosed = refPg.state === 'closed' || refPg.state === 'unavailable';
+          Object.assign(vals, {
+            rfa_pg_svc: refPg.svc, rfa_pg_svc_title: refSvcTitle(refPg.svc), rfa_pg_prep: refPgPrep, rfa_pg_prog: refPg,
+            rfa_pg_sub: 'Бонус за приглашение · Москва, ' + refTrText(refPg.transports),
+            rfa_pg_chips_show: refPgSibs.length > 1, rfa_pg_chips: refPgSibs.map((p) => ({ key: p.id, label: refTrText(p.transports).replace(/^./, (c) => c.toUpperCase()).replace(/ и /g, ', ') })), rfa_pg_chip_val: refPg.id,
+            rfa_pg_chip_set: (id) => { refSwap(); set({ refProgramId: id }); },
+            rfa_pg_closed: refPgClosed, rfa_pg_closed_text: refPg.state === 'unavailable' ? 'Приглашения сейчас недоступны' : 'Программа закончилась' + (refPgUntil ? ' ' + refPgUntil : ''),
+            rfa_pg_hero: refPgHero, rfa_pg_noterms: !refPgHero,
+            rfa_pg_known_sum: refKnown(refPg), rfa_pg_sum: refKnown(refPg) ? refSumText(refPg) : '', rfa_pg_fact: refPgSrc || (refKnown(refPg) ? 'официально' : ''),
+            rfa_pg_noterms_title: refPgPartner ? 'Условия у партнёров сервиса' : (refPgSrc === 'вакансия' ? 'Условия сервис не публикует' : 'Условия видны в приложении сервиса'),
+            rfa_pg_stamp_src: refPgSrc || (refKnown(refPg) ? 'официально' : ''), rfa_pg_stamp_date: refPg.observedIso ? '· ' + refShort(refPg.observedIso) : '',
+            rfa_pg_note_show: refPgHero && !!refPg.shareNote && refPg.sharePolicy !== 'native', rfa_pg_note_title: refPgSrc === 'источники расходятся' ? 'Страницы расходятся' : 'Откуда сумма', rfa_pg_note: refPg.shareNote,
+            rfa_pg_fill_show: refPgHero && refPg.demoFilled.indexOf('steps.orders') !== -1,
+            rfa_pg_url_noterms: !refPgHero && !!refPg.sourceUrl,
+            rfa_pg_noterms_text: refPg.shareNote ? refPg.shareNote + (refPgPartner ? '. Точные условия у партнёра, с которым вы работаете' : (refPgSrc === 'вакансия' ? '' : '. Точные условия сервис показывает в приложении')) : (refPg.rewardUnit === 'points' ? 'Сервис начисляет баллы за приглашение и показывает их в своём приложении' : refPg.inviteMethod === 'application' ? 'Приглашение заявкой с телефоном друга, сумму сервис показывает в своём приложении' : 'Сумму сервис показывает в своём приложении'),
+            rfa_pg_ladder_show: refPgHero, rfa_pg_ladder: refPgLadder,
+            rfa_pg_calc_show: refPgHero, rfa_pg_has_day: !!refPg.durationDays, rfa_pg_day: refPg.durationDays ? String(Math.ceil(refPg.totalOrders / refPg.durationDays)) : '', rfa_pg_per: refPgHero ? formatMoney(Math.round(refPg.rewardTotal / refPg.totalOrders)) : '',
+            rfa_pg_rows_show: refPgHero,
+            rfa_pg_rows: [
+              { label: 'Кто может', value: refPg.dormantText ? 'Новичок, ' + refPg.dormantText : 'Новичок, срок паузы сервис не публикует', src: refPg.dormantText ? refRowSrc : '' },
+              { label: 'Кому платят', value: { referrer: 'Пригласившему', newcomer: 'Новичку', both: 'Пригласившему и новичку, делит сервис' }[refPg.payTo] || 'Нет данных', src: refPg.payTo ? refRowSrc : '' },
+              { label: 'Срок выполнения', value: refPg.durationText || 'Нет данных', src: refPg.durationText ? refRowSrc : '' },
+              { label: 'Программа действует до', value: refPgUntil || 'Нет данных', src: refPgUntil ? refRowSrc : '' },
+              { label: 'Как получить', value: refPg.howTo.length ? refPg.howTo.join('. ') : { link: 'По ссылке пригласившего', code: 'По коду пригласившего', application: 'Заявкой с телефоном приглашённого' }[refPg.inviteMethod], src: refPg.howTo.length ? refRowSrc : '' },
+              { label: 'Лимиты', value: refPg.limitsText || 'Нет данных', src: refPg.limitsText ? refRowSrc : '' }
+            ],
+            rfa_pg_url_show: !!refPg.sourceUrl, rfa_pg_url: refPg.sourceUrl,
+            rfa_pg_native: refPg.sharePolicy === 'native',
+            rfa_pg_elig: !!refEligText(refPg.svc), rfa_pg_elig_text: refEligText(refPg.svc),
+            rfa_pg_changed: !!refChangedText(refPg.svc), rfa_pg_changed_text: refChangedText(refPg.svc),
+            rfa_pg_offers_title: refPgOffers.length ? 'Курьеры готовы привести · ' + refPgOffers.length : 'Курьеры готовы привести',
+            rfa_pg_has_offers: refPgOffers.length > 0, rfa_pg_no_offers: refPgOffers.length === 0,
+            rfa_pg_offers: refPgOffers.slice(0, 3).map((o) => ({ offer: o, open: () => vals.go_ref_offer(o.id) })),
+            rfa_pg_go_offers: refToOffers(refPg.svc),
+            rfa_pg_empty_title: 'Пока никто не предлагает рефералку в ' + refPgPrep,
+            rfa_pg_bell_on: !!refAlertFind('referrer', [refPg.svc]), rfa_pg_bell_tap: () => refAlertOpen('referrer', [refPg.svc]),
+            rfa_pg_guide: refGuide(refPg.svc), rfa_pg_guide_label: 'Как начать в ' + refPgPrep,
+            rfa_pg_actions: !refPgClosed,
+            rfa_pg_refer_label: 'Работаете в ' + refPgPrep + '? Устроить по рефералке',
+            rfa_pg_go_refer: () => (connectedKeys.indexOf(refPg.svc) !== -1 ? vals.go_ref_publish(refPg.svc) : vals.go_ref_mine('refer'))
+          });
+
+          // 22d Предложения рефереров
+          const refOfSvcs = REF_PROGRAMS.map((p) => p.svc).filter((k, i, a) => a.indexOf(k) === i);
+          const refOfSvc = refOfSvcs.indexOf(st.refSvc) !== -1 ? st.refSvc : refOfSvcs[0];
+          const refOfTr = st.refTr && st.refTr !== 'all' ? st.refTr : null;
+          const refOfSort = st.refSort || 'rating';
+          const refOfProg = refPickProg(refOfSvc, refOfTr || mkTr.k);
+          const refOfPrep = svcPrep(refOfSvc);
+          const refOfAll = refAllOffers.filter((o) => o.svc === refOfSvc && o.status === 'active' && (o.mine || o.placesFree > 0));
+          const refOfList = refCityOk ? refSortOffers(refOfAll.filter((o) => !refOfTr || refTrIn(o.transports, refOfTr)), refOfSort) : [];
+          Object.assign(vals, {
+            rfa_of_items: refOfSvcs.map((k) => ({ key: k, title: refSvcTitle(k) + (refCountSvc(k) ? ' · ' + refCountSvc(k) : '') })), rfa_of_svc: refOfSvc, rfa_of_svc_title: refSvcTitle(refOfSvc), rfa_of_prep: refOfPrep,
+            rfa_of_pick: (k) => { refSwap(); set({ refSvc: k }); },
+            rfa_of_has_city: refCityOk,
+            rfa_of_filters: [
+              { key: 'refTr', title: 'Транспорт', value: st.refTr || 'all', options: [{ k: 'all', label: 'Любой транспорт' }, { k: 'foot', label: 'Пешком' }, { k: 'bike', label: 'Велосипед' }, { k: 'car', label: 'Авто' }] },
+              { key: 'refSort', title: 'Сортировка', value: refOfSort, options: [{ k: 'rating', label: 'По рейтингу' }, { k: 'fresh', label: 'Свежие' }] }
+            ],
+            rfa_of_filter: (key, v) => set({ [key]: v }),
+            rfa_of_prog_show: refCityOk && !!refOfProg, rfa_of_prog: refOfProg, rfa_of_open_prog: () => vals.go_ref_program(refOfProg.id),
+            rfa_of_warn: refOfList.length > 0, rfa_of_warn_text: 'Не регистрируйтесь в ' + refOfPrep + ', пока не получите ссылку. Привязать позже не получится',
+            rfa_of_list_show: refOfList.length > 0,
+            rfa_of_list: refOfList.map((o) => { const r = refRespOf(o.id); return { offer: refOffer(o), response: r ? r.status : '', open: () => vals.go_ref_offer(o.id) }; }),
+            rfa_of_empty: refOfList.length === 0,
+            rfa_of_empty_title: !refCityOk ? 'Предложений в этом городе пока нет' : 'Пока никто не предлагает рефералку в ' + refOfPrep,
+            rfa_of_empty_text: !refCityOk ? 'Другие города не показываем, выберите город в Рынке' : (refOfTr && refOfAll.length ? 'Попробуйте другой транспорт' : 'Можно подписаться и узнать, когда появится'),
+            rfa_of_bell_show: refCityOk, rfa_of_bell_on: !!refAlertFind('referrer', [refOfSvc]), rfa_of_bell_tap: () => refAlertOpen('referrer', [refOfSvc]),
+            rfa_of_guide_show: refCityOk, rfa_of_guide: refGuide(refOfSvc), rfa_of_guide_label: 'Как начать в ' + refOfPrep
+          });
+
+          // 22e Предложение и шторка Отклик
+          const refOfr = refAllOffers.find((o) => o.id === st.refOfferId) || null;
+          const refOfrView = refOfr ? refOffer(refOfr) : null;
+          const refOfrResp = refOfr ? refRespOf(refOfr.id) : null;
+          const refOfrDeal = refOfrResp ? refDemo.deals.find((d) => d.responseId === refOfrResp.id) : null;
+          const refOfrHidden = !refOfr || refOfr.status === 'hidden' || refOfr.status === 'removed';
+          const refOfrRemoved = !!refOfr && refOfr.status === 'removed';
+          const refOfrActive = refOfr && !refOfr.mine && !refOfrResp && refOfr.placesFree > 0;
+          const refOfrReviews = refOfr ? REF_REVIEWS.filter((r) => r.aboutNick === refOfr.nick && r.aboutRole === 'referrer').sort((a, b) => (a.dateIso < b.dateIso ? 1 : -1)).slice(0, 3) : [];
+          const refCK = { telegram: 'Telegram', whatsapp: 'WhatsApp', phone: 'Телефон', other: 'Другое' };
+          const refDraft0 = { kind: 'telegram', values: { telegram: '@tyulen11_demo', whatsapp: '+7 916 555-01-23', phone: '+7 916 555-01-23', other: '' }, text: '', consent: false };
+          const refDraft = st.refRespDraft || refDraft0;
+          const refDraftSet = (patch) => set({ refRespDraft: Object.assign({}, refDraft, patch) });
+          const refDraftVal = (refDraft.values[refDraft.kind] || '').trim();
+          const refSheetOpen = st.refSheet === 'respond' && s === 'ref-offer' && !!refOfr && st.refSheetOffer === refOfr.id;
+          const refBlocked = refDraftVal.length < 2 || refLeft <= 0;
+          const refSvcOthers = connectedKeys.filter((k) => !refOfr || k !== refOfr.svc).map(refSvcTitle);
+          const refSend = () => {
+            if (!refOfr || refBlocked) return;
+            if (st.netOffline) { set({ refRespError: true }); return; }
+            const resp = { id: 'rn' + Date.now(), offerId: refOfr.id, fromNick: 'Тюлень 11', fromHue: 150, fromTrust: refTrust(null, 0, 0, 0), message: refDraft.text.trim(), contactKind: refDraft.kind, contactValue: refDraftVal, snapshot: refSnap(transport, connectedKeys.filter((k) => k !== refOfr.svc)), progressConsent: !!refDraft.consent, status: 'sent', createdIso: TODAY_ISO, mine: true };
+            set({ refSheet: null, refSheetOffer: '', refRespDraft: null, refRespError: false, refResponses: (st.refResponses || []).concat([resp]) });
+            uxShowToast('Отклик отправлен', 'Отменить', () => set({ refResponses: ((this.state || {}).refResponses || []).filter((r) => r.id !== resp.id) }));
+          };
+          Object.assign(vals, {
+            rfa_o_hidden: refOfrHidden, rfa_o_hidden_title: refOfrRemoved ? 'Предложение снято' : 'Предложение скрыто', rfa_o_hidden_text: refOfrRemoved ? 'Автор снял его из списка. Идущие по нему сделки остаются в Мои рефералки' : 'Модерация убрала его из списка. Идущие по нему сделки остаются в Мои рефералки', rfa_o_ok: !refOfrHidden, rfa_o_report_show: !refOfrHidden && !(refOfr && refOfr.mine),
+            rfa_o_report: () => uxShowToast('Жалоба отправлена, модерация посмотрит', '', null),
+            rfa_o_offer: refOfrView, rfa_o_svc_title: refOfr ? refSvcTitle(refOfr.svc) : '', rfa_o_prep: refOfr ? svcPrep(refOfr.svc) : '',
+            rfa_o_text: refOfr ? refOfr.text : '',
+            rfa_o_places: refOfr ? 'Свободно ' + refOfr.placesFree + ' из ' + refOfr.placesTotal + ', предложение до ' + ruDateLabel(refOfr.untilIso) : '',
+            rfa_o_contact: refOfr ? refCK[refOfr.contactKind] + '. Контакт откроется, когда реферер примет отклик' : '',
+            rfa_o_prog: refOfr ? refProgOf(refOfr.programId) : REF_PROGRAMS[0], rfa_o_open_prog: () => vals.go_ref_program(refOfr ? refOfr.programId : REF_PROGRAMS[0].id),
+            rfa_o_changed: !!(refOfr && refChangedText(refOfr.svc)), rfa_o_changed_text: refOfr ? refChangedText(refOfr.svc) : '',
+            rfa_o_elig: !!(refOfr && refEligText(refOfr.svc)), rfa_o_elig_text: refOfr ? refEligText(refOfr.svc) : '',
+            rfa_o_reviews_show: refOfrReviews.length > 0, rfa_o_reviews_none: refOfrReviews.length === 0, rfa_o_reviews_title: 'Отзывы новичков · ' + refOfrReviews.length,
+            rfa_o_reviews: refOfrReviews.map((r) => ({ nick: r.authorNick, hue: String(r.authorHue), rating: r.rating, text: r.text, date: ruDateLabel(r.dateIso) })),
+            rfa_o_mine: !!(refOfr && refOfr.mine), rfa_o_manage: () => vals.go_ref_mine('refer'),
+            rfa_o_done: !!refOfrResp && !(refOfr && refOfr.mine), rfa_o_done_label: refOfrResp && refOfrResp.status === 'accepted' ? 'Отклик принят · Открыть сделку' : 'Отклик отправлен · Открыть',
+            rfa_o_open_deal: () => (refOfrDeal ? vals.go_ref_deal(refOfrDeal.id) : vals.go_ref_mine('join')),
+            rfa_o_full: !!(refOfr && !refOfr.mine && !refOfrResp && refOfr.placesFree <= 0),
+            rfa_o_unavail: !!refOfrActive && refEdge === 'blocked', rfa_o_limit: !!refOfrActive && refEdge !== 'blocked' && refLeft <= 0, rfa_o_can: !!refOfrActive && refEdge !== 'blocked' && refLeft > 0,
+            rfa_o_respond: () => set({ refSheet: 'respond', refSheetOffer: refOfr ? refOfr.id : '', refRespError: false }),
+            rfa_sheet: refSheetOpen, rfa_sheet_title: refOfr ? 'Отклик ' + refDative(refOfr.nick) : 'Отклик',
+            rfa_sheet_close: () => set({ refSheet: null, refSheetOffer: '', refRespError: false }),
+            rfa_sheet_kinds: Object.keys(refCK).map((k) => ({ key: k, label: refCK[k] })), rfa_sheet_kind: refDraft.kind,
+            rfa_sheet_set_kind: (k) => refDraftSet({ kind: k }),
+            rfa_sheet_contact_label: { telegram: 'Telegram, @ник', whatsapp: 'WhatsApp, номер', phone: 'Номер телефона', other: 'Как с вами связаться' }[refDraft.kind],
+            rfa_sheet_contact_ph: refDraft.kind === 'telegram' ? '@ник' : refDraft.kind === 'other' ? 'Например, ник в другом мессенджере' : '+7 900 000-00-00',
+            rfa_sheet_contact: refDraft.values[refDraft.kind] || '',
+            rfa_sheet_set_contact: (e) => refDraftSet({ values: Object.assign({}, refDraft.values, { [refDraft.kind]: e && e.target ? e.target.value : '' }) }),
+            rfa_sheet_text: refDraft.text, rfa_sheet_count: refDraft.text.length,
+            rfa_sheet_set_text: (e) => refDraftSet({ text: e && e.target ? e.target.value.slice(0, 300) : '' }),
+            rfa_sheet_snapshot: cityShort + ', ' + transportTitles[transport] + (refSvcOthers.length ? '. Сервисы: ' + refSvcOthers.slice(0, 3).join(', ') + (refSvcOthers.length > 3 ? ' и ещё ' + (refSvcOthers.length - 3) : '') : ''),
+            rfa_sheet_consent: !!refDraft.consent, rfa_sheet_consent_cls: refDraft.consent ? 'raznos-check-box raznos-is-on' : 'raznos-check-box', rfa_sheet_consent_mark: refDraft.consent ? '✓' : '',
+            rfa_sheet_toggle_consent: () => refDraftSet({ consent: !refDraft.consent }),
+            rfa_sheet_consent_text: refOfr ? 'Показывать рефереру мой прогресс в ' + svcPrep(refOfr.svc) + (connectedKeys.indexOf(refOfr.svc) !== -1 ? '' : ', когда подключу сервис') : '',
+            rfa_sheet_error: !!st.refRespError, rfa_sheet_send: refSend,
+            rfa_sheet_left_show: refLeft <= 3, rfa_sheet_left: refLeft > 0 ? 'Сегодня осталось ' + refLeft + ' ' + ruPlural(refLeft, 'отклик', 'отклика', 'откликов') + ' из ' + REF_LIMIT : 'Лимит откликов на сегодня, завтра снова',
+            rfa_sheet_blocked: refBlocked, rfa_sheet_send_cls: refBlocked ? 'raznos-btn-disabled' : 'raznos-btn raznos-btn-primary'
+          });
+
+          // блок в карточке сервиса, вкладка в шторке Оформление и строка в гайде
+          // Деливери работает по программе Яндекс Про, остальным сервисам без программы пишем, что её не нашли
+          const svRefSvc = svKey === 'delivery' ? 'yandex-eda' : svKey;
+          const svRefProg = refCityOk ? refPickProg(svRefSvc) : null;
+          const svRefWin = refWinOf(svRefSvc);
+          const svRefCount = refCountSvc(svRefSvc);
+          Object.assign(vals, {
+            sv_ref_has_prog: !!svRefProg, sv_ref_no_prog: !svRefProg, sv_ref_prog: svRefProg || REF_PROGRAMS[0], sv_ref_open_prog: () => svRefProg && vals.go_ref_program(svRefProg.id),
+            sv_ref_count: svRefCount, sv_ref_shared: svRefSvc !== svKey && !!svRefProg,
+            sv_ref_win_show: !!(svRefWin && svRefWin.state === 'soon'), sv_ref_win: svRefWin && svRefWin.state === 'soon' ? 'Вы снова новичок в ' + svcPrep(svKey) + ' через ' + Math.max(0, refDays(svRefWin.availableIso)) + ' ' + ruPlural(Math.max(0, refDays(svRefWin.availableIso)), 'день', 'дня', 'дней') : '',
+            sv_ref_bell_show: svRefCount === 0, sv_ref_bell_on: !!refAlertFind('referrer', [svRefSvc]), sv_ref_bell_tap: () => refAlertOpen('referrer', [svRefSvc]),
+            sv_ref_join_show: !!svRefProg && svRefCount > 0, sv_ref_join: refToOffers(svRefSvc),
+            guide_ref_counts: REF_PROGRAMS.reduce((acc, p) => { acc[p.svc] = refCountSvc(p.svc); return acc; }, {}), guide_ref_open: (svc) => vals.go_ref_offers(svc),
+            via_ref_open: (svc) => { set({ viaSheet: '' }); vals.go_ref_offers(svc); }
+          });
+          // данные шторки Оформление с вкладкой По рефералке курьера: награда пригласившего только у подтверждённой программы
+          const refVia = (k) => {
+            const base = viaFor(k);
+            const prog = refCityOk ? refPickProg(k) : null;
+            if (!base || !prog) return base;
+            const official = refKnown(prog) && prog.totalOrders && !prog.factSrc;
+            const reward = official ? formatMoney(prog.rewardTotal) + ' ₽ за ' + prog.totalOrders + ' ' + ruPlural(prog.totalOrders, 'заказ', 'заказа', 'заказов') : (refKnown(prog) ? 'Условия в карточке программы' : 'Условия видны в приложении сервиса');
+            return Object.assign({}, base, { referral: { count: refCountSvc(k), reward, rewardSrc: '' } });
+          };
+          // рефералки: моё (блок B)
+          // Мои рефералки, Предложить рефералку, Сделка, Отзывы обо мне, лесенка и новички в шторке бонусов, окна новичка
+          Object.assign(vals, (() => {
+            const ME_NICK = 'Тюлень 11';
+            const svcT = (k) => (SERVICES[k] ? SERVICES[k].title : k);
+            const dayLong = (iso) => { const d = new Date(iso + 'T00:00:00'); return d.getDate() + ' ' + RU_MONTHS_GEN[d.getMonth()]; };
+            const daysTo = (iso) => Math.round((new Date(iso + 'T00:00:00') - new Date(TODAY_ISO + 'T00:00:00')) / 86400000);
+            const money = (n) => formatMoney(n) + ' ₽';
+            const ordersWord = (n) => ruPlural(n, 'заказ', 'заказа', 'заказов');
+            const rate1 = (n) => String(n).replace('.', ',');
+            const hueStyle = (h) => 'background:oklch(0.93 0.05 ' + h + ');color:oklch(0.38 0.11 ' + h + ')';
+            const TR_WORD = { foot: 'пешком', bike: 'на велосипеде', electric: 'на электровелосипеде', car: 'на авто', moto: 'на мото' };
+            const CONTACT = { telegram: 'Telegram', whatsapp: 'WhatsApp', phone: 'Телефон', other: 'Другое' };
+            const patchD = st.refDeals || {}, patchO = st.refOffers || {}, respSt = st.refRespState || {}, myRv = st.refMyReviews || {};
+            const staticDealIds = REF_DEALS.map((d) => d.id);
+            const deals = refDemo.deals.map((d) => Object.assign({}, d, patchD[d.id])).concat(Object.keys(patchD).filter((id) => staticDealIds.indexOf(id) === -1).map((id) => patchD[id]));
+            const offers = refDemo.offers.map((o) => Object.assign({}, o, patchO[o.id])).concat(Object.keys(patchO).filter((id) => !REF_OFFERS.some((o) => o.id === id)).map((id) => patchO[id]));
+            const resps = refDemo.responses.concat(Array.isArray(st.refResponses) ? st.refResponses : []).map((r) => (respSt[r.id] ? Object.assign({}, r, { status: respSt[r.id] }) : r));
+            const offerOf = (id) => offers.find((o) => o.id === id) || REF_OFFERS.find((o) => o.id === id) || null;
+            const dealOfResp = (r) => deals.find((d) => d.responseId === r.id);
+            const myOffers = offers.filter((o) => o.mine && o.status !== 'removed');
+            const meRef = refEdge === 'empty' ? refTrust(null, 0, 0, 0) : refDemo.me.referrer;
+            const stepsOf = (d) => (d.programSnapshot && d.programSnapshot.steps) || [];
+            const cumOf = (steps) => steps.map((x, i) => steps.slice(0, i + 1).reduce((a, y) => a + y.orders, 0));
+            const goalMet = (d) => { const steps = stepsOf(d), p = d.progress; return !!p && steps.length > 0 && p.stepIndex >= steps.length - 1 && p.target > 0 && p.done >= p.target; };
+            const reviewsOf = (d) => [d.reviews && d.reviews.mine, d.reviews && d.reviews.theirs].filter(Boolean).map((id) => REF_REVIEWS.find((x) => x.id === id)).filter(Boolean);
+            const myReviewOf = (d) => {
+              if (myRv[d.id]) return myRv[d.id].deleted ? null : myRv[d.id];
+              const rv = reviewsOf(d).find((x) => x.authorNick === ME_NICK);
+              return rv ? { rating: rv.rating, text: rv.text, edited: rv.edited, iso: rv.dateIso } : null;
+            };
+            const theirReviewOf = (d) => reviewsOf(d).find((x) => x.authorNick !== ME_NICK) || null;
+            const toast = (text, undoFn) => uxShowToast(text, undoFn ? 'Отменить' : '', undoFn || null);
+            // изменение сделки: патч сохраняем в refDeals, отмена возвращает прежнее состояние
+            const dealApply = (id, patch, ev, text) => {
+              const prev = st.refDeals || {};
+              const cur = deals.find((d) => d.id === id);
+              const events = ev ? (cur.events || []).concat([{ iso: TODAY_ISO, text: ev }]) : cur.events;
+              set({ refDeals: Object.assign({}, prev, { [id]: Object.assign({}, prev[id], patch, { events }) }) });
+              if (text) toast(text, () => set({ refDeals: prev }));
+            };
+            const openDeal = (id) => set({ s: 'ref-deal', refDealId: id, refHist: false, refLinkDraft: '' });
+
+            // сведения о строке: сделка или отклик без сделки
+            const info = (it) => {
+              if (it.kind === 'deal') { const d = it.d; return { kind: 'deal', d, id: d.id, role: d.role, svc: d.programSnapshot.svc, nick: d.counterpart.nick, hue: d.counterpart.hue, status: d.status }; }
+              const r = it.r, o = offerOf(r.offerId);
+              const mine = !!r.mine;
+              return { kind: 'resp', r, id: r.id, role: mine ? 'newcomer' : 'referrer', svc: o ? o.svc : 'kuper', nick: mine ? (o ? o.nick : '') : r.fromNick, hue: mine ? (o ? o.hue : 200) : r.fromHue, status: r.status };
+            };
+            const statusOf = (inf) => {
+              const refr = inf.role === 'referrer', nick = inf.nick, d = inf.d, st0 = inf.status;
+              const met = d ? goalMet(d) : false, conf = d ? d.confirmedBy || [] : [];
+              if (inf.kind === 'resp') {
+                if (st0 === 'sent') return refr ? { label: 'Новый отклик', tone: 'action', next: 'Примите или отклоните', need: true, acts: true } : { label: 'Отклик отправлен', tone: '', next: 'Ждём ответа ' + nick };
+                const gone = { declined: ['Отклонён', 'Отклик отклонён'], withdrawn: ['Отозван', 'Вы отозвали отклик'], expired: ['Истёк', 'Ответа не было'] }[st0] || ['Закрыт', ''];
+                return { label: gone[0], tone: 'muted', next: gone[1], closed: true };
+              }
+              if (st0 === 'accepted') return refr ? { label: 'Принят', tone: 'action', next: 'Отправьте ссылку или код', need: true } : { label: 'Принят', tone: '', next: 'Ждём ссылку от ' + nick };
+              if (st0 === 'link_sent') return refr ? { label: 'Ссылка отправлена', tone: '', next: 'Ждём регистрацию ' + nick } : { label: 'Ссылка получена', tone: 'action', next: 'Зарегистрируйтесь по ссылке', need: true };
+              if (st0 === 'registered' || st0 === 'in_progress') {
+                if (met) return { label: 'Идёт', tone: 'action', next: 'Цель выполнена, подтвердите сделку', need: true };
+                const p = d.progress;
+                return { label: st0 === 'registered' ? 'Зарегистрирован' : 'Идёт', tone: '', next: p ? 'Ступень ' + (p.stepIndex + 1) + ' из ' + stepsOf(d).length + ': ' + p.done + ' из ' + p.target : 'Прогресс видит сервис' };
+              }
+              if (st0 === 'closed_one_side') return conf.indexOf('me') !== -1 ? { label: 'Вы подтвердили', tone: '', next: 'Ждём подтверждения от ' + nick } : { label: 'Ждёт вас', tone: 'action', next: nick + ' подтвердил, подтвердите и вы', need: true };
+              if (st0 === 'closed_ok') return myReviewOf(d) ? { label: 'Закрыта успешно', tone: 'ok', next: 'Отзывы оставлены', closed: true } : { label: 'Закрыта успешно', tone: 'ok', next: 'Оставьте отзыв', need: true };
+              if (st0 === 'dispute') return { label: 'Спор', tone: 'bad', next: 'Модерация смотрит историю сделки' };
+              if (st0 === 'closed_expired') return { label: 'Закрыта по сроку', tone: 'muted', next: 'Срок вышел без итога', closed: true };
+              return { label: 'Отменена', tone: 'muted', next: 'Сделка отменена', closed: true };
+            };
+            const snapOf = (r) => {
+              const sn = r.snapshot || {}, tr = r.fromTrust || {};
+              const sv = (sn.services || []).map(svcT);
+              const exp = tr.closed ? 'Закрытых сделок: ' + tr.closed : 'Первый раз в рефералках';
+              return 'Москва, ' + (TR_WORD[sn.transport] || 'пешком') + (sv.length ? '. Сервисы: ' + sv.join(', ') : ', сервисов не подключал') + '. ' + exp + ', в Разносе ' + (1 + (r.fromHue % 11)) + ' мес';
+            };
+            const rowOf = (it) => {
+              const inf = info(it), stt = statusOf(inf);
+              const refResp = it.kind === 'resp' && inf.role === 'referrer';
+              return {
+                id: inf.id, svc: inf.svc, svcTitle: svcT(inf.svc), nick: inf.nick, role: inf.role === 'referrer' ? 'Вы реферер' : 'Вы новичок',
+                status: stt.label, tone: stt.tone, next: stt.next, message: refResp ? it.r.message : '', snap: refResp ? snapOf(it.r) : '', acts: !!stt.acts, need: !!stt.need, closed: !!stt.closed
+              };
+            };
+            const itemsFor = (role) => {
+              const out = deals.filter((d) => d.role === role).map((d) => ({ kind: 'deal', d }));
+              resps.forEach((r) => { if (!dealOfResp(r) && (r.mine ? 'newcomer' : 'referrer') === role) out.push({ kind: 'resp', r }); });
+              return out.map(rowOf);
+            };
+            const joinRows = itemsFor('newcomer'), referRows = itemsFor('referrer');
+            const split = (rows) => ({ need: rows.filter((x) => x.need), going: rows.filter((x) => !x.need && !x.closed), closed: rows.filter((x) => x.closed && !x.need) });
+            const sj = split(joinRows), sr = split(referRows);
+            const joinCount = sj.need.length, referCount = sr.need.length;
+            const going = deals.filter((d) => ['accepted', 'link_sent', 'registered', 'in_progress', 'closed_one_side'].indexOf(d.status) !== -1).length;
+            const closedLimit = st.refClosedAll ? 99 : 3;
+
+            // окна новичка
+            const winText = (w) => {
+              if (w.state === 'soon') { const n = daysTo(w.availableIso); return n > 0 ? 'через ' + n + ' ' + ruPlural(n, 'день', 'дня', 'дней') + ', ' + dayLong(w.availableIso) : 'можно сейчас'; }
+              return { now: 'можно сейчас', working: 'вы работаете сейчас', unknown: 'Проверьте в приложении сервиса' }[w.state] || '';
+            };
+            const wins = refDemo.windows.map((w) => {
+              const pre = { what: 'ref_window', svcs: [w.svc], ahead: 3 };
+              return { key: w.svc, title: svcT(w.svc), value: winText(w), has_bell: w.state === 'soon', bell_on: alertIs(pre), bell_sub: svcT(w.svc) + ', за 3 дня и в день окна', bell_tap: () => alertOpen(pre) };
+            });
+
+            // мои сервисы реферера
+            const progFor = (k) => { const l = REF_PROGRAMS.filter((p) => p.svc === k && p.state === 'active' && p.rewardTotal && p.totalOrders); return l.find((p) => p.transports.indexOf(transport) !== -1) || l[0] || null; };
+            const healthBad = (k) => connHealthItems.some((i) => i.key === k && (i.state === 'relogin' || i.state === 'device'));
+            const availOf = (k) => {
+              if (connectedKeys.indexOf(k) === -1) return { ok: false, reason: 'Сервис не подключён', text: 'Чтобы предложить рефералку в ' + svcT(k) + ', подключите аккаунт: так мы проверим, что вы там работаете', action: 'Подключить ' + svcT(k), go: () => set({ s: 'integrations' }) };
+              if (refEdge === 'blocked') return { ok: false, reason: 'Аккаунт ограничен в сервисе', text: 'Аккаунт в ' + svcT(k) + ' ограничен, приглашать новичков пока нельзя. Когда ограничение снимут, форма откроется', action: 'Проверить подключение', go: () => set({ s: 'integrations' }) };
+              if (healthBad(k)) return { ok: false, reason: 'Подключение не работает', text: 'Без рабочего подключения к ' + svcT(k) + ' мы не подтвердим, что вы там работаете', action: 'Проверить подключение', go: () => set({ s: 'integrations' }) };
+              if (!progFor(k)) return { ok: false, reason: 'Нет условий в каталоге для Москвы', text: 'Условий приглашения в ' + svcT(k) + ' для Москвы в каталоге пока нет. Своих условий реферер не вводит', action: '', go: null };
+              return { ok: true, reason: '', text: '', action: '', go: null };
+            };
+            const mySvcRows = connectedKeys.slice().sort((a, b) => (availOf(b).ok ? 1 : 0) - (availOf(a).ok ? 1 : 0)).map((k) => {
+              const av = availOf(k), pr = progFor(k), off = myOffers.find((o) => o.svc === k);
+              const pre = { what: 'ref_program', svcs: [k] };
+              return {
+                key: k, title: svcT(k), sub: av.ok ? money(pr.rewardTotal) + ' за ' + pr.totalOrders + ' ' + ordersWord(pr.totalOrders) : av.reason,
+                act_publish: av.ok && !off, act_edit: av.ok && !!off, act_bell: !av.ok && av.reason.indexOf('Нет условий') === 0, bell_on: alertIs(pre), bell_label: alertIs(pre) ? 'Сообщаем' : 'Сообщить',
+                tap: () => set({ s: 'ref-publish', refSvc: k, refDraft: null }), bell_tap: () => alertOpen(pre)
+              };
+            });
+            const offerRows = myOffers.map((o) => ({
+              id: o.id, title: svcT(o.svc), offer: Object.assign({}, o, { status: o.status === 'active' && o.placesFree === 0 ? 'full' : o.status }),
+              edit: () => set({ s: 'ref-publish', refSvc: o.svc, refDraft: null }),
+              remove: () => { const prev = st.refOffers; set({ refOffers: Object.assign({}, prev, { [o.id]: Object.assign({}, o, { status: 'removed' }) }) }); toast('Предложение снято', () => set({ refOffers: prev })); }
+            }));
+
+            // рейтинг реферера
+            const meNew = meRef.isNew;
+            const meReviews = [{ id: 'rv8' }, { id: 'rm1', authorNick: 'Бобёр 12', authorHue: 300, rating: 5, text: 'Ссылку прислал сразу, помог разобраться с анкетой', dateIso: isoAt(-46) }, { id: 'rm2', authorNick: 'Кролик 71', authorHue: 20, rating: 4, text: 'Всё получилось, но отвечал не сразу', dateIso: isoAt(-72) }]
+              .map((x) => REF_REVIEWS.find((r) => r.id === x.id && r.aboutNick === ME_NICK) || x).slice(0, Math.max(0, meRef.ok));
+            const stars = (n) => [1, 2, 3, 4, 5].map((i) => ({ cls: 'raznos-star' + (i <= Math.round(n) ? ' raznos-is-on' : '') }));
+            const meSub = meNew ? 'Закрытых сделок ' + meRef.closed + ' из 3 для оценки' : meRef.closed + ' ' + ruPlural(meRef.closed, 'закрытая сделка', 'закрытые сделки', 'закрытых сделок') + ', ' + meRef.ok + ' успешно, ' + (meRef.disputes ? meRef.disputes + ' ' + ruPlural(meRef.disputes, 'спор', 'спора', 'споров') : 'споров нет');
+            const reviewCards = meReviews.map((r) => ({ nick: r.authorNick, hue: r.authorHue, rating: r.rating, text: r.text, who: 'По закрытой сделке', date: dayLong(r.dateIso) }));
+
+            // сделка
+            const curId = st.refDealId;
+            const curItem = (() => {
+              const d = deals.find((x) => x.id === curId);
+              if (d) return { kind: 'deal', d };
+              const r = resps.find((x) => x.id === curId);
+              if (!r) return null;
+              const dd = dealOfResp(r);
+              return dd ? { kind: 'deal', d: dd } : { kind: 'resp', r };
+            })();
+            const STAGE_LABELS = ['Отклик', 'Принят', 'Ссылка', 'Регистрация', 'Шаги программы', 'Итог'];
+            const dv = (() => {
+              if (!curItem) return null;
+              const inf = info(curItem), stt = statusOf(inf), d = curItem.d, r = curItem.r;
+              const refr = inf.role === 'referrer';
+              const offer = d ? offerOf(d.offerId) : offerOf(r.offerId);
+              const prog = d ? d.programSnapshot : (offer ? REF_PROGRAMS.find((p) => p.id === offer.programId) : null) || progFor(inf.svc) || REF_PROGRAMS[0];
+              const events = d ? d.events || [] : [{ iso: r.createdIso, text: 'Отклик отправлен' }];
+              const evDate = (re) => { const e = events.find((x) => re.test(x.text)); return e ? dayLong(e.iso) : ''; };
+              const stageNow = ({ sent: 1, accepted: 2, link_sent: 3, registered: 4, in_progress: 4, closed_one_side: 5, closed_ok: 6 })[inf.status];
+              const curIdx = stageNow != null ? stageNow : (d && d.stageAt != null ? d.stageAt : (d ? 4 : 1));
+              const bad = ['dispute', 'closed_expired', 'cancelled', 'declined', 'withdrawn', 'expired'].indexOf(inf.status) !== -1;
+              const p = d ? d.progress : null, steps = prog ? prog.steps : [], cum = cumOf(steps);
+              const notes = [evDate(/Отклик/), evDate(/принят/i), evDate(/Ссылк/), evDate(/зарегистр/i), p ? 'Ступень ' + (p.stepIndex + 1) + ' из ' + steps.length + ', ' + p.done + ' из ' + p.target + ' заказов' : '', inf.status === 'closed_ok' ? 'Закрыта успешно' : ''];
+              const stages = STAGE_LABELS.map((label, i) => ({ label, note: i === curIdx && !bad ? stt.next : notes[i], state: i < curIdx ? 'done' : (i === curIdx ? (bad ? 'bad' : 'current') : 'todo') }));
+              if (bad && stt.next) stages[Math.min(curIdx, 5)].note = stt.next;
+              // собеседник
+              const cp = d ? d.counterpart : (refr ? { nick: r.fromNick, hue: r.fromHue, trust: r.fromTrust, verified: false, contactKind: r.contactKind, contactValue: r.contactValue } : { nick: offer.nick, hue: offer.hue, trust: offer.trust, verified: offer.verified, contactKind: offer.contactKind, contactValue: offer.contactValue });
+              const cpTrust = cp.trust || {};
+              const cpLine = refr ? (cpTrust.closed ? 'Новичок, закрытых сделок: ' + cpTrust.closed : 'Новичок, первый раз в рефералках') + ', в Разносе ' + (1 + (cp.hue % 11)) + ' мес' : (cpTrust.isNew ? 'Новый реферер, закрытых сделок ' + cpTrust.closed : 'Рейтинг ' + rate1(cpTrust.rating) + ', ' + cpTrust.closed + ' ' + ruPlural(cpTrust.closed, 'сделка', 'сделки', 'сделок') + ', ' + cpTrust.ok + ' успешно');
+              const open = ['sent', 'declined', 'withdrawn', 'expired'].indexOf(inf.status) === -1;
+              const cval = cp.contactValue || '';
+              const href = cp.contactKind === 'telegram' ? 'https://t.me/' + cval.replace('@', '') : (cp.contactKind === 'whatsapp' ? 'https://wa.me/' + cval.replace(/\D/g, '') : (cp.contactKind === 'phone' ? 'tel:' + cval.replace(/[^+\d]/g, '') : ''));
+              const cLabel = { telegram: 'Написать в Telegram', whatsapp: 'Написать в WhatsApp', phone: 'Позвонить' }[cp.contactKind] || '';
+              const conf = d ? d.confirmedBy || [] : [];
+              const met = d ? goalMet(d) : false;
+              const live = d && ['registered', 'in_progress'].indexOf(inf.status) !== -1;
+              const canConfirm = !!d && (live || (inf.status === 'closed_one_side' && conf.indexOf('me') === -1));
+              const left = p && cum.length ? Math.max(0, cum[cum.length - 1] - p.done) : 0;
+              const hint = !canConfirm || met || (inf.status === 'closed_one_side' && conf.indexOf('them') !== -1) ? '' : (p ? 'Станет доступна, когда цель будет выполнена: осталось ' + left + ' ' + ordersWord(left) : 'Станет доступна, когда сервис покажет выполнение цели');
+              const myR = d ? myReviewOf(d) : null, thR = d ? theirReviewOf(d) : null;
+              const progressRows = d && steps.length ? steps.map((s, i) => ({ rank: i + 1, title: s.orders + ' ' + ordersWord(s.orders), meta: 'всего ' + cum[i], value: money(s.reward), fill: p ? Math.max(0, Math.min(100, Math.round((p.done - (i ? cum[i - 1] : 0)) * 100 / s.orders))) : 0 })) : [];
+              const ch = d && d.conditionsChanged;
+              const total = prog && prog.totalOrders ? prog.totalOrders : (cum.length ? cum[cum.length - 1] : 0);
+              return {
+                id: d ? d.id : r.id, d, r, inf, stt, svc: inf.svc, title: svcT(inf.svc), refr, stages, prog,
+                cp, cpLine, cpAvatar: hueStyle(cp.hue), cpLetter: cp.nick.slice(0, 1), cpVerified: !refr && cp.verified, cpLost: !refr && !cp.verified,
+                contactOpen: open, contactValue: cval, contactKindLabel: CONTACT[cp.contactKind] || '', contactHref: href, contactLabel: cLabel,
+                me: refr ? 'Вы реферер' : 'Вы новичок',
+                // что показывать по статусу и роли
+                b_wait: !!r && !d && !refr && inf.status === 'sent', b_decide: !!r && !d && refr && inf.status === 'sent',
+                b_accepted_new: !!d && !refr && inf.status === 'accepted', b_accepted_ref: !!d && refr && inf.status === 'accepted',
+                b_link_new: !!d && !refr && inf.status === 'link_sent', b_link_ref: !!d && refr && inf.status === 'link_sent',
+                b_link_show: !!d && !!d.link && ['registered', 'in_progress', 'closed_one_side', 'closed_ok', 'dispute'].indexOf(inf.status) !== -1,
+                b_progress: !!d && ['registered', 'in_progress', 'closed_one_side', 'closed_ok', 'dispute'].indexOf(inf.status) !== -1 && progressRows.length > 0,
+                b_changed: !!ch, canConfirm, confirmOn: canConfirm && (met || (inf.status === 'closed_one_side' && conf.indexOf('them') !== -1)), hint,
+                b_wait_other: !!d && inf.status === 'closed_one_side' && conf.indexOf('me') !== -1,
+                b_closed: !!d && inf.status === 'closed_ok', b_dispute: !!d && inf.status === 'dispute', b_end: !!d && (inf.status === 'cancelled' || inf.status === 'closed_expired'),
+                b_cancel: !!d && ['accepted', 'link_sent', 'registered', 'in_progress', 'closed_one_side'].indexOf(inf.status) !== -1,
+                b_noprog: !!d && ['registered', 'in_progress'].indexOf(inf.status) !== -1 && !p,
+                progressRows, snapTitle: 'Условия на ' + dayLong(d ? d.snapshotIso : r.createdIso), snapSub: prog && prog.rewardTotal ? money(prog.rewardTotal) + ' за ' + total + ' ' + ordersWord(total) + (prog.durationText ? ', ' + prog.durationText : '') : '',
+                changedText: ch ? 'Было ' + money(ch.was.rewardTotal) + ' за ' + ch.was.totalOrders + ' ' + ordersWord(ch.was.totalOrders) + ', сейчас ' + money(ch.now.rewardTotal) + ' за ' + ch.now.totalOrders + ' ' + ordersWord(ch.now.totalOrders) + '. В сделке остаётся снимок' : '',
+                msg: r ? r.message : '', snap: r && refr ? snapOf(r) : '',
+                myR, thR, link: d ? d.link : '', dispute: d ? d.dispute : null, events, left, met, canReviewEdit: !!myR && !myR.edited,
+                canDemoProgress: !!d && live && !met, canDemoOther: !!d && ['registered', 'in_progress', 'closed_one_side'].indexOf(inf.status) !== -1 && conf.indexOf('them') === -1,
+                canDemoDone: !!d && live && !met
+              };
+            })();
+
+            // шаги сделки
+            const acceptResp = (id) => {
+              const r = resps.find((x) => x.id === id);
+              if (!r) return;
+              const o = offerOf(r.offerId), prog = (o && REF_PROGRAMS.find((p) => p.id === o.programId)) || REF_PROGRAMS[0];
+              const nid = 'dn-' + r.id, prevD = st.refDeals, prevR = st.refRespState;
+              const nd = { id: nid, offerId: r.offerId, responseId: r.id, role: 'referrer', counterpart: { nick: r.fromNick, hue: r.fromHue, trust: r.fromTrust, verified: false, contactKind: r.contactKind, contactValue: r.contactValue }, programSnapshot: Object.assign({}, prog), snapshotIso: TODAY_ISO, status: 'accepted', link: '', progress: null, confirmedBy: [], dispute: null, reviews: { mine: null, theirs: null }, events: [{ iso: r.createdIso, text: 'Отклик получен' }, { iso: TODAY_ISO, text: 'Отклик принят, контакты открыты' }], conditionsChanged: null };
+              set({ refDeals: Object.assign({}, prevD, { [nid]: nd }), refRespState: Object.assign({}, prevR, { [r.id]: 'accepted' }) });
+              toast('Отклик принят, контакты открыты', () => set({ refDeals: prevD, refRespState: prevR }));
+            };
+            const declineResp = (id) => { const prev = st.refRespState; set({ refRespState: Object.assign({}, prev, { [id]: 'declined' }) }); toast('Отклик отклонён', () => set({ refRespState: prev })); };
+            const withdrawResp = (id) => { const prev = st.refRespState; set({ refRespState: Object.assign({}, prev, { [id]: 'withdrawn' }) }); toast('Отклик отозван', () => set({ refRespState: prev })); };
+            const copyText = (text, label) => { try { if (navigator.clipboard) navigator.clipboard.writeText(text); } catch (e) {} uxShowToast(label, '', null); };
+            const D = dv && dv.d ? dv.d : null;
+            const progAdvance = () => {
+              if (!D) return;
+              const steps = stepsOf(D), cum = cumOf(steps), p = D.progress || { stepIndex: 0, done: 0, target: cum[0] };
+              // чуть не дойти до конца ступени, а если уже близко, перейти на следующую
+              const near = cum[p.stepIndex] - 5;
+              const next = p.done < near ? { stepIndex: p.stepIndex, done: near, target: cum[p.stepIndex] } : (p.stepIndex < steps.length - 1 ? { stepIndex: p.stepIndex + 1, done: cum[p.stepIndex], target: cum[p.stepIndex + 1] } : { stepIndex: p.stepIndex, done: cum[p.stepIndex], target: cum[p.stepIndex] });
+              dealApply(D.id, { progress: next, status: 'in_progress' }, '', '');
+            };
+            const progDone = () => { if (!D) return; const steps = stepsOf(D), cum = cumOf(steps), last = steps.length - 1; dealApply(D.id, { progress: { stepIndex: last, done: cum[last], target: cum[last] }, status: 'in_progress' }, 'Цель выполнена по данным сервиса', ''); };
+            const confirmDeal = () => {
+              if (!D || !dv.canConfirm || !dv.confirmOn) return;
+              const conf = (D.confirmedBy || []).concat(['me']);
+              const both = conf.indexOf('them') !== -1;
+              dealApply(D.id, { confirmedBy: conf, status: both ? 'closed_ok' : 'closed_one_side' }, both ? 'Сделка закрыта успешно' : 'Вы подтвердили сделку', both ? 'Сделка закрыта успешно' : 'Вы подтвердили. Ждём подтверждения от ' + dv.cp.nick);
+            };
+            const otherConfirms = () => { if (!D) return; const conf = (D.confirmedBy || []).concat(['them']); const both = conf.indexOf('me') !== -1; dealApply(D.id, { confirmedBy: conf, status: both ? 'closed_ok' : 'closed_one_side' }, both ? 'Сделка закрыта успешно' : dv.cp.nick + ' подтвердил сделку', ''); };
+            const sendLink = () => { const v = (st.refLinkDraft || '').trim(); if (!D || !v) return; dealApply(D.id, { link: v, status: 'link_sent' }, 'Ссылка отправлена', 'Ссылка отправлена'); set({ refLinkDraft: '' }); };
+            const registered = () => { if (!D) return; const cum = cumOf(stepsOf(D)); dealApply(D.id, { status: 'registered', progress: D.progress || { stepIndex: 0, done: 0, target: cum[0] } }, 'Новичок зарегистрирован по ссылке', 'Отмечено: вы зарегистрировались по ссылке'); };
+            const stageNowIdx = () => ({ accepted: 2, link_sent: 3, registered: 4, in_progress: 4, closed_one_side: 5 })[D.status];
+            const cancelDeal = () => {
+              if (!D) return;
+              const run = () => { dealApply(D.id, { status: 'cancelled', stageAt: stageNowIdx() }, 'Сделка отменена', 'Сделка отменена'); };
+              if (['registered', 'in_progress', 'closed_one_side'].indexOf(D.status) !== -1) uxAsk('Отменить сделку?', 'Вы уже зарегистрировались по ссылке, сделку после этого не вернуть. Бонус за приглашение в этом случае сервис не выплатит.', 'Отменить сделку', 'Оставить', run);
+              else run();
+            };
+            const sheet = st.refSheet || null;
+            const rvRating = st.refRvRating || 0, rvText = st.refRvText != null ? st.refRvText : '';
+            const dsReason = st.refDsReason || null, dsText = st.refDsText || '';
+            const closeSheet = () => set({ refSheet: null });
+            const openReview = () => { const m = D ? myReviewOf(D) : null; set({ refSheet: 'review', refRvRating: m ? m.rating : 0, refRvText: m ? m.text : '' }); };
+            const submitReview = () => {
+              if (!D || !rvRating) return;
+              const had = myReviewOf(D);
+              const prev = st.refMyReviews;
+              set({ refSheet: null, refMyReviews: Object.assign({}, prev, { [D.id]: { rating: rvRating, text: rvText.trim(), edited: !!had, iso: TODAY_ISO } }) });
+              toast(had ? 'Отзыв изменён' : 'Отзыв отправлен', () => set({ refMyReviews: prev }));
+            };
+            const deleteReview = () => {
+              if (!D) return;
+              uxAsk('Удалить отзыв?', 'Отзыв пропадёт, оставить новый по этой сделке уже не получится.', 'Удалить', 'Оставить', () => { const prev = st.refMyReviews; set({ refMyReviews: Object.assign({}, prev, { [D.id]: { deleted: true } }) }); });
+            };
+            const submitDispute = () => {
+              if (!D) return;
+              if (sheet === 'reply') { const prev = st.refDeals; dealApply(D.id, { dispute: Object.assign({}, D.dispute, { reply: dsText.trim() }) }, 'Ответ в споре отправлен', 'Ответ отправлен'); set({ refSheet: null, refDsText: '' }); return; }
+              if (!dsReason) return;
+              dealApply(D.id, { status: 'dispute', stageAt: stageNowIdx(), dispute: { reason: dsReason, text: dsText.trim() } }, 'Открыт спор: ' + dsReason, 'Спор открыт');
+              set({ refSheet: null, refDsReason: null, refDsText: '' });
+            };
+
+            // предложить рефералку
+            const pubSvc = refStr(st.refSvc, 'x5');
+            const pubAvail = availOf(pubSvc);
+            const pubExisting = myOffers.find((o) => o.svc === pubSvc) || null;
+            const pubProg = progFor(pubSvc);
+            const pickable = connectedKeys.filter((k) => availOf(k).ok);
+            const draftBase = pubExisting ? { text: pubExisting.text, places: pubExisting.placesTotal, days: [7, 14, 30].reduce((a, b) => (Math.abs(b - daysTo(pubExisting.untilIso)) < Math.abs(a - daysTo(pubExisting.untilIso)) ? b : a), 14), contactKind: pubExisting.contactKind, contactValue: pubExisting.contactValue } : { text: '', places: 3, days: 14, contactKind: 'telegram', contactValue: '' };
+            const dr = Object.assign({}, draftBase, st.refDraft && st.refDraft.svc === pubSvc ? st.refDraft : {});
+            const upd = (patch) => set({ refDraft: Object.assign({ svc: pubSvc }, dr, patch) });
+            const textOk = dr.text.trim().length >= 40, contactOk = dr.contactValue.trim().length >= 3;
+            const maskedText = dr.text.replace(/https?:\/\/\S+|t\.me\/\S+|@\w+|\+?\d[\d\s()-]{8,}/g, '***');
+            const publish = () => {
+              if (!pubAvail.ok || !textOk || !contactOk) return;
+              const id = pubExisting ? pubExisting.id : 'on-' + pubSvc, prev = st.refOffers;
+              const o = Object.assign({}, pubExisting || { id, programId: pubProg.id, svc: pubSvc, nick: ME_NICK, hue: 150, tenureLabel: '1–2 года', transports: [transport], verified: true, verifiedNote: '', trust: meRef, createdIso: TODAY_ISO, mine: true }, { text: dr.text.trim(), placesTotal: dr.places, placesFree: pubExisting ? Math.min(pubExisting.placesFree, dr.places) : dr.places, contactKind: dr.contactKind, contactValue: dr.contactValue.trim(), untilIso: isoAt(dr.days), status: 'active' });
+              set({ refOffers: Object.assign({}, prev, { [id]: o }), s: 'ref-mine', refMineTab: 'refer', refDraft: null });
+              toast(pubExisting ? 'Изменения сохранены' : 'Предложение опубликовано', () => set({ refOffers: Object.assign({}, prev, { [id]: Object.assign({}, o, { status: 'removed' }) }) }));
+            };
+
+            // лесенка своих целей и новички в шторке Бонусы и задания
+            const ladderItems = deals.filter((d) => d.role === 'newcomer' && ['registered', 'in_progress'].indexOf(d.status) !== -1 && d.progress && stepsOf(d).length).map((d) => {
+              const steps = stepsOf(d), cum = cumOf(steps), pr = d.progress;
+              const idx = cum.findIndex((c) => pr.done < c), fin = idx === -1, cur = fin ? steps.length - 1 : idx;
+              const left = fin ? 0 : cum[cur] - pr.done, until = d.programSnapshot.windowUntilIso, days = until ? daysTo(until) : 0;
+              const totalLeft = cum[cum.length - 1] - pr.done;
+              const perDay = days > 0 && totalLeft > 0 ? Math.ceil(totalLeft / days) : 0;
+              return {
+                id: 'q-ref-' + d.id, key: d.programSnapshot.svc, title: svcT(d.programSnapshot.svc), name: 'Бонус за приглашение', kind: 'ladder', steps, done: pr.done,
+                untilLabel: until ? 'до ' + dayLong(until) : '', hot: !fin && left <= Math.max(6, Math.ceil(steps[cur].orders * 0.3)),
+                rule: (perDay ? 'Нужно ' + perDay + ' ' + ordersWord(perDay) + ' в день, расчёт Разноса. ' : '') + 'Награду платит сервис по своим правилам'
+              };
+            });
+            const crewItems = deals.filter((d) => d.role === 'referrer' && ['registered', 'in_progress'].indexOf(d.status) !== -1 && d.progress && stepsOf(d).length && (resps.find((r) => r.id === d.responseId) || {}).progressConsent).map((d) => {
+              const cum = cumOf(stepsOf(d)), pr = d.progress, idx = cum.findIndex((c) => pr.done < c), left = idx === -1 ? 0 : cum[idx] - pr.done;
+              return { id: d.id, key: d.programSnapshot.svc, title: svcT(d.programSnapshot.svc), nick: d.counterpart.nick, text: left ? 'осталось ' + left + ' ' + ordersWord(left) + ' до ступени' : 'все ступени пройдены', onTap: (id) => set({ questsSheet: false, s: 'ref-deal', refDealId: id, refHist: false, refLinkDraft: '' }) };
+            });
+
+            return {
+              // Профиль
+              ref_profile_label: joinCount + referCount || going ? [joinCount + referCount ? (joinCount + referCount) + ' ' + ruPlural(joinCount + referCount, 'нужно действие', 'нужны действия', 'нужно действий') : '', going ? going + ' ' + ruPlural(going, 'сделка идёт', 'сделки идут', 'сделок идут') : ''].filter(Boolean).join(' · ') : 'Отклики, сделки и отзывы',
+              go_ref_publish: (svc) => set({ s: 'ref-publish', refSvc: refStr(svc, 'x5'), refDraft: null }),
+              // 24d
+              rm_is_join: (st.refMineTab || 'join') === 'join', rm_is_refer: st.refMineTab === 'refer',
+              rm_join_cls: 'raznos-segment' + ((st.refMineTab || 'join') === 'join' ? ' raznos-is-active' : ''), rm_refer_cls: 'raznos-segment' + (st.refMineTab === 'refer' ? ' raznos-is-active' : ''),
+              rm_join_on: (st.refMineTab || 'join') === 'join', rm_refer_on: st.refMineTab === 'refer',
+              rm_join_label: 'Устраиваюсь' + (joinCount ? ' · ' + joinCount : ''), rm_refer_label: 'Устраиваю' + (referCount ? ' · ' + referCount : ''),
+              rm_set_join: () => set({ refMineTab: 'join' }), rm_set_refer: () => set({ refMineTab: 'refer' }),
+              rm_wins: wins, rm_win_show: wins.length > 0,
+              rm_join_need: sj.need, rm_join_need_show: sj.need.length > 0, rm_join_going: sj.going, rm_join_going_show: sj.going.length > 0,
+              rm_join_closed: sj.closed.slice(0, closedLimit), rm_join_closed_show: sj.closed.length > 0, rm_join_closed_more: sj.closed.length > closedLimit, rm_closed_all: () => set({ refClosedAll: true }),
+              rm_join_empty: joinRows.length === 0, rm_find: () => set({ s: 'ref-catalog' }),
+              rm_open: openDeal, rm_accept: acceptResp, rm_decline: declineResp,
+              rm_has_rating: !meNew, rm_is_new: meNew, rm_rating: meNew ? '' : rate1(meRef.rating), rm_stars: stars(meRef.rating || 0), rm_rating_sub: meSub,
+              rm_reviews_label: 'Отзывы обо мне · ' + meReviews.length, rm_go_reviews: () => set({ s: 'ref-reviews' }),
+              rm_svc_locked: connectedKeys.length === 0, rm_svcs_show: connectedKeys.length > 0, rm_svcs: mySvcRows,
+              rm_go_integrations: () => set({ s: 'integrations' }),
+              rm_offers: offerRows, rm_offers_show: offerRows.length > 0,
+              rm_refer_need: sr.need, rm_refer_need_show: sr.need.length > 0, rm_refer_going: sr.going, rm_refer_going_show: sr.going.length > 0,
+              rm_refer_closed: sr.closed.slice(0, closedLimit), rm_refer_closed_show: sr.closed.length > 0, rm_refer_closed_more: sr.closed.length > closedLimit,
+              rm_refer_empty_note: referRows.length === 0 && offerRows.length > 0,
+              // 24e
+              rp_locked: !pubAvail.ok, rp_ok: pubAvail.ok, rp_lock_text: pubAvail.text, rp_lock_action: pubAvail.action, rp_lock_tap: pubAvail.go || (() => {}), rp_lock_title: pubAvail.reason,
+              rp_edit: !!pubExisting, rp_pick: !pubExisting && pickable.length > 1,
+              rp_svc: pubSvc, rp_svc_title: svcT(pubSvc), rp_items: pickable.map((k) => ({ key: k, title: svcT(k) })),
+              rp_pick_change: (k) => set({ refSvc: k, refDraft: null }),
+              rp_prog: pubProg, rp_open_prog: () => { if (pubProg) set({ s: 'ref-program', refProgramId: pubProg.id }); }, rp_svc_prep: svcPrep(pubSvc),
+              rp_text: dr.text, rp_text_change: (e) => upd({ text: (e && e.target ? e.target.value : dr.text).slice(0, 500) }),
+              rp_count: dr.text.length + '/500', rp_text_hint: textOk || dr.text.length === 0 ? 'Текст проверит модерация, контакты и ссылки в описании скрываются' : 'Нужно хотя бы 40 знаков, сейчас ' + dr.text.trim().length,
+              rp_places_opts: [1, 2, 3].map((n) => ({ key: n, label: n + ' ' + ruPlural(n, 'место', 'места', 'мест') })), rp_places: dr.places, rp_places_change: (v) => upd({ places: v }),
+              rp_days_opts: [7, 14, 30].map((n) => ({ key: n, label: n + ' дней' })), rp_days: dr.days, rp_days_change: (v) => upd({ days: v }),
+              rp_contact_opts: Object.keys(CONTACT).map((k) => ({ key: k, label: CONTACT[k] })), rp_contact: dr.contactKind, rp_contact_change: (v) => upd({ contactKind: v }),
+              rp_contact_value: dr.contactValue, rp_contact_change_value: (e) => upd({ contactValue: e && e.target ? e.target.value : dr.contactValue }),
+              rp_contact_ph: { telegram: '@ник', whatsapp: 'Номер в WhatsApp', phone: 'Номер телефона', other: 'Как с вами связаться' }[dr.contactKind],
+              rp_prev_offer: { id: 'preview', svc: pubSvc, nick: ME_NICK, hue: 150, tenureLabel: '1–2 года', transports: [transport], verified: true, trust: meRef, placesTotal: dr.places, placesFree: dr.places, contactKind: dr.contactKind, text: maskedText || 'Здесь появится ваш текст', status: 'active', mine: false },
+              rp_can: textOk && contactOk, rp_btn_disabled: !(textOk && contactOk), rp_btn_label: pubExisting ? 'Сохранить' : 'Опубликовать', rp_publish: publish,
+              rp_btn_cls: textOk && contactOk ? 'raznos-btn raznos-btn-primary' : 'raznos-btn-disabled',
+              // 24f
+              rd_missing: !dv, rd_has: !!dv,
+              rd_title: dv ? 'Сделка · ' + dv.title : 'Сделка',
+              rd_me: dv ? dv.me : '', rd_cp_nick: dv ? dv.cp.nick : '', rd_cp_line: dv ? dv.cpLine : '', rd_cp_avatar: dv ? dv.cpAvatar : '', rd_cp_letter: dv ? dv.cpLetter : '',
+              rd_cp_verified: !!dv && dv.cpVerified, rd_cp_lost: !!dv && dv.cpLost,
+              rd_contact_open: !!dv && dv.contactOpen, rd_contact_closed: !!dv && !dv.contactOpen,
+              rd_contact_aria: dv ? dv.contactLabel + ', ' + dv.cp.nick : '', rd_wait_other_text: dv ? 'Ждём подтверждения от ' + dv.cp.nick + '. Если ответа не будет, через 7 дней сделка закроется сама' : '',
+              rd_contact_text: dv ? dv.contactKindLabel + ': ' + dv.contactValue : '', rd_contact_href: dv ? dv.contactHref : '', rd_contact_label: dv ? dv.contactLabel : '', rd_contact_link: !!dv && !!dv.contactHref,
+              rd_stage_item: { stages: dv ? dv.stages : [] },
+              rd_msg: dv ? dv.msg : '', rd_msg_show: !!dv && !!dv.msg, rd_snap: dv ? dv.snap : '',
+              rd_b_wait: !!dv && dv.b_wait, rd_b_decide: !!dv && dv.b_decide, rd_b_accepted_new: !!dv && dv.b_accepted_new, rd_b_accepted_ref: !!dv && dv.b_accepted_ref,
+              rd_b_link_new: !!dv && dv.b_link_new, rd_b_link_ref: !!dv && dv.b_link_ref, rd_b_link_show: !!dv && dv.b_link_show, rd_b_progress: !!dv && dv.b_progress, rd_b_changed: !!dv && dv.b_changed,
+              rd_b_confirm: !!dv && dv.canConfirm, rd_b_wait_other: !!dv && dv.b_wait_other, rd_b_closed: !!dv && dv.b_closed, rd_b_dispute: !!dv && dv.b_dispute, rd_b_end: !!dv && dv.b_end, rd_b_cancel: !!dv && dv.b_cancel, rd_b_noprog: !!dv && dv.b_noprog,
+              rd_end_text: dv && dv.d ? (dv.d.status === 'cancelled' ? 'Сделка отменена. До регистрации по ссылке это ничего не меняет' : 'Срок сделки вышел без итога. Если награда должна прийти, уточните в сервисе') : '',
+              rd_link: dv ? dv.link : '', rd_link_copy: () => copyText(dv.link, 'Ссылка скопирована'),
+              rd_link_draft: st.refLinkDraft || '', rd_link_draft_change: (e) => set({ refLinkDraft: e && e.target ? e.target.value : '' }), rd_link_send: sendLink, rd_link_disabled: !(st.refLinkDraft || '').trim(), rd_link_cls: (st.refLinkDraft || '').trim() ? 'raznos-btn raznos-btn-primary' : 'raznos-btn-disabled',
+              rd_accept: () => dv && acceptResp(dv.r.id), rd_decline: () => dv && declineResp(dv.r.id), rd_withdraw: () => dv && withdrawResp(dv.r.id),
+              rd_registered: registered,
+              rd_snap_title: dv ? dv.snapTitle : '', rd_snap_sub: dv ? dv.snapSub : '', rd_rows: dv ? dv.progressRows : [],
+              rd_changed_text: dv ? dv.changedText : '',
+              rd_confirm: confirmDeal, rd_confirm_disabled: !!dv && !dv.confirmOn, rd_confirm_cls: dv && dv.confirmOn ? 'raznos-btn raznos-btn-primary' : 'raznos-btn-disabled', rd_confirm_hint: dv ? dv.hint : '', rd_confirm_hint_show: !!dv && !!dv.hint,
+              rd_dispute_open: () => set({ refSheet: 'dispute', refDsReason: null, refDsText: '' }), rd_dispute_reply: () => set({ refSheet: 'reply', refDsText: '' }),
+              rd_dispute_reason: dv && dv.dispute ? dv.dispute.reason : '', rd_dispute_text: dv && dv.dispute ? dv.dispute.text : '', rd_dispute_reply_text: dv && dv.dispute ? dv.dispute.reply || '' : '', rd_dispute_reply_show: !!dv && !!dv.dispute && !!dv.dispute.reply, rd_dispute_can_reply: !!dv && !!dv.dispute && !dv.dispute.reply,
+              rd_review_mine: !!dv && !!dv.myR, rd_review_none: !!dv && !dv.myR, rd_review_their: !!dv && !!dv.thR, rd_review_their_wait: !!dv && !dv.thR,
+              rd_my_item: dv && dv.myR ? { nick: ME_NICK, hue: 150, rating: dv.myR.rating, text: dv.myR.text, who: 'Ваш отзыв', date: dayLong(dv.myR.iso), canEdit: dv.canReviewEdit, canDelete: true } : {},
+              rd_th_item: dv && dv.thR ? { nick: dv.thR.authorNick, hue: dv.thR.authorHue, rating: dv.thR.rating, text: dv.thR.text, who: 'Отзыв о вас', date: dayLong(dv.thR.dateIso) } : {},
+              rd_review_open: openReview, rd_review_delete: deleteReview,
+              rd_hist_open: !!st.refHist, rd_hist_toggle: () => set({ refHist: !st.refHist }), rd_hist_label: st.refHist ? 'Свернуть историю' : 'История сделки · ' + (dv ? dv.events.length : 0),
+              rd_events: dv ? dv.events.map((e) => ({ date: dayLong(e.iso), text: e.text })) : [],
+              rd_cancel: cancelDeal,
+              rd_demo_show: edge.refTools === 'on' && !!dv && (dv.canDemoProgress || dv.canDemoOther), rd_demo_progress: dv ? dv.canDemoProgress : false, rd_demo_other: dv ? dv.canDemoOther : false,
+              rd_demo_step: progAdvance, rd_demo_done: progDone, rd_demo_confirm: otherConfirms,
+              rd_review_caption: dv && dv.refr ? 'Отзыв увидит новичок, публичного рейтинга новичка нет' : 'Отзыв увидят в карточке реферера',
+              // 24g
+              rr_has: meReviews.length > 0, rr_empty: meReviews.length === 0, rr_cards: reviewCards,
+              rr_rating: meNew ? 'Новый реферер' : rate1(meRef.rating), rr_stars: stars(meRef.rating || 0), rr_has_rating: !meNew, rr_sub: meSub,
+              // шторки отзыв и спор
+              rs_review: s === 'ref-deal' && sheet === 'review', rs_dispute: s === 'ref-deal' && (sheet === 'dispute' || sheet === 'reply'), rs_reply: sheet === 'reply', rs_reply_not: sheet !== 'reply', rs_close: closeSheet,
+              rs_stars: [1, 2, 3, 4, 5].map((n) => ({ n, on: n <= rvRating, cls: 'raznos-star' + (n <= rvRating ? ' raznos-is-on' : ''), aria: 'Оценка ' + n, tap: () => set({ refRvRating: n }) })),
+              rs_rv_label: rvRating ? 'Оценка: ' + rvRating : 'Выберите оценку', rs_rv_text: rvText, rs_rv_text_change: (e) => set({ refRvText: e && e.target ? e.target.value.slice(0, 500) : rvText }),
+              rs_rv_disabled: !rvRating, rs_rv_cls: rvRating ? 'raznos-btn raznos-btn-primary' : 'raznos-btn-disabled', rs_rv_submit: submitReview, rs_rv_title: dv && dv.myR ? 'Изменить отзыв' : 'Отзыв по сделке', rs_rv_btn: dv && dv.myR ? 'Сохранить отзыв' : 'Отправить отзыв',
+              rs_ds_opts: ['Не выходит на связь', 'Ссылка не сработала', 'Сервис не засчитал', 'Не выполнили договорённость', 'Другое'], rs_ds_reason: dsReason, rs_ds_reason_change: (v) => set({ refDsReason: v }),
+              rs_ds_text: dsText, rs_ds_text_change: (e) => set({ refDsText: e && e.target ? e.target.value.slice(0, 500) : dsText }),
+              rs_ds_disabled: sheet === 'reply' ? !dsText.trim() : !dsReason, rs_ds_cls: (sheet === 'reply' ? dsText.trim() : dsReason) ? 'raznos-btn raznos-btn-primary' : 'raznos-btn-disabled', rs_ds_submit: submitDispute,
+              rs_ds_title: sheet === 'reply' ? 'Ответ в споре' : 'Что-то пошло не так', rs_ds_btn: sheet === 'reply' ? 'Отправить ответ' : 'Открыть спор',
+              // Сегодня
+              ref_ladder_items: ladderItems, ref_crew_items: crewItems
+            };
+          })());
 
           Object.assign(vals, {
             language: st.language || 'ru', change_language: language => set({ language }),
@@ -7597,7 +8818,7 @@
             guide_register: (k) => set({ s: 'service-open-demo', openDemoSection: 'register', openDemoLabel: SERVICES[k] ? SERVICES[k].title : k, openDemoFrom: 'job-guide', openDemoShift: '', openDemoSlot: '' }),
             guide_connect: (k) => set({ s: 'integration-connect', connFrom: 'job-guide', connKey: k, connAgree: false, connAgreeNudge: false, connWhyOpen: false, connStage: 'form', connCodeInput: '123456', connCodeError: false, connMethodChoice: 'code', connLogin: null, connPassword: 'demo1234' }),
             guide_via: guideVia, guide_open_via: (key) => set({ viaSheet: key }),
-            via_open: !!(st.viaSheet && viaFor(st.viaSheet)), via_data: st.viaSheet ? viaFor(st.viaSheet) : null, via_close: () => set({ viaSheet: '' }),
+            via_open: !!(st.viaSheet && viaFor(st.viaSheet)), via_data: st.viaSheet ? refVia(st.viaSheet) : null, via_close: () => set({ viaSheet: '' }),
             go_job_guide: () => set({ s: 'job-guide', guideSection: 'newbies' }),
             go_faq: () => set({ s: 'faq' }),
             faq_back: navBack(() => set({ s: 'profile' })),
@@ -8122,15 +9343,17 @@
           // бонусы сервисов: карточка на Сегодня только для почти набранного или набранного сегодня, метка в окне Плана
           ...(() => {
             const progress = { far: 0, done: 6 }[edge.bonus];
-            const items = demoOn && role === 'courier' ? SERVICE_QUESTS.filter((q) => connectedKeys.indexOf(q.key) !== -1).map((q) => (q.kind === 'count' && progress != null ? Object.assign({}, q, { done: progress }) : q)) : [];
+            // лесенка рефералки из своих сделок идёт в тот же список, группа Ваши новички только в шторке
+            const items = demoOn && role === 'courier' ? SERVICE_QUESTS.filter((q) => connectedKeys.indexOf(q.key) !== -1).map((q) => (q.kind === 'count' && progress != null ? Object.assign({}, q, { done: progress }) : q)).concat(vals.ref_ladder_items || []) : [];
             const nowMin = DEMO_NOW_MIN;
-            const hot = items.find((q) => q.kind === 'count' && q.untilMin > nowMin && (q.done >= q.target || q.target - q.done <= Math.max(6, Math.ceil(q.target * 0.3))));
+            const hotLadder = items.find((q) => q.kind === 'ladder' && q.hot);
+            const hot = items.find((q) => q.kind === 'count' && q.untilMin > nowMin && (q.done >= q.target || q.target - q.done <= Math.max(6, Math.ceil(q.target * 0.3)))) || hotLadder;
             return {
-              quests_items: items, quests_hot_id: hot ? hot.id : '', quests_hot_show: !!hot && s === 'courier-home',
+              quests_items: items, quests_hot_id: hot ? hot.id : '', quests_hot_ladder_id: hotLadder ? hotLadder.id : '', quests_hot_show: !!hot && s === 'courier-home',
               quests_sheet: !!st.questsSheet && items.length > 0,
               quests_open: () => set({ questsSheet: true }), quests_close: () => set({ questsSheet: false }),
               // Сообщать о новых бонусах сервисов из списка, шторку бонусов закрываем, чтобы редактор не ушёл под неё
-              ...(() => { const pre = { what: 'bonus', svcs: Array.from(new Set(items.map((q) => q.key))) }; return { quests_alert_on: alertIs(pre), quests_alert_sub: pre.svcs.map((k) => (SERVICES[k] ? SERVICES[k].title : k)).join(', '), quests_alert_tap: () => { set({ questsSheet: false }); alertOpen(pre); } }; })(),
+              ...(() => { const pre = { what: 'bonus', svcs: Array.from(new Set(items.filter((q) => q.kind !== 'ladder').map((q) => q.key))) }; return { quests_alert_on: alertIs(pre), quests_alert_sub: pre.svcs.map((k) => (SERVICES[k] ? SERVICES[k].title : k)).join(', '), quests_alert_tap: () => { set({ questsSheet: false }); alertOpen(pre); } }; })(),
               // в окна Плана сегодняшнего дня того же сервиса до срока
               // часы не оплатили за выбранный период Результатов: ссылка в итоге периода и дня, подробно в Удержано
               ...(() => {
@@ -9007,6 +10230,8 @@
                 row('Отзывы о сервисе', 'reviews', { s: 'service', svKey: 'vkusvill', svFrom: 'market', svReviewTab: 'courier' }, [['', 'Много'], ['few', 'Мало'], ['none', 'Нет']]),
                 row('Вопросы о сервисе', 'questions', { s: 'questions', svKey: 'vkusvill', qFocusId: '' }, [['', 'Есть'], ['none', 'Нет']]),
                 row('Что происходит', 'live', { s: 'live-feed' }, [['', 'Есть'], ['empty', 'Пусто']]),
+                row('Рефералки', 'referrals', { s: 'ref-catalog' }, [['', 'Полный'], ['empty', 'Пусто'], ['new', 'Новый реферер'], ['blocked', 'Недоступно'], ['changed', 'Условия изменились']]),
+                row('Рефералки, кнопки макета в сделке', 'refTools', { s: 'ref-mine' }, [['', 'Скрыты'], ['on', 'Показаны']]),
                 row('Расходы', 'expenses', { s: 'expenses' }, [['', 'Есть'], ['none', 'Нет']], { expManual: null, expRecurring: null }),
                 walletRow,
                 row('Уведомления', 'inbox', { s: 'inbox', inboxArchive: false }, [['', 'Есть'], ['none', 'Нет']]),
@@ -9091,6 +10316,8 @@
               const n = inboxItems.find((x) => x.id === id);
               if (!n) return;
               const read = Object.assign({}, inboxRead, { [id]: true });
+              if (n.to === 'ref-deal') return set({ inboxRead: read, s: 'ref-deal', refDealId: n.refId, refHist: false, refLinkDraft: '' });
+              if (n.to === 'ref-offers') return set({ inboxRead: read, s: 'ref-offers', refSvc: n.refSvc });
               if (n.to === 'work-hub') return set({ inboxRead: read, s: 'work-hub', smartFocusAdded: false, smartFocusIso: isoAt(planChangeK), smartFocusKey: 'p:' + isoAt(planChangeK) + ':' + Math.round(planChangeStart), smartOpenKey: '' });
               if (n.to === 'slots') return set({ inboxRead: read, s: 'slots', slotsTab: '', slotsDay: '', slotsSvc: '', slotsWeek: null, slotsFrom: 'profile', inboxRet: 'slots' });
               if (n.to === 'stats-taxes') return set({ inboxRead: read, s: 'stats', statsDetail: 'taxes', statsDetailBack: '', inboxRet: 'stats' });
@@ -9115,7 +10342,7 @@
               const rule = edit ? alertRules.find((r) => r.id === edit) || null : (edit === '' ? st.alertDraft || null : null);
               const ruleAreas = ((rule && rule.where) || []).filter((w) => w !== 'city' && STATS_DISTRICTS.slice(0, 5).indexOf(w) === -1);
               return {
-                ar_rules: alertRules, ar_svcs: svcs, ar_areas: STATS_DISTRICTS.slice(0, 5).concat(ruleAreas),
+                ar_rules: alertRules, ar_svcs: svcs, ar_ref_svcs: REF_PROGRAMS.map((p) => p.svc).filter((k, i, a) => a.indexOf(k) === i).map((k) => ({ key: k, label: SERVICES[k].title })), ar_areas: STATS_DISTRICTS.slice(0, 5).concat(ruleAreas),
                 ar_sheet: edit != null && role === 'courier', ar_rule: rule,
                 ar_sheet_title: edit ? 'Оповещение' : 'Новое оповещение',
                 ar_open: (id) => set({ alertEdit: id, alertDraft: null }), ar_add: () => set({ alertEdit: '', alertDraft: null }), ar_close: () => set({ alertEdit: null, alertDraft: null }),
@@ -9858,7 +11085,10 @@
             }
             // 6 и 9: бонус почти набран или набран сегодня
             const q = home && phase !== 'off' ? (vals.quests_items || []).find((x) => x.id === vals.quests_hot_id) : null;
-            if (q) {
+            if (q && q.kind === 'ladder') {
+              // лесенка рефералки: карточку рисует сам RaznosBonusQuests, срок в днях, темп по часам не считаем
+              list.push({ p: 6, id: 'bonus', kind: 'bonus', tone: '', svc: q.key, word: 'бонус', hide: true, title: 'Лесенка рефералки', titleB: '', sub: q.title, pct: 0, quests: { items: vals.quests_items, hotId: q.id, nowMin } });
+            } else if (q) {
               const left = Math.max(0, q.target - (q.done || 0));
               const timeLeft = q.untilMin - Math.max(nowMin, q.fromMin || 0);
               const need = left > 0 && timeLeft > 0 ? left / (timeLeft / 60) : null;
@@ -9869,6 +11099,9 @@
               if (!left) list.push({ p: 9, id: 'bonus', kind: 'bonus-done', tone: 'green', svc: q.key, word: 'бонус', hide: true, title: 'Цель набрана, ', titleB: '+' + fm(q.reward), sub: q.title + ' начислит после проверки', pct: 100, quests });
               else list.push({ p: 6, id: 'bonus', kind: 'bonus', tone: '', svc: q.key, word: 'бонус', hide: true, tight, title: 'Ещё ' + left + ' ' + ordWord + ' до ', titleB: '+' + fm(q.reward), sub: tight ? 'Нужно ' + String(Math.round(need * 10) / 10).replace('.', ',') + ' заказа в час, можно не успеть' : q.title + ', ' + (q.untilLabel || '') + ', ' + (q.done || 0) + ' из ' + q.target, pct, quests });
             }
+            // лесенка рефералки не прячется за горячим бонусом сервиса: отдельный пункт и свой крестик, не больше двух бонусов в слоте
+            const qLadder = home && phase !== 'off' && (!q || q.kind !== 'ladder') ? (vals.quests_items || []).find((x) => x.id === vals.quests_hot_ladder_id) : null;
+            if (qLadder) list.push({ p: 6, id: 'bonus-ref', kind: 'bonus', tone: '', svc: qLadder.key, word: 'бонус', hide: true, title: 'Лесенка рефералки', titleB: '', sub: qLadder.title, pct: 0, quests: { items: vals.quests_items, hotId: qLadder.id, nowMin } });
             // 7: задержка выплаты от 2 дней, в первый день хватает точки в денежной карточке
             const late = home ? (vals.payouts_items || []).filter((i) => i.off <= -2) : [];
             if (late.length) list.push({ p: 7, id: 'payout', kind: 'late', tone: 'amber', svc: late[0].key, word: 'выплата', hide: true, title: (late[0].short || late[0].title) + ' задерживает ' + fm(late[0].amount), sub: 'Прошло ' + (-late[0].off) + ' ' + (-late[0].off < 5 ? 'дня' : 'дней') + ', напишите в поддержку ' + (late[0].short || late[0].title), payouts: vals.payouts_items });

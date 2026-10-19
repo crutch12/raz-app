@@ -12,6 +12,7 @@
 .rjg-group[open] .rjg-group-chev { transform: rotate(180deg); }
 .rjg-group-body { display: flex; flex-direction: column; padding: 0 14px 8px; }
 .rjg-actions { display: flex; flex-direction: column; gap: 8px; }
+.rjg-ref { min-height: 44px; display: flex; align-items: center; font-size: 13.5px; line-height: 1.35; }
 .rjg-actions .raznos-btn { width: 100%; }
 .rjg-actions-note { text-align: center; }
 .rjg-have { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 48px; padding: 8px 14px; border-radius: 14px; background: var(--raznos-surface-2); }
@@ -85,6 +86,7 @@
     </sc-if>
     <sc-if value="{{ no_start }}"><p class="raznos-text-small">Затраты на старт: пока не знаем</p></sc-if>
     <div class="rjg-actions">
+      <sc-if value="{{ has_ref }}" hint-placeholder-val="{{ false }}"><button type="button" class="rjg-link rjg-ref" onClick="{{ ref_open }}">Хотите по рефералке? Не регистрируйтесь до ссылки ›</button></sc-if>
       <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ register }}">Регистрация в сервисе<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></button>
       <sc-if value="{{ not_connected }}" hint-placeholder-val="{{ true }}">
         <button type="button" class="raznos-btn raznos-btn-primary" style="background:var(--raznos-green);color:#fff" onClick="{{ connect }}">Подключить аккаунт</button>
@@ -135,7 +137,7 @@
     <button type="button" class="raznos-btn raznos-btn-secondary" onClick="{{ open_reviews }}">Отзывы и вопросы · {{ svc_title }}</button>
   </sc-if>
 </div>
-</x-dc><script type="text/x-dc" data-dc-script data-props='{"tr":{"editor":null},"city":{"editor":"text","default":"moscow"},"section":{"editor":"enum","default":"newbies","options":["newbies","start","schedule","terms"]},"svc":{"editor":"text","default":"vkusvill"},"services":{"editor":null},"connected":{"editor":null},"week":{"editor":null},"onBack":{"editor":null},"onOpenService":{"editor":null},"via":{"editor":null},"onOpenVia":{"editor":null},"onSection":{"editor":null},"onSvc":{"editor":null},"onRegister":{"editor":null},"onConnect":{"editor":null},"$preview":{"width":390,"height":900}}'>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"tr":{"editor":null},"city":{"editor":"text","default":"moscow"},"section":{"editor":"enum","default":"newbies","options":["newbies","start","schedule","terms"]},"svc":{"editor":"text","default":"vkusvill"},"services":{"editor":null},"connected":{"editor":null},"week":{"editor":null},"onBack":{"editor":null},"onOpenService":{"editor":null},"via":{"editor":null},"onOpenVia":{"editor":null},"refCounts":{"editor":null},"onReferral":{"editor":null},"onSection":{"editor":null},"onSvc":{"editor":null},"onRegister":{"editor":null},"onConnect":{"editor":null},"$preview":{"width":390,"height":900}}'>
 const JG_CITIES = { moscow: 'Москва', spb: 'Санкт-Петербург' };
 function jgPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
 // запасной список сервисов, когда App не передал каталог
@@ -246,6 +248,8 @@ class Component extends DCLogic {
       has_via: !!viaOf, via_verdict: viaOf ? viaOf.verdict : '', via_tone: viaOf ? viaOf.tone : 'unknown', via_forms: viaOf ? viaOf.forms : [], via_mine: viaOf ? viaOf.mine : '',
       via_open: () => call('onOpenVia', svc),
       has_start: !!start, no_start: !start,
+      // строка про рефералку только когда по сервису есть предложения курьеров
+      has_ref: !!(p.refCounts && p.refCounts[svc]), ref_open: () => call('onReferral', svc),
       register: () => call('onRegister', svc),
       connect: () => call('onConnect', svc),
       is_connected: !!connected[svc], not_connected: !connected[svc],

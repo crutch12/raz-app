@@ -51,6 +51,7 @@
             <sc-if value="{{ r.is_bonus }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.5"/><path d="M8.5 13.5L7 21l5-2.5 5 2.5-1.5-7.5"/></svg></sc-if>
             <sc-if value="{{ r.is_rate }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M10 16.5V7.5h3a2.5 2.5 0 0 1 0 5h-4.5M8.5 14.5H13"/></svg></sc-if>
             <sc-if value="{{ r.is_weather }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15.5a4.5 4.5 0 1 1 1.2-8.8A5.5 5.5 0 0 1 18.5 9 3.3 3.3 0 0 1 18 15.5z"/><path d="M9 19.5v1.5M15 19.5v1.5M12 18.5v2"/></svg></sc-if>
+            <sc-if value="{{ r.is_ref }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M18 8v6M15 11h6"/></svg></sc-if>
           </span>
           <span class="rar-txt"><b>{{ r.title }}</b><span class="rar-txt-sub">{{ r.sub }}</span></span>
         </button>
@@ -67,10 +68,14 @@
   <div class="rar-group"><span class="rar-label">Что ловим</span><dc-import name="RaznosChipGroup" options="{{ what_opts }}" value="{{ d.what }}" size="sm" label="Что ловим" onChange="{{ set_what }}"></dc-import></div>
   <sc-if value="{{ is_rate_rule }}" hint-placeholder-val="{{ false }}"><div class="rar-group"><span class="rar-label">Ставка не ниже</span><dc-import name="RaznosChipGroup" options="{{ rate_opts }}" value="{{ d.rate }}" size="sm" label="Ставка не ниже" onChange="{{ set_rate }}"></dc-import></div></sc-if>
   <div class="rar-group"><span class="rar-label">Сервисы</span><dc-import name="RaznosChipGroup" options="{{ svc_opts }}" value="{{ d.svcs }}" multi="{{ true }}" nullable="{{ false }}" size="sm" label="Сервисы" onChange="{{ set_svcs }}"></dc-import></div>
+  <sc-if value="{{ is_window_rule }}" hint-placeholder-val="{{ false }}"><div class="rar-group"><span class="rar-label">Предупредить</span><dc-import name="RaznosChipGroup" options="{{ ahead_opts }}" value="{{ d.ahead }}" size="sm" label="Предупредить" onChange="{{ set_ahead }}"></dc-import><p class="rar-sub">В день, когда окно откроется, напишем в любом случае</p></div></sc-if>
+  <sc-if value="{{ is_ref_rule }}" hint-placeholder-val="{{ false }}"><p class="rar-sub">Город берём из профиля, пишем один раз на событие и не раньше 08:00</p></sc-if>
+  <sc-if value="{{ show_when }}" hint-placeholder-val="{{ true }}">
   <div class="rar-group"><span class="rar-label">Где</span><dc-import name="RaznosChipGroup" options="{{ where_opts }}" value="{{ d.where }}" multi="{{ true }}" nullable="{{ false }}" size="sm" label="Где" onChange="{{ set_where }}"></dc-import></div>
   <div class="rar-group"><span class="rar-label">Дни</span><dc-import name="RaznosChipGroup" options="{{ day_opts }}" value="{{ d.days }}" multi="{{ true }}" nullable="{{ false }}" size="sm" label="Дни" onChange="{{ set_days }}"></dc-import></div>
   <div class="rar-group"><span class="rar-label">Время</span><dc-import name="RaznosChipGroup" options="{{ time_opts }}" value="{{ d.time }}" size="sm" label="Время" onChange="{{ set_time }}"></dc-import></div>
   <div class="rar-group"><span class="rar-label">Не чаще</span><dc-import name="RaznosChipGroup" options="{{ max_opts }}" value="{{ d.max }}" size="sm" label="Не чаще" onChange="{{ set_max }}"></dc-import><p class="rar-sub">Ночью с 23:00 до 08:00 не пишем</p></div>
+  </sc-if>
   <div class="rar-group"><span class="rar-label">Так придёт</span>
     <div class="rar-push" aria-label="{{ push_aria }}"><span class="rar-push-logo" aria-hidden="true">Р</span><span class="rar-push-body"><span class="rar-push-meta"><span>Разнос · ваше правило</span><span>сейчас</span></span><b>{{ push_title }}</b><span class="rar-push-text">{{ push_text }}</span></span></div>
   </div>
@@ -88,6 +93,7 @@
   "rules": { "editor": null },
   "rule": { "editor": null },
   "services": { "editor": null },
+  "refServices": { "editor": null },
   "areas": { "editor": null },
   "onOpen": { "editor": null },
   "onToggle": { "editor": null },
@@ -105,8 +111,11 @@ const RAR_RULES = [
 ];
 const RAR_WHAT = [
   { key: 'slot', label: 'Свободный слот' }, { key: 'demand', label: 'Высокий спрос' },
-  { key: 'bonus', label: 'Бонус или задание' }, { key: 'rate', label: 'Ставка от' }, { key: 'weather', label: 'Спрос из-за погоды' }
+  { key: 'bonus', label: 'Бонус или задание' }, { key: 'rate', label: 'Ставка от' }, { key: 'weather', label: 'Спрос из-за погоды' },
+  { key: 'ref_program', label: 'Новая программа приглашения' }, { key: 'ref_window', label: 'Снова новичок' }, { key: 'referrer', label: 'Появился реферер' }
 ];
+// рефералки: правила без дней, времени и района, пишем в день события, ahead это за сколько дней предупредить об окне новичка
+const RAR_REF = ['ref_program', 'ref_window', 'referrer'];
 const RAR_TIME = { all: ['Весь день', ''], morning: ['Утро', '7–12'], day: ['День', '12–17'], evening: ['Вечер', '17–23'] };
 const RAR_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 const RAR_TIMES_WORD = (n) => (n === 1 ? 'раз' : (n >= 2 && n <= 4 ? 'раза' : 'раз'));
@@ -119,7 +128,8 @@ const RAR_DAYS_LABEL = (days) => {
 };
 const RAR_WHERE_LABEL = (w) => (!w || !w.length || w.indexOf('city') !== -1 ? 'весь город' : w.join(', '));
 const RAR_TIME_LABEL = (t) => { const x = RAR_TIME[t] || RAR_TIME.all; return t === 'all' || !RAR_TIME[t] ? 'весь день' : x[0].toLowerCase() + ' ' + x[1]; };
-const RAR_TITLE = (r) => ({ slot: 'Свободный слот', demand: 'Высокий спрос', bonus: 'Бонус или задание', rate: 'Ставка от ' + (r.rate || 500) + ' ₽/ч', weather: 'Спрос из-за погоды' }[r.what] || 'Оповещение');
+const RAR_TITLE = (r) => ({ slot: 'Свободный слот', demand: 'Высокий спрос', bonus: 'Бонус или задание', rate: 'Ставка от ' + (r.rate || 500) + ' ₽/ч', weather: 'Спрос из-за погоды', ref_program: 'Новая программа приглашения', ref_window: 'Снова новичок', referrer: 'Появился реферер' }[r.what] || 'Оповещение');
+const RAR_AHEAD_LABEL = (n) => (n > 0 ? 'за ' + n + ' ' + (n === 3 ? 'дня' : 'дней') + ' и в день окна' : 'в день окна');
 class Component extends DCLogic {
   renderVals() {
     const p = this.props || {};
@@ -128,9 +138,10 @@ class Component extends DCLogic {
     const mode = p.mode || 'list';
     const svcs = Array.isArray(p.services) && p.services.length ? p.services : RAR_SVCS;
     const areas = Array.isArray(p.areas) && p.areas.length ? p.areas : RAR_AREAS;
-    const svcName = (k) => { const s = svcs.find((x) => x.key === k); return s ? s.label : k; };
+    const refSvcs = Array.isArray(p.refServices) ? p.refServices : [];
+    const svcName = (k) => { const s = svcs.concat(refSvcs).find((x) => x.key === k); return s ? s.label : k; };
     const svcLabel = (list) => (list || []).map(svcName).join(', ');
-    const sub = (r) => [svcLabel(r.svcs), RAR_WHERE_LABEL(r.where), RAR_DAYS_LABEL(r.days) + ' ' + RAR_TIME_LABEL(r.time), 'до ' + r.max + ' раз в день'].join(' · ');
+    const sub = (r) => (r.what === 'ref_window' ? [svcLabel(r.svcs), RAR_AHEAD_LABEL(r.ahead || 0)] : (RAR_REF.indexOf(r.what) !== -1 ? [svcLabel(r.svcs), 'ваш город', 'сразу, как появится'] : [svcLabel(r.svcs), RAR_WHERE_LABEL(r.where), RAR_DAYS_LABEL(r.days) + ' ' + RAR_TIME_LABEL(r.time), 'до ' + r.max + ' раз в день'])).join(' · ');
     // пример пуша: первое место и первый сервис из правила, время из выбранного окна
     const push = (r) => {
       // сервис и ставку берёт из выбранного часа вход со стороны Рынка, пока сервис есть в правиле
@@ -138,6 +149,9 @@ class Component extends DCLogic {
       const svc = svcName(hint ? hint.svc : (r.svcs || [])[0] || svcs[0].key);
       const where = !r.where || !r.where.length || r.where.indexOf('city') !== -1 ? 'рядом с вами' : r.where[0];
       const win = { morning: '9:00–12:00', day: '13:00–17:00', evening: '18:00–22:00', all: '18:00–22:00' }[r.time] || '18:00–22:00';
+      if (r.what === 'ref_program') return ['Новая программа приглашения: ' + svc, 'Условия уже в карточке программы: сумма, число заказов и срок'];
+      if (r.what === 'ref_window') return ['Снова новичок: ' + svc, 'Сначала получите ссылку, потом регистрируйтесь. Курьеров готовы привести: 3'];
+      if (r.what === 'referrer') return ['Появился реферер: ' + svc, 'Выдра 27, рейтинг 4,9, свободно 2 места'];
       if (r.what === 'demand') return ['Высокий спрос: ' + where, svc + ': заказов больше обычного, ' + (hint ? hint.rate : '≈ 620 ₽/ч') + ' в ближайшие 2 часа'];
       // погода по прогнозу Open-Meteo: пишем заранее, за 1–2 часа до дождя, снега или мороза
       if (r.what === 'weather') return ['Дождь с 18:00, спрос выше', svc + ', ' + where + ': заказов в дождь обычно больше на 15–25%'];
@@ -157,13 +171,16 @@ class Component extends DCLogic {
       return {
         is_list: false, is_edit: true, is_push: false, d,
         what_opts: RAR_WHAT, rate_opts: [400, 500, 600, 700].map((v) => ({ key: v, label: v + ' ₽/ч' })),
-        svc_opts: svcs.map((s) => ({ key: s.key, label: s.label, dot: 'var(--raznos-svc-' + s.key + ')' })),
+        svc_opts: (RAR_REF.indexOf(d.what) !== -1 && refSvcs.length ? refSvcs : svcs).map((s) => ({ key: s.key, label: s.label, dot: 'var(--raznos-svc-' + s.key + ')' })),
         where_opts: [{ key: 'city', label: 'Весь город' }].concat(areas.map((a) => ({ key: a, label: a }))),
         day_opts: RAR_DAYS.map((l, i) => ({ key: i, label: l })),
         time_opts: Object.keys(RAR_TIME).map((k) => ({ key: k, label: (RAR_TIME[k][0] + ' ' + RAR_TIME[k][1]).trim() })),
         max_opts: [1, 3, 5].map((n) => ({ key: n, label: n + ' ' + RAR_TIMES_WORD(n) + ' в день' })),
         is_rate_rule: d.what === 'rate',
-        set_what: (v) => upd(Object.assign({ what: v }, v === 'rate' && !d.rate ? { rate: 500 } : {})),
+        is_ref_rule: RAR_REF.indexOf(d.what) !== -1, show_when: RAR_REF.indexOf(d.what) === -1,
+        is_window_rule: d.what === 'ref_window', ahead_opts: [0, 3, 7].map((n) => ({ key: n, label: n ? 'За ' + n + ' ' + (n === 3 ? 'дня' : 'дней') : 'В день окна' })),
+        set_ahead: (v) => upd({ ahead: v }),
+        set_what: (v) => upd(Object.assign({ what: v }, v === 'rate' && !d.rate ? { rate: 500 } : {}, v === 'ref_window' && d.ahead == null ? { ahead: 3 } : {})),
         set_rate: (v) => upd({ rate: v }), set_svcs: (v) => upd({ svcs: v }), set_days: (v) => upd({ days: v }),
         set_time: (v) => upd({ time: v }), set_max: (v) => upd({ max: v }),
         // весь город и районы взаимоисключающие: город снимает районы, район снимает город
@@ -185,7 +202,7 @@ class Component extends DCLogic {
       note: rules.length ? 'Включено ' + onCount + ' из ' + rules.length + '. Пишем, только когда сработает ваше правило, и не чаще, чем вы выбрали' : 'Пишем, только когда сработает ваше правило, общих советов не присылаем',
       rows: rules.map((r) => ({
         cls: 'rar-rule' + (r.on ? ' rar-is-on' : ''), on: !!r.on,
-        is_slot: r.what === 'slot', is_demand: r.what === 'demand', is_bonus: r.what === 'bonus', is_rate: r.what === 'rate', is_weather: r.what === 'weather',
+        is_slot: r.what === 'slot', is_demand: r.what === 'demand', is_bonus: r.what === 'bonus', is_rate: r.what === 'rate', is_weather: r.what === 'weather', is_ref: RAR_REF.indexOf(r.what) !== -1,
         title: RAR_TITLE(r), sub: sub(r), aria: 'Изменить: ' + RAR_TITLE(r) + '. ' + sub(r),
         sw_cls: r.on ? 'raznos-switch raznos-is-on' : 'raznos-switch', sw_aria: RAR_TITLE(r) + (r.on ? ', включено' : ', выключено'),
         open: () => { if (p.onOpen) p.onOpen(r.id); },

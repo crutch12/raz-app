@@ -19,7 +19,7 @@
         </div>
         <div class="raznos-fx raznos-ac raznos-gap8 raznos-wrap">
           <span class="raznos-text-small">{{ authorCity }}</span>
-          <sc-if value="{{ confirmed }}" hint-placeholder-val="{{ true }}"><span class="raznos-status-pill raznos-pill-ok">Работа подтверждена</span></sc-if>
+          <sc-if value="{{ confirmed }}" hint-placeholder-val="{{ true }}"><span class="raznos-status-pill raznos-pill-ok">{{ confirmedLabel }}</span></sc-if>
           <sc-if value="{{ mine }}" hint-placeholder-val="{{ false }}"><span class="raznos-status-pill raznos-pill-concept">Ваш отзыв</span></sc-if>
         </div>
         <sc-if value="{{ unconfirmedNote }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">Оценка не влияет на общий балл: город автора не подтверждён</span></sc-if>
@@ -33,7 +33,7 @@
         <p class="raznos-text-body">{{ text }}</p>
         <sc-if value="{{ ordersLabel }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ ordersLabel }}</span></sc-if>
         <sc-if value="{{ ownNote }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-tiny">{{ ownNote }}</span></sc-if>
-        <dc-import name="RaznosReactionRows" courierLikes="{{ courierLikes }}" courierDislikes="{{ courierDislikes }}" userLikes="{{ userLikes }}" userDislikes="{{ userDislikes }}" myCategory="{{ myCategory }}" myVote="{{ myVote }}" canVote="{{ canVote }}" showLabels="{{ showLabels }}" onLike="{{ onLike }}" onDislike="{{ onDislike }}"></dc-import>
+        <sc-if value="{{ showReactions }}" hint-placeholder-val="{{ true }}"><dc-import name="RaznosReactionRows" courierLikes="{{ courierLikes }}" courierDislikes="{{ courierDislikes }}" userLikes="{{ userLikes }}" userDislikes="{{ userDislikes }}" myCategory="{{ myCategory }}" myVote="{{ myVote }}" canVote="{{ canVote }}" showLabels="{{ showLabels }}" onLike="{{ onLike }}" onDislike="{{ onDislike }}"></dc-import></sc-if>
         <sc-if value="{{ complained }}" hint-placeholder-val="{{ false }}"><span class="raznos-text-small raznos-text-muted" style="align-self:flex-end">Жалоба отправлена</span></sc-if>
         <sc-if value="{{ hasActions }}" hint-placeholder-val="{{ false }}"><div class="raznos-fx raznos-gap8" style="align-self:flex-end"><sc-if value="{{ canEdit }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-secondary raznos-btn-small" onClick="{{ onEdit }}">Изменить</button></sc-if><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" onClick="{{ onDelete }}">Удалить</button></div></sc-if>
         <sc-if value="{{ canComplain }}" hint-placeholder-val="{{ false }}"><button type="button" class="raznos-btn raznos-btn-ghost raznos-btn-small" style="align-self:flex-end" onClick="{{ onComplain }}">Пожаловаться</button></sc-if>
@@ -47,6 +47,8 @@
       "anonHue": { "editor": "text", "default": "" },
       "rating": { "editor": "int", "default": 4, "min": 1, "max": 5 },
       "confirmed": { "editor": "boolean", "default": true },
+      "confirmedLabel": { "editor": "text", "default": "Работа подтверждена" },
+      "noReactions": { "editor": "boolean", "default": false },
       "text": { "editor": "text", "default": "" },
       "date": { "editor": "text", "default": "" },
       "ordersLabel": { "editor": "text", "default": "" },
@@ -90,7 +92,7 @@
             authorStatic: !(category === 'courier' && !!p.onAuthorTap),
             onAuthorTap: p.onAuthorTap || (() => {}),
             authorCity: p.authorCity || '',
-            confirmed: !!p.confirmed,
+            confirmed: !!p.confirmed, confirmedLabel: p.confirmedLabel || 'Работа подтверждена', showReactions: !p.noReactions,
             unconfirmedNote: category === 'courier' && !p.confirmed,
             date: p.date || '',
             text: p.text || '',

@@ -38,6 +38,18 @@
     .rbq-item-svc { font: 500 12.5px var(--raznos-font); color: var(--raznos-ink-3); }
     .rbq-item-reward { flex: none; font: 750 15px var(--raznos-font); color: var(--raznos-green-deep); white-space: nowrap; }
     .rbq-item-rule { margin: 0; font: 500 12.5px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
+    /* лесенка рефералки: ступени растут по высоте награды, пройденные закрашены */
+    .rbq-ladder { display: flex; align-items: flex-end; gap: 4px; height: 44px; }
+    .rbq-step { flex: 1 1 0; min-width: 6px; border-radius: 5px 5px 2px 2px; background: var(--raznos-surface-2); box-shadow: inset 0 0 0 1px var(--raznos-line); }
+    .rbq-step.rbq-seg-on { box-shadow: none; }
+    .rbq-crew { display: flex; flex-direction: column; gap: 6px; }
+    .rbq-crew-head { font: 650 13px var(--raznos-font); color: var(--raznos-ink-3); padding: 0 2px; }
+    .rbq-crew-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; box-sizing: border-box; padding: 10px 14px; border: 0; border-bottom: 1px solid var(--raznos-line); background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+    .rbq-crew-row:last-child { border-bottom: 0; }
+    .rbq-crew-row:focus-visible { outline: 2px solid var(--raznos-green); outline-offset: -2px; border-radius: 12px; }
+    .rbq-crew-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .rbq-crew-nick { font: 650 15px/1.3 var(--raznos-font); }
+    .rbq-crew-text { font: 500 13px/1.4 var(--raznos-font); color: var(--raznos-ink-3); overflow-wrap: anywhere; }
     .rbq-note { margin: -2px 0 0; font: 500 12px/1.4 var(--raznos-font); color: var(--raznos-ink-3); }
   </style>
 </helmet>
@@ -46,6 +58,7 @@
     <span class="rbq-top"><dc-import name="RaznosIcon" svc="{{ hot.key }}" alt="{{ hot.title }}" size="sm"></dc-import><span class="rbq-top-svc">{{ hot.top }}</span><span class="rbq-until">{{ hot.until }}</span></span>
     <p class="rbq-head">{{ hot.head_a }}<b>{{ hot.head_b }}</b>{{ hot.head_c }}</p>
     <sc-if value="{{ hot.has_segs }}" hint-placeholder-val="{{ true }}"><span class="rbq-segs" aria-hidden="true"><sc-for list="{{ hot.segs }}" as="sg" hint-placeholder-count="20"><i class="{{ sg.cls }}" style="{{ sg.style }}"></i></sc-for></span></sc-if>
+    <sc-if value="{{ hot.has_ladder }}" hint-placeholder-val="{{ false }}"><span class="rbq-ladder" aria-hidden="true"><sc-for list="{{ hot.ladder }}" as="sg" hint-placeholder-count="6"><i class="{{ sg.cls }}" style="{{ sg.style }}"></i></sc-for></span></sc-if>
     <sc-if value="{{ hot.has_bar }}" hint-placeholder-val="{{ false }}"><span class="rbq-bar" aria-hidden="true"><i style="{{ hot.bar }}"></i></span></sc-if>
     <span class="rbq-meta"><span><b>{{ hot.progress }}</b></span><span>{{ more_label }}</span></span>
     <sc-if value="{{ hot.has_pace }}" hint-placeholder-val="{{ true }}"><p class="{{ hot.pace_cls }}">{{ hot.pace }}</p></sc-if>
@@ -58,12 +71,23 @@
       <div class="rbq-item">
         <div class="rbq-item-top"><dc-import name="RaznosIcon" svc="{{ q.key }}" alt="{{ q.title }}" size="sm"></dc-import><span class="rbq-item-main"><span class="rbq-item-name">{{ q.name }}</span><span class="rbq-item-svc">{{ q.title }} · {{ q.until_text }}</span></span><span class="rbq-item-reward">{{ q.reward }}</span></div>
         <sc-if value="{{ q.has_segs }}" hint-placeholder-val="{{ false }}"><span class="rbq-segs" aria-hidden="true"><sc-for list="{{ q.segs }}" as="sg" hint-placeholder-count="20"><i class="{{ sg.cls }}" style="{{ sg.style }}"></i></sc-for></span></sc-if>
+        <sc-if value="{{ q.has_ladder }}" hint-placeholder-val="{{ false }}"><span class="rbq-ladder" aria-hidden="true"><sc-for list="{{ q.ladder }}" as="sg" hint-placeholder-count="6"><i class="{{ sg.cls }}" style="{{ sg.style }}"></i></sc-for></span></sc-if>
         <sc-if value="{{ q.has_bar }}" hint-placeholder-val="{{ false }}"><span class="rbq-bar" aria-hidden="true"><i style="{{ q.bar }}"></i></span></sc-if>
         <sc-if value="{{ q.has_progress }}" hint-placeholder-val="{{ true }}"><span class="rbq-meta"><span><b>{{ q.progress }}</b></span><span>{{ q.left }}</span></span></sc-if>
         <p class="rbq-item-rule">{{ q.rule }}</p>
       </div>
     </sc-for>
   </div>
+  <sc-if value="{{ has_crew }}" hint-placeholder-val="{{ false }}">
+    <div class="rbq-crew">
+      <span class="rbq-crew-head">Ваши новички</span>
+      <div class="rbq-list">
+        <sc-for list="{{ crew }}" as="c" hint-placeholder-count="1">
+          <button type="button" class="rbq-crew-row" onClick="{{ c.tap }}" aria-label="{{ c.aria }}"><dc-import name="RaznosIcon" svc="{{ c.key }}" alt="{{ c.title }}" size="sm"></dc-import><span class="rbq-crew-main"><span class="rbq-crew-nick">{{ c.nick }}</span><span class="rbq-crew-text">{{ c.title }}: {{ c.text }}</span></span><span class="raznos-row-chevron">›</span></button>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
   <p class="rbq-note">Бонус не входит в доход, пока сервис его не начислил. Прогресс берём из приложения сервиса, отменённые заказы сервис обычно не считает</p>
 </div>
 </sc-if>
@@ -73,6 +97,7 @@
   "hotId": { "editor": "text", "default": "" },
   "nowMin": { "editor": "int", "default": 940 },
   "onOpen": { "editor": null },
+  "crew": { "editor": null },
   "$preview": { "width": 360, "height": 240 }
 }'>
 const RBQ_FMT = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
@@ -81,6 +106,7 @@ function rbqPlural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (
 const RBQ_SAMPLE = [
   { id: 'ya', key: 'yandex-eda', title: 'Яндекс Еда', name: 'Персональная цель на день', reward: 1500, kind: 'count', done: 14, target: 20, untilMin: 1200, untilLabel: 'до 20:00', pace: 2.3, rule: 'Доставленные заказы с 10:00, отменённые не считаются' },
   { id: 'ku', key: 'kuper', title: 'Купер', name: 'Титул Опытный', rewardText: 'выше приоритет', kind: 'percent', percent: 62, untilLabel: 'до конца месяца', rule: 'Сервис показывает только процент, точное число заказов неизвестно' },
+  { id: 'rf', key: 'kuper', title: 'Купер', name: 'Бонус за приглашение', kind: 'ladder', steps: [{ orders: 30, reward: 7000 }, { orders: 40, reward: 14000 }, { orders: 40, reward: 14000 }, { orders: 70, reward: 21000 }, { orders: 70, reward: 21000 }, { orders: 170, reward: 63000 }], done: 88, untilLabel: 'до 12 ноября', rule: 'Нужно 14 заказов в день, расчёт Разноса' },
   { id: 'sm', key: 'samokat', title: 'Самокат', name: 'Вечерние заказы', rewardText: '×1,2 к оплате', kind: 'text', untilLabel: 'до воскресенья', rule: 'Заказы после 19:00 оплачиваются с коэффициентом 1,2, условия партнёра в вашем городе' }
 ];
 class Component extends DCLogic {
@@ -96,7 +122,36 @@ class Component extends DCLogic {
     };
     const rewardOf = (q) => q.reward ? '+' + RBQ_FMT(q.reward) + ' ₽' : (q.rewardText || '');
     const minsLabel = (m) => { const h = Math.floor(m / 60), mm = m % 60; return (h ? h + ' ч' : '') + (h && mm ? ' ' : '') + (mm ? mm + ' мин' : ''); };
+    // лесенка рефералки: steps это приращения заказов и награда на ступень, done всего заказов с регистрации
+    const ladderView = (q) => {
+      const steps = q.steps || [], done = q.done || 0;
+      const cum = steps.map((s, i) => steps.slice(0, i + 1).reduce((a, x) => a + x.orders, 0));
+      const total = cum.length ? cum[cum.length - 1] : 0;
+      const idx = cum.findIndex((c) => done < c);
+      const fin = idx === -1;
+      const cur = fin ? steps.length - 1 : idx;
+      const prev = cur > 0 ? cum[cur - 1] : 0;
+      const left = fin ? 0 : cum[cur] - done;
+      const maxR = Math.max.apply(null, steps.map((s) => s.reward).concat([1]));
+      const col = fin ? 'var(--raznos-green)' : 'var(--raznos-ink-2)';
+      const ladder = steps.map((s, i) => {
+        const fill = fin || i < cur ? 100 : (i === cur ? Math.round((done - prev) * 100 / s.orders) : 0);
+        return { cls: 'rbq-step' + (fill >= 100 ? ' rbq-seg-on' : ''), style: 'height:' + Math.round(16 + 28 * s.reward / maxR) + 'px' + (fill > 0 ? ';background:linear-gradient(to top,' + col + ' ' + fill + '%,var(--raznos-surface-2) ' + fill + '%)' : '') };
+      });
+      const sum = steps.reduce((a, x) => a + x.reward, 0);
+      const nextR = fin ? 0 : steps[cur].reward;
+      return {
+        key: q.key, title: q.title, name: q.name, reward: fin ? '+' + RBQ_FMT(sum) + ' ₽' : '+' + RBQ_FMT(nextR) + ' ₽',
+        until: fin ? 'пройдено' : (q.untilLabel || ''), until_text: q.untilLabel || 'без срока', top: q.title,
+        head_a: fin ? 'Все ступени пройдены, ' : 'Ступень ' + (cur + 1) + ' из ' + steps.length + ': ещё ' + left + ' ' + rbqPlural(left, 'заказ', 'заказа', 'заказов') + ' до ',
+        head_b: fin ? '+' + RBQ_FMT(sum) + ' ₽' : '+' + RBQ_FMT(nextR) + ' ₽', head_c: fin ? ' начислит ' + q.title : '',
+        has_segs: false, segs: [], has_ladder: true, ladder, has_bar: false, bar: '',
+        has_progress: true, progress: done + ' из ' + total, left: fin ? 'ждём начисления' : 'до ступени ' + left,
+        has_pace: false, pace: '', pace_cls: 'rbq-pace', rule: q.rule || '', done: fin
+      };
+    };
     const view = (q) => {
+      if (q.kind === 'ladder' && (q.steps || []).length) return ladderView(q);
       const isCount = q.kind === 'count' && q.target;
       const left = isCount ? Math.max(0, q.target - (q.done || 0)) : 0;
       const segs = isCount && q.target <= 30;
@@ -115,7 +170,7 @@ class Component extends DCLogic {
         head_a: done ? 'Цель набрана, ' : (isCount ? 'Осталось ' + left + ' ' + rbqPlural(left, 'заказ', 'заказа', 'заказов') + ' до ' : q.name + ': '),
         head_b: rewardOf(q),
         head_c: done ? ' начислит ' + q.title : (isCount ? '' : ''),
-        has_segs: segs, segs: segs ? segsOf(q) : [],
+        has_segs: segs, segs: segs ? segsOf(q) : [], has_ladder: false, ladder: [],
         has_bar: (isCount && !segs) || q.kind === 'percent',
         bar: 'width:' + (q.kind === 'percent' ? q.percent : Math.round((q.done || 0) * 100 / (q.target || 1))) + '%;background:' + color(q),
         has_progress: isCount || q.kind === 'percent',
@@ -128,6 +183,7 @@ class Component extends DCLogic {
       };
     };
     const hotSrc = items.find((q) => q.id === p.hotId) || items.find((q) => q.kind === 'count') || items[0];
+    const crew = (Array.isArray(p.crew) ? p.crew : []).map((c) => ({ key: c.key, title: c.title, nick: c.nick, text: c.text, aria: c.nick + ', ' + c.title + ': ' + c.text, tap: () => { if (typeof c.onTap === 'function') c.onTap(c.id); } }));
     const hot = hotSrc ? view(hotSrc) : null;
     const others = items.length - 1;
     return {
@@ -136,7 +192,7 @@ class Component extends DCLogic {
       card_aria: hot ? hot.head_a + hot.head_b + hot.head_c + ', ' + hot.until + ', все бонусы' : '',
       more_label: others > 0 ? 'все бонусы, ещё ' + others + ' ›' : 'подробнее ›',
       open: () => { if (p.onOpen) p.onOpen(); },
-      items: items.map(view)
+      items: items.map(view), crew, has_crew: p.mode === 'list' && crew.length > 0
     };
   }
 }
